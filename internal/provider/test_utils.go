@@ -18,6 +18,10 @@ func GetTestOrgId() string {
 	return os.Getenv("MIST_TEST_ORG_ID")
 }
 
+func GetTestSiteId() string {
+	return os.Getenv("MIST_TEST_SITE_ID")
+}
+
 func PrefixProviderName(name string) string {
 	if strings.HasPrefix(name, "mist_") {
 		return name
@@ -27,9 +31,9 @@ func PrefixProviderName(name string) string {
 
 func Render(resourceType, resourceName, config string) string {
 	return fmt.Sprintf(`
-    resource "%s" "%s" {
-    %s
-    }`, PrefixProviderName(resourceType), resourceName, config)
+resource "%s" "%s" {
+%s
+}`, PrefixProviderName(resourceType), resourceName, config)
 }
 
 func newTestChecks(path string) testChecks {
@@ -264,4 +268,17 @@ func GetOrgWlanBaseConfig(orgID string) (config string, wlanRef string) {
 	wlanConfigStr := Render("org_wlan", "wlanName", string(f.Bytes()))
 
 	return wlanTemplateConfigStr + "\n\n" + wlanConfigStr, "mist_org_wlan.wlanName.id"
+}
+
+func GetSiteWlanBaseConfig(siteID string) (config string, wlanRef string) {
+	wlanConfig := SiteWlanModel{
+		SiteId: siteID,
+		Ssid:   "TestSSID",
+	}
+
+	f := hclwrite.NewEmptyFile()
+	gohcl.EncodeIntoBody(&wlanConfig, f.Body())
+	wlanConfigStr := Render("site_wlan", "wlanName", string(f.Bytes()))
+
+	return wlanConfigStr, "mist_site_wlan.wlanName.id"
 }

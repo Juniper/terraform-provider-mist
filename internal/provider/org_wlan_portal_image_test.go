@@ -56,10 +56,7 @@ func TestOrgWlanPortalImageModel(t *testing.T) {
 				combinedConfig = combinedConfig + "\n\n" + Render("org_wlan_portal_image", tName, string(f.Bytes()))
 
 				// Focus checks on the portal image resource (WLAN template and WLAN are prerequisites)
-				checks := newTestChecks(PrefixProviderName(resourceType) + "." + tName)
-				checks.append(t, "TestCheckResourceAttr", "org_id", step.config.OrgId)
-				checks.append(t, "TestCheckResourceAttrSet", "wlan_id")
-				checks.append(t, "TestCheckResourceAttr", "file", step.config.File)
+				checks := step.config.testChecks(t, resourceType, tName)
 
 				steps[i] = resource.TestStep{
 					Config: combinedConfig,
@@ -77,4 +74,13 @@ func TestOrgWlanPortalImageModel(t *testing.T) {
 
 		})
 	}
+}
+
+func (s *OrgWlanPortalImageModel) testChecks(t testing.TB, rType, tName string) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+	checks.append(t, "TestCheckResourceAttrSet", "wlan_id")
+	checks.append(t, "TestCheckResourceAttr", "file", s.File)
+
+	return checks
 }

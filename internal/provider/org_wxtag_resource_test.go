@@ -45,12 +45,7 @@ func TestOrgWxtagModel(t *testing.T) {
 				config := generateOrgWxtagTestConfig(tName, step.config)
 
 				// Focus checks on the WX Tag resource
-				checks := newTestChecks(PrefixProviderName(resourceType) + "." + tName)
-				checks.append(t, "TestCheckResourceAttrSet", "id")
-				checks.append(t, "TestCheckResourceAttrSet", "org_id")
-				checks.append(t, "TestCheckResourceAttr", "org_id", step.config.OrgId)
-				checks.append(t, "TestCheckResourceAttr", "name", step.config.Name)
-				checks.append(t, "TestCheckResourceAttr", "type", step.config.Type)
+				checks := step.config.testChecks(t, resourceType, tName)
 
 				steps[i] = resource.TestStep{
 					Config: config,
@@ -76,4 +71,15 @@ func generateOrgWxtagTestConfig(wxtagName string, wxtagConfig OrgWxtagModel) str
 	f := hclwrite.NewEmptyFile()
 	gohcl.EncodeIntoBody(&wxtagConfig, f.Body())
 	return Render("org_wxtag", wxtagName, string(f.Bytes()))
+}
+
+func (s *OrgWxtagModel) testChecks(t testing.TB, rType, tName string) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+	checks.append(t, "TestCheckResourceAttrSet", "id")
+	checks.append(t, "TestCheckResourceAttrSet", "org_id")
+	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
+	checks.append(t, "TestCheckResourceAttr", "type", s.Type)
+
+	return checks
 }

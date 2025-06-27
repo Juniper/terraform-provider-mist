@@ -54,11 +54,7 @@ func TestSiteEvpnTopologyModel(t *testing.T) {
 				combinedConfig := generateSiteEvpnTopologyTestConfig(siteName, tName, step.config)
 
 				// Focus checks on the EVPN topology resource (site is just a prerequisite)
-				checks := newTestChecks(PrefixProviderName(resourceType) + "." + tName)
-				checks.append(t, "TestCheckResourceAttrSet", "id")
-				checks.append(t, "TestCheckResourceAttrSet", "site_id")
-				checks.append(t, "TestCheckResourceAttr", "name", step.config.Name)
-				checks.append(t, "TestCheckResourceAttrSet", "org_id")
+				checks := step.config.testChecks(t, resourceType, tName)
 
 				// Basic checks for switches configuration (using placeholder MAC addresses)
 				if len(step.config.Switches) > 0 {
@@ -111,4 +107,14 @@ func generateSiteEvpnTopologyTestConfig(siteName, evpnTopologyName string, evpnT
 
 	// Combine both configs
 	return siteConfigStr + "\n\n" + evpnTopologyConfigStr
+}
+
+func (s *SiteEvpnTopologyModel) testChecks(t testing.TB, rType, tName string) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+	checks.append(t, "TestCheckResourceAttrSet", "id")
+	checks.append(t, "TestCheckResourceAttrSet", "site_id")
+	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
+	checks.append(t, "TestCheckResourceAttrSet", "org_id")
+
+	return checks
 }

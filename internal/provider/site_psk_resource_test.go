@@ -12,17 +12,9 @@ import (
 	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
-func (s *SitePskModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(rType + "." + rName)
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "passphrase", s.Passphrase)
-	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
-	checks.append(t, "TestCheckResourceAttr", "ssid", s.Ssid)
-
-	return checks
-}
-
 func TestSitePskModel(t *testing.T) {
+	testSiteID := GetTestSiteId()
+
 	type testStep struct {
 		config SitePskModel
 	}
@@ -52,7 +44,7 @@ func TestSitePskModel(t *testing.T) {
 			steps: []testStep{
 				{
 					config: SitePskModel{
-						SiteId:     "2c107c8e-2e06-404a-ba61-e25b5757ecea",
+						SiteId:     testSiteID,
 						Name:       "test-site-psk",
 						Passphrase: "test-passphrase",
 						Ssid:       "test-ssid",
@@ -71,7 +63,7 @@ func TestSitePskModel(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "mist_site_psk"
+			resourceType := "site_psk"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -101,4 +93,14 @@ func TestSitePskModel(t *testing.T) {
 			})
 		})
 	}
+}
+
+func (s *SitePskModel) testChecks(t testing.TB, rType, rName string) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
+	checks.append(t, "TestCheckResourceAttr", "passphrase", s.Passphrase)
+	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
+	checks.append(t, "TestCheckResourceAttr", "ssid", s.Ssid)
+
+	return checks
 }

@@ -47,12 +47,7 @@ func TestOrgWlanModel(t *testing.T) {
 				combinedConfig := generateOrgWlanTestConfig(templateName, tName, step.config)
 
 				// Focus checks on the WLAN resource (template is just a prerequisite)
-				checks := newTestChecks(PrefixProviderName(resourceType) + "." + tName)
-				checks.append(t, "TestCheckResourceAttrSet", "id")
-				checks.append(t, "TestCheckResourceAttrSet", "org_id")
-				checks.append(t, "TestCheckResourceAttr", "org_id", step.config.OrgId)
-				checks.append(t, "TestCheckResourceAttr", "ssid", step.config.Ssid)
-				checks.append(t, "TestCheckResourceAttrSet", "template_id")
+				checks := step.config.testChecks(t, resourceType, tName)
 
 				// Custom checks for WLAN-specific attributes
 
@@ -99,4 +94,15 @@ func generateOrgWlanTestConfig(templateName, wlanName string, wlanConfig OrgWlan
 
 	// Combine both configs
 	return templateConfigStr + "\n\n" + wlanConfigStr
+}
+
+func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+	checks.append(t, "TestCheckResourceAttrSet", "id")
+	checks.append(t, "TestCheckResourceAttrSet", "org_id")
+	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "ssid", s.Ssid)
+	checks.append(t, "TestCheckResourceAttrSet", "template_id")
+
+	return checks
 }

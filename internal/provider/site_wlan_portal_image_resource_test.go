@@ -12,16 +12,11 @@ import (
 	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
-func (s *SiteWlanPortalImageModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(rType + "." + rName)
-	checks.append(t, "TestCheckResourceAttr", "file", s.File)
-	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
-	checks.append(t, "TestCheckResourceAttr", "wlan_id", s.WlanId)
-
-	return checks
-}
-
 func TestSiteWlanPortalImageModel(t *testing.T) {
+	testSiteID := GetTestSiteId()
+	// Create a test PNG file
+	testImagePath := CreateTestPNGFile(t)
+
 	type testStep struct {
 		config SiteWlanPortalImageModel
 	}
@@ -51,9 +46,8 @@ func TestSiteWlanPortalImageModel(t *testing.T) {
 			steps: []testStep{
 				{
 					config: SiteWlanPortalImageModel{
-						File:   "/path/to/image.jpg",
-						SiteId: "2c107c8e-2e06-404a-ba61-e25b5757ecea",
-						WlanId: "xxx",
+						File:   testImagePath,
+						SiteId: testSiteID,
 					},
 				},
 			},
@@ -69,26 +63,30 @@ func TestSiteWlanPortalImageModel(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "mist_site_wlan_portal_image"
+			resourceType := "site_wlan_portal_image"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
+				// Generate combined config: WLAN template + WLAN
+				wlanConfig, wlanRef := GetSiteWlanBaseConfig(testSiteID)
 				config := step.config
 
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
-				configStr := Render(resourceType, tName, string(f.Bytes()))
+				// Add the wlan_id attribute to the body before rendering
+				f.Body().SetAttributeRaw("wlan_id", hclwrite.TokensForIdentifier(wlanRef))
+				combinedConfig := wlanConfig + "\n\n" + Render(resourceType, tName, string(f.Bytes()))
 
 				checks := config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
 				// log config and checks here
-				t.Logf("\n// ------ begin config for %s ------\n%s// -------- end config for %s ------\n\n", stepName, configStr, stepName)
+				t.Logf("\n// ------ begin config for %s ------\n%s// -------- end config for %s ------\n\n", stepName, combinedConfig, stepName)
 				t.Logf("\n// ------ begin checks for %s ------\n%s// -------- end checks for %s ------\n\n", stepName, chkLog, stepName)
 
 				steps[i] = resource.TestStep{
-					Config: configStr,
+					Config: combinedConfig,
 					Check:  resource.ComposeAggregateTestCheckFunc(checks.checks...),
 				}
 			}
@@ -99,4 +97,13 @@ func TestSiteWlanPortalImageModel(t *testing.T) {
 			})
 		})
 	}
+}
+
+func (s *SiteWlanPortalImageModel) testChecks(t testing.TB, rType, rName string) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+	checks.append(t, "TestCheckResourceAttr", "file", s.File)
+	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
+	checks.append(t, "TestCheckResourceAttrSet", "wlan_id")
+
+	return checks
 }

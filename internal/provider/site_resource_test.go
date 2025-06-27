@@ -12,15 +12,6 @@ import (
 	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
-func (s *SiteModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(rType + "." + rName)
-	checks.append(t, "TestCheckResourceAttr", "address", s.Address)
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
-
-	return checks
-}
-
 func TestSiteModel(t *testing.T) {
 	type testStep struct {
 		config SiteModel
@@ -99,4 +90,13 @@ func TestSiteModel(t *testing.T) {
 			})
 		})
 	}
+}
+
+func (s *SiteModel) testChecks(t testing.TB, rType, rName string) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+	checks.append(t, "TestCheckResourceAttr", "address", s.Address)
+	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
+	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+
+	return checks
 }

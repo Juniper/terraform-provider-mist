@@ -12,18 +12,6 @@ import (
 	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
-func (s *SiteWebhookModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(rType + "." + rName)
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
-	checks.append(t, "TestCheckResourceAttr", "topics.#", fmt.Sprintf("%d", len(s.Topics)))
-	checks.append(t, "TestCheckResourceAttr", "topics.0", s.Topics[0])
-	checks.append(t, "TestCheckResourceAttr", "topics.1", s.Topics[1])
-	checks.append(t, "TestCheckResourceAttr", "url", s.Url)
-
-	return checks
-}
-
 func TestSiteWebhookModel(t *testing.T) {
 	type testStep struct {
 		config SiteWebhookModel
@@ -76,7 +64,7 @@ func TestSiteWebhookModel(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "mist_site_webhook"
+			resourceType := "site_webhook"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -106,4 +94,16 @@ func TestSiteWebhookModel(t *testing.T) {
 			})
 		})
 	}
+}
+
+func (s *SiteWebhookModel) testChecks(t testing.TB, rType, rName string) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
+	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
+	checks.append(t, "TestCheckResourceAttr", "topics.#", fmt.Sprintf("%d", len(s.Topics)))
+	checks.append(t, "TestCheckResourceAttr", "topics.0", s.Topics[0])
+	checks.append(t, "TestCheckResourceAttr", "topics.1", s.Topics[1])
+	checks.append(t, "TestCheckResourceAttr", "url", s.Url)
+
+	return checks
 }
