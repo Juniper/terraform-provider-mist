@@ -86,7 +86,7 @@ func TestDeviceGatewayCluster(t *testing.T) {
 		// 	t.Skipf("test case %s requires api version %s", tName, tCase.apiVersionConstraints.String())
 		// }
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "mist_device_gateway_cluster"
+			resourceType := PrefixProviderName("device_gateway_cluster")
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {

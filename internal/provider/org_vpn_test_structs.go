@@ -7,7 +7,7 @@ type OrgVpnModel struct {
 }
 
 type OrgVpnPathsValue struct {
-	BfdProfile *string `cty:"bfd_profile"`
-	Ip         *string `cty:"ip"`
-	Pod        *int64  `cty:"pod"`
+	BfdProfile *string `hcl:"bfd_profile" cty:"bfd_profile"`
+	Ip         *string `hcl:"ip" cty:"ip"`
+	Pod        *int64  `hcl:"pod" cty:"pod"`
 }
