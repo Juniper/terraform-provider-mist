@@ -22,6 +22,12 @@ import (
 func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"assetfilter_ids": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "Only if `type`==`asset-raw-rssi`. List of ids to associated asset filters. These filters will be applied to messages routed to a filtered-asset-rssi webhook",
+				MarkdownDescription: "Only if `type`==`asset-raw-rssi`. List of ids to associated asset filters. These filters will be applied to messages routed to a filtered-asset-rssi webhook",
+			},
 			"enabled": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
@@ -219,6 +225,7 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type SiteWebhookModel struct {
+	AssetfilterIds        types.List   `tfsdk:"assetfilter_ids"`
 	Enabled               types.Bool   `tfsdk:"enabled"`
 	Headers               types.Map    `tfsdk:"headers"`
 	Id                    types.String `tfsdk:"id"`

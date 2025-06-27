@@ -17,6 +17,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	var state SiteWebhookModel
 	var diags diag.Diagnostics
 
+	var assetfilterIds = types.ListNull(types.StringType)
 	var enabled types.Bool
 	var headers = types.MapNull(types.StringType)
 	var id types.String
@@ -38,6 +39,15 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	var url types.String
 	var verifyCert types.Bool
 
+	if d.AssetfilterIds != nil {
+		var items []attr.Value
+		var itemsType attr.Type = basetypes.StringType{}
+		for _, item := range d.AssetfilterIds {
+			items = append(items, types.StringValue(item.String()))
+		}
+		list, _ := types.ListValue(itemsType, items)
+		assetfilterIds = list
+	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
@@ -111,6 +121,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 		verifyCert = types.BoolValue(*d.VerifyCert)
 	}
 
+	state.AssetfilterIds = assetfilterIds
 	state.Enabled = enabled
 	state.Headers = headers
 	state.Id = id
