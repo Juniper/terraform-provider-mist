@@ -35,6 +35,24 @@ func tunnelProviderJseSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	return r, configured
 }
 
+func tunnelProviderPrismaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.TunnelProviderOptions) (basetypes.ObjectValue, bool) {
+
+	var serviceAccountName basetypes.StringValue
+	configured := false
+
+	if d != nil && d.Prisma != nil && d.Prisma.ServiceAccountName != nil {
+		serviceAccountName = types.StringValue(*d.Prisma.ServiceAccountName)
+		configured = true
+	}
+
+	rAttrValue := map[string]attr.Value{
+		"service_account_name": serviceAccountName,
+	}
+	r, e := basetypes.NewObjectValue(PrismaValue{}.AttributeTypes(ctx), rAttrValue)
+	diags.Append(e...)
+	return r, configured
+}
+
 func tunnelProviderZscalerSubLocationSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, t *models.TunnelProviderOptions) basetypes.ListValue {
 	var dataList []SubLocationsValue
 	if t != nil && t.Zscaler != nil && t.Zscaler.SubLocations != nil {
@@ -228,12 +246,19 @@ func tunnelProviderZscalerSdkToTerraform(ctx context.Context, diags *diag.Diagno
 
 func tunnelProviderSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.TunnelProviderOptions) (TunnelProviderOptionsValue, bool) {
 	var jse = types.ObjectNull(JseValue{}.AttributeTypes(ctx))
+	var prisma = types.ObjectNull(PrismaValue{}.AttributeTypes(ctx))
 	var zscaler = types.ObjectNull(ZscalerValue{}.AttributeTypes(ctx))
 	configured := false
 
 	if d != nil && d.Jse != nil {
 		if jseTmp, ok := tunnelProviderJseSdkToTerraform(ctx, diags, d); ok {
 			jse = jseTmp
+			configured = true
+		}
+	}
+	if d != nil && d.Prisma != nil {
+		if prismaTmp, ok := tunnelProviderPrismaSdkToTerraform(ctx, diags, d); ok {
+			prisma = prismaTmp
 			configured = true
 		}
 	}
@@ -246,6 +271,7 @@ func tunnelProviderSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 
 	dataMapValue := map[string]attr.Value{
 		"jse":     jse,
+		"prisma":  prisma,
 		"zscaler": zscaler,
 	}
 	data, e := NewTunnelProviderOptionsValue(TunnelProviderOptionsValue{}.AttributeTypes(ctx), dataMapValue)
