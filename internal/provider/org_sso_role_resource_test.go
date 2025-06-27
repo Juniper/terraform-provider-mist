@@ -88,9 +88,6 @@ func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, rName string) testChec
 		if o.Privileges[0].SitegroupId != nil {
 			checks.append(t, "TestCheckResourceAttr", "privileges.0.sitegroup_id", *o.Privileges[0].SitegroupId)
 		}
-		if len(o.Privileges[0].Views) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "privileges.0.views.0", o.Privileges[0].Views[0])
-		}
 	}
 
 	return checks

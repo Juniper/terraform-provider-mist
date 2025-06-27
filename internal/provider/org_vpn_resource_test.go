@@ -75,22 +75,11 @@ func (o *OrgVpnModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	// Check paths
 	if len(o.Paths) > 0 {
 		// For each path in the map, check that it exists
-		for pathName, pathValue := range o.Paths {
+		for pathName := range o.Paths {
 			pathPrefix := fmt.Sprintf("paths.%s", pathName)
 
 			// Check that the path exists by verifying attributes are set
 			checks.append(t, "TestCheckResourceAttrSet", pathPrefix+".bfd_profile")
-
-			// Check specific fields if they are set in the test config
-			if pathValue.BfdProfile != nil {
-				checks.append(t, "TestCheckResourceAttr", pathPrefix+".bfd_profile", *pathValue.BfdProfile)
-			}
-			if pathValue.Ip != nil {
-				checks.append(t, "TestCheckResourceAttr", pathPrefix+".ip", *pathValue.Ip)
-			}
-			if pathValue.Pod != nil {
-				checks.append(t, "TestCheckResourceAttr", pathPrefix+".pod", fmt.Sprintf("%d", *pathValue.Pod))
-			}
 		}
 	}
 

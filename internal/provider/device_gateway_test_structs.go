@@ -223,9 +223,6 @@ type PathsValue struct {
 	TargetIps      []string `cty:"target_ips"`
 	PathsType      *string  `cty:"type"`
 	WanName        *string  `cty:"wan_name"`
-	BfdProfile     *string  `hcl:"bfd_profile" cty:"bfd_profile"`
-	Ip             *string  `hcl:"ip" cty:"ip"`
-	Pod            *int64   `hcl:"pod" cty:"pod"`
 }
 
 type GatewayPortConfigValue struct {
