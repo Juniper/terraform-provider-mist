@@ -105,6 +105,11 @@ func (s *SiteWxtagModel) testChecks(t testing.TB, rType, rName string) testCheck
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
 	checks.append(t, "TestCheckResourceAttr", "type", s.Type)
 	checks.append(t, "TestCheckResourceAttr", "match", *s.Match)
+	checks.append(t, "TestCheckResourceAttr", "op", *s.Op)
+	checks.append(t, "TestCheckResourceAttr", "values.#", fmt.Sprintf("%d", len(s.Values)))
+	for i, v := range s.Values {
+		checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("values.%d", i), v)
+	}
 
 	return checks
 }
