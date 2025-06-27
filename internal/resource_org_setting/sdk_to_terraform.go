@@ -31,6 +31,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var jcloudRa = NewJcloudRaValueNull()
 	var juniper = NewJuniperValueNull()
 	var junosShellAccess = NewJunosShellAccessValueNull()
+	var marvis = NewMarvisValueNull()
 	var mgmt = NewMgmtValueNull()
 	var mistNac = NewMistNacValueNull()
 	// var msp_id types.String
@@ -41,6 +42,8 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var pcap = NewPcapValueNull()
 	// var pcap_bucket_verified types.Bool
 	var security = NewSecurityValueNull()
+	var ssr = NewSsrValueNull()
+	var switchUpgrade = NewSwitchValueNull() // This is the switch auto upgrade setting
 	var switchMgmt = NewSwitchMgmtValueNull()
 	var switchUpdownThreshold types.Int64
 	var syntheticTest = NewSyntheticTestValueNull()
@@ -101,6 +104,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.JunosShellAccess != nil {
 		junosShellAccess = junosShellAccessSdkToTerraform(ctx, &diags, data.JunosShellAccess)
 	}
+	if data.Marvis != nil {
+		marvis = marvisSdkToTerraform(ctx, &diags, data.Marvis)
+	}
 	if data.Mgmt != nil {
 		mgmt = mgmtSdkToTerraform(ctx, &diags, data.Mgmt)
 	}
@@ -130,6 +136,12 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	// }
 	if data.Security != nil {
 		security = securitySdkToTerraform(ctx, &diags, data.Security)
+	}
+	if data.Switch != nil {
+		switchUpgrade = switchSdkToTerraform(ctx, &diags, data.Switch)
+	}
+	if data.Ssr != nil {
+		ssr = ssrSdkToTerraform(ctx, &diags, data.Ssr)
 	}
 	if data.SwitchMgmt != nil {
 		switchMgmt = switchMgmtSdkToTerraform(ctx, &diags, data.SwitchMgmt)
@@ -173,6 +185,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.JcloudRa = jcloudRa
 	state.Juniper = juniper
 	state.JunosShellAccess = junosShellAccess
+	state.Marvis = marvis
 	state.Mgmt = mgmt
 	state.MistNac = mistNac
 	// state.MspId = msp_id
@@ -183,6 +196,8 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.Pcap = pcap
 	// state.PcapBucketVerified = pcap_bucket_verified
 	state.Security = security
+	state.Switch = switchUpgrade
+	state.Ssr = ssr
 	state.SwitchMgmt = switchMgmt
 	state.SwitchUpdownThreshold = switchUpdownThreshold
 	state.SyntheticTest = syntheticTest
