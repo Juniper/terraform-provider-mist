@@ -12,9 +12,11 @@ import (
 	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
-func TestSiteModel(t *testing.T) {
+func TestSiteWxruleModel(t *testing.T) {
+	testSiteID := GetTestSiteId()
+
 	type testStep struct {
-		config SiteModel
+		config SiteWxruleModel
 	}
 
 	type testCase struct {
@@ -22,9 +24,9 @@ func TestSiteModel(t *testing.T) {
 		steps []testStep
 	}
 
-	var FixtureSiteModel SiteModel
+	var FixtureSiteWxruleModel SiteWxruleModel
 
-	b, err := os.ReadFile("fixtures/site_resource/site_resource_config.tf")
+	b, err := os.ReadFile("fixtures/site_wxrule_resource/site_wxrule_config.tf")
 	if err != nil {
 		fmt.Print(err)
 	}
@@ -32,7 +34,7 @@ func TestSiteModel(t *testing.T) {
 	str := string(b) // convert content to a 'string'
 	fmt.Println(str)
 
-	err = hcl.Decode(&FixtureSiteModel, str)
+	err = hcl.Decode(&FixtureSiteWxruleModel, str)
 	if err != nil {
 		fmt.Printf("error decoding hcl: %s\n", err)
 	}
@@ -41,10 +43,10 @@ func TestSiteModel(t *testing.T) {
 		"simple_case": {
 			steps: []testStep{
 				{
-					config: SiteModel{
-						Address: "test-address",
-						Name:    "test-site",
-						OrgId:   GetTestOrgId(),
+					config: SiteWxruleModel{
+						SiteId: testSiteID,
+						Action: "allow",
+						Order:  1,
 					},
 				},
 			},
@@ -52,7 +54,7 @@ func TestSiteModel(t *testing.T) {
 		// "hcl_decode": {
 		// 	steps: []testStep{
 		// 		{
-		// 			config: FixtureSiteModel,
+		// 			config: FixtureSiteWxruleModel,
 		// 		},
 		// 	},
 		// },
@@ -60,7 +62,7 @@ func TestSiteModel(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "site"
+			resourceType := "site_wxrule"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -92,11 +94,11 @@ func TestSiteModel(t *testing.T) {
 	}
 }
 
-func (s *SiteModel) testChecks(t testing.TB, rType, rName string) testChecks {
+func (s *SiteWxruleModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
-	checks.append(t, "TestCheckResourceAttr", "address", s.Address)
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
+	checks.append(t, "TestCheckResourceAttr", "action", s.Action)
+	checks.append(t, "TestCheckResourceAttr", "order", fmt.Sprintf("%d", s.Order))
 
 	return checks
 }

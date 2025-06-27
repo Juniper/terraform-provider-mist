@@ -12,9 +12,11 @@ import (
 	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
-func TestSiteModel(t *testing.T) {
+func TestSiteWxtagModel(t *testing.T) {
+	testSiteID := GetTestSiteId()
+
 	type testStep struct {
-		config SiteModel
+		config SiteWxtagModel
 	}
 
 	type testCase struct {
@@ -22,9 +24,9 @@ func TestSiteModel(t *testing.T) {
 		steps []testStep
 	}
 
-	var FixtureSiteModel SiteModel
+	var FixtureSiteWxtagModel SiteWxtagModel
 
-	b, err := os.ReadFile("fixtures/site_resource/site_resource_config.tf")
+	b, err := os.ReadFile("fixtures/site_wtag_resource/site_wtag_config.tf")
 	if err != nil {
 		fmt.Print(err)
 	}
@@ -32,19 +34,24 @@ func TestSiteModel(t *testing.T) {
 	str := string(b) // convert content to a 'string'
 	fmt.Println(str)
 
-	err = hcl.Decode(&FixtureSiteModel, str)
+	err = hcl.Decode(&FixtureSiteWxtagModel, str)
 	if err != nil {
 		fmt.Printf("error decoding hcl: %s\n", err)
 	}
 
+	match := "ip_range_subnet"
+	op := "in"
 	testCases := map[string]testCase{
 		"simple_case": {
 			steps: []testStep{
 				{
-					config: SiteModel{
-						Address: "test-address",
-						Name:    "test-site",
-						OrgId:   GetTestOrgId(),
+					config: SiteWxtagModel{
+						SiteId: testSiteID,
+						Name:   "wtag_test",
+						Type:   "match",
+						Match:  &match,
+						Op:     &op,
+						Values: []string{"10.3.0.0/16"},
 					},
 				},
 			},
@@ -52,7 +59,7 @@ func TestSiteModel(t *testing.T) {
 		// "hcl_decode": {
 		// 	steps: []testStep{
 		// 		{
-		// 			config: FixtureSiteModel,
+		// 			config: FixtureSiteWxtagModel,
 		// 		},
 		// 	},
 		// },
@@ -60,7 +67,7 @@ func TestSiteModel(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "site"
+			resourceType := "site_wxtag"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -92,11 +99,12 @@ func TestSiteModel(t *testing.T) {
 	}
 }
 
-func (s *SiteModel) testChecks(t testing.TB, rType, rName string) testChecks {
+func (s *SiteWxtagModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
-	checks.append(t, "TestCheckResourceAttr", "address", s.Address)
+	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "type", s.Type)
+	checks.append(t, "TestCheckResourceAttr", "match", *s.Match)
 
 	return checks
 }

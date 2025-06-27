@@ -48,13 +48,7 @@ func TestOrgWxruleModel(t *testing.T) {
 				combinedConfig := generateOrgWxruleConfig(templateName, tName, step.config)
 
 				// Focus checks on the WX Rule resource (template is just a prerequisite)
-				checks := newTestChecks(PrefixProviderName(resourceType) + "." + tName)
-				checks.append(t, "TestCheckResourceAttrSet", "id")
-				checks.append(t, "TestCheckResourceAttrSet", "org_id")
-				checks.append(t, "TestCheckResourceAttr", "org_id", step.config.OrgId)
-				checks.append(t, "TestCheckResourceAttr", "order", fmt.Sprintf("%d", step.config.Order))
-				checks.append(t, "TestCheckResourceAttr", "action", step.config.Action)
-				checks.append(t, "TestCheckResourceAttrSet", "template_id")
+				checks := step.config.testChecks(t, resourceType, tName)
 
 				steps[i] = resource.TestStep{
 					Config: combinedConfig,
@@ -99,4 +93,16 @@ func generateOrgWxruleConfig(templateName, wxRuleName string, wxRuleConfig OrgWx
 
 	// Combine both configs
 	return templateConfigStr + "\n\n" + wxRuleConfigStr
+}
+
+func (s *OrgWxruleModel) testChecks(t testing.TB, rType, tName string) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+	checks.append(t, "TestCheckResourceAttrSet", "id")
+	checks.append(t, "TestCheckResourceAttrSet", "org_id")
+	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "order", fmt.Sprintf("%d", s.Order))
+	checks.append(t, "TestCheckResourceAttr", "action", s.Action)
+	checks.append(t, "TestCheckResourceAttrSet", "template_id")
+
+	return checks
 }

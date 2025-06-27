@@ -49,11 +49,8 @@ func TestOrgWebhookModel(t *testing.T) {
 				configStr := Render(resourceType, tName, string(f.Bytes()))
 
 				// Focus checks on the webhook resource
-				checks := newTestChecks(PrefixProviderName(resourceType) + "." + tName)
-				checks.append(t, "TestCheckResourceAttr", "name", config.Name)
-				checks.append(t, "TestCheckResourceAttr", "org_id", config.OrgId)
-				checks.append(t, "TestCheckResourceAttr", "url", config.Url)
-				checks.append(t, "TestCheckResourceAttr", "topics.#", fmt.Sprintf("%d", len(config.Topics)))
+				checks := step.config.testChecks(t, resourceType, tName)
+
 				if len(config.Topics) > 0 {
 					checks.append(t, "TestCheckResourceAttr", "topics.0", config.Topics[0])
 				}
@@ -74,4 +71,14 @@ func TestOrgWebhookModel(t *testing.T) {
 
 		})
 	}
+}
+
+func (s *OrgWebhookModel) testChecks(t testing.TB, rType, tName string) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
+	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "url", s.Url)
+	checks.append(t, "TestCheckResourceAttr", "topics.#", fmt.Sprintf("%d", len(s.Topics)))
+
+	return checks
 }

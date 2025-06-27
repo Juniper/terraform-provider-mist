@@ -12,9 +12,12 @@ import (
 	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
-func TestSiteModel(t *testing.T) {
+func TestUpgradeDeviceModel(t *testing.T) {
+	t.Skip("Skipping upgrade_device tests, as they require a real device.")
+	testSiteID := GetTestSiteId()
+
 	type testStep struct {
-		config SiteModel
+		config UpgradeDeviceModel
 	}
 
 	type testCase struct {
@@ -22,9 +25,9 @@ func TestSiteModel(t *testing.T) {
 		steps []testStep
 	}
 
-	var FixtureSiteModel SiteModel
+	var FixtureUpgradeDeviceModel UpgradeDeviceModel
 
-	b, err := os.ReadFile("fixtures/site_resource/site_resource_config.tf")
+	b, err := os.ReadFile("fixtures/device_upgrade/device_upgrade_config.tf")
 	if err != nil {
 		fmt.Print(err)
 	}
@@ -32,7 +35,7 @@ func TestSiteModel(t *testing.T) {
 	str := string(b) // convert content to a 'string'
 	fmt.Println(str)
 
-	err = hcl.Decode(&FixtureSiteModel, str)
+	err = hcl.Decode(&FixtureUpgradeDeviceModel, str)
 	if err != nil {
 		fmt.Printf("error decoding hcl: %s\n", err)
 	}
@@ -41,10 +44,10 @@ func TestSiteModel(t *testing.T) {
 		"simple_case": {
 			steps: []testStep{
 				{
-					config: SiteModel{
-						Address: "test-address",
-						Name:    "test-site",
-						OrgId:   GetTestOrgId(),
+					config: UpgradeDeviceModel{
+						SiteId:        testSiteID,
+						DeviceId:      "test-device-id",
+						TargetVersion: "0.14.29543",
 					},
 				},
 			},
@@ -52,7 +55,7 @@ func TestSiteModel(t *testing.T) {
 		// "hcl_decode": {
 		// 	steps: []testStep{
 		// 		{
-		// 			config: FixtureSiteModel,
+		// 			config: FixtureUpgradeDeviceModel,
 		// 		},
 		// 	},
 		// },
@@ -60,7 +63,7 @@ func TestSiteModel(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "site"
+			resourceType := "upgrade_device"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -92,11 +95,11 @@ func TestSiteModel(t *testing.T) {
 	}
 }
 
-func (s *SiteModel) testChecks(t testing.TB, rType, rName string) testChecks {
+func (s *UpgradeDeviceModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
-	checks.append(t, "TestCheckResourceAttr", "address", s.Address)
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
+	checks.append(t, "TestCheckResourceAttr", "device_id", s.DeviceId)
+	checks.append(t, "TestCheckResourceAttr", "target_version", s.TargetVersion)
 
 	return checks
 }

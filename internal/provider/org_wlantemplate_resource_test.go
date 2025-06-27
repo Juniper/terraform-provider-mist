@@ -44,9 +44,7 @@ func TestOrgWlantemplateModel(t *testing.T) {
 				configStr := Render(resourceType, tName, string(f.Bytes()))
 
 				// Focus checks on the wlan template resource
-				checks := newTestChecks(PrefixProviderName(resourceType) + "." + tName)
-				checks.append(t, "TestCheckResourceAttr", "name", config.Name)
-				checks.append(t, "TestCheckResourceAttr", "org_id", config.OrgId)
+				checks := step.config.testChecks(t, resourceType, tName)
 
 				steps[i] = resource.TestStep{
 					Config: configStr,
@@ -64,4 +62,12 @@ func TestOrgWlantemplateModel(t *testing.T) {
 
 		})
 	}
+}
+
+func (s *OrgWlantemplateModel) testChecks(t testing.TB, rType, tName string) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
+	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+
+	return checks
 }

@@ -12,9 +12,11 @@ import (
 	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
-func TestSiteModel(t *testing.T) {
+func TestSiteWlanModel(t *testing.T) {
+	testSiteID := GetTestSiteId()
+
 	type testStep struct {
-		config SiteModel
+		config SiteWlanModel
 	}
 
 	type testCase struct {
@@ -22,9 +24,9 @@ func TestSiteModel(t *testing.T) {
 		steps []testStep
 	}
 
-	var FixtureSiteModel SiteModel
+	var FixtureSiteWlanModel SiteWlanModel
 
-	b, err := os.ReadFile("fixtures/site_resource/site_resource_config.tf")
+	b, err := os.ReadFile("fixtures/site_wlan_resource/site_wlan_config.tf")
 	if err != nil {
 		fmt.Print(err)
 	}
@@ -32,7 +34,7 @@ func TestSiteModel(t *testing.T) {
 	str := string(b) // convert content to a 'string'
 	fmt.Println(str)
 
-	err = hcl.Decode(&FixtureSiteModel, str)
+	err = hcl.Decode(&FixtureSiteWlanModel, str)
 	if err != nil {
 		fmt.Printf("error decoding hcl: %s\n", err)
 	}
@@ -41,10 +43,9 @@ func TestSiteModel(t *testing.T) {
 		"simple_case": {
 			steps: []testStep{
 				{
-					config: SiteModel{
-						Address: "test-address",
-						Name:    "test-site",
-						OrgId:   GetTestOrgId(),
+					config: SiteWlanModel{
+						SiteId: testSiteID,
+						Ssid:   "TestSSID",
 					},
 				},
 			},
@@ -52,7 +53,7 @@ func TestSiteModel(t *testing.T) {
 		// "hcl_decode": {
 		// 	steps: []testStep{
 		// 		{
-		// 			config: FixtureSiteModel,
+		// 			config: FixtureSiteWlanModel,
 		// 		},
 		// 	},
 		// },
@@ -60,7 +61,7 @@ func TestSiteModel(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "site"
+			resourceType := "site_wlan"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -92,11 +93,10 @@ func TestSiteModel(t *testing.T) {
 	}
 }
 
-func (s *SiteModel) testChecks(t testing.TB, rType, rName string) testChecks {
+func (s *SiteWlanModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
-	checks.append(t, "TestCheckResourceAttr", "address", s.Address)
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
+	checks.append(t, "TestCheckResourceAttr", "ssid", s.Ssid)
 
 	return checks
 }

@@ -12,9 +12,13 @@ import (
 	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
-func TestSiteModel(t *testing.T) {
+func TestSiteWlanPortalImageModel(t *testing.T) {
+	testSiteID := GetTestSiteId()
+	// Create a test PNG file
+	testImagePath := CreateTestPNGFile(t)
+
 	type testStep struct {
-		config SiteModel
+		config SiteWlanPortalImageModel
 	}
 
 	type testCase struct {
@@ -22,9 +26,9 @@ func TestSiteModel(t *testing.T) {
 		steps []testStep
 	}
 
-	var FixtureSiteModel SiteModel
+	var FixtureSiteWlanPortalImageModel SiteWlanPortalImageModel
 
-	b, err := os.ReadFile("fixtures/site_resource/site_resource_config.tf")
+	b, err := os.ReadFile("fixtures/site_wlan_portal_image_resource/site_wlan_portal_image_config.tf")
 	if err != nil {
 		fmt.Print(err)
 	}
@@ -32,7 +36,7 @@ func TestSiteModel(t *testing.T) {
 	str := string(b) // convert content to a 'string'
 	fmt.Println(str)
 
-	err = hcl.Decode(&FixtureSiteModel, str)
+	err = hcl.Decode(&FixtureSiteWlanPortalImageModel, str)
 	if err != nil {
 		fmt.Printf("error decoding hcl: %s\n", err)
 	}
@@ -41,10 +45,9 @@ func TestSiteModel(t *testing.T) {
 		"simple_case": {
 			steps: []testStep{
 				{
-					config: SiteModel{
-						Address: "test-address",
-						Name:    "test-site",
-						OrgId:   GetTestOrgId(),
+					config: SiteWlanPortalImageModel{
+						File:   testImagePath,
+						SiteId: testSiteID,
 					},
 				},
 			},
@@ -52,7 +55,7 @@ func TestSiteModel(t *testing.T) {
 		// "hcl_decode": {
 		// 	steps: []testStep{
 		// 		{
-		// 			config: FixtureSiteModel,
+		// 			config: FixtureSiteWlanPortalImageModel,
 		// 		},
 		// 	},
 		// },
@@ -60,26 +63,30 @@ func TestSiteModel(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "site"
+			resourceType := "site_wlan_portal_image"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
+				// Generate combined config: WLAN template + WLAN
+				wlanConfig, wlanRef := GetSiteWlanBaseConfig(testSiteID)
 				config := step.config
 
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
-				configStr := Render(resourceType, tName, string(f.Bytes()))
+				// Add the wlan_id attribute to the body before rendering
+				f.Body().SetAttributeRaw("wlan_id", hclwrite.TokensForIdentifier(wlanRef))
+				combinedConfig := wlanConfig + "\n\n" + Render(resourceType, tName, string(f.Bytes()))
 
 				checks := config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
 				// log config and checks here
-				t.Logf("\n// ------ begin config for %s ------\n%s// -------- end config for %s ------\n\n", stepName, configStr, stepName)
+				t.Logf("\n// ------ begin config for %s ------\n%s// -------- end config for %s ------\n\n", stepName, combinedConfig, stepName)
 				t.Logf("\n// ------ begin checks for %s ------\n%s// -------- end checks for %s ------\n\n", stepName, chkLog, stepName)
 
 				steps[i] = resource.TestStep{
-					Config: configStr,
+					Config: combinedConfig,
 					Check:  resource.ComposeAggregateTestCheckFunc(checks.checks...),
 				}
 			}
@@ -92,11 +99,11 @@ func TestSiteModel(t *testing.T) {
 	}
 }
 
-func (s *SiteModel) testChecks(t testing.TB, rType, rName string) testChecks {
+func (s *SiteWlanPortalImageModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
-	checks.append(t, "TestCheckResourceAttr", "address", s.Address)
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "file", s.File)
+	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
+	checks.append(t, "TestCheckResourceAttrSet", "wlan_id")
 
 	return checks
 }
