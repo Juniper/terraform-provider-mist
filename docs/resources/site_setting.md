@@ -137,7 +137,7 @@ Optional:
 - `eddystone_uid_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
 - `eddystone_uid_beams` (String)
 - `eddystone_uid_enabled` (Boolean) Only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled
-- `eddystone_uid_freq_msec` (Number) Frequency (msec) of data emmit by Eddystone-UID beacon
+- `eddystone_uid_freq_msec` (Number) Frequency (msec) of data emit by Eddystone-UID beacon
 - `eddystone_uid_instance` (String) Eddystone-UID instance for the device
 - `eddystone_uid_namespace` (String) Eddystone-UID namespace
 - `eddystone_url_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
@@ -148,7 +148,7 @@ Optional:
 - `ibeacon_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
 - `ibeacon_beams` (String)
 - `ibeacon_enabled` (Boolean) Can be enabled if `beacon_enabled`==`true`, whether to send iBeacon
-- `ibeacon_freq_msec` (Number) Frequency (msec) of data emmit for iBeacon
+- `ibeacon_freq_msec` (Number) Frequency (msec) of data emit for iBeacon
 - `ibeacon_major` (Number) Major number for iBeacon
 - `ibeacon_minor` (Number) Minor number for iBeacon
 - `ibeacon_uuid` (String) Optional, if not specified, the same UUID as the beacon will be used
@@ -498,7 +498,7 @@ Optional:
 Optional:
 
 - `capacity` (Number) Capacity, in %
-- `coverage` (Number) Covrage, in dBm
+- `coverage` (Number) Coverage, in dBm
 - `throughput` (Number) Throughput, in Mbps
 - `timetoconnect` (Number) Time to connect, in seconds
 

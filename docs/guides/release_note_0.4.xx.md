@@ -8,6 +8,16 @@ description: |-
 # Release Notes for v0.4.xx
 
 
+## Release Notes for v0.4.1
+**Release Date**: June 27th, 2025 
+
+### Fixes
+* Resolved a bug that prevented proper configuration of the `mist_device_gateway.bpg_config.neighbor_as`, `mist_org_deviceprofile_gateway.bpg_config.neighbor_as` and `mist_org_gatewaytemplate.bpg_config.neighbor_as` resources attributes.
+* Remove unexpected `mist_site_networktemplate.marvis` and `mist_site_networktemplate.sle_thresholds` attributes.
+
+### Other Changes
+* Minor code clean up and typo corrections.
+
 ## Release Notes for v0.4.0
 **Release Date**: June 27th, 2025 
 
