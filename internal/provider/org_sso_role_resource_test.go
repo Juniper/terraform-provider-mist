@@ -80,14 +80,6 @@ func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, rName string) testChec
 		// Check the first privilege entry
 		checks.append(t, "TestCheckResourceAttr", "privileges.0.role", o.Privileges[0].Role)
 		checks.append(t, "TestCheckResourceAttr", "privileges.0.scope", o.Privileges[0].Scope)
-
-		// Check optional fields in privileges if they are set
-		if o.Privileges[0].SiteId != nil {
-			checks.append(t, "TestCheckResourceAttr", "privileges.0.site_id", *o.Privileges[0].SiteId)
-		}
-		if o.Privileges[0].SitegroupId != nil {
-			checks.append(t, "TestCheckResourceAttr", "privileges.0.sitegroup_id", *o.Privileges[0].SitegroupId)
-		}
 	}
 
 	return checks

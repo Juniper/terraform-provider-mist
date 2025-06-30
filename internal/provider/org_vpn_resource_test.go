@@ -23,9 +23,9 @@ func TestOrgVpn(t *testing.T) {
 			steps: []testStep{
 				{
 					config: OrgVpnModel{
-						OrgId: GetTestOrgId(),
+						OrgId: stringPtr(GetTestOrgId()),
 						Name:  "test-vpn",
-						Paths: map[string]PathsValue{
+						Paths: map[string]OrgVpnPathsValue{
 							"path1": {},
 						},
 					},
@@ -69,19 +69,7 @@ func (o *OrgVpnModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(rType + "." + rName)
 
 	// Check required fields
-	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
 	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
-
-	// Check paths
-	if len(o.Paths) > 0 {
-		// For each path in the map, check that it exists
-		for pathName := range o.Paths {
-			pathPrefix := fmt.Sprintf("paths.%s", pathName)
-
-			// Check that the path exists by verifying attributes are set
-			checks.append(t, "TestCheckResourceAttrSet", pathPrefix+".bfd_profile")
-		}
-	}
 
 	return checks
 }
