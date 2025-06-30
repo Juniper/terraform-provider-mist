@@ -18,10 +18,6 @@ func GetTestOrgId() string {
 	return os.Getenv("MIST_TEST_ORG_ID")
 }
 
-func GetTestSiteId() string {
-	return os.Getenv("MIST_TEST_SITE_ID")
-}
-
 func PrefixProviderName(name string) string {
 	if strings.HasPrefix(name, "mist_") {
 		return name
