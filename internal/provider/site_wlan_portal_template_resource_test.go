@@ -2,60 +2,44 @@ package provider
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
-	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
 func TestSiteWlanPortalTemplateModel(t *testing.T) {
-	testSiteID := GetTestSiteId()
-
 	type testStep struct {
 		config SiteWlanPortalTemplateModel
 	}
 
 	type testCase struct {
-		//apiVersionConstraints version.Constraints
 		steps []testStep
 	}
 
-	var FixtureSiteWlanPortalTemplateModel SiteWlanPortalTemplateModel
+	// var FixtureSiteWlanPortalTemplateModel SiteWlanPortalTemplateModel
 
-	b, err := os.ReadFile("fixtures/site_wlan_portal_template_resource/site_wlan_portal_template_config.tf")
-	if err != nil {
-		fmt.Print(err)
-	}
+	// b, err := os.ReadFile("fixtures/site_wlan_portal_template_resource/site_wlan_portal_template_config.tf")
+	// if err != nil {
+	// 	fmt.Print(err)
+	// }
 
-	str := string(b) // convert content to a 'string'
-	fmt.Println(str)
+	// str := string(b) // convert content to a 'string'
 
-	err = hcl.Decode(&FixtureSiteWlanPortalTemplateModel, str)
-	if err != nil {
-		fmt.Printf("error decoding hcl: %s\n", err)
-	}
+	// err = hcl.Decode(&FixtureSiteWlanPortalTemplateModel, str)
+	// if err != nil {
+	// 	fmt.Printf("error decoding hcl: %s\n", err)
+	// }
 
 	testCases := map[string]testCase{
 		"simple_case": {
 			steps: []testStep{
 				{
-					config: SiteWlanPortalTemplateModel{
-						SiteId: testSiteID,
-					},
+					config: SiteWlanPortalTemplateModel{},
 				},
 			},
 		},
-		// "hcl_decode": {
-		// 	steps: []testStep{
-		// 		{
-		// 			config: FixtureSiteWlanPortalTemplateModel,
-		// 		},
-		// 	},
-		// },
 	}
 
 	for tName, tCase := range testCases {
@@ -64,13 +48,14 @@ func TestSiteWlanPortalTemplateModel(t *testing.T) {
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
-				// Generate combined config: WLAN template + WLAN
-				wlanConfig, wlanRef := GetSiteWlanBaseConfig(testSiteID)
+				// Generate combined config: Site + WLAN
+				wlanConfig, siteRef, wlanRef := GetSiteWlanBaseConfig(GetTestOrgId())
 				config := step.config
 
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
-				// Add the wlan_id attribute to the body before rendering
+				// Add the site_id and wlan_id attributes to the body before rendering
+				f.Body().SetAttributeRaw("site_id", hclwrite.TokensForIdentifier(siteRef))
 				f.Body().SetAttributeRaw("wlan_id", hclwrite.TokensForIdentifier(wlanRef))
 				combinedConfig := wlanConfig + "\n\n" + Render(resourceType, tName, string(f.Bytes()))
 
@@ -98,7 +83,7 @@ func TestSiteWlanPortalTemplateModel(t *testing.T) {
 
 func (s *SiteWlanPortalTemplateModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
-	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
+	checks.append(t, "TestCheckResourceAttrSet", "site_id")
 	checks.append(t, "TestCheckResourceAttrSet", "wlan_id")
 
 	return checks

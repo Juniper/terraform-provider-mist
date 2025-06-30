@@ -270,15 +270,41 @@ func GetOrgWlanBaseConfig(orgID string) (config string, wlanRef string) {
 	return wlanTemplateConfigStr + "\n\n" + wlanConfigStr, "mist_org_wlan.wlanName.id"
 }
 
-func GetSiteWlanBaseConfig(siteID string) (config string, wlanRef string) {
-	wlanConfig := SiteWlanModel{
-		SiteId: siteID,
-		Ssid:   "TestSSID",
+func GetSiteWlanBaseConfig(org_ID string) (config string, siteRef string, wlanRef string) {
+	siteConfig := SiteModel{
+		Name:    "TestSite",
+		OrgId:   org_ID,
+		Address: "TestAddress",
 	}
 
 	f := hclwrite.NewEmptyFile()
+	gohcl.EncodeIntoBody(&siteConfig, f.Body())
+	siteConfigStr := Render("site", siteConfig.Name, string(f.Bytes()))
+
+	siteRef = fmt.Sprintf("mist_site.%s.id", siteConfig.Name)
+
+	wlanConfig := SiteWlanModel{
+		Ssid: "TestSSID",
+	}
+
+	f = hclwrite.NewEmptyFile()
 	gohcl.EncodeIntoBody(&wlanConfig, f.Body())
+	f.Body().SetAttributeRaw("site_id", hclwrite.TokensForIdentifier(siteRef))
 	wlanConfigStr := Render("site_wlan", "wlanName", string(f.Bytes()))
 
-	return wlanConfigStr, "mist_site_wlan.wlanName.id"
+	return siteConfigStr + "\n\n" + wlanConfigStr, fmt.Sprintf("mist_site.%s.id", siteConfig.Name), "mist_site_wlan.wlanName.id"
+}
+
+func GetSiteBaseConfig(org_ID string) (config string, wlanRef string) {
+	siteConfig := SiteModel{
+		Name:    "TestSite",
+		OrgId:   org_ID,
+		Address: "TestAddress",
+	}
+
+	f := hclwrite.NewEmptyFile()
+	gohcl.EncodeIntoBody(&siteConfig, f.Body())
+	siteConfigStr := Render("site", siteConfig.Name, string(f.Bytes()))
+
+	return siteConfigStr, fmt.Sprintf("mist_site.%s.id", siteConfig.Name)
 }

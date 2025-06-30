@@ -2,14 +2,11 @@ package provider
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
-	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	// gwc "github.com/terraform-provider-mist/internal/resource_device_gateway_cluster"
 )
 
 func TestSiteWebhookModel(t *testing.T) {
@@ -18,24 +15,22 @@ func TestSiteWebhookModel(t *testing.T) {
 	}
 
 	type testCase struct {
-		//apiVersionConstraints version.Constraints
 		steps []testStep
 	}
 
-	var FixtureSiteWebhookModel SiteWebhookModel
+	// var FixtureSiteWebhookModel SiteWebhookModel
 
-	b, err := os.ReadFile("fixtures/site_webhook_resource/site_webhook_config.tf")
-	if err != nil {
-		fmt.Print(err)
-	}
+	// b, err := os.ReadFile("fixtures/site_webhook_resource/site_webhook_config.tf")
+	// if err != nil {
+	// 	fmt.Print(err)
+	// }
 
-	str := string(b) // convert content to a 'string'
-	fmt.Println(str)
+	// str := string(b) // convert content to a 'string'
 
-	err = hcl.Decode(&FixtureSiteWebhookModel, str)
-	if err != nil {
-		fmt.Printf("error decoding hcl: %s\n", err)
-	}
+	// err = hcl.Decode(&FixtureSiteWebhookModel, str)
+	// if err != nil {
+	// 	fmt.Printf("error decoding hcl: %s\n", err)
+	// }
 
 	testCases := map[string]testCase{
 		"simple_case": {
@@ -53,13 +48,6 @@ func TestSiteWebhookModel(t *testing.T) {
 				},
 			},
 		},
-		// "hcl_decode": {
-		// 	steps: []testStep{
-		// 		{
-		// 			config: FixtureSiteWebhookModel,
-		// 		},
-		// 	},
-		// },
 	}
 
 	for tName, tCase := range testCases {
