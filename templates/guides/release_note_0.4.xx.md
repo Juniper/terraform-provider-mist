@@ -8,6 +8,11 @@ description: |-
 # Release Notes for v0.4.xx
 
 
+## Release Notes for v0.4.2
+**Release Date**: July 1st, 2025 
+* **[Issue 117](https://github.com/Juniper/terraform-provider-mist/issues/117):** Resolved a bug that prevented the `mist_org_deviceprofile_gateway.bpg_config.neighbor_as` attribute from being properly configured.
+
+
 ## Release Notes for v0.4.1
 **Release Date**: June 27th, 2025 
 
