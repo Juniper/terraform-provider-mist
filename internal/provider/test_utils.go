@@ -303,7 +303,8 @@ func GetSiteBaseConfig(org_ID string) (config string, wlanRef string) {
 	siteConfigStr := Render("site", siteConfig.Name, string(f.Bytes()))
 
 	return siteConfigStr, fmt.Sprintf("mist_site.%s.id", siteConfig.Name)
-	
+}
+
 // Helper function for creating string pointers
 func stringPtr(s string) *string {
 	return &s
