@@ -8,6 +8,11 @@ description: |-
 # Release Notes for v0.4.xx
 
 
+## Release Notes for v0.4.3
+**Release Date**: July 11th, 2025 
+* **[Issue 118](https://github.com/Juniper/terraform-provider-mist/issues/118):** Fix the `mist_device_switch.ip_config.dns` validators requiring the DNS to be set when the `ip_config.type` is set to `static`. The DNS is not optional in this case, so the validator has been updated to allow it to be empty.
+
+
 ## Release Notes for v0.4.2
 **Release Date**: July 1st, 2025 
 * **[Issue 117](https://github.com/Juniper/terraform-provider-mist/issues/117):** Resolved a bug that prevented the `mist_org_deviceprofile_gateway.bpg_config.neighbor_as` attribute from being properly configured.
