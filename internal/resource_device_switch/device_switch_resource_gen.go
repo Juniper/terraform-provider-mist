@@ -767,8 +767,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Required when `type`==`static`",
 						MarkdownDescription: "Required when `type`==`static`",
 						Validators: []validator.List{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
-							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 							listvalidator.UniqueValues(),
 							listvalidator.SizeAtLeast(1),
 							listvalidator.SizeAtMost(2),
@@ -783,7 +782,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						Computed:    true,
 						Validators: []validator.List{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
-							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 							listvalidator.UniqueValues(),
 						},
 					},
@@ -1294,7 +1292,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						Optional: true,
 						Validators: []validator.String{
 							mistvalidator.ParseIp(true, false),
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
+							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("dhcp")),
 						},
 					},
