@@ -9,27 +9,25 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestUpgradeDeviceModel(t *testing.T) {
-	t.Skip("Skipping upgrade_device tests, as they require a real device.")
-
+func TestDeviceSwitchModel(t *testing.T) {
 	type testStep struct {
-		config UpgradeDeviceModel
+		config DeviceSwitchModel
 	}
 
 	type testCase struct {
 		steps []testStep
 	}
 
-	// var FixtureUpgradeDeviceModel UpgradeDeviceModel
+	// var FixtureDeviceSwitchModel DeviceSwitchModel
 
-	// b, err := os.ReadFile("fixtures/device_upgrade/device_upgrade_config.tf")
+	// b, err := os.ReadFile("fixtures/site_setting_resource/site_setting_config.tf")
 	// if err != nil {
 	// 	fmt.Print(err)
 	// }
 
 	// str := string(b) // convert content to a 'string'
 
-	// err = hcl.Decode(&FixtureUpgradeDeviceModel, str)
+	// err = hcl.Decode(&FixtureDeviceSwitchModel, str)
 	// if err != nil {
 	// 	fmt.Printf("error decoding hcl: %s\n", err)
 	// }
@@ -38,9 +36,9 @@ func TestUpgradeDeviceModel(t *testing.T) {
 		"simple_case": {
 			steps: []testStep{
 				{
-					config: UpgradeDeviceModel{
-						DeviceId:      "test-device-id",
-						TargetVersion: "0.14.29543",
+					config: DeviceSwitchModel{
+						DeviceId: "",
+						Name:     "test_device_switch",
 					},
 				},
 			},
@@ -48,9 +46,9 @@ func TestUpgradeDeviceModel(t *testing.T) {
 	}
 
 	for tName, tCase := range testCases {
-		t.Skip("Skipping upgrade_device tests, as they require a real device.")
+		t.Skip("Skipping device_switch tests, as they require a real device.")
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "upgrade_device"
+			resourceType := "device_switch"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -84,11 +82,11 @@ func TestUpgradeDeviceModel(t *testing.T) {
 	}
 }
 
-func (s *UpgradeDeviceModel) testChecks(t testing.TB, rType, rName string) testChecks {
+func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")
-	checks.append(t, "TestCheckResourceAttr", "device_id", s.DeviceId)
-	checks.append(t, "TestCheckResourceAttr", "target_version", s.TargetVersion)
+	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
+	checks.append(t, "TestCheckResourceAttrSet", "device_id")
 
 	return checks
 }
