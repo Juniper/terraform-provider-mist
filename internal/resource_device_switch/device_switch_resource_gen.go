@@ -1514,7 +1514,45 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					),
 				},
 			},
+			"ospf_config": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"areas": schema.MapNestedAttribute{
+						NestedObject: schema.NestedAttributeObject{
+							Attributes: map[string]schema.Attribute{
+								"no_summary": schema.BoolAttribute{
+									Optional:            true,
+									Description:         "Disable OSPF summary routes for this area",
+									MarkdownDescription: "Disable OSPF summary routes for this area",
+								},
+							},
+							CustomType: AreasType{
+								ObjectType: types.ObjectType{
+									AttrTypes: AreasValue{}.AttributeTypes(ctx),
+								},
+							},
+						},
+						Optional:            true,
+						Description:         "Property key is the area name. Defines the OSPF areas configured on the switch.",
+						MarkdownDescription: "Property key is the area name. Defines the OSPF areas configured on the switch.",
+						Validators: []validator.Map{
+							mapvalidator.SizeAtLeast(1),
+						},
+					},
+					"enabled": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "Enable OSPF on the switch",
+						MarkdownDescription: "Enable OSPF on the switch",
+					},
+					"reference_bandwidth": schema.StringAttribute{
+						Optional: true,
+					},
 				},
+				CustomType: OspfConfigType{
+					ObjectType: types.ObjectType{
+						AttrTypes: OspfConfigValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional: true,
 			},
 			"other_ip_configs": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -4117,6 +4155,7 @@ type DeviceSwitchModel struct {
 	OobIpConfig           OobIpConfigValue    `tfsdk:"oob_ip_config"`
 	OrgId                 types.String        `tfsdk:"org_id"`
 	OspfAreas             types.Map           `tfsdk:"ospf_areas"`
+	OspfConfig            OspfConfigValue     `tfsdk:"ospf_config"`
 	OtherIpConfigs        types.Map           `tfsdk:"other_ip_configs"`
 	PortConfig            types.Map           `tfsdk:"port_config"`
 	PortMirroring         types.Map           `tfsdk:"port_mirroring"`
@@ -18403,6 +18442,799 @@ func (v OspfNetworksValue) AttributeTypes(ctx context.Context) map[string]attr.T
 		"metric":                    basetypes.Int64Type{},
 		"no_readvertise_to_overlay": basetypes.BoolType{},
 		"passive":                   basetypes.BoolType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = OspfConfigType{}
+
+type OspfConfigType struct {
+	basetypes.ObjectType
+}
+
+func (t OspfConfigType) Equal(o attr.Type) bool {
+	other, ok := o.(OspfConfigType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t OspfConfigType) String() string {
+	return "OspfConfigType"
+}
+
+func (t OspfConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	areasAttribute, ok := attributes["areas"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`areas is missing from object`)
+
+		return nil, diags
+	}
+
+	areasVal, ok := areasAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`areas expected to be basetypes.MapValue, was: %T`, areasAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	referenceBandwidthAttribute, ok := attributes["reference_bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`reference_bandwidth is missing from object`)
+
+		return nil, diags
+	}
+
+	referenceBandwidthVal, ok := referenceBandwidthAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`reference_bandwidth expected to be basetypes.StringValue, was: %T`, referenceBandwidthAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return OspfConfigValue{
+		Areas:              areasVal,
+		Enabled:            enabledVal,
+		ReferenceBandwidth: referenceBandwidthVal,
+		state:              attr.ValueStateKnown,
+	}, diags
+}
+
+func NewOspfConfigValueNull() OspfConfigValue {
+	return OspfConfigValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewOspfConfigValueUnknown() OspfConfigValue {
+	return OspfConfigValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewOspfConfigValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (OspfConfigValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing OspfConfigValue Attribute Value",
+				"While creating a OspfConfigValue value, a missing attribute value was detected. "+
+					"A OspfConfigValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("OspfConfigValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid OspfConfigValue Attribute Type",
+				"While creating a OspfConfigValue value, an invalid attribute value was detected. "+
+					"A OspfConfigValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("OspfConfigValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("OspfConfigValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra OspfConfigValue Attribute Value",
+				"While creating a OspfConfigValue value, an extra attribute value was detected. "+
+					"A OspfConfigValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra OspfConfigValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewOspfConfigValueUnknown(), diags
+	}
+
+	areasAttribute, ok := attributes["areas"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`areas is missing from object`)
+
+		return NewOspfConfigValueUnknown(), diags
+	}
+
+	areasVal, ok := areasAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`areas expected to be basetypes.MapValue, was: %T`, areasAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewOspfConfigValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	referenceBandwidthAttribute, ok := attributes["reference_bandwidth"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`reference_bandwidth is missing from object`)
+
+		return NewOspfConfigValueUnknown(), diags
+	}
+
+	referenceBandwidthVal, ok := referenceBandwidthAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`reference_bandwidth expected to be basetypes.StringValue, was: %T`, referenceBandwidthAttribute))
+	}
+
+	if diags.HasError() {
+		return NewOspfConfigValueUnknown(), diags
+	}
+
+	return OspfConfigValue{
+		Areas:              areasVal,
+		Enabled:            enabledVal,
+		ReferenceBandwidth: referenceBandwidthVal,
+		state:              attr.ValueStateKnown,
+	}, diags
+}
+
+func NewOspfConfigValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) OspfConfigValue {
+	object, diags := NewOspfConfigValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewOspfConfigValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t OspfConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewOspfConfigValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewOspfConfigValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewOspfConfigValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewOspfConfigValueMust(OspfConfigValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t OspfConfigType) ValueType(ctx context.Context) attr.Value {
+	return OspfConfigValue{}
+}
+
+var _ basetypes.ObjectValuable = OspfConfigValue{}
+
+type OspfConfigValue struct {
+	Areas              basetypes.MapValue    `tfsdk:"areas"`
+	Enabled            basetypes.BoolValue   `tfsdk:"enabled"`
+	ReferenceBandwidth basetypes.StringValue `tfsdk:"reference_bandwidth"`
+	state              attr.ValueState
+}
+
+func (v OspfConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["areas"] = basetypes.MapType{
+		ElemType: AreasValue{}.Type(ctx),
+	}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["reference_bandwidth"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.Areas.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["areas"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.ReferenceBandwidth.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["reference_bandwidth"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v OspfConfigValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v OspfConfigValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v OspfConfigValue) String() string {
+	return "OspfConfigValue"
+}
+
+func (v OspfConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	areas := types.MapValueMust(
+		AreasType{
+			basetypes.ObjectType{
+				AttrTypes: AreasValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.Areas.Elements(),
+	)
+
+	if v.Areas.IsNull() {
+		areas = types.MapNull(
+			AreasType{
+				basetypes.ObjectType{
+					AttrTypes: AreasValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.Areas.IsUnknown() {
+		areas = types.MapUnknown(
+			AreasType{
+				basetypes.ObjectType{
+					AttrTypes: AreasValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"areas": basetypes.MapType{
+			ElemType: AreasValue{}.Type(ctx),
+		},
+		"enabled":             basetypes.BoolType{},
+		"reference_bandwidth": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"areas":               areas,
+			"enabled":             v.Enabled,
+			"reference_bandwidth": v.ReferenceBandwidth,
+		})
+
+	return objVal, diags
+}
+
+func (v OspfConfigValue) Equal(o attr.Value) bool {
+	other, ok := o.(OspfConfigValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Areas.Equal(other.Areas) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.ReferenceBandwidth.Equal(other.ReferenceBandwidth) {
+		return false
+	}
+
+	return true
+}
+
+func (v OspfConfigValue) Type(ctx context.Context) attr.Type {
+	return OspfConfigType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v OspfConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"areas": basetypes.MapType{
+			ElemType: AreasValue{}.Type(ctx),
+		},
+		"enabled":             basetypes.BoolType{},
+		"reference_bandwidth": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = AreasType{}
+
+type AreasType struct {
+	basetypes.ObjectType
+}
+
+func (t AreasType) Equal(o attr.Type) bool {
+	other, ok := o.(AreasType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t AreasType) String() string {
+	return "AreasType"
+}
+
+func (t AreasType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	noSummaryAttribute, ok := attributes["no_summary"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`no_summary is missing from object`)
+
+		return nil, diags
+	}
+
+	noSummaryVal, ok := noSummaryAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`no_summary expected to be basetypes.BoolValue, was: %T`, noSummaryAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return AreasValue{
+		NoSummary: noSummaryVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAreasValueNull() AreasValue {
+	return AreasValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewAreasValueUnknown() AreasValue {
+	return AreasValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewAreasValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AreasValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing AreasValue Attribute Value",
+				"While creating a AreasValue value, a missing attribute value was detected. "+
+					"A AreasValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AreasValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid AreasValue Attribute Type",
+				"While creating a AreasValue value, an invalid attribute value was detected. "+
+					"A AreasValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AreasValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("AreasValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra AreasValue Attribute Value",
+				"While creating a AreasValue value, an extra attribute value was detected. "+
+					"A AreasValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra AreasValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewAreasValueUnknown(), diags
+	}
+
+	noSummaryAttribute, ok := attributes["no_summary"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`no_summary is missing from object`)
+
+		return NewAreasValueUnknown(), diags
+	}
+
+	noSummaryVal, ok := noSummaryAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`no_summary expected to be basetypes.BoolValue, was: %T`, noSummaryAttribute))
+	}
+
+	if diags.HasError() {
+		return NewAreasValueUnknown(), diags
+	}
+
+	return AreasValue{
+		NoSummary: noSummaryVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAreasValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AreasValue {
+	object, diags := NewAreasValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewAreasValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t AreasType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewAreasValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewAreasValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewAreasValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewAreasValueMust(AreasValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t AreasType) ValueType(ctx context.Context) attr.Value {
+	return AreasValue{}
+}
+
+var _ basetypes.ObjectValuable = AreasValue{}
+
+type AreasValue struct {
+	NoSummary basetypes.BoolValue `tfsdk:"no_summary"`
+	state     attr.ValueState
+}
+
+func (v AreasValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["no_summary"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.NoSummary.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["no_summary"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v AreasValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v AreasValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v AreasValue) String() string {
+	return "AreasValue"
+}
+
+func (v AreasValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"no_summary": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"no_summary": v.NoSummary,
+		})
+
+	return objVal, diags
+}
+
+func (v AreasValue) Equal(o attr.Value) bool {
+	other, ok := o.(AreasValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.NoSummary.Equal(other.NoSummary) {
+		return false
+	}
+
+	return true
+}
+
+func (v AreasValue) Type(ctx context.Context) attr.Type {
+	return AreasType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v AreasValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"no_summary": basetypes.BoolType{},
 	}
 }
 

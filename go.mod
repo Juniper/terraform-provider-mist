@@ -13,7 +13,7 @@ require (
 	github.com/hashicorp/terraform-plugin-go v0.28.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
 	github.com/stretchr/testify v1.10.0
-	github.com/tmunzer/mistapi-go v0.4.76
+	github.com/tmunzer/mistapi-go v0.4.77
 	golang.org/x/net v0.41.0
 )
 
