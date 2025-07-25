@@ -35,7 +35,7 @@ func ospfConfigAreasSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 }
 
 func ospfConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchOspfConfig) OspfConfigValue {
-	var areas = types.MapNull(OspfAreasValue{}.Type(ctx))
+	var areas = types.MapNull(AreasValue{}.Type(ctx))
 	var enabled basetypes.BoolValue
 	var referenceBandwidth basetypes.StringValue
 
