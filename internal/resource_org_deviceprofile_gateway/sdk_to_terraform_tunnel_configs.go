@@ -38,7 +38,7 @@ func tunnelConfigAutoProvSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 
 	var primary = types.ObjectNull(AutoProvisionPrimaryValue{}.AttributeTypes(ctx))
 	var secondary = types.ObjectNull(AutoProvisionSecondaryValue{}.AttributeTypes(ctx))
-	var enable basetypes.BoolValue
+	var enabled basetypes.BoolValue
 	var latlng = types.ObjectNull(LatlngValue{}.AttributeTypes(ctx))
 	var provider basetypes.StringValue
 	var region basetypes.StringValue
@@ -50,8 +50,8 @@ func tunnelConfigAutoProvSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 	if d.Secondary != nil {
 		secondary = tunnelConfigAutoProvNodeSdkToTerraform(diags, *d.Secondary, AutoProvisionSecondaryValue{}.AttributeTypes(ctx))
 	}
-	if d.Enable != nil {
-		enable = types.BoolValue(*d.Enable)
+	if d.Enabled != nil {
+		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d.Latlng != nil {
 		latlngValue := map[string]attr.Value{
@@ -76,7 +76,7 @@ func tunnelConfigAutoProvSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 	dataMapValue := map[string]attr.Value{
 		"primary":            primary,
 		"secondary":          secondary,
-		"enable":             enable,
+		"enabled":            enabled,
 		"latlng":             latlng,
 		"provider":           provider,
 		"region":             region,

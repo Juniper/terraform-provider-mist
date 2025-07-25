@@ -2655,8 +2655,10 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									Optional: true,
 								},
-								"enable": schema.BoolAttribute{
-									Optional: true,
+								"enabled": schema.BoolAttribute{
+									Optional:            true,
+									Description:         "Enable auto provisioning for the tunnel. If enabled, the `primary` and `secondary` nodes will be ignored.",
+									MarkdownDescription: "Enable auto provisioning for the tunnel. If enabled, the `primary` and `secondary` nodes will be ignored.",
 								},
 								"latlng": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
@@ -2704,7 +2706,9 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									AttrTypes: AutoProvisionValue{}.AttributeTypes(ctx),
 								},
 							},
-							Optional: true,
+							Optional:            true,
+							Description:         "Auto Provisioning configuration for the tunne. This takes precedence over the `primary` and `secondary` nodes.",
+							MarkdownDescription: "Auto Provisioning configuration for the tunne. This takes precedence over the `primary` and `secondary` nodes.",
 						},
 						"ike_lifetime": schema.Int64Attribute{
 							Optional:            true,
@@ -35293,22 +35297,22 @@ func (t AutoProvisionType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`secondary expected to be basetypes.ObjectValue, was: %T`, autoProvisionSecondaryAttribute))
 	}
 
-	enableAttribute, ok := attributes["enable"]
+	enabledAttribute, ok := attributes["enabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enable is missing from object`)
+			`enabled is missing from object`)
 
 		return nil, diags
 	}
 
-	enableVal, ok := enableAttribute.(basetypes.BoolValue)
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enable expected to be basetypes.BoolValue, was: %T`, enableAttribute))
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
 	latlngAttribute, ok := attributes["latlng"]
@@ -35390,7 +35394,7 @@ func (t AutoProvisionType) ValueFromObject(ctx context.Context, in basetypes.Obj
 	return AutoProvisionValue{
 		AutoProvisionPrimary:   autoProvisionPrimaryVal,
 		AutoProvisionSecondary: autoProvisionSecondaryVal,
-		Enable:                 enableVal,
+		Enabled:                enabledVal,
 		Latlng:                 latlngVal,
 		Provider:               providerVal,
 		Region:                 regionVal,
@@ -35498,22 +35502,22 @@ func NewAutoProvisionValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`secondary expected to be basetypes.ObjectValue, was: %T`, autoProvisionSecondaryAttribute))
 	}
 
-	enableAttribute, ok := attributes["enable"]
+	enabledAttribute, ok := attributes["enabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enable is missing from object`)
+			`enabled is missing from object`)
 
 		return NewAutoProvisionValueUnknown(), diags
 	}
 
-	enableVal, ok := enableAttribute.(basetypes.BoolValue)
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enable expected to be basetypes.BoolValue, was: %T`, enableAttribute))
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
 	latlngAttribute, ok := attributes["latlng"]
@@ -35595,7 +35599,7 @@ func NewAutoProvisionValue(attributeTypes map[string]attr.Type, attributes map[s
 	return AutoProvisionValue{
 		AutoProvisionPrimary:   autoProvisionPrimaryVal,
 		AutoProvisionSecondary: autoProvisionSecondaryVal,
-		Enable:                 enableVal,
+		Enabled:                enabledVal,
 		Latlng:                 latlngVal,
 		Provider:               providerVal,
 		Region:                 regionVal,
@@ -35674,7 +35678,7 @@ var _ basetypes.ObjectValuable = AutoProvisionValue{}
 type AutoProvisionValue struct {
 	AutoProvisionPrimary   basetypes.ObjectValue `tfsdk:"primary"`
 	AutoProvisionSecondary basetypes.ObjectValue `tfsdk:"secondary"`
-	Enable                 basetypes.BoolValue   `tfsdk:"enable"`
+	Enabled                basetypes.BoolValue   `tfsdk:"enabled"`
 	Latlng                 basetypes.ObjectValue `tfsdk:"latlng"`
 	Provider               basetypes.StringValue `tfsdk:"provider"`
 	Region                 basetypes.StringValue `tfsdk:"region"`
@@ -35694,7 +35698,7 @@ func (v AutoProvisionValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["secondary"] = basetypes.ObjectType{
 		AttrTypes: AutoProvisionSecondaryValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
-	attrTypes["enable"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["latlng"] = basetypes.ObjectType{
 		AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -35724,13 +35728,13 @@ func (v AutoProvisionValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 		vals["secondary"] = val
 
-		val, err = v.Enable.ToTerraformValue(ctx)
+		val, err = v.Enabled.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["enable"] = val
+		vals["enabled"] = val
 
 		val, err = v.Latlng.ToTerraformValue(ctx)
 
@@ -35863,7 +35867,7 @@ func (v AutoProvisionValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"secondary": basetypes.ObjectType{
 			AttrTypes: AutoProvisionSecondaryValue{}.AttributeTypes(ctx),
 		},
-		"enable": basetypes.BoolType{},
+		"enabled": basetypes.BoolType{},
 		"latlng": basetypes.ObjectType{
 			AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 		},
@@ -35885,7 +35889,7 @@ func (v AutoProvisionValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		map[string]attr.Value{
 			"primary":            autoProvisionPrimary,
 			"secondary":          autoProvisionSecondary,
-			"enable":             v.Enable,
+			"enabled":            v.Enabled,
 			"latlng":             latlng,
 			"provider":           v.Provider,
 			"region":             v.Region,
@@ -35918,7 +35922,7 @@ func (v AutoProvisionValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Enable.Equal(other.Enable) {
+	if !v.Enabled.Equal(other.Enabled) {
 		return false
 	}
 
@@ -35957,7 +35961,7 @@ func (v AutoProvisionValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"secondary": basetypes.ObjectType{
 			AttrTypes: AutoProvisionSecondaryValue{}.AttributeTypes(ctx),
 		},
-		"enable": basetypes.BoolType{},
+		"enabled": basetypes.BoolType{},
 		"latlng": basetypes.ObjectType{
 			AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 		},
