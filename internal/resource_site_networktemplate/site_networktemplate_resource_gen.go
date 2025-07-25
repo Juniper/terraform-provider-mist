@@ -700,10 +700,16 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Junos OSPF areas",
-				MarkdownDescription: "Junos OSPF areas",
+				Description:         "Junos OSPF areas. Property key is the OSPF Area (Area should be a number (0-255) / IP address)",
+				MarkdownDescription: "Junos OSPF areas. Property key is the OSPF Area (Area should be a number (0-255) / IP address)",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
+					mapvalidator.KeysAre(
+						stringvalidator.Any(
+							mistvalidator.ParseInt(0, 255),
+							mistvalidator.ParseIp(true, false),
+						),
+					),
 				},
 			},
 			"port_mirroring": schema.MapNestedAttribute{
