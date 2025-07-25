@@ -45,10 +45,12 @@ func ospfConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if referenceBandwidthInt, ok := d.ReferenceBandwidth.AsNumber(); ok {
-		referenceBandwidth = types.StringValue(strconv.FormatInt(int64(*referenceBandwidthInt), 10))
-	} else if referenceBandwidthStr, ok := d.ReferenceBandwidth.AsString(); ok {
-		referenceBandwidth = types.StringValue(*referenceBandwidthStr)
+	if d.ReferenceBandwidth != nil {
+		if referenceBandwidthInt, ok := d.ReferenceBandwidth.AsNumber(); ok {
+			referenceBandwidth = types.StringValue(strconv.FormatInt(int64(*referenceBandwidthInt), 10))
+		} else if referenceBandwidthStr, ok := d.ReferenceBandwidth.AsString(); ok {
+			referenceBandwidth = types.StringValue(*referenceBandwidthStr)
+		}
 	}
 
 	dataMapValue := map[string]attr.Value{
