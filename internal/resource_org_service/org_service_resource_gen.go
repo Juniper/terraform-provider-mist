@@ -293,7 +293,7 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "When `type`==`urls`, no need for spec as URL can encode the ports being used",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
+					mistvalidator.AllowedWhenValueIsIn(path.MatchRelative().AtParent().AtName("type"), []attr.Value{types.StringValue("custom"), types.StringValue("urls")}),
 				},
 				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
