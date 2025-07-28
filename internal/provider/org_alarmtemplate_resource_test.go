@@ -2,14 +2,16 @@ package provider
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
+	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestOrgAlarmtemplateModel(t *testing.T) {
+func TestOrgAlarmtemplate(t *testing.T) {
 	type testStep struct {
 		config OrgAlarmtemplateModel
 	}
@@ -17,20 +19,6 @@ func TestOrgAlarmtemplateModel(t *testing.T) {
 	type testCase struct {
 		steps []testStep
 	}
-
-	// var FixtureOrgAlarmtemplateModel OrgAlarmtemplateModel
-
-	// b, err := os.ReadFile("fixtures/site_setting_resource/site_setting_config.tf")
-	// if err != nil {
-	// 	fmt.Print(err)
-	// }
-
-	// str := string(b) // convert content to a 'string'
-
-	// err = hcl.Decode(&FixtureOrgAlarmtemplateModel, str)
-	// if err != nil {
-	// 	fmt.Printf("error decoding hcl: %s\n", err)
-	// }
 
 	testCases := map[string]testCase{
 		"simple_case": {
@@ -42,9 +30,35 @@ func TestOrgAlarmtemplateModel(t *testing.T) {
 						Delivery: DeliveryValue{
 							Enabled: false,
 						},
-						Rules: map[string]OrgAlarmtemplateRulesValue{},
+						Rules: map[string]OrgAlarmtemplateRulesValue{
+							"test_rule": {
+								Enabled: false,
+							},
+						},
 					},
 				},
+			},
+		},
+	}
+
+	FixtureOrgAlarmtemplateModel := OrgAlarmtemplateModel{}
+
+	b, err := os.ReadFile("fixtures/org_alarmtemplate_resource/org_alarmtemplate_config.tf")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	str := string(b) // convert content to a 'string'
+
+	err = hcl.Decode(&FixtureOrgAlarmtemplateModel, str)
+	if err != nil {
+		fmt.Printf("error decoding hcl: %s\n", err)
+	}
+
+	testCases["fixture_case"] = testCase{
+		steps: []testStep{
+			{
+				config: FixtureOrgAlarmtemplateModel,
 			},
 		},
 	}
