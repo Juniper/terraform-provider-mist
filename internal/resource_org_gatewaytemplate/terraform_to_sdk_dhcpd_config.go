@@ -130,7 +130,7 @@ func dhcpdConfigConfigsTerraformToSdk(d basetypes.MapValue) map[string]models.Dh
 	return dataMap
 }
 
-func dhcpdConfigTerraformToSdk(d DhcpdConfigValue) models.DhcpdConfig {
+func dhcpdConfigTerraformToSdk(d DhcpdConfigValue) *models.DhcpdConfig {
 
 	data := models.DhcpdConfig{}
 
@@ -141,5 +141,5 @@ func dhcpdConfigTerraformToSdk(d DhcpdConfigValue) models.DhcpdConfig {
 		data.AdditionalProperties = dhcpdConfigConfigsTerraformToSdk(d.Config)
 	}
 
-	return data
+	return &data
 }

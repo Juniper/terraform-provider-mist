@@ -1,12 +1,12 @@
 package resource_site
 
 import (
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
-
-	"github.com/google/uuid"
 )
 
 func TerraformToSdk(plan *SiteModel) (*models.Site, diag.Diagnostics) {
@@ -49,94 +49,21 @@ func TerraformToSdk(plan *SiteModel) (*models.Site, diag.Diagnostics) {
 		unset["-notes"] = ""
 	}
 
-	if !plan.AlarmtemplateId.IsNull() && !plan.AlarmtemplateId.IsUnknown() {
-		alarmtemplateId, e := uuid.Parse(plan.AlarmtemplateId.ValueString())
-		if e == nil {
-			data.AlarmtemplateId = models.NewOptional(&alarmtemplateId)
-		} else {
-			diags.AddError("Bad value for alarmtemplate_id", e.Error())
-		}
-	} else {
-		unset["-alarmtemplate_id"] = ""
-	}
+	data.AlarmtemplateId = mistutils.RequiredMistIdField(&diags, plan.AlarmtemplateId)
+	data.AptemplateId = mistutils.RequiredMistIdField(&diags, plan.AptemplateId)
+	data.GatewaytemplateId = mistutils.RequiredMistIdField(&diags, plan.GatewaytemplateId)
+	data.NetworktemplateId = mistutils.RequiredMistIdField(&diags, plan.NetworktemplateId)
+	data.RftemplateId = mistutils.RequiredMistIdField(&diags, plan.RftemplateId)
+	data.SecpolicyId = mistutils.RequiredMistIdField(&diags, plan.SecpolicyId)
+	data.SitetemplateId = mistutils.RequiredMistIdField(&diags, plan.SitetemplateId)
 
-	if !plan.AptemplateId.IsNull() && !plan.AptemplateId.IsUnknown() {
-		aptemplateId, e := uuid.Parse(plan.AptemplateId.ValueString())
-		if e == nil {
-			data.AptemplateId = models.NewOptional(&aptemplateId)
-		} else {
-			diags.AddError("Bad value for aptemplate_id", e.Error())
-		}
-	} else {
-		unset["-aptemplate_id"] = ""
+	var items []uuid.UUID
+	for _, item := range plan.SitegroupIds.Elements() {
+		var iface interface{} = item
+		val := iface.(basetypes.StringValue)
+		items = append(items, uuid.MustParse(val.ValueString()))
 	}
-
-	if !plan.GatewaytemplateId.IsNull() && !plan.GatewaytemplateId.IsUnknown() {
-		gatewaytemplateId, e := uuid.Parse(plan.GatewaytemplateId.ValueString())
-		if e == nil {
-			data.GatewaytemplateId = models.NewOptional(&gatewaytemplateId)
-		} else {
-			diags.AddError("Bad value for gatewaytemplate_id", e.Error())
-		}
-	} else {
-		unset["-gatewaytemplate_id"] = ""
-	}
-
-	if !plan.NetworktemplateId.IsNull() && !plan.NetworktemplateId.IsUnknown() {
-		networktemplateId, e := uuid.Parse(plan.NetworktemplateId.ValueString())
-		if e == nil {
-			data.NetworktemplateId = models.NewOptional(&networktemplateId)
-		} else {
-			diags.AddError("Bad value for networktemplate_id", e.Error())
-		}
-	} else {
-		unset["-networktemplate_id"] = ""
-	}
-
-	if !plan.RftemplateId.IsNull() && !plan.RftemplateId.IsUnknown() {
-		rftemplateId, e := uuid.Parse(plan.RftemplateId.ValueString())
-		if e == nil {
-			data.RftemplateId = models.NewOptional(&rftemplateId)
-		} else {
-			diags.AddError("Bad value for rftemplate_id", e.Error())
-		}
-	} else {
-		unset["-rftemplate_id"] = nil
-	}
-
-	if !plan.SecpolicyId.IsNull() && !plan.SecpolicyId.IsUnknown() {
-		secpolicyId, e := uuid.Parse(plan.SecpolicyId.ValueString())
-		if e == nil {
-			data.SecpolicyId = models.NewOptional(&secpolicyId)
-		} else {
-			diags.AddError("Bad value for secpolicy_id", e.Error())
-		}
-	} else {
-		unset["-secpolicy_id"] = ""
-	}
-
-	if !plan.SitetemplateId.IsNull() && !plan.SitetemplateId.IsUnknown() {
-		sitetemplateId, e := uuid.Parse(plan.SitetemplateId.ValueString())
-		if e == nil {
-			data.SitetemplateId = models.NewOptional(&sitetemplateId)
-		} else {
-			diags.AddError("Bad value for sitetemplate_id", e.Error())
-		}
-	} else {
-		unset["-sitetemplate_id"] = ""
-	}
-
-	if !plan.SitegroupIds.IsNull() && !plan.SitegroupIds.IsUnknown() && len(plan.SitegroupIds.Elements()) > 0 {
-		var items []uuid.UUID
-		for _, item := range plan.SitegroupIds.Elements() {
-			var iface interface{} = item
-			val := iface.(basetypes.StringValue)
-			items = append(items, uuid.MustParse(val.ValueString()))
-		}
-		data.SitegroupIds = items
-	} else {
-		unset["-sitegroup_ids"] = ""
-	}
+	data.SitegroupIds = items
 
 	data.AdditionalProperties = unset
 	return &data, diags

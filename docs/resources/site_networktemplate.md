@@ -107,7 +107,7 @@ resource "mist_site_networktemplate" "networktemplate_one" {
 - `mist_nac` (Attributes) Enable mist_nac to use RadSec (see [below for nested schema](#nestedatt--mist_nac))
 - `networks` (Attributes Map) Property key is network name (see [below for nested schema](#nestedatt--networks))
 - `ntp_servers` (List of String) List of NTP servers
-- `ospf_areas` (Attributes Map) Junos OSPF areas (see [below for nested schema](#nestedatt--ospf_areas))
+- `ospf_areas` (Attributes Map) Junos OSPF areas. Property key is the OSPF Area (Area should be a number (0-255) / IP address) (see [below for nested schema](#nestedatt--ospf_areas))
 - `port_mirroring` (Attributes Map) Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed (see [below for nested schema](#nestedatt--port_mirroring))
 - `port_usages` (Attributes Map) Property key is the port usage name. Defines the profiles of port configuration configured on the switch (see [below for nested schema](#nestedatt--port_usages))
 - `radius_config` (Attributes) Junos Radius config (see [below for nested schema](#nestedatt--radius_config))
@@ -814,8 +814,6 @@ Optional:
 - `match_name` (String) string the switch name must start with to use this rule. Use the `match_name_offset` to indicate the first character of the switch name to compare to. It is possible to combine with the `match_model` and `match_role` attributes
 - `match_name_offset` (Number) first character of the switch name to compare to the `match_name` value
 - `match_role` (String) string the switch role must start with to use this rule. It is possible to combine with the `match_name` and `match_model` attributes
-- `match_type` (String, Deprecated) property key define the type of matching, value is the string to match. e.g: `match_name[0:3]`, `match_name[2:6]`, `match_model`,  `match_model[0-6]`
-- `match_value` (String, Deprecated)
 - `name` (String) Rule name. WARNING: the name `default` is reserved and can only be used for the last rule in the list
 - `oob_ip_config` (Attributes) Out-of-Band Management interface configuration (see [below for nested schema](#nestedatt--switch_matching--rules--oob_ip_config))
 - `port_config` (Attributes Map) Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--switch_matching--rules--port_config))

@@ -19,7 +19,7 @@ func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	for k, d := range m {
 		var disabled = types.BoolValue(false)
 		var exportPolicy basetypes.StringValue
-		var holdTime = types.Int64Value(90)
+		var holdTime basetypes.Int64Value
 		var importPolicy basetypes.StringValue
 		var multihopTtl basetypes.Int64Value
 		var neighborAs basetypes.StringValue
@@ -65,8 +65,8 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 	stateValueMap := make(map[string]attr.Value)
 	for k, d := range m {
 		var authKey basetypes.StringValue
-		var bfdMinimumInterval = types.Int64Value(350)
-		var bfdMultiplier = types.Int64Value(3)
+		var bfdMinimumInterval basetypes.Int64Value
+		var bfdMultiplier basetypes.Int64Value
 		var disableBfd = types.BoolValue(false)
 		var export basetypes.StringValue
 		var exportPolicy basetypes.StringValue
@@ -80,10 +80,10 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		var neighbors = types.MapNull(NeighborsValue{}.Type(ctx))
 		var networks = types.ListNull(types.StringType)
 		var noPrivateAs basetypes.BoolValue
-		var noReadvertiseToOverlay = types.BoolValue(false)
+		var noReadvertiseToOverlay basetypes.BoolValue
 		var typeBgp basetypes.StringValue
 		var tunnelName basetypes.StringValue
-		var via = types.StringValue("lan")
+		var via basetypes.StringValue
 		var vpnName basetypes.StringValue
 		var wanName basetypes.StringValue
 

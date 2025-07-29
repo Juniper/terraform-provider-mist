@@ -8,13 +8,106 @@ description: |-
 # Release Notes for v0.4.xx
 
 
+## Release Notes for v0.4.4
+**Release Date**: July 29th, 2025 
+
+### Fixes
+
 ## Release Notes for v0.4.3
 **Release Date**: July 11th, 2025 
+* **[Issue 120](https://github.com/Juniper/terraform-provider-mist/issues/120):** Replace the `.tunnel_configs.enable` attribute with `.tunnel_configs.enabled` in the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources to match the API attribute name.
+* **[Issue 121](https://github.com/Juniper/terraform-provider-mist/issues/121):** Fix the `mist_org_server.urls` validators to allow the `urls` attribute to be set when the `type` is set to `urls`
+* **[Issue 122](https://github.com/Juniper/terraform-provider-mist/issues/122):** Remove some of the attributes default value from the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources (see below for details).
+
+#### Attributes added
+- **`mist_device_switch` resource**
+ - `.ospf_config` has been added
+ - `.ospf_config.enabled` has been added
+ - `.ospf_config.area` has been added
+ - `.ospf_config.area.no_summary` has been added
+
+
+### Resources default values changed
+
+Changes have been applied to resources to reduce configuration drift when importing resources or saving changes from the Mist UI. These updates aim to align Terraform resource states with the Mist UI default values. However, some default values are dynamic and depend on other parameter values, making it currently impossible to completely eliminate configuration drift in certain scenarios.
+
+~> **Warning** Some default values have been removed from the Terraform Provider resource schemas.  
+These changes may lead to configuration drift if the affected attributes are not explicitly defined in your HCL configuration.  
+Attributes without explicit definitions will default to `null`, but this will not alter the actual configuration in the Mist Cloud (the Mist Cloud will use the default value). To avoid discrepancies, ensure that all required attributes are explicitly set in your configuration.
+
+*  **`mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources**
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `.bgp_config.bfd_minimum_interval` | StaticInt64(350) | N/A |
+| `.bgp_config.bfd_multiplier` | StaticInt64(350) | N/A |
+| `.bgp_config.neighbors.networks` | ListNull(types.StringType) | N/A |
+| `.bgp_config.no_readvertise_to_overlay` | StaticBool(false) | N/A |
+| `.bgp_config.via` | StaticString("lan") | N/A |
+| `.dhcpd_config.config.dns_suffix` | ListNull(types.StringType) | N/A |
+| `.dhcpd_config.config.lease_time` | StaticInt64(86400) | N/A |
+| `.dhcpd_config.config.server_id_override` | StaticBool(false) | N/A |
+| `.dhcpd_config.config.servers` | ListNull(types.StringType) | N/A |
+| `.dhcpd_config.config.servers6` | ListNull(types.StringType) | N/A |
+| `.dhcpd_config.config.type` | StaticString("local") | N/A |
+| `.dhcpd_config.config.type6` | StaticString("none") | N/A |
+| `.dhcpd_config.enabled` | StaticBool(true) | N/A |
+| `.idp_profiles.overwrites.action` | StaticString("alert") | N/A |
+| `.path_preferences.paths.networks` | ListNull(types.StringType) | N/A |
+| `.path_preferences.paths.target_ips` | ListNull(types.StringType) | N/A |
+| `.port_config.ae_disable_lacp` | StaticBool(false) | N/A |
+| `.port_config.ae_lacp_force_up` | StaticBool(false) | N/A |
+| `.port_config.aggregated` | StaticBool(false) | N/A |
+| `.port_config.critical` | StaticBool(false) | N/A |
+| `.port_config.disable_autoneg` | StaticBool(false) | N/A |
+| `.port_config.dsl_type` | StaticString("vdsl") | N/A |
+| `.port_config.dsl_vci` | StaticInt64(35) | N/A |
+| `.port_config.dsl_vpi` | StaticInt64(0) | N/A |
+| `.port_config.duplex` | StaticString("auto") | N/A |
+| `.port_config.lte_auth` | StaticString("none") | N/A |
+| `.port_config.networks` | ListNull(types.StringType) | N/A |
+| `.port_config.poe_disabled` | StaticBool(false) | N/A |
+| `.port_config.ip_config.pppoe_auth` | StaticString("none") | N/A |
+| `.port_config.ip_config.type` | StaticString("dhcp") | N/A |
+| `.port_config.preserve_dscp` | StaticBool(false) | N/A |
+| `.port_config.reth_nodes` | ListNull(types.StringType) | N/A |
+| `.port_config.speed` | StaticString("auto") | N/A |
+| `.port_config.ssr_no_virtual_mac` | StaticBool(false) | N/A |
+| `.port_config.svr_port_range` | StaticString("none") | N/A |
+| `.port_config.traffic_shaping.enabled` | StaticBool(false) | N/A |
+| `.port_config.vpn_paths.bfd_profile` | StaticString("broadband") | N/A |
+| `.port_config.vpn_paths.bfd_use_tunnel_mode` | StaticBool(false) | N/A |
+| `.port_config.vpn_paths.role` | StaticString("spoke") | N/A |
+| `.port_config.vpn_paths.traffic_shaping.enabled` | StaticBool(false) | N/A |
+| `.port_config.wan_arp_policer` | StaticString("default") | N/A |
+| `.port_config.wan_disable_speedtest` | StaticBool(false) | N/A |
+| `.port_config.wan_extra_routes` | types.MapValueMust(WanExtraRoutesValue{}.Type(ctx), map[string]attr.Value{}) | N/A |
+| `.port_config.wan_networks` | ListNull(types.StringType) | N/A |
+| `.port_config.wan_probe_override.probe_profile` | StaticString("broadband") | N/A |
+| `.port_config.wan_source_nat.disabled` | StaticBool(false) | N/A |
+| `.port_config.wan_type` | StaticString("broadband") | N/A |
+| `.service_policies.antivirus.enabled` | StaticBool(false) | N/A |
+| `.service_policies.appqoe.enabled` | StaticBool(false) | N/A |
+| `.service_policies.ewf.enabled` | StaticBool(false) | N/A |
+| `.service_policies.ewf.profile` | StaticString("strict") | N/A |
+| `.service_policies.idp.enabled` | StaticBool(false) | N/A |
+| `.service_policies.idp.profile` | StaticString("strict") | N/A |
+| `.service_policies.ssl_proxy.ciphers_category` | StaticString("strict") | N/A |
+| `.tunnel_configs.ike_mode` | StaticString("main") | N/A |
+| `.tunnel_configs.ike_proposals.dh_group` | StaticString("14") | N/A |
+| `.tunnel_configs.ike_proposals.enc_algo` | StaticString("aes256") | N/A |
+| `.tunnel_configs.ipsec_proposals.dh_group` | StaticString("14") | N/A |
+| `.tunnel_configs.ipsec_proposals.enc_algo` | StaticString("aes256") | N/A |
+| `.tunnel_configs.networks` | ListNull(types.StringType) | N/A |
+| `.tunnel_configs.version` | StaticString("2") | N/A |
+
+### Fixes
 * **[Issue 118](https://github.com/Juniper/terraform-provider-mist/issues/118):** Fix the `mist_device_switch.ip_config.dns` validators requiring the DNS to be set when the `ip_config.type` is set to `static`. The DNS is not optional in this case, so the validator has been updated to allow it to be empty.
 
 
 ## Release Notes for v0.4.2
 **Release Date**: July 1st, 2025 
+
+### Fixes
 * **[Issue 117](https://github.com/Juniper/terraform-provider-mist/issues/117):** Resolved a bug that prevented the `mist_org_deviceprofile_gateway.bpg_config.neighbor_as` attribute from being properly configured.
 
 

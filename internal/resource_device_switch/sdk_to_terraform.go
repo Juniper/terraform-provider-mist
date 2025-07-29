@@ -41,6 +41,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	var ntpServers = types.ListValueMust(types.StringType, []attr.Value{})
 	var oobIpConfig = NewOobIpConfigValueNull()
 	var ospfAreas = types.MapNull(OspfAreasValue{}.Type(ctx))
+	var ospfConfig = NewOspfConfigValueNull()
 	var otherIpConfigs = types.MapNull(OtherIpConfigsValue{}.Type(ctx))
 	var orgId types.String
 	var portConfig = types.MapNull(PortConfigValue{}.Type(ctx))
@@ -146,6 +147,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.OspfAreas != nil {
 		ospfAreas = ospfAreasSdkToTerraform(ctx, &diags, data.OspfAreas)
 	}
+	if data.OspfConfig != nil {
+		ospfConfig = ospfConfigSdkToTerraform(ctx, &diags, data.OspfConfig)
+	}
 	if len(data.OtherIpConfigs) > 0 {
 		otherIpConfigs = otherIpConfigsSdkToTerraform(ctx, &diags, data.OtherIpConfigs)
 	}
@@ -247,6 +251,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	state.OobIpConfig = oobIpConfig
 	state.OrgId = orgId
 	state.OspfAreas = ospfAreas
+	state.OspfConfig = ospfConfig
 	state.OtherIpConfigs = otherIpConfigs
 	state.PortConfig = portConfig
 	state.PortMirroring = portMirroring
