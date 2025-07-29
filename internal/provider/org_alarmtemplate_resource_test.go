@@ -3,6 +3,7 @@ package provider
 import (
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/hcl"
@@ -41,26 +42,28 @@ func TestOrgAlarmtemplate(t *testing.T) {
 		},
 	}
 
-	FixtureOrgAlarmtemplateModel := OrgAlarmtemplateModel{}
-
 	b, err := os.ReadFile("fixtures/org_alarmtemplate_resource/org_alarmtemplate_config.tf")
 	if err != nil {
 		fmt.Print(err)
 	}
 
 	str := string(b) // convert content to a 'string'
+	fixtures := strings.Split(str, "$")
 
-	err = hcl.Decode(&FixtureOrgAlarmtemplateModel, str)
-	if err != nil {
-		fmt.Printf("error decoding hcl: %s\n", err)
-	}
+	for i, fixture := range fixtures {
+		FixtureOrgAlarmtemplateModel := OrgAlarmtemplateModel{}
+		err = hcl.Decode(&FixtureOrgAlarmtemplateModel, fixture)
+		if err != nil {
+			fmt.Printf("error decoding hcl: %s\n", err)
+		}
 
-	testCases["fixture_case"] = testCase{
-		steps: []testStep{
-			{
-				config: FixtureOrgAlarmtemplateModel,
+		testCases[fmt.Sprintf("fixture_case_%d", i)] = testCase{
+			steps: []testStep{
+				{
+					config: FixtureOrgAlarmtemplateModel,
+				},
 			},
-		},
+		}
 	}
 
 	for tName, tCase := range testCases {

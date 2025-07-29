@@ -8,13 +8,13 @@ type OrgAlarmtemplateModel struct {
 }
 
 type DeliveryValue struct {
-	AdditionalEmails []string `cty:"additional_emails"`
+	AdditionalEmails []string `cty:"additional_emails" hcl:"additional_emails"`
 	Enabled          bool     `cty:"enabled"`
-	ToOrgAdmins      *bool    `cty:"to_org_admins"`
-	ToSiteAdmins     *bool    `cty:"to_site_admins"`
+	ToOrgAdmins      *bool    `cty:"to_org_admins" hcl:"to_org_admins"`
+	ToSiteAdmins     *bool    `cty:"to_site_admins" hcl:"to_site_admins"`
 }
 
 type OrgAlarmtemplateRulesValue struct {
-	Delivery *DeliveryValue `cty:"delivery"`
+	Delivery *DeliveryValue `cty:"delivery" hcl:"delivery"`
 	Enabled  bool           `cty:"enabled"`
 }
