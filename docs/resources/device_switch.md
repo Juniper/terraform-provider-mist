@@ -131,7 +131,8 @@ resource "mist_device_switch" "switch_one" {
 - `oob_ip_config` (Attributes) Switch OOB IP Config:
   - If HA configuration: key parameter will be nodeX (eg: node1)
   - If there are 2 routing engines, re1 mgmt IP has to be set separately (if desired): key parameter = `re1` (see [below for nested schema](#nestedatt--oob_ip_config))
-- `ospf_areas` (Attributes Map) Junos OSPF areas (see [below for nested schema](#nestedatt--ospf_areas))
+- `ospf_areas` (Attributes Map) Junos OSPF areas. Property key is the OSPF Area (Area should be a number (0-255) / IP address) (see [below for nested schema](#nestedatt--ospf_areas))
+- `ospf_config` (Attributes) (see [below for nested schema](#nestedatt--ospf_config))
 - `other_ip_configs` (Attributes Map) Property key is the network name. Defines the additional IP Addresses configured on the device. (see [below for nested schema](#nestedatt--other_ip_configs))
 - `port_config` (Attributes Map) Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--port_config))
 - `port_mirroring` (Attributes Map) Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed (see [below for nested schema](#nestedatt--port_mirroring))
@@ -512,6 +513,24 @@ Optional:
 - `metric` (Number)
 - `no_readvertise_to_overlay` (Boolean) By default, we'll re-advertise all learned OSPF routes toward overlay
 - `passive` (Boolean) Whether to send OSPF-Hello
+
+
+
+<a id="nestedatt--ospf_config"></a>
+### Nested Schema for `ospf_config`
+
+Optional:
+
+- `areas` (Attributes Map) Property key is the area name. Defines the OSPF areas configured on the switch. (see [below for nested schema](#nestedatt--ospf_config--areas))
+- `enabled` (Boolean) Enable OSPF on the switch
+- `reference_bandwidth` (String)
+
+<a id="nestedatt--ospf_config--areas"></a>
+### Nested Schema for `ospf_config.areas`
+
+Optional:
+
+- `no_summary` (Boolean) Disable OSPF summary routes for this area
 
 
 

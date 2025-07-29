@@ -145,6 +145,12 @@ resource "mist_org_deviceprofile_gateway" "deviceprofile_gw_one" {
 <a id="nestedatt--bgp_config"></a>
 ### Nested Schema for `bgp_config`
 
+Required:
+
+- `local_as` (String) Local AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
+- `neighbors` (Attributes Map) If per-neighbor as is desired. Property key is the neighbor address (see [below for nested schema](#nestedatt--bgp_config--neighbors))
+- `type` (String) enum: `external`, `internal`
+
 Optional:
 
 - `auth_key` (String)
@@ -160,20 +166,21 @@ Optional:
 - `hold_time` (Number)
 - `import` (String)
 - `import_policy` (String) Default import policies if no per-neighbor policies defined
-- `local_as` (String) Local AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
 - `neighbor_as` (String) Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
-- `neighbors` (Attributes Map) If per-neighbor as is desired. Property key is the neighbor address (see [below for nested schema](#nestedatt--bgp_config--neighbors))
 - `networks` (List of String) If `type`!=`external`or `via`==`wan`networks where we expect BGP neighbor to connect to/from
 - `no_private_as` (Boolean)
 - `no_readvertise_to_overlay` (Boolean) By default, we'll re-advertise all learned BGP routers toward overlay
 - `tunnel_name` (String) If `type`==`tunnel`
-- `type` (String) enum: `external`, `internal`
 - `via` (String) network name. enum: `lan`, `tunnel`, `vpn`, `wan`
 - `vpn_name` (String)
 - `wan_name` (String) If `via`==`wan`
 
 <a id="nestedatt--bgp_config--neighbors"></a>
 ### Nested Schema for `bgp_config.neighbors`
+
+Required:
+
+- `neighbor_as` (String) Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
 
 Optional:
 
@@ -182,7 +189,6 @@ Optional:
 - `hold_time` (Number)
 - `import_policy` (String)
 - `multihop_ttl` (Number) Assuming BGP neighbor is directly connected
-- `neighbor_as` (String) Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
 
 
 
@@ -200,7 +206,7 @@ Optional:
 Optional:
 
 - `dns_servers` (List of String) If `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
-- `dns_suffix` (List of String) If `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
+- `dns_suffix` (List of String, Deprecated) If `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
 - `fixed_bindings` (Attributes Map) If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
 - `gateway` (String) If `type`==`local` - optional, `ip` will be used if not provided
 - `ip_end` (String) If `type`==`local`
@@ -494,6 +500,10 @@ Optional:
 <a id="nestedatt--path_preferences--paths"></a>
 ### Nested Schema for `path_preferences.paths`
 
+Required:
+
+- `type` (String) enum: `local`, `tunnel`, `vpn`, `wan`
+
 Optional:
 
 - `cost` (Number)
@@ -505,7 +515,6 @@ Optional:
   * `type`==`wan`: the name of the WAN interface to use
 - `networks` (List of String) Required when `type`==`local`
 - `target_ips` (List of String) If `type`==`local`, if destination IP is to be replaced
-- `type` (String) enum: `local`, `tunnel`, `vpn`, `wan`
 - `wan_name` (String) Optional if `type`==`vpn`
 
 
@@ -781,7 +790,7 @@ Optional:
 
 Optional:
 
-- `auto_provision` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision))
+- `auto_provision` (Attributes) Auto Provisioning configuration for the tunne. This takes precedence over the `primary` and `secondary` nodes. (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision))
 - `ike_lifetime` (Number) Only if `provider`==`custom-ipsec`. Must be between 180 and 86400
 - `ike_mode` (String) Only if `provider`==`custom-ipsec`. enum: `aggressive`, `main`
 - `ike_proposals` (Attributes List) If `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ike_proposals))
@@ -807,7 +816,7 @@ Required:
 
 Optional:
 
-- `enable` (Boolean)
+- `enabled` (Boolean) Enable auto provisioning for the tunnel. If enabled, the `primary` and `secondary` nodes will be ignored.
 - `latlng` (Attributes) API override for POP selection (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--latlng))
 - `primary` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--primary))
 - `region` (String) API override for POP selection in the case user wants to override the auto discovery of remote network location and force the tunnel to use the specified peer location.
