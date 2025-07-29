@@ -2806,6 +2806,11 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Required if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`. enum: `active-active`, `active-standby`",
 							MarkdownDescription: "Required if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`. enum: `active-active`, `active-standby`",
 							Validators: []validator.String{
+								stringvalidator.OneOf(
+									"",
+									"active-active",
+									"active-standby",
+								),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("zscaler-gre")),
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("jse-ipsec")),
 							},
