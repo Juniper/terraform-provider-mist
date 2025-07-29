@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
@@ -18,7 +19,7 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	var additionalConfigCmds = types.ListNull(types.StringType)
 	var bgpConfig = types.MapNull(BgpConfigValue{}.Type(ctx))
 	var dhcpdConfig = NewDhcpdConfigValueNull()
-	var dnsOverride = types.BoolValue(false)
+	var dnsOverride basetypes.BoolValue
 	var dnsServers = types.ListNull(types.StringType)
 	var dnsSuffix = types.ListNull(types.StringType)
 	var extraRoutes = types.MapNull(ExtraRoutesValue{}.Type(ctx))
@@ -28,7 +29,7 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	var ipConfigs = types.MapNull(IpConfigsValue{}.Type(ctx))
 	var name = types.StringValue(data.Name)
 	var networks = types.ListNull(NetworksValue{}.Type(ctx))
-	var ntpOverride = types.BoolValue(false)
+	var ntpOverride basetypes.BoolValue
 	var ntpServers = types.ListNull(types.StringType)
 	var oobIpConfig = NewOobIpConfigValueNull()
 	var orgId types.String
