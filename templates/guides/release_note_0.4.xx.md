@@ -19,6 +19,13 @@ description: |-
 * **[Issue 121](https://github.com/Juniper/terraform-provider-mist/issues/121):** Fix the `mist_org_server.urls` validators to allow the `urls` attribute to be set when the `type` is set to `urls`
 * **[Issue 122](https://github.com/Juniper/terraform-provider-mist/issues/122):** Remove some of the attributes default value from the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources (see below for details).
 
+#### Attributes added
+- **`mist_device_switch` resource**
+ - `.ospf_config` has been added
+ - `.ospf_config.enabled` has been added
+ - `.ospf_config.area` has been added
+ - `.ospf_config.area.no_summary` has been added
+
 
 ### Resources default values changed
 
@@ -28,7 +35,7 @@ Changes have been applied to resources to reduce configuration drift when import
 These changes may lead to configuration drift if the affected attributes are not explicitly defined in your HCL configuration.  
 Attributes without explicit definitions will default to `null`, but this will not alter the actual configuration in the Mist Cloud (the Mist Cloud will use the default value). To avoid discrepancies, ensure that all required attributes are explicitly set in your configuration.
 
-*  `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources
+*  **`mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources**
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.bgp_config.bfd_minimum_interval` | StaticInt64(350) | N/A |
