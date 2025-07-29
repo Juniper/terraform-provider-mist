@@ -8,13 +8,16 @@ description: |-
 # Release Notes for v0.4.xx
 
 
+## Release Notes for v0.4.5
+**Release Date**: July 29th, 2025 
+
+This release doesn't include any new features or fixes. It is only fixing the release notes formatting.
+
+
 ## Release Notes for v0.4.4
 **Release Date**: July 29th, 2025 
 
 ### Fixes
-
-## Release Notes for v0.4.3
-**Release Date**: July 11th, 2025 
 * **[Issue 120](https://github.com/Juniper/terraform-provider-mist/issues/120):** Replace the `.tunnel_configs.enable` attribute with `.tunnel_configs.enabled` in the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources to match the API attribute name.
 * **[Issue 121](https://github.com/Juniper/terraform-provider-mist/issues/121):** Fix the `mist_org_server.urls` validators to allow the `urls` attribute to be set when the `type` is set to `urls`
 * **[Issue 122](https://github.com/Juniper/terraform-provider-mist/issues/122):** Remove some of the attributes default value from the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources (see below for details).
@@ -99,6 +102,10 @@ Attributes without explicit definitions will default to `null`, but this will no
 | `.tunnel_configs.ipsec_proposals.enc_algo` | StaticString("aes256") | N/A |
 | `.tunnel_configs.networks` | ListNull(types.StringType) | N/A |
 | `.tunnel_configs.version` | StaticString("2") | N/A |
+
+
+## Release Notes for v0.4.3
+**Release Date**: July 11th, 2025 
 
 ### Fixes
 * **[Issue 118](https://github.com/Juniper/terraform-provider-mist/issues/118):** Fix the `mist_device_switch.ip_config.dns` validators requiring the DNS to be set when the `ip_config.type` is set to `static`. The DNS is not optional in this case, so the validator has been updated to allow it to be empty.
