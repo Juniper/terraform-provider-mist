@@ -8,6 +8,16 @@ description: |-
 # Release Notes for v0.4.xx
 
 
+## Release Notes for v0.4.6
+**Release Date**: July 30th, 2025 
+
+### Fixes
+* **[Issue 122](https://github.com/Juniper/terraform-provider-mist/issues/122):** Fix the `.bgp_config` attributes validators in the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources to correct the fields required when the `.bgp_config.via` attribute is set to `vpn`.   
+The attributes `.bgp_config.hold_time`, `.bgp_config.local_as`, `.bgp_config.neighbors`,  `.bgp_config.no_private_as` and `bgp_config.type` are now only required when the `.bgp_config.via` is set to `lan`, `tunnel` or `wan`.  
+In addition, the `.bgp_config.graceful_restart_time` and `.bgp_config.hold_time` default values have been removed from the provider schema, as they are not applicable when the `.bgp_config.via` is set to `vpn`.
+
+
+
 ## Release Notes for v0.4.5
 **Release Date**: July 29th, 2025 
 
@@ -102,6 +112,8 @@ Attributes without explicit definitions will default to `null`, but this will no
 | `.tunnel_configs.ipsec_proposals.enc_algo` | StaticString("aes256") | N/A |
 | `.tunnel_configs.networks` | ListNull(types.StringType) | N/A |
 | `.tunnel_configs.version` | StaticString("2") | N/A |
+
+
 
 
 ## Release Notes for v0.4.3

@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
@@ -47,30 +46,30 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"auth_key": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`",
+							MarkdownDescription: "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`",
 						},
 						"bfd_minimum_interval": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "When bfd_multiplier is configured alone. Default:\n  * 1000 if `type`==`external`\n  * 350 `type`==`internal`",
-							MarkdownDescription: "When bfd_multiplier is configured alone. Default:\n  * 1000 if `type`==`external`\n  * 350 `type`==`internal`",
+							Description:         "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`, when bfd_multiplier is configured alone. Default:\n  * 1000 if `type`==`external`\n  * 350 `type`==`internal`",
+							MarkdownDescription: "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`, when bfd_multiplier is configured alone. Default:\n  * 1000 if `type`==`external`\n  * 350 `type`==`internal`",
 							Validators: []validator.Int64{
 								int64validator.Between(1, 255000),
 							},
 						},
 						"bfd_multiplier": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "When bfd_minimum_interval_is_configured alone",
-							MarkdownDescription: "When bfd_minimum_interval_is_configured alone",
+							Description:         "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`, when bfd_minimum_interval_is_configured alone",
+							MarkdownDescription: "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`, when bfd_minimum_interval_is_configured alone",
 							Validators: []validator.Int64{
 								int64validator.Between(1, 255),
 							},
 						},
 						"disable_bfd": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
-							Description:         "BFD provides faster path failure detection and is enabled by default",
-							MarkdownDescription: "BFD provides faster path failure detection and is enabled by default",
-							Default:             booldefault.StaticBool(false),
+							Description:         "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. BFD provides faster path failure detection and is enabled by default",
+							MarkdownDescription: "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. BFD provides faster path failure detection and is enabled by default",
 						},
 						"export": schema.StringAttribute{
 							Optional: true,
@@ -82,40 +81,42 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"extended_v4_nexthop": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "By default, either inet/net6 unicast depending on neighbor IP family (v4 or v6). For v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this",
-							MarkdownDescription: "By default, either inet/net6 unicast depending on neighbor IP family (v4 or v6). For v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this",
+							Description:         "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. By default, either inet/net6 unicast depending on neighbor IP family (v4 or v6). For v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this",
+							MarkdownDescription: "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. By default, either inet/net6 unicast depending on neighbor IP family (v4 or v6). For v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this",
 						},
 						"graceful_restart_time": schema.Int64Attribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "`0` means disable",
-							MarkdownDescription: "`0` means disable",
+							Description:         "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. `0` means disable",
+							MarkdownDescription: "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. `0` means disable",
 							Validators: []validator.Int64{
 								int64validator.Between(0, 4095),
 							},
-							Default: int64default.StaticInt64(0),
 						},
 						"hold_time": schema.Int64Attribute{
-							Optional: true,
-							Computed: true,
+							Optional:            true,
+							Description:         "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. Default is 90.",
+							MarkdownDescription: "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. Default is 90.",
 							Validators: []validator.Int64{
 								int64validator.Between(0, 65535),
 							},
-							Default: int64default.StaticInt64(90),
 						},
 						"import": schema.StringAttribute{
 							Optional: true,
 						},
 						"import_policy": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Default import policies if no per-neighbor policies defined",
-							MarkdownDescription: "Default import policies if no per-neighbor policies defined",
+							Description:         "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. Default import policies if no per-neighbor policies defined",
+							MarkdownDescription: "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. Default import policies if no per-neighbor policies defined",
 						},
 						"local_as": schema.StringAttribute{
-							Required:            true,
-							Description:         "Local AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
-							MarkdownDescription: "Local AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+							Optional:            true,
+							Description:         "Required if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. BGPLocal AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+							MarkdownDescription: "Required if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. BGPLocal AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
 							Validators: []validator.String{
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("lan")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("tunnel")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("wan")),
 								stringvalidator.Any(
 									mistvalidator.ParseInt(1, 4294967295),
 									mistvalidator.ParseVar(),
@@ -124,8 +125,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"neighbor_as": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
-							MarkdownDescription: "Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+							Description:         "Neighbor AS. If `type`==`internal`, must be equal to `local_as`. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
+							MarkdownDescription: "Neighbor AS. If `type`==`internal`, must be equal to `local_as`. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)",
 							Validators: []validator.String{
 								stringvalidator.Any(
 									mistvalidator.ParseInt(1, 4294967295),
@@ -181,10 +182,13 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 							},
-							Required:            true,
-							Description:         "If per-neighbor as is desired. Property key is the neighbor address",
-							MarkdownDescription: "If per-neighbor as is desired. Property key is the neighbor address",
+							Optional:            true,
+							Description:         "Required if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. If per-neighbor as is desired. Property key is the neighbor address",
+							MarkdownDescription: "Required if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. If per-neighbor as is desired. Property key is the neighbor address",
 							Validators: []validator.Map{
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("lan")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("tunnel")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("wan")),
 								mapvalidator.SizeAtLeast(1),
 								mapvalidator.KeysAre(
 									stringvalidator.Any(
@@ -197,35 +201,31 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						"networks": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Description:         "If `type`!=`external`or `via`==`wan`networks where we expect BGP neighbor to connect to/from",
-							MarkdownDescription: "If `type`!=`external`or `via`==`wan`networks where we expect BGP neighbor to connect to/from",
+							Description:         "Optional if `via`==`lan`. List of networks where we expect BGP neighbor to connect to/from",
+							MarkdownDescription: "Optional if `via`==`lan`. List of networks where we expect BGP neighbor to connect to/from",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
-								listvalidator.Any(
-									mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtMapKey("type"), types.StringValue("external")),
-									mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtMapKey("via"), types.StringValue("wan")),
-								),
 							},
 						},
 						"no_private_as": schema.BoolAttribute{
-							Optional: true,
-							Computed: true,
-							Default:  booldefault.StaticBool(false),
+							Optional:            true,
+							Description:         "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. If true, we will not advertise private ASNs (AS 64512-65534) to this neighbor",
+							MarkdownDescription: "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. If true, we will not advertise private ASNs (AS 64512-65534) to this neighbor",
 						},
 						"no_readvertise_to_overlay": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "By default, we'll re-advertise all learned BGP routers toward overlay",
-							MarkdownDescription: "By default, we'll re-advertise all learned BGP routers toward overlay",
+							Description:         "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. By default, we'll re-advertise all learned BGP routers toward overlay",
+							MarkdownDescription: "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. By default, we'll re-advertise all learned BGP routers toward overlay",
 						},
 						"tunnel_name": schema.StringAttribute{
 							Optional:            true,
-							Description:         "If `type`==`tunnel`",
-							MarkdownDescription: "If `type`==`tunnel`",
+							Description:         "Optional if `via`==`tunnel`",
+							MarkdownDescription: "Optional if `via`==`tunnel`",
 						},
 						"type": schema.StringAttribute{
-							Required:            true,
-							Description:         "enum: `external`, `internal`",
-							MarkdownDescription: "enum: `external`, `internal`",
+							Optional:            true,
+							Description:         "Required if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. enum: `external`, `internal`",
+							MarkdownDescription: "Required if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. enum: `external`, `internal`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -233,12 +233,15 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									"internal",
 								),
 								stringvalidator.LengthAtLeast(1),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("lan")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("tunnel")),
+								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("wan")),
 							},
 						},
 						"via": schema.StringAttribute{
-							Optional:            true,
-							Description:         "network name. enum: `lan`, `tunnel`, `vpn`, `wan`",
-							MarkdownDescription: "network name. enum: `lan`, `tunnel`, `vpn`, `wan`",
+							Required:            true,
+							Description:         "enum: `lan`, `tunnel`, `vpn`, `wan`",
+							MarkdownDescription: "enum: `lan`, `tunnel`, `vpn`, `wan`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -250,17 +253,14 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						"vpn_name": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Optional if `via`==`vpn`",
+							MarkdownDescription: "Optional if `via`==`vpn`",
 						},
 						"wan_name": schema.StringAttribute{
 							Optional:            true,
-							Description:         "If `via`==`wan`",
-							MarkdownDescription: "If `via`==`wan`",
-							Validators: []validator.String{
-								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("wan")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("lan")),
-								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("via"), types.StringValue("wan")),
-							},
+							Description:         "Optional if `via`==`wan`",
+							MarkdownDescription: "Optional if `via`==`wan`",
 						},
 					},
 					CustomType: BgpConfigType{

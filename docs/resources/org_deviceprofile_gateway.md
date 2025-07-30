@@ -147,33 +147,33 @@ resource "mist_org_deviceprofile_gateway" "deviceprofile_gw_one" {
 
 Required:
 
-- `local_as` (String) Local AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
-- `neighbors` (Attributes Map) If per-neighbor as is desired. Property key is the neighbor address (see [below for nested schema](#nestedatt--bgp_config--neighbors))
-- `type` (String) enum: `external`, `internal`
+- `via` (String) enum: `lan`, `tunnel`, `vpn`, `wan`
 
 Optional:
 
-- `auth_key` (String)
-- `bfd_minimum_interval` (Number) When bfd_multiplier is configured alone. Default:
+- `auth_key` (String) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`
+- `bfd_minimum_interval` (Number) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`, when bfd_multiplier is configured alone. Default:
   * 1000 if `type`==`external`
   * 350 `type`==`internal`
-- `bfd_multiplier` (Number) When bfd_minimum_interval_is_configured alone
-- `disable_bfd` (Boolean) BFD provides faster path failure detection and is enabled by default
+- `bfd_multiplier` (Number) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`, when bfd_minimum_interval_is_configured alone
+- `disable_bfd` (Boolean) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. BFD provides faster path failure detection and is enabled by default
 - `export` (String)
 - `export_policy` (String) Default export policies if no per-neighbor policies defined
-- `extended_v4_nexthop` (Boolean) By default, either inet/net6 unicast depending on neighbor IP family (v4 or v6). For v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this
-- `graceful_restart_time` (Number) `0` means disable
-- `hold_time` (Number)
+- `extended_v4_nexthop` (Boolean) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. By default, either inet/net6 unicast depending on neighbor IP family (v4 or v6). For v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this
+- `graceful_restart_time` (Number) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. `0` means disable
+- `hold_time` (Number) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. Default is 90.
 - `import` (String)
-- `import_policy` (String) Default import policies if no per-neighbor policies defined
-- `neighbor_as` (String) Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
-- `networks` (List of String) If `type`!=`external`or `via`==`wan`networks where we expect BGP neighbor to connect to/from
-- `no_private_as` (Boolean)
-- `no_readvertise_to_overlay` (Boolean) By default, we'll re-advertise all learned BGP routers toward overlay
-- `tunnel_name` (String) If `type`==`tunnel`
-- `via` (String) network name. enum: `lan`, `tunnel`, `vpn`, `wan`
-- `vpn_name` (String)
-- `wan_name` (String) If `via`==`wan`
+- `import_policy` (String) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. Default import policies if no per-neighbor policies defined
+- `local_as` (String) Required if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. BGPLocal AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
+- `neighbor_as` (String) Neighbor AS. If `type`==`internal`, must be equal to `local_as`. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
+- `neighbors` (Attributes Map) Required if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. If per-neighbor as is desired. Property key is the neighbor address (see [below for nested schema](#nestedatt--bgp_config--neighbors))
+- `networks` (List of String) Optional if `via`==`lan`. List of networks where we expect BGP neighbor to connect to/from
+- `no_private_as` (Boolean) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. If true, we will not advertise private ASNs (AS 64512-65534) to this neighbor
+- `no_readvertise_to_overlay` (Boolean) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. By default, we'll re-advertise all learned BGP routers toward overlay
+- `tunnel_name` (String) Optional if `via`==`tunnel`
+- `type` (String) Required if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. enum: `external`, `internal`
+- `vpn_name` (String) Optional if `via`==`vpn`
+- `wan_name` (String) Optional if `via`==`wan`
 
 <a id="nestedatt--bgp_config--neighbors"></a>
 ### Nested Schema for `bgp_config.neighbors`
