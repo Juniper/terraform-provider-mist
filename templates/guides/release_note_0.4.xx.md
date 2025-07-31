@@ -12,7 +12,7 @@ description: |-
 **Release Date**: July 31th, 2025 
 
 ### Fixes
-* **[Issue 125](https://github.com/Juniper/terraform-provider-mist/issues/125):** Replace the `.routing_policies.terms.action` attribute with `.routing_policies.terms.action` in the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources to match the API attribute name.
+* **[Issue 125](https://github.com/Juniper/terraform-provider-mist/issues/125):** Replace the `.routing_policies.terms.action` attribute with `.routing_policies.terms.actions` in the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources to match the API attribute name.
 * Remove the `remove_existing_configs` attribute from the `mist_site_networktemplate` resource. This attribute has been moved to the `mist_site_setting` resource as `remove_existing_configs`. It is recommended to use the new attribute instead.
 
 ## Release Notes for v0.4.6

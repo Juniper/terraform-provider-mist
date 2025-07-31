@@ -86,7 +86,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"graceful_restart_time": schema.Int64Attribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. `0` means disable",
 							MarkdownDescription: "Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. `0` means disable",
 							Validators: []validator.Int64{
@@ -2214,7 +2213,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						"terms": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
-									"action": schema.SingleNestedAttribute{
+									"actions": schema.SingleNestedAttribute{
 										Attributes: map[string]schema.Attribute{
 											"accept": schema.BoolAttribute{
 												Optional: true,
@@ -2263,9 +2262,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 												MarkdownDescription: "When used as export policy, optional. By default, the local AS will be prepended, to change it",
 											},
 										},
-										CustomType: ActionType{
+										CustomType: ActionsType{
 											ObjectType: types.ObjectType{
-												AttrTypes: ActionValue{}.AttributeTypes(ctx),
+												AttrTypes: ActionsValue{}.AttributeTypes(ctx),
 											},
 										},
 										Optional:            true,
@@ -28108,22 +28107,22 @@ func (t TermsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 
 	attributes := in.Attributes()
 
-	actionAttribute, ok := attributes["action"]
+	actionsAttribute, ok := attributes["actions"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`action is missing from object`)
+			`actions is missing from object`)
 
 		return nil, diags
 	}
 
-	actionVal, ok := actionAttribute.(basetypes.ObjectValue)
+	actionsVal, ok := actionsAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`action expected to be basetypes.ObjectValue, was: %T`, actionAttribute))
+			fmt.Sprintf(`actions expected to be basetypes.ObjectValue, was: %T`, actionsAttribute))
 	}
 
 	routingPolicyTermMatchingAttribute, ok := attributes["matching"]
@@ -28149,7 +28148,7 @@ func (t TermsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 	}
 
 	return TermsValue{
-		Action:                    actionVal,
+		Actions:                   actionsVal,
 		RoutingPolicyTermMatching: routingPolicyTermMatchingVal,
 		state:                     attr.ValueStateKnown,
 	}, diags
@@ -28218,22 +28217,22 @@ func NewTermsValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		return NewTermsValueUnknown(), diags
 	}
 
-	actionAttribute, ok := attributes["action"]
+	actionsAttribute, ok := attributes["actions"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`action is missing from object`)
+			`actions is missing from object`)
 
 		return NewTermsValueUnknown(), diags
 	}
 
-	actionVal, ok := actionAttribute.(basetypes.ObjectValue)
+	actionsVal, ok := actionsAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`action expected to be basetypes.ObjectValue, was: %T`, actionAttribute))
+			fmt.Sprintf(`actions expected to be basetypes.ObjectValue, was: %T`, actionsAttribute))
 	}
 
 	routingPolicyTermMatchingAttribute, ok := attributes["matching"]
@@ -28259,7 +28258,7 @@ func NewTermsValue(attributeTypes map[string]attr.Type, attributes map[string]at
 	}
 
 	return TermsValue{
-		Action:                    actionVal,
+		Actions:                   actionsVal,
 		RoutingPolicyTermMatching: routingPolicyTermMatchingVal,
 		state:                     attr.ValueStateKnown,
 	}, diags
@@ -28333,7 +28332,7 @@ func (t TermsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = TermsValue{}
 
 type TermsValue struct {
-	Action                    basetypes.ObjectValue `tfsdk:"action"`
+	Actions                   basetypes.ObjectValue `tfsdk:"actions"`
 	RoutingPolicyTermMatching basetypes.ObjectValue `tfsdk:"matching"`
 	state                     attr.ValueState
 }
@@ -28344,8 +28343,8 @@ func (v TermsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 	var val tftypes.Value
 	var err error
 
-	attrTypes["action"] = basetypes.ObjectType{
-		AttrTypes: ActionValue{}.AttributeTypes(ctx),
+	attrTypes["actions"] = basetypes.ObjectType{
+		AttrTypes: ActionsValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["matching"] = basetypes.ObjectType{
 		AttrTypes: RoutingPolicyTermMatchingValue{}.AttributeTypes(ctx),
@@ -28357,13 +28356,13 @@ func (v TermsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 2)
 
-		val, err = v.Action.ToTerraformValue(ctx)
+		val, err = v.Actions.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["action"] = val
+		vals["actions"] = val
 
 		val, err = v.RoutingPolicyTermMatching.ToTerraformValue(ctx)
 
@@ -28402,24 +28401,24 @@ func (v TermsValue) String() string {
 func (v TermsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	var action basetypes.ObjectValue
+	var actions basetypes.ObjectValue
 
-	if v.Action.IsNull() {
-		action = types.ObjectNull(
-			ActionValue{}.AttributeTypes(ctx),
+	if v.Actions.IsNull() {
+		actions = types.ObjectNull(
+			ActionsValue{}.AttributeTypes(ctx),
 		)
 	}
 
-	if v.Action.IsUnknown() {
-		action = types.ObjectUnknown(
-			ActionValue{}.AttributeTypes(ctx),
+	if v.Actions.IsUnknown() {
+		actions = types.ObjectUnknown(
+			ActionsValue{}.AttributeTypes(ctx),
 		)
 	}
 
-	if !v.Action.IsNull() && !v.Action.IsUnknown() {
-		action = types.ObjectValueMust(
-			ActionValue{}.AttributeTypes(ctx),
-			v.Action.Attributes(),
+	if !v.Actions.IsNull() && !v.Actions.IsUnknown() {
+		actions = types.ObjectValueMust(
+			ActionsValue{}.AttributeTypes(ctx),
+			v.Actions.Attributes(),
 		)
 	}
 
@@ -28445,8 +28444,8 @@ func (v TermsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"action": basetypes.ObjectType{
-			AttrTypes: ActionValue{}.AttributeTypes(ctx),
+		"actions": basetypes.ObjectType{
+			AttrTypes: ActionsValue{}.AttributeTypes(ctx),
 		},
 		"matching": basetypes.ObjectType{
 			AttrTypes: RoutingPolicyTermMatchingValue{}.AttributeTypes(ctx),
@@ -28464,7 +28463,7 @@ func (v TermsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"action":   action,
+			"actions":  actions,
 			"matching": routingPolicyTermMatching,
 		})
 
@@ -28486,7 +28485,7 @@ func (v TermsValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.Action.Equal(other.Action) {
+	if !v.Actions.Equal(other.Actions) {
 		return false
 	}
 
@@ -28507,8 +28506,8 @@ func (v TermsValue) Type(ctx context.Context) attr.Type {
 
 func (v TermsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"action": basetypes.ObjectType{
-			AttrTypes: ActionValue{}.AttributeTypes(ctx),
+		"actions": basetypes.ObjectType{
+			AttrTypes: ActionsValue{}.AttributeTypes(ctx),
 		},
 		"matching": basetypes.ObjectType{
 			AttrTypes: RoutingPolicyTermMatchingValue{}.AttributeTypes(ctx),
@@ -28516,14 +28515,14 @@ func (v TermsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	}
 }
 
-var _ basetypes.ObjectTypable = ActionType{}
+var _ basetypes.ObjectTypable = ActionsType{}
 
-type ActionType struct {
+type ActionsType struct {
 	basetypes.ObjectType
 }
 
-func (t ActionType) Equal(o attr.Type) bool {
-	other, ok := o.(ActionType)
+func (t ActionsType) Equal(o attr.Type) bool {
+	other, ok := o.(ActionsType)
 
 	if !ok {
 		return false
@@ -28532,11 +28531,11 @@ func (t ActionType) Equal(o attr.Type) bool {
 	return t.ObjectType.Equal(other.ObjectType)
 }
 
-func (t ActionType) String() string {
-	return "ActionType"
+func (t ActionsType) String() string {
+	return "ActionsType"
 }
 
-func (t ActionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+func (t ActionsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
@@ -28707,7 +28706,7 @@ func (t ActionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	return ActionValue{
+	return ActionsValue{
 		Accept:            acceptVal,
 		AddCommunity:      addCommunityVal,
 		AddTargetVrfs:     addTargetVrfsVal,
@@ -28721,19 +28720,19 @@ func (t ActionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 	}, diags
 }
 
-func NewActionValueNull() ActionValue {
-	return ActionValue{
+func NewActionsValueNull() ActionsValue {
+	return ActionsValue{
 		state: attr.ValueStateNull,
 	}
 }
 
-func NewActionValueUnknown() ActionValue {
-	return ActionValue{
+func NewActionsValueUnknown() ActionsValue {
+	return ActionsValue{
 		state: attr.ValueStateUnknown,
 	}
 }
 
-func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (ActionValue, diag.Diagnostics) {
+func NewActionsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (ActionsValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
@@ -28744,11 +28743,11 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 
 		if !ok {
 			diags.AddError(
-				"Missing ActionValue Attribute Value",
-				"While creating a ActionValue value, a missing attribute value was detected. "+
-					"A ActionValue must contain values for all attributes, even if null or unknown. "+
+				"Missing ActionsValue Attribute Value",
+				"While creating a ActionsValue value, a missing attribute value was detected. "+
+					"A ActionsValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("ActionValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("ActionsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -28756,12 +28755,12 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid ActionValue Attribute Type",
-				"While creating a ActionValue value, an invalid attribute value was detected. "+
-					"A ActionValue must use a matching attribute type for the value. "+
+				"Invalid ActionsValue Attribute Type",
+				"While creating a ActionsValue value, an invalid attribute value was detected. "+
+					"A ActionsValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("ActionValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("ActionValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("ActionsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("ActionsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -28771,17 +28770,17 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 
 		if !ok {
 			diags.AddError(
-				"Extra ActionValue Attribute Value",
-				"While creating a ActionValue value, an extra attribute value was detected. "+
-					"A ActionValue must not contain values beyond the expected attribute types. "+
+				"Extra ActionsValue Attribute Value",
+				"While creating a ActionsValue value, an extra attribute value was detected. "+
+					"A ActionsValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra ActionValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra ActionsValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewActionValueUnknown(), diags
+		return NewActionsValueUnknown(), diags
 	}
 
 	acceptAttribute, ok := attributes["accept"]
@@ -28791,7 +28790,7 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			"Attribute Missing",
 			`accept is missing from object`)
 
-		return NewActionValueUnknown(), diags
+		return NewActionsValueUnknown(), diags
 	}
 
 	acceptVal, ok := acceptAttribute.(basetypes.BoolValue)
@@ -28809,7 +28808,7 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			"Attribute Missing",
 			`add_community is missing from object`)
 
-		return NewActionValueUnknown(), diags
+		return NewActionsValueUnknown(), diags
 	}
 
 	addCommunityVal, ok := addCommunityAttribute.(basetypes.ListValue)
@@ -28827,7 +28826,7 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			"Attribute Missing",
 			`add_target_vrfs is missing from object`)
 
-		return NewActionValueUnknown(), diags
+		return NewActionsValueUnknown(), diags
 	}
 
 	addTargetVrfsVal, ok := addTargetVrfsAttribute.(basetypes.ListValue)
@@ -28845,7 +28844,7 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			"Attribute Missing",
 			`community is missing from object`)
 
-		return NewActionValueUnknown(), diags
+		return NewActionsValueUnknown(), diags
 	}
 
 	communityVal, ok := communityAttribute.(basetypes.ListValue)
@@ -28863,7 +28862,7 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			"Attribute Missing",
 			`exclude_as_path is missing from object`)
 
-		return NewActionValueUnknown(), diags
+		return NewActionsValueUnknown(), diags
 	}
 
 	excludeAsPathVal, ok := excludeAsPathAttribute.(basetypes.ListValue)
@@ -28881,7 +28880,7 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			"Attribute Missing",
 			`exclude_community is missing from object`)
 
-		return NewActionValueUnknown(), diags
+		return NewActionsValueUnknown(), diags
 	}
 
 	excludeCommunityVal, ok := excludeCommunityAttribute.(basetypes.ListValue)
@@ -28899,7 +28898,7 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			"Attribute Missing",
 			`export_communities is missing from object`)
 
-		return NewActionValueUnknown(), diags
+		return NewActionsValueUnknown(), diags
 	}
 
 	exportCommunitiesVal, ok := exportCommunitiesAttribute.(basetypes.ListValue)
@@ -28917,7 +28916,7 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			"Attribute Missing",
 			`local_preference is missing from object`)
 
-		return NewActionValueUnknown(), diags
+		return NewActionsValueUnknown(), diags
 	}
 
 	localPreferenceVal, ok := localPreferenceAttribute.(basetypes.StringValue)
@@ -28935,7 +28934,7 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			"Attribute Missing",
 			`prepend_as_path is missing from object`)
 
-		return NewActionValueUnknown(), diags
+		return NewActionsValueUnknown(), diags
 	}
 
 	prependAsPathVal, ok := prependAsPathAttribute.(basetypes.ListValue)
@@ -28947,10 +28946,10 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 	}
 
 	if diags.HasError() {
-		return NewActionValueUnknown(), diags
+		return NewActionsValueUnknown(), diags
 	}
 
-	return ActionValue{
+	return ActionsValue{
 		Accept:            acceptVal,
 		AddCommunity:      addCommunityVal,
 		AddTargetVrfs:     addTargetVrfsVal,
@@ -28964,8 +28963,8 @@ func NewActionValue(attributeTypes map[string]attr.Type, attributes map[string]a
 	}, diags
 }
 
-func NewActionValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) ActionValue {
-	object, diags := NewActionValue(attributeTypes, attributes)
+func NewActionsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) ActionsValue {
+	object, diags := NewActionsValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -28979,15 +28978,15 @@ func NewActionValueMust(attributeTypes map[string]attr.Type, attributes map[stri
 				diagnostic.Detail()))
 		}
 
-		panic("NewActionValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewActionsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t ActionType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t ActionsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewActionValueNull(), nil
+		return NewActionsValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -28995,11 +28994,11 @@ func (t ActionType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (a
 	}
 
 	if !in.IsKnown() {
-		return NewActionValueUnknown(), nil
+		return NewActionsValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewActionValueNull(), nil
+		return NewActionsValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -29022,16 +29021,16 @@ func (t ActionType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (a
 		attributes[k] = a
 	}
 
-	return NewActionValueMust(ActionValue{}.AttributeTypes(ctx), attributes), nil
+	return NewActionsValueMust(ActionsValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t ActionType) ValueType(ctx context.Context) attr.Value {
-	return ActionValue{}
+func (t ActionsType) ValueType(ctx context.Context) attr.Value {
+	return ActionsValue{}
 }
 
-var _ basetypes.ObjectValuable = ActionValue{}
+var _ basetypes.ObjectValuable = ActionsValue{}
 
-type ActionValue struct {
+type ActionsValue struct {
 	Accept            basetypes.BoolValue   `tfsdk:"accept"`
 	AddCommunity      basetypes.ListValue   `tfsdk:"add_community"`
 	AddTargetVrfs     basetypes.ListValue   `tfsdk:"add_target_vrfs"`
@@ -29044,7 +29043,7 @@ type ActionValue struct {
 	state             attr.ValueState
 }
 
-func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+func (v ActionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
@@ -29166,19 +29165,19 @@ func (v ActionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	}
 }
 
-func (v ActionValue) IsNull() bool {
+func (v ActionsValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v ActionValue) IsUnknown() bool {
+func (v ActionsValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v ActionValue) String() string {
-	return "ActionValue"
+func (v ActionsValue) String() string {
+	return "ActionsValue"
 }
 
-func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v ActionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	var addCommunityVal basetypes.ListValue
@@ -29512,8 +29511,8 @@ func (v ActionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	return objVal, diags
 }
 
-func (v ActionValue) Equal(o attr.Value) bool {
-	other, ok := o.(ActionValue)
+func (v ActionsValue) Equal(o attr.Value) bool {
+	other, ok := o.(ActionsValue)
 
 	if !ok {
 		return false
@@ -29566,15 +29565,15 @@ func (v ActionValue) Equal(o attr.Value) bool {
 	return true
 }
 
-func (v ActionValue) Type(ctx context.Context) attr.Type {
-	return ActionType{
+func (v ActionsValue) Type(ctx context.Context) attr.Type {
+	return ActionsType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v ActionValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v ActionsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"accept": basetypes.BoolType{},
 		"add_community": basetypes.ListType{
