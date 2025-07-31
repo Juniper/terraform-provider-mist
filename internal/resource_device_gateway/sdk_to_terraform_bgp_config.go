@@ -39,9 +39,8 @@ func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		if d.MultihopTtl != nil {
 			multihopTtl = types.Int64Value(int64(*d.MultihopTtl))
 		}
-		if d.NeighborAs != nil {
-			neighborAs = mistutils.BgpAsAsString(d.NeighborAs)
-		}
+
+		neighborAs = mistutils.BgpAsAsString(&d.NeighborAs)
 
 		dataMapValue := map[string]attr.Value{
 			"disabled":      disabled,
@@ -67,12 +66,12 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		var authKey basetypes.StringValue
 		var bfdMinimumInterval basetypes.Int64Value
 		var bfdMultiplier basetypes.Int64Value
-		var disableBfd = types.BoolValue(false)
+		var disableBfd basetypes.BoolValue
 		var export basetypes.StringValue
 		var exportPolicy basetypes.StringValue
 		var extendedV4Nexthop basetypes.BoolValue
-		var gracefulRestartTime = types.Int64Value(0)
-		var holdTime = types.Int64Value(90)
+		var gracefulRestartTime basetypes.Int64Value
+		var holdTime basetypes.Int64Value
 		var importBgp basetypes.StringValue
 		var importPolicy basetypes.StringValue
 		var localAs basetypes.StringValue
@@ -121,7 +120,7 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 			importPolicy = types.StringValue(*d.ImportPolicy)
 		}
 		if d.LocalAs != nil {
-			localAs = mistutils.BgpAsAsString(d.LocalAs)
+			localAs = mistutils.BgpLocalAsAsString(d.LocalAs)
 		}
 		if d.NeighborAs != nil {
 			neighborAs = mistutils.BgpAsAsString(d.NeighborAs)
@@ -144,9 +143,9 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		if d.TunnelName != nil {
 			tunnelName = types.StringValue(*d.TunnelName)
 		}
-		if d.Via != nil {
-			via = types.StringValue(string(*d.Via))
-		}
+
+		via = types.StringValue(string(d.Via))
+
 		if d.VpnName != nil {
 			vpnName = types.StringValue(*d.VpnName)
 		}

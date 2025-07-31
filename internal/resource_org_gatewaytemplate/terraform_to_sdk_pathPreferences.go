@@ -36,7 +36,7 @@ func pathPreferencePathsTerraformToSdk(d basetypes.ListValue) []models.GatewayPa
 			data.TargetIps = mistutils.ListOfStringTerraformToSdk(plan.TargetIps)
 		}
 		if plan.PathsType.ValueStringPointer() != nil {
-			data.Type = models.ToPointer(models.GatewayPathTypeEnum(plan.PathsType.ValueString()))
+			data.Type = models.GatewayPathTypeEnum(plan.PathsType.ValueString())
 		}
 		if plan.WanName.ValueStringPointer() != nil {
 			data.WanName = models.ToPointer(plan.WanName.ValueString())
