@@ -661,11 +661,11 @@ Optional:
 
 Optional:
 
-- `action` (Attributes) When used as import policy (see [below for nested schema](#nestedatt--routing_policies--terms--action))
+- `actions` (Attributes) When used as import policy (see [below for nested schema](#nestedatt--routing_policies--terms--actions))
 - `matching` (Attributes) zero or more criteria/filter can be specified to match the term, all criteria have to be met (see [below for nested schema](#nestedatt--routing_policies--terms--matching))
 
-<a id="nestedatt--routing_policies--terms--action"></a>
-### Nested Schema for `routing_policies.terms.action`
+<a id="nestedatt--routing_policies--terms--actions"></a>
+### Nested Schema for `routing_policies.terms.actions`
 
 Optional:
 
