@@ -1475,7 +1475,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Required when `type`==`local`",
 										Validators: []validator.List{
 											listvalidator.SizeAtLeast(1),
-											mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
+											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("local")),
 										},
 									},
 									"target_ips": schema.ListAttribute{
