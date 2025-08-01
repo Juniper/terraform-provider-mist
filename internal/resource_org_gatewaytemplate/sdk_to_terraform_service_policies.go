@@ -106,7 +106,7 @@ func avSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Se
 	if d.AvprofileId != nil {
 		avprofileId = types.StringValue(d.AvprofileId.String())
 	}
-	if d.Profile != nil && *d.Profile != d.AvprofileId.String() {
+	if d.Profile != nil && (d.AvprofileId == nil || *d.Profile != d.AvprofileId.String()) {
 		profile = types.StringValue(*d.Profile)
 	}
 
