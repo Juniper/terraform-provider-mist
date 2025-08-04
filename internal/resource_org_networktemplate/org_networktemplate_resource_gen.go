@@ -1000,6 +1000,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`==`trunk`, the list of network/vlans",
 							MarkdownDescription: "Only if `mode`==`trunk`, the list of network/vlans",
 							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("trunk")),
 							},
 							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
