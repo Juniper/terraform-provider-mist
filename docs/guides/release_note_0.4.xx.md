@@ -8,6 +8,16 @@ description: |-
 # Release Notes for v0.4.xx
 
 
+## Release Notes for v0.4.8
+**Release Date**: August 4th, 2025 
+
+### Fixes
+* Fix a provider crash when converting the `mist_device_gateway`, `mist_deviceprofile_gateway` and `mist_org_gatewaytemplate` resources from SDK to TF when `.service_policies.antivirus.profile` is defined and `.service_policies.antivirus.avprofile_id` is null
+* Fix `mist_device_gateway` and `mist_deviceprofile_gateway` resources to correctly handle the `.port_config` attribute. The attributes from the `.port_config` are now excluded from the payload sent to Mist to prevent configuration conflicts.
+* Fix validation in `mist_device_switch`, `mist_site_switchtemplate` and `mist_org_switchtemplate` resources to raise an error when the `.port_usage.networks` attribute is configured as an empty list. This ensures proper network configuration validation.
+
+
+
 ## Release Notes for v0.4.7
 **Release Date**: July 31th, 2025 
 
