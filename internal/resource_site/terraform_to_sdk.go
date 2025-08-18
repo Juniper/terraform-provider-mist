@@ -16,8 +16,8 @@ func TerraformToSdk(plan *SiteModel) (*models.Site, diag.Diagnostics) {
 	data := models.Site{}
 	data.Name = plan.Name.ValueString()
 
-	if (!plan.Address.IsNull()) && !plan.Address.IsUnknown() {
-		data.Address = models.ToPointer(plan.Address.ValueString())
+	if plan.Address.ValueStringPointer() != nil {
+		data.Address = models.NewOptional(plan.Address.ValueStringPointer())
 	} else {
 		unset["-address"] = ""
 	}
@@ -43,8 +43,8 @@ func TerraformToSdk(plan *SiteModel) (*models.Site, diag.Diagnostics) {
 		unset["-timezone"] = ""
 	}
 
-	if (!plan.Notes.IsNull()) && !plan.Notes.IsUnknown() {
-		data.Notes = plan.Notes.ValueStringPointer()
+	if plan.Notes.ValueStringPointer() != nil {
+		data.Notes = models.NewOptional(plan.Notes.ValueStringPointer())
 	} else {
 		unset["-notes"] = ""
 	}
