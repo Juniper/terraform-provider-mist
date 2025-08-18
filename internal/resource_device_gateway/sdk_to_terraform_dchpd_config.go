@@ -105,14 +105,14 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			var fixedBindings = types.MapNull(FixedBindingsValue{}.Type(ctx))
 			var gateway basetypes.StringValue
 			var ipEnd basetypes.StringValue
-			var ipEnd6 basetypes.StringValue
+			var ip6End basetypes.StringValue
 			var ipStart basetypes.StringValue
-			var ipStart6 basetypes.StringValue
+			var ip6Start basetypes.StringValue
 			var leaseTime basetypes.Int64Value
 			var options = types.MapNull(OptionsValue{}.Type(ctx))
 			var serverIdOverride basetypes.BoolValue
 			var servers = types.ListNull(types.StringType)
-			var servers6 = types.ListNull(types.StringType)
+			var serversv6 = types.ListNull(types.StringType)
 			var type4 basetypes.StringValue
 			var type6 basetypes.StringValue
 			var vendorEncapsulated = types.MapNull(VendorEncapsulatedValue{}.Type(ctx))
@@ -132,14 +132,14 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			if d.IpEnd != nil {
 				ipEnd = types.StringValue(*d.IpEnd)
 			}
-			if d.IpEnd6 != nil {
-				ipEnd6 = types.StringValue(*d.IpEnd6)
+			if d.Ip6End != nil {
+				ip6End = types.StringValue(*d.Ip6End)
 			}
 			if d.IpStart != nil {
 				ipStart = types.StringValue(*d.IpStart)
 			}
-			if d.IpStart6 != nil {
-				ipStart6 = types.StringValue(*d.IpStart6)
+			if d.Ip6Start != nil {
+				ip6Start = types.StringValue(*d.Ip6Start)
 			}
 			if d.LeaseTime != nil {
 				leaseTime = types.Int64Value(int64(*d.LeaseTime))
@@ -153,8 +153,8 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			if d.Servers != nil {
 				servers = mistutils.ListOfStringSdkToTerraform(d.Servers)
 			}
-			if d.Servers6 != nil {
-				servers6 = mistutils.ListOfStringSdkToTerraform(d.Servers6)
+			if d.Serversv6 != nil {
+				serversv6 = mistutils.ListOfStringSdkToTerraform(d.Serversv6)
 			}
 			if d.Type != nil {
 				type4 = types.StringValue(string(*d.Type))
@@ -172,14 +172,14 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 				"fixed_bindings":      fixedBindings,
 				"gateway":             gateway,
 				"ip_end":              ipEnd,
-				"ip_end6":             ipEnd6,
+				"ip6_end":             ip6End,
 				"ip_start":            ipStart,
-				"ip_start6":           ipStart6,
+				"ip6_start":           ip6Start,
 				"lease_time":          leaseTime,
 				"options":             options,
 				"server_id_override":  serverIdOverride,
 				"servers":             servers,
-				"servers6":            servers6,
+				"serversv6":           serversv6,
 				"type":                type4,
 				"type6":               type6,
 				"vendor_encapsulated": vendorEncapsulated,

@@ -19,15 +19,24 @@ func ipConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 	for k, d := range m {
 
 		var ip basetypes.StringValue
+		var ip6 basetypes.StringValue
 		var netmask basetypes.StringValue
+		var netmask6 basetypes.StringValue
 		var secondaryIps = types.ListNull(types.StringType)
 		var typeIp basetypes.StringValue
+		var typeIp6 basetypes.StringValue
 
 		if d.Ip != nil {
 			ip = types.StringValue(*d.Ip)
 		}
+		if d.Ip6 != nil {
+			ip6 = types.StringValue(*d.Ip6)
+		}
 		if d.Netmask != nil {
 			netmask = types.StringValue(*d.Netmask)
+		}
+		if d.Netmask6 != nil {
+			netmask6 = types.StringValue(*d.Netmask6)
 		}
 		if d.SecondaryIps != nil {
 			secondaryIps = mistutils.ListOfStringSdkToTerraform(d.SecondaryIps)
@@ -35,12 +44,18 @@ func ipConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		if d.Type != nil {
 			typeIp = types.StringValue(string(*d.Type))
 		}
+		if d.Type6 != nil {
+			typeIp6 = types.StringValue(string(*d.Type6))
+		}
 
 		dataMapValue := map[string]attr.Value{
 			"ip":            ip,
+			"ip6":           ip6,
 			"netmask":       netmask,
+			"netmask6":      netmask6,
 			"secondary_ips": secondaryIps,
 			"type":          typeIp,
+			"type6":         typeIp6,
 		}
 		data, e := NewIpConfigsValue(IpConfigsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)

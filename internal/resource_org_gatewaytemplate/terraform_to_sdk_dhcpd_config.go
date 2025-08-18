@@ -91,14 +91,14 @@ func dhcpdConfigConfigsTerraformToSdk(d basetypes.MapValue) map[string]models.Dh
 		if plan.IpEnd4.ValueStringPointer() != nil {
 			data.IpEnd = models.ToPointer(plan.IpEnd4.ValueString())
 		}
-		if plan.IpEnd6.ValueStringPointer() != nil {
-			data.IpEnd6 = models.ToPointer(plan.IpEnd6.ValueString())
+		if plan.Ip6End.ValueStringPointer() != nil {
+			data.Ip6End = models.ToPointer(plan.Ip6End.ValueString())
 		}
 		if plan.IpStart4.ValueStringPointer() != nil {
 			data.IpStart = models.ToPointer(plan.IpStart4.ValueString())
 		}
-		if plan.IpStart6.ValueStringPointer() != nil {
-			data.IpStart6 = models.ToPointer(plan.IpStart6.ValueString())
+		if plan.Ip6Start.ValueStringPointer() != nil {
+			data.Ip6Start = models.ToPointer(plan.Ip6Start.ValueString())
 		}
 		if plan.LeaseTime.ValueInt64Pointer() != nil {
 			data.LeaseTime = models.ToPointer(int(plan.LeaseTime.ValueInt64()))
@@ -112,8 +112,8 @@ func dhcpdConfigConfigsTerraformToSdk(d basetypes.MapValue) map[string]models.Dh
 		if !plan.Servers4.IsNull() && !plan.Servers4.IsUnknown() {
 			data.Servers = mistutils.ListOfStringTerraformToSdk(plan.Servers4)
 		}
-		if !plan.Servers6.IsNull() && !plan.Servers6.IsUnknown() {
-			data.Servers6 = mistutils.ListOfStringTerraformToSdk(plan.Servers6)
+		if !plan.Serversv6.IsNull() && !plan.Serversv6.IsUnknown() {
+			data.Serversv6 = mistutils.ListOfStringTerraformToSdk(plan.Serversv6)
 		}
 		if plan.Type4.ValueStringPointer() != nil {
 			data.Type = models.ToPointer(models.DhcpdConfigTypeEnum(plan.Type4.ValueString()))

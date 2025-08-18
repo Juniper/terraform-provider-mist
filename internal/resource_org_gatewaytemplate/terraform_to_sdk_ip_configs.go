@@ -18,14 +18,23 @@ func ipConfigsTerraformToSdk(d basetypes.MapValue) map[string]models.GatewayIpCo
 		if plan.Ip.ValueStringPointer() != nil {
 			data.Ip = models.ToPointer(plan.Ip.ValueString())
 		}
+		if plan.Ip6.ValueStringPointer() != nil {
+			data.Ip6 = models.ToPointer(plan.Ip6.ValueString())
+		}
 		if plan.Netmask.ValueStringPointer() != nil {
 			data.Netmask = models.ToPointer(plan.Netmask.ValueString())
+		}
+		if plan.Netmask6.ValueStringPointer() != nil {
+			data.Netmask6 = models.ToPointer(plan.Netmask6.ValueString())
 		}
 		if !plan.SecondaryIps.IsNull() && !plan.SecondaryIps.IsUnknown() {
 			data.SecondaryIps = mistutils.ListOfStringTerraformToSdk(plan.SecondaryIps)
 		}
 		if !plan.IpConfigsType.IsNull() && !plan.IpConfigsType.IsUnknown() {
 			data.Type = models.ToPointer(models.IpTypeEnum(plan.IpConfigsType.ValueString()))
+		}
+		if !plan.Type6.IsNull() && !plan.Type6.IsUnknown() {
+			data.Type6 = models.ToPointer(models.IpType6Enum(plan.Type6.ValueString()))
 		}
 		dataMap[k] = data
 	}

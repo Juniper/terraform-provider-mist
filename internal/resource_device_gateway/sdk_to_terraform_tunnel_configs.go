@@ -233,6 +233,7 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		var ipsecLifetime basetypes.Int64Value
 		var ipsecProposals = types.ListNull(IpsecProposalsValue{}.Type(ctx))
 		var localId basetypes.StringValue
+		var localSubnets = types.ListNull(types.StringType)
 		var mode basetypes.StringValue
 		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
 		var primary = types.ObjectNull(PrimaryValue{}.AttributeTypes(ctx))
@@ -240,6 +241,7 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		var protocol basetypes.StringValue
 		var provider basetypes.StringValue
 		var psk basetypes.StringValue
+		var remoteSubnets = types.ListNull(types.StringType)
 		var secondary = types.ObjectNull(SecondaryValue{}.AttributeTypes(ctx))
 		var version basetypes.StringValue
 
@@ -264,6 +266,9 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		if d.LocalId != nil {
 			localId = types.StringValue(*d.LocalId)
 		}
+		if d.LocalSubnets != nil {
+			localSubnets = mistutils.ListOfStringSdkToTerraform(d.LocalSubnets)
+		}
 		if d.Mode != nil {
 			mode = types.StringValue(string(*d.Mode))
 		}
@@ -285,6 +290,9 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		if d.Psk != nil {
 			psk = types.StringValue(*d.Psk)
 		}
+		if d.RemoteSubnets != nil {
+			remoteSubnets = mistutils.ListOfStringSdkToTerraform(d.RemoteSubnets)
+		}
 		if d.Secondary != nil {
 			secondary = tunnelConfigNodeSdkToTerraform(diags, *d.Secondary, SecondaryValue{}.AttributeTypes(ctx))
 		}
@@ -300,6 +308,7 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 			"ipsec_lifetime":  ipsecLifetime,
 			"ipsec_proposals": ipsecProposals,
 			"local_id":        localId,
+			"local_subnets":   localSubnets,
 			"mode":            mode,
 			"networks":        networks,
 			"primary":         primary,
@@ -307,6 +316,7 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 			"protocol":        protocol,
 			"provider":        provider,
 			"psk":             psk,
+			"remote_subnets":  remoteSubnets,
 			"secondary":       secondary,
 			"version":         version,
 		}

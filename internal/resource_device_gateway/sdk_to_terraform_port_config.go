@@ -34,12 +34,37 @@ func wanExtraRoutesPortConfigIpConfigSdkToTerraform(ctx context.Context, diags *
 	diags.Append(e...)
 	return stateResult
 }
+func wanExtraRoutes6PortConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.WanExtraRoutes) basetypes.MapValue {
+	stateValueMap := make(map[string]attr.Value)
+	for k, d := range m {
+
+		var via basetypes.StringValue
+		if d.Via != nil {
+			via = types.StringValue(*d.Via)
+		}
+		dataMapValue := map[string]attr.Value{
+			"via": via,
+		}
+		data, e := NewWanExtraRoutes6Value(WanExtraRoutes6Value{}.AttributeTypes(ctx), dataMapValue)
+		diags.Append(e...)
+
+		stateValueMap[k] = data
+	}
+
+	stateResult, e := types.MapValueFrom(ctx, WanExtraRoutes6Value{}.Type(ctx), stateValueMap)
+	diags.Append(e...)
+	return stateResult
+}
 func wanProbeOverridePortConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayWanProbeOverride) basetypes.ObjectValue {
 	var ips = types.ListNull(types.StringType)
+	var ip6s = types.ListNull(types.StringType)
 	var probeProfile basetypes.StringValue
 
 	if g != nil && g.Ips != nil {
 		ips = mistutils.ListOfStringSdkToTerraform(g.Ips)
+	}
+	if g != nil && g.Ip6s != nil {
+		ip6s = mistutils.ListOfStringSdkToTerraform(g.Ip6s)
 	}
 	if g != nil && g.ProbeProfile != nil {
 		probeProfile = types.StringValue(string(*g.ProbeProfile))
@@ -47,6 +72,7 @@ func wanProbeOverridePortConfigIpConfigSdkToTerraform(ctx context.Context, diags
 
 	rAttrValue := map[string]attr.Value{
 		"ips":           ips,
+		"ip6s":          ip6s,
 		"probe_profile": probeProfile,
 	}
 
@@ -59,13 +85,17 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	var dns = types.ListNull(types.StringType)
 	var dnsSuffix = types.ListNull(types.StringType)
 	var gateway basetypes.StringValue
+	var gateway6 basetypes.StringValue
 	var ip basetypes.StringValue
+	var ip6 basetypes.StringValue
 	var netmask basetypes.StringValue
+	var netmask6 basetypes.StringValue
 	var network basetypes.StringValue
 	var poserPassword basetypes.StringValue
 	var pppoeAuth basetypes.StringValue
 	var pppoeUsername basetypes.StringValue
 	var ipConfigType basetypes.StringValue
+	var ip6ConfigType basetypes.StringValue
 
 	if g != nil && g.Dns != nil {
 		dns = mistutils.ListOfStringSdkToTerraform(g.Dns)
@@ -76,11 +106,20 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	if g != nil && g.Gateway != nil {
 		gateway = types.StringValue(*g.Gateway)
 	}
+	if g != nil && g.Gateway6 != nil {
+		gateway6 = types.StringValue(*g.Gateway6)
+	}
 	if g != nil && g.Ip != nil {
 		ip = types.StringValue(*g.Ip)
 	}
+	if g != nil && g.Ip6 != nil {
+		ip6 = types.StringValue(*g.Ip6)
+	}
 	if g != nil && g.Netmask != nil {
 		netmask = types.StringValue(*g.Netmask)
+	}
+	if g != nil && g.Netmask6 != nil {
+		netmask6 = types.StringValue(*g.Netmask6)
 	}
 	if g != nil && g.Network != nil {
 		network = types.StringValue(*g.Network)
@@ -97,18 +136,25 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	if g != nil && g.Type != nil {
 		ipConfigType = types.StringValue(string(*g.Type))
 	}
+	if g != nil && g.Type6 != nil {
+		ip6ConfigType = types.StringValue(string(*g.Type6))
+	}
 
 	rAttrValue := map[string]attr.Value{
 		"dns":            dns,
 		"dns_suffix":     dnsSuffix,
 		"gateway":        gateway,
+		"gateway6":       gateway6,
 		"ip":             ip,
+		"ip6":            ip6,
 		"netmask":        netmask,
+		"netmask6":       netmask6,
 		"network":        network,
 		"poser_password": poserPassword,
 		"pppoe_username": pppoeUsername,
 		"pppoe_auth":     pppoeAuth,
 		"type":           ipConfigType,
+		"type6":          ip6ConfigType,
 	}
 
 	r, e := basetypes.NewObjectValue(PortIpConfigValue{}.AttributeTypes(ctx), rAttrValue)
@@ -256,6 +302,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var wanDisableSpeedtest types.Bool
 		var wanExtIp basetypes.StringValue
 		var wanExtraRoutes = types.MapNull(WanExtraRoutesValue{}.Type(ctx))
+		var wanExtraRoutes6 = types.MapNull(WanExtraRoutes6Value{}.Type(ctx))
 		var wanNetworks = types.ListNull(types.StringType)
 		var wanProbeOverride = types.ObjectNull(WanProbeOverrideValue{}.AttributeTypes(ctx))
 		var wanSourceNat = types.ObjectNull(WanSourceNatValue{}.AttributeTypes(ctx))
@@ -378,6 +425,9 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.WanExtraRoutes != nil {
 			wanExtraRoutes = wanExtraRoutesPortConfigIpConfigSdkToTerraform(ctx, diags, v.WanExtraRoutes)
 		}
+		if v.WanExtraRoutes6 != nil {
+			wanExtraRoutes6 = wanExtraRoutes6PortConfigIpConfigSdkToTerraform(ctx, diags, v.WanExtraRoutes6)
+		}
 		if v.WanNetworks != nil {
 			wanNetworks = mistutils.ListOfStringSdkToTerraform(v.WanNetworks)
 		}
@@ -433,6 +483,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 			"wan_disable_speedtest": wanDisableSpeedtest,
 			"wan_ext_ip":            wanExtIp,
 			"wan_extra_routes":      wanExtraRoutes,
+			"wan_extra_routes_6":    wanExtraRoutes6,
 			"wan_networks":          wanNetworks,
 			"wan_probe_override":    wanProbeOverride,
 			"wan_source_nat":        wanSourceNat,

@@ -256,6 +256,10 @@ func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 			data.LocalId = models.ToPointer(plan.LocalId.ValueString())
 		}
 
+		if !plan.LocalSubnets.IsNull() && !plan.LocalSubnets.IsUnknown() {
+			data.LocalSubnets = mistutils.ListOfStringTerraformToSdk(plan.LocalSubnets)
+		}
+
 		if plan.Mode.ValueStringPointer() != nil {
 			data.Mode = (*models.TunnelConfigTunnelModeEnum)(plan.Mode.ValueStringPointer())
 		}
@@ -287,6 +291,10 @@ func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 		}
 		if plan.Psk.ValueStringPointer() != nil {
 			data.Psk = models.ToPointer(plan.Psk.ValueString())
+		}
+
+		if !plan.RemoteSubnets.IsNull() && !plan.RemoteSubnets.IsUnknown() {
+			data.RemoteSubnets = mistutils.ListOfStringTerraformToSdk(plan.RemoteSubnets)
 		}
 
 		if !plan.Secondary.IsNull() && !plan.Secondary.IsUnknown() {
