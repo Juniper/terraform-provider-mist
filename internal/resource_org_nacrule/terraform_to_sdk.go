@@ -29,6 +29,9 @@ func TerraformToSdk(plan *OrgNacruleModel) (models.NacRule, diag.Diagnostics) {
 	} else {
 		unset["-enabled"] = ""
 	}
+	if !plan.GuestAuthState.IsNull() && !plan.GuestAuthState.IsUnknown() {
+		data.GuestAuthState = models.ToPointer(models.NacRuleGuestAuthStateEnum(plan.GuestAuthState.ValueString()))
+	}
 	if !plan.Matching.IsNull() && !plan.Matching.IsUnknown() {
 		data.Matching = matchingTerraformToSdk(plan.Matching)
 	} else {
