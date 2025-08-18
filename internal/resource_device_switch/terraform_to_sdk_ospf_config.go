@@ -33,6 +33,12 @@ func ospfConfigTerraformToSdk(d OspfConfigValue) *models.SwitchOspfConfig {
 	if d.Enabled.ValueBoolPointer() != nil {
 		data.Enabled = d.Enabled.ValueBoolPointer()
 	}
+	if d.ExportPolicy.ValueStringPointer() != nil {
+		data.ExportPolicy = models.ToPointer(d.ExportPolicy.ValueString())
+	}
+	if d.ImportPolicy.ValueStringPointer() != nil {
+		data.ImportPolicy = models.ToPointer(d.ImportPolicy.ValueString())
+	}
 	if d.ReferenceBandwidth.ValueStringPointer() != nil {
 		data.ReferenceBandwidth = models.ToPointer((models.SwitchOspfConfigReferenceBandwidthContainer.FromString(d.ReferenceBandwidth.ValueString())))
 	}

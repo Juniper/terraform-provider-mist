@@ -146,6 +146,7 @@ func remoteSyslogServerSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		var port basetypes.StringValue
 		var protocol basetypes.StringValue
 		var routingInstance basetypes.StringValue
+		var serverName basetypes.StringValue
 		var severity basetypes.StringValue
 		var sourceAddress basetypes.StringValue
 		var structuredData basetypes.BoolValue
@@ -175,6 +176,9 @@ func remoteSyslogServerSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		if d.RoutingInstance != nil {
 			routingInstance = types.StringValue(*d.RoutingInstance)
 		}
+		if d.ServerName != nil {
+			serverName = types.StringValue(*d.ServerName)
+		}
 		if d.Severity != nil {
 			severity = types.StringValue(string(*d.Severity))
 		}
@@ -197,6 +201,7 @@ func remoteSyslogServerSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			"port":              port,
 			"protocol":          protocol,
 			"routing_instance":  routingInstance,
+			"server_name":       serverName,
 			"severity":          severity,
 			"source_address":    sourceAddress,
 			"structured_data":   structuredData,

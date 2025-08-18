@@ -45,6 +45,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	var otherIpConfigs = types.MapNull(OtherIpConfigsValue{}.Type(ctx))
 	var orgId types.String
 	var portConfig = types.MapNull(PortConfigValue{}.Type(ctx))
+	var portConfigOverwrite = types.MapNull(PortConfigOverwriteValue{}.Type(ctx))
 	var portMirroring = types.MapNull(PortMirroringValue{}.Type(ctx))
 	var portUsages = types.MapNull(PortUsagesValue{}.Type(ctx))
 	var radiusConfig = NewRadiusConfigValueNull()
@@ -156,6 +157,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if len(data.PortConfig) > 0 {
 		portConfig = portConfigSdkToTerraform(ctx, &diags, data.PortConfig)
 	}
+	if len(data.PortConfigOverwrite) > 0 {
+		portConfigOverwrite = portConfigOverwriteSdkToTerraform(ctx, &diags, data.PortConfigOverwrite)
+	}
 	if len(data.PortMirroring) > 0 {
 		portMirroring = portMirroringSdkToTerraform(ctx, &diags, data.PortMirroring)
 	}
@@ -254,6 +258,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	state.OspfConfig = ospfConfig
 	state.OtherIpConfigs = otherIpConfigs
 	state.PortConfig = portConfig
+	state.PortConfigOverwrite = portConfigOverwrite
 	state.PortMirroring = portMirroring
 	state.PortUsages = portUsages
 	state.RadiusConfig = radiusConfig

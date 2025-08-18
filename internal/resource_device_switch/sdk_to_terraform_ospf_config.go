@@ -37,6 +37,8 @@ func ospfConfigAreasSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 func ospfConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchOspfConfig) OspfConfigValue {
 	var areas = types.MapNull(AreasValue{}.Type(ctx))
 	var enabled basetypes.BoolValue
+	var exportPolicy basetypes.StringValue
+	var importPolicy basetypes.StringValue
 	var referenceBandwidth basetypes.StringValue
 
 	if d != nil && d.Areas != nil {
@@ -44,6 +46,12 @@ func ospfConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
+	}
+	if d != nil && d.ExportPolicy != nil {
+		exportPolicy = types.StringValue(*d.ExportPolicy)
+	}
+	if d != nil && d.ImportPolicy != nil {
+		importPolicy = types.StringValue(*d.ImportPolicy)
 	}
 	if d.ReferenceBandwidth != nil {
 		if referenceBandwidthInt, ok := d.ReferenceBandwidth.AsNumber(); ok {
@@ -56,6 +64,8 @@ func ospfConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	dataMapValue := map[string]attr.Value{
 		"areas":               areas,
 		"enabled":             enabled,
+		"export_policy":       exportPolicy,
+		"import_policy":       importPolicy,
 		"reference_bandwidth": referenceBandwidth,
 	}
 	data, e := NewOspfConfigValue(OspfConfigValue{}.AttributeTypes(ctx), dataMapValue)

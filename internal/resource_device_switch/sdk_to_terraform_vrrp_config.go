@@ -15,13 +15,9 @@ func vrrpGroupsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 	dataMapValue := make(map[string]attr.Value)
 	for k, d := range m {
 
-		var acceptData basetypes.BoolValue
 		var preempt basetypes.BoolValue
 		var priority basetypes.Int64Value
 
-		if d.AcceptData != nil {
-			acceptData = types.BoolValue(*d.AcceptData)
-		}
 		if d.Preempt != nil {
 			preempt = types.BoolValue(*d.Preempt)
 		}
@@ -31,9 +27,8 @@ func vrrpGroupsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 
 		itemMapAttrType := GroupsValue{}.AttributeTypes(ctx)
 		itemMapValue := map[string]attr.Value{
-			"accept_data": acceptData,
-			"preempt":     preempt,
-			"priority":    priority,
+			"preempt":  preempt,
+			"priority": priority,
 		}
 		data, e := NewGroupsValue(itemMapAttrType, itemMapValue)
 		diags.Append(e...)

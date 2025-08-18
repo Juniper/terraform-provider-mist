@@ -210,6 +210,15 @@ func SwitchPortUsageMacLimitAsString(bgpAs *models.SwitchPortUsageMacLimit) base
 		return types.StringNull()
 	}
 }
+func SwitchPortOverwriteUsageMacLimitAsString(bgpAs *models.SwitchPortUsageMacLimitOverwrite) basetypes.StringValue {
+	if v, ok := bgpAs.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
 
 func SwitchPortUsageMtuAsString(bgpAs *models.SwitchPortUsageMtu) basetypes.StringValue {
 	if v, ok := bgpAs.AsString(); ok {

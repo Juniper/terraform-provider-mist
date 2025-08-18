@@ -169,6 +169,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.PortConfig = portConfigTerraformToSdk(plan.PortConfig)
 	}
 
+	if plan.PortConfigOverwrite.IsNull() || plan.PortConfigOverwrite.IsUnknown() {
+		unset["-port_config_overwrite"] = ""
+	} else {
+		data.PortConfigOverwrite = portConfigOverwriteTerraformToSdk(plan.PortConfigOverwrite)
+	}
+
 	if plan.PortMirroring.IsNull() || plan.PortMirroring.IsUnknown() {
 		unset["-port_mirroring"] = ""
 	} else {
