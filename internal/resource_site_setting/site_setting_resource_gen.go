@@ -1035,6 +1035,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"probe_hostsv6": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
+						Computed:    true,
+						Default:     listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 					},
 					"protect_re": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -1184,6 +1186,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							"disable_usb":                   types.BoolNull(),
 							"fips_enabled":                  types.BoolNull(),
 							"probe_hosts":                   types.ListValueMust(types.StringType, []attr.Value{}),
+							"probe_hostsv6":                 types.ListValueMust(types.StringType, []attr.Value{}),
 							"protect_re":                    types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx)),
 							"root_password":                 types.StringNull(),
 							"security_log_source_address":   types.StringNull(),
