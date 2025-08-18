@@ -235,7 +235,7 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		var localId basetypes.StringValue
 		var localSubnets = types.ListNull(types.StringType)
 		var mode basetypes.StringValue
-		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
+		var networks = types.ListNull(types.StringType)
 		var primary = types.ObjectNull(PrimaryValue{}.AttributeTypes(ctx))
 		var probe = types.ObjectNull(ProbeValue{}.AttributeTypes(ctx))
 		var protocol basetypes.StringValue
