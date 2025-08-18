@@ -41,6 +41,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 		unset["-aeroscout"] = ""
 	}
 
+	if !plan.Airista.IsNull() && !plan.Airista.IsUnknown() {
+		data.Airista = airistaTerraformToSdk(plan.Airista)
+	} else {
+		unset["-airista"] = ""
+	}
+
 	if !plan.BleConfig.IsNull() && !plan.BleConfig.IsUnknown() {
 		data.BleConfig = bleConfigTerraformToSdk(plan.BleConfig)
 	} else {
