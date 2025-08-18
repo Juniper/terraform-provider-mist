@@ -1318,6 +1318,12 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "In case there is a static IP for this network, we can specify it using source ip",
 						MarkdownDescription: "In case there is a static IP for this network, we can specify it using source ip",
+						Validators: []validator.String{
+							stringvalidator.Any(
+								mistvalidator.ParseIp(true, false),
+								mistvalidator.ParseVar(),
+							),
+						},
 					},
 				},
 				CustomType: MistNacType{
@@ -1331,7 +1337,15 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					types.ObjectValueMust(
 						MistNacValue{}.AttributeTypes(ctx),
 						map[string]attr.Value{
-							"enabled": types.BoolValue(false),
+							"acct_interim_interval": types.Int64Null(),
+							"auth_servers_retries":  types.Int64Null(),
+							"auth_servers_timeout":  types.Int64Null(),
+							"coa_enabled":           types.BoolValue(false),
+							"coa_port":              types.Int64Null(),
+							"enabled":               types.BoolValue(false),
+							"fast_dot1x_timers":     types.BoolValue(false),
+							"network":               types.StringValue(""),
+							"source_ip":             types.StringValue(""),
 						},
 					),
 				),
