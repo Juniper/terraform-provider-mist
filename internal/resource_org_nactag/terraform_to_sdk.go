@@ -2,6 +2,7 @@ package resource_org_nactag
 
 import (
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	"github.com/google/uuid"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -38,6 +39,16 @@ func TerraformToSdk(plan *OrgNactagModel) (models.NacTag, diag.Diagnostics) {
 	} else {
 		unset["-match_all"] = ""
 	}
+	if !plan.NacportalId.IsNull() && !plan.NacportalId.IsUnknown() {
+		nacportal_uuid, e := uuid.Parse(plan.NacportalId.String())
+		if e != nil {
+			diags.AddError("Invalid Nacportal ID", e.Error())
+		}
+		data.NacportalId = &nacportal_uuid
+	} else {
+		unset["-nacportal_id"] = ""
+	}
+
 	data.Name = plan.Name.ValueString()
 	if !plan.RadiusAttrs.IsNull() && !plan.RadiusAttrs.IsUnknown() {
 		data.RadiusAttrs = mistutils.ListOfStringTerraformToSdk(plan.RadiusAttrs)

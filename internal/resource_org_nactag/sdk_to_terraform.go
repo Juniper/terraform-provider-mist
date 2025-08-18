@@ -20,6 +20,7 @@ func SdkToTerraform(data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
 	var match types.String
 	var matchAll types.Bool
 	var name types.String
+	var nacportalId types.String
 	var orgId types.String
 	var radiusAttrs = types.ListNull(types.StringType)
 	var radiusGroup types.String
@@ -50,6 +51,9 @@ func SdkToTerraform(data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
 
 	name = types.StringValue(data.Name)
 
+	if data.NacportalId != nil {
+		nacportalId = types.StringValue(data.NacportalId.String())
+	}
 	if data.OrgId != nil {
 		orgId = types.StringValue(data.OrgId.String())
 	}
@@ -79,6 +83,7 @@ func SdkToTerraform(data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
 	state.Id = id
 	state.Match = match
 	state.MatchAll = matchAll
+	state.NacportalId = nacportalId
 	state.Name = name
 	state.OrgId = orgId
 	state.RadiusAttrs = radiusAttrs

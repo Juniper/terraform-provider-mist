@@ -79,6 +79,11 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`",
 				MarkdownDescription: "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`",
 			},
+			"nacportal_id": schema.StringAttribute{
+				Optional:            true,
+				Description:         "If `type`==`redirect_guest_portal`, the ID of the guest portal to redirect to",
+				MarkdownDescription: "If `type`==`redirect_guest_portal`, the ID of the guest portal to redirect to",
+			},
 			"name": schema.StringAttribute{
 				Required: true,
 				Validators: []validator.String{
@@ -124,8 +129,8 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"type": schema.StringAttribute{
 				Required:            true,
-				Description:         "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`",
-				MarkdownDescription: "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`",
+				Description:         "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `redirect_guest_portal`, `session_timeout`, `username_attr`, `vlan`",
+				MarkdownDescription: "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `redirect_guest_portal`, `session_timeout`, `username_attr`, `vlan`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -135,6 +140,7 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 						"radius_attrs",
 						"radius_group",
 						"radius_vendor_attrs",
+						"redirect_guest_portal",
 						"session_timeout",
 						"username_attr",
 						"vlan",
@@ -185,6 +191,7 @@ type OrgNactagModel struct {
 	Id                   types.String `tfsdk:"id"`
 	Match                types.String `tfsdk:"match"`
 	MatchAll             types.Bool   `tfsdk:"match_all"`
+	NacportalId          types.String `tfsdk:"nacportal_id"`
 	Name                 types.String `tfsdk:"name"`
 	OrgId                types.String `tfsdk:"org_id"`
 	RadiusAttrs          types.List   `tfsdk:"radius_attrs"`
