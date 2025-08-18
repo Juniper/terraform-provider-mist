@@ -483,7 +483,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 			"wan_disable_speedtest": wanDisableSpeedtest,
 			"wan_ext_ip":            wanExtIp,
 			"wan_extra_routes":      wanExtraRoutes,
-			"wan_extra_routes_6":    wanExtraRoutes6,
+			"wan_extra_routes6":     wanExtraRoutes6,
 			"wan_networks":          wanNetworks,
 			"wan_probe_override":    wanProbeOverride,
 			"wan_source_nat":        wanSourceNat,
