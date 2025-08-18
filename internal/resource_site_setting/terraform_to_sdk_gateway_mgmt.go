@@ -170,6 +170,10 @@ func gatewayMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d G
 		data.ProbeHosts = mistutils.ListOfStringTerraformToSdk(d.ProbeHosts)
 	}
 
+	if !d.ProbeHostsv6.IsNull() && !d.ProbeHostsv6.IsUnknown() {
+		data.ProbeHostsv6 = mistutils.ListOfStringTerraformToSdk(d.ProbeHostsv6)
+	}
+
 	if !d.ProtectRe.IsNull() && !d.ProtectRe.IsUnknown() {
 		data.ProtectRe = gatewayMgmtProtectReTerraformToSdk(ctx, diags, d.ProtectRe)
 	}

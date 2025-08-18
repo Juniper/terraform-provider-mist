@@ -33,6 +33,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-auto_upgrade"] = ""
 	}
 
+	if !plan.BgpNeighborUpdownThreshold.IsNull() && !plan.BgpNeighborUpdownThreshold.IsUnknown() {
+		data.BgpNeighborUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.BgpNeighborUpdownThreshold.ValueInt64())))
+	} else {
+		unset["-bgp_neighbor_updown_threshold"] = ""
+	}
+
 	if !plan.BleConfig.IsNull() && !plan.BleConfig.IsUnknown() {
 		data.BleConfig = siteSettingBleConfigTerraformToSdk(plan.BleConfig)
 	} else {
@@ -224,6 +230,18 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		data.Vna = vnaTerraformToSdk(plan.Vna)
 	} else {
 		unset["-vna"] = ""
+	}
+
+	if !plan.VpnPathUpdownThreshold.IsNull() && !plan.VpnPathUpdownThreshold.IsUnknown() {
+		data.VpnPathUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.VpnPathUpdownThreshold.ValueInt64())))
+	} else {
+		unset["-vpn_path_updown_threshold"] = ""
+	}
+
+	if !plan.VpnPeerUpdownThreshold.IsNull() && !plan.VpnPeerUpdownThreshold.IsUnknown() {
+		data.VpnPeerUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.VpnPeerUpdownThreshold.ValueInt64())))
+	} else {
+		unset["-vpn_peer_updown_threshold"] = ""
 	}
 
 	if !plan.VsInstance.IsNull() && !plan.VsInstance.IsUnknown() {

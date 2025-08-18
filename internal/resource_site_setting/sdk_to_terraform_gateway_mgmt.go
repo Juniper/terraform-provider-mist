@@ -222,6 +222,7 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var disableUsb basetypes.BoolValue
 	var fipsEnabled basetypes.BoolValue
 	var probeHosts = types.ListValueMust(types.StringType, []attr.Value{})
+	var probeHostsv6 = types.ListValueMust(types.StringType, []attr.Value{})
 	var protectRe = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))
 	var rootPassword basetypes.StringValue
 	var securityLogSourceAddress basetypes.StringValue
@@ -257,6 +258,9 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.ProbeHosts != nil {
 		probeHosts = mistutils.ListOfStringSdkToTerraform(d.ProbeHosts)
 	}
+	if d.ProbeHostsv6 != nil {
+		probeHostsv6 = mistutils.ListOfStringSdkToTerraform(d.ProbeHostsv6)
+	}
 	if d.ProtectRe != nil {
 		protectRe = gatewayMgmtProtectReSdkToTerraform(ctx, diags, d.ProtectRe)
 	}
@@ -281,6 +285,7 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		"fips_enabled":                  fipsEnabled,
 		"disable_oob":                   disableOob,
 		"probe_hosts":                   probeHosts,
+		"probe_hostsv6":                 probeHostsv6,
 		"protect_re":                    protectRe,
 		"root_password":                 rootPassword,
 		"security_log_source_address":   securityLogSourceAddress,

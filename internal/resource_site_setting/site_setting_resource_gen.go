@@ -148,6 +148,72 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					),
 				),
 			},
+			"auto_upgrade_esl": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"allow_downgrade": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "If true, it will allow downgrade to a lower version",
+						MarkdownDescription: "If true, it will allow downgrade to a lower version",
+						Default:             booldefault.StaticBool(false),
+					},
+					"custom_versions": schema.MapAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						Description:         "Custom versions for different models. Property key is the model name (e.g. \"AP41\")",
+						MarkdownDescription: "Custom versions for different models. Property key is the model name (e.g. \"AP41\")",
+					},
+					"day_of_week": schema.StringAttribute{
+						Optional:            true,
+						Description:         "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
+						MarkdownDescription: "enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"any",
+								"fri",
+								"mon",
+								"sat",
+								"sun",
+								"thu",
+								"tue",
+								"wed",
+							),
+						},
+					},
+					"enabled": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether auto upgrade should happen (Note that Mist may auto-upgrade if the version is not supported)",
+						MarkdownDescription: "Whether auto upgrade should happen (Note that Mist may auto-upgrade if the version is not supported)",
+						Default:             booldefault.StaticBool(false),
+					},
+					"time_of_day": schema.StringAttribute{
+						Optional:            true,
+						Description:         "`any` / HH:MM (24-hour format), upgrade will happen within up to 1-hour from this time",
+						MarkdownDescription: "`any` / HH:MM (24-hour format), upgrade will happen within up to 1-hour from this time",
+					},
+					"version": schema.StringAttribute{
+						Optional: true,
+					},
+				},
+				CustomType: AutoUpgradeEslType{
+					ObjectType: types.ObjectType{
+						AttrTypes: AutoUpgradeEslValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "auto upgrade AP ESL. When both firmware and ESL auto-upgrade are enabled, ESL upgrade will be done only after firmware upgrade",
+				MarkdownDescription: "auto upgrade AP ESL. When both firmware and ESL auto-upgrade are enabled, ESL upgrade will be done only after firmware upgrade",
+			},
+			"bgp_neighbor_updown_threshold": schema.Int64Attribute{
+				Optional:            true,
+				Description:         "enable threshold-based bgp neighbor down delivery.",
+				MarkdownDescription: "enable threshold-based bgp neighbor down delivery.",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
+			},
 			"blacklist_url": schema.StringAttribute{
 				Computed: true,
 				Default:  stringdefault.StaticString(""),
@@ -965,6 +1031,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:    true,
 						Computed:    true,
 						Default:     listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+					},
+					"probe_hostsv6": schema.ListAttribute{
+						ElementType: types.StringType,
+						Optional:    true,
 					},
 					"protect_re": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -1992,6 +2062,22 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 			},
+			"vpn_path_updown_threshold": schema.Int64Attribute{
+				Optional:            true,
+				Description:         "enable threshold-based vpn path down delivery.",
+				MarkdownDescription: "enable threshold-based vpn path down delivery.",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
+			},
+			"vpn_peer_updown_threshold": schema.Int64Attribute{
+				Optional:            true,
+				Description:         "enable threshold-based vpn peer down delivery.",
+				MarkdownDescription: "enable threshold-based vpn peer down delivery.",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
+			},
 			"vs_instance": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -2266,51 +2352,55 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type SiteSettingModel struct {
-	Analytic               AnalyticValue              `tfsdk:"analytic"`
-	ApUpdownThreshold      types.Int64                `tfsdk:"ap_updown_threshold"`
-	AutoUpgrade            AutoUpgradeValue           `tfsdk:"auto_upgrade"`
-	BlacklistUrl           types.String               `tfsdk:"blacklist_url"`
-	BleConfig              BleConfigValue             `tfsdk:"ble_config"`
-	ConfigAutoRevert       types.Bool                 `tfsdk:"config_auto_revert"`
-	ConfigPushPolicy       ConfigPushPolicyValue      `tfsdk:"config_push_policy"`
-	CriticalUrlMonitoring  CriticalUrlMonitoringValue `tfsdk:"critical_url_monitoring"`
-	DefaultPortUsage       types.String               `tfsdk:"default_port_usage"`
-	DeviceUpdownThreshold  types.Int64                `tfsdk:"device_updown_threshold"`
-	EnableUnii4            types.Bool                 `tfsdk:"enable_unii_4"`
-	Engagement             EngagementValue            `tfsdk:"engagement"`
-	GatewayMgmt            GatewayMgmtValue           `tfsdk:"gateway_mgmt"`
-	GatewayUpdownThreshold types.Int64                `tfsdk:"gateway_updown_threshold"`
-	JuniperSrx             JuniperSrxValue            `tfsdk:"juniper_srx"`
-	Led                    LedValue                   `tfsdk:"led"`
-	Marvis                 MarvisValue                `tfsdk:"marvis"`
-	Occupancy              OccupancyValue             `tfsdk:"occupancy"`
-	PersistConfigOnDevice  types.Bool                 `tfsdk:"persist_config_on_device"`
-	Proxy                  ProxyValue                 `tfsdk:"proxy"`
-	RemoveExistingConfigs  types.Bool                 `tfsdk:"remove_existing_configs"`
-	ReportGatt             types.Bool                 `tfsdk:"report_gatt"`
-	Rogue                  RogueValue                 `tfsdk:"rogue"`
-	Rtsa                   RtsaValue                  `tfsdk:"rtsa"`
-	SimpleAlert            SimpleAlertValue           `tfsdk:"simple_alert"`
-	SiteId                 types.String               `tfsdk:"site_id"`
-	Skyatp                 SkyatpValue                `tfsdk:"skyatp"`
-	SleThresholds          SleThresholdsValue         `tfsdk:"sle_thresholds"`
-	SrxApp                 SrxAppValue                `tfsdk:"srx_app"`
-	SshKeys                types.List                 `tfsdk:"ssh_keys"`
-	Ssr                    SsrValue                   `tfsdk:"ssr"`
-	SwitchUpdownThreshold  types.Int64                `tfsdk:"switch_updown_threshold"`
-	SyntheticTest          SyntheticTestValue         `tfsdk:"synthetic_test"`
-	TrackAnonymousDevices  types.Bool                 `tfsdk:"track_anonymous_devices"`
-	UplinkPortConfig       UplinkPortConfigValue      `tfsdk:"uplink_port_config"`
-	Vars                   types.Map                  `tfsdk:"vars"`
-	Vna                    VnaValue                   `tfsdk:"vna"`
-	VsInstance             types.Map                  `tfsdk:"vs_instance"`
-	WanVna                 WanVnaValue                `tfsdk:"wan_vna"`
-	WatchedStationUrl      types.String               `tfsdk:"watched_station_url"`
-	WhitelistUrl           types.String               `tfsdk:"whitelist_url"`
-	Wids                   WidsValue                  `tfsdk:"wids"`
-	Wifi                   WifiValue                  `tfsdk:"wifi"`
-	WiredVna               WiredVnaValue              `tfsdk:"wired_vna"`
-	ZoneOccupancyAlert     ZoneOccupancyAlertValue    `tfsdk:"zone_occupancy_alert"`
+	Analytic                   AnalyticValue              `tfsdk:"analytic"`
+	ApUpdownThreshold          types.Int64                `tfsdk:"ap_updown_threshold"`
+	AutoUpgrade                AutoUpgradeValue           `tfsdk:"auto_upgrade"`
+	AutoUpgradeEsl             AutoUpgradeEslValue        `tfsdk:"auto_upgrade_esl"`
+	BgpNeighborUpdownThreshold types.Int64                `tfsdk:"bgp_neighbor_updown_threshold"`
+	BlacklistUrl               types.String               `tfsdk:"blacklist_url"`
+	BleConfig                  BleConfigValue             `tfsdk:"ble_config"`
+	ConfigAutoRevert           types.Bool                 `tfsdk:"config_auto_revert"`
+	ConfigPushPolicy           ConfigPushPolicyValue      `tfsdk:"config_push_policy"`
+	CriticalUrlMonitoring      CriticalUrlMonitoringValue `tfsdk:"critical_url_monitoring"`
+	DefaultPortUsage           types.String               `tfsdk:"default_port_usage"`
+	DeviceUpdownThreshold      types.Int64                `tfsdk:"device_updown_threshold"`
+	EnableUnii4                types.Bool                 `tfsdk:"enable_unii_4"`
+	Engagement                 EngagementValue            `tfsdk:"engagement"`
+	GatewayMgmt                GatewayMgmtValue           `tfsdk:"gateway_mgmt"`
+	GatewayUpdownThreshold     types.Int64                `tfsdk:"gateway_updown_threshold"`
+	JuniperSrx                 JuniperSrxValue            `tfsdk:"juniper_srx"`
+	Led                        LedValue                   `tfsdk:"led"`
+	Marvis                     MarvisValue                `tfsdk:"marvis"`
+	Occupancy                  OccupancyValue             `tfsdk:"occupancy"`
+	PersistConfigOnDevice      types.Bool                 `tfsdk:"persist_config_on_device"`
+	Proxy                      ProxyValue                 `tfsdk:"proxy"`
+	RemoveExistingConfigs      types.Bool                 `tfsdk:"remove_existing_configs"`
+	ReportGatt                 types.Bool                 `tfsdk:"report_gatt"`
+	Rogue                      RogueValue                 `tfsdk:"rogue"`
+	Rtsa                       RtsaValue                  `tfsdk:"rtsa"`
+	SimpleAlert                SimpleAlertValue           `tfsdk:"simple_alert"`
+	SiteId                     types.String               `tfsdk:"site_id"`
+	Skyatp                     SkyatpValue                `tfsdk:"skyatp"`
+	SleThresholds              SleThresholdsValue         `tfsdk:"sle_thresholds"`
+	SrxApp                     SrxAppValue                `tfsdk:"srx_app"`
+	SshKeys                    types.List                 `tfsdk:"ssh_keys"`
+	Ssr                        SsrValue                   `tfsdk:"ssr"`
+	SwitchUpdownThreshold      types.Int64                `tfsdk:"switch_updown_threshold"`
+	SyntheticTest              SyntheticTestValue         `tfsdk:"synthetic_test"`
+	TrackAnonymousDevices      types.Bool                 `tfsdk:"track_anonymous_devices"`
+	UplinkPortConfig           UplinkPortConfigValue      `tfsdk:"uplink_port_config"`
+	Vars                       types.Map                  `tfsdk:"vars"`
+	Vna                        VnaValue                   `tfsdk:"vna"`
+	VpnPathUpdownThreshold     types.Int64                `tfsdk:"vpn_path_updown_threshold"`
+	VpnPeerUpdownThreshold     types.Int64                `tfsdk:"vpn_peer_updown_threshold"`
+	VsInstance                 types.Map                  `tfsdk:"vs_instance"`
+	WanVna                     WanVnaValue                `tfsdk:"wan_vna"`
+	WatchedStationUrl          types.String               `tfsdk:"watched_station_url"`
+	WhitelistUrl               types.String               `tfsdk:"whitelist_url"`
+	Wids                       WidsValue                  `tfsdk:"wids"`
+	Wifi                       WifiValue                  `tfsdk:"wifi"`
+	WiredVna                   WiredVnaValue              `tfsdk:"wired_vna"`
+	ZoneOccupancyAlert         ZoneOccupancyAlertValue    `tfsdk:"zone_occupancy_alert"`
 }
 
 var _ basetypes.ObjectTypable = AnalyticType{}
@@ -3201,6 +3291,636 @@ func (v AutoUpgradeValue) Type(ctx context.Context) attr.Type {
 
 func (v AutoUpgradeValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"custom_versions": basetypes.MapType{
+			ElemType: types.StringType,
+		},
+		"day_of_week": basetypes.StringType{},
+		"enabled":     basetypes.BoolType{},
+		"time_of_day": basetypes.StringType{},
+		"version":     basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = AutoUpgradeEslType{}
+
+type AutoUpgradeEslType struct {
+	basetypes.ObjectType
+}
+
+func (t AutoUpgradeEslType) Equal(o attr.Type) bool {
+	other, ok := o.(AutoUpgradeEslType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t AutoUpgradeEslType) String() string {
+	return "AutoUpgradeEslType"
+}
+
+func (t AutoUpgradeEslType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	allowDowngradeAttribute, ok := attributes["allow_downgrade"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_downgrade is missing from object`)
+
+		return nil, diags
+	}
+
+	allowDowngradeVal, ok := allowDowngradeAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_downgrade expected to be basetypes.BoolValue, was: %T`, allowDowngradeAttribute))
+	}
+
+	customVersionsAttribute, ok := attributes["custom_versions"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`custom_versions is missing from object`)
+
+		return nil, diags
+	}
+
+	customVersionsVal, ok := customVersionsAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`custom_versions expected to be basetypes.MapValue, was: %T`, customVersionsAttribute))
+	}
+
+	dayOfWeekAttribute, ok := attributes["day_of_week"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`day_of_week is missing from object`)
+
+		return nil, diags
+	}
+
+	dayOfWeekVal, ok := dayOfWeekAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`day_of_week expected to be basetypes.StringValue, was: %T`, dayOfWeekAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	timeOfDayAttribute, ok := attributes["time_of_day"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`time_of_day is missing from object`)
+
+		return nil, diags
+	}
+
+	timeOfDayVal, ok := timeOfDayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`time_of_day expected to be basetypes.StringValue, was: %T`, timeOfDayAttribute))
+	}
+
+	versionAttribute, ok := attributes["version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`version is missing from object`)
+
+		return nil, diags
+	}
+
+	versionVal, ok := versionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`version expected to be basetypes.StringValue, was: %T`, versionAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return AutoUpgradeEslValue{
+		AllowDowngrade: allowDowngradeVal,
+		CustomVersions: customVersionsVal,
+		DayOfWeek:      dayOfWeekVal,
+		Enabled:        enabledVal,
+		TimeOfDay:      timeOfDayVal,
+		Version:        versionVal,
+		state:          attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAutoUpgradeEslValueNull() AutoUpgradeEslValue {
+	return AutoUpgradeEslValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewAutoUpgradeEslValueUnknown() AutoUpgradeEslValue {
+	return AutoUpgradeEslValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewAutoUpgradeEslValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AutoUpgradeEslValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing AutoUpgradeEslValue Attribute Value",
+				"While creating a AutoUpgradeEslValue value, a missing attribute value was detected. "+
+					"A AutoUpgradeEslValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AutoUpgradeEslValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid AutoUpgradeEslValue Attribute Type",
+				"While creating a AutoUpgradeEslValue value, an invalid attribute value was detected. "+
+					"A AutoUpgradeEslValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AutoUpgradeEslValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("AutoUpgradeEslValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra AutoUpgradeEslValue Attribute Value",
+				"While creating a AutoUpgradeEslValue value, an extra attribute value was detected. "+
+					"A AutoUpgradeEslValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra AutoUpgradeEslValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewAutoUpgradeEslValueUnknown(), diags
+	}
+
+	allowDowngradeAttribute, ok := attributes["allow_downgrade"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_downgrade is missing from object`)
+
+		return NewAutoUpgradeEslValueUnknown(), diags
+	}
+
+	allowDowngradeVal, ok := allowDowngradeAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_downgrade expected to be basetypes.BoolValue, was: %T`, allowDowngradeAttribute))
+	}
+
+	customVersionsAttribute, ok := attributes["custom_versions"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`custom_versions is missing from object`)
+
+		return NewAutoUpgradeEslValueUnknown(), diags
+	}
+
+	customVersionsVal, ok := customVersionsAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`custom_versions expected to be basetypes.MapValue, was: %T`, customVersionsAttribute))
+	}
+
+	dayOfWeekAttribute, ok := attributes["day_of_week"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`day_of_week is missing from object`)
+
+		return NewAutoUpgradeEslValueUnknown(), diags
+	}
+
+	dayOfWeekVal, ok := dayOfWeekAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`day_of_week expected to be basetypes.StringValue, was: %T`, dayOfWeekAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewAutoUpgradeEslValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	timeOfDayAttribute, ok := attributes["time_of_day"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`time_of_day is missing from object`)
+
+		return NewAutoUpgradeEslValueUnknown(), diags
+	}
+
+	timeOfDayVal, ok := timeOfDayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`time_of_day expected to be basetypes.StringValue, was: %T`, timeOfDayAttribute))
+	}
+
+	versionAttribute, ok := attributes["version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`version is missing from object`)
+
+		return NewAutoUpgradeEslValueUnknown(), diags
+	}
+
+	versionVal, ok := versionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`version expected to be basetypes.StringValue, was: %T`, versionAttribute))
+	}
+
+	if diags.HasError() {
+		return NewAutoUpgradeEslValueUnknown(), diags
+	}
+
+	return AutoUpgradeEslValue{
+		AllowDowngrade: allowDowngradeVal,
+		CustomVersions: customVersionsVal,
+		DayOfWeek:      dayOfWeekVal,
+		Enabled:        enabledVal,
+		TimeOfDay:      timeOfDayVal,
+		Version:        versionVal,
+		state:          attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAutoUpgradeEslValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AutoUpgradeEslValue {
+	object, diags := NewAutoUpgradeEslValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewAutoUpgradeEslValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t AutoUpgradeEslType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewAutoUpgradeEslValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewAutoUpgradeEslValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewAutoUpgradeEslValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewAutoUpgradeEslValueMust(AutoUpgradeEslValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t AutoUpgradeEslType) ValueType(ctx context.Context) attr.Value {
+	return AutoUpgradeEslValue{}
+}
+
+var _ basetypes.ObjectValuable = AutoUpgradeEslValue{}
+
+type AutoUpgradeEslValue struct {
+	AllowDowngrade basetypes.BoolValue   `tfsdk:"allow_downgrade"`
+	CustomVersions basetypes.MapValue    `tfsdk:"custom_versions"`
+	DayOfWeek      basetypes.StringValue `tfsdk:"day_of_week"`
+	Enabled        basetypes.BoolValue   `tfsdk:"enabled"`
+	TimeOfDay      basetypes.StringValue `tfsdk:"time_of_day"`
+	Version        basetypes.StringValue `tfsdk:"version"`
+	state          attr.ValueState
+}
+
+func (v AutoUpgradeEslValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 6)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["allow_downgrade"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["custom_versions"] = basetypes.MapType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["day_of_week"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["time_of_day"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["version"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 6)
+
+		val, err = v.AllowDowngrade.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allow_downgrade"] = val
+
+		val, err = v.CustomVersions.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["custom_versions"] = val
+
+		val, err = v.DayOfWeek.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["day_of_week"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.TimeOfDay.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["time_of_day"] = val
+
+		val, err = v.Version.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["version"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v AutoUpgradeEslValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v AutoUpgradeEslValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v AutoUpgradeEslValue) String() string {
+	return "AutoUpgradeEslValue"
+}
+
+func (v AutoUpgradeEslValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var customVersionsVal basetypes.MapValue
+	switch {
+	case v.CustomVersions.IsUnknown():
+		customVersionsVal = types.MapUnknown(types.StringType)
+	case v.CustomVersions.IsNull():
+		customVersionsVal = types.MapNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		customVersionsVal, d = types.MapValue(types.StringType, v.CustomVersions.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"allow_downgrade": basetypes.BoolType{},
+			"custom_versions": basetypes.MapType{
+				ElemType: types.StringType,
+			},
+			"day_of_week": basetypes.StringType{},
+			"enabled":     basetypes.BoolType{},
+			"time_of_day": basetypes.StringType{},
+			"version":     basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"allow_downgrade": basetypes.BoolType{},
+		"custom_versions": basetypes.MapType{
+			ElemType: types.StringType,
+		},
+		"day_of_week": basetypes.StringType{},
+		"enabled":     basetypes.BoolType{},
+		"time_of_day": basetypes.StringType{},
+		"version":     basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"allow_downgrade": v.AllowDowngrade,
+			"custom_versions": customVersionsVal,
+			"day_of_week":     v.DayOfWeek,
+			"enabled":         v.Enabled,
+			"time_of_day":     v.TimeOfDay,
+			"version":         v.Version,
+		})
+
+	return objVal, diags
+}
+
+func (v AutoUpgradeEslValue) Equal(o attr.Value) bool {
+	other, ok := o.(AutoUpgradeEslValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AllowDowngrade.Equal(other.AllowDowngrade) {
+		return false
+	}
+
+	if !v.CustomVersions.Equal(other.CustomVersions) {
+		return false
+	}
+
+	if !v.DayOfWeek.Equal(other.DayOfWeek) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.TimeOfDay.Equal(other.TimeOfDay) {
+		return false
+	}
+
+	if !v.Version.Equal(other.Version) {
+		return false
+	}
+
+	return true
+}
+
+func (v AutoUpgradeEslValue) Type(ctx context.Context) attr.Type {
+	return AutoUpgradeEslType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v AutoUpgradeEslValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"allow_downgrade": basetypes.BoolType{},
 		"custom_versions": basetypes.MapType{
 			ElemType: types.StringType,
 		},
@@ -9084,6 +9804,24 @@ func (t GatewayMgmtType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`probe_hosts expected to be basetypes.ListValue, was: %T`, probeHostsAttribute))
 	}
 
+	probeHostsv6Attribute, ok := attributes["probe_hostsv6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_hostsv6 is missing from object`)
+
+		return nil, diags
+	}
+
+	probeHostsv6Val, ok := probeHostsv6Attribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_hostsv6 expected to be basetypes.ListValue, was: %T`, probeHostsv6Attribute))
+	}
+
 	protectReAttribute, ok := attributes["protect_re"]
 
 	if !ok {
@@ -9171,6 +9909,7 @@ func (t GatewayMgmtType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		DisableUsb:                 disableUsbVal,
 		FipsEnabled:                fipsEnabledVal,
 		ProbeHosts:                 probeHostsVal,
+		ProbeHostsv6:               probeHostsv6Val,
 		ProtectRe:                  protectReVal,
 		RootPassword:               rootPasswordVal,
 		SecurityLogSourceAddress:   securityLogSourceAddressVal,
@@ -9422,6 +10161,24 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`probe_hosts expected to be basetypes.ListValue, was: %T`, probeHostsAttribute))
 	}
 
+	probeHostsv6Attribute, ok := attributes["probe_hostsv6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_hostsv6 is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	probeHostsv6Val, ok := probeHostsv6Attribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_hostsv6 expected to be basetypes.ListValue, was: %T`, probeHostsv6Attribute))
+	}
+
 	protectReAttribute, ok := attributes["protect_re"]
 
 	if !ok {
@@ -9509,6 +10266,7 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 		DisableUsb:                 disableUsbVal,
 		FipsEnabled:                fipsEnabledVal,
 		ProbeHosts:                 probeHostsVal,
+		ProbeHostsv6:               probeHostsv6Val,
 		ProtectRe:                  protectReVal,
 		RootPassword:               rootPasswordVal,
 		SecurityLogSourceAddress:   securityLogSourceAddressVal,
@@ -9595,6 +10353,7 @@ type GatewayMgmtValue struct {
 	DisableUsb                 basetypes.BoolValue   `tfsdk:"disable_usb"`
 	FipsEnabled                basetypes.BoolValue   `tfsdk:"fips_enabled"`
 	ProbeHosts                 basetypes.ListValue   `tfsdk:"probe_hosts"`
+	ProbeHostsv6               basetypes.ListValue   `tfsdk:"probe_hostsv6"`
 	ProtectRe                  basetypes.ObjectValue `tfsdk:"protect_re"`
 	RootPassword               basetypes.StringValue `tfsdk:"root_password"`
 	SecurityLogSourceAddress   basetypes.StringValue `tfsdk:"security_log_source_address"`
@@ -9603,7 +10362,7 @@ type GatewayMgmtValue struct {
 }
 
 func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 14)
+	attrTypes := make(map[string]tftypes.Type, 15)
 
 	var val tftypes.Value
 	var err error
@@ -9626,6 +10385,9 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["probe_hosts"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
+	attrTypes["probe_hostsv6"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["protect_re"] = basetypes.ObjectType{
 		AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -9637,7 +10399,7 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 14)
+		vals := make(map[string]tftypes.Value, 15)
 
 		val, err = v.AdminSshkeys.ToTerraformValue(ctx)
 
@@ -9718,6 +10480,14 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["probe_hosts"] = val
+
+		val, err = v.ProbeHostsv6.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["probe_hostsv6"] = val
 
 		val, err = v.ProtectRe.ToTerraformValue(ctx)
 
@@ -9875,6 +10645,9 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"probe_hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"probe_hostsv6": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"protect_re": basetypes.ObjectType{
 				AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
 			},
@@ -9916,6 +10689,53 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"probe_hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"probe_hostsv6": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"protect_re": basetypes.ObjectType{
+				AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
+			},
+			"root_password":                 basetypes.StringType{},
+			"security_log_source_address":   basetypes.StringType{},
+			"security_log_source_interface": basetypes.StringType{},
+		}), diags
+	}
+
+	var probeHostsv6Val basetypes.ListValue
+	switch {
+	case v.ProbeHostsv6.IsUnknown():
+		probeHostsv6Val = types.ListUnknown(types.StringType)
+	case v.ProbeHostsv6.IsNull():
+		probeHostsv6Val = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		probeHostsv6Val, d = types.ListValue(types.StringType, v.ProbeHostsv6.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"admin_sshkeys": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"app_probing": basetypes.ObjectType{
+				AttrTypes: AppProbingValue{}.AttributeTypes(ctx),
+			},
+			"app_usage": basetypes.BoolType{},
+			"auto_signature_update": basetypes.ObjectType{
+				AttrTypes: AutoSignatureUpdateValue{}.AttributeTypes(ctx),
+			},
+			"config_revert_timer": basetypes.Int64Type{},
+			"disable_console":     basetypes.BoolType{},
+			"disable_oob":         basetypes.BoolType{},
+			"disable_usb":         basetypes.BoolType{},
+			"fips_enabled":        basetypes.BoolType{},
+			"probe_hosts": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostsv6": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"protect_re": basetypes.ObjectType{
 				AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
 			},
@@ -9942,6 +10762,9 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"disable_usb":         basetypes.BoolType{},
 		"fips_enabled":        basetypes.BoolType{},
 		"probe_hosts": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"probe_hostsv6": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"protect_re": basetypes.ObjectType{
@@ -9973,6 +10796,7 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"disable_usb":                   v.DisableUsb,
 			"fips_enabled":                  v.FipsEnabled,
 			"probe_hosts":                   probeHostsVal,
+			"probe_hostsv6":                 probeHostsv6Val,
 			"protect_re":                    protectRe,
 			"root_password":                 v.RootPassword,
 			"security_log_source_address":   v.SecurityLogSourceAddress,
@@ -10037,6 +10861,10 @@ func (v GatewayMgmtValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.ProbeHostsv6.Equal(other.ProbeHostsv6) {
+		return false
+	}
+
 	if !v.ProtectRe.Equal(other.ProtectRe) {
 		return false
 	}
@@ -10082,6 +10910,9 @@ func (v GatewayMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"disable_usb":         basetypes.BoolType{},
 		"fips_enabled":        basetypes.BoolType{},
 		"probe_hosts": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"probe_hostsv6": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"protect_re": basetypes.ObjectType{
