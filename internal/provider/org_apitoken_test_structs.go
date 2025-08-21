@@ -10,6 +10,6 @@ type OrgApitokenModel struct {
 type PrivilegesValue struct {
 	Role        string  `cty:"role"`
 	Scope       string  `cty:"scope"`
-	SiteId      *string `cty:"site_id"`
-	SitegroupId *string `cty:"sitegroup_id"`
+	SiteId      *string `cty:"site_id" hcl:"site_id"`
+	SitegroupId *string `cty:"sitegroup_id" hcl:"sitegroup_id"`
 }

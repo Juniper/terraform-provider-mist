@@ -1,0 +1,47 @@
+  name       = "Test Guest PSK"
+  ssid       = "Guest-Network"
+  passphrase = "SecurePassword123"
+  usage      = "multi"
+  note       = "Test PSK for guest access"
+  role       = "guest"
+  vlan_id    = "100"
+  email      = "admin@example.com"
+  notify_on_create_or_edit = true
+  expire_time = 1769243558
+  expiry_notification_time = 7
+$
+  name       = "Test Guest PSK 2"
+  ssid       = "Guest-Network"
+  passphrase = "SecurePassword123"
+  usage      = "multi"
+  note       = "Test PSK for guest access"
+  role       = "guest"
+  vlan_id    = "100"
+  email      = "admin@example.com"
+  notify_on_create_or_edit = true
+  expire_time = 1769243558
+  expiry_notification_time = 7
+$
+  name       = "Test Guest PSK 3"
+  ssid       = "Guest-Network"
+  passphrase = "SecurePassword123"
+  usage      = "multi"
+  note       = "Test PSK for guest access"
+  role       = "guest"
+  vlan_id    = "100"
+  email      = "admin@example.com"
+  notify_on_create_or_edit = true
+  expire_time = 1769243558
+  expiry_notification_time = 7
+$
+  name       = "Test Guest PSK 4"
+  ssid       = "Guest-Network"
+  passphrase = "SecurePassword123"
+  usage      = "multi"
+  note       = "Test PSK for guest access"
+  role       = "guest"
+  vlan_id    = "100"
+  email      = "admin@example.com"
+  notify_on_create_or_edit = true
+  expire_time = 1769243558
+  expiry_notification_time = 7

@@ -2,14 +2,17 @@ package provider
 
 import (
 	"fmt"
+	"os"
+	"strings"
 	"testing"
 
+	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestOrgApitokenModel(t *testing.T) {
+func TestOrgApitoken(t *testing.T) {
 	type testStep struct {
 		config OrgApitokenModel
 	}
@@ -17,20 +20,6 @@ func TestOrgApitokenModel(t *testing.T) {
 	type testCase struct {
 		steps []testStep
 	}
-
-	// var FixtureOrgApitokenModel OrgApitokenModel
-
-	// b, err := os.ReadFile("fixtures/site_setting_resource/site_setting_config.tf")
-	// if err != nil {
-	// 	fmt.Print(err)
-	// }
-
-	// str := string(b) // convert content to a 'string'
-
-	// err = hcl.Decode(&FixtureOrgApitokenModel, str)
-	// if err != nil {
-	// 	fmt.Printf("error decoding hcl: %s\n", err)
-	// }
 
 	testCases := map[string]testCase{
 		"simple_case": {
@@ -49,6 +38,30 @@ func TestOrgApitokenModel(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	b, err := os.ReadFile("fixtures/org_apitoken_resource/org_apitoken_config.tf")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	str := string(b) // convert content to a 'string'
+	fixtures := strings.Split(str, "$")
+
+	for i, fixture := range fixtures {
+		var FixtureOrgApitokenModel OrgApitokenModel
+		err = hcl.Decode(&FixtureOrgApitokenModel, fixture)
+		if err != nil {
+			fmt.Printf("error decoding hcl: %s\n", err)
+		}
+
+		testCases[fmt.Sprintf("fixture_case_%d", i)] = testCase{
+			steps: []testStep{
+				{
+					config: FixtureOrgApitokenModel,
+				},
+			},
+		}
 	}
 
 	for tName, tCase := range testCases {
