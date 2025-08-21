@@ -135,6 +135,7 @@ resource "mist_device_switch" "switch_one" {
 - `ospf_config` (Attributes) (see [below for nested schema](#nestedatt--ospf_config))
 - `other_ip_configs` (Attributes Map) Property key is the network name. Defines the additional IP Addresses configured on the device. (see [below for nested schema](#nestedatt--other_ip_configs))
 - `port_config` (Attributes Map) Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--port_config))
+- `port_config_overwrite` (Attributes Map) Property key is the port name or range (e.g. "ge-0/0/0-10"). This can be used to override some attributes of the port_usage without having to create a new port_usage. (see [below for nested schema](#nestedatt--port_config_overwrite))
 - `port_mirroring` (Attributes Map) Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed (see [below for nested schema](#nestedatt--port_mirroring))
 - `port_usages` (Attributes Map) Property key is the port usage name. Defines the profiles of port configuration configured on the switch (see [below for nested schema](#nestedatt--port_usages))
 - `radius_config` (Attributes) Junos Radius config (see [below for nested schema](#nestedatt--radius_config))
@@ -420,7 +421,7 @@ Optional:
 - `poe_disabled` (Boolean) Whether PoE capabilities are disabled for a port
 - `port_auth` (String) if dot1x is desired, set to dot1x. enum: `dot1x`
 - `port_network` (String) Native network/vlan for untagged traffic
-- `reauth_interval` (String) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range between 10 and 65535 (default: 3600)
+- `reauth_interval` (String) Only `port_auth`=`dot1x`, reauthentication interval range between 10 and 65535 (default: 3600)
 - `server_fail_network` (String) Only if `port_auth`==`dot1x` sets server fail fallback vlan
 - `server_reject_network` (String) Only if `port_auth`==`dot1x` when radius server reject / fails
 - `speed` (String) enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
@@ -436,6 +437,7 @@ Optional:
 
 Optional:
 
+- `disable_port` (Boolean) Whether to disable the port when storm control is triggered
 - `no_broadcast` (Boolean) Whether to disable storm control on broadcast traffic
 - `no_multicast` (Boolean) Whether to disable storm control on multicast traffic
 - `no_registered_multicast` (Boolean) Whether to disable storm control on registered multicast traffic
@@ -523,6 +525,8 @@ Optional:
 
 - `areas` (Attributes Map) Property key is the area name. Defines the OSPF areas configured on the switch. (see [below for nested schema](#nestedatt--ospf_config--areas))
 - `enabled` (Boolean) Enable OSPF on the switch
+- `export_policy` (String) optional, for basic scenario, `import_policy` can be specified and can be applied to all networks in all areas if not explicitly specified
+- `import_policy` (String) optional, for basic scenario, `import_policy` can be specified and can be applied to all networks in all areas if not explicitly specified
 - `reference_bandwidth` (String)
 
 <a id="nestedatt--ospf_config--areas"></a>
@@ -574,6 +578,20 @@ Optional:
 - `speed` (String) enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
 
 
+<a id="nestedatt--port_config_overwrite"></a>
+### Nested Schema for `port_config_overwrite`
+
+Optional:
+
+- `description` (String)
+- `disabled` (Boolean) Whether the port is disabled
+- `duplex` (String) Link connection mode. enum: `auto`, `full`, `half`
+- `mac_limit` (String)
+- `poe_disabled` (Boolean) Whether PoE capabilities are disabled for a port
+- `port_network` (String) Native network/vlan for untagged traffic
+- `speed` (String) Port Speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
+
+
 <a id="nestedatt--port_mirroring"></a>
 ### Nested Schema for `port_mirroring`
 
@@ -582,8 +600,9 @@ Optional:
 - `input_networks_ingress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
 - `input_port_ids_egress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
 - `input_port_ids_ingress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
-- `output_network` (String) Exactly one of the `output_port_id` or `output_network` should be provided
-- `output_port_id` (String) Exactly one of the `output_port_id` or `output_network` should be provided
+- `output_ip_address` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
+- `output_network` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
+- `output_port_id` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
 
 
 <a id="nestedatt--port_usages"></a>
@@ -600,7 +619,7 @@ Optional:
 - `description` (String) Only if `mode`!=`dynamic`
 - `disable_autoneg` (Boolean) Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation
 - `disabled` (Boolean) Only if `mode`!=`dynamic` whether the port is disabled
-- `duplex` (String) Only if `mode`!=`dynamic` link connection mode. enum: `auto`, `full`, `half`
+- `duplex` (String) Only if `mode`!=`dynamic`, link connection mode. enum: `auto`, `full`, `half`
 - `dynamic_vlan_networks` (List of String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return
 - `enable_mac_auth` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` whether to enable MAC Auth
 - `enable_qos` (Boolean) Only if `mode`!=`dynamic`
@@ -623,7 +642,7 @@ Optional:
 - `rules` (Attributes List) Only if `mode`==`dynamic` (see [below for nested schema](#nestedatt--port_usages--rules))
 - `server_fail_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` sets server fail fallback vlan
 - `server_reject_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails
-- `speed` (String) Only if `mode`!=`dynamic` speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
+- `speed` (String) Only if `mode`!=`dynamic`, Port speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
 - `storm_control` (Attributes) Switch storm control. Only if `mode`!=`dynamic` (see [below for nested schema](#nestedatt--port_usages--storm_control))
 - `stp_edge` (Boolean) Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames
 - `stp_no_root_port` (Boolean)
@@ -653,6 +672,7 @@ Optional:
 
 Optional:
 
+- `disable_port` (Boolean) Whether to disable the port when storm control is triggered
 - `no_broadcast` (Boolean) Whether to disable storm control on broadcast traffic
 - `no_multicast` (Boolean) Whether to disable storm control on multicast traffic
 - `no_registered_multicast` (Boolean) Whether to disable storm control on registered multicast traffic
@@ -802,6 +822,7 @@ Optional:
 - `port` (String)
 - `protocol` (String) enum: `tcp`, `udp`
 - `routing_instance` (String)
+- `server_name` (String) Name of the server
 - `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
 - `source_address` (String) If source_address is configured, will use the vlan firstly otherwise use source_ip
 - `structured_data` (Boolean)
@@ -1219,7 +1240,6 @@ Optional:
 
 Optional:
 
-- `accept_data` (Boolean) If `true`, accept packets destined for VRRP address
 - `preempt` (Boolean) If `true`, allow preemption (a backup router can preempt a primary router)
 - `priority` (Number)
 

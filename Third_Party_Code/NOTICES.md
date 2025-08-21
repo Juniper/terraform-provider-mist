@@ -3766,8 +3766,8 @@ THE SOFTWARE.
 ## github.com/tmunzer/mistapi-go/mistapi
 
 * Name: github.com/tmunzer/mistapi-go/mistapi
-* Version: v0.4.79
-* License: [MIT](https://github.com/tmunzer/mistapi-go/blob/v0.4.79/LICENSE)
+* Version: v0.4.84
+* License: [MIT](https://github.com/tmunzer/mistapi-go/blob/v0.4.84/LICENSE)
 
 ```
 License: 

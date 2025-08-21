@@ -57,6 +57,8 @@ resource "mist_site_setting" "site_one" {
 - `analytic` (Attributes) (see [below for nested schema](#nestedatt--analytic))
 - `ap_updown_threshold` (Number) Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.
 - `auto_upgrade` (Attributes) Auto Upgrade Settings (see [below for nested schema](#nestedatt--auto_upgrade))
+- `auto_upgrade_esl` (Attributes) auto upgrade AP ESL. When both firmware and ESL auto-upgrade are enabled, ESL upgrade will be done only after firmware upgrade (see [below for nested schema](#nestedatt--auto_upgrade_esl))
+- `bgp_neighbor_updown_threshold` (Number) enable threshold-based bgp neighbor down delivery.
 - `ble_config` (Attributes) BLE AP settings (see [below for nested schema](#nestedatt--ble_config))
 - `config_auto_revert` (Boolean) Whether to enable ap auto config revert
 - `config_push_policy` (Attributes) Mist also uses some heuristic rules to prevent destructive configs from being pushed (see [below for nested schema](#nestedatt--config_push_policy))
@@ -89,6 +91,8 @@ resource "mist_site_setting" "site_one" {
 - `uplink_port_config` (Attributes) AP Uplink port configuration (see [below for nested schema](#nestedatt--uplink_port_config))
 - `vars` (Map of String) Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
 - `vna` (Attributes) (see [below for nested schema](#nestedatt--vna))
+- `vpn_path_updown_threshold` (Number) enable threshold-based vpn path down delivery.
+- `vpn_peer_updown_threshold` (Number) enable threshold-based vpn peer down delivery.
 - `vs_instance` (Attributes Map) Optional, for EX9200 only to segregate virtual-switches. Property key is the instance name (see [below for nested schema](#nestedatt--vs_instance))
 - `wan_vna` (Attributes) (see [below for nested schema](#nestedatt--wan_vna))
 - `wids` (Attributes) WIDS site settings (see [below for nested schema](#nestedatt--wids))
@@ -120,6 +124,19 @@ Optional:
 - `enabled` (Boolean) Whether auto upgrade should happen (Note that Mist may auto-upgrade if the version is not supported)
 - `time_of_day` (String) `any` / HH:MM (24-hour format), upgrade will happen within up to 1-hour from this time
 - `version` (String) desired version. enum: `beta`, `custom`, `stable`
+
+
+<a id="nestedatt--auto_upgrade_esl"></a>
+### Nested Schema for `auto_upgrade_esl`
+
+Optional:
+
+- `allow_downgrade` (Boolean) If true, it will allow downgrade to a lower version
+- `custom_versions` (Map of String) Custom versions for different models. Property key is the model name (e.g. "AP41")
+- `day_of_week` (String) enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`
+- `enabled` (Boolean) Whether auto upgrade should happen (Note that Mist may auto-upgrade if the version is not supported)
+- `time_of_day` (String) `any` / HH:MM (24-hour format), upgrade will happen within up to 1-hour from this time
+- `version` (String)
 
 
 <a id="nestedatt--ble_config"></a>
@@ -269,6 +286,7 @@ Optional:
 - `disable_usb` (Boolean) For SSR and SRX, disable usb interface
 - `fips_enabled` (Boolean)
 - `probe_hosts` (List of String)
+- `probe_hostsv6` (List of String)
 - `protect_re` (Attributes) Restrict inbound-traffic to host
 when enabled, all traffic that is not essential to our operation will be dropped 
 e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works (see [below for nested schema](#nestedatt--gateway_mgmt--protect_re))

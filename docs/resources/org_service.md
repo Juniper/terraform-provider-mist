@@ -48,7 +48,7 @@ resource "mist_org_service" "service_one" {
 
 ### Optional
 
-- `addresses` (List of String) If `type`==`custom`, ip subnets (e.g. 10.0.0.0/8)
+- `addresses` (List of String) If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)
 - `app_categories` (List of String) When `type`==`app_categories`, list of application categories are available through [List App Category Definitions]($e/Constants%20Definitions/listAppCategoryDefinitions)
 - `app_subcategories` (List of String) When `type`==`app_categories`, list of application categories are available through [List App Sub Category Definitions]($e/Constants%20Definitions/listAppSubCategoryDefinitions)
 - `apps` (List of String) When `type`==`apps`, list of applications are available through:

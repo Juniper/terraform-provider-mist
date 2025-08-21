@@ -326,8 +326,9 @@ Optional:
 - `input_networks_ingress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
 - `input_port_ids_egress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
 - `input_port_ids_ingress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
-- `output_network` (String) Exactly one of the `output_port_id` or `output_network` should be provided
-- `output_port_id` (String) Exactly one of the `output_port_id` or `output_network` should be provided
+- `output_ip_address` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
+- `output_network` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
+- `output_port_id` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
 
 
 <a id="nestedatt--port_usages"></a>
@@ -344,7 +345,7 @@ Optional:
 - `description` (String) Only if `mode`!=`dynamic`
 - `disable_autoneg` (Boolean) Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation
 - `disabled` (Boolean) Only if `mode`!=`dynamic` whether the port is disabled
-- `duplex` (String) Only if `mode`!=`dynamic` link connection mode. enum: `auto`, `full`, `half`
+- `duplex` (String) Only if `mode`!=`dynamic`, link connection mode. enum: `auto`, `full`, `half`
 - `dynamic_vlan_networks` (List of String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return
 - `enable_mac_auth` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` whether to enable MAC Auth
 - `enable_qos` (Boolean) Only if `mode`!=`dynamic`
@@ -367,7 +368,7 @@ Optional:
 - `rules` (Attributes List) Only if `mode`==`dynamic` (see [below for nested schema](#nestedatt--port_usages--rules))
 - `server_fail_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` sets server fail fallback vlan
 - `server_reject_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` when radius server reject / fails
-- `speed` (String) Only if `mode`!=`dynamic` speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
+- `speed` (String) Only if `mode`!=`dynamic`, Port speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
 - `storm_control` (Attributes) Switch storm control. Only if `mode`!=`dynamic` (see [below for nested schema](#nestedatt--port_usages--storm_control))
 - `stp_edge` (Boolean) Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames
 - `stp_no_root_port` (Boolean)
@@ -398,6 +399,7 @@ Optional:
 
 Optional:
 
+- `disable_port` (Boolean) Whether to disable the port when storm control is triggered
 - `no_broadcast` (Boolean) Whether to disable storm control on broadcast traffic
 - `no_multicast` (Boolean) Whether to disable storm control on multicast traffic
 - `no_registered_multicast` (Boolean) Whether to disable storm control on registered multicast traffic
@@ -547,6 +549,7 @@ Optional:
 - `port` (String)
 - `protocol` (String) enum: `tcp`, `udp`
 - `routing_instance` (String)
+- `server_name` (String) Name of the server
 - `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
 - `source_address` (String) If source_address is configured, will use the vlan firstly otherwise use source_ip
 - `structured_data` (Boolean)
@@ -871,8 +874,9 @@ Optional:
 - `input_networks_ingress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
 - `input_port_ids_egress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
 - `input_port_ids_ingress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
-- `output_network` (String) Exactly one of the `output_port_id` or `output_network` should be provided
-- `output_port_id` (String) Exactly one of the `output_port_id` or `output_network` should be provided
+- `output_ip_address` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
+- `output_network` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
+- `output_port_id` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
 
 
 

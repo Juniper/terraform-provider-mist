@@ -209,16 +209,16 @@ Optional:
 - `dns_suffix` (List of String, Deprecated) If `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
 - `fixed_bindings` (Attributes Map) If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
 - `gateway` (String) If `type`==`local` - optional, `ip` will be used if not provided
+- `ip6_end` (String) If `type6`==`local`
+- `ip6_start` (String) If `type6`==`local`
 - `ip_end` (String) If `type`==`local`
-- `ip_end6` (String) If `type6`==`local`
 - `ip_start` (String) If `type`==`local`
-- `ip_start6` (String) If `type6`==`local`
 - `lease_time` (Number) In seconds, lease time has to be between 3600 [1hr] - 604800 [1 week], default is 86400 [1 day]
 - `options` (Attributes Map) If `type`==`local` or `type6`==`local`. Property key is the DHCP option number (see [below for nested schema](#nestedatt--dhcpd_config--config--options))
 - `server_id_override` (Boolean) `server_id_override`==`true` means the device, when acts as DHCP relay and forwards DHCP responses from DHCP server to clients, 
 should overwrite the Sever Identifier option (i.e. DHCP option 54) in DHCP responses with its own IP address.
 - `servers` (List of String) If `type`==`relay`
-- `servers6` (List of String) If `type6`==`relay`
+- `serversv6` (List of String) If `type6`==`relay`
 - `type` (String) enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)
 - `type6` (String) enum: `local` (DHCP Server), `none`, `relay` (DHCP Relay)
 - `vendor_encapsulated` (Attributes Map) If `type`==`local` or `type6`==`local`. Property key is <enterprise number>:<sub option code>, with
@@ -313,9 +313,12 @@ Optional:
 Optional:
 
 - `ip` (String)
+- `ip6` (String)
 - `netmask` (String)
+- `netmask6` (String)
 - `secondary_ips` (List of String) Optional list of secondary IPs in CIDR format
 - `type` (String) enum: `dhcp`, `static`
+- `type6` (String) enum: `autoconf`, `dhcp`, `disabled`, `static`
 
 
 <a id="nestedatt--networks"></a>
@@ -568,6 +571,7 @@ Optional:
 - `wan_disable_speedtest` (Boolean) If `wan_type`==`wan`, disable speedtest
 - `wan_ext_ip` (String) Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP
 - `wan_extra_routes` (Attributes Map) Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. "100.100.100.0/24") (see [below for nested schema](#nestedatt--port_config--wan_extra_routes))
+- `wan_extra_routes6` (Attributes Map) Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--port_config--wan_extra_routes6))
 - `wan_networks` (List of String) Only if `usage`==`wan`. If some networks are connected to this WAN port, it can be added here so policies can be defined
 - `wan_probe_override` (Attributes) Only if `usage`==`wan` (see [below for nested schema](#nestedatt--port_config--wan_probe_override))
 - `wan_source_nat` (Attributes) Only if `usage`==`wan`, optional. By default, source-NAT is performed on all WAN Ports using the interface-ip (see [below for nested schema](#nestedatt--port_config--wan_source_nat))
@@ -581,13 +585,17 @@ Optional:
 - `dns` (List of String) Except for out-of_band interface (vme/em0/fxp0)
 - `dns_suffix` (List of String) Except for out-of_band interface (vme/em0/fxp0)
 - `gateway` (String) Except for out-of_band interface (vme/em0/fxp0). Interface Default Gateway IP Address (i.e. "192.168.1.1") or a Variable (i.e. "{{myvar}}")
+- `gateway6` (String) Except for out-of_band interface (vme/em0/fxp0). Interface Default Gateway IPv6 Address (i.e. "2001:db8::1") or a Variable (i.e. "{{myvar}}")
 - `ip` (String) Interface IP Address (i.e. "192.168.1.8") or a Variable (i.e. "{{myvar}}")
+- `ip6` (String) Interface IPv6 Address (i.e. "2001:db8::123") or a Variable (i.e. "{{myvar}}")
 - `netmask` (String) Used only if `subnet` is not specified in `networks`. Interface Netmask (i.e. "/24") or a Variable (i.e. "{{myvar}}")
+- `netmask6` (String) Used only if `subnet` is not specified in `networks`. Interface IPv6 Netmask (i.e. "/64") or a Variable (i.e. "{{myvar}}")
 - `network` (String) Optional, the network to be used for mgmt
 - `poser_password` (String, Sensitive) If `type`==`pppoe`
 - `pppoe_auth` (String) if `type`==`pppoe`. enum: `chap`, `none`, `pap`
 - `pppoe_username` (String) If `type`==`pppoe`
 - `type` (String) enum: `dhcp`, `pppoe`, `static`
+- `type6` (String) enum: `autoconf`, `dhcp`, `static`
 
 
 <a id="nestedatt--port_config--traffic_shaping"></a>
@@ -630,11 +638,20 @@ Optional:
 - `via` (String)
 
 
+<a id="nestedatt--port_config--wan_extra_routes6"></a>
+### Nested Schema for `port_config.wan_extra_routes6`
+
+Optional:
+
+- `via` (String)
+
+
 <a id="nestedatt--port_config--wan_probe_override"></a>
 ### Nested Schema for `port_config.wan_probe_override`
 
 Optional:
 
+- `ip6s` (List of String)
 - `ips` (List of String)
 - `probe_profile` (String) enum: `broadband`, `lte`
 
@@ -797,6 +814,7 @@ Optional:
 - `ipsec_lifetime` (Number) Only if `provider`==`custom-ipsec`. Must be between 180 and 86400
 - `ipsec_proposals` (Attributes List) Only if  `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ipsec_proposals))
 - `local_id` (String) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
+- `local_subnets` (List of String) List of Local protected subnet for policy-based IPSec negotiation
 - `mode` (String) Required if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`. enum: `active-active`, `active-standby`
 - `networks` (List of String) If `provider`==`custom-ipsec` or `provider`==`prisma-ipsec`, networks reachable via this tunnel
 - `primary` (Attributes) Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--primary))
@@ -804,6 +822,7 @@ Optional:
 - `protocol` (String) Only if `provider`==`custom-ipsec`. enum: `gre`, `ipsec`
 - `provider` (String) Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `prisma-ipsec`, `zscaler-gre`, `zscaler-ipsec`
 - `psk` (String, Sensitive) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
+- `remote_subnets` (List of String) List of Remote protected subnet for policy-based IPSec negotiation
 - `secondary` (Attributes) Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--secondary))
 - `version` (String) Only if `provider`==`custom-gre` or `provider`==`custom-ipsec`. enum: `1`, `2`
 

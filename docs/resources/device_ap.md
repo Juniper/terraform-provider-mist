@@ -35,6 +35,7 @@ resource "mist_device_ap" "ap_one" {
 ### Optional
 
 - `aeroscout` (Attributes) Aeroscout AP settings (see [below for nested schema](#nestedatt--aeroscout))
+- `airista` (Attributes) (see [below for nested schema](#nestedatt--airista))
 - `ble_config` (Attributes) BLE AP settings (see [below for nested schema](#nestedatt--ble_config))
 - `centrak` (Attributes) (see [below for nested schema](#nestedatt--centrak))
 - `client_bridge` (Attributes) (see [below for nested schema](#nestedatt--client_bridge))
@@ -55,7 +56,7 @@ resource "mist_device_ap" "ap_one" {
 - `ntp_servers` (List of String)
 - `orientation` (Number) Orientation, 0-359, in degrees, up is 0, right is 90.
 - `poe_passthrough` (Boolean) Whether to enable power out through module port (for APH) or eth1 (for APL/BT11)
-- `port_config` (Attributes Map) eth0 is not allowed here. Property key is the interface(s) name (e.g. `eth1` or `eth1,eth2`). If specified, this takes precedence over switch_config (deprecated) (see [below for nested schema](#nestedatt--port_config))
+- `port_config` (Attributes Map) eth0 is not allowed here. Property key is the interface(s) name (e.g. `eth1` or `eth1,eth2`). If spcified, this takes predecence over switch_config (switch_config requires user to configure all vlans manually, which is error-prone. thus deprecated) (see [below for nested schema](#nestedatt--port_config))
 - `pwr_config` (Attributes) Power related configs (see [below for nested schema](#nestedatt--pwr_config))
 - `radio_config` (Attributes) Radio AP settings (see [below for nested schema](#nestedatt--radio_config))
 - `uplink_port_config` (Attributes) AP Uplink port configuration (see [below for nested schema](#nestedatt--uplink_port_config))
@@ -85,6 +86,16 @@ Optional:
 - `enabled` (Boolean) Whether to enable aeroscout config
 - `host` (String) Required if enabled, aeroscout server host
 - `locate_connected` (Boolean) Whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation
+- `port` (Number)
+
+
+<a id="nestedatt--airista"></a>
+### Nested Schema for `airista`
+
+Optional:
+
+- `enabled` (Boolean) Whether to enable Airista config
+- `host` (String) Required if enabled, Airista server host
 - `port` (Number)
 
 
@@ -259,6 +270,11 @@ Optional:
 
 Optional:
 
+- `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled.
+- `auth_servers_retries` (Number) Radius auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. "retries" are set to value of `auth_servers_timeout`. "max-requests" is also set when setting `auth_servers_retries` is set to default value to 3.
+- `auth_servers_timeout` (Number) Radius auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. "quite-period" and "transmit-period" are set to half the value of `auth_servers_timeout`. "supplicant-timeout" is also set when setting `auth_servers_timeout` is set to default value of 10.
+- `coa_enabled` (Boolean) Allows a RADIUS server to dynamically modify the authorization status of a user session.
+- `coa_port` (Number) the communication port used for “Change of Authorization” (CoA) messages
 - `enabled` (Boolean) When enabled:
   * `auth_servers` is ignored
   * `acct_servers` is ignored
@@ -266,6 +282,9 @@ Optional:
   * `coa_servers` is ignored
   * `radsec` is ignored
   * `coa_enabled` is assumed
+- `fast_dot1x_timers` (Boolean) If set to true, sets default fast-timers with values calculated from `auth_servers_timeout` and `auth_server_retries`.
+- `network` (String) Which network the mist nac server resides in
+- `source_ip` (String) In case there is a static IP for this network, we can specify it using source ip
 
 
 <a id="nestedatt--port_config--radius_config"></a>

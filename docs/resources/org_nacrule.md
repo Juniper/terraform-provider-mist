@@ -52,6 +52,7 @@ resource "mist_org_nacrule" "nacrule_one" {
 
 - `apply_tags` (List of String) All optional, this goes into Access-Accept
 - `enabled` (Boolean) Enabled or not
+- `guest_auth_state` (String) Guest portal authorization state. enum: `authorized`, `unknown`
 - `matching` (Attributes) (see [below for nested schema](#nestedatt--matching))
 - `not_matching` (Attributes) (see [below for nested schema](#nestedatt--not_matching))
 
