@@ -9,7 +9,7 @@
   notify_on_create_or_edit = true
   expire_time = 1769243558
   expiry_notification_time = 7
-$
+␞
   name       = "Test Guest PSK 2"
   ssid       = "Guest-Network"
   passphrase = "SecurePassword123"
@@ -21,7 +21,7 @@ $
   notify_on_create_or_edit = true
   expire_time = 1769243558
   expiry_notification_time = 7
-$
+␞
   name       = "Test Guest PSK 3"
   ssid       = "Guest-Network"
   passphrase = "SecurePassword123"
@@ -33,7 +33,7 @@ $
   notify_on_create_or_edit = true
   expire_time = 1769243558
   expiry_notification_time = 7
-$
+␞
   name       = "Test Guest PSK 4"
   ssid       = "Guest-Network"
   passphrase = "SecurePassword123"

@@ -9,7 +9,7 @@
     "10.0.0.0/24",
     "203.0.113.1"
   ]
-$
+␞
   org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
   name   = "Site Admin Token"
   privileges {
@@ -21,7 +21,7 @@ $
     "10.1.1.50",
     "172.16.0.0/16"
   ]
-$
+␞
   org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
   name   = "Multi-Privilege Token"
   privileges {
@@ -41,7 +41,7 @@ $
   src_ips = [
     "0.0.0.0/0"
   ]
-$
+␞
   org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
   name   = "Installer Token"
 
@@ -55,7 +55,7 @@ $
     "192.168.100.10",
     "192.168.100.11"
   ]
-$
+␞
   org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
   name   = "Read-Only Token"
 
