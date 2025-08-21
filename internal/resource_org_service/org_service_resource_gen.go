@@ -5,7 +5,9 @@ package resource_org_service
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -20,7 +22,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -35,7 +36,7 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)",
 				MarkdownDescription: "If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)",
 				Validators: []validator.List{
-					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseCidrSubnetOnly(true, false), mistvalidator.ParseVar())),
+					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseCidrSubnetOnly(false, false), mistvalidator.ParseVar())),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
 				},
 				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
