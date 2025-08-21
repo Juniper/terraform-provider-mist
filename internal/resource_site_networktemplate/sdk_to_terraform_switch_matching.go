@@ -34,6 +34,7 @@ func switchMatchingRulesPortConfigSdkToTerraform(ctx context.Context, diags *dia
 		var mtu basetypes.Int64Value
 		var noLocalOverwrite basetypes.BoolValue
 		var poeDisabled basetypes.BoolValue
+		var portNetwork basetypes.StringValue
 		var speed basetypes.StringValue
 		var usage = types.StringValue(d.Usage)
 
@@ -76,6 +77,9 @@ func switchMatchingRulesPortConfigSdkToTerraform(ctx context.Context, diags *dia
 		if d.PoeDisabled != nil {
 			poeDisabled = types.BoolValue(*d.PoeDisabled)
 		}
+		if d.PortNetwork != nil {
+			portNetwork = types.StringValue(*d.PortNetwork)
+		}
 		if d.Speed != nil {
 			speed = types.StringValue(string(*d.Speed))
 		}
@@ -94,6 +98,7 @@ func switchMatchingRulesPortConfigSdkToTerraform(ctx context.Context, diags *dia
 			"mtu":                mtu,
 			"no_local_overwrite": noLocalOverwrite,
 			"poe_disabled":       poeDisabled,
+			"port_network":       portNetwork,
 			"speed":              speed,
 			"usage":              usage,
 		}
@@ -160,13 +165,11 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 
 	for _, d := range l {
 
-		var additionalConfigCmds = mistutils.ListOfStringSdkToTerraformEmpty()
-		var matchModel = types.StringValue("")
-		var matchName = types.StringValue("")
+		var additionalConfigCmds = types.ListNull(types.StringType)
+		var matchModel basetypes.StringValue
+		var matchName basetypes.StringValue
 		var matchNameOffset = types.Int64Value(0)
 		var matchRole basetypes.StringValue
-		var matchType = types.StringValue("")
-		var matchValue = types.StringValue("")
 		var name basetypes.StringValue
 		var portConfig = types.MapNull(PortConfigValue{}.Type(ctx))
 		var portMirroring = types.MapNull(PortMirroringValue{}.Type(ctx))
@@ -176,9 +179,6 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		for key, value := range d.AdditionalProperties {
 			if strings.HasPrefix(key, "match_model") {
 				matchModel = types.StringValue(value)
-				// backward compatibility
-				matchType = types.StringValue(key)
-				matchValue = types.StringValue(value)
 			} else if strings.HasPrefix(key, "match_name") {
 				matchName = types.StringValue(value)
 				if strings.Contains(key, "[") {
@@ -190,18 +190,12 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 						matchNameOffset = types.Int64Value(int64(i))
 					}
 				}
-				// backward compatibility
-				matchType = types.StringValue(key)
-				matchValue = types.StringValue(value)
 			} else if strings.HasPrefix(key, "match_role") {
 				matchRole = types.StringValue(value)
-			} else if strings.HasPrefix(key, "match_") {
-				matchType = types.StringValue(key)
-				matchValue = types.StringValue(value)
 			}
 		}
 
-		if d.AdditionalConfigCmds != nil {
+		if len(d.AdditionalConfigCmds) > 0 {
 			additionalConfigCmds = mistutils.ListOfStringSdkToTerraform(d.AdditionalConfigCmds)
 		}
 		if d.Name != nil {
@@ -226,8 +220,6 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 			"match_name":             matchName,
 			"match_name_offset":      matchNameOffset,
 			"match_role":             matchRole,
-			"match_type":             matchType,
-			"match_value":            matchValue,
 			"name":                   name,
 			"port_config":            portConfig,
 			"port_mirroring":         portMirroring,

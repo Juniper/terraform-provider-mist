@@ -126,7 +126,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			if d.DnsSuffix != nil {
 				dnsSuffix = mistutils.ListOfStringSdkToTerraform(d.DnsSuffix)
 			}
-			if d.FixedBindings != nil && len(d.FixedBindings) > 0 {
+			if len(d.FixedBindings) > 0 {
 				fixedBindings = dhcpdConfigFixedBindingsSdkToTerraform(ctx, diags, d.FixedBindings)
 			}
 			if d.Gateway != nil {
@@ -147,7 +147,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			if d.LeaseTime != nil {
 				leaseTime = types.Int64Value(int64(*d.LeaseTime))
 			}
-			if d.Options != nil && len(d.Options) > 0 {
+			if len(d.Options) > 0 {
 				options = dhcpdConfigOptionsSdkToTerraform(ctx, diags, d.Options)
 			}
 			if d.ServerIdOverride != nil {
@@ -165,7 +165,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			if d.Type6 != nil {
 				type6 = types.StringValue(string(*d.Type6))
 			}
-			if d.VendorEncapsulated != nil && len(d.VendorEncapsulated) > 0 {
+			if len(d.VendorEncapsulated) > 0 {
 				vendorEncapsulated = dhcpdConfigVendorEncapsulatedSdkToTerraform(ctx, diags, d.VendorEncapsulated)
 			}
 

@@ -3555,8 +3555,8 @@ THE SOFTWARE.
 ## github.com/oklog/run
 
 * Name: github.com/oklog/run
-* Version: v1.1.0
-* License: [Apache-2.0](https://github.com/oklog/run/blob/v1.1.0/LICENSE)
+* Version: v1.2.0
+* License: [Apache-2.0](https://github.com/oklog/run/blob/v1.2.0/LICENSE)
 
 ```
                                  Apache License
@@ -3747,7 +3747,7 @@ THE SOFTWARE.
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-   Copyright [yyyy] [name of copyright owner]
+   Copyright 2017 Peter Bourgon
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -3766,8 +3766,8 @@ THE SOFTWARE.
 ## github.com/tmunzer/mistapi-go/mistapi
 
 * Name: github.com/tmunzer/mistapi-go/mistapi
-* Version: v0.4.74
-* License: [MIT](https://github.com/tmunzer/mistapi-go/blob/v0.4.74/LICENSE)
+* Version: v0.4.79
+* License: [MIT](https://github.com/tmunzer/mistapi-go/blob/v0.4.79/LICENSE)
 
 ```
 License: 
@@ -3868,8 +3868,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## golang.org/x/net
 
 * Name: golang.org/x/net
-* Version: v0.41.0
-* License: [BSD-3-Clause](https://cs.opensource.google/go/x/net/+/v0.41.0:LICENSE)
+* Version: v0.42.0
+* License: [BSD-3-Clause](https://cs.opensource.google/go/x/net/+/v0.42.0:LICENSE)
 
 ```
 Copyright 2009 The Go Authors.
@@ -3905,8 +3905,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## golang.org/x/text
 
 * Name: golang.org/x/text
-* Version: v0.26.0
-* License: [BSD-3-Clause](https://cs.opensource.google/go/x/text/+/v0.26.0:LICENSE)
+* Version: v0.27.0
+* License: [BSD-3-Clause](https://cs.opensource.google/go/x/text/+/v0.27.0:LICENSE)
 
 ```
 Copyright 2009 The Go Authors.
@@ -3942,8 +3942,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## google.golang.org/genproto/googleapis/rpc/status
 
 * Name: google.golang.org/genproto/googleapis/rpc/status
-* Version: v0.0.0-20250603155806-513f23925822
-* License: [Apache-2.0](https://github.com/googleapis/go-genproto/blob/513f23925822/googleapis/rpc/LICENSE)
+* Version: v0.0.0-20250728155136-f173205681a0
+* License: [Apache-2.0](https://github.com/googleapis/go-genproto/blob/f173205681a0/googleapis/rpc/LICENSE)
 
 ```
 
@@ -4154,8 +4154,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## google.golang.org/grpc
 
 * Name: google.golang.org/grpc
-* Version: v1.73.0
-* License: [Apache-2.0](https://github.com/grpc/grpc-go/blob/v1.73.0/LICENSE)
+* Version: v1.74.2
+* License: [Apache-2.0](https://github.com/grpc/grpc-go/blob/v1.74.2/LICENSE)
 
 ```
 

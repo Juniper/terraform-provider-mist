@@ -41,6 +41,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	var ntpServers = types.ListValueMust(types.StringType, []attr.Value{})
 	var oobIpConfig = NewOobIpConfigValueNull()
 	var ospfAreas = types.MapNull(OspfAreasValue{}.Type(ctx))
+	var ospfConfig = NewOspfConfigValueNull()
 	var otherIpConfigs = types.MapNull(OtherIpConfigsValue{}.Type(ctx))
 	var orgId types.String
 	var portConfig = types.MapNull(PortConfigValue{}.Type(ctx))
@@ -71,7 +72,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.AclPolicies != nil {
 		aclPolicies = aclPoliciesSdkToTerraform(ctx, &diags, data.AclPolicies)
 	}
-	if data.AclTags != nil && len(data.AclTags) > 0 {
+	if len(data.AclTags) > 0 {
 		aclTags = aclTagsSdkToTerraform(ctx, &diags, data.AclTags)
 	}
 	if data.AdditionalConfigCmds != nil {
@@ -92,10 +93,10 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.DnsSuffix != nil {
 		dnsSuffix = mistutils.ListOfStringSdkToTerraform(data.DnsSuffix)
 	}
-	if data.ExtraRoutes != nil && len(data.ExtraRoutes) > 0 {
+	if len(data.ExtraRoutes) > 0 {
 		extraRoutes = extraRoutesSdkToTerraform(ctx, &diags, data.ExtraRoutes)
 	}
-	if data.ExtraRoutes6 != nil && len(data.ExtraRoutes6) > 0 {
+	if len(data.ExtraRoutes6) > 0 {
 		extraRoutes6 = extraRoutes6SdkToTerraform(ctx, &diags, data.ExtraRoutes6)
 	}
 	if data.Id != nil {
@@ -131,7 +132,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.Notes != nil {
 		notes = types.StringValue(*data.Notes)
 	}
-	if data.Networks != nil && len(data.Networks) > 0 {
+	if len(data.Networks) > 0 {
 		networks = NetworksSdkToTerraform(ctx, &diags, data.Networks)
 	}
 	if data.NtpServers != nil {
@@ -146,16 +147,19 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.OspfAreas != nil {
 		ospfAreas = ospfAreasSdkToTerraform(ctx, &diags, data.OspfAreas)
 	}
-	if data.OtherIpConfigs != nil && len(data.OtherIpConfigs) > 0 {
+	if data.OspfConfig != nil {
+		ospfConfig = ospfConfigSdkToTerraform(ctx, &diags, data.OspfConfig)
+	}
+	if len(data.OtherIpConfigs) > 0 {
 		otherIpConfigs = otherIpConfigsSdkToTerraform(ctx, &diags, data.OtherIpConfigs)
 	}
-	if data.PortConfig != nil && len(data.PortConfig) > 0 {
+	if len(data.PortConfig) > 0 {
 		portConfig = portConfigSdkToTerraform(ctx, &diags, data.PortConfig)
 	}
-	if data.PortMirroring != nil && len(data.PortMirroring) > 0 {
+	if len(data.PortMirroring) > 0 {
 		portMirroring = portMirroringSdkToTerraform(ctx, &diags, data.PortMirroring)
 	}
-	if data.PortUsages != nil && len(data.PortUsages) > 0 {
+	if len(data.PortUsages) > 0 {
 		portUsages = portUsagesSdkToTerraform(ctx, &diags, data.PortUsages)
 	}
 	if data.RadiusConfig != nil {
@@ -188,13 +192,13 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.VirtualChassis != nil {
 		virtualChassis = virtualChassisSdkToTerraform(ctx, &diags, data.VirtualChassis)
 	}
-	if data.Vars != nil && len(data.Vars) > 0 {
+	if len(data.Vars) > 0 {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
 	if data.VrfConfig != nil {
 		vrfConfig = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
 	}
-	if data.VrfInstances != nil && len(data.VrfInstances) > 0 {
+	if len(data.VrfInstances) > 0 {
 		vrfInstances = vrfInstancesSdkToTerraform(ctx, &diags, data.VrfInstances)
 	}
 	if data.VrrpConfig != nil {
@@ -247,6 +251,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	state.OobIpConfig = oobIpConfig
 	state.OrgId = orgId
 	state.OspfAreas = ospfAreas
+	state.OspfConfig = ospfConfig
 	state.OtherIpConfigs = otherIpConfigs
 	state.PortConfig = portConfig
 	state.PortMirroring = portMirroring

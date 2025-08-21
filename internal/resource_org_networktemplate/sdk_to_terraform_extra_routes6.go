@@ -56,7 +56,7 @@ func extraRoutes6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m 
 		if d.Metric.Value() != nil {
 			metric = types.Int64Value(int64(*d.Metric.Value()))
 		}
-		if d.NextQualified != nil && len(d.NextQualified) > 0 {
+		if len(d.NextQualified) > 0 {
 			nextQualified = extraRoute6NextQualifiedSdkToTerraform(ctx, diags, d.NextQualified)
 		}
 		if d.NoResolve != nil {

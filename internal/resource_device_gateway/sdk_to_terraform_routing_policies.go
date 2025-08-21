@@ -116,7 +116,7 @@ func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 
 	return data
 }
-func routingPolicyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermAction) basetypes.ObjectValue {
+func routingPolicyTermActionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermAction) basetypes.ObjectValue {
 
 	var accept basetypes.BoolValue
 	var addCommunity = types.ListNull(types.StringType)
@@ -167,7 +167,7 @@ func routingPolicyTermActionSdkToTerraform(ctx context.Context, diags *diag.Diag
 		"local_preference":   localPreference,
 		"prepend_as_path":    prependAsPath,
 	}
-	data, e := basetypes.NewObjectValue(ActionValue{}.AttributeTypes(ctx), dataMapValue)
+	data, e := basetypes.NewObjectValue(ActionsValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data
@@ -177,18 +177,18 @@ func routingPolicyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	var dataList []TermsValue
 
 	for _, d := range l {
-		var action = types.ObjectNull(ActionValue{}.AttributeTypes(ctx))
+		var actions = types.ObjectNull(ActionsValue{}.AttributeTypes(ctx))
 		var matching = types.ObjectNull(RoutingPolicyTermMatchingValue{}.AttributeTypes(ctx))
 
-		if d.Action != nil {
-			action = routingPolicyTermActionSdkToTerraform(ctx, diags, *d.Action)
+		if d.Actions != nil {
+			actions = routingPolicyTermActionsSdkToTerraform(ctx, diags, *d.Actions)
 		}
 		if d.Matching != nil {
 			matching = routingPolicyTermMatchingSdkToTerraform(ctx, diags, *d.Matching)
 		}
 
 		dataMapValue := map[string]attr.Value{
-			"action":   action,
+			"actions":  actions,
 			"matching": matching,
 		}
 		data, e := NewTermsValue(TermsValue{}.AttributeTypes(ctx), dataMapValue)

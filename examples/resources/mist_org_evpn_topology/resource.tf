@@ -1,4 +1,4 @@
-resource "mist_org_site_evpn_topology" "evpn_one" {
+resource "mist_org_evpn_topology" "evpn_one" {
   org_id = mist_org.terraform_test.id
   name   = "evpn_one"
   evpn_options = {

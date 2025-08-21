@@ -14,7 +14,7 @@ import (
 )
 
 func portUsageStormControlSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SwitchPortUsageStormControl) basetypes.ObjectValue {
-	var noBroadcast = types.BoolValue(false)
+	var noBroadcast basetypes.BoolValue
 	var noMulticast basetypes.BoolValue
 	var noRegisteredMulticast basetypes.BoolValue
 	var noUnknownUnicast basetypes.BoolValue
@@ -99,6 +99,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var allowMultipleSupplicants basetypes.BoolValue
 		var bypassAuthWhenServerDown basetypes.BoolValue
 		var bypassAuthWhenServerDownForUnknownClient basetypes.BoolValue
+		var communityVlanId basetypes.Int64Value
 		var description basetypes.StringValue
 		var disableAutoneg basetypes.BoolValue
 		var disabled basetypes.BoolValue
@@ -147,6 +148,9 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		}
 		if d.BypassAuthWhenServerDownForUnknownClient != nil {
 			bypassAuthWhenServerDownForUnknownClient = types.BoolValue(*d.BypassAuthWhenServerDownForUnknownClient)
+		}
+		if d.CommunityVlanId != nil {
+			communityVlanId = types.Int64Value(int64(*d.CommunityVlanId))
 		}
 		if d.Description != nil {
 			description = types.StringValue(*d.Description)
@@ -254,6 +258,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"allow_multiple_supplicants":                      allowMultipleSupplicants,
 			"bypass_auth_when_server_down":                    bypassAuthWhenServerDown,
 			"bypass_auth_when_server_down_for_unknown_client": bypassAuthWhenServerDownForUnknownClient,
+			"community_vlan_id":                               communityVlanId,
 			"description":                                     description,
 			"disable_autoneg":                                 disableAutoneg,
 			"disabled":                                        disabled,

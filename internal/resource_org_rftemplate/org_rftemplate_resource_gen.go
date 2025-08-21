@@ -1755,11 +1755,19 @@ func (v Band24Value) String() string {
 func (v Band24Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	channelsVal, d := types.ListValue(types.Int64Type, v.Channels.Elements())
+	var channelsVal basetypes.ListValue
+	switch {
+	case v.Channels.IsUnknown():
+		channelsVal = types.ListUnknown(types.Int64Type)
+	case v.Channels.IsNull():
+		channelsVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		channelsVal, d = types.ListValue(types.Int64Type, v.Channels.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allow_rrm_disable": basetypes.BoolType{},
 			"ant_gain":          basetypes.Int64Type{},
@@ -2601,11 +2609,19 @@ func (v Band5Value) String() string {
 func (v Band5Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	channelsVal, d := types.ListValue(types.Int64Type, v.Channels.Elements())
+	var channelsVal basetypes.ListValue
+	switch {
+	case v.Channels.IsUnknown():
+		channelsVal = types.ListUnknown(types.Int64Type)
+	case v.Channels.IsNull():
+		channelsVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		channelsVal, d = types.ListValue(types.Int64Type, v.Channels.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allow_rrm_disable": basetypes.BoolType{},
 			"ant_gain":          basetypes.Int64Type{},
@@ -3447,11 +3463,19 @@ func (v Band5On24RadioValue) String() string {
 func (v Band5On24RadioValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	channelsVal, d := types.ListValue(types.Int64Type, v.Channels.Elements())
+	var channelsVal basetypes.ListValue
+	switch {
+	case v.Channels.IsUnknown():
+		channelsVal = types.ListUnknown(types.Int64Type)
+	case v.Channels.IsNull():
+		channelsVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		channelsVal, d = types.ListValue(types.Int64Type, v.Channels.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allow_rrm_disable": basetypes.BoolType{},
 			"ant_gain":          basetypes.Int64Type{},
@@ -4341,11 +4365,19 @@ func (v Band6Value) String() string {
 func (v Band6Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	channelsVal, d := types.ListValue(types.Int64Type, v.Channels.Elements())
+	var channelsVal basetypes.ListValue
+	switch {
+	case v.Channels.IsUnknown():
+		channelsVal = types.ListUnknown(types.Int64Type)
+	case v.Channels.IsNull():
+		channelsVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		channelsVal, d = types.ListValue(types.Int64Type, v.Channels.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allow_rrm_disable": basetypes.BoolType{},
 			"ant_gain":          basetypes.Int64Type{},

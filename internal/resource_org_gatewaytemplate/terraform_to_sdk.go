@@ -24,19 +24,17 @@ func TerraformToSdk(ctx context.Context, plan *OrgGatewaytemplateModel) (*models
 	if plan.BgpConfig.IsNull() || plan.BgpConfig.IsUnknown() {
 		unset["-bgp_config"] = ""
 	} else {
-		bgpConfig := bgpConfigTerraformToSdk(plan.BgpConfig)
-		data.BgpConfig = bgpConfig
+		data.BgpConfig = bgpConfigTerraformToSdk(plan.BgpConfig)
 	}
 
 	if plan.DhcpdConfig.IsNull() || plan.DhcpdConfig.IsUnknown() {
 		unset["-dhcpd_config"] = ""
 	} else {
-		dhcpdConfig := dhcpdConfigTerraformToSdk(plan.DhcpdConfig)
-		data.DhcpdConfig = &dhcpdConfig
+		data.DhcpdConfig = dhcpdConfigTerraformToSdk(plan.DhcpdConfig)
 	}
 
 	if plan.DnsOverride.IsNull() || plan.DnsOverride.IsUnknown() {
-		unset["-dns_override"] = ""
+		unset["-dnsOverride"] = ""
 	} else {
 		data.DnsOverride = plan.DnsOverride.ValueBoolPointer()
 	}
@@ -63,32 +61,29 @@ func TerraformToSdk(ctx context.Context, plan *OrgGatewaytemplateModel) (*models
 	if plan.ExtraRoutes6.IsNull() || plan.ExtraRoutes6.IsUnknown() {
 		unset["-extra_routes6"] = ""
 	} else {
-		data.ExtraRoutes6 = extraRoutesTerraformToSdk(plan.ExtraRoutes6)
+		data.ExtraRoutes6 = extraRoutes6TerraformToSdk(plan.ExtraRoutes6)
 	}
 
 	if plan.IdpProfiles.IsNull() || plan.IdpProfiles.IsUnknown() {
 		unset["-idp_profiles"] = ""
 	} else {
-		idpProfiles := idpProfileTerraformToSdk(ctx, &diags, plan.IdpProfiles)
-		data.IdpProfiles = idpProfiles
+		data.IdpProfiles = idpProfileTerraformToSdk(ctx, &diags, plan.IdpProfiles)
 	}
 
 	if plan.IpConfigs.IsNull() || plan.IpConfigs.IsUnknown() {
 		unset["-ip_configs"] = ""
 	} else {
-		ipConfigs := ipConfigsTerraformToSdk(plan.IpConfigs)
-		data.IpConfigs = ipConfigs
+		data.IpConfigs = ipConfigsTerraformToSdk(plan.IpConfigs)
 	}
 
 	if plan.Networks.IsNull() || plan.Networks.IsUnknown() {
 		unset["-networks"] = ""
 	} else {
-		networks := networksTerraformToSdk(ctx, &diags, plan.Networks)
-		data.Networks = networks
+		data.Networks = networksTerraformToSdk(ctx, &diags, plan.Networks)
 	}
 
 	if plan.NtpOverride.IsNull() || plan.NtpOverride.IsUnknown() {
-		unset["-ntp_override"] = ""
+		unset["-ntpOverride"] = ""
 	} else {
 		data.NtpOverride = plan.NtpOverride.ValueBoolPointer()
 	}
@@ -102,22 +97,19 @@ func TerraformToSdk(ctx context.Context, plan *OrgGatewaytemplateModel) (*models
 	if plan.OobIpConfig.IsNull() || plan.OobIpConfig.IsUnknown() {
 		unset["-oob_ip_config"] = ""
 	} else {
-		oobIpConfig := oobIpConfigTerraformToSdk(ctx, &diags, plan.OobIpConfig)
-		data.OobIpConfig = oobIpConfig
+		data.OobIpConfig = oobIpConfigTerraformToSdk(ctx, &diags, plan.OobIpConfig)
 	}
 
 	if plan.PathPreferences.IsNull() || plan.PathPreferences.IsUnknown() {
 		unset["-path_preferences"] = ""
 	} else {
-		pathPreferences := pathPreferencesTerraformToSdk(plan.PathPreferences)
-		data.PathPreferences = pathPreferences
+		data.PathPreferences = pathPreferencesTerraformToSdk(plan.PathPreferences)
 	}
 
 	if plan.PortConfig.IsNull() || plan.PortConfig.IsUnknown() {
 		unset["-port_config"] = ""
 	} else {
-		portConfig := portConfigTerraformToSdk(ctx, &diags, plan.PortConfig)
-		data.PortConfig = portConfig
+		data.PortConfig = portConfigTerraformToSdk(ctx, &diags, plan.PortConfig)
 	}
 
 	if plan.RouterId.IsNull() || plan.RouterId.IsUnknown() {
@@ -129,22 +121,19 @@ func TerraformToSdk(ctx context.Context, plan *OrgGatewaytemplateModel) (*models
 	if plan.RoutingPolicies.IsNull() || plan.RoutingPolicies.IsUnknown() {
 		unset["-routing_policies"] = ""
 	} else {
-		routingPolicies := routingPoliciesTerraformToSdk(ctx, plan.RoutingPolicies)
-		data.RoutingPolicies = routingPolicies
+		data.RoutingPolicies = routingPoliciesTerraformToSdk(ctx, plan.RoutingPolicies)
 	}
 
 	if plan.ServicePolicies.IsNull() || plan.ServicePolicies.IsUnknown() {
 		unset["-service_policies"] = ""
 	} else {
-		servicePolicies := servicePoliciesTerraformToSdk(ctx, &diags, plan.ServicePolicies)
-		data.ServicePolicies = servicePolicies
+		data.ServicePolicies = servicePoliciesTerraformToSdk(ctx, &diags, plan.ServicePolicies)
 	}
 
 	if plan.TunnelConfigs.IsNull() || plan.TunnelConfigs.IsUnknown() {
 		unset["-tunnel_configs"] = ""
 	} else {
-		tunnelConfigs := tunnelConfigsTerraformToSdk(ctx, &diags, plan.TunnelConfigs)
-		data.TunnelConfigs = tunnelConfigs
+		data.TunnelConfigs = tunnelConfigsTerraformToSdk(ctx, &diags, plan.TunnelConfigs)
 	}
 
 	if plan.TunnelProviderOptions.IsNull() || plan.TunnelProviderOptions.IsUnknown() {

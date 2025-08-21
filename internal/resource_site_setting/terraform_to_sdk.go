@@ -57,6 +57,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-critical_url_monitoring"] = ""
 	}
 
+	if plan.DefaultPortUsage.ValueStringPointer() != nil {
+		data.DefaultPortUsage = plan.DefaultPortUsage.ValueStringPointer()
+	} else {
+		unset["-default_port_usage"] = ""
+	}
+
 	if plan.DeviceUpdownThreshold.ValueInt64Pointer() != nil {
 		data.DeviceUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.DeviceUpdownThreshold.ValueInt64())))
 	} else {
@@ -97,6 +103,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		data.Led = ledTerraformToSdk(plan.Led)
 	} else {
 		unset["-led"] = ""
+	}
+
+	if !plan.Marvis.IsNull() && !plan.Marvis.IsUnknown() {
+		data.Marvis = marvisTerraformToSdk(ctx, plan.Marvis)
+	} else {
+		unset["-marvis"] = ""
 	}
 
 	if !plan.Occupancy.IsNull() && !plan.Occupancy.IsUnknown() {
@@ -152,6 +164,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		data.Skyatp = skyAtpTerraformToSdk(plan.Skyatp)
 	} else {
 		unset["-skyatp"] = ""
+	}
+
+	if !plan.SleThresholds.IsNull() && !plan.SleThresholds.IsUnknown() {
+		data.SleThresholds = sleThresholdsTerraformToSdk(plan.SleThresholds)
+	} else {
+		unset["-sle_thresholds"] = ""
 	}
 
 	if !plan.SrxApp.IsNull() && !plan.SrxApp.IsUnknown() {

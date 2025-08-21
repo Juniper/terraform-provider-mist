@@ -115,14 +115,14 @@ resource "mist_device_switch" "switch_one" {
 - `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config. **Note**: no check is done
 - `dhcp_snooping` (Attributes) (see [below for nested schema](#nestedatt--dhcp_snooping))
 - `dhcpd_config` (Attributes) (see [below for nested schema](#nestedatt--dhcpd_config))
-- `disable_auto_config` (Boolean) For a claimed switch, we control the configs by default. This option (disables the behavior)
+- `disable_auto_config` (Boolean) This disables the default behavior of a cloud-ready switch/gateway being managed/configured by Mist. Setting this to `true` means you want to disable the default behavior and do not want the device to be Mist-managed.
 - `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--extra_routes))
 - `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--extra_routes6))
 - `ip_config` (Attributes) Junos IP Config (see [below for nested schema](#nestedatt--ip_config))
 - `local_port_config` (Attributes Map) Local port override, overriding the port configuration from `port_config`. Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--local_port_config))
-- `managed` (Boolean) For an adopted switch, we don’t overwrite their existing configs automatically
+- `managed` (Boolean) An adopted switch/gateway will not be managed/configured by Mist by default. Setting this parameter to `true` enables the adopted switch/gateway to be managed/configured by Mist.
 - `map_id` (String) Map where the device belongs to
 - `mist_nac` (Attributes) Enable mist_nac to use RadSec (see [below for nested schema](#nestedatt--mist_nac))
 - `networks` (Attributes Map) Property key is network name (see [below for nested schema](#nestedatt--networks))
@@ -131,7 +131,8 @@ resource "mist_device_switch" "switch_one" {
 - `oob_ip_config` (Attributes) Switch OOB IP Config:
   - If HA configuration: key parameter will be nodeX (eg: node1)
   - If there are 2 routing engines, re1 mgmt IP has to be set separately (if desired): key parameter = `re1` (see [below for nested schema](#nestedatt--oob_ip_config))
-- `ospf_areas` (Attributes Map) Junos OSPF areas (see [below for nested schema](#nestedatt--ospf_areas))
+- `ospf_areas` (Attributes Map) Junos OSPF areas. Property key is the OSPF Area (Area should be a number (0-255) / IP address) (see [below for nested schema](#nestedatt--ospf_areas))
+- `ospf_config` (Attributes) (see [below for nested schema](#nestedatt--ospf_config))
 - `other_ip_configs` (Attributes Map) Property key is the network name. Defines the additional IP Addresses configured on the device. (see [below for nested schema](#nestedatt--other_ip_configs))
 - `port_config` (Attributes Map) Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--port_config))
 - `port_mirroring` (Attributes Map) Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed (see [below for nested schema](#nestedatt--port_mirroring))
@@ -200,6 +201,7 @@ Required:
   * `gbp_resource`: can only be used in `dst_tags`
   * `mac`
   * `network`
+  * `port_usage`
   * `radius_group`
   * `resource`: can only be used in `dst_tags`
   * `static_gbp`: applying gbp tag against matching conditions
@@ -207,6 +209,7 @@ Required:
 
 Optional:
 
+- `ether_types` (List of String) Can only be used under dst tags.
 - `gbp_tag` (Number) Required if
   - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)
   - `type`==`gbp_resource`
@@ -220,11 +223,12 @@ Optional:
   * `type`==`network`
   * `type`==`resource` (optional. default is `any`)
   * `type`==`static_gbp` if from matching network (vlan)
+- `port_usage` (String) Required if `type`==`port_usage`
 - `radius_group` (String) Required if:
   * `type`==`radius_group`
   * `type`==`static_gbp`
 if from matching radius_group
-- `specs` (Attributes List) If `type`==`resource` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any (see [below for nested schema](#nestedatt--acl_tags--specs))
+- `specs` (Attributes List) If `type`==`resource`, `type`==`radius_group`, `type`==`port_usage` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any (see [below for nested schema](#nestedatt--acl_tags--specs))
 - `subnets` (List of String) If 
 - `type`==`subnet` 
 - `type`==`resource` (optional. default is `any`)
@@ -460,7 +464,7 @@ Optional:
 
 - `gateway` (String) Only required for EVPN-VXLAN networks, IPv4 Virtual Gateway
 - `gateway6` (String) Only required for EVPN-VXLAN networks, IPv6 Virtual Gateway
-- `isolation` (Boolean) whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set
+- `isolation` (Boolean) whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set. See also `inter_isolation_network_link` and `community_vlan_id` in port_usage
 - `isolation_vlan_id` (String)
 - `subnet` (String) Optional for pure switching, required when L3 / routing features are used
 - `subnet6` (String) Optional for pure switching, required when L3 / routing features are used
@@ -512,6 +516,24 @@ Optional:
 
 
 
+<a id="nestedatt--ospf_config"></a>
+### Nested Schema for `ospf_config`
+
+Optional:
+
+- `areas` (Attributes Map) Property key is the area name. Defines the OSPF areas configured on the switch. (see [below for nested schema](#nestedatt--ospf_config--areas))
+- `enabled` (Boolean) Enable OSPF on the switch
+- `reference_bandwidth` (String)
+
+<a id="nestedatt--ospf_config--areas"></a>
+### Nested Schema for `ospf_config.areas`
+
+Optional:
+
+- `no_summary` (Boolean) Disable OSPF summary routes for this area
+
+
+
 <a id="nestedatt--other_ip_configs"></a>
 ### Nested Schema for `other_ip_configs`
 
@@ -531,7 +553,7 @@ Optional:
 
 Required:
 
-- `usage` (String) Port usage name. If EVPN is used, use `evpn_uplink`or `evpn_downlink`
+- `usage` (String) Port usage name. For Q-in-Q, use `vlan_tunnel`. If EVPN is used, use `evpn_uplink`or `evpn_downlink`
 
 Optional:
 
@@ -548,6 +570,7 @@ Optional:
 - `mtu` (Number) Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation
 - `no_local_overwrite` (Boolean) Prevent helpdesk to override the port config
 - `poe_disabled` (Boolean)
+- `port_network` (String) Required if `usage`==`vlan_tunnel`. Q-in-Q tunneling using All-in-one bundling. This also enables standard L2PT for interfaces that are not encapsulation tunnel interfaces and uses MAC rewrite operation. [View more information](https://www.juniper.net/documentation/us/en/software/junos/multicast-l2/topics/topic-map/q-in-q.html#id-understanding-qinq-tunneling-and-vlan-translation)
 - `speed` (String) enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
 
 
@@ -573,6 +596,7 @@ Optional:
 - `allow_multiple_supplicants` (Boolean) Only if `mode`!=`dynamic`
 - `bypass_auth_when_server_down` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down
 - `bypass_auth_when_server_down_for_unknown_client` (Boolean) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down
+- `community_vlan_id` (Number) Only if `mode`!=`dynamic`. To be used together with `isolation` under networks. Signaling that this port connects to the networks isolated but wired clients belong to the same community can talk to each other
 - `description` (String) Only if `mode`!=`dynamic`
 - `disable_autoneg` (Boolean) Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation
 - `disabled` (Boolean) Only if `mode`!=`dynamic` whether the port is disabled
@@ -697,6 +721,7 @@ Optional:
 Optional:
 
 - `archive` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog--archive))
+- `cacerts` (List of String)
 - `console` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog--console))
 - `enabled` (Boolean)
 - `files` (Attributes List) (see [below for nested schema](#nestedatt--remote_syslog--files))
@@ -739,6 +764,7 @@ Optional:
 
 - `archive` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog--files--archive))
 - `contents` (Attributes List) (see [below for nested schema](#nestedatt--remote_syslog--files--contents))
+- `enable_tls` (Boolean) Only if `protocol`==`tcp`
 - `explicit_priority` (Boolean)
 - `file` (String)
 - `match` (String)
@@ -821,6 +847,7 @@ Optional:
 - `description` (String)
 - `enabled` (Boolean)
 - `engine_id` (String)
+- `engine_id_type` (String) enum: `local`, `use_mac_address`
 - `location` (String)
 - `name` (String)
 - `network` (String)
@@ -1048,6 +1075,7 @@ Optional:
 - `protect_re` (Attributes) Restrict inbound-traffic to host
 when enabled, all traffic that is not essential to our operation will be dropped 
 e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works (see [below for nested schema](#nestedatt--switch_mgmt--protect_re))
+- `remove_existing_configs` (Boolean) By default, only the configuration generated by Mist is cleaned up during the configuration process. If `true`, all the existing configuration will be removed.
 - `root_password` (String, Sensitive)
 - `tacacs` (Attributes) (see [below for nested schema](#nestedatt--switch_mgmt--tacacs))
 - `use_mxedge_proxy` (Boolean) To use mxedge as proxy
@@ -1071,6 +1099,7 @@ Optional:
 - `enabled` (Boolean) When enabled, all traffic that is not essential to our operation will be dropped
 e.g. ntp / dns / traffic to mist will be allowed by default
      if dhcpd is enabled, we'll make sure it works
+- `hit_count` (Boolean) Whether to enable hit count for Protect_RE policy
 - `trusted_hosts` (List of String) host/subnets we'll allow traffic to/from
 
 <a id="nestedatt--switch_mgmt--protect_re--custom"></a>
@@ -1190,6 +1219,8 @@ Optional:
 
 Optional:
 
+- `accept_data` (Boolean) If `true`, accept packets destined for VRRP address
+- `preempt` (Boolean) If `true`, allow preemption (a backup router can preempt a primary router)
 - `priority` (Number)
 
 

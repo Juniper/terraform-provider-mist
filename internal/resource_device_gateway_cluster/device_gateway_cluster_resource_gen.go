@@ -52,6 +52,7 @@ func DeviceGatewayClusterResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "When replacing a node, either mac has to remain the same as existing cluster",
 				Validators: []validator.List{
 					listvalidator.SizeBetween(1, 2),
+					listvalidator.UniqueValues(),
 				},
 			},
 			"site_id": schema.StringAttribute{

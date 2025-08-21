@@ -58,7 +58,7 @@ func SdkToTerraform(ctx context.Context, data models.RfTemplate) (OrgRftemplateM
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
 	}
-	if data.ModelSpecific != nil && len(data.ModelSpecific) > 0 {
+	if len(data.ModelSpecific) > 0 {
 		modelSpecific = modelSpecificSdkToTerraform(ctx, &diags, data.ModelSpecific)
 	}
 

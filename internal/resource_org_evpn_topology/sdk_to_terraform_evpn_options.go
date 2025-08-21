@@ -89,6 +89,7 @@ func evpnOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var autoRouterIdSubnet basetypes.StringValue
 	var autoRouterIdSubnet6 basetypes.StringValue
 	var coreAsBorder basetypes.BoolValue
+	var enableInbandZtp basetypes.BoolValue
 	var overlay = types.ObjectNull(OverlayValue{}.AttributeTypes(ctx))
 	var perVlanVgaV4Mac basetypes.BoolValue
 	var perVlanVgaV6Mac basetypes.BoolValue
@@ -110,6 +111,9 @@ func evpnOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	}
 	if d.CoreAsBorder != nil {
 		coreAsBorder = types.BoolValue(*d.CoreAsBorder)
+	}
+	if d.EnableInbandZtp != nil {
+		enableInbandZtp = types.BoolValue(*d.EnableInbandZtp)
 	}
 	if d.Overlay != nil {
 		overlay = overlayEvpnOptionsSdkToTerraform(ctx, diags, d.Overlay)
@@ -136,6 +140,7 @@ func evpnOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		"auto_router_id_subnet":  autoRouterIdSubnet,
 		"auto_router_id_subnet6": autoRouterIdSubnet6,
 		"core_as_border":         coreAsBorder,
+		"enable_inband_ztp":      enableInbandZtp,
 		"overlay":                overlay,
 		"per_vlan_vga_v4_mac":    perVlanVgaV4Mac,
 		"per_vlan_vga_v6_mac":    perVlanVgaV6Mac,

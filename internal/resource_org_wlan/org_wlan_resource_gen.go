@@ -2453,6 +2453,12 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun)",
 						MarkdownDescription: "Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun)",
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(
+								1,
+								"fri", "mon", "sat", "sun", "thu", "tue", "wed",
+							),
+						},
 					},
 				},
 				CustomType: ScheduleType{

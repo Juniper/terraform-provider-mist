@@ -192,8 +192,10 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 			data.Duplex = models.ToPointer(models.GatewayPortDuplexEnum(plan.Duplex.ValueString()))
 		}
 
-		t, _ := plan.PortIpConfig.ToObjectValue(ctx)
-		data.IpConfig = gatewayIpConfigTerraformToSdk(ctx, t)
+		if !plan.PortIpConfig.IsNull() && !plan.PortIpConfig.IsUnknown() {
+			t, _ := plan.PortIpConfig.ToObjectValue(ctx)
+			data.IpConfig = gatewayIpConfigTerraformToSdk(ctx, t)
+		}
 
 		if plan.LteApn.ValueStringPointer() != nil {
 			data.LteApn = plan.LteApn.ValueStringPointer()
@@ -253,28 +255,44 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 			data.SvrPortRange = plan.SvrPortRange.ValueStringPointer()
 		}
 
-		data.TrafficShaping = gatewayPortTrafficShapingTerraformToSdk(ctx, plan.TrafficShaping)
+		if !plan.TrafficShaping.IsNull() && !plan.TrafficShaping.IsUnknown() {
+			data.TrafficShaping = gatewayPortTrafficShapingTerraformToSdk(ctx, plan.TrafficShaping)
+		}
 
 		if plan.VlanId.ValueStringPointer() != nil {
 			data.VlanId = models.ToPointer(models.GatewayPortVlanIdWithVariableContainer.FromString(plan.VlanId.ValueString()))
 		}
 
-		data.VpnPaths = gatewayPortVpnPathTerraformToSdk(ctx, plan.VpnPaths)
+		if !plan.VpnPaths.IsNull() && !plan.VpnPaths.IsUnknown() {
+			data.VpnPaths = gatewayPortVpnPathTerraformToSdk(ctx, plan.VpnPaths)
+		}
 
-		data.WanArpPolicer = models.ToPointer(models.GatewayPortWanArpPolicerEnum(plan.WanArpPolicer.ValueString()))
+		if plan.WanArpPolicer.ValueStringPointer() != nil {
+			data.WanArpPolicer = models.ToPointer(models.GatewayPortWanArpPolicerEnum(plan.WanArpPolicer.ValueString()))
+		}
 
+		if plan.WanDisableSpeedtest.ValueBoolPointer() != nil {
+			data.WanDisableSpeedtest = plan.WanDisableSpeedtest.ValueBoolPointer()
+		}
 		if plan.WanExtIp.ValueStringPointer() != nil {
 			data.WanExtIp = plan.WanExtIp.ValueStringPointer()
 		}
 
-		data.WanExtraRoutes = wanExtraRoutesPortVpnPathTerraformToSdk(plan.WanExtraRoutes)
+		if !plan.WanExtraRoutes.IsNull() && !plan.WanExtraRoutes.IsUnknown() {
+			data.WanExtraRoutes = wanExtraRoutesPortVpnPathTerraformToSdk(plan.WanExtraRoutes)
+		}
 
 		if !plan.WanNetworks.IsNull() && !plan.WanNetworks.IsUnknown() {
 			data.WanNetworks = mistutils.ListOfStringTerraformToSdk(plan.WanNetworks)
 		}
 
-		data.WanProbeOverride = wanProbeOverridePortVpnPathTerraformToSdk(ctx, diags, plan.WanProbeOverride)
-		data.WanSourceNat = portConfigWanSourceNatTerraformToSdk(ctx, plan.WanSourceNat)
+		if !plan.WanProbeOverride.IsNull() && !plan.WanProbeOverride.IsUnknown() {
+			data.WanProbeOverride = wanProbeOverridePortVpnPathTerraformToSdk(ctx, diags, plan.WanProbeOverride)
+		}
+
+		if !plan.WanSourceNat.IsNull() && !plan.WanSourceNat.IsUnknown() {
+			data.WanSourceNat = portConfigWanSourceNatTerraformToSdk(ctx, plan.WanSourceNat)
+		}
 
 		if plan.WanType.ValueStringPointer() != nil {
 			data.WanType = models.ToPointer(models.GatewayPortWanTypeEnum(plan.WanType.ValueString()))

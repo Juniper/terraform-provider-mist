@@ -53,6 +53,9 @@ func portConfigTerraformToSdk(d basetypes.MapValue) map[string]models.JunosPortC
 		if planObj.PoeDisabled.ValueBoolPointer() != nil {
 			itemObj.PoeDisabled = models.ToPointer(planObj.PoeDisabled.ValueBool())
 		}
+		if planObj.PortNetwork.ValueStringPointer() != nil {
+			itemObj.PortNetwork = models.ToPointer(planObj.PortNetwork.ValueString())
+		}
 		if planObj.Speed.ValueStringPointer() != nil {
 			itemObj.Speed = models.ToPointer(models.JunosPortConfigSpeedEnum(planObj.Speed.ValueString()))
 		}

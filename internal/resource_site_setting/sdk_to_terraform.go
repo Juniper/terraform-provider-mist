@@ -24,6 +24,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var configAutoRevert types.Bool
 	var configPushPolicy = NewConfigPushPolicyValueNull()
 	var criticalUrlMonitoring = NewCriticalUrlMonitoringValueNull()
+	var defaultPortUsage types.String
 	var deviceUpdownThreshold types.Int64
 	var engagement = NewEngagementValueNull()
 	var enableUnii4 types.Bool
@@ -31,6 +32,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var gatewayUpdownThreshold types.Int64
 	var juniperSrx = NewJuniperSrxValueNull()
 	var led = NewLedValueNull()
+	var marvis = NewMarvisValueNull()
 	var occupancy = NewOccupancyValueNull()
 	var persistConfigOnDevice types.Bool
 	var proxy = NewProxyValueNull()
@@ -40,6 +42,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var rtsa = NewRtsaValueNull()
 	var simpleAlert = NewSimpleAlertValueNull()
 	var skyatp = NewSkyatpValueNull()
+	var sleThresholds = NewSleThresholdsValueNull()
 	var srxApp = NewSrxAppValueNull()
 	var sshKeys = types.ListValueMust(types.StringType, []attr.Value{})
 	var ssr = NewSsrValueNull()
@@ -92,6 +95,12 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		criticalUrlMonitoring = criticalUrlMonitoringSdkToTerraform(ctx, &diags, data.CriticalUrlMonitoring)
 	}
 
+	if data.DefaultPortUsage != nil {
+		defaultPortUsage = types.StringValue(*data.DefaultPortUsage)
+	} else {
+		defaultPortUsage = types.StringNull()
+	}
+
 	if data.DeviceUpdownThreshold.Value() != nil {
 		deviceUpdownThreshold = types.Int64Value(int64(*data.DeviceUpdownThreshold.Value()))
 	}
@@ -118,6 +127,10 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 
 	if data.Led != nil {
 		led = ledSdkToTerraform(ctx, &diags, data.Led)
+	}
+
+	if data.Marvis != nil {
+		marvis = marvisSdkToTerraform(ctx, &diags, data.Marvis)
 	}
 
 	if data.Occupancy != nil {
@@ -154,6 +167,10 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 
 	if data.Skyatp != nil {
 		skyatp = skyAtpSdkToTerraform(ctx, &diags, data.Skyatp)
+	}
+
+	if data.SleThresholds != nil {
+		sleThresholds = sleThresholdsSdkToTerraform(ctx, &diags, data.SleThresholds)
 	}
 
 	if data.SrxApp != nil {
@@ -232,6 +249,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.ConfigAutoRevert = configAutoRevert
 	state.ConfigPushPolicy = configPushPolicy
 	state.CriticalUrlMonitoring = criticalUrlMonitoring
+	state.DefaultPortUsage = defaultPortUsage
 	state.DeviceUpdownThreshold = deviceUpdownThreshold
 	state.EnableUnii4 = enableUnii4
 	state.Engagement = engagement
@@ -239,6 +257,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.GatewayUpdownThreshold = gatewayUpdownThreshold
 	state.JuniperSrx = juniperSrx
 	state.Led = led
+	state.Marvis = marvis
 	state.Occupancy = occupancy
 	state.PersistConfigOnDevice = persistConfigOnDevice
 	state.Proxy = proxy
@@ -249,6 +268,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.SimpleAlert = simpleAlert
 	state.Skyatp = skyatp
 	state.SrxApp = srxApp
+	state.SleThresholds = sleThresholds
 	state.SshKeys = sshKeys
 	state.Ssr = ssr
 	state.SwitchUpdownThreshold = switchUpdownThreshold

@@ -93,35 +93,42 @@ resource "mist_device_gateway" "gateway_one" {
 <a id="nestedatt--bgp_config"></a>
 ### Nested Schema for `bgp_config`
 
+Required:
+
+- `via` (String) enum: `lan`, `tunnel`, `vpn`, `wan`
+
 Optional:
 
-- `auth_key` (String)
-- `bfd_minimum_interval` (Number) When bfd_multiplier is configured alone. Default:
+- `auth_key` (String) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`
+- `bfd_minimum_interval` (Number) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`, when bfd_multiplier is configured alone. Default:
   * 1000 if `type`==`external`
   * 350 `type`==`internal`
-- `bfd_multiplier` (Number) When bfd_minimum_interval_is_configured alone
-- `disable_bfd` (Boolean) BFD provides faster path failure detection and is enabled by default
+- `bfd_multiplier` (Number) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`, when bfd_minimum_interval_is_configured alone
+- `disable_bfd` (Boolean) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. BFD provides faster path failure detection and is enabled by default
 - `export` (String)
 - `export_policy` (String) Default export policies if no per-neighbor policies defined
-- `extended_v4_nexthop` (Boolean) By default, either inet/net6 unicast depending on neighbor IP family (v4 or v6). For v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this
-- `graceful_restart_time` (Number) `0` means disable
-- `hold_time` (Number)
+- `extended_v4_nexthop` (Boolean) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. By default, either inet/net6 unicast depending on neighbor IP family (v4 or v6). For v6 neighbors, to exchange v4 nexthop, which allows dual-stack support, enable this
+- `graceful_restart_time` (Number) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. `0` means disable
+- `hold_time` (Number) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. Default is 90.
 - `import` (String)
-- `import_policy` (String) Default import policies if no per-neighbor policies defined
-- `local_as` (String) Local AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
-- `neighbor_as` (String) Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
-- `neighbors` (Attributes Map) If per-neighbor as is desired. Property key is the neighbor address (see [below for nested schema](#nestedatt--bgp_config--neighbors))
-- `networks` (List of String) If `type`!=`external`or `via`==`wan`networks where we expect BGP neighbor to connect to/from
-- `no_private_as` (Boolean)
-- `no_readvertise_to_overlay` (Boolean) By default, we'll re-advertise all learned BGP routers toward overlay
-- `tunnel_name` (String) If `type`==`tunnel`
-- `type` (String) enum: `external`, `internal`
-- `via` (String) network name. enum: `lan`, `tunnel`, `vpn`, `wan`
-- `vpn_name` (String)
-- `wan_name` (String) If `via`==`wan`
+- `import_policy` (String) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. Default import policies if no per-neighbor policies defined
+- `local_as` (String) Required if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. BGPLocal AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
+- `neighbor_as` (String) Neighbor AS. If `type`==`internal`, must be equal to `local_as`. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
+- `neighbors` (Attributes Map) Required if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. If per-neighbor as is desired. Property key is the neighbor address (see [below for nested schema](#nestedatt--bgp_config--neighbors))
+- `networks` (List of String) Optional if `via`==`lan`. List of networks where we expect BGP neighbor to connect to/from
+- `no_private_as` (Boolean) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. If true, we will not advertise private ASNs (AS 64512-65534) to this neighbor
+- `no_readvertise_to_overlay` (Boolean) Optional if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. By default, we'll re-advertise all learned BGP routers toward overlay
+- `tunnel_name` (String) Optional if `via`==`tunnel`
+- `type` (String) Required if `via`==`lan`, `via`==`tunnel` or `via`==`wan`. enum: `external`, `internal`
+- `vpn_name` (String) Optional if `via`==`vpn`
+- `wan_name` (String) Optional if `via`==`wan`
 
 <a id="nestedatt--bgp_config--neighbors"></a>
 ### Nested Schema for `bgp_config.neighbors`
+
+Required:
+
+- `neighbor_as` (String) Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
 
 Optional:
 
@@ -130,7 +137,6 @@ Optional:
 - `hold_time` (Number)
 - `import_policy` (String)
 - `multihop_ttl` (Number) Assuming BGP neighbor is directly connected
-- `neighbor_as` (String) Neighbor AS. Value must be in range 1-4294967295 or a variable (e.g. `{{as_variable}}`)
 
 
 
@@ -148,7 +154,7 @@ Optional:
 Optional:
 
 - `dns_servers` (List of String) If `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
-- `dns_suffix` (List of String) If `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
+- `dns_suffix` (List of String, Deprecated) If `type`==`local` or `type6`==`local` - optional, if not defined, system one will be used
 - `fixed_bindings` (Attributes Map) If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
 - `gateway` (String) If `type`==`local` - optional, `ip` will be used if not provided
 - `ip_end` (String) If `type`==`local`
@@ -443,6 +449,10 @@ Optional:
 <a id="nestedatt--path_preferences--paths"></a>
 ### Nested Schema for `path_preferences.paths`
 
+Required:
+
+- `type` (String) enum: `local`, `tunnel`, `vpn`, `wan`
+
 Optional:
 
 - `cost` (Number)
@@ -454,7 +464,6 @@ Optional:
   * `type`==`wan`: the name of the WAN interface to use
 - `networks` (List of String) Required when `type`==`local`
 - `target_ips` (List of String) If `type`==`local`, if destination IP is to be replaced
-- `type` (String) enum: `local`, `tunnel`, `vpn`, `wan`
 - `wan_name` (String) Optional if `type`==`vpn`
 
 
@@ -505,6 +514,7 @@ Optional:
 - `vlan_id` (String)
 - `vpn_paths` (Attributes Map) Property key is the VPN name (see [below for nested schema](#nestedatt--port_config--vpn_paths))
 - `wan_arp_policer` (String) Only when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`
+- `wan_disable_speedtest` (Boolean) If `wan_type`==`wan`, disable speedtest
 - `wan_ext_ip` (String) Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP
 - `wan_extra_routes` (Attributes Map) Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. "100.100.100.0/24") (see [below for nested schema](#nestedatt--port_config--wan_extra_routes))
 - `wan_networks` (List of String) Only if `usage`==`wan`. If some networks are connected to this WAN port, it can be added here so policies can be defined
@@ -620,11 +630,11 @@ Optional:
 
 Optional:
 
-- `action` (Attributes) When used as import policy (see [below for nested schema](#nestedatt--routing_policies--terms--action))
+- `actions` (Attributes) When used as import policy (see [below for nested schema](#nestedatt--routing_policies--terms--actions))
 - `matching` (Attributes) zero or more criteria/filter can be specified to match the term, all criteria have to be met (see [below for nested schema](#nestedatt--routing_policies--terms--matching))
 
-<a id="nestedatt--routing_policies--terms--action"></a>
-### Nested Schema for `routing_policies.terms.action`
+<a id="nestedatt--routing_policies--terms--actions"></a>
+### Nested Schema for `routing_policies.terms.actions`
 
 Optional:
 
@@ -749,7 +759,7 @@ Optional:
 
 Optional:
 
-- `auto_provision` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision))
+- `auto_provision` (Attributes) Auto Provisioning configuration for the tunne. This takes precedence over the `primary` and `secondary` nodes. (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision))
 - `ike_lifetime` (Number) Only if `provider`==`custom-ipsec`. Must be between 180 and 86400
 - `ike_mode` (String) Only if `provider`==`custom-ipsec`. enum: `aggressive`, `main`
 - `ike_proposals` (Attributes List) If `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ike_proposals))
@@ -757,11 +767,11 @@ Optional:
 - `ipsec_proposals` (Attributes List) Only if  `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ipsec_proposals))
 - `local_id` (String) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 - `mode` (String) Required if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`. enum: `active-active`, `active-standby`
-- `networks` (List of String) If `provider`==`custom-ipsec`, networks reachable via this tunnel
+- `networks` (List of String) If `provider`==`custom-ipsec` or `provider`==`prisma-ipsec`, networks reachable via this tunnel
 - `primary` (Attributes) Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--primary))
 - `probe` (Attributes) Only if `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--probe))
 - `protocol` (String) Only if `provider`==`custom-ipsec`. enum: `gre`, `ipsec`
-- `provider` (String) Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `zscaler-gre`, `zscaler-ipsec`
+- `provider` (String) Only if `auto_provision.enabled`==`false`. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `prisma-ipsec`, `zscaler-gre`, `zscaler-ipsec`
 - `psk` (String, Sensitive) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 - `secondary` (Attributes) Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--secondary))
 - `version` (String) Only if `provider`==`custom-gre` or `provider`==`custom-ipsec`. enum: `1`, `2`
@@ -775,11 +785,12 @@ Required:
 
 Optional:
 
-- `enable` (Boolean)
+- `enabled` (Boolean) Enable auto provisioning for the tunnel. If enabled, the `primary` and `secondary` nodes will be ignored.
 - `latlng` (Attributes) API override for POP selection (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--latlng))
 - `primary` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--primary))
-- `region` (String) API override for POP selection
+- `region` (String) API override for POP selection in the case user wants to override the auto discovery of remote network location and force the tunnel to use the specified peer location.
 - `secondary` (Attributes) (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision--secondary))
+- `service_connection` (String) if `provider`==`prisma-ipsec`. By default, we'll use the location of the site to determine the optimal Remote Network location, optionally, service_connection can be considered, then we'll also consider this along with the site location. Define service_connection if the traffic is to be routed to a specific service connection. This field takes a service connection name that is configured in the Prisma cloud, Prisma Access Setup -> Service Connections.
 
 <a id="nestedatt--tunnel_configs--auto_provision--latlng"></a>
 ### Nested Schema for `tunnel_configs.auto_provision.latlng`
@@ -897,6 +908,7 @@ Optional:
 Optional:
 
 - `jse` (Attributes) For jse-ipsec, this allows provisioning of adequate resource on JSE. Make sure adequate licenses are added (see [below for nested schema](#nestedatt--tunnel_provider_options--jse))
+- `prisma` (Attributes) (see [below for nested schema](#nestedatt--tunnel_provider_options--prisma))
 - `zscaler` (Attributes) For zscaler-ipsec and zscaler-gre (see [below for nested schema](#nestedatt--tunnel_provider_options--zscaler))
 
 <a id="nestedatt--tunnel_provider_options--jse"></a>
@@ -906,6 +918,14 @@ Optional:
 
 - `num_users` (Number)
 - `org_name` (String) JSE Organization name
+
+
+<a id="nestedatt--tunnel_provider_options--prisma"></a>
+### Nested Schema for `tunnel_provider_options.prisma`
+
+Optional:
+
+- `service_account_name` (String) For prisma-ipsec, service account name to used for tunnel auto provisioning
 
 
 <a id="nestedatt--tunnel_provider_options--zscaler"></a>

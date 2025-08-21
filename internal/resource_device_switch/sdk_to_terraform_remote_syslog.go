@@ -86,6 +86,7 @@ func remoteSyslogFilesSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	for _, d := range l {
 		var archive = types.ObjectNull(ArchiveValue{}.AttributeTypes(ctx))
 		var contents = types.ListNull(ContentsValue{}.Type(ctx))
+		var enableTls basetypes.BoolValue
 		var explicitPriority basetypes.BoolValue
 		var file basetypes.StringValue
 		var match basetypes.StringValue
@@ -96,6 +97,9 @@ func remoteSyslogFilesSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		}
 		if d.Contents != nil {
 			contents = remoteSyslogContentsSdkToTerraform(ctx, diags, d.Contents)
+		}
+		if d.EnableTls != nil {
+			enableTls = types.BoolValue(*d.EnableTls)
 		}
 		if d.ExplicitPriority != nil {
 			explicitPriority = types.BoolValue(*d.ExplicitPriority)
@@ -113,6 +117,7 @@ func remoteSyslogFilesSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		dataMapValue := map[string]attr.Value{
 			"archive":           archive,
 			"contents":          contents,
+			"enable_tls":        enableTls,
 			"explicit_priority": explicitPriority,
 			"file":              file,
 			"match":             match,
@@ -245,6 +250,7 @@ func remoteSyslogUsersSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 func remoteSyslogSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.RemoteSyslog) RemoteSyslogValue {
 
 	var archive = types.ObjectNull(ArchiveValue{}.AttributeTypes(ctx))
+	var caCerts = types.ListNull(types.StringType)
 	var console = types.ObjectNull(ConsoleValue{}.AttributeTypes(ctx))
 	var enabled basetypes.BoolValue
 	var files = types.ListNull(FilesValue{}.Type(ctx))
@@ -256,6 +262,9 @@ func remoteSyslogSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 
 	if d != nil && d.Archive != nil {
 		archive = remoteSyslogArchiveSdkToTerraform(ctx, diags, d.Archive)
+	}
+	if d != nil && d.Cacerts != nil {
+		caCerts = mistutils.ListOfStringSdkToTerraform(d.Cacerts)
 	}
 	if d != nil && d.Console != nil {
 		console = remoteSyslogConsoleSdkToTerraform(ctx, diags, d.Console)
@@ -284,6 +293,7 @@ func remoteSyslogSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 
 	dataMapValue := map[string]attr.Value{
 		"archive":             archive,
+		"cacerts":             caCerts,
 		"console":             console,
 		"enabled":             enabled,
 		"files":               files,

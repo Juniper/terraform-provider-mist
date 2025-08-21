@@ -33,8 +33,7 @@ func SdkToTerraform(ctx context.Context, mistSiteId uuid.UUID, mistDeviceId uuid
 		nodesList = append(nodesList, nodeMac)
 	}
 
-	datalistType := NodesValue{}.Type(ctx)
-	nodes, e := types.ListValueFrom(ctx, datalistType, nodesList)
+	nodes, e := types.ListValueFrom(ctx, NodesValue{}.Type(ctx), nodesList)
 	diags.Append(e...)
 
 	state.Id = id

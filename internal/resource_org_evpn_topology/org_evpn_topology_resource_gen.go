@@ -64,6 +64,13 @@ func OrgEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Optional, for ERB or CLOS, you can either use esilag to upstream routers or to also be the virtual-gateway. When `routed_at` != `core`, whether to do virtual-gateway at core as well",
 						Default:             booldefault.StaticBool(false),
 					},
+					"enable_inband_ztp": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "if the mangement traffic goes inbnd, during installation, only the border/core switches are connected to the Internet to allow initial configuration to be pushed down and leave the downstream access switches stay in the Factory Default state enabling inband-ztp allows upstream switches to use LLDP to assign IP and gives Internet to downstream switches in that state",
+						MarkdownDescription: "if the mangement traffic goes inbnd, during installation, only the border/core switches are connected to the Internet to allow initial configuration to be pushed down and leave the downstream access switches stay in the Factory Default state enabling inband-ztp allows upstream switches to use LLDP to assign IP and gives Internet to downstream switches in that state",
+						Default:             booldefault.StaticBool(false),
+					},
 					"overlay": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"as": schema.Int64Attribute{
@@ -412,6 +419,24 @@ func (t EvpnOptionsType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`core_as_border expected to be basetypes.BoolValue, was: %T`, coreAsBorderAttribute))
 	}
 
+	enableInbandZtpAttribute, ok := attributes["enable_inband_ztp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable_inband_ztp is missing from object`)
+
+		return nil, diags
+	}
+
+	enableInbandZtpVal, ok := enableInbandZtpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable_inband_ztp expected to be basetypes.BoolValue, was: %T`, enableInbandZtpAttribute))
+	}
+
 	overlayAttribute, ok := attributes["overlay"]
 
 	if !ok {
@@ -530,6 +555,7 @@ func (t EvpnOptionsType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		AutoRouterIdSubnet:  autoRouterIdSubnetVal,
 		AutoRouterIdSubnet6: autoRouterIdSubnet6Val,
 		CoreAsBorder:        coreAsBorderVal,
+		EnableInbandZtp:     enableInbandZtpVal,
 		Overlay:             overlayVal,
 		PerVlanVgaV4Mac:     perVlanVgaV4MacVal,
 		PerVlanVgaV6Mac:     perVlanVgaV6MacVal,
@@ -693,6 +719,24 @@ func NewEvpnOptionsValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`core_as_border expected to be basetypes.BoolValue, was: %T`, coreAsBorderAttribute))
 	}
 
+	enableInbandZtpAttribute, ok := attributes["enable_inband_ztp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable_inband_ztp is missing from object`)
+
+		return NewEvpnOptionsValueUnknown(), diags
+	}
+
+	enableInbandZtpVal, ok := enableInbandZtpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable_inband_ztp expected to be basetypes.BoolValue, was: %T`, enableInbandZtpAttribute))
+	}
+
 	overlayAttribute, ok := attributes["overlay"]
 
 	if !ok {
@@ -811,6 +855,7 @@ func NewEvpnOptionsValue(attributeTypes map[string]attr.Type, attributes map[str
 		AutoRouterIdSubnet:  autoRouterIdSubnetVal,
 		AutoRouterIdSubnet6: autoRouterIdSubnet6Val,
 		CoreAsBorder:        coreAsBorderVal,
+		EnableInbandZtp:     enableInbandZtpVal,
 		Overlay:             overlayVal,
 		PerVlanVgaV4Mac:     perVlanVgaV4MacVal,
 		PerVlanVgaV6Mac:     perVlanVgaV6MacVal,
@@ -894,6 +939,7 @@ type EvpnOptionsValue struct {
 	AutoRouterIdSubnet  basetypes.StringValue `tfsdk:"auto_router_id_subnet"`
 	AutoRouterIdSubnet6 basetypes.StringValue `tfsdk:"auto_router_id_subnet6"`
 	CoreAsBorder        basetypes.BoolValue   `tfsdk:"core_as_border"`
+	EnableInbandZtp     basetypes.BoolValue   `tfsdk:"enable_inband_ztp"`
 	Overlay             basetypes.ObjectValue `tfsdk:"overlay"`
 	PerVlanVgaV4Mac     basetypes.BoolValue   `tfsdk:"per_vlan_vga_v4_mac"`
 	PerVlanVgaV6Mac     basetypes.BoolValue   `tfsdk:"per_vlan_vga_v6_mac"`
@@ -904,7 +950,7 @@ type EvpnOptionsValue struct {
 }
 
 func (v EvpnOptionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 11)
+	attrTypes := make(map[string]tftypes.Type, 12)
 
 	var val tftypes.Value
 	var err error
@@ -914,6 +960,7 @@ func (v EvpnOptionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["auto_router_id_subnet"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["auto_router_id_subnet6"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["core_as_border"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["enable_inband_ztp"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["overlay"] = basetypes.ObjectType{
 		AttrTypes: OverlayValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -931,7 +978,7 @@ func (v EvpnOptionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 11)
+		vals := make(map[string]tftypes.Value, 12)
 
 		val, err = v.AutoLoopbackSubnet.ToTerraformValue(ctx)
 
@@ -972,6 +1019,14 @@ func (v EvpnOptionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["core_as_border"] = val
+
+		val, err = v.EnableInbandZtp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enable_inband_ztp"] = val
 
 		val, err = v.Overlay.ToTerraformValue(ctx)
 
@@ -1127,6 +1182,7 @@ func (v EvpnOptionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"auto_router_id_subnet":  basetypes.StringType{},
 		"auto_router_id_subnet6": basetypes.StringType{},
 		"core_as_border":         basetypes.BoolType{},
+		"enable_inband_ztp":      basetypes.BoolType{},
 		"overlay": basetypes.ObjectType{
 			AttrTypes: OverlayValue{}.AttributeTypes(ctx),
 		},
@@ -1157,6 +1213,7 @@ func (v EvpnOptionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"auto_router_id_subnet":  v.AutoRouterIdSubnet,
 			"auto_router_id_subnet6": v.AutoRouterIdSubnet6,
 			"core_as_border":         v.CoreAsBorder,
+			"enable_inband_ztp":      v.EnableInbandZtp,
 			"overlay":                overlay,
 			"per_vlan_vga_v4_mac":    v.PerVlanVgaV4Mac,
 			"per_vlan_vga_v6_mac":    v.PerVlanVgaV6Mac,
@@ -1203,6 +1260,10 @@ func (v EvpnOptionsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.EnableInbandZtp.Equal(other.EnableInbandZtp) {
+		return false
+	}
+
 	if !v.Overlay.Equal(other.Overlay) {
 		return false
 	}
@@ -1245,6 +1306,7 @@ func (v EvpnOptionsValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"auto_router_id_subnet":  basetypes.StringType{},
 		"auto_router_id_subnet6": basetypes.StringType{},
 		"core_as_border":         basetypes.BoolType{},
+		"enable_inband_ztp":      basetypes.BoolType{},
 		"overlay": basetypes.ObjectType{
 			AttrTypes: OverlayValue{}.AttributeTypes(ctx),
 		},
@@ -2342,11 +2404,19 @@ func (v VsInstancesValue) String() string {
 func (v VsInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	networksVal, d := types.ListValue(types.StringType, v.Networks.Elements())
+	var networksVal basetypes.ListValue
+	switch {
+	case v.Networks.IsUnknown():
+		networksVal = types.ListUnknown(types.StringType)
+	case v.Networks.IsNull():
+		networksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		networksVal, d = types.ListValue(types.StringType, v.Networks.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
@@ -3068,11 +3138,19 @@ func (v SwitchesValue) String() string {
 func (v SwitchesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	podsVal, d := types.ListValue(types.Int64Type, v.Pods.Elements())
+	var podsVal basetypes.ListValue
+	switch {
+	case v.Pods.IsUnknown():
+		podsVal = types.ListUnknown(types.Int64Type)
+	case v.Pods.IsNull():
+		podsVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		podsVal, d = types.ListValue(types.Int64Type, v.Pods.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"deviceprofile_id": basetypes.StringType{},
 			"evpn_id":          basetypes.Int64Type{},

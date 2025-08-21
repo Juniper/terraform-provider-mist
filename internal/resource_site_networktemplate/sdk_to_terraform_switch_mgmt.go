@@ -52,6 +52,7 @@ func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 	var allowedServices = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
 	var custom = basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})
 	var enabled basetypes.BoolValue
+	var hitCount = types.BoolNull()
 	var trustedHosts = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
 
 	if d.AllowedServices != nil {
@@ -69,6 +70,9 @@ func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
+	if d.HitCount != nil {
+		hitCount = types.BoolValue(*d.HitCount)
+	}
 	if d.TrustedHosts != nil {
 		trustedHosts = mistutils.ListOfStringSdkToTerraform(d.TrustedHosts)
 	}
@@ -77,6 +81,7 @@ func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		"allowed_services": allowedServices,
 		"custom":           custom,
 		"enabled":          enabled,
+		"hit_count":        hitCount,
 		"trusted_hosts":    trustedHosts,
 	}
 	data, e := NewProtectReValue(ProtectReValue{}.AttributeTypes(ctx), dataMapValue)
@@ -246,6 +251,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var mxedgeProxyHost basetypes.StringValue
 	var mxedgeProxyPort basetypes.StringValue
 	var protectRe = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))
+	var remoteExistingConfigs basetypes.BoolValue
 	var rootPassword basetypes.StringValue
 	var tacacs = types.ObjectNull(TacacsValue{}.AttributeTypes(ctx))
 	var useMxedgeProxy = types.BoolValue(false)
@@ -284,6 +290,9 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		if d.ProtectRe != nil {
 			protectRe = switchMgmtProtectReSdkToTerraform(ctx, diags, d.ProtectRe)
 		}
+		if d.RemoveExistingConfigs != nil {
+			remoteExistingConfigs = types.BoolValue(*d.RemoveExistingConfigs)
+		}
 		if d.RootPassword != nil {
 			rootPassword = types.StringValue(*d.RootPassword)
 		}
@@ -296,20 +305,21 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"ap_affinity_threshold":  apAffinityThreshold,
-		"cli_banner":             cliBanner,
-		"cli_idle_timeout":       cliIdleTimeout,
-		"config_revert_timer":    configRevertTimer,
-		"dhcp_option_fqdn":       dhcpOptionFqdn,
-		"disable_oob_down_alarm": disableOobDownAlarm,
-		"fips_enabled":           fipsEnabled,
-		"local_accounts":         localAccounts,
-		"mxedge_proxy_host":      mxedgeProxyHost,
-		"mxedge_proxy_port":      mxedgeProxyPort,
-		"protect_re":             protectRe,
-		"root_password":          rootPassword,
-		"tacacs":                 tacacs,
-		"use_mxedge_proxy":       useMxedgeProxy,
+		"ap_affinity_threshold":   apAffinityThreshold,
+		"cli_banner":              cliBanner,
+		"cli_idle_timeout":        cliIdleTimeout,
+		"config_revert_timer":     configRevertTimer,
+		"dhcp_option_fqdn":        dhcpOptionFqdn,
+		"disable_oob_down_alarm":  disableOobDownAlarm,
+		"fips_enabled":            fipsEnabled,
+		"local_accounts":          localAccounts,
+		"mxedge_proxy_host":       mxedgeProxyHost,
+		"mxedge_proxy_port":       mxedgeProxyPort,
+		"protect_re":              protectRe,
+		"remove_existing_configs": remoteExistingConfigs,
+		"root_password":           rootPassword,
+		"tacacs":                  tacacs,
+		"use_mxedge_proxy":        useMxedgeProxy,
 	}
 	data, e := NewSwitchMgmtValue(SwitchMgmtValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

@@ -94,7 +94,7 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d.DeviceprofileId.Value() != nil {
 		deviceprofileId = types.StringValue(d.DeviceprofileId.Value().String())
 	}
-	if d.DhcpdStat != nil && len(d.DhcpdStat) > 0 {
+	if len(d.DhcpdStat) > 0 {
 		dhcpdStat = dhcpStatsSdkToTerraform(ctx, diags, d.DhcpdStat)
 	}
 	if d.EvpntopoId.Value() != nil {
@@ -118,7 +118,7 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
-	if d.IfStat != nil && len(d.IfStat) > 0 {
+	if len(d.IfStat) > 0 {
 		ifStat = ifStatsSdkToTerraform(ctx, diags, d.IfStat)
 	}
 	if d.Ip != nil {
@@ -169,7 +169,7 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d.Serial != nil {
 		serial = types.StringValue(*d.Serial)
 	}
-	if d.ServiceStat != nil && len(d.ServiceStat) > 0 {
+	if len(d.ServiceStat) > 0 {
 		serviceStat = serviceStatsSdkToTerraform(ctx, diags, d.ServiceStat)
 	}
 	if d.SiteId != nil {

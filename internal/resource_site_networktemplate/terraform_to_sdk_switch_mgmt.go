@@ -55,6 +55,9 @@ func switchMgmtProtectReTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 			if item.Enabled.ValueBoolPointer() != nil {
 				data.Enabled = models.ToPointer(item.Enabled.ValueBool())
 			}
+			if item.HitCount.ValueBoolPointer() != nil {
+				data.HitCount = item.HitCount.ValueBoolPointer()
+			}
 			if !item.TrustedHosts.IsNull() && !item.TrustedHosts.IsUnknown() {
 				data.TrustedHosts = mistutils.ListOfStringTerraformToSdk(item.TrustedHosts)
 			}
@@ -202,6 +205,9 @@ func switchMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sw
 		}
 		if !d.ProtectRe.IsNull() && !d.ProtectRe.IsUnknown() {
 			data.ProtectRe = switchMgmtProtectReTerraformToSdk(ctx, diags, d.ProtectRe)
+		}
+		if d.RemoveExistingConfigs.ValueBoolPointer() != nil {
+			data.RemoveExistingConfigs = d.RemoveExistingConfigs.ValueBoolPointer()
 		}
 		if d.RootPassword.ValueStringPointer() != nil {
 			data.RootPassword = models.ToPointer(d.RootPassword.ValueString())

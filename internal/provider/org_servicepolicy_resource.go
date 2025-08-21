@@ -139,7 +139,7 @@ func (r *orgServicepolicyResource) Read(ctx context.Context, _ resource.ReadRequ
 		return
 	}
 	httpr, err := r.client.OrgsServicePolicies().GetOrgServicePolicy(ctx, orgId, servicepolicyId)
-	if httpr.Response.StatusCode == 404 {
+	if httpr.Response != nil && httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
 		return
 	} else if err != nil {

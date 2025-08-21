@@ -55,7 +55,7 @@ resource "mist_device_ap" "ap_one" {
 - `ntp_servers` (List of String)
 - `orientation` (Number) Orientation, 0-359, in degrees, up is 0, right is 90.
 - `poe_passthrough` (Boolean) Whether to enable power out through module port (for APH) or eth1 (for APL/BT11)
-- `port_config` (Attributes Map) eth0 is not allowed here. Property key is the interface(s) name (e.g. `eth1` or `eth1,eth2`). If spcified, this takes predecence over switch_config (deprecated) (see [below for nested schema](#nestedatt--port_config))
+- `port_config` (Attributes Map) eth0 is not allowed here. Property key is the interface(s) name (e.g. `eth1` or `eth1,eth2`). If specified, this takes precedence over switch_config (deprecated) (see [below for nested schema](#nestedatt--port_config))
 - `pwr_config` (Attributes) Power related configs (see [below for nested schema](#nestedatt--pwr_config))
 - `radio_config` (Attributes) Radio AP settings (see [below for nested schema](#nestedatt--radio_config))
 - `uplink_port_config` (Attributes) AP Uplink port configuration (see [below for nested schema](#nestedatt--uplink_port_config))
@@ -103,7 +103,7 @@ Optional:
 - `eddystone_uid_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
 - `eddystone_uid_beams` (String)
 - `eddystone_uid_enabled` (Boolean) Only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled
-- `eddystone_uid_freq_msec` (Number) Frequency (msec) of data emmit by Eddystone-UID beacon
+- `eddystone_uid_freq_msec` (Number) Frequency (msec) of data emit by Eddystone-UID beacon
 - `eddystone_uid_instance` (String) Eddystone-UID instance for the device
 - `eddystone_uid_namespace` (String) Eddystone-UID namespace
 - `eddystone_url_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
@@ -114,7 +114,7 @@ Optional:
 - `ibeacon_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
 - `ibeacon_beams` (String)
 - `ibeacon_enabled` (Boolean) Can be enabled if `beacon_enabled`==`true`, whether to send iBeacon
-- `ibeacon_freq_msec` (Number) Frequency (msec) of data emmit for iBeacon
+- `ibeacon_freq_msec` (Number) Frequency (msec) of data emit for iBeacon
 - `ibeacon_major` (Number) Major number for iBeacon
 - `ibeacon_minor` (Number) Minor number for iBeacon
 - `ibeacon_uuid` (String) Optional, if not specified, the same UUID as the beacon will be used

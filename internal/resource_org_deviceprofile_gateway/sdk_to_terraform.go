@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
@@ -18,7 +19,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	var additionalConfigCmds = types.ListNull(types.StringType)
 	var bgpConfig = types.MapNull(BgpConfigValue{}.Type(ctx))
 	var dhcpdConfig = NewDhcpdConfigValueNull()
-	var dnsOverride = types.BoolValue(false)
+	var dnsOverride basetypes.BoolValue
 	var dnsServers = types.ListNull(types.StringType)
 	var dnsSuffix = types.ListNull(types.StringType)
 	var extraRoutes = types.MapNull(ExtraRoutesValue{}.Type(ctx))
@@ -28,7 +29,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	var ipConfigs = types.MapNull(IpConfigsValue{}.Type(ctx))
 	var name = types.StringValue(data.Name)
 	var networks = types.ListNull(NetworksValue{}.Type(ctx))
-	var ntpOverride = types.BoolValue(false)
+	var ntpOverride basetypes.BoolValue
 	var ntpServers = types.ListNull(types.StringType)
 	var oobIpConfig = NewOobIpConfigValueNull()
 	var orgId types.String
@@ -46,7 +47,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	if data.AdditionalConfigCmds != nil {
 		additionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
 	}
-	if data.BgpConfig != nil && len(data.BgpConfig) > 0 {
+	if len(data.BgpConfig) > 0 {
 		bgpConfig = bgpConfigSdkToTerraform(ctx, &diags, data.BgpConfig)
 	}
 	if data.DhcpdConfig != nil {
@@ -61,19 +62,19 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	if data.DnsSuffix != nil {
 		dnsSuffix = mistutils.ListOfStringSdkToTerraform(data.DnsSuffix)
 	}
-	if data.ExtraRoutes != nil && len(data.ExtraRoutes) > 0 {
+	if len(data.ExtraRoutes) > 0 {
 		extraRoutes = extraRoutesSdkToTerraform(ctx, &diags, data.ExtraRoutes)
 	}
-	if data.ExtraRoutes6 != nil && len(data.ExtraRoutes6) > 0 {
+	if len(data.ExtraRoutes6) > 0 {
 		extraRoutes6 = extraRoutes6SdkToTerraform(ctx, &diags, data.ExtraRoutes6)
 	}
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
 	}
-	if data.IdpProfiles != nil && len(data.IdpProfiles) > 0 {
+	if len(data.IdpProfiles) > 0 {
 		idpProfiles = idpProfileSdkToTerraform(ctx, &diags, data.IdpProfiles)
 	}
-	if data.IpConfigs != nil && len(data.IpConfigs) > 0 {
+	if len(data.IpConfigs) > 0 {
 		ipConfigs = ipConfigsSdkToTerraform(ctx, &diags, data.IpConfigs)
 	}
 	if data.Networks != nil {
@@ -91,22 +92,22 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	if data.OrgId != nil {
 		orgId = types.StringValue(data.OrgId.String())
 	}
-	if data.PathPreferences != nil && len(data.PathPreferences) > 0 {
+	if len(data.PathPreferences) > 0 {
 		pathPreferences = pathPreferencesSdkToTerraform(ctx, &diags, data.PathPreferences)
 	}
-	if data.PortConfig != nil && len(data.PortConfig) > 0 {
+	if len(data.PortConfig) > 0 {
 		portConfig = portConfigSdkToTerraform(ctx, &diags, data.PortConfig)
 	}
 	if data.RouterId != nil {
 		routerId = types.StringValue(*data.RouterId)
 	}
-	if data.RoutingPolicies != nil && len(data.RoutingPolicies) > 0 {
+	if len(data.RoutingPolicies) > 0 {
 		routingPolicies = routingPoliciesSdkToTerraform(ctx, &diags, data.RoutingPolicies)
 	}
-	if data.ServicePolicies != nil && len(data.ServicePolicies) > 0 {
+	if len(data.ServicePolicies) > 0 {
 		servicePolicies = servicePoliciesSdkToTerraform(ctx, &diags, data.ServicePolicies)
 	}
-	if data.TunnelConfigs != nil && len(data.TunnelConfigs) > 0 {
+	if len(data.TunnelConfigs) > 0 {
 		tunnelConfigs = tunnelConfigsSdkToTerraform(ctx, &diags, data.TunnelConfigs)
 	}
 	if data.TunnelProviderOptions != nil {
@@ -120,7 +121,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	if data.VrfConfig != nil {
 		vrfConfig = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
 	}
-	if data.VrfInstances != nil && len(data.VrfInstances) > 0 {
+	if len(data.VrfInstances) > 0 {
 		vrfInstances = vrfInstancesSdkToTerraform(ctx, &diags, data.VrfInstances)
 	}
 

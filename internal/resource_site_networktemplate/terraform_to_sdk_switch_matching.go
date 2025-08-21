@@ -59,6 +59,9 @@ func switchMatchingRulesPortConfigTerraformToSdk(d basetypes.MapValue) map[strin
 		if planObj.PoeDisabled.ValueBoolPointer() != nil {
 			itemObj.PoeDisabled = models.ToPointer(planObj.PoeDisabled.ValueBool())
 		}
+		if planObj.PortNetwork.ValueStringPointer() != nil {
+			itemObj.PortNetwork = models.ToPointer(planObj.PortNetwork.ValueString())
+		}
 		if planObj.Speed.ValueStringPointer() != nil {
 			itemObj.Speed = models.ToPointer(models.JunosPortConfigSpeedEnum(planObj.Speed.ValueString()))
 		}
@@ -129,11 +132,6 @@ func switchMatchingRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		}
 
 		match := make(map[string]string)
-		if planObj.MatchType.ValueStringPointer() != nil && planObj.MatchType.ValueString() != "" {
-			matchType := planObj.MatchType.ValueString()
-			match[matchType] = planObj.MatchValue.ValueString()
-		}
-
 		if planObj.MatchModel.ValueStringPointer() != nil && planObj.MatchModel.ValueString() != "" {
 			matchType := fmt.Sprintf(
 				"match_model[0:%d]",

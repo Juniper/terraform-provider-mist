@@ -36,8 +36,7 @@ func dhcpdConfigVendorEncapsulatedSdkToTerraform(ctx context.Context, diags *dia
 
 		rMapValue[k] = data
 	}
-	stateResultMapType := VendorEncapsulatedValue{}.Type(ctx)
-	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, rMapValue)
+	stateResultMap, e := types.MapValueFrom(ctx, VendorEncapsulatedValue{}.Type(ctx), rMapValue)
 	diags.Append(e...)
 	return stateResultMap
 }
@@ -65,8 +64,7 @@ func dhcpdConfigOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 
 		rMapValue[k] = data
 	}
-	stateResultMapType := OptionsValue{}.Type(ctx)
-	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, rMapValue)
+	stateResultMap, e := types.MapValueFrom(ctx, OptionsValue{}.Type(ctx), rMapValue)
 	diags.Append(e...)
 	return stateResultMap
 }
@@ -93,8 +91,7 @@ func dhcpdConfigFixedBindingsSdkToTerraform(ctx context.Context, diags *diag.Dia
 
 		rMap[k] = data
 	}
-	stateType := FixedBindingsValue{}.Type(ctx)
-	stateResult, e := types.MapValueFrom(ctx, stateType, rMap)
+	stateResult, e := types.MapValueFrom(ctx, FixedBindingsValue{}.Type(ctx), rMap)
 	diags.Append(e...)
 	return stateResult
 }
@@ -103,7 +100,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	rMapValue := make(map[string]attr.Value)
 	for k, d := range m {
 		if k != "enabled" {
-			var dnsServers = mistutils.ListOfStringSdkToTerraformEmpty()
+			var dnsServers = types.ListNull(types.StringType)
 			var dnsSuffix = types.ListNull(types.StringType)
 			var fixedBindings = types.MapNull(FixedBindingsValue{}.Type(ctx))
 			var gateway basetypes.StringValue
@@ -111,13 +108,13 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			var ipEnd6 basetypes.StringValue
 			var ipStart basetypes.StringValue
 			var ipStart6 basetypes.StringValue
-			var leaseTime = types.Int64Value(86400)
+			var leaseTime basetypes.Int64Value
 			var options = types.MapNull(OptionsValue{}.Type(ctx))
-			var serverIdOverride = types.BoolValue(false)
+			var serverIdOverride basetypes.BoolValue
 			var servers = types.ListNull(types.StringType)
 			var servers6 = types.ListNull(types.StringType)
-			var type4 = types.StringValue("local")
-			var type6 = types.StringValue("none")
+			var type4 basetypes.StringValue
+			var type6 basetypes.StringValue
 			var vendorEncapsulated = types.MapNull(VendorEncapsulatedValue{}.Type(ctx))
 
 			if d.DnsServers != nil {
@@ -126,7 +123,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			if d.DnsSuffix != nil {
 				dnsSuffix = mistutils.ListOfStringSdkToTerraform(d.DnsSuffix)
 			}
-			if d.FixedBindings != nil && len(d.FixedBindings) > 0 {
+			if len(d.FixedBindings) > 0 {
 				fixedBindings = dhcpdConfigFixedBindingsSdkToTerraform(ctx, diags, d.FixedBindings)
 			}
 			if d.Gateway != nil {
@@ -147,7 +144,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			if d.LeaseTime != nil {
 				leaseTime = types.Int64Value(int64(*d.LeaseTime))
 			}
-			if d.Options != nil && len(d.Options) > 0 {
+			if len(d.Options) > 0 {
 				options = dhcpdConfigOptionsSdkToTerraform(ctx, diags, d.Options)
 			}
 			if d.ServerIdOverride != nil {
@@ -165,7 +162,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			if d.Type6 != nil {
 				type6 = types.StringValue(string(*d.Type6))
 			}
-			if d.VendorEncapsulated != nil && len(d.VendorEncapsulated) > 0 {
+			if len(d.VendorEncapsulated) > 0 {
 				vendorEncapsulated = dhcpdConfigVendorEncapsulatedSdkToTerraform(ctx, diags, d.VendorEncapsulated)
 			}
 
@@ -202,7 +199,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 func dhcpdConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.DhcpdConfig) DhcpdConfigValue {
 
 	var config = types.MapNull(ConfigValue{}.Type(ctx))
-	var enabled = types.BoolValue(true)
+	var enabled basetypes.BoolValue
 
 	if len(d.AdditionalProperties) > 0 {
 		config = dhcpdConfigConfigsSdkToTerraform(ctx, diags, d.AdditionalProperties)

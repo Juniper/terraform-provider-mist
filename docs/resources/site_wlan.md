@@ -434,7 +434,7 @@ Optional:
 - `passphrase_enabled` (Boolean) Whether password is enabled
 - `passphrase_expire` (Number) Optional if `passphrase_enabled`==`true`. Interval for which guest remains authorized using passphrase auth (in minutes), if not provided, uses `expire`
 - `password` (String, Sensitive) Required if `passphrase_enabled`==`true`.
-- `predefined_sponsors_enabled` (Boolean) Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`
+- `predefined_sponsors_enabled` (Boolean) Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behavior is acc to `sponsor_email_domains`
 - `predefined_sponsors_hide_email` (Boolean) Whether to hide sponsor’s email from list of sponsors
 - `privacy` (Boolean)
 - `puzzel_password` (String, Sensitive) Required if `sms_provider`==`puzzel`
@@ -443,7 +443,7 @@ Optional:
 - `sms_enabled` (Boolean) Whether sms is enabled as a login method
 - `sms_expire` (Number) Optional if `sms_enabled`==`true`. Interval for which guest remains authorized using sms auth (in minutes), if not provided, uses expire`
 - `sms_message_format` (String) Optional if `sms_enabled`==`true`. SMS Message format
-- `sms_provider` (String) Optioanl if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `smsglobal`, `telstra`, `twilio`
+- `sms_provider` (String) Optional if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `smsglobal`, `telstra`, `twilio`
 - `smsglobal_api_key` (String) Required if `sms_provider`==`smsglobal`, Client API Key
 - `smsglobal_api_secret` (String) Required if `sms_provider`==`smsglobal`, Client secret
 - `sponsor_auto_approve` (Boolean) Optional if `sponsor_enabled`==`true`. Whether to automatically approve guest and allow sponsor to revoke guest access, needs predefined_sponsors_enabled enabled and sponsor_notify_all disabled
@@ -460,7 +460,7 @@ Optional:
 - `sso_default_role` (String) Optional if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched
 - `sso_forced_role` (String) Optional if `wlan_portal_auth`==`sso`
 - `sso_idp_cert` (String) Required if `wlan_portal_auth`==`sso`. IDP Cert (used to verify the signed response)
-- `sso_idp_sign_algo` (String) Optioanl if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`
+- `sso_idp_sign_algo` (String) Optional if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`
 - `sso_idp_sso_url` (String) Required if `wlan_portal_auth`==`sso`, IDP Single-Sign-On URL
 - `sso_issuer` (String) Required if `wlan_portal_auth`==`sso`, IDP issuer URL
 - `sso_nameid_format` (String) Optional if `wlan_portal_auth`==`sso`. enum: `email`, `unspecified`

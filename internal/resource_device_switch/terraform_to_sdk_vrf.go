@@ -20,7 +20,7 @@ func vrfInstanceExtraRouteTerraformToSdk(d basetypes.MapValue) map[string]models
 	data := make(map[string]models.VrfExtraRoute)
 	for itemName, itemValue := range d.Elements() {
 		var itemInterface interface{} = itemValue
-		itemObj := itemInterface.(ExtraRoutesValue)
+		itemObj := itemInterface.(VrfExtraRoutesValue)
 
 		dataItem := models.VrfExtraRoute{}
 		if itemObj.Via.ValueStringPointer() != nil {

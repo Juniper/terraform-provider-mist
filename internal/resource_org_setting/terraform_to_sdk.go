@@ -104,6 +104,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-junos_shell_access"] = ""
 	}
 
+	if !plan.Marvis.IsNull() && !plan.Marvis.IsUnknown() {
+		data.Marvis = marvisTerraformToSdk(ctx, plan.Marvis)
+	} else {
+		unset["-marvis"] = ""
+	}
+
 	if !plan.Mgmt.IsNull() && !plan.Mgmt.IsUnknown() {
 		data.Mgmt = mgmtTerraformToSdk(plan.Mgmt)
 	} else {
@@ -144,6 +150,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		data.Security = securityTerraformToSdk(plan.Security)
 	} else {
 		unset["-security"] = ""
+	}
+
+	if !plan.Switch.IsNull() && !plan.Switch.IsUnknown() {
+		data.Switch = switchTerraformToSdk(ctx, plan.Switch)
+	} else {
+		unset["-switch"] = ""
 	}
 
 	if !plan.SwitchMgmt.IsNull() && !plan.SwitchMgmt.IsUnknown() {

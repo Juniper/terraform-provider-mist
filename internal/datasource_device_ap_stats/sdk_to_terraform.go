@@ -141,7 +141,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.InactiveWiredVlans != nil {
 		inactiveWiredVlans = mistutils.ListOfIntSdkToTerraform(d.InactiveWiredVlans)
 	}
-	if d.IotStat != nil && len(d.IotStat) > 0 {
+	if len(d.IotStat) > 0 {
 		iotStat = iotStatsSdkToTerraform(ctx, diags, d.IotStat)
 	}
 	if d.Ip.Value() != nil {
@@ -153,7 +153,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.IpStat != nil {
 		ipStat = ipStatsSdkToTerraform(ctx, diags, d.IpStat)
 	}
-	if d.L2tpStat != nil && len(d.L2tpStat) > 0 {
+	if len(d.L2tpStat) > 0 {
 		l2tpStat = l2tpStatsSdkToTerraform(ctx, diags, d.L2tpStat)
 	}
 	if d.LastSeen.Value() != nil {
@@ -183,7 +183,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.MemUsedKb.Value() != nil {
 		memUsedKb = types.Int64Value(*d.MemUsedKb.Value())
 	}
-	if d.MeshDownlinks != nil && len(d.MeshDownlinks) > 0 {
+	if len(d.MeshDownlinks) > 0 {
 		meshDownlinks = meshDownlinksSdkToTerraform(ctx, diags, d.MeshDownlinks)
 	}
 	if d.MeshUplink != nil {

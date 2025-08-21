@@ -14,7 +14,7 @@ import (
 )
 
 func servicePolicyAppQoESdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ServicePolicyAppqoe) basetypes.ObjectValue {
-	var enabled = types.BoolValue(false)
+	var enabled basetypes.BoolValue
 
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
@@ -33,8 +33,8 @@ func servicePolicyEwfSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	for _, v := range d {
 		var alertOnly basetypes.BoolValue
 		var blockMessage basetypes.StringValue
-		var enabled = types.BoolValue(false)
-		var profile = types.StringValue("strict")
+		var enabled basetypes.BoolValue
+		var profile basetypes.StringValue
 
 		if v.AlertOnly != nil {
 			alertOnly = types.BoolValue(*v.AlertOnly)
@@ -59,17 +59,16 @@ func servicePolicyEwfSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		diags.Append(e...)
 		dataList = append(dataList, data)
 	}
-	datalistType := EwfValue{}.Type(ctx)
-	r, e := types.ListValueFrom(ctx, datalistType, dataList)
+	r, e := types.ListValueFrom(ctx, EwfValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 	return r
 }
 
 func servicePolicyIdpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.IdpConfig) basetypes.ObjectValue {
 	var alertOnly basetypes.BoolValue
-	var enabled = types.BoolValue(false)
+	var enabled basetypes.BoolValue
 	var idpprofileId basetypes.StringValue
-	var profile = types.StringValue("strict")
+	var profile basetypes.StringValue
 
 	if d != nil && d.AlertOnly != nil {
 		alertOnly = types.BoolValue(*d.AlertOnly)
@@ -107,7 +106,7 @@ func avSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Se
 	if d.AvprofileId != nil {
 		avprofileId = types.StringValue(d.AvprofileId.String())
 	}
-	if d.Profile != nil && *d.Profile != d.AvprofileId.String() {
+	if d.Profile != nil && (d.AvprofileId == nil || *d.Profile != d.AvprofileId.String()) {
 		profile = types.StringValue(*d.Profile)
 	}
 
@@ -158,9 +157,9 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		var name basetypes.StringValue
 		var pathPreference basetypes.StringValue
 		var servicepolicyId basetypes.StringValue
-		var services = mistutils.ListOfStringSdkToTerraform(v.Services)
+		var services = types.ListNull(types.StringType)
 		var sslProxy = types.ObjectNull(SslProxyValue{}.AttributeTypes(ctx))
-		var tenants = mistutils.ListOfStringSdkToTerraform(v.Tenants)
+		var tenants = types.ListNull(types.StringType)
 
 		if v.Action != nil {
 			action = types.StringValue(string(*v.Action))
@@ -186,11 +185,17 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		if v.PathPreference != nil {
 			pathPreference = types.StringValue(*v.PathPreference)
 		}
+		if v.Services != nil {
+			services = mistutils.ListOfStringSdkToTerraform(v.Services)
+		}
 		if v.ServicepolicyId != nil {
 			servicepolicyId = types.StringValue(v.ServicepolicyId.String())
 		}
 		if v.SslProxy != nil {
 			sslProxy = sslProxySdkToTerraform(ctx, diags, v.SslProxy)
+		}
+		if v.Tenants != nil {
+			tenants = mistutils.ListOfStringSdkToTerraform(v.Tenants)
 		}
 
 		dataMapValue := map[string]attr.Value{
@@ -212,8 +217,7 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		diags.Append(e...)
 		dataList = append(dataList, data)
 	}
-	datalistType := ServicePoliciesValue{}.Type(ctx)
-	r, e := types.ListValueFrom(ctx, datalistType, dataList)
+	r, e := types.ListValueFrom(ctx, ServicePoliciesValue{}.Type(ctx), dataList)
 	diags.Append(e...)
 	return r
 }

@@ -70,7 +70,7 @@ func deliverySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *
 	var toSiteAdmins types.Bool
 
 	if data != nil {
-		if data.AdditionalEmails != nil && len(data.AdditionalEmails) > 0 {
+		if len(data.AdditionalEmails) > 0 {
 			additionalEmails = mistutils.ListOfStringSdkToTerraform(data.AdditionalEmails)
 		}
 		enabled = types.BoolValue(data.Enabled)

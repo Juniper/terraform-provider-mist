@@ -48,7 +48,7 @@ func vpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.V
 	if d.OrgId != nil {
 		orgId = types.StringValue(d.OrgId.String())
 	}
-	if d.Paths != nil && len(d.Paths) > 0 {
+	if len(d.Paths) > 0 {
 		paths = vpnPathsSdkToTerraform(ctx, diags, d.Paths)
 	}
 	if d.PathSelection != nil {

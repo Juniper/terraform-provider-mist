@@ -13,6 +13,12 @@ func vrrpGroupsTerraformToSdk(d basetypes.MapValue) map[string]models.VrrpConfig
 		plan := vInterface.(GroupsValue)
 		data := models.VrrpConfigGroup{}
 
+		if plan.AcceptData.ValueBoolPointer() != nil {
+			data.AcceptData = models.ToPointer(plan.AcceptData.ValueBool())
+		}
+		if plan.Preempt.ValueBoolPointer() != nil {
+			data.Preempt = models.ToPointer(plan.Preempt.ValueBool())
+		}
 		if plan.Priority.ValueInt64Pointer() != nil {
 			data.Priority = models.ToPointer(int(plan.Priority.ValueInt64()))
 		}

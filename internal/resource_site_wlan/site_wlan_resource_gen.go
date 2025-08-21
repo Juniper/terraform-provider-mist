@@ -5,7 +5,9 @@ package resource_site_wlan
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -26,7 +28,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -1674,8 +1675,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"predefined_sponsors_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`",
-						MarkdownDescription: "Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`",
+						Description:         "Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behavior is acc to `sponsor_email_domains`",
+						MarkdownDescription: "Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behavior is acc to `sponsor_email_domains`",
 						Default:             booldefault.StaticBool(true),
 					},
 					"predefined_sponsors_hide_email": schema.BoolAttribute{
@@ -1734,8 +1735,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"sms_provider": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Optioanl if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `smsglobal`, `telstra`, `twilio`",
-						MarkdownDescription: "Optioanl if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `smsglobal`, `telstra`, `twilio`",
+						Description:         "Optional if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `smsglobal`, `telstra`, `twilio`",
+						MarkdownDescription: "Optional if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `smsglobal`, `telstra`, `twilio`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1849,8 +1850,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"sso_idp_sign_algo": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Optioanl if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`",
-						MarkdownDescription: "Optioanl if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`",
+						Description:         "Optional if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`",
+						MarkdownDescription: "Optional if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -2456,6 +2457,12 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun)",
 						MarkdownDescription: "Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun)",
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(
+								1,
+								"fri", "mon", "sat", "sun", "thu", "tue", "wed",
+							),
+						},
 					},
 				},
 				CustomType: ScheduleType{

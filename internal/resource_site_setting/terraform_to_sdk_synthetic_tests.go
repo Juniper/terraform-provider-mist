@@ -24,13 +24,61 @@ func syntheticTestWanTerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 	}
 	return &data
 }
+func syntheticTestCustomProbesTerraformToSdk(m basetypes.MapValue) map[string]models.SynthetictestConfigCustomProbe {
+	var dataMap = make(map[string]models.SynthetictestConfigCustomProbe)
+	for n, v := range m.Elements() {
+		var vInterface interface{} = v
+		plan := vInterface.(CustomProbesValue)
+		data := models.SynthetictestConfigCustomProbe{}
 
-func syntheticTestVlansTerraformToSdk(d basetypes.ListValue) []models.SynthetictestProperties {
-	var dataList []models.SynthetictestProperties
+		if plan.Aggressiveness.ValueStringPointer() != nil {
+			data.Aggressiveness = (*models.SynthetictestConfigAggressivenessEnum)(plan.Aggressiveness.ValueStringPointer())
+		}
+		if plan.Host.ValueStringPointer() != nil {
+			data.Host = plan.Host.ValueStringPointer()
+		}
+		if plan.Port.ValueInt64Pointer() != nil {
+			data.Port = models.ToPointer(int(plan.Port.ValueInt64()))
+		}
+		if plan.Threshold.ValueInt64Pointer() != nil {
+			data.Threshold = models.ToPointer(int(plan.Threshold.ValueInt64()))
+		}
+		if plan.CustomProbesType.ValueStringPointer() != nil {
+			data.Type = (*models.SynthetictestConfigCustomProbeTypeEnum)(plan.CustomProbesType.ValueStringPointer())
+		}
+		if plan.Url.ValueStringPointer() != nil {
+			data.Url = plan.Url.ValueStringPointer()
+		}
+
+		dataMap[n] = data
+	}
+	return dataMap
+}
+
+func syntheticTestLanNetworksTerraformToSdk(d basetypes.ListValue) []models.SynthetictestConfigLanNetwork {
+	var dataList []models.SynthetictestConfigLanNetwork
+	for _, v := range d.Elements() {
+		var vInterface interface{} = v
+		plan := vInterface.(LanNetworksValue)
+		data := models.SynthetictestConfigLanNetwork{}
+
+		if !plan.Networks.IsNull() && !plan.Networks.IsUnknown() {
+			data.Networks = mistutils.ListOfStringTerraformToSdk(plan.Networks)
+		}
+		if !plan.Probes.IsNull() && !plan.Probes.IsUnknown() {
+			data.Probes = mistutils.ListOfStringTerraformToSdk(plan.Probes)
+		}
+		dataList = append(dataList, data)
+	}
+	return dataList
+}
+
+func syntheticTestVlansTerraformToSdk(d basetypes.ListValue) []models.SynthetictestConfigVlan {
+	var dataList []models.SynthetictestConfigVlan
 	for _, v := range d.Elements() {
 		var vInterface interface{} = v
 		plan := vInterface.(VlansValue)
-		data := models.SynthetictestProperties{}
+		data := models.SynthetictestConfigVlan{}
 
 		if !plan.CustomTestUrls.IsNull() && !plan.CustomTestUrls.IsUnknown() {
 			data.CustomTestUrls = mistutils.ListOfStringTerraformToSdk(plan.CustomTestUrls)
@@ -58,6 +106,18 @@ func syntheticTestVlansTerraformToSdk(d basetypes.ListValue) []models.Synthetict
 
 func syntheticTestTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d SyntheticTestValue) *models.SynthetictestConfig {
 	data := models.SynthetictestConfig{}
+
+	if d.Aggressiveness.ValueStringPointer() != nil {
+		data.Aggressiveness = (*models.SynthetictestConfigAggressivenessEnum)(d.Aggressiveness.ValueStringPointer())
+	}
+
+	if !d.CustomProbes.IsNull() && !d.CustomProbes.IsUnknown() {
+		data.CustomProbes = syntheticTestCustomProbesTerraformToSdk(d.CustomProbes)
+	}
+
+	if !d.LanNetworks.IsNull() && !d.LanNetworks.IsUnknown() {
+		data.LanNetworks = syntheticTestLanNetworksTerraformToSdk(d.LanNetworks)
+	}
 
 	if d.Disabled.ValueBoolPointer() != nil {
 		data.Disabled = d.Disabled.ValueBoolPointer()

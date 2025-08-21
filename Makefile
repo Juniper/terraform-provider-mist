@@ -2,7 +2,7 @@ HOSTNAME=terraform.local
 NAMESPACE=local
 NAME=mist
 BINARY=terraform-provider-${NAME}
-VERSION=0.2.13
+VERSION=0.4.0
 OS_ARCH=darwin_arm64
 
 default: install

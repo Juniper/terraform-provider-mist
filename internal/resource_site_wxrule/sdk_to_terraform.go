@@ -25,10 +25,10 @@ func SdkToTerraform(data models.WxlanRule) (SiteWxruleModel, diag.Diagnostics) {
 	if data.Action != nil {
 		action = types.StringValue(string(*data.Action))
 	}
-	if data.ApplyTags != nil && len(data.ApplyTags) > 0 {
+	if len(data.ApplyTags) > 0 {
 		applyTags = mistutils.ListOfStringSdkToTerraform(data.ApplyTags)
 	}
-	if data.BlockedApps != nil && len(data.BlockedApps) > 0 {
+	if len(data.BlockedApps) > 0 {
 		blockedApps = mistutils.ListOfStringSdkToTerraform(data.BlockedApps)
 	}
 	if data.DstAllowWxtags != nil {

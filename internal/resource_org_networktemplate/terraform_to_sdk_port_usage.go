@@ -3,12 +3,12 @@ package resource_org_networktemplate
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
-	"github.com/google/uuid"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
@@ -85,6 +85,9 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		}
 		if puAttrValue.BypassAuthWhenServerDownForUnknownClient.ValueBoolPointer() != nil {
 			newPu.BypassAuthWhenServerDownForUnknownClient = models.ToPointer(puAttrValue.BypassAuthWhenServerDownForUnknownClient.ValueBool())
+		}
+		if puAttrValue.CommunityVlanId.ValueInt64Pointer() != nil {
+			newPu.CommunityVlanId = models.ToPointer(int(puAttrValue.CommunityVlanId.ValueInt64()))
 		}
 		if puAttrValue.Description.ValueStringPointer() != nil {
 			newPu.Description = models.ToPointer(puAttrValue.Description.ValueString())

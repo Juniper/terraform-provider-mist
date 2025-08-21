@@ -67,8 +67,8 @@ func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.D
 			if !plan.AutoProvisionSecondary.IsNull() && !plan.AutoProvisionSecondary.IsUnknown() {
 				data.Secondary = tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx, diags, plan.AutoProvisionSecondary)
 			}
-			if plan.Enable.ValueBoolPointer() != nil {
-				data.Enable = models.ToPointer(plan.Enable.ValueBool())
+			if plan.Enabled.ValueBoolPointer() != nil {
+				data.Enabled = models.ToPointer(plan.Enabled.ValueBool())
 			}
 
 			if !plan.Latlng.IsNull() && !plan.Latlng.IsUnknown() {
@@ -87,6 +87,9 @@ func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.D
 
 			if plan.Region.ValueStringPointer() != nil {
 				data.Region = plan.Region.ValueStringPointer()
+			}
+			if plan.ServiceConnection.ValueStringPointer() != nil {
+				data.ServiceConnection = plan.ServiceConnection.ValueStringPointer()
 			}
 
 		}

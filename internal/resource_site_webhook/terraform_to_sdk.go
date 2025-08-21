@@ -1,6 +1,7 @@
 package resource_site_webhook
 
 import (
+	"github.com/google/uuid"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
@@ -13,6 +14,18 @@ func TerraformToSdk(plan *SiteWebhookModel) (models.Webhook, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	data := models.Webhook{}
 	unset := make(map[string]interface{})
+
+	if !plan.AssetfilterIds.IsNull() && !plan.AssetfilterIds.IsUnknown() {
+		var items []uuid.UUID
+		for _, item := range plan.AssetfilterIds.Elements() {
+			var iface interface{} = item
+			val := iface.(basetypes.StringValue)
+			items = append(items, uuid.MustParse(val.ValueString()))
+		}
+		data.AssetfilterIds = items
+	} else {
+		unset["-assetfilter_ids"] = ""
+	}
 
 	if !plan.Enabled.IsNull() && !plan.Enabled.IsUnknown() {
 		data.Enabled = plan.Enabled.ValueBoolPointer()
