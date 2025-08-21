@@ -39,7 +39,7 @@ func TestOrgAvprofileModel(t *testing.T) {
 					config: OrgAvprofileModel{
 						OrgId:     GetTestOrgId(),
 						Name:      "test_avprofile",
-						Protocols: []string{"http", "https"},
+						Protocols: []string{"http", "smtp"},
 					},
 				},
 			},
@@ -82,7 +82,7 @@ func TestOrgAvprofileModel(t *testing.T) {
 
 func (s *OrgAvprofileModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
-	checks.append(t, "TestCheckResourceAttrSet", "org_id", s.OrgId)
+	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
 	checks.append(t, "TestCheckResourceAttr", "protocols.#", fmt.Sprintf("%d", len(s.Protocols)))
 	for i, prot := range s.Protocols {

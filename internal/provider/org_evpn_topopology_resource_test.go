@@ -51,6 +51,7 @@ func TestOrgEvpnTopologyModel(t *testing.T) {
 	}
 
 	for tName, tCase := range testCases {
+		t.Skip("Skipping. These tests require specific swtch based topology to run.")
 		t.Run(tName, func(t *testing.T) {
 			resourceType := "org_evpn_topology"
 

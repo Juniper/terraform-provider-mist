@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestOrgNetworktemplate(t *testing.T) {
+func TestOrgNetworkTemplate(t *testing.T) {
 	type testStep struct {
 		config OrgNetworktemplateModel
 	}

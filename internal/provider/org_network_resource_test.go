@@ -24,7 +24,7 @@ func TestOrgNetwork(t *testing.T) {
 				{
 					config: OrgNetworkModel{
 						OrgId:  GetTestOrgId(),
-						Name:   "test-network",
+						Name:   "test-network_1",
 						Subnet: "10.4.0.0/24",
 					},
 				},
