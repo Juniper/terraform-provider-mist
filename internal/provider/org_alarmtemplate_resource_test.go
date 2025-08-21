@@ -42,7 +42,11 @@ func TestOrgAlarmtemplateModel(t *testing.T) {
 						Delivery: DeliveryValue{
 							Enabled: false,
 						},
-						Rules: map[string]OrgAlarmtemplateRulesValue{},
+						Rules: map[string]OrgAlarmtemplateRulesValue{
+							"test_rule": {
+								Enabled: false,
+							},
+						},
 					},
 				},
 			},
