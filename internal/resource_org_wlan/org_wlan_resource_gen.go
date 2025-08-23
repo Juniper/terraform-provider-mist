@@ -1252,40 +1252,32 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"acct_interim_interval": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled.",
 						MarkdownDescription: "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled.",
 						Validators: []validator.Int64{
 							int64validator.Between(0, 65535),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"auth_servers_retries": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Radius auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"retries\" are set to value of `auth_servers_timeout`. \"max-requests\" is also set when setting `auth_servers_retries` is set to default value to 3.",
 						MarkdownDescription: "Radius auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"retries\" are set to value of `auth_servers_timeout`. \"max-requests\" is also set when setting `auth_servers_retries` is set to default value to 3.",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 10),
 						},
-						Default: int64default.StaticInt64(2),
 					},
 					"auth_servers_timeout": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Radius auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"quite-period\" and \"transmit-period\" are set to half the value of `auth_servers_timeout`. \"supplicant-timeout\" is also set when setting `auth_servers_timeout` is set to default value of 10.",
 						MarkdownDescription: "Radius auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"quite-period\" and \"transmit-period\" are set to half the value of `auth_servers_timeout`. \"supplicant-timeout\" is also set when setting `auth_servers_timeout` is set to default value of 10.",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 30),
 						},
-						Default: int64default.StaticInt64(5),
 					},
 					"coa_enabled": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Allows a RADIUS server to dynamically modify the authorization status of a user session.",
 						MarkdownDescription: "Allows a RADIUS server to dynamically modify the authorization status of a user session.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"coa_port": schema.Int64Attribute{
 						Optional:            true,
@@ -1304,10 +1296,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"fast_dot1x_timers": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "If set to true, sets default fast-timers with values calculated from `auth_servers_timeout` and `auth_server_retries`.",
 						MarkdownDescription: "If set to true, sets default fast-timers with values calculated from `auth_servers_timeout` and `auth_server_retries`.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"network": schema.StringAttribute{
 						Optional:            true,
