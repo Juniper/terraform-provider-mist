@@ -790,13 +790,11 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"all_networks": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`==`trunk` whether to trunk all network/vlans",
 							MarkdownDescription: "Only if `mode`==`trunk` whether to trunk all network/vlans",
 							Validators: []validator.Bool{
 								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("trunk"), types.BoolValue(false)),
 							},
-							Default: booldefault.StaticBool(false),
 						},
 						"allow_dhcpd": schema.BoolAttribute{
 							Optional:            true,
@@ -847,27 +845,22 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"disable_autoneg": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation",
 							MarkdownDescription: "Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation",
 							Validators: []validator.Bool{
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
-							Default: booldefault.StaticBool(false),
 						},
 						"disabled": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` whether the port is disabled",
 							MarkdownDescription: "Only if `mode`!=`dynamic` whether the port is disabled",
 							Validators: []validator.Bool{
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
-							Default: booldefault.StaticBool(false),
 						},
 						"duplex": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic`, link connection mode. enum: `auto`, `full`, `half`",
 							MarkdownDescription: "Only if `mode`!=`dynamic`, link connection mode. enum: `auto`, `full`, `half`",
 							Validators: []validator.String{
@@ -879,18 +872,15 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								),
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.StringValue("auto")),
 							},
-							Default: stringdefault.StaticString("auto"),
 						},
 						"dynamic_vlan_networks": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return",
 							Validators: []validator.List{
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
-							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"enable_mac_auth": schema.BoolAttribute{
 							Optional:            true,
@@ -902,13 +892,11 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"enable_qos": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic`",
 							MarkdownDescription: "Only if `mode`!=`dynamic`",
 							Validators: []validator.Bool{
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
-							Default: booldefault.StaticBool(false),
 						},
 						"guest_network": schema.StringAttribute{
 							Optional:            true,
@@ -960,7 +948,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"mac_limit": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 to 16383 (upper bound constrained by platform)",
 							MarkdownDescription: "Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 to 16383 (upper bound constrained by platform)",
 							Validators: []validator.String{
@@ -970,7 +957,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								),
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.StringValue("0")),
 							},
-							Default: stringdefault.StaticString("0"),
 						},
 						"mode": schema.StringAttribute{
 							Optional:            true,
@@ -1012,20 +998,16 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"persist_mac": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses",
 							MarkdownDescription: "Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses",
-							Default:             booldefault.StaticBool(false),
 						},
 						"poe_disabled": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` whether PoE capabilities are disabled for a port",
 							MarkdownDescription: "Only if `mode`!=`dynamic` whether PoE capabilities are disabled for a port",
 							Validators: []validator.Bool{
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
-							Default: booldefault.StaticBool(false),
 						},
 						"port_auth": schema.StringAttribute{
 							Optional:            true,
@@ -1147,13 +1129,11 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"speed": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic`, Port speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
 							MarkdownDescription: "Only if `mode`!=`dynamic`, Port speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
 							Validators: []validator.String{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
-							Default: stringdefault.StaticString("auto"),
 						},
 						"storm_control": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -1205,13 +1185,11 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"stp_edge": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames",
 							MarkdownDescription: "Only if `mode`!=`dynamic` when enabled, the port is not expected to receive BPDU frames",
 							Validators: []validator.Bool{
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
-							Default: booldefault.StaticBool(false),
 						},
 						"stp_no_root_port": schema.BoolAttribute{
 							Optional: true,
