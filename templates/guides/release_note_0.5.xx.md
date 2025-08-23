@@ -100,7 +100,7 @@ description: |-
  - `.vpn_peer_updown_threshold` has been added
 
 
-### Resources default values changed
+#### Resources default values changed
 
 Changes have been applied to resources to reduce configuration drift when importing resources or saving changes from the Mist UI. These updates aim to align Terraform resource states with the Mist UI default values. However, some default values are dynamic and depend on other parameter values, making it currently impossible to completely eliminate configuration drift in certain scenarios.
 
@@ -109,6 +109,7 @@ These changes may lead to configuration drift if the affected attributes are not
 Attributes without explicit definitions will default to `null`, but this will not alter the actual configuration in the Mist Cloud (the Mist Cloud will use the default value). To avoid discrepancies, ensure that all required attributes are explicitly set in your configuration.
 
 *  **`mist_device_switch`, `mist_org_networktemplate` and `mist_site_networktemplate` resources**
+
 | Attribute | Previous Default | New Default |
 |-----------|-----------|-----------|
 | `.port_usages.all_networks` | StaticBool(false) | N/A |
