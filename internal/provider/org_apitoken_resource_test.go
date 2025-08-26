@@ -46,7 +46,7 @@ func TestOrgApitoken(t *testing.T) {
 	}
 
 	str := string(b) // convert content to a 'string'
-	fixtures := strings.Split(str, "$")
+	fixtures := strings.Split(str, "␞")
 
 	for i, fixture := range fixtures {
 		var FixtureOrgApitokenModel OrgApitokenModel
