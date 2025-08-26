@@ -8,6 +8,14 @@ description: |-
 # Release Notes for v0.5.xx
 
 
+## Release Notes for v0.5.2
+**Release Date**: August 26st, 2025 
+
+### Fixes
+* **[Issue 129](https://github.com/Juniper/terraform-provider-mist/issues/129):** Remove default values for the new `.mist_nac` attributes in `mist_org_wlan` and `mist_site_wlan` resources when the `.mist_nac` attribute is not defined
+
+
+
 ## Release Notes for v0.5.1
 **Release Date**: August 22st, 2025 
 
