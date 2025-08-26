@@ -67,6 +67,7 @@ func TestOrgApitoken(t *testing.T) {
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 			resourceType := "org_apitoken"
+			siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -75,6 +76,10 @@ func TestOrgApitoken(t *testing.T) {
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
 				configStr := Render(resourceType, tName, string(f.Bytes()))
+
+				if strings.Contains(configStr, siteRef) {
+					configStr = siteConfig + "\n\n" + strings.ReplaceAll(configStr, "\""+siteRef+"\"", siteRef)
+				}
 
 				checks := config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
@@ -107,7 +112,7 @@ func (s *OrgApitokenModel) testChecks(t testing.TB, rType, rName string) testChe
 		checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.role", i), priv.Role)
 		checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.scope", i), priv.Scope)
 		if priv.SiteId != nil {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.site_id", i), *priv.SiteId)
+			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("privileges.%d.site_id", i))
 		}
 		if priv.SitegroupId != nil {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.sitegroup_id", i), *priv.SitegroupId)

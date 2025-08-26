@@ -16,7 +16,7 @@
     {
       role    = "admin"
       scope   = "site"
-      site_id = "2c107c8e-2e06-404a-ba61-e25b5757ecea"
+      site_id = "mist_site.TestSite.id"
     }
   ]
   src_ips = [
@@ -34,7 +34,7 @@
     {
       role    = "write"
       scope   = "site"
-      site_id = "2c107c8e-2e06-404a-ba61-e25b5757ecea"
+      site_id = "mist_site.TestSite.id"
     }
   ]
   src_ips = [
@@ -48,7 +48,7 @@
     {
       role    = "installer"
       scope   = "site"
-      site_id = "2c107c8e-2e06-404a-ba61-e25b5757ecea"
+      site_id = "mist_site.TestSite.id"
     }
   ]
 
