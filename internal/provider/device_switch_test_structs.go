@@ -376,13 +376,14 @@ type RadiusConfigValue struct {
 }
 
 type AcctServersValue struct {
-	Host           string  `cty:"host" hcl:"host"`
-	KeywrapEnabled *bool   `cty:"keywrap_enabled" hcl:"keywrap_enabled"`
-	KeywrapFormat  *string `cty:"keywrap_format" hcl:"keywrap_format"`
-	KeywrapKek     *string `cty:"keywrap_kek" hcl:"keywrap_kek"`
-	KeywrapMack    *string `cty:"keywrap_mack" hcl:"keywrap_mack"`
-	Port           *string `cty:"port" hcl:"port"`
-	Secret         string  `cty:"secret" hcl:"secret"`
+	Host                        string  `hcl:"host" cty:"host"`
+	KeywrapEnabled              *bool   `hcl:"keywrap_enabled" cty:"keywrap_enabled"`
+	KeywrapFormat               *string `hcl:"keywrap_format" cty:"keywrap_format"`
+	KeywrapKek                  *string `hcl:"keywrap_kek" cty:"keywrap_kek"`
+	KeywrapMack                 *string `hcl:"keywrap_mack" cty:"keywrap_mack"`
+	Port                        *int64  `hcl:"port" cty:"port"`
+	RequireMessageAuthenticator *bool   `hcl:"require_message_authenticator" cty:"require_message_authenticator"`
+	Secret                      string  `hcl:"secret" cty:"secret"`
 }
 
 type AuthServersValue struct {
