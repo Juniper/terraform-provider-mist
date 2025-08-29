@@ -94,17 +94,17 @@ type OrgWlanModel struct {
 }
 
 type AirwatchValue struct {
-	ApiKey     *string `cty:"api_key"`
-	ConsoleUrl *string `cty:"console_url"`
-	Enabled    *bool   `cty:"enabled"`
-	Password   *string `cty:"password"`
-	Username   *string `cty:"username"`
+	ApiKey     *string `hcl:"api_key" cty:"api_key"`
+	ConsoleUrl *string `hcl:"console_url" cty:"console_url"`
+	Enabled    *bool   `hcl:"enabled" cty:"enabled"`
+	Password   *string `hcl:"password" cty:"password"`
+	Username   *string `hcl:"username" cty:"username"`
 }
 
 type AppLimitValue struct {
-	Apps     map[string]int64 `cty:"apps"`
-	Enabled  *bool            `cty:"enabled"`
-	WxtagIds map[string]int64 `cty:"wxtag_ids"`
+	Apps     map[string]int64 `hcl:"apps" cty:"apps"`
+	Enabled  *bool            `hcl:"enabled" cty:"enabled"`
+	WxtagIds map[string]int64 `hcl:"wxtag_ids" cty:"wxtag_ids"`
 }
 
 type AppQosValue struct {
@@ -143,69 +143,69 @@ type OrgWlanAuthValue struct {
 }
 
 type BonjourValue struct {
-	AdditionalVlanIds []string                 `cty:"additional_vlan_ids"`
-	Enabled           *bool                    `cty:"enabled"`
-	Services          map[string]ServicesValue `cty:"services"`
+	AdditionalVlanIds []string                 `hcl:"additional_vlan_ids" cty:"additional_vlan_ids"`
+	Enabled           *bool                    `hcl:"enabled" cty:"enabled"`
+	Services          map[string]ServicesValue `hcl:"services" cty:"services"`
 }
 
 type ServicesValue struct {
-	DisableLocal *bool    `cty:"disable_local"`
-	RadiusGroups []string `cty:"radius_groups"`
-	Scope        *string  `cty:"scope"`
+	DisableLocal *bool    `hcl:"disable_local" cty:"disable_local"`
+	RadiusGroups []string `hcl:"radius_groups" cty:"radius_groups"`
+	Scope        *string  `hcl:"scope" cty:"scope"`
 }
 
 type CiscoCwaValue struct {
-	AllowedHostnames []string `cty:"allowed_hostnames"`
-	AllowedSubnets   []string `cty:"allowed_subnets"`
-	BlockedSubnets   []string `cty:"blocked_subnets"`
-	Enabled          *bool    `cty:"enabled"`
+	AllowedHostnames []string `hcl:"allowed_hostnames" cty:"allowed_hostnames"`
+	AllowedSubnets   []string `hcl:"allowed_subnets" cty:"allowed_subnets"`
+	BlockedSubnets   []string `hcl:"blocked_subnets" cty:"blocked_subnets"`
+	Enabled          *bool    `hcl:"enabled" cty:"enabled"`
 }
 
 type CoaServersValue struct {
-	DisableEventTimestampCheck *bool  `cty:"disable_event_timestamp_check"`
-	Enabled                    *bool  `cty:"enabled"`
-	Ip                         string `cty:"ip"`
-	Port                       *int64 `cty:"port"`
-	Secret                     string `cty:"secret"`
+	DisableEventTimestampCheck *bool  `hcl:"disable_event_timestamp_check" cty:"disable_event_timestamp_check"`
+	Enabled                    *bool  `hcl:"enabled" cty:"enabled"`
+	Ip                         string `hcl:"ip" cty:"ip"`
+	Port                       *int64 `hcl:"port" cty:"port"`
+	Secret                     string `hcl:"secret" cty:"secret"`
 }
 
 type DnsServerRewriteValue struct {
-	Enabled      *bool             `cty:"enabled"`
-	RadiusGroups map[string]string `cty:"radius_groups"`
+	Enabled      *bool             `hcl:"enabled" cty:"enabled"`
+	RadiusGroups map[string]string `hcl:"radius_groups" cty:"radius_groups"`
 }
 
 type DynamicPskValue struct {
-	DefaultPsk    *string `cty:"default_psk"`
-	DefaultVlanId *string `cty:"default_vlan_id"`
-	Enabled       *bool   `cty:"enabled"`
-	ForceLookup   *bool   `cty:"force_lookup"`
-	Source        *string `cty:"source"`
+	DefaultPsk    *string `hcl:"default_psk" cty:"default_psk"`
+	DefaultVlanId *string `hcl:"default_vlan_id" cty:"default_vlan_id"`
+	Enabled       *bool   `hcl:"enabled" cty:"enabled"`
+	ForceLookup   *bool   `hcl:"force_lookup" cty:"force_lookup"`
+	Source        *string `hcl:"source" cty:"source"`
 }
 
 type DynamicVlanValue struct {
-	DefaultVlanIds  []string          `cty:"default_vlan_ids"`
-	Enabled         *bool             `cty:"enabled"`
-	LocalVlanIds    []string          `cty:"local_vlan_ids"`
-	DynamicVlanType *string           `cty:"type"`
-	Vlans           map[string]string `cty:"vlans"`
+	DefaultVlanIds  []string          `hcl:"default_vlan_ids" cty:"default_vlan_ids"`
+	Enabled         *bool             `hcl:"enabled" cty:"enabled"`
+	LocalVlanIds    []string          `hcl:"local_vlan_ids" cty:"local_vlan_ids"`
+	DynamicVlanType *string           `hcl:"type" cty:"type"`
+	Vlans           map[string]string `hcl:"vlans" cty:"vlans"`
 }
 
 type Hotspot20Value struct {
-	DomainName []string `cty:"domain_name"`
-	Enabled    *bool    `cty:"enabled"`
-	NaiRealms  []string `cty:"nai_realms"`
-	Operators  []string `cty:"operators"`
-	Rcoi       []string `cty:"rcoi"`
-	VenueName  *string  `cty:"venue_name"`
+	DomainName []string `hcl:"domain_name" cty:"domain_name"`
+	Enabled    *bool    `hcl:"enabled" cty:"enabled"`
+	NaiRealms  []string `hcl:"nai_realms" cty:"nai_realms"`
+	Operators  []string `hcl:"operators" cty:"operators"`
+	Rcoi       []string `hcl:"rcoi" cty:"rcoi"`
+	VenueName  *string  `hcl:"venue_name" cty:"venue_name"`
 }
 
 type InjectDhcpOption82Value struct {
-	CircuitId *string `cty:"circuit_id"`
-	Enabled   *bool   `cty:"enabled"`
+	CircuitId *string `hcl:"circuit_id" cty:"circuit_id"`
+	Enabled   *bool   `hcl:"enabled" cty:"enabled"`
 }
 
 type OrgWlanMistNacValue struct {
-	Enabled *bool `cty:"enabled"`
+	Enabled *bool `hcl:"enabled" cty:"enabled"`
 }
 
 type PortalValue struct {
@@ -291,28 +291,30 @@ type QosValue struct {
 }
 
 type RadsecValue struct {
-	CoaEnabled    *bool                 `cty:"coa_enabled"`
-	Enabled       *bool                 `cty:"enabled"`
-	IdleTimeout   *int64                `cty:"idle_timeout"`
-	MxclusterIds  []string              `cty:"mxcluster_ids"`
-	ProxyHosts    []string              `cty:"proxy_hosts"`
-	ServerName    *string               `cty:"server_name"`
-	Servers       []OrgWlanServersValue `cty:"servers"`
-	UseMxedge     *bool                 `cty:"use_mxedge"`
-	UseSiteMxedge *bool                 `cty:"use_site_mxedge"`
+	CoaEnabled    *bool                 `hcl:"coa_enabled" cty:"coa_enabled"`
+	Enabled       *bool                 `hcl:"enabled" cty:"enabled"`
+	IdleTimeout   *string               `hcl:"idle_timeout" cty:"idle_timeout"`
+	MxclusterIds  []string              `hcl:"mxcluster_ids" cty:"mxcluster_ids"`
+	ProxyHosts    []string              `hcl:"proxy_hosts" cty:"proxy_hosts"`
+	ServerName    *string               `hcl:"server_name" cty:"server_name"`
+	Servers       []OrgWlanServersValue `hcl:"servers" cty:"servers"`
+	UseMxedge     *bool                 `hcl:"use_mxedge" cty:"use_mxedge"`
+	UseSiteMxedge *bool                 `hcl:"use_site_mxedge" cty:"use_site_mxedge"`
 }
 
 type OrgWlanServersValue struct {
-	Host *string `cty:"host"`
-	Port *int64  `cty:"port"`
+	Host *string `hcl:"host" cty:"host"`
+	Port *int64  `hcl:"port" cty:"port"`
 }
 
 type RatesetValue struct {
-	Ht       *string  `cty:"ht"`
-	Legacy   []string `cty:"legacy"`
-	MinRssi  *int64   `cty:"min_rssi"`
-	Template *string  `cty:"template"`
-	Vht      *string  `cty:"vht"`
+	Eht      *string  `hcl:"eht" cty:"eht"`
+	He       *string  `hcl:"he" cty:"he"`
+	Ht       *string  `hcl:"ht" cty:"ht"`
+	Legacy   []string `hcl:"legacy" cty:"legacy"`
+	MinRssi  *int64   `hcl:"min_rssi" cty:"min_rssi"`
+	Template *string  `hcl:"template" cty:"template"`
+	Vht      *string  `hcl:"vht" cty:"vht"`
 }
 
 type ScheduleValue struct {
