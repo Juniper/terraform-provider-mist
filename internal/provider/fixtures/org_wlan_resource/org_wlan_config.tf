@@ -82,8 +82,26 @@
     }
   ]
   
+  coa_servers = [
+    {
+      ip = "192.168.1.50"
+      port = "3799"
+      secret = "coa-secret-1"
+      enabled = true
+      disable_event_timestamp_check = false
+    },
+    {
+      ip = "192.168.1.51"
+      port = "3799"
+      secret = "coa-secret-2"
+      enabled = true
+      disable_event_timestamp_check = true
+    }
+  ]
+  
   portal_allowed_hostnames = ["portal.company.com", "guest.company.com", "wifi.company.com"]
-  portal_denied_hostnames = ["blocked.example.com", "malware.test.com"]
+  portal_allowed_subnets   = ["192.168.1.0/24", "10.0.0.0/8", "{{orgsubnetsguest}}"]
+  portal_denied_hostnames  = ["blocked.example.com", "malware.test.com"]
   
   airwatch = {
     api_key = "test-api-key"

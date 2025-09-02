@@ -391,7 +391,12 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("portal_allowed_hostnames.%d", i), hostname)
 		}
 	}
-	// Note: PortalAllowedSubnets has complex validation (CIDR + Mist variables) - needs special handling
+	if len(s.PortalAllowedSubnets) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "portal_allowed_subnets.#", fmt.Sprintf("%d", len(s.PortalAllowedSubnets)))
+		for i, subnet := range s.PortalAllowedSubnets {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("portal_allowed_subnets.%d", i), subnet)
+		}
+	}
 	if len(s.PortalDeniedHostnames) > 0 {
 		checks.append(t, "TestCheckResourceAttr", "portal_denied_hostnames.#", fmt.Sprintf("%d", len(s.PortalDeniedHostnames)))
 		for i, hostname := range s.PortalDeniedHostnames {
@@ -428,6 +433,24 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acct_servers.%d.port", i), fmt.Sprintf("%d", *server.Port))
 			}
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acct_servers.%d.secret", i), server.Secret)
+		}
+	}
+
+	// CoA servers array validation
+	if len(s.CoaServers) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "coa_servers.#", fmt.Sprintf("%d", len(s.CoaServers)))
+		for i, server := range s.CoaServers {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("coa_servers.%d.ip", i), server.Ip)
+			if server.Port != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("coa_servers.%d.port", i), *server.Port)
+			}
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("coa_servers.%d.secret", i), server.Secret)
+			if server.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("coa_servers.%d.enabled", i), fmt.Sprintf("%t", *server.Enabled))
+			}
+			if server.DisableEventTimestampCheck != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("coa_servers.%d.disable_event_timestamp_check", i), fmt.Sprintf("%t", *server.DisableEventTimestampCheck))
+			}
 		}
 	}
 
