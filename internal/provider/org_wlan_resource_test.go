@@ -454,68 +454,45 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		}
 	}
 
-	// Auth settings
-	if s.Auth != nil {
-		if s.Auth.AuthType != nil {
-			checks.append(t, "TestCheckResourceAttr", "auth.type", *s.Auth.AuthType)
+	if s.Hotspot20 != nil {
+		if s.Hotspot20.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "hotspot20.enabled", fmt.Sprintf("%t", *s.Hotspot20.Enabled))
 		}
-		if s.Auth.EnableMacAuth != nil {
-			checks.append(t, "TestCheckResourceAttr", "auth.enable_mac_auth", fmt.Sprintf("%t", *s.Auth.EnableMacAuth))
+		if len(s.Hotspot20.DomainName) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "hotspot20.domain_name.#", fmt.Sprintf("%d", len(s.Hotspot20.DomainName)))
+			for i, domain := range s.Hotspot20.DomainName {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("hotspot20.domain_name.%d", i), domain)
+			}
 		}
-		if s.Auth.EapReauth != nil {
-			checks.append(t, "TestCheckResourceAttr", "auth.eap_reauth", fmt.Sprintf("%t", *s.Auth.EapReauth))
+		if len(s.Hotspot20.NaiRealms) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "hotspot20.nai_realms.#", fmt.Sprintf("%d", len(s.Hotspot20.NaiRealms)))
+			for i, realm := range s.Hotspot20.NaiRealms {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("hotspot20.nai_realms.%d", i), realm)
+			}
 		}
-		if s.Auth.PrivateWlan != nil {
-			checks.append(t, "TestCheckResourceAttr", "auth.private_wlan", fmt.Sprintf("%t", *s.Auth.PrivateWlan))
+		if len(s.Hotspot20.Operators) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "hotspot20.operators.#", fmt.Sprintf("%d", len(s.Hotspot20.Operators)))
+			for i, operator := range s.Hotspot20.Operators {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("hotspot20.operators.%d", i), operator)
+			}
 		}
-		if s.Auth.WepAsSecondaryAuth != nil {
-			checks.append(t, "TestCheckResourceAttr", "auth.wep_as_secondary_auth", fmt.Sprintf("%t", *s.Auth.WepAsSecondaryAuth))
+		if len(s.Hotspot20.Rcoi) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "hotspot20.rcoi.#", fmt.Sprintf("%d", len(s.Hotspot20.Rcoi)))
+			for i, rcoi := range s.Hotspot20.Rcoi {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("hotspot20.rcoi.%d", i), rcoi)
+			}
 		}
-		if s.Auth.Psk != nil {
-			checks.append(t, "TestCheckResourceAttr", "auth.psk", *s.Auth.Psk)
+		if s.Hotspot20.VenueName != nil {
+			checks.append(t, "TestCheckResourceAttr", "hotspot20.venue_name", *s.Hotspot20.VenueName)
 		}
 	}
 
-	// Portal settings
-	if s.Portal != nil {
-		if s.Portal.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "portal.enabled", fmt.Sprintf("%t", *s.Portal.Enabled))
+	if s.InjectDhcpOption82 != nil {
+		if s.InjectDhcpOption82.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "inject_dhcp_option82.enabled", fmt.Sprintf("%t", *s.InjectDhcpOption82.Enabled))
 		}
-		if s.Portal.Auth != nil {
-			checks.append(t, "TestCheckResourceAttr", "portal.auth", *s.Portal.Auth)
-		}
-		if s.Portal.Expire != nil {
-			checks.append(t, "TestCheckResourceAttr", "portal.expire", fmt.Sprintf("%d", *s.Portal.Expire))
-		}
-		if s.Portal.Password != nil {
-			checks.append(t, "TestCheckResourceAttr", "portal.password", *s.Portal.Password)
-		}
-		if s.Portal.BypassWhenCloudDown != nil {
-			checks.append(t, "TestCheckResourceAttr", "portal.bypass_when_cloud_down", fmt.Sprintf("%t", *s.Portal.BypassWhenCloudDown))
-		}
-		if s.Portal.CrossSite != nil {
-			checks.append(t, "TestCheckResourceAttr", "portal.cross_site", fmt.Sprintf("%t", *s.Portal.CrossSite))
-		}
-		if s.Portal.EmailEnabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "portal.email_enabled", fmt.Sprintf("%t", *s.Portal.EmailEnabled))
-		}
-		if s.Portal.Forward != nil {
-			checks.append(t, "TestCheckResourceAttr", "portal.forward", fmt.Sprintf("%t", *s.Portal.Forward))
-		}
-		if s.Portal.Privacy != nil {
-			checks.append(t, "TestCheckResourceAttr", "portal.privacy", fmt.Sprintf("%t", *s.Portal.Privacy))
-		}
-		if s.Portal.SmsEnabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "portal.sms_enabled", fmt.Sprintf("%t", *s.Portal.SmsEnabled))
-		}
-		if s.Portal.SponsorEnabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "portal.sponsor_enabled", fmt.Sprintf("%t", *s.Portal.SponsorEnabled))
-		}
-		if s.Portal.PredefinedSponsorsEnabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "portal.predefined_sponsors_enabled", fmt.Sprintf("%t", *s.Portal.PredefinedSponsorsEnabled))
-		}
-		if s.Portal.PredefinedSponsorsHideEmail != nil {
-			checks.append(t, "TestCheckResourceAttr", "portal.predefined_sponsors_hide_email", fmt.Sprintf("%t", *s.Portal.PredefinedSponsorsHideEmail))
+		if s.InjectDhcpOption82.CircuitId != nil {
+			checks.append(t, "TestCheckResourceAttr", "inject_dhcp_option82.circuit_id", *s.InjectDhcpOption82.CircuitId)
 		}
 	}
 
@@ -528,6 +505,12 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 			for appName, appConfig := range s.AppQos.Apps {
 				if appConfig.Dscp != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.apps.%s.dscp", appName), fmt.Sprintf("%d", *appConfig.Dscp))
+				}
+				if appConfig.DstSubnet != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.apps.%s.dst_subnet", appName), *appConfig.DstSubnet)
+				}
+				if appConfig.SrcSubnet != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.apps.%s.src_subnet", appName), *appConfig.SrcSubnet)
 				}
 			}
 		}

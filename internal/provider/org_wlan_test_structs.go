@@ -108,38 +108,38 @@ type AppLimitValue struct {
 }
 
 type AppQosValue struct {
-	Apps    map[string]AppsValue `cty:"apps"`
-	Enabled *bool                `cty:"enabled"`
-	Others  []OthersValue        `cty:"others"`
+	Apps    map[string]AppsValue `hcl:"apps" cty:"apps"`
+	Enabled *bool                `hcl:"enabled" cty:"enabled"`
+	Others  []OthersValue        `hcl:"others" cty:"others"`
 }
 
 type AppsValue struct {
-	Dscp      *int64  `cty:"dscp"`
-	DstSubnet *string `cty:"dst_subnet"`
-	SrcSubnet *string `cty:"src_subnet"`
+	Dscp      *int64  `hcl:"dscp" cty:"dscp"`
+	DstSubnet *string `hcl:"dst_subnet" cty:"dst_subnet"`
+	SrcSubnet *string `hcl:"src_subnet" cty:"src_subnet"`
 }
 
 type OthersValue struct {
-	Dscp       *int64  `cty:"dscp"`
-	DstSubnet  *string `cty:"dst_subnet"`
-	PortRanges *string `cty:"port_ranges"`
-	Protocol   *string `cty:"protocol"`
-	SrcSubnet  *string `cty:"src_subnet"`
+	Dscp       *int64  `hcl:"dscp" cty:"dscp"`
+	DstSubnet  *string `hcl:"dst_subnet" cty:"dst_subnet"`
+	PortRanges *string `hcl:"port_ranges" cty:"port_ranges"`
+	Protocol   *string `hcl:"protocol" cty:"protocol"`
+	SrcSubnet  *string `hcl:"src_subnet" cty:"src_subnet"`
 }
 
 type OrgWlanAuthValue struct {
-	AnticlogThreshold  *int64   `cty:"anticlog_threshold"`
-	EapReauth          *bool    `cty:"eap_reauth"`
-	EnableMacAuth      *bool    `cty:"enable_mac_auth"`
-	KeyIdx             *int64   `cty:"key_idx"`
-	Keys               []string `cty:"keys"`
-	MultiPskOnly       *bool    `cty:"multi_psk_only"`
-	Owe                *string  `cty:"owe"`
-	Pairwise           []string `cty:"pairwise"`
-	PrivateWlan        *bool    `cty:"private_wlan"`
-	Psk                *string  `cty:"psk"`
-	AuthType           *string  `cty:"type"`
-	WepAsSecondaryAuth *bool    `cty:"wep_as_secondary_auth"`
+	AnticlogThreshold  *int64   `hcl:"anticlog_threshold" cty:"anticlog_threshold"`
+	EapReauth          *bool    `hcl:"eap_reauth" cty:"eap_reauth"`
+	EnableMacAuth      *bool    `hcl:"enable_mac_auth" cty:"enable_mac_auth"`
+	KeyIdx             *int64   `hcl:"key_idx" cty:"key_idx"`
+	Keys               []string `hcl:"keys" cty:"keys"`
+	MultiPskOnly       *bool    `hcl:"multi_psk_only" cty:"multi_psk_only"`
+	Owe                *string  `hcl:"owe" cty:"owe"`
+	Pairwise           []string `hcl:"pairwise" cty:"pairwise"`
+	PrivateWlan        *bool    `hcl:"private_wlan" cty:"private_wlan"`
+	Psk                *string  `hcl:"psk" cty:"psk"`
+	AuthType           *string  `hcl:"type" cty:"type"`
+	WepAsSecondaryAuth *bool    `hcl:"wep_as_secondary_auth" cty:"wep_as_secondary_auth"`
 }
 
 type BonjourValue struct {
@@ -209,85 +209,85 @@ type OrgWlanMistNacValue struct {
 }
 
 type PortalValue struct {
-	AllowWlanIdRoam             *bool             `cty:"allow_wlan_id_roam"`
-	AmazonClientId              *string           `cty:"amazon_client_id"`
-	AmazonClientSecret          *string           `cty:"amazon_client_secret"`
-	AmazonEmailDomains          []string          `cty:"amazon_email_domains"`
-	AmazonEnabled               *bool             `cty:"amazon_enabled"`
-	AmazonExpire                *int64            `cty:"amazon_expire"`
-	Auth                        *string           `cty:"auth"`
-	AzureClientId               *string           `cty:"azure_client_id"`
-	AzureClientSecret           *string           `cty:"azure_client_secret"`
-	AzureEnabled                *bool             `cty:"azure_enabled"`
-	AzureExpire                 *int64            `cty:"azure_expire"`
-	AzureTenantId               *string           `cty:"azure_tenant_id"`
-	BroadnetPassword            *string           `cty:"broadnet_password"`
-	BroadnetSid                 *string           `cty:"broadnet_sid"`
-	BroadnetUserId              *string           `cty:"broadnet_user_id"`
-	BypassWhenCloudDown         *bool             `cty:"bypass_when_cloud_down"`
-	ClickatellApiKey            *string           `cty:"clickatell_api_key"`
-	CrossSite                   *bool             `cty:"cross_site"`
-	EmailEnabled                *bool             `cty:"email_enabled"`
-	Enabled                     *bool             `cty:"enabled"`
-	Expire                      *int64            `cty:"expire"`
-	ExternalPortalUrl           *string           `cty:"external_portal_url"`
-	FacebookClientId            *string           `cty:"facebook_client_id"`
-	FacebookClientSecret        *string           `cty:"facebook_client_secret"`
-	FacebookEmailDomains        []string          `cty:"facebook_email_domains"`
-	FacebookEnabled             *bool             `cty:"facebook_enabled"`
-	FacebookExpire              *int64            `cty:"facebook_expire"`
-	Forward                     *bool             `cty:"forward"`
-	ForwardUrl                  *string           `cty:"forward_url"`
-	GoogleClientId              *string           `cty:"google_client_id"`
-	GoogleClientSecret          *string           `cty:"google_client_secret"`
-	GoogleEmailDomains          []string          `cty:"google_email_domains"`
-	GoogleEnabled               *bool             `cty:"google_enabled"`
-	GoogleExpire                *int64            `cty:"google_expire"`
-	GupshupPassword             *string           `cty:"gupshup_password"`
-	GupshupUserid               *string           `cty:"gupshup_userid"`
-	MicrosoftClientId           *string           `cty:"microsoft_client_id"`
-	MicrosoftClientSecret       *string           `cty:"microsoft_client_secret"`
-	MicrosoftEmailDomains       []string          `cty:"microsoft_email_domains"`
-	MicrosoftEnabled            *bool             `cty:"microsoft_enabled"`
-	MicrosoftExpire             *int64            `cty:"microsoft_expire"`
-	PassphraseEnabled           *bool             `cty:"passphrase_enabled"`
-	PassphraseExpire            *int64            `cty:"passphrase_expire"`
-	Password                    *string           `cty:"password"`
-	PredefinedSponsorsEnabled   *bool             `cty:"predefined_sponsors_enabled"`
-	PredefinedSponsorsHideEmail *bool             `cty:"predefined_sponsors_hide_email"`
-	Privacy                     *bool             `cty:"privacy"`
-	PuzzelPassword              *string           `cty:"puzzel_password"`
-	PuzzelServiceId             *string           `cty:"puzzel_service_id"`
-	PuzzelUsername              *string           `cty:"puzzel_username"`
-	SmsEnabled                  *bool             `cty:"sms_enabled"`
-	SmsExpire                   *int64            `cty:"sms_expire"`
-	SmsMessageFormat            *string           `cty:"sms_message_format"`
-	SmsProvider                 *string           `cty:"sms_provider"`
-	SponsorAutoApprove          *bool             `cty:"sponsor_auto_approve"`
-	SponsorEmailDomains         []string          `cty:"sponsor_email_domains"`
-	SponsorEnabled              *bool             `cty:"sponsor_enabled"`
-	SponsorExpire               *int64            `cty:"sponsor_expire"`
-	SponsorLinkValidityDuration *string           `cty:"sponsor_link_validity_duration"`
-	SponsorNotifyAll            *bool             `cty:"sponsor_notify_all"`
-	SponsorStatusNotify         *bool             `cty:"sponsor_status_notify"`
-	Sponsors                    map[string]string `cty:"sponsors"`
-	SsoDefaultRole              *string           `cty:"sso_default_role"`
-	SsoForcedRole               *string           `cty:"sso_forced_role"`
-	SsoIdpCert                  *string           `cty:"sso_idp_cert"`
-	SsoIdpSignAlgo              *string           `cty:"sso_idp_sign_algo"`
-	SsoIdpSsoUrl                *string           `cty:"sso_idp_sso_url"`
-	SsoIssuer                   *string           `cty:"sso_issuer"`
-	SsoNameidFormat             *string           `cty:"sso_nameid_format"`
-	TelstraClientId             *string           `cty:"telstra_client_id"`
-	TelstraClientSecret         *string           `cty:"telstra_client_secret"`
-	TwilioAuthToken             *string           `cty:"twilio_auth_token"`
-	TwilioPhoneNumber           *string           `cty:"twilio_phone_number"`
-	TwilioSid                   *string           `cty:"twilio_sid"`
+	AllowWlanIdRoam             *bool             `hcl:"allow_wlan_id_roam" cty:"allow_wlan_id_roam"`
+	AmazonClientId              *string           `hcl:"amazon_client_id" cty:"amazon_client_id"`
+	AmazonClientSecret          *string           `hcl:"amazon_client_secret" cty:"amazon_client_secret"`
+	AmazonEmailDomains          []string          `hcl:"amazon_email_domains" cty:"amazon_email_domains"`
+	AmazonEnabled               *bool             `hcl:"amazon_enabled" cty:"amazon_enabled"`
+	AmazonExpire                *int64            `hcl:"amazon_expire" cty:"amazon_expire"`
+	Auth                        *string           `hcl:"auth" cty:"auth"`
+	AzureClientId               *string           `hcl:"azure_client_id" cty:"azure_client_id"`
+	AzureClientSecret           *string           `hcl:"azure_client_secret" cty:"azure_client_secret"`
+	AzureEnabled                *bool             `hcl:"azure_enabled" cty:"azure_enabled"`
+	AzureExpire                 *int64            `hcl:"azure_expire" cty:"azure_expire"`
+	AzureTenantId               *string           `hcl:"azure_tenant_id" cty:"azure_tenant_id"`
+	BroadnetPassword            *string           `hcl:"broadnet_password" cty:"broadnet_password"`
+	BroadnetSid                 *string           `hcl:"broadnet_sid" cty:"broadnet_sid"`
+	BroadnetUserId              *string           `hcl:"broadnet_user_id" cty:"broadnet_user_id"`
+	BypassWhenCloudDown         *bool             `hcl:"bypass_when_cloud_down" cty:"bypass_when_cloud_down"`
+	ClickatellApiKey            *string           `hcl:"clickatell_api_key" cty:"clickatell_api_key"`
+	CrossSite                   *bool             `hcl:"cross_site" cty:"cross_site"`
+	EmailEnabled                *bool             `hcl:"email_enabled" cty:"email_enabled"`
+	Enabled                     *bool             `hcl:"enabled" cty:"enabled"`
+	Expire                      *int64            `hcl:"expire" cty:"expire"`
+	ExternalPortalUrl           *string           `hcl:"external_portal_url" cty:"external_portal_url"`
+	FacebookClientId            *string           `hcl:"facebook_client_id" cty:"facebook_client_id"`
+	FacebookClientSecret        *string           `hcl:"facebook_client_secret" cty:"facebook_client_secret"`
+	FacebookEmailDomains        []string          `hcl:"facebook_email_domains" cty:"facebook_email_domains"`
+	FacebookEnabled             *bool             `hcl:"facebook_enabled" cty:"facebook_enabled"`
+	FacebookExpire              *int64            `hcl:"facebook_expire" cty:"facebook_expire"`
+	Forward                     *bool             `hcl:"forward" cty:"forward"`
+	ForwardUrl                  *string           `hcl:"forward_url" cty:"forward_url"`
+	GoogleClientId              *string           `hcl:"google_client_id" cty:"google_client_id"`
+	GoogleClientSecret          *string           `hcl:"google_client_secret" cty:"google_client_secret"`
+	GoogleEmailDomains          []string          `hcl:"google_email_domains" cty:"google_email_domains"`
+	GoogleEnabled               *bool             `hcl:"google_enabled" cty:"google_enabled"`
+	GoogleExpire                *int64            `hcl:"google_expire" cty:"google_expire"`
+	GupshupPassword             *string           `hcl:"gupshup_password" cty:"gupshup_password"`
+	GupshupUserid               *string           `hcl:"gupshup_userid" cty:"gupshup_userid"`
+	MicrosoftClientId           *string           `hcl:"microsoft_client_id" cty:"microsoft_client_id"`
+	MicrosoftClientSecret       *string           `hcl:"microsoft_client_secret" cty:"microsoft_client_secret"`
+	MicrosoftEmailDomains       []string          `hcl:"microsoft_email_domains" cty:"microsoft_email_domains"`
+	MicrosoftEnabled            *bool             `hcl:"microsoft_enabled" cty:"microsoft_enabled"`
+	MicrosoftExpire             *int64            `hcl:"microsoft_expire" cty:"microsoft_expire"`
+	PassphraseEnabled           *bool             `hcl:"passphrase_enabled" cty:"passphrase_enabled"`
+	PassphraseExpire            *int64            `hcl:"passphrase_expire" cty:"passphrase_expire"`
+	Password                    *string           `hcl:"password" cty:"password"`
+	PredefinedSponsorsEnabled   *bool             `hcl:"predefined_sponsors_enabled" cty:"predefined_sponsors_enabled"`
+	PredefinedSponsorsHideEmail *bool             `hcl:"predefined_sponsors_hide_email" cty:"predefined_sponsors_hide_email"`
+	Privacy                     *bool             `hcl:"privacy" cty:"privacy"`
+	PuzzelPassword              *string           `hcl:"puzzel_password" cty:"puzzel_password"`
+	PuzzelServiceId             *string           `hcl:"puzzel_service_id" cty:"puzzel_service_id"`
+	PuzzelUsername              *string           `hcl:"puzzel_username" cty:"puzzel_username"`
+	SmsEnabled                  *bool             `hcl:"sms_enabled" cty:"sms_enabled"`
+	SmsExpire                   *int64            `hcl:"sms_expire" cty:"sms_expire"`
+	SmsMessageFormat            *string           `hcl:"sms_message_format" cty:"sms_message_format"`
+	SmsProvider                 *string           `hcl:"sms_provider" cty:"sms_provider"`
+	SponsorAutoApprove          *bool             `hcl:"sponsor_auto_approve" cty:"sponsor_auto_approve"`
+	SponsorEmailDomains         []string          `hcl:"sponsor_email_domains" cty:"sponsor_email_domains"`
+	SponsorEnabled              *bool             `hcl:"sponsor_enabled" cty:"sponsor_enabled"`
+	SponsorExpire               *int64            `hcl:"sponsor_expire" cty:"sponsor_expire"`
+	SponsorLinkValidityDuration *string           `hcl:"sponsor_link_validity_duration" cty:"sponsor_link_validity_duration"`
+	SponsorNotifyAll            *bool             `hcl:"sponsor_notify_all" cty:"sponsor_notify_all"`
+	SponsorStatusNotify         *bool             `hcl:"sponsor_status_notify" cty:"sponsor_status_notify"`
+	Sponsors                    map[string]string `hcl:"sponsors" cty:"sponsors"`
+	SsoDefaultRole              *string           `hcl:"sso_default_role" cty:"sso_default_role"`
+	SsoForcedRole               *string           `hcl:"sso_forced_role" cty:"sso_forced_role"`
+	SsoIdpCert                  *string           `hcl:"sso_idp_cert" cty:"sso_idp_cert"`
+	SsoIdpSignAlgo              *string           `hcl:"sso_idp_sign_algo" cty:"sso_idp_sign_algo"`
+	SsoIdpSsoUrl                *string           `hcl:"sso_idp_sso_url" cty:"sso_idp_sso_url"`
+	SsoIssuer                   *string           `hcl:"sso_issuer" cty:"sso_issuer"`
+	SsoNameidFormat             *string           `hcl:"sso_nameid_format" cty:"sso_nameid_format"`
+	TelstraClientId             *string           `hcl:"telstra_client_id" cty:"telstra_client_id"`
+	TelstraClientSecret         *string           `hcl:"telstra_client_secret" cty:"telstra_client_secret"`
+	TwilioAuthToken             *string           `hcl:"twilio_auth_token" cty:"twilio_auth_token"`
+	TwilioPhoneNumber           *string           `hcl:"twilio_phone_number" cty:"twilio_phone_number"`
+	TwilioSid                   *string           `hcl:"twilio_sid" cty:"twilio_sid"`
 }
 
 type QosValue struct {
-	Class     *string `cty:"class"`
-	Overwrite *bool   `cty:"overwrite"`
+	Class     *string `hcl:"class" cty:"class"`
+	Overwrite *bool   `hcl:"overwrite" cty:"overwrite"`
 }
 
 type RadsecValue struct {
@@ -318,16 +318,16 @@ type RatesetValue struct {
 }
 
 type ScheduleValue struct {
-	Enabled *bool       `cty:"enabled"`
-	Hours   *HoursValue `cty:"hours"`
+	Enabled *bool       `hcl:"enabled" cty:"enabled"`
+	Hours   *HoursValue `hcl:"hours" cty:"hours"`
 }
 
 type HoursValue struct {
-	Fri *string `cty:"fri"`
-	Mon *string `cty:"mon"`
-	Sat *string `cty:"sat"`
-	Sun *string `cty:"sun"`
-	Thu *string `cty:"thu"`
-	Tue *string `cty:"tue"`
-	Wed *string `cty:"wed"`
+	Fri *string `hcl:"fri" cty:"fri"`
+	Mon *string `hcl:"mon" cty:"mon"`
+	Sat *string `hcl:"sat" cty:"sat"`
+	Sun *string `hcl:"sun" cty:"sun"`
+	Thu *string `hcl:"thu" cty:"thu"`
+	Tue *string `hcl:"tue" cty:"tue"`
+	Wed *string `hcl:"wed" cty:"wed"`
 }
