@@ -46,26 +46,23 @@
   vlan_pooling = true
   vlan_ids = ["10", "20", "30", "40"]
   
-  auth = {
-    type = "eap"
-    enable_mac_auth = true
-    eap_reauth = true
-    private_wlan = true
-    wep_as_secondary_auth = true
-  }
-  
   auth_servers = [
     {
       host = "radius1.company.com"
       port = 1812
       secret = "radius-secret"
       require_message_authenticator = true
+      keywrap_enabled = true
+      keywrap_format = "hex"
+      keywrap_kek = "abcdef1234567890"
+      keywrap_mack = "0987654321fedcba"
     },
     {
       host = "radius2.company.com"
       port = 1812
       secret = "radius-secret-2"
-      require_message_authenticator = true
+      require_message_authenticator = false
+      keywrap_enabled = false
     }
   ]
   
@@ -74,11 +71,19 @@
       host = "radius1.company.com"
       port = 1813
       secret = "radius-secret"
+      keywrap_enabled = true
+      keywrap_format = "hex"
+      keywrap_kek = "1234567890abcdef"
+      keywrap_mack = "fedcba0987654321"
+      require_message_authenticator = true
     },
     {
       host = "radius2.company.com"
       port = 1813
       secret = "radius-secret-2"
+      keywrap_enabled = false
+      keywrap_format = "ascii"
+      require_message_authenticator = false
     }
   ]
   
@@ -188,41 +193,44 @@
     ]
   }
   
-  portal = {
+  hotspot20 = {
     enabled = true
-    auth = "password"
-    expire = 86400
-    password = "GuestPassword123"
-    bypass_when_cloud_down = true
-    cross_site = true
-    email_enabled = true
-    forward = false
-    privacy = true
-    sms_enabled = true
-    sponsor_enabled = true
-    predefined_sponsors_enabled = true
-    predefined_sponsors_hide_email = true
+    domain_name = ["example.com", "company.com"]
+    nai_realms = ["realm1.example.com", "realm2.company.com"]
+    operators = ["Example Corp", "Company Ltd"]
+    rcoi = ["00-11-22", "33-44-55"]
+    venue_name = "Corporate WiFi Network"
+  }
+
+  inject_dhcp_option82 = {
+    enabled = true
+    circuit_id = "site-{{site_name}}-ap-{{ap_name}}"
   }
   
-  app_qos = {
-    enabled = true
-    apps = {
-      teams = {
-        dscp = 34
-      }
-      zoom = {
-        dscp = 34
-      }
-      webex = {
-        dscp = 34
-      }
-    }
-  }
-  
-  qos = {
-    class = "video"
-    overwrite = true
-  }
+        app_qos = {
+          apps = {
+            teams = {
+              dscp       = 34
+              dst_subnet = "192.168.10.0/24"
+              src_subnet = "10.1.0.0/16"
+            }
+            webex = {
+              dscp       = 34
+              dst_subnet = "192.168.11.0/24"
+              src_subnet = "10.2.0.0/16"
+            }
+            zoom = {
+              dscp       = 34
+              dst_subnet = "192.168.12.0/24"
+              src_subnet = "10.3.0.0/16"
+            }
+          }
+          enabled = true
+        }
+        qos = {
+          class     = "video"
+          overwrite = true
+        }
   
   rateset = {
     "24" = {
