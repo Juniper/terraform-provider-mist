@@ -162,11 +162,11 @@ type CiscoCwaValue struct {
 }
 
 type CoaServersValue struct {
-	DisableEventTimestampCheck *bool  `hcl:"disable_event_timestamp_check" cty:"disable_event_timestamp_check"`
-	Enabled                    *bool  `hcl:"enabled" cty:"enabled"`
-	Ip                         string `hcl:"ip" cty:"ip"`
-	Port                       *int64 `hcl:"port" cty:"port"`
-	Secret                     string `hcl:"secret" cty:"secret"`
+	DisableEventTimestampCheck *bool   `hcl:"disable_event_timestamp_check" cty:"disable_event_timestamp_check"`
+	Enabled                    *bool   `hcl:"enabled" cty:"enabled"`
+	Ip                         string  `hcl:"ip" cty:"ip"`
+	Port                       *string `hcl:"port" cty:"port"`
+	Secret                     string  `hcl:"secret" cty:"secret"`
 }
 
 type DnsServerRewriteValue struct {
