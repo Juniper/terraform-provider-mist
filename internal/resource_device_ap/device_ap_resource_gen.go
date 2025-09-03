@@ -588,7 +588,6 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"dns": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Computed:            true,
 						Description:         "If `type`==`static`",
 						MarkdownDescription: "If `type`==`static`",
 						Validators: []validator.List{
@@ -598,7 +597,6 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					"dns_suffix": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Computed:            true,
 						Description:         "Required if `type`==`static`",
 						MarkdownDescription: "Required if `type`==`static`",
 						Validators: []validator.List{
