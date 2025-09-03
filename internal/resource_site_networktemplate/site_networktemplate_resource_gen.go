@@ -115,7 +115,6 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"macs": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Computed:            true,
 							Description:         "Required if \n- `type`==`mac`\n- `type`==`static_gbp` if from matching mac",
 							MarkdownDescription: "Required if \n- `type`==`mac`\n- `type`==`static_gbp` if from matching mac",
 							Validators: []validator.List{
@@ -206,7 +205,6 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"subnets": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Computed:            true,
 							Description:         "If \n- `type`==`subnet` \n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching subnet",
 							MarkdownDescription: "If \n- `type`==`subnet` \n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching subnet",
 							Validators: []validator.List{
@@ -573,10 +571,10 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									"auth_keys": schema.MapAttribute{
 										ElementType:         types.StringType,
 										Optional:            true,
-										Computed:            true,
 										Description:         "Required if `auth_type`==`md5`. Property key is the key number",
 										MarkdownDescription: "Required if `auth_type`==`md5`. Property key is the key number",
 										Validators: []validator.Map{
+											mapvalidator.SizeAtLeast(1),
 											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("auth_type"), types.StringValue("md5")),
 										},
 									},
@@ -592,7 +590,6 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"auth_type": schema.StringAttribute{
 										Optional:            true,
-										Computed:            true,
 										Description:         "auth type. enum: `md5`, `none`, `password`",
 										MarkdownDescription: "auth type. enum: `md5`, `none`, `password`",
 										Validators: []validator.String{
@@ -603,7 +600,6 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												"password",
 											),
 										},
-										Default: stringdefault.StaticString("none"),
 									},
 									"bfd_minimum_interval": schema.Int64Attribute{
 										Optional: true,
@@ -653,10 +649,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"no_readvertise_to_overlay": schema.BoolAttribute{
 										Optional:            true,
-										Computed:            true,
 										Description:         "By default, we'll re-advertise all learned OSPF routes toward overlay",
 										MarkdownDescription: "By default, we'll re-advertise all learned OSPF routes toward overlay",
-										Default:             booldefault.StaticBool(false),
 									},
 									"passive": schema.BoolAttribute{
 										Optional:            true,
