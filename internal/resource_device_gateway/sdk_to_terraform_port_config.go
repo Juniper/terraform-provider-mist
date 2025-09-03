@@ -164,7 +164,7 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 }
 
 func portConfigTrafficShapingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayTrafficShaping) basetypes.ObjectValue {
-	var classPercentages = mistutils.ListOfIntSdkToTerraformEmpty()
+	var classPercentages = types.ListNull(types.Int64Type)
 	var enabled basetypes.BoolValue
 	var maxTxKbps basetypes.Int64Value
 
