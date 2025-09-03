@@ -550,7 +550,6 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 											40,
 										),
 									},
-									Default: int64default.StaticInt64(20),
 								},
 								"channels": schema.ListAttribute{
 									ElementType:         types.Int64Type,
@@ -663,7 +662,6 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 											80,
 										),
 									},
-									Default: int64default.StaticInt64(40),
 								},
 								"channels": schema.ListAttribute{
 									ElementType:         types.Int64Type,
@@ -877,7 +875,6 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 											160,
 										),
 									},
-									Default: int64default.StaticInt64(80),
 								},
 								"channels": schema.ListAttribute{
 									ElementType:         types.Int64Type,
