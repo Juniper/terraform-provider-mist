@@ -30,7 +30,7 @@ func (o SwitchMatchingRuleNamesValidator) ValidateList(_ context.Context, req va
 		return
 	}
 
-	pattern := `^[a-z0-9_\-.]{1,32}$`
+	pattern := `^[a-zA-Z0-9_\-.]{1,32}$`
 	re := regexp.MustCompile(pattern)
 	var names []string
 
