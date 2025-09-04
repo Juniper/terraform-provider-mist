@@ -8,6 +8,7 @@ type OrgWxruleModel struct {
 	DstDenyWxtags  []string `hcl:"dst_deny_wxtags"`
 	DstWxtags      []string `hcl:"dst_wxtags"`
 	Enabled        *bool    `hcl:"enabled"`
+	Id             *string  `hcl:"id"`
 	Order          int64    `hcl:"order"`
 	OrgId          string   `hcl:"org_id"`
 	SrcWxtags      []string `hcl:"src_wxtags"`
