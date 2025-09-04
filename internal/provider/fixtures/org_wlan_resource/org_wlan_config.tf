@@ -202,12 +202,25 @@
     venue_name = "Corporate WiFi Network"
   }
 
-  inject_dhcp_option82 = {
+  inject_dhcp_option_82 = {
     enabled = true
     circuit_id = "site-{{site_name}}-ap-{{ap_name}}"
   }
-  
-        app_qos = {
+
+  app_limit = {
+    enabled = true
+    apps = {
+      "facebook" = 100
+      "youtube" = 200
+      "netflix" = 150
+    }
+    wxtag_ids = {
+      "high_priority" = 300
+      "low_priority" = 50
+    }
+  }
+
+  app_qos = {
           apps = {
             teams = {
               dscp       = 34
