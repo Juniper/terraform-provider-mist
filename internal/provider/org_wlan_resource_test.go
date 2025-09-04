@@ -489,10 +489,26 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 
 	if s.InjectDhcpOption82 != nil {
 		if s.InjectDhcpOption82.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "inject_dhcp_option82.enabled", fmt.Sprintf("%t", *s.InjectDhcpOption82.Enabled))
+			checks.append(t, "TestCheckResourceAttr", "inject_dhcp_option_82.enabled", fmt.Sprintf("%t", *s.InjectDhcpOption82.Enabled))
 		}
 		if s.InjectDhcpOption82.CircuitId != nil {
-			checks.append(t, "TestCheckResourceAttr", "inject_dhcp_option82.circuit_id", *s.InjectDhcpOption82.CircuitId)
+			checks.append(t, "TestCheckResourceAttr", "inject_dhcp_option_82.circuit_id", *s.InjectDhcpOption82.CircuitId)
+		}
+	}
+
+	if s.AppLimit != nil {
+		if s.AppLimit.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "app_limit.enabled", fmt.Sprintf("%t", *s.AppLimit.Enabled))
+		}
+		if s.AppLimit.Apps != nil {
+			for appName, limit := range s.AppLimit.Apps {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_limit.apps.%s", appName), fmt.Sprintf("%d", limit))
+			}
+		}
+		if s.AppLimit.WxtagIds != nil {
+			for wxtagName, limit := range s.AppLimit.WxtagIds {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_limit.wxtag_ids.%s", wxtagName), fmt.Sprintf("%d", limit))
+			}
 		}
 	}
 
