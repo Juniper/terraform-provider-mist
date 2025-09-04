@@ -453,8 +453,8 @@ type AutoProvisionSecondaryValue struct {
 }
 
 type LatlngValue struct {
-	Lat float64 `cty:"lat"`
-	Lng float64 `cty:"lng"`
+	Lat float64 `hcl:"lat" cty:"lat"`
+	Lng float64 `hcl:"lng" cty:"lng"`
 }
 
 type IkeProposalsValue struct {
