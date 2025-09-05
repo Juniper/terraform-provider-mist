@@ -99,37 +99,32 @@ func TestOrgWxtagModel(t *testing.T) {
 func (s *OrgWxtagModel) testChecks(t testing.TB, rType, tName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
 
-	// Computed field (id) - use TestCheckResourceAttrSet
+	// Check fields in struct order
+	// 1. Id (computed-only)
 	checks.append(t, "TestCheckResourceAttrSet", "id")
 
-	// Required string fields
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
-	checks.append(t, "TestCheckResourceAttr", "type", s.Type)
-
-	// Optional string fields
+	// 2. Mac (optional)
 	if s.Mac != nil {
 		checks.append(t, "TestCheckResourceAttr", "mac", *s.Mac)
 	}
+
+	// 3. Match (optional)
 	if s.Match != nil {
 		checks.append(t, "TestCheckResourceAttr", "match", *s.Match)
 	}
+
+	// 4. Name (required)
+	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
+
+	// 5. Op (optional)
 	if s.Op != nil {
 		checks.append(t, "TestCheckResourceAttr", "op", *s.Op)
 	}
-	if s.VlanId != nil {
-		checks.append(t, "TestCheckResourceAttr", "vlan_id", *s.VlanId)
-	}
 
-	// Array fields - values
-	if len(s.Values) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "values.#", fmt.Sprintf("%d", len(s.Values)))
-		for i, value := range s.Values {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("values.%d", i), value)
-		}
-	}
+	// 6. OrgId (required)
+	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
 
-	// Complex array fields - specs
+	// 7. Specs (optional nested object array) - test child attributes only
 	if len(s.Specs) > 0 {
 		checks.append(t, "TestCheckResourceAttr", "specs.#", fmt.Sprintf("%d", len(s.Specs)))
 		for i, spec := range s.Specs {
@@ -146,6 +141,22 @@ func (s *OrgWxtagModel) testChecks(t testing.TB, rType, tName string) testChecks
 				}
 			}
 		}
+	}
+
+	// 8. Type (required)
+	checks.append(t, "TestCheckResourceAttr", "type", s.Type)
+
+	// 9. Values (optional array)
+	if len(s.Values) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "values.#", fmt.Sprintf("%d", len(s.Values)))
+		for i, value := range s.Values {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("values.%d", i), value)
+		}
+	}
+
+	// 10. VlanId (optional)
+	if s.VlanId != nil {
+		checks.append(t, "TestCheckResourceAttr", "vlan_id", *s.VlanId)
 	}
 
 	return checks
