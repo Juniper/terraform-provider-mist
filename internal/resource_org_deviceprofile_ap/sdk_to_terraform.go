@@ -81,8 +81,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	if data.Mesh != nil {
 		mesh = meshSdkToTerraform(ctx, &diags, data.Mesh)
 	}
-
-	name = types.StringValue(*data.Name)
+	if data.Name.Value() != nil {
+		name = types.StringValue(*data.Name.Value())
+	}
 
 	if data.NtpServers != nil {
 		ntpServers = mistlist.ListOfStringSdkToTerraform(data.NtpServers)

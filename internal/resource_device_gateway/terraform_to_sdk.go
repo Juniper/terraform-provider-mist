@@ -146,6 +146,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 		data.ServicePolicies = servicePoliciesTerraformToSdk(ctx, &diags, plan.ServicePolicies)
 	}
 
+	if plan.SsrAdditionalConfigCmds.IsNull() || plan.SsrAdditionalConfigCmds.IsUnknown() {
+		unset["-ssr_additional_config_cmds"] = ""
+	} else {
+		data.SsrAdditionalConfigCmds = mistutils.ListOfStringTerraformToSdk(plan.SsrAdditionalConfigCmds)
+	}
+
 	if plan.TunnelConfigs.IsNull() || plan.TunnelConfigs.IsUnknown() {
 		unset["-tunnel_configs"] = ""
 	} else {

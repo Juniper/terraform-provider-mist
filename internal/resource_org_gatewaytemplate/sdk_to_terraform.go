@@ -38,6 +38,7 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	var routerId types.String
 	var routingPolicies = types.MapNull(RoutingPoliciesValue{}.Type(ctx))
 	var servicePolicies = types.ListNull(ServicePoliciesValue{}.Type(ctx))
+	var ssrAdditionalConfigCmds = types.ListNull(types.StringType)
 	var tunnelConfigs = types.MapNull(TunnelConfigsValue{}.Type(ctx))
 	var tunnelProviderOptions = NewTunnelProviderOptionsValueNull()
 	var typeTemplate = types.StringValue("standalone")
@@ -107,6 +108,9 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	if data.ServicePolicies != nil {
 		servicePolicies = servicePoliciesSdkToTerraform(ctx, &diags, data.ServicePolicies)
 	}
+	if data.SsrAdditionalConfigCmds != nil {
+		ssrAdditionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.SsrAdditionalConfigCmds)
+	}
 	if len(data.TunnelConfigs) > 0 {
 		tunnelConfigs = tunnelConfigsSdkToTerraform(ctx, &diags, data.TunnelConfigs)
 	}
@@ -147,6 +151,7 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	state.RouterId = routerId
 	state.RoutingPolicies = routingPolicies
 	state.ServicePolicies = servicePolicies
+	state.SsrAdditionalConfigCmds = ssrAdditionalConfigCmds
 	state.TunnelConfigs = tunnelConfigs
 	state.TunnelProviderOptions = tunnelProviderOptions
 	state.Type = typeTemplate

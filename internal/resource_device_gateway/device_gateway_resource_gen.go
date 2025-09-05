@@ -2687,6 +2687,12 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 			"site_id": schema.StringAttribute{
 				Required: true,
 			},
+			"ssr_additional_config_cmds": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "additional CLI commands to append to the generated SSR config. **Note**: no check is done",
+				MarkdownDescription: "additional CLI commands to append to the generated SSR config. **Note**: no check is done",
+			},
 			"tunnel_configs": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -3512,46 +3518,47 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type DeviceGatewayModel struct {
-	AdditionalConfigCmds  types.List                 `tfsdk:"additional_config_cmds"`
-	BgpConfig             types.Map                  `tfsdk:"bgp_config"`
-	DeviceId              types.String               `tfsdk:"device_id"`
-	DhcpdConfig           DhcpdConfigValue           `tfsdk:"dhcpd_config"`
-	DnsServers            types.List                 `tfsdk:"dns_servers"`
-	DnsSuffix             types.List                 `tfsdk:"dns_suffix"`
-	ExtraRoutes           types.Map                  `tfsdk:"extra_routes"`
-	ExtraRoutes6          types.Map                  `tfsdk:"extra_routes6"`
-	IdpProfiles           types.Map                  `tfsdk:"idp_profiles"`
-	Image1Url             types.String               `tfsdk:"image1_url"`
-	Image2Url             types.String               `tfsdk:"image2_url"`
-	Image3Url             types.String               `tfsdk:"image3_url"`
-	IpConfigs             types.Map                  `tfsdk:"ip_configs"`
-	Mac                   types.String               `tfsdk:"mac"`
-	Managed               types.Bool                 `tfsdk:"managed"`
-	MapId                 types.String               `tfsdk:"map_id"`
-	Model                 types.String               `tfsdk:"model"`
-	MspId                 types.String               `tfsdk:"msp_id"`
-	Name                  types.String               `tfsdk:"name"`
-	Networks              types.List                 `tfsdk:"networks"`
-	Notes                 types.String               `tfsdk:"notes"`
-	NtpServers            types.List                 `tfsdk:"ntp_servers"`
-	OobIpConfig           OobIpConfigValue           `tfsdk:"oob_ip_config"`
-	OrgId                 types.String               `tfsdk:"org_id"`
-	PathPreferences       types.Map                  `tfsdk:"path_preferences"`
-	PortConfig            types.Map                  `tfsdk:"port_config"`
-	PortMirroring         PortMirroringValue         `tfsdk:"port_mirroring"`
-	RouterId              types.String               `tfsdk:"router_id"`
-	RoutingPolicies       types.Map                  `tfsdk:"routing_policies"`
-	Serial                types.String               `tfsdk:"serial"`
-	ServicePolicies       types.List                 `tfsdk:"service_policies"`
-	SiteId                types.String               `tfsdk:"site_id"`
-	TunnelConfigs         types.Map                  `tfsdk:"tunnel_configs"`
-	TunnelProviderOptions TunnelProviderOptionsValue `tfsdk:"tunnel_provider_options"`
-	Type                  types.String               `tfsdk:"type"`
-	Vars                  types.Map                  `tfsdk:"vars"`
-	VrfConfig             VrfConfigValue             `tfsdk:"vrf_config"`
-	VrfInstances          types.Map                  `tfsdk:"vrf_instances"`
-	X                     types.Float64              `tfsdk:"x"`
-	Y                     types.Float64              `tfsdk:"y"`
+	AdditionalConfigCmds    types.List                 `tfsdk:"additional_config_cmds"`
+	BgpConfig               types.Map                  `tfsdk:"bgp_config"`
+	DeviceId                types.String               `tfsdk:"device_id"`
+	DhcpdConfig             DhcpdConfigValue           `tfsdk:"dhcpd_config"`
+	DnsServers              types.List                 `tfsdk:"dns_servers"`
+	DnsSuffix               types.List                 `tfsdk:"dns_suffix"`
+	ExtraRoutes             types.Map                  `tfsdk:"extra_routes"`
+	ExtraRoutes6            types.Map                  `tfsdk:"extra_routes6"`
+	IdpProfiles             types.Map                  `tfsdk:"idp_profiles"`
+	Image1Url               types.String               `tfsdk:"image1_url"`
+	Image2Url               types.String               `tfsdk:"image2_url"`
+	Image3Url               types.String               `tfsdk:"image3_url"`
+	IpConfigs               types.Map                  `tfsdk:"ip_configs"`
+	Mac                     types.String               `tfsdk:"mac"`
+	Managed                 types.Bool                 `tfsdk:"managed"`
+	MapId                   types.String               `tfsdk:"map_id"`
+	Model                   types.String               `tfsdk:"model"`
+	MspId                   types.String               `tfsdk:"msp_id"`
+	Name                    types.String               `tfsdk:"name"`
+	Networks                types.List                 `tfsdk:"networks"`
+	Notes                   types.String               `tfsdk:"notes"`
+	NtpServers              types.List                 `tfsdk:"ntp_servers"`
+	OobIpConfig             OobIpConfigValue           `tfsdk:"oob_ip_config"`
+	OrgId                   types.String               `tfsdk:"org_id"`
+	PathPreferences         types.Map                  `tfsdk:"path_preferences"`
+	PortConfig              types.Map                  `tfsdk:"port_config"`
+	PortMirroring           PortMirroringValue         `tfsdk:"port_mirroring"`
+	RouterId                types.String               `tfsdk:"router_id"`
+	RoutingPolicies         types.Map                  `tfsdk:"routing_policies"`
+	Serial                  types.String               `tfsdk:"serial"`
+	ServicePolicies         types.List                 `tfsdk:"service_policies"`
+	SiteId                  types.String               `tfsdk:"site_id"`
+	SsrAdditionalConfigCmds types.List                 `tfsdk:"ssr_additional_config_cmds"`
+	TunnelConfigs           types.Map                  `tfsdk:"tunnel_configs"`
+	TunnelProviderOptions   TunnelProviderOptionsValue `tfsdk:"tunnel_provider_options"`
+	Type                    types.String               `tfsdk:"type"`
+	Vars                    types.Map                  `tfsdk:"vars"`
+	VrfConfig               VrfConfigValue             `tfsdk:"vrf_config"`
+	VrfInstances            types.Map                  `tfsdk:"vrf_instances"`
+	X                       types.Float64              `tfsdk:"x"`
+	Y                       types.Float64              `tfsdk:"y"`
 }
 
 var _ basetypes.ObjectTypable = BgpConfigType{}

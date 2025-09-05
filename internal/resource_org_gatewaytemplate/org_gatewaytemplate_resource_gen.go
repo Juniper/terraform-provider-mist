@@ -2597,6 +2597,12 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 			},
+			"ssr_additional_config_cmds": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "additional CLI commands to append to the generated SSR config. **Note**: no check is done",
+				MarkdownDescription: "additional CLI commands to append to the generated SSR config. **Note**: no check is done",
+			},
 			"tunnel_configs": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -3405,33 +3411,34 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgGatewaytemplateModel struct {
-	AdditionalConfigCmds  types.List                 `tfsdk:"additional_config_cmds"`
-	BgpConfig             types.Map                  `tfsdk:"bgp_config"`
-	DhcpdConfig           DhcpdConfigValue           `tfsdk:"dhcpd_config"`
-	DnsOverride           types.Bool                 `tfsdk:"dns_override"`
-	DnsServers            types.List                 `tfsdk:"dns_servers"`
-	DnsSuffix             types.List                 `tfsdk:"dns_suffix"`
-	ExtraRoutes           types.Map                  `tfsdk:"extra_routes"`
-	ExtraRoutes6          types.Map                  `tfsdk:"extra_routes6"`
-	Id                    types.String               `tfsdk:"id"`
-	IdpProfiles           types.Map                  `tfsdk:"idp_profiles"`
-	IpConfigs             types.Map                  `tfsdk:"ip_configs"`
-	Name                  types.String               `tfsdk:"name"`
-	Networks              types.List                 `tfsdk:"networks"`
-	NtpOverride           types.Bool                 `tfsdk:"ntp_override"`
-	NtpServers            types.List                 `tfsdk:"ntp_servers"`
-	OobIpConfig           OobIpConfigValue           `tfsdk:"oob_ip_config"`
-	OrgId                 types.String               `tfsdk:"org_id"`
-	PathPreferences       types.Map                  `tfsdk:"path_preferences"`
-	PortConfig            types.Map                  `tfsdk:"port_config"`
-	RouterId              types.String               `tfsdk:"router_id"`
-	RoutingPolicies       types.Map                  `tfsdk:"routing_policies"`
-	ServicePolicies       types.List                 `tfsdk:"service_policies"`
-	TunnelConfigs         types.Map                  `tfsdk:"tunnel_configs"`
-	TunnelProviderOptions TunnelProviderOptionsValue `tfsdk:"tunnel_provider_options"`
-	Type                  types.String               `tfsdk:"type"`
-	VrfConfig             VrfConfigValue             `tfsdk:"vrf_config"`
-	VrfInstances          types.Map                  `tfsdk:"vrf_instances"`
+	AdditionalConfigCmds    types.List                 `tfsdk:"additional_config_cmds"`
+	BgpConfig               types.Map                  `tfsdk:"bgp_config"`
+	DhcpdConfig             DhcpdConfigValue           `tfsdk:"dhcpd_config"`
+	DnsOverride             types.Bool                 `tfsdk:"dns_override"`
+	DnsServers              types.List                 `tfsdk:"dns_servers"`
+	DnsSuffix               types.List                 `tfsdk:"dns_suffix"`
+	ExtraRoutes             types.Map                  `tfsdk:"extra_routes"`
+	ExtraRoutes6            types.Map                  `tfsdk:"extra_routes6"`
+	Id                      types.String               `tfsdk:"id"`
+	IdpProfiles             types.Map                  `tfsdk:"idp_profiles"`
+	IpConfigs               types.Map                  `tfsdk:"ip_configs"`
+	Name                    types.String               `tfsdk:"name"`
+	Networks                types.List                 `tfsdk:"networks"`
+	NtpOverride             types.Bool                 `tfsdk:"ntp_override"`
+	NtpServers              types.List                 `tfsdk:"ntp_servers"`
+	OobIpConfig             OobIpConfigValue           `tfsdk:"oob_ip_config"`
+	OrgId                   types.String               `tfsdk:"org_id"`
+	PathPreferences         types.Map                  `tfsdk:"path_preferences"`
+	PortConfig              types.Map                  `tfsdk:"port_config"`
+	RouterId                types.String               `tfsdk:"router_id"`
+	RoutingPolicies         types.Map                  `tfsdk:"routing_policies"`
+	ServicePolicies         types.List                 `tfsdk:"service_policies"`
+	SsrAdditionalConfigCmds types.List                 `tfsdk:"ssr_additional_config_cmds"`
+	TunnelConfigs           types.Map                  `tfsdk:"tunnel_configs"`
+	TunnelProviderOptions   TunnelProviderOptionsValue `tfsdk:"tunnel_provider_options"`
+	Type                    types.String               `tfsdk:"type"`
+	VrfConfig               VrfConfigValue             `tfsdk:"vrf_config"`
+	VrfInstances            types.Map                  `tfsdk:"vrf_instances"`
 }
 
 var _ basetypes.ObjectTypable = BgpConfigType{}

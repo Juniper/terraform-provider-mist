@@ -132,6 +132,7 @@ resource "mist_org_deviceprofile_gateway" "deviceprofile_gw_one" {
 - `router_id` (String) Auto assigned if not set
 - `routing_policies` (Attributes Map) Property key is the routing policy name (see [below for nested schema](#nestedatt--routing_policies))
 - `service_policies` (Attributes List) (see [below for nested schema](#nestedatt--service_policies))
+- `ssr_additional_config_cmds` (List of String) additional CLI commands to append to the generated SSR config. **Note**: no check is done
 - `tunnel_configs` (Attributes Map) Property key is the tunnel name (see [below for nested schema](#nestedatt--tunnel_configs))
 - `tunnel_provider_options` (Attributes) (see [below for nested schema](#nestedatt--tunnel_provider_options))
 - `vrf_config` (Attributes) (see [below for nested schema](#nestedatt--vrf_config))

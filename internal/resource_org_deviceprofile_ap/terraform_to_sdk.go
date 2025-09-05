@@ -15,7 +15,9 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileApModel) (models.
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 
-	data.Name = plan.Name.ValueStringPointer()
+	if plan.Name.ValueStringPointer() != nil {
+		data.Name = models.NewOptional(plan.Name.ValueStringPointer())
+	}
 
 	if !plan.Aeroscout.IsNull() && !plan.Aeroscout.IsUnknown() {
 		data.Aeroscout = aeroscoutTerraformToSdk(plan.Aeroscout)
