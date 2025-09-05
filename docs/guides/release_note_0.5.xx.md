@@ -8,8 +8,89 @@ description: |-
 # Release Notes for v0.5.xx
 
 
+## Release Notes for v0.5.3
+**Release Date**: September 5th, 2025 
+
+### Fixes
+* remove the `Computed` marker to the from the following attributes to prevent configuration drift when importing resources or saving changes from the Mist UI.
+    * `mist_org_rftemplate.band_24.channels`
+    * `mist_org_rftemplate.band_5.channels`
+    * `mist_org_rftemplate.band_6.channels`
+    * `mist_device_ap.dns`
+    * `mist_device_ap.dns_suffix`
+    * `mist_deviceprofile_ap.dns`
+    * `mist_deviceprofile_ap.dns_suffix`
+    * `mist_device_switch.acl_tags.macs`
+    * `mist_device_switch.acl_tags.subnets`
+    * `mist_device_switch.acl_tags.auth_keys`
+    * `mist_org_networktemplate.acl_tags.macs`
+    * `mist_org_networktemplate.acl_tags.subnets`
+    * `mist_org_networktemplate.acl_tags.auth_keys`
+    * `mist_site_networktemplate.acl_tags.macs`
+    * `mist_site_networktemplate.acl_tags.subnets`
+    * `mist_site_networktemplate.acl_tags.auth_keys`
+
+### Improvements
+* **[Issue 130](https://github.com/Juniper/terraform-provider-mist/issues/130):** Adding support for the `ssr_additional_config_cmds` attribute in the `mist_device_gateway`, `mist_org_gateway_template`, and `mist_deviceprofile_gateway` resources. 
+* Update the Validator for the Switch Matching Rules in the `mist_org_switch_template`, and `mist_deviceprofile_switch` resources to accept the Upper Case value.
+
+
+#### Resources default values changed
+
+Changes have been applied to resources to reduce configuration drift when importing resources or saving changes from the Mist UI. These updates aim to align Terraform resource states with the Mist UI default values. However, some default values are dynamic and depend on other parameter values, making it currently impossible to completely eliminate configuration drift in certain scenarios.
+
+~> **Warning** Some default values have been removed from the Terraform Provider resource schemas.  
+These changes may lead to configuration drift if the affected attributes are not explicitly defined in your HCL configuration.  
+Attributes without explicit definitions will default to `null`, but this will not alter the actual configuration in the Mist Cloud (the Mist Cloud will use the default value). To avoid discrepancies, ensure that all required attributes are explicitly set in your configuration.
+
+*  **`mist_org_rftemplate` resources**
+
+| Attribute | Previous Default | New Default |
+|-----------|-----------|-----------|
+| `band_24.power_max` | StaticInt64(17) | N/A |
+| `band_24.power_min` | StaticInt64(12) | N/A |
+| `band_24.preamble` | StaticInt64(10) | N/A |
+| `band_5.power_max` | StaticInt64(17) | N/A |
+| `band_5.power_min` | StaticInt64(12) | N/A |
+| `band_5.preamble` | StaticInt64(10) | N/A |
+| `band_6.power_max` | StaticInt64(17) | N/A |
+| `band_6.power_min` | StaticInt64(12) | N/A |
+| `band_6.preamble` | StaticInt64(10) | N/A |
+| `model_specific.ant_gain_24` | StaticInt64(5) | N/A |
+| `model_specific.ant_gain5` | StaticInt64(5) | N/A |
+| `model_specific.ant_gain6` | StaticInt64(5) | N/A |
+| `model_specific.band_24.bandwidth` | StaticInt64(20) | N/A |
+| `model_specific.band_24.channels` | StaticInt64(4) | N/A |
+| `model_specific.band_24.disabled` | StaticBool(false) | N/A |
+| `model_specific.band_24.power` | StaticInt64(17) | N/A |
+| `model_specific.band_24.power_max` | StaticInt64(17) | N/A |
+| `model_specific.band_24.power_min` | StaticInt64(12) | N/A |
+| `model_specific.band_24.preamble` | StaticInt64(10) | N/A |
+| `model_specific.band_5.bandwidth` | StaticInt64(20) | N/A |
+| `model_specific.band_5.channels` | StaticInt64(4) | N/A |
+| `model_specific.band_5.disabled` | StaticBool(false) | N/A |
+| `model_specific.band_5.power` | StaticInt64(17) | N/A |
+| `model_specific.band_5.power_max` | StaticInt64(17) | N/A |
+| `model_specific.band_5.power_min` | StaticInt64(12) | N/A |
+| `model_specific.band_5.preamble` | StaticInt64(10) | N/A |
+| `model_specific.band_6.bandwidth` | StaticInt64(20) | N/A |
+| `model_specific.band_6.channels` | StaticInt64(4) | N/A |
+| `model_specific.band_6.disabled` | StaticBool(false) | N/A |
+| `model_specific.band_6.power` | StaticInt64(17) | N/A |
+| `model_specific.band_6.power_max` | StaticInt64(17) | N/A |
+| `model_specific.band_6.power_min` | StaticInt64(12) | N/A |
+| `model_specific.band_6.preamble` | StaticInt64(10) | N/A |
+
+
+* **`mist_device_switch`, `mist_org_networktemplate` and `mist_site_networktemplate` resources**
+
+| Attribute | Previous Default | New Default |
+|-----------|------------------|-------------|
+| `ospf_areas.auth_type` | StaticString("none") | N/A |
+| `ospf_areas.no_readvertise_to_overlay` | StaticBool(false) | N/A |
+
 ## Release Notes for v0.5.2
-**Release Date**: August 26st, 2025 
+**Release Date**: August 26th, 2025
 
 ### Fixes
 * **[Issue 129](https://github.com/Juniper/terraform-provider-mist/issues/129):** Remove default values for the new `.mist_nac` attributes in `mist_org_wlan` and `mist_site_wlan` resources when the `.mist_nac` attribute is not defined
@@ -17,7 +98,7 @@ description: |-
 
 
 ## Release Notes for v0.5.1
-**Release Date**: August 22st, 2025 
+**Release Date**: August 22nd, 2025
 
 ### Fixes
 * **[Issue 129](https://github.com/Juniper/terraform-provider-mist/issues/129):** Remove default values for the new `.mist_nac` attributes in `mist_org_wlan` and `mist_site_wlan` resources
