@@ -97,55 +97,34 @@ func TestSiteModel(t *testing.T) {
 func (s *SiteModel) testChecks(t testing.TB, rType, tName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
 
-	// Computed field (id) - use TestCheckResourceAttrSet
-	checks.append(t, "TestCheckResourceAttrSet", "id")
-
-	// Required string fields
+	// Check fields in struct order
+	// 1. Address (required)
 	checks.append(t, "TestCheckResourceAttr", "address", s.Address)
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
 
-	// Optional string fields
+	// 2. AlarmtemplateId (optional)
 	if s.AlarmtemplateId != nil {
 		checks.append(t, "TestCheckResourceAttr", "alarmtemplate_id", *s.AlarmtemplateId)
 	}
+
+	// 3. AptemplateId (optional)
 	if s.AptemplateId != nil {
 		checks.append(t, "TestCheckResourceAttr", "aptemplate_id", *s.AptemplateId)
 	}
+
+	// 4. CountryCode (optional)
 	if s.CountryCode != nil {
 		checks.append(t, "TestCheckResourceAttr", "country_code", *s.CountryCode)
 	}
+
+	// 5. GatewaytemplateId (optional)
 	if s.GatewaytemplateId != nil {
 		checks.append(t, "TestCheckResourceAttr", "gatewaytemplate_id", *s.GatewaytemplateId)
 	}
-	if s.NetworktemplateId != nil {
-		checks.append(t, "TestCheckResourceAttr", "networktemplate_id", *s.NetworktemplateId)
-	}
-	if s.Notes != nil {
-		checks.append(t, "TestCheckResourceAttr", "notes", *s.Notes)
-	}
-	if s.RftemplateId != nil {
-		checks.append(t, "TestCheckResourceAttr", "rftemplate_id", *s.RftemplateId)
-	}
-	if s.SecpolicyId != nil {
-		checks.append(t, "TestCheckResourceAttr", "secpolicy_id", *s.SecpolicyId)
-	}
-	if s.SitetemplateId != nil {
-		checks.append(t, "TestCheckResourceAttr", "sitetemplate_id", *s.SitetemplateId)
-	}
-	if s.Timezone != nil {
-		checks.append(t, "TestCheckResourceAttr", "timezone", *s.Timezone)
-	}
 
-	// Array fields - sitegroup_ids
-	if len(s.SitegroupIds) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "sitegroup_ids.#", fmt.Sprintf("%d", len(s.SitegroupIds)))
-		for i, id := range s.SitegroupIds {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("sitegroup_ids.%d", i), id)
-		}
-	}
+	// 6. Id (computed-only)
+	checks.append(t, "TestCheckResourceAttrSet", "id")
 
-	// Complex object fields - latlng
+	// 7. Latlng (optional nested object) - test child attributes only
 	if s.Latlng != nil {
 		if s.Latlng.Lat != 0 {
 			checks.append(t, "TestCheckResourceAttr", "latlng.lat", fmt.Sprintf("%g", s.Latlng.Lat))
@@ -154,6 +133,53 @@ func (s *SiteModel) testChecks(t testing.TB, rType, tName string) testChecks {
 			checks.append(t, "TestCheckResourceAttr", "latlng.lng", fmt.Sprintf("%g", s.Latlng.Lng))
 		}
 	}
+
+	// 8. Name (required)
+	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
+
+	// 9. NetworktemplateId (optional)
+	if s.NetworktemplateId != nil {
+		checks.append(t, "TestCheckResourceAttr", "networktemplate_id", *s.NetworktemplateId)
+	}
+
+	// 10. Notes (optional)
+	if s.Notes != nil {
+		checks.append(t, "TestCheckResourceAttr", "notes", *s.Notes)
+	}
+
+	// 11. OrgId (required)
+	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+
+	// 12. RftemplateId (optional)
+	if s.RftemplateId != nil {
+		checks.append(t, "TestCheckResourceAttr", "rftemplate_id", *s.RftemplateId)
+	}
+
+	// 13. SecpolicyId (optional)
+	if s.SecpolicyId != nil {
+		checks.append(t, "TestCheckResourceAttr", "secpolicy_id", *s.SecpolicyId)
+	}
+
+	// 14. SitegroupIds (optional array)
+	if len(s.SitegroupIds) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "sitegroup_ids.#", fmt.Sprintf("%d", len(s.SitegroupIds)))
+		for i, id := range s.SitegroupIds {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("sitegroup_ids.%d", i), id)
+		}
+	}
+
+	// 15. SitetemplateId (optional)
+	if s.SitetemplateId != nil {
+		checks.append(t, "TestCheckResourceAttr", "sitetemplate_id", *s.SitetemplateId)
+	}
+
+	// 16. Timezone (optional)
+	if s.Timezone != nil {
+		checks.append(t, "TestCheckResourceAttr", "timezone", *s.Timezone)
+	}
+
+	// 17. Tzoffset (computed-only)
+	checks.append(t, "TestCheckResourceAttrSet", "tzoffset")
 
 	return checks
 }
