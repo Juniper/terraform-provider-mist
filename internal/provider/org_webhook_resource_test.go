@@ -99,61 +99,46 @@ func TestOrgWebhookModel(t *testing.T) {
 func (s *OrgWebhookModel) testChecks(t testing.TB, rType, tName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
 
-	// Always check required fields
-	checks.append(t, "TestCheckResourceAttrSet", "org_id")
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "url", s.Url)
-	checks.append(t, "TestCheckResourceAttr", "topics.#", fmt.Sprintf("%d", len(s.Topics)))
-
-	// Check individual topics
-	for i, topic := range s.Topics {
-		checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("topics.%d", i), topic)
-	}
-
-	// Check type if set
-	if s.Type != nil {
-		checks.append(t, "TestCheckResourceAttr", "type", *s.Type)
-	}
-
-	// Check enabled if explicitly set
+	// Check fields in struct order
+	// 1. Enabled
 	if s.Enabled != nil {
 		checks.append(t, "TestCheckResourceAttr", "enabled", fmt.Sprintf("%t", *s.Enabled))
 	}
 
-	// Check verify_cert if explicitly set
-	if s.VerifyCert != nil {
-		checks.append(t, "TestCheckResourceAttr", "verify_cert", fmt.Sprintf("%t", *s.VerifyCert))
+	// 2. Headers
+	if len(s.Headers) > 0 {
+		for key, value := range s.Headers {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("headers.%s", key), value)
+		}
 	}
 
-	// Check single_event_per_message if explicitly set
-	if s.SingleEventPerMessage != nil {
-		checks.append(t, "TestCheckResourceAttr", "single_event_per_message", fmt.Sprintf("%t", *s.SingleEventPerMessage))
-	}
+	// 3. Id (computed-only)
+	checks.append(t, "TestCheckResourceAttrSet", "id")
 
-	// Check secret if set
-	if s.Secret != nil {
-		checks.append(t, "TestCheckResourceAttr", "secret", *s.Secret)
-	}
+	// 4. Name
+	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
 
-	// Check OAuth2 fields if set
-	if s.Oauth2GrantType != nil {
-		checks.append(t, "TestCheckResourceAttr", "oauth2_grant_type", *s.Oauth2GrantType)
-	}
+	// 5. Oauth2ClientId
 	if s.Oauth2ClientId != nil {
 		checks.append(t, "TestCheckResourceAttr", "oauth2_client_id", *s.Oauth2ClientId)
 	}
+
+	// 6. Oauth2ClientSecret
 	if s.Oauth2ClientSecret != nil {
 		checks.append(t, "TestCheckResourceAttr", "oauth2_client_secret", *s.Oauth2ClientSecret)
 	}
-	if s.Oauth2Username != nil {
-		checks.append(t, "TestCheckResourceAttr", "oauth2_username", *s.Oauth2Username)
+
+	// 7. Oauth2GrantType
+	if s.Oauth2GrantType != nil {
+		checks.append(t, "TestCheckResourceAttr", "oauth2_grant_type", *s.Oauth2GrantType)
 	}
+
+	// 8. Oauth2Password
 	if s.Oauth2Password != nil {
 		checks.append(t, "TestCheckResourceAttr", "oauth2_password", *s.Oauth2Password)
 	}
-	if s.Oauth2TokenUrl != nil {
-		checks.append(t, "TestCheckResourceAttr", "oauth2_token_url", *s.Oauth2TokenUrl)
-	}
+
+	// 9. Oauth2Scopes
 	if len(s.Oauth2Scopes) > 0 {
 		checks.append(t, "TestCheckResourceAttr", "oauth2_scopes.#", fmt.Sprintf("%d", len(s.Oauth2Scopes)))
 		for i, scope := range s.Oauth2Scopes {
@@ -161,16 +146,51 @@ func (s *OrgWebhookModel) testChecks(t testing.TB, rType, tName string) testChec
 		}
 	}
 
-	// Check Splunk token if set
+	// 10. Oauth2TokenUrl
+	if s.Oauth2TokenUrl != nil {
+		checks.append(t, "TestCheckResourceAttr", "oauth2_token_url", *s.Oauth2TokenUrl)
+	}
+
+	// 11. Oauth2Username
+	if s.Oauth2Username != nil {
+		checks.append(t, "TestCheckResourceAttr", "oauth2_username", *s.Oauth2Username)
+	}
+
+	// 12. OrgId (computed)
+	checks.append(t, "TestCheckResourceAttrSet", "org_id")
+
+	// 13. Secret
+	if s.Secret != nil {
+		checks.append(t, "TestCheckResourceAttr", "secret", *s.Secret)
+	}
+
+	// 14. SingleEventPerMessage
+	if s.SingleEventPerMessage != nil {
+		checks.append(t, "TestCheckResourceAttr", "single_event_per_message", fmt.Sprintf("%t", *s.SingleEventPerMessage))
+	}
+
+	// 15. SplunkToken
 	if s.SplunkToken != nil {
 		checks.append(t, "TestCheckResourceAttr", "splunk_token", *s.SplunkToken)
 	}
 
-	// Check headers if set
-	if len(s.Headers) > 0 {
-		for key, value := range s.Headers {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("headers.%s", key), value)
-		}
+	// 16. Topics
+	checks.append(t, "TestCheckResourceAttr", "topics.#", fmt.Sprintf("%d", len(s.Topics)))
+	for i, topic := range s.Topics {
+		checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("topics.%d", i), topic)
+	}
+
+	// 17. Type
+	if s.Type != nil {
+		checks.append(t, "TestCheckResourceAttr", "type", *s.Type)
+	}
+
+	// 18. Url
+	checks.append(t, "TestCheckResourceAttr", "url", s.Url)
+
+	// 19. VerifyCert
+	if s.VerifyCert != nil {
+		checks.append(t, "TestCheckResourceAttr", "verify_cert", fmt.Sprintf("%t", *s.VerifyCert))
 	}
 
 	return checks
