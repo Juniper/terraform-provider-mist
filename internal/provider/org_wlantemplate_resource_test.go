@@ -97,25 +97,8 @@ func TestOrgWlantemplateModel(t *testing.T) {
 func (s *OrgWlantemplateModel) testChecks(t testing.TB, rType, tName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
 
-	// Computed field (id) - use TestCheckResourceAttrSet
-	checks.append(t, "TestCheckResourceAttrSet", "id")
-	// Basic string fields
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-
-	// Boolean fields
-	if s.FilterByDeviceprofile != nil {
-		checks.append(t, "TestCheckResourceAttr", "filter_by_deviceprofile", fmt.Sprintf("%t", *s.FilterByDeviceprofile))
-	}
-
-	// Array fields - deviceprofile_ids
-	if len(s.DeviceprofileIds) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "deviceprofile_ids.#", fmt.Sprintf("%d", len(s.DeviceprofileIds)))
-		for i, id := range s.DeviceprofileIds {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("deviceprofile_ids.%d", i), id)
-		}
-	}
-
-	// Complex object fields - applies
+	// Check fields in struct order
+	// 1. Applies (nested object)
 	if s.Applies != nil {
 		if s.Applies.OrgId != nil {
 			checks.append(t, "TestCheckResourceAttr", "applies.org_id", *s.Applies.OrgId)
@@ -138,7 +121,15 @@ func (s *OrgWlantemplateModel) testChecks(t testing.TB, rType, tName string) tes
 		}
 	}
 
-	// Complex object fields - exceptions
+	// 2. DeviceprofileIds array
+	if len(s.DeviceprofileIds) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "deviceprofile_ids.#", fmt.Sprintf("%d", len(s.DeviceprofileIds)))
+		for i, id := range s.DeviceprofileIds {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("deviceprofile_ids.%d", i), id)
+		}
+	}
+
+	// 3. Exceptions (nested object)
 	if s.Exceptions != nil {
 		// exceptions.site_ids array
 		if len(s.Exceptions.SiteIds) > 0 {
@@ -156,6 +147,20 @@ func (s *OrgWlantemplateModel) testChecks(t testing.TB, rType, tName string) tes
 			}
 		}
 	}
+
+	// 4. FilterByDeviceprofile
+	if s.FilterByDeviceprofile != nil {
+		checks.append(t, "TestCheckResourceAttr", "filter_by_deviceprofile", fmt.Sprintf("%t", *s.FilterByDeviceprofile))
+	}
+
+	// 5. Id (computed-only)
+	checks.append(t, "TestCheckResourceAttrSet", "id")
+
+	// 6. Name (required)
+	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
+
+	// 7. OrgId (required top-level field)
+	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
 
 	return checks
 }
