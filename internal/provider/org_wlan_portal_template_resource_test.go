@@ -118,12 +118,15 @@ func TestOrgWlanPortalTemplateModel(t *testing.T) {
 func (s *OrgWlanPortalTemplateModel) testChecks(t testing.TB, rType, tName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
 
-	// Check basic resource attributes
+	// Check fields in struct order
+	// 1. OrgId (required)
 	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
-	checks.append(t, "TestCheckResourceAttrSet", "wlan_id")
 
-	// Check portal template presence
+	// 2. PortalTemplate (nested object) - test presence
 	checks.append(t, "TestCheckResourceAttrSet", "portal_template.%")
+
+	// 3. WlanId (required but dynamic reference) - Use AttrSet since it's a dynamic reference
+	checks.append(t, "TestCheckResourceAttrSet", "wlan_id")
 
 	// Check boolean fields
 	if s.PortalTemplate.Company != nil {
