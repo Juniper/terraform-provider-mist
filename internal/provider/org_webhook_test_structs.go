@@ -3,6 +3,7 @@ package provider
 type OrgWebhookModel struct {
 	Enabled               *bool             `hcl:"enabled"`
 	Headers               map[string]string `hcl:"headers"`
+	Id                    *string           `hcl:"id"`
 	Name                  string            `hcl:"name"`
 	Oauth2ClientId        *string           `hcl:"oauth2_client_id"`
 	Oauth2ClientSecret    *string           `hcl:"oauth2_client_secret"`
