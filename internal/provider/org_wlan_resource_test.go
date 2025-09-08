@@ -685,6 +685,242 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		}
 	}
 
+	// Portal object validation
+	if s.Portal != nil {
+		if s.Portal.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.enabled", fmt.Sprintf("%t", *s.Portal.Enabled))
+		}
+		if s.Portal.Auth != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.auth", *s.Portal.Auth)
+		}
+
+		// Amazon OAuth settings
+		if s.Portal.AmazonEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.amazon_enabled", fmt.Sprintf("%t", *s.Portal.AmazonEnabled))
+		}
+		if s.Portal.AmazonClientId != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.amazon_client_id", *s.Portal.AmazonClientId)
+		}
+		if s.Portal.AmazonClientSecret != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.amazon_client_secret", *s.Portal.AmazonClientSecret)
+		}
+		if s.Portal.AmazonExpire != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.amazon_expire", fmt.Sprintf("%d", *s.Portal.AmazonExpire))
+		}
+
+		// Azure OAuth settings
+		if s.Portal.AzureEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.azure_enabled", fmt.Sprintf("%t", *s.Portal.AzureEnabled))
+		}
+		if s.Portal.AzureClientId != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.azure_client_id", *s.Portal.AzureClientId)
+		}
+		if s.Portal.AzureClientSecret != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.azure_client_secret", *s.Portal.AzureClientSecret)
+		}
+		if s.Portal.AzureExpire != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.azure_expire", fmt.Sprintf("%d", *s.Portal.AzureExpire))
+		}
+		if s.Portal.AzureTenantId != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.azure_tenant_id", *s.Portal.AzureTenantId)
+		}
+
+		// Facebook OAuth settings
+		if s.Portal.FacebookEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.facebook_enabled", fmt.Sprintf("%t", *s.Portal.FacebookEnabled))
+		}
+		if s.Portal.FacebookClientId != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.facebook_client_id", *s.Portal.FacebookClientId)
+		}
+		if s.Portal.FacebookClientSecret != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.facebook_client_secret", *s.Portal.FacebookClientSecret)
+		}
+		if s.Portal.FacebookExpire != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.facebook_expire", fmt.Sprintf("%d", *s.Portal.FacebookExpire))
+		}
+
+		// Google OAuth settings
+		if s.Portal.GoogleEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.google_enabled", fmt.Sprintf("%t", *s.Portal.GoogleEnabled))
+		}
+		if s.Portal.GoogleClientId != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.google_client_id", *s.Portal.GoogleClientId)
+		}
+		if s.Portal.GoogleClientSecret != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.google_client_secret", *s.Portal.GoogleClientSecret)
+		}
+		if s.Portal.GoogleExpire != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.google_expire", fmt.Sprintf("%d", *s.Portal.GoogleExpire))
+		}
+
+		// Microsoft OAuth settings
+		if s.Portal.MicrosoftEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.microsoft_enabled", fmt.Sprintf("%t", *s.Portal.MicrosoftEnabled))
+		}
+		if s.Portal.MicrosoftClientId != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.microsoft_client_id", *s.Portal.MicrosoftClientId)
+		}
+		if s.Portal.MicrosoftClientSecret != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.microsoft_client_secret", *s.Portal.MicrosoftClientSecret)
+		}
+		if s.Portal.MicrosoftExpire != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.microsoft_expire", fmt.Sprintf("%d", *s.Portal.MicrosoftExpire))
+		}
+
+		// SMS settings
+		if s.Portal.SmsEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sms_enabled", fmt.Sprintf("%t", *s.Portal.SmsEnabled))
+		}
+		if s.Portal.SmsExpire != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sms_expire", fmt.Sprintf("%d", *s.Portal.SmsExpire))
+		}
+		if s.Portal.SmsProvider != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sms_provider", *s.Portal.SmsProvider)
+		}
+		if s.Portal.SmsMessageFormat != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sms_message_format", *s.Portal.SmsMessageFormat)
+		}
+
+		// Twilio settings
+		if s.Portal.TwilioAuthToken != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.twilio_auth_token", *s.Portal.TwilioAuthToken)
+		}
+		if s.Portal.TwilioPhoneNumber != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.twilio_phone_number", *s.Portal.TwilioPhoneNumber)
+		}
+		if s.Portal.TwilioSid != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.twilio_sid", *s.Portal.TwilioSid)
+		}
+
+		// Other SMS providers
+		if s.Portal.ClickatellApiKey != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.clickatell_api_key", *s.Portal.ClickatellApiKey)
+		}
+		if s.Portal.GupshupPassword != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.gupshup_password", *s.Portal.GupshupPassword)
+		}
+		if s.Portal.GupshupUserid != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.gupshup_userid", *s.Portal.GupshupUserid)
+		}
+		if s.Portal.PuzzelPassword != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.puzzel_password", *s.Portal.PuzzelPassword)
+		}
+		if s.Portal.PuzzelServiceId != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.puzzel_service_id", *s.Portal.PuzzelServiceId)
+		}
+		if s.Portal.PuzzelUsername != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.puzzel_username", *s.Portal.PuzzelUsername)
+		}
+		if s.Portal.TelstraClientId != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.telstra_client_id", *s.Portal.TelstraClientId)
+		}
+		if s.Portal.TelstraClientSecret != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.telstra_client_secret", *s.Portal.TelstraClientSecret)
+		}
+
+		// Broadnet settings
+		if s.Portal.BroadnetPassword != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.broadnet_password", *s.Portal.BroadnetPassword)
+		}
+		if s.Portal.BroadnetSid != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.broadnet_sid", *s.Portal.BroadnetSid)
+		}
+		if s.Portal.BroadnetUserId != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.broadnet_user_id", *s.Portal.BroadnetUserId)
+		}
+
+		// Email and passphrase settings
+		if s.Portal.EmailEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.email_enabled", fmt.Sprintf("%t", *s.Portal.EmailEnabled))
+		}
+		if s.Portal.PassphraseEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.passphrase_enabled", fmt.Sprintf("%t", *s.Portal.PassphraseEnabled))
+		}
+		if s.Portal.PassphraseExpire != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.passphrase_expire", fmt.Sprintf("%d", *s.Portal.PassphraseExpire))
+		}
+
+		// Sponsor settings
+		if s.Portal.SponsorEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sponsor_enabled", fmt.Sprintf("%t", *s.Portal.SponsorEnabled))
+		}
+		if s.Portal.SponsorExpire != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sponsor_expire", fmt.Sprintf("%d", *s.Portal.SponsorExpire))
+		}
+		if s.Portal.SponsorAutoApprove != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sponsor_auto_approve", fmt.Sprintf("%t", *s.Portal.SponsorAutoApprove))
+		}
+		if s.Portal.SponsorNotifyAll != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sponsor_notify_all", fmt.Sprintf("%t", *s.Portal.SponsorNotifyAll))
+		}
+		if s.Portal.SponsorStatusNotify != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sponsor_status_notify", fmt.Sprintf("%t", *s.Portal.SponsorStatusNotify))
+		}
+		if s.Portal.SponsorLinkValidityDuration != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sponsor_link_validity_duration", *s.Portal.SponsorLinkValidityDuration)
+		}
+		if s.Portal.PredefinedSponsorsEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.predefined_sponsors_enabled", fmt.Sprintf("%t", *s.Portal.PredefinedSponsorsEnabled))
+		}
+		if s.Portal.PredefinedSponsorsHideEmail != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.predefined_sponsors_hide_email", fmt.Sprintf("%t", *s.Portal.PredefinedSponsorsHideEmail))
+		}
+
+		// SSO settings
+		if s.Portal.SsoDefaultRole != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sso_default_role", *s.Portal.SsoDefaultRole)
+		}
+		if s.Portal.SsoForcedRole != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sso_forced_role", *s.Portal.SsoForcedRole)
+		}
+		if s.Portal.SsoIdpCert != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sso_idp_cert", *s.Portal.SsoIdpCert)
+		}
+		if s.Portal.SsoIdpSignAlgo != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sso_idp_sign_algo", *s.Portal.SsoIdpSignAlgo)
+		}
+		if s.Portal.SsoIdpSsoUrl != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sso_idp_sso_url", *s.Portal.SsoIdpSsoUrl)
+		}
+		if s.Portal.SsoIssuer != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sso_issuer", *s.Portal.SsoIssuer)
+		}
+		if s.Portal.SsoNameidFormat != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.sso_nameid_format", *s.Portal.SsoNameidFormat)
+		}
+
+		// Portal behavior settings
+		if s.Portal.AllowWlanIdRoam != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.allow_wlan_id_roam", fmt.Sprintf("%t", *s.Portal.AllowWlanIdRoam))
+		}
+		if s.Portal.BypassWhenCloudDown != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.bypass_when_cloud_down", fmt.Sprintf("%t", *s.Portal.BypassWhenCloudDown))
+		}
+		if s.Portal.CrossSite != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.cross_site", fmt.Sprintf("%t", *s.Portal.CrossSite))
+		}
+		if s.Portal.Forward != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.forward", fmt.Sprintf("%t", *s.Portal.Forward))
+		}
+		if s.Portal.ForwardUrl != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.forward_url", *s.Portal.ForwardUrl)
+		}
+		if s.Portal.ExternalPortalUrl != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.external_portal_url", *s.Portal.ExternalPortalUrl)
+		}
+		if s.Portal.Privacy != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.privacy", fmt.Sprintf("%t", *s.Portal.Privacy))
+		}
+
+		// Session settings
+		if s.Portal.Expire != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.expire", fmt.Sprintf("%d", *s.Portal.Expire))
+		}
+		if s.Portal.Password != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.password", *s.Portal.Password)
+		}
+	}
+
 	// Radsec object validation
 	if s.Radsec != nil {
 		if s.Radsec.Enabled != nil {
