@@ -172,6 +172,101 @@
     enabled = true
   }
   
+  portal = {
+    enabled = true
+    auth = "sso"
+    
+    # Social login providers - enable all with test values
+    amazon_enabled = true
+    amazon_client_id = "test-amazon-client-id"
+    amazon_client_secret = "test-amazon-client-secret"
+    amazon_expire = 1440
+    
+    azure_enabled = true
+    azure_client_id = "test-azure-client-id"
+    azure_client_secret = "test-azure-client-secret"
+    azure_expire = 1440
+    azure_tenant_id = "test-azure-tenant-id"
+    
+    facebook_enabled = true
+    facebook_client_id = "test-facebook-client-id"
+    facebook_client_secret = "test-facebook-client-secret"
+    facebook_expire = 1440
+    
+    google_enabled = true
+    google_client_id = "test-google-client-id"
+    google_client_secret = "test-google-client-secret"
+    google_expire = 1440
+    
+    microsoft_enabled = true
+    microsoft_client_id = "test-microsoft-client-id"
+    microsoft_client_secret = "test-microsoft-client-secret"
+    microsoft_expire = 1440
+    
+    # SMS providers - all enabled for maximum coverage
+    sms_enabled = true
+    sms_expire = 60
+    sms_provider = "twilio"
+    sms_message_format = "Code: {{code}}"
+    
+    # Twilio configuration
+    twilio_auth_token = "test-twilio-auth-token"
+    twilio_phone_number = "+1234567890"
+    twilio_sid = "test-twilio-sid"
+    
+    # Other SMS providers
+    clickatell_api_key = "test-clickatell-api-key"
+    gupshup_password = "test-gupshup-password"
+    gupshup_userid = "test-gupshup-userid"
+    puzzel_password = "test-puzzel-password"
+    puzzel_service_id = "test-puzzel-service"
+    puzzel_username = "test-puzzel-user"
+    telstra_client_id = "test-telstra-client-id"
+    telstra_client_secret = "test-telstra-client-secret"
+    
+    # Broadnet configuration
+    broadnet_password = "test-broadnet-password"
+    broadnet_sid = "test-broadnet-sid"
+    broadnet_user_id = "test-broadnet-user"
+    
+    # Email and passphrase authentication
+    email_enabled = true
+    passphrase_enabled = true
+    passphrase_expire = 720
+    
+    # Sponsor settings - enable all features
+    sponsor_enabled = true
+    sponsor_expire = 2880
+    sponsor_auto_approve = false
+    sponsor_notify_all = true
+    sponsor_status_notify = true
+    sponsor_link_validity_duration = "7d"
+    predefined_sponsors_enabled = true
+    predefined_sponsors_hide_email = false
+    
+    # SSO configuration
+    sso_default_role = "user"
+    sso_forced_role = "guest"
+    sso_idp_cert = "-----BEGIN CERTIFICATE-----\nMIICertificateContent\n-----END CERTIFICATE-----"
+    sso_idp_sign_algo = "sha256"
+    sso_idp_sso_url = "https://sso.company.com/saml/login"
+    sso_issuer = "company-issuer"
+    sso_nameid_format = "email"
+    
+    # Portal behavior settings
+    allow_wlan_id_roam = true
+    bypass_when_cloud_down = true
+    cross_site = true
+    forward = true
+    forward_url = "https://portal.company.com/welcome"
+    external_portal_url = "https://external-portal.company.com"
+    privacy = true
+    
+    # Session settings
+    expire = 1440
+    password = "portal-admin-password"
+  }
+  
   radsec = {
     enabled = true
     coa_enabled = true
