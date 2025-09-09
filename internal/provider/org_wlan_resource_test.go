@@ -192,6 +192,9 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 	if s.Disable11ax != nil {
 		checks.append(t, "TestCheckResourceAttr", "disable_11ax", fmt.Sprintf("%t", *s.Disable11ax))
 	}
+	if s.Disable11be != nil {
+		checks.append(t, "TestCheckResourceAttr", "disable_11be", fmt.Sprintf("%t", *s.Disable11be))
+	}
 	if s.DisableHtVhtRates != nil {
 		checks.append(t, "TestCheckResourceAttr", "disable_ht_vht_rates", fmt.Sprintf("%t", *s.DisableHtVhtRates))
 	}
@@ -433,6 +436,18 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acct_servers.%d.port", i), fmt.Sprintf("%d", *server.Port))
 			}
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acct_servers.%d.secret", i), server.Secret)
+			if server.KeywrapEnabled != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acct_servers.%d.keywrap_enabled", i), fmt.Sprintf("%t", *server.KeywrapEnabled))
+			}
+			if server.KeywrapFormat != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acct_servers.%d.keywrap_format", i), *server.KeywrapFormat)
+			}
+			if server.KeywrapKek != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acct_servers.%d.keywrap_kek", i), *server.KeywrapKek)
+			}
+			if server.KeywrapMack != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acct_servers.%d.keywrap_mack", i), *server.KeywrapMack)
+			}
 		}
 	}
 
@@ -544,10 +559,12 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 
 	// Schedule settings
 	if s.Schedule != nil {
+		checks.append(t, "TestCheckResourceAttrSet", "schedule.%")
 		if s.Schedule.Enabled != nil {
 			checks.append(t, "TestCheckResourceAttr", "schedule.enabled", fmt.Sprintf("%t", *s.Schedule.Enabled))
 		}
 		if s.Schedule.Hours != nil {
+			checks.append(t, "TestCheckResourceAttrSet", "schedule.hours.%")
 			if s.Schedule.Hours.Mon != nil {
 				checks.append(t, "TestCheckResourceAttr", "schedule.hours.mon", *s.Schedule.Hours.Mon)
 			}
@@ -574,6 +591,7 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 
 	// Airwatch object validation
 	if s.Airwatch != nil {
+		checks.append(t, "TestCheckResourceAttrSet", "airwatch.%")
 		if s.Airwatch.ApiKey != nil {
 			checks.append(t, "TestCheckResourceAttr", "airwatch.api_key", *s.Airwatch.ApiKey)
 		}
@@ -593,6 +611,7 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 
 	// Bonjour object validation
 	if s.Bonjour != nil {
+		checks.append(t, "TestCheckResourceAttrSet", "bonjour.%")
 		if s.Bonjour.Enabled != nil {
 			checks.append(t, "TestCheckResourceAttr", "bonjour.enabled", fmt.Sprintf("%t", *s.Bonjour.Enabled))
 		}
@@ -603,6 +622,7 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 			}
 		}
 		if s.Bonjour.Services != nil {
+			checks.append(t, "TestCheckResourceAttrSet", "bonjour.services.%")
 			serviceCount := 0
 			for serviceName, service := range s.Bonjour.Services {
 				if service.DisableLocal != nil {
@@ -687,6 +707,7 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 
 	// Portal object validation
 	if s.Portal != nil {
+		checks.append(t, "TestCheckResourceAttrSet", "portal.%")
 		if s.Portal.Enabled != nil {
 			checks.append(t, "TestCheckResourceAttr", "portal.enabled", fmt.Sprintf("%t", *s.Portal.Enabled))
 		}
@@ -706,6 +727,12 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		}
 		if s.Portal.AmazonExpire != nil {
 			checks.append(t, "TestCheckResourceAttr", "portal.amazon_expire", fmt.Sprintf("%d", *s.Portal.AmazonExpire))
+		}
+		if len(s.Portal.AmazonEmailDomains) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "portal.amazon_email_domains.#", fmt.Sprintf("%d", len(s.Portal.AmazonEmailDomains)))
+			for i, domain := range s.Portal.AmazonEmailDomains {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("portal.amazon_email_domains.%d", i), domain)
+			}
 		}
 
 		// Azure OAuth settings
@@ -738,6 +765,12 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		if s.Portal.FacebookExpire != nil {
 			checks.append(t, "TestCheckResourceAttr", "portal.facebook_expire", fmt.Sprintf("%d", *s.Portal.FacebookExpire))
 		}
+		if len(s.Portal.FacebookEmailDomains) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "portal.facebook_email_domains.#", fmt.Sprintf("%d", len(s.Portal.FacebookEmailDomains)))
+			for i, domain := range s.Portal.FacebookEmailDomains {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("portal.facebook_email_domains.%d", i), domain)
+			}
+		}
 
 		// Google OAuth settings
 		if s.Portal.GoogleEnabled != nil {
@@ -752,6 +785,12 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		if s.Portal.GoogleExpire != nil {
 			checks.append(t, "TestCheckResourceAttr", "portal.google_expire", fmt.Sprintf("%d", *s.Portal.GoogleExpire))
 		}
+		if len(s.Portal.GoogleEmailDomains) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "portal.google_email_domains.#", fmt.Sprintf("%d", len(s.Portal.GoogleEmailDomains)))
+			for i, domain := range s.Portal.GoogleEmailDomains {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("portal.google_email_domains.%d", i), domain)
+			}
+		}
 
 		// Microsoft OAuth settings
 		if s.Portal.MicrosoftEnabled != nil {
@@ -765,6 +804,12 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		}
 		if s.Portal.MicrosoftExpire != nil {
 			checks.append(t, "TestCheckResourceAttr", "portal.microsoft_expire", fmt.Sprintf("%d", *s.Portal.MicrosoftExpire))
+		}
+		if len(s.Portal.MicrosoftEmailDomains) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "portal.microsoft_email_domains.#", fmt.Sprintf("%d", len(s.Portal.MicrosoftEmailDomains)))
+			for i, domain := range s.Portal.MicrosoftEmailDomains {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("portal.microsoft_email_domains.%d", i), domain)
+			}
 		}
 
 		// SMS settings
@@ -864,6 +909,20 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		}
 		if s.Portal.PredefinedSponsorsHideEmail != nil {
 			checks.append(t, "TestCheckResourceAttr", "portal.predefined_sponsors_hide_email", fmt.Sprintf("%t", *s.Portal.PredefinedSponsorsHideEmail))
+		}
+
+		// Sponsors map
+		if len(s.Portal.Sponsors) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "portal.sponsors.%", fmt.Sprintf("%d", len(s.Portal.Sponsors)))
+			for key, sponsor := range s.Portal.Sponsors {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("portal.sponsors.%s", key), sponsor)
+			}
+		}
+		if len(s.Portal.SponsorEmailDomains) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "portal.sponsor_email_domains.#", fmt.Sprintf("%d", len(s.Portal.SponsorEmailDomains)))
+			for i, domain := range s.Portal.SponsorEmailDomains {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("portal.sponsor_email_domains.%d", i), domain)
+			}
 		}
 
 		// SSO settings
