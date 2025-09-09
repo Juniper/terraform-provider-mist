@@ -48,7 +48,7 @@ func dynamicVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d != nil && d.LocalVlanIds != nil {
 		var list []attr.Value
 		for _, v := range d.LocalVlanIds {
-			list = append(list, types.StringValue(v.String()))
+			list = append(list, mistutils.VlanAsString(v))
 		}
 		r, e := types.ListValue(basetypes.StringType{}, list)
 		diags.Append(e...)

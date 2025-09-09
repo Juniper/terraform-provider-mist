@@ -625,6 +625,23 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		}
 	}
 
+	// Auth object validation
+	if s.Auth != nil {
+		checks.append(t, "TestCheckResourceAttrSet", "auth.%")
+		if s.Auth.AuthType != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.type", *s.Auth.AuthType)
+		}
+		if s.Auth.EnableMacAuth != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.enable_mac_auth", fmt.Sprintf("%t", *s.Auth.EnableMacAuth))
+		}
+		if len(s.Auth.Pairwise) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "auth.pairwise.#", fmt.Sprintf("%d", len(s.Auth.Pairwise)))
+			for i, pairwise := range s.Auth.Pairwise {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auth.pairwise.%d", i), pairwise)
+			}
+		}
+	}
+
 	// Airwatch object validation
 	if s.Airwatch != nil {
 		checks.append(t, "TestCheckResourceAttrSet", "airwatch.%")
@@ -731,6 +748,34 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		}
 		if s.DynamicPsk.ForceLookup != nil {
 			checks.append(t, "TestCheckResourceAttr", "dynamic_psk.force_lookup", fmt.Sprintf("%t", *s.DynamicPsk.ForceLookup))
+		}
+	}
+
+	// DynamicVlan object validation
+	if s.DynamicVlan != nil {
+		if s.DynamicVlan.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "dynamic_vlan.enabled", fmt.Sprintf("%t", *s.DynamicVlan.Enabled))
+		}
+		if s.DynamicVlan.DynamicVlanType != nil {
+			checks.append(t, "TestCheckResourceAttr", "dynamic_vlan.type", *s.DynamicVlan.DynamicVlanType)
+		}
+		if len(s.DynamicVlan.DefaultVlanIds) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "dynamic_vlan.default_vlan_ids.#", fmt.Sprintf("%d", len(s.DynamicVlan.DefaultVlanIds)))
+			for i, vlanId := range s.DynamicVlan.DefaultVlanIds {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dynamic_vlan.default_vlan_ids.%d", i), vlanId)
+			}
+		}
+		if len(s.DynamicVlan.LocalVlanIds) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "dynamic_vlan.local_vlan_ids.#", fmt.Sprintf("%d", len(s.DynamicVlan.LocalVlanIds)))
+			for i, vlanId := range s.DynamicVlan.LocalVlanIds {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dynamic_vlan.local_vlan_ids.%d", i), vlanId)
+			}
+		}
+		if len(s.DynamicVlan.Vlans) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "dynamic_vlan.vlans.%", fmt.Sprintf("%d", len(s.DynamicVlan.Vlans)))
+			for vlanId, interfaceName := range s.DynamicVlan.Vlans {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dynamic_vlan.vlans.%s", vlanId), interfaceName)
+			}
 		}
 	}
 
