@@ -161,8 +161,8 @@ type VlansValue struct {
 }
 
 type WanSpeedtestValue struct {
-	Enabled   *bool   `cty:"enabled"`
-	TimeOfDay *string `cty:"time_of_day"`
+	Enabled   *bool   `cty:"enabled" hcl:"enabled"`
+	TimeOfDay *string `cty:"time_of_day" hcl:"time_of_day"`
 }
 
 type VpnOptionsValue struct {

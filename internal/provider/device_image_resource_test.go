@@ -20,20 +20,6 @@ func TestDeviceImageModel(t *testing.T) {
 		steps []testStep
 	}
 
-	// var FixtureDeviceImageModel DeviceImageModel
-
-	// b, err := os.ReadFile("fixtures/site_setting_resource/site_setting_config.tf")
-	// if err != nil {
-	// 	fmt.Print(err)
-	// }
-
-	// str := string(b) // convert content to a 'string'
-
-	// err = hcl.Decode(&FixtureDeviceImageModel, str)
-	// if err != nil {
-	// 	fmt.Printf("error decoding hcl: %s\n", err)
-	// }
-
 	testCases := map[string]testCase{
 		"simple_case": {
 			steps: []testStep{

@@ -26,9 +26,9 @@ func overwritesMatchingSeveritySdkToTerraform(ctx context.Context, diags *diag.D
 }
 
 func overwritesMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.IdpProfileMatching) basetypes.ObjectValue {
-	var attackName = mistutils.ListOfStringSdkToTerraformEmpty()
-	var dstSubnet = mistutils.ListOfStringSdkToTerraformEmpty()
-	var severity = mistutils.ListOfStringSdkToTerraformEmpty()
+	var attackName = types.ListNull(types.StringType)
+	var dstSubnet = types.ListNull(types.StringType)
+	var severity = types.ListNull(types.StringType)
 
 	if d.AttackName != nil {
 		attackName = mistutils.ListOfStringSdkToTerraform(d.AttackName)
@@ -53,9 +53,9 @@ func overwritesMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 func overwritesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.IdpProfileOverwrite) basetypes.ListValue {
 	var listAttrValues []OverwritesValue
 	for _, d := range l {
-		var action basetypes.StringValue
+		var action = types.StringNull()
 		var matching = types.ObjectNull(MatchingValue{}.AttributeTypes(ctx))
-		var name basetypes.StringValue
+		var name = types.StringNull()
 
 		if d.Action != nil {
 			action = types.StringValue(string(*d.Action))

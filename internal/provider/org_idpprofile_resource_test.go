@@ -2,8 +2,11 @@ package provider
 
 import (
 	"fmt"
+	"os"
+	"strings"
 	"testing"
 
+	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -18,20 +21,6 @@ func TestOrgIdpprofileModel(t *testing.T) {
 		steps []testStep
 	}
 
-	// var FixtureOrgIdpprofileModel OrgIdpprofileModel
-
-	// b, err := os.ReadFile("fixtures/site_setting_resource/site_setting_config.tf")
-	// if err != nil {
-	// 	fmt.Print(err)
-	// }
-
-	// str := string(b) // convert content to a 'string'
-
-	// err = hcl.Decode(&FixtureOrgIdpprofileModel, str)
-	// if err != nil {
-	// 	fmt.Printf("error decoding hcl: %s\n", err)
-	// }
-
 	testCases := map[string]testCase{
 		"simple_case": {
 			steps: []testStep{
@@ -44,6 +33,33 @@ func TestOrgIdpprofileModel(t *testing.T) {
 				},
 			},
 		},
+	}
+
+	b, err := os.ReadFile("fixtures/org_idpprofile_resource/org_idpprofile_config.tf")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	str := string(b) // convert content to a 'string'
+	fixtures := strings.Split(str, "␞")
+
+	for i, fixture := range fixtures {
+		var FixtureOrgIdpprofileModel OrgIdpprofileModel
+
+		err = hcl.Decode(&FixtureOrgIdpprofileModel, fixture)
+		if err != nil {
+			fmt.Printf("error decoding hcl: %s\n", err)
+		}
+
+		FixtureOrgIdpprofileModel.OrgId = GetTestOrgId()
+
+		testCases[fmt.Sprintf("fixture_case_%d", i)] = testCase{
+			steps: []testStep{
+				{
+					config: FixtureOrgIdpprofileModel,
+				},
+			},
+		}
 	}
 
 	for tName, tCase := range testCases {
@@ -85,6 +101,52 @@ func (s *OrgIdpprofileModel) testChecks(t testing.TB, rType, rName string) testC
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
 	checks.append(t, "TestCheckResourceAttr", "base_profile", s.BaseProfile)
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
+
+	// Check overwrites list if present
+	if len(s.Overwrites) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "overwrites.#", fmt.Sprintf("%d", len(s.Overwrites)))
+
+		for i, overwrite := range s.Overwrites {
+			prefix := fmt.Sprintf("overwrites.%d", i)
+
+			// Required name field
+			checks.append(t, "TestCheckResourceAttr", prefix+".name", overwrite.Name)
+
+			// Optional action field
+			if overwrite.Action != nil {
+				checks.append(t, "TestCheckResourceAttr", prefix+".action", *overwrite.Action)
+			}
+
+			// Optional matching field
+			if overwrite.Matching != nil {
+				matching := overwrite.Matching
+
+				// Check attack_name list if present
+				if len(matching.AttackName) > 0 {
+					checks.append(t, "TestCheckResourceAttr", prefix+".matching.attack_name.#", fmt.Sprintf("%d", len(matching.AttackName)))
+					for j, attackName := range matching.AttackName {
+						checks.append(t, "TestCheckResourceAttr", prefix+fmt.Sprintf(".matching.attack_name.%d", j), attackName)
+					}
+				}
+
+				// Check dst_subnet list if present
+				if len(matching.DstSubnet) > 0 {
+					checks.append(t, "TestCheckResourceAttr", prefix+".matching.dst_subnet.#", fmt.Sprintf("%d", len(matching.DstSubnet)))
+					for j, dstSubnet := range matching.DstSubnet {
+						checks.append(t, "TestCheckResourceAttr", prefix+fmt.Sprintf(".matching.dst_subnet.%d", j), dstSubnet)
+					}
+				}
+
+				// Check severity list if present
+				if len(matching.Severity) > 0 {
+					checks.append(t, "TestCheckResourceAttr", prefix+".matching.severity.#", fmt.Sprintf("%d", len(matching.Severity)))
+					for j, severity := range matching.Severity {
+						checks.append(t, "TestCheckResourceAttr", prefix+fmt.Sprintf(".matching.severity.%d", j), severity)
+					}
+				}
+			}
+		}
+	}
 
 	return checks
 }

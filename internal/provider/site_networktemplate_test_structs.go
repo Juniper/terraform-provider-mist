@@ -28,7 +28,7 @@ type SiteNetworktemplateModel struct {
 }
 
 type SiteNetworktemplateOspfAreasValue struct {
-	IncludeLoopback *bool                        `cty:"include_loopback"`
-	OspfNetworks    map[string]OspfNetworksValue `cty:"ospf_networks"`
-	OspfAreasType   *string                      `cty:"type"`
+	IncludeLoopback *bool                        `cty:"include_loopback" hcl:"include_loopback"`
+	OspfNetworks    map[string]OspfNetworksValue `cty:"networks" hcl:"networks"`
+	OspfAreasType   *string                      `cty:"type" hcl:"type"`
 }

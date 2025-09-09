@@ -20,20 +20,6 @@ func TestUpgradeDeviceModel(t *testing.T) {
 		steps []testStep
 	}
 
-	// var FixtureUpgradeDeviceModel UpgradeDeviceModel
-
-	// b, err := os.ReadFile("fixtures/device_upgrade/device_upgrade_config.tf")
-	// if err != nil {
-	// 	fmt.Print(err)
-	// }
-
-	// str := string(b) // convert content to a 'string'
-
-	// err = hcl.Decode(&FixtureUpgradeDeviceModel, str)
-	// if err != nil {
-	// 	fmt.Printf("error decoding hcl: %s\n", err)
-	// }
-
 	testCases := map[string]testCase{
 		"simple_case": {
 			steps: []testStep{

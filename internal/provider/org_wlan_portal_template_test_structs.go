@@ -7,98 +7,98 @@ type OrgWlanPortalTemplateModel struct {
 }
 
 type LocalesValue struct {
-	AuthButtonAmazon         *string `cty:"auth_button_amazon"`
-	AuthButtonAzure          *string `cty:"auth_button_azure"`
-	AuthButtonEmail          *string `cty:"auth_button_email"`
-	AuthButtonFacebook       *string `cty:"auth_button_facebook"`
-	AuthButtonGoogle         *string `cty:"auth_button_google"`
-	AuthButtonMicrosoft      *string `cty:"auth_button_microsoft"`
-	AuthButtonPassphrase     *string `cty:"auth_button_passphrase"`
-	AuthButtonSms            *string `cty:"auth_button_sms"`
-	AuthButtonSponsor        *string `cty:"auth_button_sponsor"`
-	AuthLabel                *string `cty:"auth_label"`
-	BackLink                 *string `cty:"back_link"`
-	CompanyError             *string `cty:"company_error"`
-	CompanyLabel             *string `cty:"company_label"`
-	EmailAccessDomainError   *string `cty:"email_access_domain_error"`
-	EmailCancel              *string `cty:"email_cancel"`
-	EmailCodeCancel          *string `cty:"email_code_cancel"`
-	EmailCodeError           *string `cty:"email_code_error"`
-	EmailCodeFieldLabel      *string `cty:"email_code_field_label"`
-	EmailCodeMessage         *string `cty:"email_code_message"`
-	EmailCodeSubmit          *string `cty:"email_code_submit"`
-	EmailCodeTitle           *string `cty:"email_code_title"`
-	EmailError               *string `cty:"email_error"`
-	EmailFieldLabel          *string `cty:"email_field_label"`
-	EmailLabel               *string `cty:"email_label"`
-	EmailMessage             *string `cty:"email_message"`
-	EmailSubmit              *string `cty:"email_submit"`
-	EmailTitle               *string `cty:"email_title"`
-	Field1error              *string `cty:"field1error"`
-	Field1label              *string `cty:"field1label"`
-	Field2error              *string `cty:"field2error"`
-	Field2label              *string `cty:"field2label"`
-	Field3error              *string `cty:"field3error"`
-	Field3label              *string `cty:"field3label"`
-	Field4error              *string `cty:"field4error"`
-	Field4label              *string `cty:"field4label"`
-	Message                  *string `cty:"message"`
-	NameError                *string `cty:"name_error"`
-	NameLabel                *string `cty:"name_label"`
-	OptoutLabel              *string `cty:"optout_label"`
-	PageTitle                *string `cty:"page_title"`
-	PassphraseCancel         *string `cty:"passphrase_cancel"`
-	PassphraseError          *string `cty:"passphrase_error"`
-	PassphraseLabel          *string `cty:"passphrase_label"`
-	PassphraseMessage        *string `cty:"passphrase_message"`
-	PassphraseSubmit         *string `cty:"passphrase_submit"`
-	PassphraseTitle          *string `cty:"passphrase_title"`
-	PrivacyPolicyAcceptLabel *string `cty:"privacy_policy_accept_label"`
-	PrivacyPolicyError       *string `cty:"privacy_policy_error"`
-	PrivacyPolicyLink        *string `cty:"privacy_policy_link"`
-	PrivacyPolicyText        *string `cty:"privacy_policy_text"`
-	RequiredFieldLabel       *string `cty:"required_field_label"`
-	SignInLabel              *string `cty:"sign_in_label"`
-	SmsCarrierDefault        *string `cty:"sms_carrier_default"`
-	SmsCarrierError          *string `cty:"sms_carrier_error"`
-	SmsCarrierFieldLabel     *string `cty:"sms_carrier_field_label"`
-	SmsCodeCancel            *string `cty:"sms_code_cancel"`
-	SmsCodeError             *string `cty:"sms_code_error"`
-	SmsCodeFieldLabel        *string `cty:"sms_code_field_label"`
-	SmsCodeMessage           *string `cty:"sms_code_message"`
-	SmsCodeSubmit            *string `cty:"sms_code_submit"`
-	SmsCodeTitle             *string `cty:"sms_code_title"`
-	SmsCountryFieldLabel     *string `cty:"sms_country_field_label"`
-	SmsCountryFormat         *string `cty:"sms_country_format"`
-	SmsHaveAccessCode        *string `cty:"sms_have_access_code"`
-	SmsMessageFormat         *string `cty:"sms_message_format"`
-	SmsNumberCancel          *string `cty:"sms_number_cancel"`
-	SmsNumberError           *string `cty:"sms_number_error"`
-	SmsNumberFieldLabel      *string `cty:"sms_number_field_label"`
-	SmsNumberFormat          *string `cty:"sms_number_format"`
-	SmsNumberMessage         *string `cty:"sms_number_message"`
-	SmsNumberSubmit          *string `cty:"sms_number_submit"`
-	SmsNumberTitle           *string `cty:"sms_number_title"`
-	SmsUsernameFormat        *string `cty:"sms_username_format"`
-	SponsorBackLink          *string `cty:"sponsor_back_link"`
-	SponsorCancel            *string `cty:"sponsor_cancel"`
-	SponsorEmail             *string `cty:"sponsor_email"`
-	SponsorEmailError        *string `cty:"sponsor_email_error"`
-	SponsorInfoApproved      *string `cty:"sponsor_info_approved"`
-	SponsorInfoDenied        *string `cty:"sponsor_info_denied"`
-	SponsorInfoPending       *string `cty:"sponsor_info_pending"`
-	SponsorName              *string `cty:"sponsor_name"`
-	SponsorNameError         *string `cty:"sponsor_name_error"`
-	SponsorNotePending       *string `cty:"sponsor_note_pending"`
-	SponsorRequestAccess     *string `cty:"sponsor_request_access"`
-	SponsorStatusApproved    *string `cty:"sponsor_status_approved"`
-	SponsorStatusDenied      *string `cty:"sponsor_status_denied"`
-	SponsorStatusPending     *string `cty:"sponsor_status_pending"`
-	SponsorSubmit            *string `cty:"sponsor_submit"`
-	SponsorsError            *string `cty:"sponsors_error"`
-	SponsorsFieldLabel       *string `cty:"sponsors_field_label"`
-	TosAcceptLabel           *string `cty:"tos_accept_label"`
-	TosError                 *string `cty:"tos_error"`
-	TosLink                  *string `cty:"tos_link"`
-	TosText                  *string `cty:"tos_text"`
+	AuthButtonAmazon         *string `cty:"auth_button_amazon" hcl:"auth_button_amazon"`
+	AuthButtonAzure          *string `cty:"auth_button_azure" hcl:"auth_button_azure"`
+	AuthButtonEmail          *string `cty:"auth_button_email" hcl:"auth_button_email"`
+	AuthButtonFacebook       *string `cty:"auth_button_facebook" hcl:"auth_button_facebook"`
+	AuthButtonGoogle         *string `cty:"auth_button_google" hcl:"auth_button_google"`
+	AuthButtonMicrosoft      *string `cty:"auth_button_microsoft" hcl:"auth_button_microsoft"`
+	AuthButtonPassphrase     *string `cty:"auth_button_passphrase" hcl:"auth_button_passphrase"`
+	AuthButtonSms            *string `cty:"auth_button_sms" hcl:"auth_button_sms"`
+	AuthButtonSponsor        *string `cty:"auth_button_sponsor" hcl:"auth_button_sponsor"`
+	AuthLabel                *string `cty:"auth_label" hcl:"auth_label"`
+	BackLink                 *string `cty:"back_link" hcl:"back_link"`
+	CompanyError             *string `cty:"company_error" hcl:"company_error"`
+	CompanyLabel             *string `cty:"company_label" hcl:"company_label"`
+	EmailAccessDomainError   *string `cty:"email_access_domain_error" hcl:"email_access_domain_error"`
+	EmailCancel              *string `cty:"email_cancel" hcl:"email_cancel"`
+	EmailCodeCancel          *string `cty:"email_code_cancel" hcl:"email_code_cancel"`
+	EmailCodeError           *string `cty:"email_code_error" hcl:"email_code_error"`
+	EmailCodeFieldLabel      *string `cty:"email_code_field_label" hcl:"email_code_field_label"`
+	EmailCodeMessage         *string `cty:"email_code_message" hcl:"email_code_message"`
+	EmailCodeSubmit          *string `cty:"email_code_submit" hcl:"email_code_submit"`
+	EmailCodeTitle           *string `cty:"email_code_title" hcl:"email_code_title"`
+	EmailError               *string `cty:"email_error" hcl:"email_error"`
+	EmailFieldLabel          *string `cty:"email_field_label" hcl:"email_field_label"`
+	EmailLabel               *string `cty:"email_label" hcl:"email_label"`
+	EmailMessage             *string `cty:"email_message" hcl:"email_message"`
+	EmailSubmit              *string `cty:"email_submit" hcl:"email_submit"`
+	EmailTitle               *string `cty:"email_title" hcl:"email_title"`
+	Field1error              *string `cty:"field1error" hcl:"field1error"`
+	Field1label              *string `cty:"field1label" hcl:"field1label"`
+	Field2error              *string `cty:"field2error" hcl:"field2error"`
+	Field2label              *string `cty:"field2label" hcl:"field2label"`
+	Field3error              *string `cty:"field3error" hcl:"field3error"`
+	Field3label              *string `cty:"field3label" hcl:"field3label"`
+	Field4error              *string `cty:"field4error" hcl:"field4error"`
+	Field4label              *string `cty:"field4label" hcl:"field4label"`
+	Message                  *string `cty:"message" hcl:"message"`
+	NameError                *string `cty:"name_error" hcl:"name_error"`
+	NameLabel                *string `cty:"name_label" hcl:"name_label"`
+	OptoutLabel              *string `cty:"optout_label" hcl:"optout_label"`
+	PageTitle                *string `cty:"page_title" hcl:"page_title"`
+	PassphraseCancel         *string `cty:"passphrase_cancel" hcl:"passphrase_cancel"`
+	PassphraseError          *string `cty:"passphrase_error" hcl:"passphrase_error"`
+	PassphraseLabel          *string `cty:"passphrase_label" hcl:"passphrase_label"`
+	PassphraseMessage        *string `cty:"passphrase_message" hcl:"passphrase_message"`
+	PassphraseSubmit         *string `cty:"passphrase_submit" hcl:"passphrase_submit"`
+	PassphraseTitle          *string `cty:"passphrase_title" hcl:"passphrase_title"`
+	PrivacyPolicyAcceptLabel *string `cty:"privacy_policy_accept_label" hcl:"privacy_policy_accept_label"`
+	PrivacyPolicyError       *string `cty:"privacy_policy_error" hcl:"privacy_policy_error"`
+	PrivacyPolicyLink        *string `cty:"privacy_policy_link" hcl:"privacy_policy_link"`
+	PrivacyPolicyText        *string `cty:"privacy_policy_text" hcl:"privacy_policy_text"`
+	RequiredFieldLabel       *string `cty:"required_field_label" hcl:"required_field_label"`
+	SignInLabel              *string `cty:"sign_in_label" hcl:"sign_in_label"`
+	SmsCarrierDefault        *string `cty:"sms_carrier_default" hcl:"sms_carrier_default"`
+	SmsCarrierError          *string `cty:"sms_carrier_error" hcl:"sms_carrier_error"`
+	SmsCarrierFieldLabel     *string `cty:"sms_carrier_field_label" hcl:"sms_carrier_field_label"`
+	SmsCodeCancel            *string `cty:"sms_code_cancel" hcl:"sms_code_cancel"`
+	SmsCodeError             *string `cty:"sms_code_error" hcl:"sms_code_error"`
+	SmsCodeFieldLabel        *string `cty:"sms_code_field_label" hcl:"sms_code_field_label"`
+	SmsCodeMessage           *string `cty:"sms_code_message" hcl:"sms_code_message"`
+	SmsCodeSubmit            *string `cty:"sms_code_submit" hcl:"sms_code_submit"`
+	SmsCodeTitle             *string `cty:"sms_code_title" hcl:"sms_code_title"`
+	SmsCountryFieldLabel     *string `cty:"sms_country_field_label" hcl:"sms_country_field_label"`
+	SmsCountryFormat         *string `cty:"sms_country_format" hcl:"sms_country_format"`
+	SmsHaveAccessCode        *string `cty:"sms_have_access_code" hcl:"sms_have_access_code"`
+	SmsMessageFormat         *string `cty:"sms_message_format" hcl:"sms_message_format"`
+	SmsNumberCancel          *string `cty:"sms_number_cancel" hcl:"sms_number_cancel"`
+	SmsNumberError           *string `cty:"sms_number_error" hcl:"sms_number_error"`
+	SmsNumberFieldLabel      *string `cty:"sms_number_field_label" hcl:"sms_number_field_label"`
+	SmsNumberFormat          *string `cty:"sms_number_format" hcl:"sms_number_format"`
+	SmsNumberMessage         *string `cty:"sms_number_message" hcl:"sms_number_message"`
+	SmsNumberSubmit          *string `cty:"sms_number_submit" hcl:"sms_number_submit"`
+	SmsNumberTitle           *string `cty:"sms_number_title" hcl:"sms_number_title"`
+	SmsUsernameFormat        *string `cty:"sms_username_format" hcl:"sms_username_format"`
+	SponsorBackLink          *string `cty:"sponsor_back_link" hcl:"sponsor_back_link"`
+	SponsorCancel            *string `cty:"sponsor_cancel" hcl:"sponsor_cancel"`
+	SponsorEmail             *string `cty:"sponsor_email" hcl:"sponsor_email"`
+	SponsorEmailError        *string `cty:"sponsor_email_error" hcl:"sponsor_email_error"`
+	SponsorInfoApproved      *string `cty:"sponsor_info_approved" hcl:"sponsor_info_approved"`
+	SponsorInfoDenied        *string `cty:"sponsor_info_denied" hcl:"sponsor_info_denied"`
+	SponsorInfoPending       *string `cty:"sponsor_info_pending" hcl:"sponsor_info_pending"`
+	SponsorName              *string `cty:"sponsor_name" hcl:"sponsor_name"`
+	SponsorNameError         *string `cty:"sponsor_name_error" hcl:"sponsor_name_error"`
+	SponsorNotePending       *string `cty:"sponsor_note_pending" hcl:"sponsor_note_pending"`
+	SponsorRequestAccess     *string `cty:"sponsor_request_access" hcl:"sponsor_request_access"`
+	SponsorStatusApproved    *string `cty:"sponsor_status_approved" hcl:"sponsor_status_approved"`
+	SponsorStatusDenied      *string `cty:"sponsor_status_denied" hcl:"sponsor_status_denied"`
+	SponsorStatusPending     *string `cty:"sponsor_status_pending" hcl:"sponsor_status_pending"`
+	SponsorSubmit            *string `cty:"sponsor_submit" hcl:"sponsor_submit"`
+	SponsorsError            *string `cty:"sponsors_error" hcl:"sponsors_error"`
+	SponsorsFieldLabel       *string `cty:"sponsors_field_label" hcl:"sponsors_field_label"`
+	TosAcceptLabel           *string `cty:"tos_accept_label" hcl:"tos_accept_label"`
+	TosError                 *string `cty:"tos_error" hcl:"tos_error"`
+	TosLink                  *string `cty:"tos_link" hcl:"tos_link"`
+	TosText                  *string `cty:"tos_text" hcl:"tos_text"`
 }

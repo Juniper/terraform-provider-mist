@@ -6,7 +6,7 @@ Multiple configurations can be added in the file, but need to be separated with 
 
 Copilot agents can be leverage to generate valid configuration for tests by refering the agent to the Schema definition in the <resource>_resource_gen.go file. Example of an effective prompt:
 ```
-Refer to the OrgApitokenResourceSchema in org_apitoken_resource_gen.go to create test terraform configuration for an org_apitoken resource and place it in a file under internal/fixtures/org_apitoken_resource. Do not include any comments in the config. Separate config with a ␞ character.
+Refer to the OrgApitokenResourceSchema in org_apitoken_resource_gen.go to create test terraform configuration for an org_apitoken resource and place it in the file under internal/fixtures/org_apitoken_resource. Do not include any comments in the config. Separate config with a ␞ character.
 ```
 
 Since the test go structs are not aware of the tf boilerplate and the tests add the boilerplate for configuration, this needs to be exclude from the config ie.

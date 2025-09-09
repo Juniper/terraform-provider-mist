@@ -8,6 +8,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
@@ -72,13 +73,21 @@ func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.D
 			}
 
 			if !plan.Latlng.IsNull() && !plan.Latlng.IsUnknown() {
-				var planLatlngInterface interface{} = plan.Latlng
-				planLatlng := planLatlngInterface.(LatlngValue)
-
-				var latlng models.TunnelConfigAutoProvisionLatLng
-				latlng.Lat = planLatlng.Lng.ValueFloat64()
-				latlng.Lng = planLatlng.Lng.ValueFloat64()
-				data.Latlng = models.ToPointer(latlng)
+				latlngType := LatlngType{
+					ObjectType: types.ObjectType{
+						AttrTypes: LatlngValue{}.AttributeTypes(ctx),
+					},
+				}
+				latlngValue, conversionDiags := latlngType.ValueFromObject(ctx, plan.Latlng)
+				if conversionDiags.HasError() {
+					diags.Append(conversionDiags...)
+				} else {
+					planLatlng := latlngValue.(LatlngValue)
+					var latlng models.TunnelConfigAutoProvisionLatLng
+					latlng.Lat = planLatlng.Lat.ValueFloat64()
+					latlng.Lng = planLatlng.Lng.ValueFloat64()
+					data.Latlng = models.ToPointer(latlng)
+				}
 			}
 
 			if plan.Provider.ValueStringPointer() != nil {

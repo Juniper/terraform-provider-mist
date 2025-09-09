@@ -8,13 +8,13 @@ type OrgIdpprofileModel struct {
 }
 
 type OrgIdpprofileOverwritesValue struct {
-	Action   *string                     `cty:"action"`
-	Matching *OrgIdpprofileMatchingValue `cty:"matching"`
-	Name     string                      `cty:"name"`
+	Action   *string                     `cty:"action" hcl:"action"`
+	Matching *OrgIdpprofileMatchingValue `cty:"matching" hcl:"matching"`
+	Name     string                      `cty:"name" hcl:"name"`
 }
 
 type OrgIdpprofileMatchingValue struct {
-	AttackName []string `cty:"attack_name"`
-	DstSubnet  []string `cty:"dst_subnet"`
-	Severity   []string `cty:"severity"`
+	AttackName []string `cty:"attack_name" hcl:"attack_name"`
+	DstSubnet  []string `cty:"dst_subnet" hcl:"dst_subnet"`
+	Severity   []string `cty:"severity" hcl:"severity"`
 }
