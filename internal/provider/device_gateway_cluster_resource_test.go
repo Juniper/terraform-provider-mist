@@ -22,24 +22,8 @@ func TestDeviceGatewayCluster(t *testing.T) {
 	}
 
 	type testCase struct {
-		//apiVersionConstraints version.Constraints
 		steps []testStep
 	}
-
-	// var DGClusterModel DeviceGatewayClusterModel
-
-	// b, err := os.ReadFile("fixtures/device_gateway_cluster_resource/device_gateway_cluster_config.tf")
-	// if err != nil {
-	// 	fmt.Print(err)
-	// }
-
-	// str := string(b) // convert content to a 'string'
-	// fmt.Println(str)
-
-	// err = hcl.Decode(&DGClusterModel, str)
-	// if err != nil {
-	// 	fmt.Printf("error decoding hcl: %s\n", err)
-	// }
 
 	testCases := map[string]testCase{
 		"simple_case": {
