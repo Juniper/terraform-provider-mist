@@ -52,6 +52,13 @@
     type = "eap"
     enable_mac_auth = true
     pairwise = ["wpa2-ccmp", "wpa3-ccmp"]
+    anticlog_threshold = 20
+    eap_reauth = true
+    key_idx = 1
+    keys = ["1234567890", "abcdef1234", "0987654321", "fedcba9876"]
+    multi_psk_only = true
+    psk = "MySecurePassword123!"
+    wep_as_secondary_auth = true
   }
   
   # Dynamic VLAN configuration
@@ -434,3 +441,14 @@
   auth_servers_nas_ip = "192.168.1.100"
   auth_servers_retries = 5
   auth_servers_timeout = 10
+
+␞
+
+// OWE Test Case - auth.owe field for open authentication
+  org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
+  ssid   = "OWE_Test_WLAN"
+  
+  auth = {
+    type = "open"
+    owe  = "enabled"
+  }
