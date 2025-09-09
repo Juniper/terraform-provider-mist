@@ -640,6 +640,33 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auth.pairwise.%d", i), pairwise)
 			}
 		}
+		if s.Auth.AnticlogThreshold != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.anticlog_threshold", fmt.Sprintf("%d", *s.Auth.AnticlogThreshold))
+		}
+		if s.Auth.EapReauth != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.eap_reauth", fmt.Sprintf("%t", *s.Auth.EapReauth))
+		}
+		if s.Auth.KeyIdx != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.key_idx", fmt.Sprintf("%d", *s.Auth.KeyIdx))
+		}
+		if s.Auth.Keys != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.keys.#", fmt.Sprintf("%d", len(s.Auth.Keys)))
+			for i, key := range s.Auth.Keys {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auth.keys.%d", i), key)
+			}
+		}
+		if s.Auth.MultiPskOnly != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.multi_psk_only", fmt.Sprintf("%t", *s.Auth.MultiPskOnly))
+		}
+		if s.Auth.Owe != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.owe", *s.Auth.Owe)
+		}
+		if s.Auth.Psk != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.psk", *s.Auth.Psk)
+		}
+		if s.Auth.WepAsSecondaryAuth != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.wep_as_secondary_auth", fmt.Sprintf("%t", *s.Auth.WepAsSecondaryAuth))
+		}
 	}
 
 	// Airwatch object validation
