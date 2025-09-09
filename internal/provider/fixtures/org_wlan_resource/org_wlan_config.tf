@@ -47,6 +47,26 @@
   vlan_pooling = true
   vlan_ids = ["10", "20", "30", "40"]
   
+  # Authentication configuration for dynamic VLAN support
+  auth = {
+    type = "eap"
+    enable_mac_auth = true
+    pairwise = ["wpa2-ccmp", "wpa3-ccmp"]
+  }
+  
+  # Dynamic VLAN configuration
+  dynamic_vlan = {
+    enabled = true
+    type = "standard"
+    default_vlan_ids = ["100", "200-250"]
+    local_vlan_ids = ["10", "20"]
+    vlans = {
+      "100" = ""
+      "200" = ""
+      "300" = ""
+    }
+  }
+  
   auth_servers = [
     {
       host = "radius1.company.com"
