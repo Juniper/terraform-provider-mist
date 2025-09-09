@@ -32,6 +32,7 @@ type OrgWlanModel struct {
 	ClientLimitUpEnabled                 *bool                    `hcl:"client_limit_up_enabled"`
 	CoaServers                           []CoaServersValue        `hcl:"coa_servers"`
 	Disable11ax                          *bool                    `hcl:"disable_11ax"`
+	Disable11be                          *bool                    `hcl:"disable_11be"`
 	DisableHtVhtRates                    *bool                    `hcl:"disable_ht_vht_rates"`
 	DisableUapsd                         *bool                    `hcl:"disable_uapsd"`
 	DisableV1RoamNotify                  *bool                    `hcl:"disable_v1_roam_notify"`

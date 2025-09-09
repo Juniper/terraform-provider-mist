@@ -16,6 +16,7 @@
   band_steer_force_band5 = true
   block_blacklist_clients = true
   disable_11ax = true
+  disable_11be = true
   disable_ht_vht_rates = true
   disable_uapsd = true
   disable_v1_roam_notify = true
@@ -181,6 +182,7 @@
     amazon_client_id = "test-amazon-client-id"
     amazon_client_secret = "test-amazon-client-secret"
     amazon_expire = 1440
+    amazon_email_domains = ["amazon.com", "aws.com"]
     
     azure_enabled = true
     azure_client_id = "test-azure-client-id"
@@ -192,16 +194,19 @@
     facebook_client_id = "test-facebook-client-id"
     facebook_client_secret = "test-facebook-client-secret"
     facebook_expire = 1440
+    facebook_email_domains = ["facebook.com", "meta.com"]
     
     google_enabled = true
     google_client_id = "test-google-client-id"
     google_client_secret = "test-google-client-secret"
     google_expire = 1440
+    google_email_domains = ["google.com", "gmail.com"]
     
     microsoft_enabled = true
     microsoft_client_id = "test-microsoft-client-id"
     microsoft_client_secret = "test-microsoft-client-secret"
     microsoft_expire = 1440
+    microsoft_email_domains = ["microsoft.com", "outlook.com"]
     
     # SMS providers - all enabled for maximum coverage
     sms_enabled = true
@@ -243,6 +248,12 @@
     sponsor_link_validity_duration = "7d"
     predefined_sponsors_enabled = true
     predefined_sponsors_hide_email = false
+    sponsors = {
+      "sponsor1" = "sponsor1@company.com"
+      "sponsor2" = "sponsor2@company.com"
+      "admin" = "admin@company.com"
+    }
+    sponsor_email_domains = ["company.com", "partners.com"]
     
     # SSO configuration
     sso_default_role = "user"
