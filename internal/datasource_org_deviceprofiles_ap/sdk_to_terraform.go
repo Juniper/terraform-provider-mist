@@ -39,8 +39,8 @@ func deviceprofileApSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 	if d.ModifiedTime != nil {
 		modifiedTime = types.Float64Value(*d.ModifiedTime)
 	}
-	if d.Name != nil {
-		name = types.StringValue(*d.Name)
+	if d.Name.Value() != nil {
+		name = types.StringValue(*d.Name.Value())
 	}
 	if d.OrgId != nil {
 		orgId = types.StringValue(d.OrgId.String())

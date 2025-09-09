@@ -84,6 +84,7 @@ func (d *orgNacEndpointsDataSource) Read(ctx context.Context, req datasource.Rea
 		labels = mistutils.ListOfStringTerraformToSdk(ds.Labels)
 	}
 
+	var sort string
 	var limit = 1000
 	var page = 0
 	var total = 9999
@@ -97,7 +98,7 @@ func (d *orgNacEndpointsDataSource) Read(ctx context.Context, req datasource.Rea
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsUserMACs().SearchOrgUserMacs(ctx, orgId, mac, labels, &limit, &page)
+		data, err := d.client.OrgsUserMACs().SearchOrgUserMacs(ctx, orgId, mac, labels, &limit, &page, &sort)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org NacEndpoints list",

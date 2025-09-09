@@ -144,6 +144,9 @@ func remoteSyslogServersTerraformToSdk(d basetypes.ListValue) []models.RemoteSys
 		if itemObj.RoutingInstance.ValueStringPointer() != nil {
 			dataItem.RoutingInstance = models.ToPointer(itemObj.RoutingInstance.ValueString())
 		}
+		if itemObj.ServerName.ValueStringPointer() != nil {
+			dataItem.ServerName = itemObj.ServerName.ValueStringPointer()
+		}
 		if itemObj.Severity.ValueStringPointer() != nil {
 			dataItem.Severity = models.ToPointer(models.RemoteSyslogSeverityEnum(itemObj.Severity.ValueString()))
 		}

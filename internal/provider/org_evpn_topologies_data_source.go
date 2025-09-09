@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
+	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/Juniper/terraform-provider-mist/internal/datasource_org_evpn_topologies"
 
@@ -76,6 +77,7 @@ func (d *orgEvpnTopologiesDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
+	var forSite = models.MxedgeForSiteEnum_FALSE
 	var limit = 1000
 	var page = 0
 	var total = 9999
@@ -89,7 +91,7 @@ func (d *orgEvpnTopologiesDataSource) Read(ctx context.Context, req datasource.R
 			"limit": limit,
 			"total": total,
 		})
-		data, err := d.client.OrgsEVPNTopologies().ListOrgEvpnTopologies(ctx, orgId, &limit, &page)
+		data, err := d.client.OrgsEVPNTopologies().ListOrgEvpnTopologies(ctx, orgId, &forSite, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org EvpnTopologies list",

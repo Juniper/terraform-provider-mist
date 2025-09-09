@@ -10,12 +10,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func routingPolicyTermActionTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) *models.RoutingPolicyTermAction {
+func routingPolicyTermActionsTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) *models.RoutingPolicyTermAction {
 	data := models.RoutingPolicyTermAction{}
 	if d.IsNull() || d.IsUnknown() {
 		return &data
 	} else {
-		plan := NewActionValueMust(d.AttributeTypes(ctx), d.Attributes())
+		plan := NewActionsValueMust(d.AttributeTypes(ctx), d.Attributes())
 		if plan.Accept.ValueBoolPointer() != nil {
 			data.Accept = models.ToPointer(plan.Accept.ValueBool())
 		}
@@ -129,8 +129,8 @@ func routingPolicyTermTerraformToSdk(ctx context.Context, d basetypes.ListValue)
 		plan := vInterface.(TermsValue)
 		data := models.RoutingPolicyTerm{}
 
-		if !plan.Action.IsNull() && !plan.Action.IsUnknown() {
-			data.Action = routingPolicyTermActionTerraformToSdk(ctx, plan.Action)
+		if !plan.Actions.IsNull() && !plan.Actions.IsUnknown() {
+			data.Actions = routingPolicyTermActionsTerraformToSdk(ctx, plan.Actions)
 		}
 
 		if !plan.RoutingPolicyTermMatching.IsNull() && !plan.RoutingPolicyTermMatching.IsUnknown() {

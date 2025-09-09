@@ -32,8 +32,8 @@ func SdkToTerraform(data *models.Site) (SiteModel, diag.Diagnostics) {
 	var sitegroupIds = types.ListValueMust(types.StringType, []attr.Value{})
 	var tzOffset basetypes.Int64Value
 
-	if data.Address != nil {
-		address = types.StringValue(*data.Address)
+	if data.Address.Value() != nil {
+		address = types.StringValue(*data.Address.Value())
 	}
 	if data.Latlng != nil {
 		t := map[string]attr.Type{
@@ -56,8 +56,8 @@ func SdkToTerraform(data *models.Site) (SiteModel, diag.Diagnostics) {
 	if data.Timezone != nil {
 		timezone = types.StringValue(*data.Timezone)
 	}
-	if data.Notes != nil {
-		notes = types.StringValue(*data.Notes)
+	if data.Notes.Value() != nil {
+		notes = types.StringValue(*data.Notes.Value())
 	}
 
 	if data.AlarmtemplateId.Value() != nil && data.AlarmtemplateId.Value().String() != "00000000-0000-0000-0000-000000000000" {

@@ -48,9 +48,9 @@ func pathPreferencePathsSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		if d.TargetIps != nil {
 			targetIps = mistutils.ListOfStringSdkToTerraform(d.TargetIps)
 		}
-		if d.Type != nil {
-			typePath = types.StringValue(string(*d.Type))
-		}
+
+		typePath = types.StringValue(string(d.Type))
+
 		if d.WanName != nil {
 			wanName = types.StringValue(*d.WanName)
 		}

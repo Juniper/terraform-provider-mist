@@ -15,12 +15,20 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileApModel) (models.
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 
-	data.Name = plan.Name.ValueStringPointer()
+	if plan.Name.ValueStringPointer() != nil {
+		data.Name = models.NewOptional(plan.Name.ValueStringPointer())
+	}
 
 	if !plan.Aeroscout.IsNull() && !plan.Aeroscout.IsUnknown() {
 		data.Aeroscout = aeroscoutTerraformToSdk(plan.Aeroscout)
 	} else {
 		unset["-aeroscout"] = ""
+	}
+
+	if !plan.Airista.IsNull() && !plan.Airista.IsUnknown() {
+		data.Airista = airistaTerraformToSdk(plan.Airista)
+	} else {
+		unset["-airista"] = ""
 	}
 
 	if !plan.BleConfig.IsNull() && !plan.BleConfig.IsUnknown() {

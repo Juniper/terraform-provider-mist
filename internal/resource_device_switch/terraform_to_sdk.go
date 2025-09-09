@@ -151,6 +151,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.OspfAreas = ospfAreasTerraformToSdk(plan.OspfAreas)
 	}
 
+	if plan.OspfConfig.IsNull() || plan.OspfConfig.IsUnknown() {
+		unset["-ospf_config"] = ""
+	} else {
+		data.OspfConfig = ospfConfigTerraformToSdk(plan.OspfConfig)
+	}
+
 	if plan.OtherIpConfigs.IsNull() || plan.OtherIpConfigs.IsUnknown() {
 		unset["-other_ip_configs"] = ""
 	} else {
@@ -161,6 +167,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		unset["-port_config"] = ""
 	} else {
 		data.PortConfig = portConfigTerraformToSdk(plan.PortConfig)
+	}
+
+	if plan.PortConfigOverwrite.IsNull() || plan.PortConfigOverwrite.IsUnknown() {
+		unset["-port_config_overwrite"] = ""
+	} else {
+		data.PortConfigOverwrite = portConfigOverwriteTerraformToSdk(plan.PortConfigOverwrite)
 	}
 
 	if plan.PortMirroring.IsNull() || plan.PortMirroring.IsUnknown() {

@@ -16,6 +16,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	var diags diag.Diagnostics
 
 	var aeroscout = NewAeroscoutValueNull()
+	var airista = NewAiristaValueNull()
 	var bleConfig = NewBleConfigValueNull()
 	var centrak = NewCentrakValueNull()
 	var clientBridge = NewClientBridgeValueNull()
@@ -59,6 +60,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 
 	if data.Aeroscout != nil {
 		aeroscout = aeroscoutSdkToTerraform(ctx, &diags, data.Aeroscout)
+	}
+	if data.Airista != nil {
+		airista = airistaSdkToTerraform(ctx, &diags, data.Airista)
 	}
 	if data.BleConfig != nil {
 		bleConfig = bleConfigSdkToTerraform(ctx, &diags, data.BleConfig)
@@ -180,6 +184,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 		model = types.StringValue(*data.Model)
 	}
 	state.Aeroscout = aeroscout
+	state.Airista = airista
 	state.BleConfig = bleConfig
 	state.Centrak = centrak
 	state.ClientBridge = clientBridge

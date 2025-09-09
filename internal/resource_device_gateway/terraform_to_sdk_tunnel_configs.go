@@ -67,8 +67,8 @@ func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.D
 			if !plan.AutoProvisionSecondary.IsNull() && !plan.AutoProvisionSecondary.IsUnknown() {
 				data.Secondary = tunnelConfigsAutoProvisionSecondaryTerraformToSdk(ctx, diags, plan.AutoProvisionSecondary)
 			}
-			if plan.Enable.ValueBoolPointer() != nil {
-				data.Enable = models.ToPointer(plan.Enable.ValueBool())
+			if plan.Enabled.ValueBoolPointer() != nil {
+				data.Enabled = models.ToPointer(plan.Enabled.ValueBool())
 			}
 
 			if !plan.Latlng.IsNull() && !plan.Latlng.IsUnknown() {
@@ -257,6 +257,10 @@ func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 			data.LocalId = models.ToPointer(plan.LocalId.ValueString())
 		}
 
+		if !plan.LocalSubnets.IsNull() && !plan.LocalSubnets.IsUnknown() {
+			data.LocalSubnets = mistutils.ListOfStringTerraformToSdk(plan.LocalSubnets)
+		}
+
 		if plan.Mode.ValueStringPointer() != nil {
 			data.Mode = (*models.TunnelConfigTunnelModeEnum)(plan.Mode.ValueStringPointer())
 		}
@@ -288,6 +292,10 @@ func tunnelConfigsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d
 		}
 		if plan.Psk.ValueStringPointer() != nil {
 			data.Psk = models.ToPointer(plan.Psk.ValueString())
+		}
+
+		if !plan.RemoteSubnets.IsNull() && !plan.RemoteSubnets.IsUnknown() {
+			data.RemoteSubnets = mistutils.ListOfStringTerraformToSdk(plan.RemoteSubnets)
 		}
 
 		if !plan.Secondary.IsNull() && !plan.Secondary.IsUnknown() {

@@ -19,6 +19,7 @@ func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, 
 	var action types.String
 	var applyTags = types.ListValueMust(types.StringType, []attr.Value{})
 	var enabled types.Bool
+	var guestAuthState types.String
 	var id types.String
 	var matching = NewMatchingValueNull()
 	var name types.String
@@ -32,6 +33,9 @@ func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, 
 	}
 	if data.Enabled != nil {
 		enabled = types.BoolValue(*data.Enabled)
+	}
+	if data.GuestAuthState != nil {
+		guestAuthState = types.StringValue(string(*data.GuestAuthState))
 	}
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
@@ -53,6 +57,7 @@ func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, 
 	state.Action = action
 	state.ApplyTags = applyTags
 	state.Enabled = enabled
+	state.GuestAuthState = guestAuthState
 	state.Id = id
 	state.Matching = matching
 	state.Name = name

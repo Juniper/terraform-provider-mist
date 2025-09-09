@@ -174,8 +174,8 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.Locked.Value() != nil {
 		locked = types.BoolValue(*d.Locked.Value())
 	}
-	if d.Mac != nil {
-		mac = types.StringValue(*d.Mac)
+	if d.Mac.Value() != nil {
+		mac = types.StringValue(*d.Mac.Value())
 	}
 	if d.MapId.Value() != nil {
 		mapId = types.StringValue(d.MapId.Value().String())
@@ -189,8 +189,8 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.MeshUplink != nil {
 		meshUplink = meshUplinkSdkToTerraform(ctx, diags, d.MeshUplink)
 	}
-	if d.Model != nil {
-		model = types.StringValue(*d.Model)
+	if d.Model.Value() != nil {
+		model = types.StringValue(*d.Model.Value())
 	}
 	if d.ModifiedTime != nil {
 		modifiedTime = types.Float64Value(*d.ModifiedTime)

@@ -20,6 +20,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var apUpdownThreshold types.Int64
 	var autoUpgrade = NewAutoUpgradeValueNull()
 	var blacklistUrl = types.StringValue("")
+	var bgpNeighborUpdownThreshold types.Int64
 	var bleConfig = NewBleConfigValueNull()
 	var configAutoRevert types.Bool
 	var configPushPolicy = NewConfigPushPolicyValueNull()
@@ -53,6 +54,8 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var vars = types.MapNull(types.StringType)
 	var vsInstance = types.MapNull(VsInstanceValue{}.Type(ctx))
 	var vna = NewVnaValueNull()
+	var vpnPathUpdownThreshold types.Int64
+	var vpnPeerUpdownThreshold types.Int64
 	var watchedStationUrl = types.StringValue("")
 	var whitelistUrl = types.StringValue("")
 	var wids = NewWidsValueNull()
@@ -81,6 +84,10 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 
 	if data.BlacklistUrl != nil {
 		blacklistUrl = types.StringValue(*data.BlacklistUrl)
+	}
+
+	if data.BgpNeighborUpdownThreshold.Value() != nil {
+		bgpNeighborUpdownThreshold = types.Int64Value(int64(*data.BgpNeighborUpdownThreshold.Value()))
 	}
 
 	if data.ConfigAutoRevert != nil {
@@ -209,6 +216,14 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		vna = vnaSdkToTerraform(ctx, &diags, data.Vna)
 	}
 
+	if data.VpnPathUpdownThreshold.Value() != nil {
+		vpnPathUpdownThreshold = types.Int64Value(int64(*data.VpnPathUpdownThreshold.Value()))
+	}
+
+	if data.VpnPeerUpdownThreshold.Value() != nil {
+		vpnPeerUpdownThreshold = types.Int64Value(int64(*data.VpnPeerUpdownThreshold.Value()))
+	}
+
 	if data.VsInstance != nil {
 		vsInstance = vsInstanceSdkToTerraform(ctx, &diags, data.VsInstance)
 	}
@@ -244,6 +259,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.Analytic = analytic
 	state.ApUpdownThreshold = apUpdownThreshold
 	state.AutoUpgrade = autoUpgrade
+	state.BgpNeighborUpdownThreshold = bgpNeighborUpdownThreshold
 	state.BleConfig = bleConfig
 	state.BlacklistUrl = blacklistUrl
 	state.ConfigAutoRevert = configAutoRevert
@@ -277,6 +293,8 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.UplinkPortConfig = uplinkPortConfig
 	state.Vars = vars
 	state.Vna = vna
+	state.VpnPathUpdownThreshold = vpnPathUpdownThreshold
+	state.VpnPeerUpdownThreshold = vpnPeerUpdownThreshold
 	state.VsInstance = vsInstance
 	state.WanVna = wanVan
 	state.WatchedStationUrl = watchedStationUrl

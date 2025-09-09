@@ -36,8 +36,7 @@ func dhcpdConfigVendorEncapsulatedSdkToTerraform(ctx context.Context, diags *dia
 
 		rMapValue[k] = data
 	}
-	stateResultMapType := VendorEncapsulatedValue{}.Type(ctx)
-	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, rMapValue)
+	stateResultMap, e := types.MapValueFrom(ctx, VendorEncapsulatedValue{}.Type(ctx), rMapValue)
 	diags.Append(e...)
 	return stateResultMap
 }
@@ -65,8 +64,7 @@ func dhcpdConfigOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 
 		rMapValue[k] = data
 	}
-	stateResultMapType := OptionsValue{}.Type(ctx)
-	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, rMapValue)
+	stateResultMap, e := types.MapValueFrom(ctx, OptionsValue{}.Type(ctx), rMapValue)
 	diags.Append(e...)
 	return stateResultMap
 }
@@ -93,8 +91,7 @@ func dhcpdConfigFixedBindingsSdkToTerraform(ctx context.Context, diags *diag.Dia
 
 		rMap[k] = data
 	}
-	stateType := FixedBindingsValue{}.Type(ctx)
-	stateResult, e := types.MapValueFrom(ctx, stateType, rMap)
+	stateResult, e := types.MapValueFrom(ctx, FixedBindingsValue{}.Type(ctx), rMap)
 	diags.Append(e...)
 	return stateResult
 }
@@ -103,21 +100,21 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	rMapValue := make(map[string]attr.Value)
 	for k, d := range m {
 		if k != "enabled" {
-			var dnsServers = mistutils.ListOfStringSdkToTerraformEmpty()
+			var dnsServers = types.ListNull(types.StringType)
 			var dnsSuffix = types.ListNull(types.StringType)
 			var fixedBindings = types.MapNull(FixedBindingsValue{}.Type(ctx))
 			var gateway basetypes.StringValue
 			var ipEnd basetypes.StringValue
-			var ipEnd6 basetypes.StringValue
+			var ip6End basetypes.StringValue
 			var ipStart basetypes.StringValue
-			var ipStart6 basetypes.StringValue
-			var leaseTime = types.Int64Value(86400)
+			var ip6Start basetypes.StringValue
+			var leaseTime basetypes.Int64Value
 			var options = types.MapNull(OptionsValue{}.Type(ctx))
-			var serverIdOverride = types.BoolValue(false)
+			var serverIdOverride basetypes.BoolValue
 			var servers = types.ListNull(types.StringType)
-			var servers6 = types.ListNull(types.StringType)
-			var type4 = types.StringValue("local")
-			var type6 = types.StringValue("none")
+			var serversv6 = types.ListNull(types.StringType)
+			var type4 basetypes.StringValue
+			var type6 basetypes.StringValue
 			var vendorEncapsulated = types.MapNull(VendorEncapsulatedValue{}.Type(ctx))
 
 			if d.DnsServers != nil {
@@ -135,14 +132,14 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			if d.IpEnd != nil {
 				ipEnd = types.StringValue(*d.IpEnd)
 			}
-			if d.IpEnd6 != nil {
-				ipEnd6 = types.StringValue(*d.IpEnd6)
+			if d.Ip6End != nil {
+				ip6End = types.StringValue(*d.Ip6End)
 			}
 			if d.IpStart != nil {
 				ipStart = types.StringValue(*d.IpStart)
 			}
-			if d.IpStart6 != nil {
-				ipStart6 = types.StringValue(*d.IpStart6)
+			if d.Ip6Start != nil {
+				ip6Start = types.StringValue(*d.Ip6Start)
 			}
 			if d.LeaseTime != nil {
 				leaseTime = types.Int64Value(int64(*d.LeaseTime))
@@ -156,8 +153,8 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			if d.Servers != nil {
 				servers = mistutils.ListOfStringSdkToTerraform(d.Servers)
 			}
-			if d.Servers6 != nil {
-				servers6 = mistutils.ListOfStringSdkToTerraform(d.Servers6)
+			if d.Serversv6 != nil {
+				serversv6 = mistutils.ListOfStringSdkToTerraform(d.Serversv6)
 			}
 			if d.Type != nil {
 				type4 = types.StringValue(string(*d.Type))
@@ -175,14 +172,14 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 				"fixed_bindings":      fixedBindings,
 				"gateway":             gateway,
 				"ip_end":              ipEnd,
-				"ip_end6":             ipEnd6,
+				"ip6_end":             ip6End,
 				"ip_start":            ipStart,
-				"ip_start6":           ipStart6,
+				"ip6_start":           ip6Start,
 				"lease_time":          leaseTime,
 				"options":             options,
 				"server_id_override":  serverIdOverride,
 				"servers":             servers,
-				"servers6":            servers6,
+				"serversv6":           serversv6,
 				"type":                type4,
 				"type6":               type6,
 				"vendor_encapsulated": vendorEncapsulated,
@@ -202,7 +199,7 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 func dhcpdConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.DhcpdConfig) DhcpdConfigValue {
 
 	var config = types.MapNull(ConfigValue{}.Type(ctx))
-	var enabled = types.BoolValue(true)
+	var enabled basetypes.BoolValue
 
 	if len(d.AdditionalProperties) > 0 {
 		config = dhcpdConfigConfigsSdkToTerraform(ctx, diags, d.AdditionalProperties)

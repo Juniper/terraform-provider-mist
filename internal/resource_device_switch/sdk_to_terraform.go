@@ -41,9 +41,11 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	var ntpServers = types.ListValueMust(types.StringType, []attr.Value{})
 	var oobIpConfig = NewOobIpConfigValueNull()
 	var ospfAreas = types.MapNull(OspfAreasValue{}.Type(ctx))
+	var ospfConfig = NewOspfConfigValueNull()
 	var otherIpConfigs = types.MapNull(OtherIpConfigsValue{}.Type(ctx))
 	var orgId types.String
 	var portConfig = types.MapNull(PortConfigValue{}.Type(ctx))
+	var portConfigOverwrite = types.MapNull(PortConfigOverwriteValue{}.Type(ctx))
 	var portMirroring = types.MapNull(PortMirroringValue{}.Type(ctx))
 	var portUsages = types.MapNull(PortUsagesValue{}.Type(ctx))
 	var radiusConfig = NewRadiusConfigValueNull()
@@ -146,11 +148,17 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.OspfAreas != nil {
 		ospfAreas = ospfAreasSdkToTerraform(ctx, &diags, data.OspfAreas)
 	}
+	if data.OspfConfig != nil {
+		ospfConfig = ospfConfigSdkToTerraform(ctx, &diags, data.OspfConfig)
+	}
 	if len(data.OtherIpConfigs) > 0 {
 		otherIpConfigs = otherIpConfigsSdkToTerraform(ctx, &diags, data.OtherIpConfigs)
 	}
 	if len(data.PortConfig) > 0 {
 		portConfig = portConfigSdkToTerraform(ctx, &diags, data.PortConfig)
+	}
+	if len(data.PortConfigOverwrite) > 0 {
+		portConfigOverwrite = portConfigOverwriteSdkToTerraform(ctx, &diags, data.PortConfigOverwrite)
 	}
 	if len(data.PortMirroring) > 0 {
 		portMirroring = portMirroringSdkToTerraform(ctx, &diags, data.PortMirroring)
@@ -247,8 +255,10 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	state.OobIpConfig = oobIpConfig
 	state.OrgId = orgId
 	state.OspfAreas = ospfAreas
+	state.OspfConfig = ospfConfig
 	state.OtherIpConfigs = otherIpConfigs
 	state.PortConfig = portConfig
+	state.PortConfigOverwrite = portConfigOverwrite
 	state.PortMirroring = portMirroring
 	state.PortUsages = portUsages
 	state.RadiusConfig = radiusConfig

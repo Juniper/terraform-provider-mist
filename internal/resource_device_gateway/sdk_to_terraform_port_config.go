@@ -29,16 +29,42 @@ func wanExtraRoutesPortConfigIpConfigSdkToTerraform(ctx context.Context, diags *
 
 		stateValueMap[k] = data
 	}
+
 	stateResult, e := types.MapValueFrom(ctx, WanExtraRoutesValue{}.Type(ctx), stateValueMap)
+	diags.Append(e...)
+	return stateResult
+}
+func wanExtraRoutes6PortConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.WanExtraRoutes) basetypes.MapValue {
+	stateValueMap := make(map[string]attr.Value)
+	for k, d := range m {
+
+		var via basetypes.StringValue
+		if d.Via != nil {
+			via = types.StringValue(*d.Via)
+		}
+		dataMapValue := map[string]attr.Value{
+			"via": via,
+		}
+		data, e := NewWanExtraRoutes6Value(WanExtraRoutes6Value{}.AttributeTypes(ctx), dataMapValue)
+		diags.Append(e...)
+
+		stateValueMap[k] = data
+	}
+
+	stateResult, e := types.MapValueFrom(ctx, WanExtraRoutes6Value{}.Type(ctx), stateValueMap)
 	diags.Append(e...)
 	return stateResult
 }
 func wanProbeOverridePortConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayWanProbeOverride) basetypes.ObjectValue {
 	var ips = types.ListNull(types.StringType)
+	var ip6s = types.ListNull(types.StringType)
 	var probeProfile basetypes.StringValue
 
 	if g != nil && g.Ips != nil {
 		ips = mistutils.ListOfStringSdkToTerraform(g.Ips)
+	}
+	if g != nil && g.Ip6s != nil {
+		ip6s = mistutils.ListOfStringSdkToTerraform(g.Ip6s)
 	}
 	if g != nil && g.ProbeProfile != nil {
 		probeProfile = types.StringValue(string(*g.ProbeProfile))
@@ -46,6 +72,7 @@ func wanProbeOverridePortConfigIpConfigSdkToTerraform(ctx context.Context, diags
 
 	rAttrValue := map[string]attr.Value{
 		"ips":           ips,
+		"ip6s":          ip6s,
 		"probe_profile": probeProfile,
 	}
 
@@ -58,13 +85,17 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	var dns = types.ListNull(types.StringType)
 	var dnsSuffix = types.ListNull(types.StringType)
 	var gateway basetypes.StringValue
+	var gateway6 basetypes.StringValue
 	var ip basetypes.StringValue
+	var ip6 basetypes.StringValue
 	var netmask basetypes.StringValue
+	var netmask6 basetypes.StringValue
 	var network basetypes.StringValue
 	var poserPassword basetypes.StringValue
-	var pppoeAuth = types.StringValue("none")
+	var pppoeAuth basetypes.StringValue
 	var pppoeUsername basetypes.StringValue
-	var ipConfigType = types.StringValue("dhcp")
+	var ipConfigType basetypes.StringValue
+	var ip6ConfigType basetypes.StringValue
 
 	if g != nil && g.Dns != nil {
 		dns = mistutils.ListOfStringSdkToTerraform(g.Dns)
@@ -75,11 +106,20 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	if g != nil && g.Gateway != nil {
 		gateway = types.StringValue(*g.Gateway)
 	}
+	if g != nil && g.Gateway6 != nil {
+		gateway6 = types.StringValue(*g.Gateway6)
+	}
 	if g != nil && g.Ip != nil {
 		ip = types.StringValue(*g.Ip)
 	}
+	if g != nil && g.Ip6 != nil {
+		ip6 = types.StringValue(*g.Ip6)
+	}
 	if g != nil && g.Netmask != nil {
 		netmask = types.StringValue(*g.Netmask)
+	}
+	if g != nil && g.Netmask6 != nil {
+		netmask6 = types.StringValue(*g.Netmask6)
 	}
 	if g != nil && g.Network != nil {
 		network = types.StringValue(*g.Network)
@@ -96,18 +136,25 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	if g != nil && g.Type != nil {
 		ipConfigType = types.StringValue(string(*g.Type))
 	}
+	if g != nil && g.Type6 != nil {
+		ip6ConfigType = types.StringValue(string(*g.Type6))
+	}
 
 	rAttrValue := map[string]attr.Value{
 		"dns":            dns,
 		"dns_suffix":     dnsSuffix,
 		"gateway":        gateway,
+		"gateway6":       gateway6,
 		"ip":             ip,
+		"ip6":            ip6,
 		"netmask":        netmask,
+		"netmask6":       netmask6,
 		"network":        network,
 		"poser_password": poserPassword,
 		"pppoe_username": pppoeUsername,
 		"pppoe_auth":     pppoeAuth,
 		"type":           ipConfigType,
+		"type6":          ip6ConfigType,
 	}
 
 	r, e := basetypes.NewObjectValue(PortIpConfigValue{}.AttributeTypes(ctx), rAttrValue)
@@ -117,8 +164,8 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 }
 
 func portConfigTrafficShapingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayTrafficShaping) basetypes.ObjectValue {
-	var classPercentages = mistutils.ListOfIntSdkToTerraformEmpty()
-	var enabled = types.BoolValue(false)
+	var classPercentages = types.ListNull(types.Int64Type)
+	var enabled basetypes.BoolValue
 	var maxTxKbps basetypes.Int64Value
 
 	if g != nil && g.ClassPercentages != nil {
@@ -148,10 +195,10 @@ func portConfigVpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	stateValueMap := make(map[string]attr.Value)
 	for k, v := range g {
 
-		var bfdProfile = types.StringValue("broadband")
-		var bfdUseTunnelMode = types.BoolValue(false)
+		var bfdProfile basetypes.StringValue
+		var bfdUseTunnelMode basetypes.BoolValue
 		var preference basetypes.Int64Value
-		var role = types.StringValue("spoke")
+		var role basetypes.StringValue
 		var trafficShaping = types.ObjectNull(TrafficShapingValue{}.AttributeTypes(ctx))
 
 		if v.BfdProfile != nil {
@@ -189,7 +236,7 @@ func portConfigVpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 
 func portConfigWanSourceNatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayPortWanSourceNat) basetypes.ObjectValue {
 
-	var disabled = types.BoolValue(false)
+	var disabled basetypes.BoolValue
 	var natPool basetypes.StringValue
 
 	if g != nil && g.Disabled != nil {
@@ -214,22 +261,21 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 
 	stateValueMap := make(map[string]attr.Value)
 	for k, v := range d {
-
-		var aeDisableLacp = types.BoolValue(false)
+		var aeDisableLacp basetypes.BoolValue
 		var aeIdx basetypes.StringValue
-		var aeLacpForceUp = types.BoolValue(false)
-		var aggregated = types.BoolValue(false)
-		var critical = types.BoolValue(false)
+		var aeLacpForceUp basetypes.BoolValue
+		var aggregated basetypes.BoolValue
+		var critical basetypes.BoolValue
 		var description basetypes.StringValue
-		var disableAutoneg = types.BoolValue(false)
-		var disabled = types.BoolValue(false)
-		var dslType = types.StringValue("vdsl")
-		var dslVci = types.Int64Value(35)
-		var dslVpi = types.Int64Value(0)
-		var duplex = types.StringValue("auto")
+		var disableAutoneg basetypes.BoolValue
+		var disabled basetypes.BoolValue
+		var dslType basetypes.StringValue
+		var dslVci basetypes.Int64Value
+		var dslVpi basetypes.Int64Value
+		var duplex basetypes.StringValue
 		var ipConfig = types.ObjectNull(PortIpConfigValue{}.AttributeTypes(ctx))
 		var lteApn basetypes.StringValue
-		var lteAuth = types.StringValue("none")
+		var lteAuth basetypes.StringValue
 		var lteBackup basetypes.BoolValue
 		var ltePassword basetypes.StringValue
 		var lteUsername basetypes.StringValue
@@ -237,29 +283,30 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var name basetypes.StringValue
 		var networks = types.ListNull(types.StringType)
 		var outerVlanId basetypes.Int64Value
-		var poeDisabled = types.BoolValue(false)
+		var poeDisabled basetypes.BoolValue
 		var portNetwork basetypes.StringValue
-		var preserveDscp = types.BoolValue(true)
+		var preserveDscp basetypes.BoolValue
 		var redundant basetypes.BoolValue
 		var redundantGroup basetypes.Int64Value
 		var rethIdx basetypes.StringValue
 		var rethNode basetypes.StringValue
 		var rethNodes = types.ListNull(types.StringType)
-		var speed = types.StringValue("auto")
-		var ssrNoVirtualMac = types.BoolValue(false)
-		var svrPortRange = types.StringValue("none")
+		var speed basetypes.StringValue
+		var ssrNoVirtualMac basetypes.BoolValue
+		var svrPortRange basetypes.StringValue
 		var trafficShaping = types.ObjectNull(TrafficShapingValue{}.AttributeTypes(ctx))
 		var usage = types.StringValue(string(v.Usage))
 		var vlanId basetypes.StringValue
 		var vpnPaths = types.MapNull(VpnPathsValue{}.Type(ctx))
-		var wanArpPolicer = types.StringValue("default")
+		var wanArpPolicer basetypes.StringValue
 		var wanDisableSpeedtest types.Bool
 		var wanExtIp basetypes.StringValue
-		var wanExtraRoutes = types.MapValueMust(WanExtraRoutesValue{}.Type(ctx), map[string]attr.Value{})
-		var wanNetworks = basetypes.NewListValueMust(types.StringType, []attr.Value{})
+		var wanExtraRoutes = types.MapNull(WanExtraRoutesValue{}.Type(ctx))
+		var wanExtraRoutes6 = types.MapNull(WanExtraRoutes6Value{}.Type(ctx))
+		var wanNetworks = types.ListNull(types.StringType)
 		var wanProbeOverride = types.ObjectNull(WanProbeOverrideValue{}.AttributeTypes(ctx))
 		var wanSourceNat = types.ObjectNull(WanSourceNatValue{}.AttributeTypes(ctx))
-		var wanType = types.StringValue("broadband")
+		var wanType basetypes.StringValue
 
 		if v.AeDisableLacp != nil {
 			aeDisableLacp = types.BoolValue(*v.AeDisableLacp)
@@ -363,7 +410,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.VlanId != nil {
 			vlanId = mistutils.GatewayVlanAsString(*v.VlanId)
 		}
-		if len(v.VpnPaths) > 0 {
+		if v.VpnPaths != nil {
 			vpnPaths = portConfigVpnPathsSdkToTerraform(ctx, diags, v.VpnPaths)
 		}
 		if v.WanArpPolicer != nil {
@@ -375,10 +422,13 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.WanExtIp != nil {
 			wanExtIp = types.StringValue(*v.WanExtIp)
 		}
-		if len(v.WanExtraRoutes) > 0 {
+		if v.WanExtraRoutes != nil {
 			wanExtraRoutes = wanExtraRoutesPortConfigIpConfigSdkToTerraform(ctx, diags, v.WanExtraRoutes)
 		}
-		if len(v.WanNetworks) > 0 {
+		if v.WanExtraRoutes6 != nil {
+			wanExtraRoutes6 = wanExtraRoutes6PortConfigIpConfigSdkToTerraform(ctx, diags, v.WanExtraRoutes6)
+		}
+		if v.WanNetworks != nil {
 			wanNetworks = mistutils.ListOfStringSdkToTerraform(v.WanNetworks)
 		}
 		if v.WanProbeOverride != nil {
@@ -433,6 +483,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 			"wan_disable_speedtest": wanDisableSpeedtest,
 			"wan_ext_ip":            wanExtIp,
 			"wan_extra_routes":      wanExtraRoutes,
+			"wan_extra_routes6":     wanExtraRoutes6,
 			"wan_networks":          wanNetworks,
 			"wan_probe_override":    wanProbeOverride,
 			"wan_source_nat":        wanSourceNat,

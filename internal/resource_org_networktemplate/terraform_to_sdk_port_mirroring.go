@@ -36,6 +36,9 @@ func portMirroringTerraformToSdk(d basetypes.MapValue) map[string]models.SwitchP
 			dataItem.InputPortIdsIngress = make([]string, 0)
 		}
 
+		if itemObj.OutputIpAddress.ValueStringPointer() != nil {
+			dataItem.OutputIpAddress = models.ToPointer(itemObj.OutputIpAddress.ValueString())
+		}
 		if itemObj.OutputNetwork.ValueStringPointer() != nil {
 			dataItem.OutputNetwork = models.ToPointer(itemObj.OutputNetwork.ValueString())
 		}

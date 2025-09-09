@@ -52,8 +52,29 @@ func mistNacTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d baset
 		if e != nil {
 			diags.Append(e...)
 		} else {
+			if plan.AcctInterimInterval.ValueInt64Pointer() != nil {
+				data.AcctInterimInterval = models.ToPointer(int(plan.AcctInterimInterval.ValueInt64()))
+			}
+			if plan.AuthServersRetries.ValueInt64Pointer() != nil {
+				data.AuthServersRetries = models.ToPointer(int(plan.AuthServersRetries.ValueInt64()))
+			}
+			if plan.AuthServersTimeout.ValueInt64Pointer() != nil {
+				data.AuthServersTimeout = models.ToPointer(int(plan.AuthServersTimeout.ValueInt64()))
+			}
+			if plan.CoaEnabled.ValueBoolPointer() != nil {
+				data.CoaEnabled = plan.CoaEnabled.ValueBoolPointer()
+			}
 			if plan.Enabled.ValueBoolPointer() != nil {
-				data.Enabled = models.ToPointer(plan.Enabled.ValueBool())
+				data.Enabled = plan.Enabled.ValueBoolPointer()
+			}
+			if plan.FastDot1xTimers.ValueBoolPointer() != nil {
+				data.FastDot1xTimers = models.ToPointer(plan.FastDot1xTimers.ValueBool())
+			}
+			if plan.Network.ValueStringPointer() != nil {
+				data.Network = models.NewOptional(plan.Network.ValueStringPointer())
+			}
+			if plan.SourceIp.ValueStringPointer() != nil {
+				data.SourceIp = models.NewOptional(plan.SourceIp.ValueStringPointer())
 			}
 		}
 	}

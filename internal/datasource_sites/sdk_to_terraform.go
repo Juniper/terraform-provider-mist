@@ -43,8 +43,8 @@ func siteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	var sitetemplateId basetypes.StringValue
 	var timezone basetypes.StringValue
 
-	if d.Address != nil {
-		address = types.StringValue(*d.Address)
+	if d.Address.Value() != nil {
+		address = types.StringValue(*d.Address.Value())
 	}
 	if d.AlarmtemplateId.Value() != nil {
 		alarmtemplateId = types.StringValue(d.AlarmtemplateId.Value().String())
@@ -87,8 +87,8 @@ func siteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	if d.NetworktemplateId.Value() != nil {
 		networktemplateId = types.StringValue(d.NetworktemplateId.Value().String())
 	}
-	if d.Notes != nil {
-		notes = types.StringValue(*d.Notes)
+	if d.Notes.Value() != nil {
+		notes = types.StringValue(*d.Notes.Value())
 	}
 	if d.OrgId != nil {
 		orgId = types.StringValue(d.OrgId.String())

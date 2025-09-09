@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
@@ -18,7 +19,7 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	var additionalConfigCmds = types.ListNull(types.StringType)
 	var bgpConfig = types.MapNull(BgpConfigValue{}.Type(ctx))
 	var dhcpdConfig = NewDhcpdConfigValueNull()
-	var dnsOverride = types.BoolValue(false)
+	var dnsOverride basetypes.BoolValue
 	var dnsServers = types.ListNull(types.StringType)
 	var dnsSuffix = types.ListNull(types.StringType)
 	var extraRoutes = types.MapNull(ExtraRoutesValue{}.Type(ctx))
@@ -28,7 +29,7 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	var ipConfigs = types.MapNull(IpConfigsValue{}.Type(ctx))
 	var name = types.StringValue(data.Name)
 	var networks = types.ListNull(NetworksValue{}.Type(ctx))
-	var ntpOverride = types.BoolValue(false)
+	var ntpOverride basetypes.BoolValue
 	var ntpServers = types.ListNull(types.StringType)
 	var oobIpConfig = NewOobIpConfigValueNull()
 	var orgId types.String
@@ -37,6 +38,7 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	var routerId types.String
 	var routingPolicies = types.MapNull(RoutingPoliciesValue{}.Type(ctx))
 	var servicePolicies = types.ListNull(ServicePoliciesValue{}.Type(ctx))
+	var ssrAdditionalConfigCmds = types.ListNull(types.StringType)
 	var tunnelConfigs = types.MapNull(TunnelConfigsValue{}.Type(ctx))
 	var tunnelProviderOptions = NewTunnelProviderOptionsValueNull()
 	var typeTemplate = types.StringValue("standalone")
@@ -106,6 +108,9 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	if data.ServicePolicies != nil {
 		servicePolicies = servicePoliciesSdkToTerraform(ctx, &diags, data.ServicePolicies)
 	}
+	if data.SsrAdditionalConfigCmds != nil {
+		ssrAdditionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.SsrAdditionalConfigCmds)
+	}
 	if len(data.TunnelConfigs) > 0 {
 		tunnelConfigs = tunnelConfigsSdkToTerraform(ctx, &diags, data.TunnelConfigs)
 	}
@@ -146,6 +151,7 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	state.RouterId = routerId
 	state.RoutingPolicies = routingPolicies
 	state.ServicePolicies = servicePolicies
+	state.SsrAdditionalConfigCmds = ssrAdditionalConfigCmds
 	state.TunnelConfigs = tunnelConfigs
 	state.TunnelProviderOptions = tunnelProviderOptions
 	state.Type = typeTemplate

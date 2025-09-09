@@ -34,7 +34,7 @@ resource "mist_org_nactag" "tag_one" {
 
 - `name` (String)
 - `org_id` (String)
-- `type` (String) enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`
+- `type` (String) enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `redirect_guest_portal`, `session_timeout`, `username_attr`, `vlan`
 
 ### Optional
 
@@ -48,6 +48,7 @@ resource "mist_org_nactag" "tag_one" {
 
 
 Currently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`
+- `nacportal_id` (String) If `type`==`redirect_guest_portal`, the ID of the guest portal to redirect to
 - `radius_attrs` (List of String) If `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field "radius_attrs". 
 It is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.
 Note that it is allowed to have more than one radius_attrs in the result of a given rule.

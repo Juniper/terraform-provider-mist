@@ -53,6 +53,18 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Enabled or not",
 				Default:             booldefault.StaticBool(true),
 			},
+			"guest_auth_state": schema.StringAttribute{
+				Optional:            true,
+				Description:         "Guest portal authorization state. enum: `authorized`, `unknown`",
+				MarkdownDescription: "Guest portal authorization state. enum: `authorized`, `unknown`",
+				Validators: []validator.String{
+					stringvalidator.OneOf(
+						"",
+						"authorized",
+						"unknown",
+					),
+				},
+			},
 			"id": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
@@ -329,15 +341,16 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgNacruleModel struct {
-	Action      types.String     `tfsdk:"action"`
-	ApplyTags   types.List       `tfsdk:"apply_tags"`
-	Enabled     types.Bool       `tfsdk:"enabled"`
-	Id          types.String     `tfsdk:"id"`
-	Matching    MatchingValue    `tfsdk:"matching"`
-	Name        types.String     `tfsdk:"name"`
-	NotMatching NotMatchingValue `tfsdk:"not_matching"`
-	Order       types.Int64      `tfsdk:"order"`
-	OrgId       types.String     `tfsdk:"org_id"`
+	Action         types.String     `tfsdk:"action"`
+	ApplyTags      types.List       `tfsdk:"apply_tags"`
+	Enabled        types.Bool       `tfsdk:"enabled"`
+	GuestAuthState types.String     `tfsdk:"guest_auth_state"`
+	Id             types.String     `tfsdk:"id"`
+	Matching       MatchingValue    `tfsdk:"matching"`
+	Name           types.String     `tfsdk:"name"`
+	NotMatching    NotMatchingValue `tfsdk:"not_matching"`
+	Order          types.Int64      `tfsdk:"order"`
+	OrgId          types.String     `tfsdk:"org_id"`
 }
 
 var _ basetypes.ObjectTypable = MatchingType{}

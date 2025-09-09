@@ -18,6 +18,9 @@ func portUsageScTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d b
 		if e != nil {
 			diags.Append(e...)
 		} else {
+			if vPlan.DisablePort.ValueBoolPointer() != nil {
+				data.DisablePort = models.ToPointer(vPlan.DisablePort.ValueBool())
+			}
 			if vPlan.NoBroadcast.ValueBoolPointer() != nil {
 				data.NoBroadcast = models.ToPointer(vPlan.NoBroadcast.ValueBool())
 			}

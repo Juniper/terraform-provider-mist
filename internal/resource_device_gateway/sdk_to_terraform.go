@@ -42,6 +42,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	var routingPolicies = types.MapNull(RoutingPoliciesValue{}.Type(ctx))
 	var servicePolicies = types.ListNull(ServicePoliciesValue{}.Type(ctx))
 	var siteId types.String
+	var ssrAdditionalConfigCmds = types.ListNull(types.StringType)
 	var tunnelConfigs = types.MapNull(TunnelConfigsValue{}.Type(ctx))
 	var tunnelProviderOptions = NewTunnelProviderOptionsValueNull()
 	var vars = types.MapNull(types.StringType)
@@ -130,11 +131,14 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	if len(data.RoutingPolicies) > 0 {
 		routingPolicies = routingPoliciesSdkToTerraform(ctx, &diags, data.RoutingPolicies)
 	}
+	if data.ServicePolicies != nil {
+		servicePolicies = servicePoliciesSdkToTerraform(ctx, &diags, data.ServicePolicies)
+	}
 	if data.SiteId != nil {
 		siteId = types.StringValue(data.SiteId.String())
 	}
-	if data.ServicePolicies != nil {
-		servicePolicies = servicePoliciesSdkToTerraform(ctx, &diags, data.ServicePolicies)
+	if data.SsrAdditionalConfigCmds != nil {
+		ssrAdditionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.SsrAdditionalConfigCmds)
 	}
 	if len(data.TunnelConfigs) > 0 {
 		tunnelConfigs = tunnelConfigsSdkToTerraform(ctx, &diags, data.TunnelConfigs)
@@ -201,6 +205,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	state.RoutingPolicies = routingPolicies
 	state.ServicePolicies = servicePolicies
 	state.SiteId = siteId
+	state.SsrAdditionalConfigCmds = ssrAdditionalConfigCmds
 	state.TunnelConfigs = tunnelConfigs
 	state.TunnelProviderOptions = tunnelProviderOptions
 	state.Vars = vars

@@ -84,7 +84,9 @@ resource "mist_org_setting" "terraform_test" {
 - `installer` (Attributes) (see [below for nested schema](#nestedatt--installer))
 - `jcloud` (Attributes) (see [below for nested schema](#nestedatt--jcloud))
 - `jcloud_ra` (Attributes) JCloud Routing Assurance connexion (see [below for nested schema](#nestedatt--jcloud_ra))
-- `junos_shell_access` (Attributes) by default, webshell access is only enabled for Admin user (see [below for nested schema](#nestedatt--junos_shell_access))
+- `junos_shell_access` (Attributes) junos_shell_access: Manages role-based web-shell access.  
+When junos_shell access is not defined (Default) - No additional users are configured and web-shell uses default `mist` user to login.  
+When junos_shell_access is defined - Additional users mist-web-admin (admin permission), mist-web-viewer(viewer permission) are configured on the device and web-shell logs in with the mist-web-admin/mist-web-viewer user depending upon the shell access level. Setting the shell access level to "none", disables web-shell access for that specific role. (see [below for nested schema](#nestedatt--junos_shell_access))
 - `marvis` (Attributes) (see [below for nested schema](#nestedatt--marvis))
 - `mgmt` (Attributes) management-related properties (see [below for nested schema](#nestedatt--mgmt))
 - `mist_nac` (Attributes) (see [below for nested schema](#nestedatt--mist_nac))

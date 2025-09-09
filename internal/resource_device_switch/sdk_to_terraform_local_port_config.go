@@ -13,12 +13,16 @@ import (
 )
 
 func localPortConfigStormControlSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SwitchPortLocalUsageStormControl) basetypes.ObjectValue {
-	var noBroadcast = types.BoolValue(false)
+	var disablePort basetypes.BoolValue
+	var noBroadcast basetypes.BoolValue
 	var noMulticast basetypes.BoolValue
 	var noRegisteredMulticast basetypes.BoolValue
 	var noUnknownUnicast basetypes.BoolValue
 	var percentage basetypes.Int64Value
 
+	if d.DisablePort != nil {
+		disablePort = types.BoolValue(*d.DisablePort)
+	}
 	if d.NoBroadcast != nil {
 		noBroadcast = types.BoolValue(*d.NoBroadcast)
 	}
@@ -36,6 +40,7 @@ func localPortConfigStormControlSdkToTerraform(ctx context.Context, diags *diag.
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"disable_port":            disablePort,
 		"no_broadcast":            noBroadcast,
 		"no_multicast":            noMulticast,
 		"no_registered_multicast": noRegisteredMulticast,

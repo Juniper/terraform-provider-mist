@@ -31,7 +31,7 @@ func bgpConfigNeighborsTerraformToSdk(d basetypes.MapValue) map[string]models.Bg
 			data.MultihopTtl = models.ToPointer(int(plan.MultihopTtl.ValueInt64()))
 		}
 		if plan.NeighborAs.ValueStringPointer() != nil {
-			data.NeighborAs = models.ToPointer(models.BgpAsContainer.FromString(plan.NeighborAs.ValueString()))
+			data.NeighborAs = models.BgpAsContainer.FromString(plan.NeighborAs.ValueString())
 		}
 
 		dataMap[k] = data
@@ -80,7 +80,7 @@ func bgpConfigTerraformToSdk(d basetypes.MapValue) map[string]models.BgpConfig {
 			data.ImportPolicy = plan.ImportPolicy.ValueStringPointer()
 		}
 		if plan.LocalAs.ValueStringPointer() != nil {
-			data.LocalAs = models.ToPointer(models.BgpAsContainer.FromString(plan.LocalAs.ValueString()))
+			data.LocalAs = models.ToPointer(models.BgpLocalAsContainer.FromString(plan.LocalAs.ValueString()))
 		}
 		if plan.NeighborAs.ValueStringPointer() != nil {
 			data.NeighborAs = models.ToPointer(models.BgpAsContainer.FromString(plan.NeighborAs.ValueString()))
@@ -104,7 +104,7 @@ func bgpConfigTerraformToSdk(d basetypes.MapValue) map[string]models.BgpConfig {
 			data.TunnelName = plan.TunnelName.ValueStringPointer()
 		}
 		if plan.Via.ValueStringPointer() != nil {
-			data.Via = models.ToPointer(models.BgpConfigViaEnum(plan.Via.ValueString()))
+			data.Via = models.BgpConfigViaEnum(plan.Via.ValueString())
 		}
 		if plan.VpnName.ValueStringPointer() != nil {
 			data.VpnName = plan.VpnName.ValueStringPointer()

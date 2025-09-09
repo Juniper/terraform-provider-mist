@@ -5,9 +5,7 @@ package resource_site_wlan
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -28,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -1251,12 +1250,70 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"mist_nac": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
+					"acct_interim_interval": schema.Int64Attribute{
+						Optional:            true,
+						Description:         "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled.",
+						MarkdownDescription: "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled.",
+						Validators: []validator.Int64{
+							int64validator.Between(0, 65535),
+						},
+					},
+					"auth_servers_retries": schema.Int64Attribute{
+						Optional:            true,
+						Description:         "Radius auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"retries\" are set to value of `auth_servers_timeout`. \"max-requests\" is also set when setting `auth_servers_retries` is set to default value to 3.",
+						MarkdownDescription: "Radius auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"retries\" are set to value of `auth_servers_timeout`. \"max-requests\" is also set when setting `auth_servers_retries` is set to default value to 3.",
+						Validators: []validator.Int64{
+							int64validator.Between(1, 10),
+						},
+					},
+					"auth_servers_timeout": schema.Int64Attribute{
+						Optional:            true,
+						Description:         "Radius auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"quite-period\" and \"transmit-period\" are set to half the value of `auth_servers_timeout`. \"supplicant-timeout\" is also set when setting `auth_servers_timeout` is set to default value of 10.",
+						MarkdownDescription: "Radius auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"quite-period\" and \"transmit-period\" are set to half the value of `auth_servers_timeout`. \"supplicant-timeout\" is also set when setting `auth_servers_timeout` is set to default value of 10.",
+						Validators: []validator.Int64{
+							int64validator.Between(1, 30),
+						},
+					},
+					"coa_enabled": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "Allows a RADIUS server to dynamically modify the authorization status of a user session.",
+						MarkdownDescription: "Allows a RADIUS server to dynamically modify the authorization status of a user session.",
+					},
+					"coa_port": schema.Int64Attribute{
+						Optional:            true,
+						Description:         "the communication port used for “Change of Authorization” (CoA) messages",
+						MarkdownDescription: "the communication port used for “Change of Authorization” (CoA) messages",
+						Validators: []validator.Int64{
+							int64validator.Between(1, 65535),
+						},
+					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "When enabled:\n  * `auth_servers` is ignored\n  * `acct_servers` is ignored\n  * `auth_servers_*` are ignored\n  * `coa_servers` is ignored\n  * `radsec` is ignored\n  * `coa_enabled` is assumed",
 						MarkdownDescription: "When enabled:\n  * `auth_servers` is ignored\n  * `acct_servers` is ignored\n  * `auth_servers_*` are ignored\n  * `coa_servers` is ignored\n  * `radsec` is ignored\n  * `coa_enabled` is assumed",
 						Default:             booldefault.StaticBool(false),
+					},
+					"fast_dot1x_timers": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "If set to true, sets default fast-timers with values calculated from `auth_servers_timeout` and `auth_server_retries`.",
+						MarkdownDescription: "If set to true, sets default fast-timers with values calculated from `auth_servers_timeout` and `auth_server_retries`.",
+					},
+					"network": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Which network the mist nac server resides in",
+						MarkdownDescription: "Which network the mist nac server resides in",
+					},
+					"source_ip": schema.StringAttribute{
+						Optional:            true,
+						Description:         "In case there is a static IP for this network, we can specify it using source ip",
+						MarkdownDescription: "In case there is a static IP for this network, we can specify it using source ip",
+						Validators: []validator.String{
+							stringvalidator.Any(
+								mistvalidator.ParseIp(true, false),
+								mistvalidator.ParseVar(),
+							),
+						},
 					},
 				},
 				CustomType: MistNacType{
@@ -1270,7 +1327,15 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					types.ObjectValueMust(
 						MistNacValue{}.AttributeTypes(ctx),
 						map[string]attr.Value{
-							"enabled": types.BoolValue(false),
+							"acct_interim_interval": types.Int64Null(),
+							"auth_servers_retries":  types.Int64Null(),
+							"auth_servers_timeout":  types.Int64Null(),
+							"coa_enabled":           types.BoolNull(),
+							"coa_port":              types.Int64Null(),
+							"enabled":               types.BoolNull(),
+							"fast_dot1x_timers":     types.BoolNull(),
+							"network":               types.StringNull(),
+							"source_ip":             types.StringNull(),
 						},
 					),
 				),
@@ -12414,6 +12479,96 @@ func (t MistNacType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 
 	attributes := in.Attributes()
 
+	acctInterimIntervalAttribute, ok := attributes["acct_interim_interval"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`acct_interim_interval is missing from object`)
+
+		return nil, diags
+	}
+
+	acctInterimIntervalVal, ok := acctInterimIntervalAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`acct_interim_interval expected to be basetypes.Int64Value, was: %T`, acctInterimIntervalAttribute))
+	}
+
+	authServersRetriesAttribute, ok := attributes["auth_servers_retries"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_servers_retries is missing from object`)
+
+		return nil, diags
+	}
+
+	authServersRetriesVal, ok := authServersRetriesAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_servers_retries expected to be basetypes.Int64Value, was: %T`, authServersRetriesAttribute))
+	}
+
+	authServersTimeoutAttribute, ok := attributes["auth_servers_timeout"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_servers_timeout is missing from object`)
+
+		return nil, diags
+	}
+
+	authServersTimeoutVal, ok := authServersTimeoutAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_servers_timeout expected to be basetypes.Int64Value, was: %T`, authServersTimeoutAttribute))
+	}
+
+	coaEnabledAttribute, ok := attributes["coa_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`coa_enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	coaEnabledVal, ok := coaEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`coa_enabled expected to be basetypes.BoolValue, was: %T`, coaEnabledAttribute))
+	}
+
+	coaPortAttribute, ok := attributes["coa_port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`coa_port is missing from object`)
+
+		return nil, diags
+	}
+
+	coaPortVal, ok := coaPortAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`coa_port expected to be basetypes.Int64Value, was: %T`, coaPortAttribute))
+	}
+
 	enabledAttribute, ok := attributes["enabled"]
 
 	if !ok {
@@ -12432,13 +12587,75 @@ func (t MistNacType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
+	fastDot1xTimersAttribute, ok := attributes["fast_dot1x_timers"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`fast_dot1x_timers is missing from object`)
+
+		return nil, diags
+	}
+
+	fastDot1xTimersVal, ok := fastDot1xTimersAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`fast_dot1x_timers expected to be basetypes.BoolValue, was: %T`, fastDot1xTimersAttribute))
+	}
+
+	networkAttribute, ok := attributes["network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`network is missing from object`)
+
+		return nil, diags
+	}
+
+	networkVal, ok := networkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
+	}
+
+	sourceIpAttribute, ok := attributes["source_ip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`source_ip is missing from object`)
+
+		return nil, diags
+	}
+
+	sourceIpVal, ok := sourceIpAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`source_ip expected to be basetypes.StringValue, was: %T`, sourceIpAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return MistNacValue{
-		Enabled: enabledVal,
-		state:   attr.ValueStateKnown,
+		AcctInterimInterval: acctInterimIntervalVal,
+		AuthServersRetries:  authServersRetriesVal,
+		AuthServersTimeout:  authServersTimeoutVal,
+		CoaEnabled:          coaEnabledVal,
+		CoaPort:             coaPortVal,
+		Enabled:             enabledVal,
+		FastDot1xTimers:     fastDot1xTimersVal,
+		Network:             networkVal,
+		SourceIp:            sourceIpVal,
+		state:               attr.ValueStateKnown,
 	}, diags
 }
 
@@ -12505,6 +12722,96 @@ func NewMistNacValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewMistNacValueUnknown(), diags
 	}
 
+	acctInterimIntervalAttribute, ok := attributes["acct_interim_interval"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`acct_interim_interval is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	acctInterimIntervalVal, ok := acctInterimIntervalAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`acct_interim_interval expected to be basetypes.Int64Value, was: %T`, acctInterimIntervalAttribute))
+	}
+
+	authServersRetriesAttribute, ok := attributes["auth_servers_retries"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_servers_retries is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	authServersRetriesVal, ok := authServersRetriesAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_servers_retries expected to be basetypes.Int64Value, was: %T`, authServersRetriesAttribute))
+	}
+
+	authServersTimeoutAttribute, ok := attributes["auth_servers_timeout"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_servers_timeout is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	authServersTimeoutVal, ok := authServersTimeoutAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_servers_timeout expected to be basetypes.Int64Value, was: %T`, authServersTimeoutAttribute))
+	}
+
+	coaEnabledAttribute, ok := attributes["coa_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`coa_enabled is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	coaEnabledVal, ok := coaEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`coa_enabled expected to be basetypes.BoolValue, was: %T`, coaEnabledAttribute))
+	}
+
+	coaPortAttribute, ok := attributes["coa_port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`coa_port is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	coaPortVal, ok := coaPortAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`coa_port expected to be basetypes.Int64Value, was: %T`, coaPortAttribute))
+	}
+
 	enabledAttribute, ok := attributes["enabled"]
 
 	if !ok {
@@ -12523,13 +12830,75 @@ func NewMistNacValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
+	fastDot1xTimersAttribute, ok := attributes["fast_dot1x_timers"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`fast_dot1x_timers is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	fastDot1xTimersVal, ok := fastDot1xTimersAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`fast_dot1x_timers expected to be basetypes.BoolValue, was: %T`, fastDot1xTimersAttribute))
+	}
+
+	networkAttribute, ok := attributes["network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`network is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	networkVal, ok := networkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
+	}
+
+	sourceIpAttribute, ok := attributes["source_ip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`source_ip is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	sourceIpVal, ok := sourceIpAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`source_ip expected to be basetypes.StringValue, was: %T`, sourceIpAttribute))
+	}
+
 	if diags.HasError() {
 		return NewMistNacValueUnknown(), diags
 	}
 
 	return MistNacValue{
-		Enabled: enabledVal,
-		state:   attr.ValueStateKnown,
+		AcctInterimInterval: acctInterimIntervalVal,
+		AuthServersRetries:  authServersRetriesVal,
+		AuthServersTimeout:  authServersTimeoutVal,
+		CoaEnabled:          coaEnabledVal,
+		CoaPort:             coaPortVal,
+		Enabled:             enabledVal,
+		FastDot1xTimers:     fastDot1xTimersVal,
+		Network:             networkVal,
+		SourceIp:            sourceIpVal,
+		state:               attr.ValueStateKnown,
 	}, diags
 }
 
@@ -12601,23 +12970,79 @@ func (t MistNacType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = MistNacValue{}
 
 type MistNacValue struct {
-	Enabled basetypes.BoolValue `tfsdk:"enabled"`
-	state   attr.ValueState
+	AcctInterimInterval basetypes.Int64Value  `tfsdk:"acct_interim_interval"`
+	AuthServersRetries  basetypes.Int64Value  `tfsdk:"auth_servers_retries"`
+	AuthServersTimeout  basetypes.Int64Value  `tfsdk:"auth_servers_timeout"`
+	CoaEnabled          basetypes.BoolValue   `tfsdk:"coa_enabled"`
+	CoaPort             basetypes.Int64Value  `tfsdk:"coa_port"`
+	Enabled             basetypes.BoolValue   `tfsdk:"enabled"`
+	FastDot1xTimers     basetypes.BoolValue   `tfsdk:"fast_dot1x_timers"`
+	Network             basetypes.StringValue `tfsdk:"network"`
+	SourceIp            basetypes.StringValue `tfsdk:"source_ip"`
+	state               attr.ValueState
 }
 
 func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 1)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["acct_interim_interval"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["auth_servers_retries"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["auth_servers_timeout"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["coa_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["coa_port"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["fast_dot1x_timers"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["source_ip"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 1)
+		vals := make(map[string]tftypes.Value, 9)
+
+		val, err = v.AcctInterimInterval.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["acct_interim_interval"] = val
+
+		val, err = v.AuthServersRetries.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_servers_retries"] = val
+
+		val, err = v.AuthServersTimeout.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_servers_timeout"] = val
+
+		val, err = v.CoaEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["coa_enabled"] = val
+
+		val, err = v.CoaPort.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["coa_port"] = val
 
 		val, err = v.Enabled.ToTerraformValue(ctx)
 
@@ -12626,6 +13051,30 @@ func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["enabled"] = val
+
+		val, err = v.FastDot1xTimers.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["fast_dot1x_timers"] = val
+
+		val, err = v.Network.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["network"] = val
+
+		val, err = v.SourceIp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["source_ip"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -12657,7 +13106,15 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"enabled": basetypes.BoolType{},
+		"acct_interim_interval": basetypes.Int64Type{},
+		"auth_servers_retries":  basetypes.Int64Type{},
+		"auth_servers_timeout":  basetypes.Int64Type{},
+		"coa_enabled":           basetypes.BoolType{},
+		"coa_port":              basetypes.Int64Type{},
+		"enabled":               basetypes.BoolType{},
+		"fast_dot1x_timers":     basetypes.BoolType{},
+		"network":               basetypes.StringType{},
+		"source_ip":             basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -12671,7 +13128,15 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"enabled": v.Enabled,
+			"acct_interim_interval": v.AcctInterimInterval,
+			"auth_servers_retries":  v.AuthServersRetries,
+			"auth_servers_timeout":  v.AuthServersTimeout,
+			"coa_enabled":           v.CoaEnabled,
+			"coa_port":              v.CoaPort,
+			"enabled":               v.Enabled,
+			"fast_dot1x_timers":     v.FastDot1xTimers,
+			"network":               v.Network,
+			"source_ip":             v.SourceIp,
 		})
 
 	return objVal, diags
@@ -12692,7 +13157,39 @@ func (v MistNacValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.AcctInterimInterval.Equal(other.AcctInterimInterval) {
+		return false
+	}
+
+	if !v.AuthServersRetries.Equal(other.AuthServersRetries) {
+		return false
+	}
+
+	if !v.AuthServersTimeout.Equal(other.AuthServersTimeout) {
+		return false
+	}
+
+	if !v.CoaEnabled.Equal(other.CoaEnabled) {
+		return false
+	}
+
+	if !v.CoaPort.Equal(other.CoaPort) {
+		return false
+	}
+
 	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.FastDot1xTimers.Equal(other.FastDot1xTimers) {
+		return false
+	}
+
+	if !v.Network.Equal(other.Network) {
+		return false
+	}
+
+	if !v.SourceIp.Equal(other.SourceIp) {
 		return false
 	}
 
@@ -12709,7 +13206,15 @@ func (v MistNacValue) Type(ctx context.Context) attr.Type {
 
 func (v MistNacValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"enabled": basetypes.BoolType{},
+		"acct_interim_interval": basetypes.Int64Type{},
+		"auth_servers_retries":  basetypes.Int64Type{},
+		"auth_servers_timeout":  basetypes.Int64Type{},
+		"coa_enabled":           basetypes.BoolType{},
+		"coa_port":              basetypes.Int64Type{},
+		"enabled":               basetypes.BoolType{},
+		"fast_dot1x_timers":     basetypes.BoolType{},
+		"network":               basetypes.StringType{},
+		"source_ip":             basetypes.StringType{},
 	}
 }
 
