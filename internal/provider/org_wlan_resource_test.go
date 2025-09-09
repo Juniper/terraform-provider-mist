@@ -135,6 +135,7 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
 	checks.append(t, "TestCheckResourceAttr", "ssid", s.Ssid)
 	checks.append(t, "TestCheckResourceAttrSet", "template_id")
+	checks.append(t, "TestCheckResourceAttr", "msp_id", "")
 
 	// Core boolean settings
 	if s.Enabled != nil {
@@ -424,6 +425,21 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auth_servers.%d.port", i), fmt.Sprintf("%d", *server.Port))
 			}
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auth_servers.%d.secret", i), server.Secret)
+			if server.KeywrapEnabled != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auth_servers.%d.keywrap_enabled", i), fmt.Sprintf("%t", *server.KeywrapEnabled))
+			}
+			if server.KeywrapFormat != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auth_servers.%d.keywrap_format", i), *server.KeywrapFormat)
+			}
+			if server.KeywrapKek != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auth_servers.%d.keywrap_kek", i), *server.KeywrapKek)
+			}
+			if server.KeywrapMack != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auth_servers.%d.keywrap_mack", i), *server.KeywrapMack)
+			}
+			if server.RequireMessageAuthenticator != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auth_servers.%d.require_message_authenticator", i), fmt.Sprintf("%t", *server.RequireMessageAuthenticator))
+			}
 		}
 	}
 
@@ -542,6 +558,26 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 				}
 				if appConfig.SrcSubnet != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.apps.%s.src_subnet", appName), *appConfig.SrcSubnet)
+				}
+			}
+		}
+		if s.AppQos.Others != nil {
+			checks.append(t, "TestCheckResourceAttr", "app_qos.others.#", fmt.Sprintf("%d", len(s.AppQos.Others)))
+			for i, othersConfig := range s.AppQos.Others {
+				if othersConfig.Dscp != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.others.%d.dscp", i), fmt.Sprintf("%d", *othersConfig.Dscp))
+				}
+				if othersConfig.DstSubnet != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.others.%d.dst_subnet", i), *othersConfig.DstSubnet)
+				}
+				if othersConfig.PortRanges != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.others.%d.port_ranges", i), *othersConfig.PortRanges)
+				}
+				if othersConfig.Protocol != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.others.%d.protocol", i), *othersConfig.Protocol)
+				}
+				if othersConfig.SrcSubnet != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.others.%d.src_subnet", i), *othersConfig.SrcSubnet)
 				}
 			}
 		}
@@ -824,6 +860,14 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		}
 		if s.Portal.SmsMessageFormat != nil {
 			checks.append(t, "TestCheckResourceAttr", "portal.sms_message_format", *s.Portal.SmsMessageFormat)
+		}
+
+		// SMSGlobal settings
+		if s.Portal.SmsglobalApiKey != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.smsglobal_api_key", *s.Portal.SmsglobalApiKey)
+		}
+		if s.Portal.SmsglobalApiSecret != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.smsglobal_api_secret", *s.Portal.SmsglobalApiSecret)
 		}
 
 		// Twilio settings

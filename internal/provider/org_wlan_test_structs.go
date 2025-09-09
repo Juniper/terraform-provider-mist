@@ -264,6 +264,8 @@ type PortalValue struct {
 	SmsExpire                   *int64            `hcl:"sms_expire" cty:"sms_expire"`
 	SmsMessageFormat            *string           `hcl:"sms_message_format" cty:"sms_message_format"`
 	SmsProvider                 *string           `hcl:"sms_provider" cty:"sms_provider"`
+	SmsglobalApiKey             *string           `hcl:"smsglobal_api_key" cty:"smsglobal_api_key"`
+	SmsglobalApiSecret          *string           `hcl:"smsglobal_api_secret" cty:"smsglobal_api_secret"`
 	SponsorAutoApprove          *bool             `hcl:"sponsor_auto_approve" cty:"sponsor_auto_approve"`
 	SponsorEmailDomains         []string          `hcl:"sponsor_email_domains" cty:"sponsor_email_domains"`
 	SponsorEnabled              *bool             `hcl:"sponsor_enabled" cty:"sponsor_enabled"`

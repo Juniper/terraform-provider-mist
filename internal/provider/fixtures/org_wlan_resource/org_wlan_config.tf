@@ -345,6 +345,15 @@
             }
           }
           enabled = true
+          others = [
+            {
+              dscp        = 46
+              dst_subnet  = "192.168.99.0/24"
+              port_ranges = "8000-9000,9500-9600"
+              protocol    = "tcp"
+              src_subnet  = "10.99.0.0/16"
+            }
+          ]
         }
         qos = {
           class     = "video"
