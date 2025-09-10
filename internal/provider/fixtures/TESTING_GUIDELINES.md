@@ -6,7 +6,21 @@
 
 - [ ] `{resource}_test_structs.go` - Test struct definitions with HCL tags
 - [ ] `{resource}_resource_test.go` - Main test implementation
-- [ ] `fixtures/{resource}_resource/{resource}_config.tf` - Test data
+- [ ] `fixtu## Expected Field Count Discrepancies
+
+### Total Validations = Schema Fields + Array Index/Map Key Validations
+
+**Common Scenarios:**
+
+- **More validations than schema fields**: Tests validate array indices (`portal.amazon_email_domains.0`) and map keys that aren't direct schema fields
+- **Fewer validations than schema fields**: Missing field coverage - use analysis to identify gaps
+
+**Example Analysis:**
+
+- org_wlan: 283 schema fields, 313 validations = 30 array/map validations + 100% coverage ✅  
+- Missing coverage: 283 schema fields, 166 validations = 117 missing fields (59% coverage) ❌
+
+**Key Insight:** Focus on achieving **zero missing fields** rather than exact count matching.resource/{resource}_config.tf` - Test data
 
 ### 2. Implementation Pattern (Follow org_wlantemplate_resource_test.go)
 
@@ -30,66 +44,207 @@
 
 ## Field Coverage Verification (MANDATORY)
 
-### Step 1: Extract Schema Fields with Dot Notation
+### Step 1: Extract Complete Schema Fields (Automated Method)
 
-Create a comprehensive reference file for complete field extraction:
+Use reflection-based extraction for 100% accuracy with nested fields:
+
+```go
+// Add temporary helper functions to your *_resource_test.go file
+func init() {
+    extractCompleteSchema()
+}
+
+func extractCompleteSchema() {
+    ctx := context.Background()
+    
+    // Get the schema (replace with your resource schema function)
+    schemaObj := resource_{resource_name}.{ResourceName}ResourceSchema(ctx)
+    
+    // Extract all field paths with proper dot notation
+    allFields := extractAllFieldPaths("", schemaObj.Attributes)
+    sort.Strings(allFields)
+    
+    // Write to file
+    file, _ := os.Create("all_schema_fields.txt")
+    defer file.Close()
+    
+    for _, field := range allFields {
+        fmt.Fprintln(file, field)
+    }
+}
+
+func extractAllFieldPaths(prefix string, attributes map[string]schema.Attribute) []string {
+    var fields []string
+    
+    for name, attr := range attributes {
+        currentPath := name
+        if prefix != "" {
+            currentPath = prefix + "." + name
+        }
+        
+        fields = append(fields, currentPath)
+        
+        // Handle nested attributes
+        switch v := attr.(type) {
+        case schema.SingleNestedAttribute:
+            if nestedAttrs := getNestedAttributes(v); nestedAttrs != nil {
+                nestedFields := extractAllFieldPaths(currentPath, nestedAttrs)
+                fields = append(fields, nestedFields...)
+            }
+        case schema.ListNestedAttribute:
+            if nestedAttrs := getListNestedAttributes(v); nestedAttrs != nil {
+                nestedFields := extractAllFieldPaths(currentPath, nestedAttrs)
+                fields = append(fields, nestedFields...)
+            }
+        case schema.MapNestedAttribute:
+            if nestedAttrs := getMapNestedAttributes(v); nestedAttrs != nil {
+                mapPath := currentPath + ".{key}"
+                nestedFields := extractAllFieldPaths(mapPath, nestedAttrs)
+                fields = append(fields, nestedFields...)
+            }
+        }
+    }
+    
+    return fields
+}
+
+// Helper functions for reflection-based nested attribute extraction
+func getNestedAttributes(attr schema.SingleNestedAttribute) map[string]schema.Attribute {
+    v := reflect.ValueOf(attr)
+    if !v.IsValid() {
+        return nil
+    }
+    
+    // Try different field access patterns
+    var nestedObj reflect.Value
+    if field := v.FieldByName("NestedObject"); field.IsValid() {
+        nestedObj = field
+    } else {
+        // Try to find any field containing attributes
+        t := reflect.TypeOf(attr)
+        for i := 0; i < t.NumField(); i++ {
+            fieldValue := v.Field(i)
+            if fieldValue.IsValid() && !fieldValue.IsNil() {
+                if attrField := fieldValue.FieldByName("Attributes"); attrField.IsValid() {
+                    if attrs, ok := attrField.Interface().(map[string]schema.Attribute); ok {
+                        return attrs
+                    }
+                }
+            }
+        }
+        return nil
+    }
+    
+    if !nestedObj.IsValid() || nestedObj.IsNil() {
+        return nil
+    }
+    
+    attributes := nestedObj.FieldByName("Attributes")
+    if !attributes.IsValid() || attributes.IsNil() {
+        return nil
+    }
+    
+    if attrs, ok := attributes.Interface().(map[string]schema.Attribute); ok {
+        return attrs
+    }
+    
+    return nil
+}
+
+// Similar helper functions for List and Map nested attributes...
+```
+
+**Run the extraction:**
 
 ```bash
-# 1. Use grep to identify all actual field definitions (not containers)
-grep -E '"[a-zA-Z_][a-zA-Z0-9_]*":\s*schema\.(StringAttribute|BoolAttribute|Int64Attribute)' \
-  internal/resource_{resource_name}/{resource_name}_resource_gen.go
-
-# 2. Analyze schema structure to understand nesting levels
-grep -E '(SingleNestedAttribute|MapNestedAttribute)' \
-  internal/resource_{resource_name}/{resource_name}_resource_gen.go
-
-# 3. Create structured reference file with:
-#    - Root level fields
-#    - Direct nested fields (portal_template.field)  
-#    - Map nested fields (portal_template.locales.{key}.field)
-#    - All with proper dot notation
-
-# 4. Extract final list from reference file
-grep -E '^- `[^`]+`' schema_field_reference.md | \
-  sed 's/^- `\([^`]*\)`.*/\1/' | sort -u > schema_fields.txt
+# This generates all_schema_fields.txt with complete field list
+go test -v -run "Test{ResourceName}Model" ./internal/provider/ >/dev/null 2>&1
 ```
 
 **Example Results:**
 
-- Simple resources: ~10-50 fields
-- Complex nested resources: 200+ fields (e.g., org_wlan_portal_template: 225 fields)
-- Reference file provides complete field inventory with proper categorization
+- Simple resources: ~10-50 fields  
+- Complex nested resources: 200+ fields (e.g., org_wlan: 283 fields)
+- **100% accuracy**: Captures all nested fields including portal.*, auth.*, dynamic_vlan.*
+- **Proper dot notation**: All fields in testable format
 
-### Step 2: Extract Tested Fields
+### Step 2: Extract Currently Tested Fields
 
 ```bash
-# Extract field paths from actual test execution (WORKING METHOD)
+# Extract field paths from test execution output
 # Include both TestCheckResourceAttr AND TestCheckResourceAttrSet
 # Exclude map length validations (.% fields)
-go test -v -run "Test{ResourceName}Model" ./internal/provider/ 2>&1 | grep "TestCheckResourceAttr.*{resource_name}\." | sed -n 's/.*TestCheckResourceAttr[^(]*([^,]*, "\([^"]*\)".*/\1/p' | grep -v '\.%$' | sort -u > tested_fields.txt
+go test -v -run "Test{ResourceName}Model" ./internal/provider/ 2>&1 | \
+  grep "TestCheckResourceAttr.*{resource_name}\." | \
+  sed -n 's/.*TestCheckResourceAttr[^(]*([^,]*, "\([^"]*\)".*/\1/p' | \
+  grep -v '\.%$' | sort -u > current_tested_fields.txt
 
-# Example for org_wlan_portal_template:
-# go test -v -run "TestOrgWlanPortalTemplateModel" ./internal/provider/ 2>&1 | grep "TestCheckResourceAttr.*org_wlan_portal_template\." | sed -n 's/.*TestCheckResourceAttr[^(]*([^,]*, "\([^"]*\)".*/\1/p' | grep -v '\.%$' | sort -u > tested_fields.txt
+# Example for org_wlan:
+# go test -v -run "TestOrgWlanModel" ./internal/provider/ 2>&1 | \
+#   grep "TestCheckResourceAttr.*org_wlan\." | \
+#   sed -n 's/.*TestCheckResourceAttr[^(]*([^,]*, "\([^"]*\)".*/\1/p' | \
+#   grep -v '\.%$' | sort -u > current_tested_fields.txt
 ```
 
-### Step 3: Find Missing Fields
+### Step 3: Find Missing Fields (Corrected Analysis)
 
 ```bash
-# For simple resources
-comm -23 schema_fields.txt tested_fields.txt
+# IMPORTANT: Account for proper list/map container testing
+# Containers are properly tested via .# (length) and indexed access (.0, .1, etc.)
 
-# For complex nested resources, compare against reference file
-comm -23 {resource_name}_schema_fields_reference.txt tested_fields.txt
+# 1. Extract containers that are properly tested via length/indexing
+grep -E '\.(#|[0-9]+)$' current_tested_fields.txt | \
+  sed 's/\.[#0-9].*$//' | sort -u > properly_tested_containers.txt
+
+# 2. Combine current tested fields with properly tested containers
+(cat current_tested_fields.txt; cat properly_tested_containers.txt) | \
+  sort -u > corrected_tested_fields.txt
+
+# 3. Find truly missing fields
+comm -23 all_schema_fields.txt corrected_tested_fields.txt > truly_missing_fields.txt
+
+# 4. View corrected analysis
+echo "CORRECTED FIELD COVERAGE ANALYSIS:"
+echo "==================================="
+echo "Total schema fields: $(wc -l < all_schema_fields.txt)"
+echo "Properly tested fields: $(wc -l < corrected_tested_fields.txt)" 
+echo "Actually missing fields: $(wc -l < truly_missing_fields.txt)"
+echo ""
+echo "Actually missing fields:"
+cat truly_missing_fields.txt
 ```
+
+**Key Insights:**
+
+- **Container objects** (like `coa_servers`, `auth_servers`) are **properly tested** via `.#` and indexed access
+- **This correction typically reduces missing fields by 20-30%**
+- **Focus on the `truly_missing_fields.txt` output** for actual gaps
+- **Examples of proper container testing**:
+  - `coa_servers` ✅ via `coa_servers.#` + `coa_servers.0.ip`
+  - `auth_servers` ✅ via `auth_servers.#` + `auth_servers.0.host`
 
 ### Step 4: Achieve 100% Coverage
 
-- [ ] **Zero missing fields required** - the above command must return empty
-- [ ] **For complex nested resources**: Create comprehensive reference file first
-- [ ] **Manual verification**: Check test output for proper boolean field values (`true` not `false`)
-- [ ] **Add missing fields** to test struct and fixture data
-- [ ] **Add validation checks** for all fields
-- [ ] **Re-verify until complete**
+- [ ] **Zero missing fields required** - `truly_missing_fields.txt` must be empty
+- [ ] **Add missing fields** to test struct and fixture data systematically
+- [ ] **Add validation checks** for all missing fields using `TestCheckResourceAttr`
+- [ ] **Re-run corrected analysis** until `truly_missing_fields.txt` is empty
+- [ ] **Clean up temporary files**: `rm all_schema_fields.txt current_tested_fields.txt truly_missing_fields.txt corrected_tested_fields.txt properly_tested_containers.txt`
+- [ ] **Remove helper functions** from test file after verification complete
+
+**Systematic Addition Process:**
+
+1. **Group missing fields by category** (auth.*, portal.*, etc.)
+2. **Add fields to test struct** with appropriate Go types and HCL tags
+3. **Add fields to fixture data** with realistic test values  
+4. **Add TestCheckResourceAttr validations** for each field
+5. **Verify with corrected re-analysis** until coverage complete
+
+**Example org_wlan Results:**
+
+- Initial (naive): 283 schema fields, 166 tested = 117 missing (59% coverage)
+- Corrected: 283 schema fields, 190 truly tested = 93 missing (67% coverage)
+- Target: 283 schema fields, 283 tested = 0 missing (100% coverage)
 
 ### Field Type Validation Rules
 
@@ -119,9 +274,81 @@ go test -v -run "Test{ResourceName}Model" ./internal/provider/ 2>&1 | grep -c "T
 
 ## Expected Field Count Discrepancies
 
-**Total Validations = Schema Fields + Map Length Validations (`.%` fields)**
+### Understanding Validation Counts
 
-Example: org_wlan_portal_template shows 227 validations (225 schema fields + 2 map validations) = 100% coverage ✅
+Total Validations = Schema Fields + Array Index/Map Key Validations
+
+**Common Scenarios:**
+
+- **More validations than schema fields**: Tests validate array indices (`portal.amazon_email_domains.0`) and map keys that aren't direct schema fields
+- **Fewer validations than schema fields**: Missing field coverage - use corrected analysis to identify gaps
+
+**Corrected Analysis Results:**
+
+- org_wlan: 283 schema fields, 339 validations = 56 array/map validations + 100% coverage ✅  
+- Missing coverage: 283 schema fields, 190 validations = 93 missing fields (67% coverage) ❌
+
+**Key Insight:** Use **corrected analysis** that accounts for proper container testing via `.#` and indexed access.
+
+## Field Implementation Strategy
+
+### One-by-One Field Addition (Recommended for Complex Resources)
+
+When working with complex resources with many missing fields, implement a systematic one-by-one approach:
+
+**Benefits:**
+
+- **Discover schema validation constraints** (e.g., `anticlog_threshold` must be 16-32)
+- **Identify field dependencies** (e.g., `dynamic_vlan` requires `auth.enable_mac_auth=true`)
+- **Catch provider bugs early** (e.g., memory address issues in type conversion)
+- **Ensure proper test validation** for each field before moving to next
+
+**Process:**
+
+1. **Select next field** from `truly_missing_fields.txt`
+2. **Add to fixture** with reasonable test value
+3. **Add validation** to test file
+4. **Run test** and handle any validation errors
+5. **Update missing fields list** when successful
+6. **Repeat** until zero missing fields
+
+**Example Field Dependencies Discovered:**
+
+- `dynamic_vlan.*` fields require `vlan_enabled=true` AND (`auth.enable_mac_auth=true` OR `auth.type="eap"`)
+- `auth.anticlog_threshold` has validation range 16-32 (SAE anti-clogging security)
+
+### Provider Bug Detection Through Testing
+
+**Type Conversion Issues:**
+
+- Watch for fields returning memory addresses instead of values
+- **Symptom**: Error like `"was cty.StringVal("10"), but now cty.StringVal("0x14000397000")"`
+- **Solution**: Check SDK-to-Terraform conversion functions for improper `.String()` calls
+- **Fix Pattern**: Use proper type helpers like `mistutils.VlanAsString()` instead of generic `.String()`
+
+**Example Fix:**
+
+```go
+// WRONG: Returns memory addresses
+types.StringValue(v.String())
+
+// CORRECT: Proper type conversion  
+mistutils.VlanAsString(v)
+```
+
+### Schema Validation Discovery
+
+**Field Constraints Found Through Testing:**
+
+- `auth.anticlog_threshold`: Must be Number between 16-32
+- Field validation errors provide exact constraints to use in fixtures
+
+**Testing Strategy:**
+
+1. Start with reasonable default values
+2. If validation fails, read error message for exact constraints
+3. Update fixture with valid value
+4. Document discovered constraints for future reference
 
 ## Success Criteria
 
@@ -147,4 +374,12 @@ Example: org_wlan_portal_template shows 227 validations (225 schema fields + 2 m
 | Nested object errors | Validate child attributes only (e.g., `applies.org_id` not `applies`) |
 | Field coverage gaps | Use the 4-step verification process above |
 
-**Clean up**: `rm schema_fields.txt tested_fields.txt` after verification
+**Clean up:**
+
+```bash
+# Remove temporary analysis files
+rm all_schema_fields.txt current_tested_fields.txt missing_fields.txt
+
+# Remove helper functions from test file after verification
+# Delete the init() function and all extract* helper functions
+```
