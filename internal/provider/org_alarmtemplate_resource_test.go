@@ -52,6 +52,7 @@ func TestOrgAlarmtemplate(t *testing.T) {
 
 	for i, fixture := range fixtures {
 		FixtureOrgAlarmtemplateModel := OrgAlarmtemplateModel{}
+
 		err = hcl.Decode(&FixtureOrgAlarmtemplateModel, fixture)
 		if err != nil {
 			fmt.Printf("error decoding hcl: %s\n", err)
@@ -102,9 +103,42 @@ func TestOrgAlarmtemplate(t *testing.T) {
 
 func (s *OrgAlarmtemplateModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+	// Required parameters
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttrSet", "delivery.enabled")
+	checks.append(t, "TestCheckResourceAttrSet", "delivery.%")
+	checks.append(t, "TestCheckResourceAttr", "delivery.enabled", fmt.Sprintf("%t", s.Delivery.Enabled))
+
+	// DeliveryValue optional fields
+	if len(s.Delivery.AdditionalEmails) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "delivery.additional_emails.#", fmt.Sprintf("%d", len(s.Delivery.AdditionalEmails)))
+	}
+	if s.Delivery.ToOrgAdmins != nil {
+		checks.append(t, "TestCheckResourceAttr", "delivery.to_org_admins", fmt.Sprintf("%t", *s.Delivery.ToOrgAdmins))
+	}
+	if s.Delivery.ToSiteAdmins != nil {
+		checks.append(t, "TestCheckResourceAttr", "delivery.to_site_admins", fmt.Sprintf("%t", *s.Delivery.ToSiteAdmins))
+	}
+
+	// Rules map
+	if len(s.Rules) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "rules.%", fmt.Sprintf("%d", len(s.Rules)))
+		for key, rule := range s.Rules {
+			attrPrefix := fmt.Sprintf("rules.%s", key)
+			checks.append(t, "TestCheckResourceAttrSet", attrPrefix+".enabled")
+			if rule.Delivery != nil {
+				if len(rule.Delivery.AdditionalEmails) > 0 {
+					checks.append(t, "TestCheckResourceAttr", attrPrefix+".delivery.additional_emails.#", fmt.Sprintf("%d", len(rule.Delivery.AdditionalEmails)))
+				}
+				if rule.Delivery.ToOrgAdmins != nil {
+					checks.append(t, "TestCheckResourceAttr", attrPrefix+".delivery.to_org_admins", fmt.Sprintf("%t", *rule.Delivery.ToOrgAdmins))
+				}
+				if rule.Delivery.ToSiteAdmins != nil {
+					checks.append(t, "TestCheckResourceAttr", attrPrefix+".delivery.to_site_admins", fmt.Sprintf("%t", *rule.Delivery.ToSiteAdmins))
+				}
+			}
+		}
+	}
 
 	return checks
 }

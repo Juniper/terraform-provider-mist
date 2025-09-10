@@ -2,10 +2,8 @@ package provider
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
-	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -24,67 +22,41 @@ func TestDeviceGatewayCluster(t *testing.T) {
 	}
 
 	type testCase struct {
-		//apiVersionConstraints version.Constraints
 		steps []testStep
 	}
 
-	var DGClusterModel DeviceGatewayClusterModel
-
-	b, err := os.ReadFile("fixtures/device_gateway_cluster_resource/device_gateway_cluster_config.tf")
-	if err != nil {
-		fmt.Print(err)
-	}
-
-	str := string(b) // convert content to a 'string'
-	fmt.Println(str)
-
-	err = hcl.Decode(&DGClusterModel, str)
-	if err != nil {
-		fmt.Printf("error decoding hcl: %s\n", err)
-	}
-
 	testCases := map[string]testCase{
-		// "simple_case": {
-		// 	steps: []testStep{
-		// 		{
-		// 			config: DeviceGatewayClusterModel{
-		// 				SiteId: "2c107c8e-2e06-404a-ba61-e25b5757ecea",
-		// 				Nodes: []NodesValue{
-		// 					{
-		// 						Mac: "5684dae9ac8b",
-		// 					},
-		// 				},
-		// 			},
-		// 		},
-		// 		{
-		// 			config: DeviceGatewayClusterModel{
-		// 				SiteId: "2c107c8e-2e06-404a-ba61-e25b5757ecea",
-		// 				Nodes: []NodesValue{
-		// 					{
-		// 						Mac: "5684dae9ac8d",
-		// 					},
-		// 					{
-		// 						Mac: "5684dae9ac8e",
-		// 					},
-		// 				},
-		// 			},
-		// 		},
-		// 	},
-		// },
-		"hcl_decode": {
+		"simple_case": {
 			steps: []testStep{
 				{
-					config: DGClusterModel,
+					config: DeviceGatewayClusterModel{
+						SiteId: "2c107c8e-2e06-404a-ba61-e25b5757ecea",
+						Nodes: []NodesValue{
+							{
+								Mac: "5684dae9ac8b",
+							},
+						},
+					},
+				},
+				{
+					config: DeviceGatewayClusterModel{
+						SiteId: "2c107c8e-2e06-404a-ba61-e25b5757ecea",
+						Nodes: []NodesValue{
+							{
+								Mac: "5684dae9ac8d",
+							},
+							{
+								Mac: "5684dae9ac8e",
+							},
+						},
+					},
 				},
 			},
 		},
 	}
 
 	for tName, tCase := range testCases {
-		// Add api version check here
-		// if !tCase.apiVersionConstraints.Check(apiVersion) {
-		// 	t.Skipf("test case %s requires api version %s", tName, tCase.apiVersionConstraints.String())
-		// }
+		t.Skip("Skipping by default as test requires two gateway devices.")
 		t.Run(tName, func(t *testing.T) {
 			resourceType := "mist_device_gateway_cluster"
 

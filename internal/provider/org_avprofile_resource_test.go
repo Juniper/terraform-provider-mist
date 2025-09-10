@@ -2,8 +2,11 @@ package provider
 
 import (
 	"fmt"
+	"os"
+	"strings"
 	"testing"
 
+	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -18,20 +21,6 @@ func TestOrgAvprofileModel(t *testing.T) {
 		steps []testStep
 	}
 
-	// var FixtureOrgAvprofileModel OrgAvprofileModel
-
-	// b, err := os.ReadFile("fixtures/site_setting_resource/site_setting_config.tf")
-	// if err != nil {
-	// 	fmt.Print(err)
-	// }
-
-	// str := string(b) // convert content to a 'string'
-
-	// err = hcl.Decode(&FixtureOrgAvprofileModel, str)
-	// if err != nil {
-	// 	fmt.Printf("error decoding hcl: %s\n", err)
-	// }
-
 	testCases := map[string]testCase{
 		"simple_case": {
 			steps: []testStep{
@@ -39,11 +28,36 @@ func TestOrgAvprofileModel(t *testing.T) {
 					config: OrgAvprofileModel{
 						OrgId:     GetTestOrgId(),
 						Name:      "test_avprofile",
-						Protocols: []string{"http", "https"},
+						Protocols: []string{"http", "ftp"},
 					},
 				},
 			},
 		},
+	}
+
+	b, err := os.ReadFile("fixtures/org_avprofile_resource/org_avprofile_config.tf")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	str := string(b) // convert content to a 'string'
+	fixtures := strings.Split(str, "␞")
+
+	for i, fixture := range fixtures {
+		var FixtureOrgAvprofileModel OrgAvprofileModel
+
+		err = hcl.Decode(&FixtureOrgAvprofileModel, fixture)
+		if err != nil {
+			fmt.Printf("error decoding hcl: %s\n", err)
+		}
+
+		testCases[fmt.Sprintf("fixture_case_%d", i)] = testCase{
+			steps: []testStep{
+				{
+					config: FixtureOrgAvprofileModel,
+				},
+			},
+		}
 	}
 
 	for tName, tCase := range testCases {
@@ -82,11 +96,32 @@ func TestOrgAvprofileModel(t *testing.T) {
 
 func (s *OrgAvprofileModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
-	checks.append(t, "TestCheckResourceAttrSet", "org_id", s.OrgId)
+	// Required parameters
+	checks.append(t, "TestCheckResourceAttrSet", "org_id")
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
 	checks.append(t, "TestCheckResourceAttr", "protocols.#", fmt.Sprintf("%d", len(s.Protocols)))
 	for i, prot := range s.Protocols {
 		checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("protocols.%d", i), prot)
+	}
+
+	// Optional parameters
+	if s.FallbackAction != nil {
+		checks.append(t, "TestCheckResourceAttr", "fallback_action", *s.FallbackAction)
+	}
+	if s.MaxFilesize != nil {
+		checks.append(t, "TestCheckResourceAttr", "max_filesize", fmt.Sprintf("%d", *s.MaxFilesize))
+	}
+	if len(s.MimeWhitelist) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "mime_whitelist.#", fmt.Sprintf("%d", len(s.MimeWhitelist)))
+		for i, mime := range s.MimeWhitelist {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mime_whitelist.%d", i), mime)
+		}
+	}
+	if len(s.UrlWhitelist) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "url_whitelist.#", fmt.Sprintf("%d", len(s.UrlWhitelist)))
+		for i, url := range s.UrlWhitelist {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("url_whitelist.%d", i), url)
+		}
 	}
 
 	return checks

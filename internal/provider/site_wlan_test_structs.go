@@ -13,7 +13,7 @@ type SiteWlanModel struct {
 	AppQos                               *AppQosValue             `hcl:"app_qos"`
 	ApplyTo                              *string                  `hcl:"apply_to"`
 	ArpFilter                            *bool                    `hcl:"arp_filter"`
-	Auth                                 *AuthValue               `hcl:"auth"`
+	Auth                                 *SiteWlanAuthValue       `hcl:"auth"`
 	AuthServerSelection                  *string                  `hcl:"auth_server_selection"`
 	AuthServers                          []AuthServersValue       `hcl:"auth_servers"`
 	AuthServersNasId                     *string                  `hcl:"auth_servers_nas_id"`
@@ -90,4 +90,19 @@ type SiteWlanModel struct {
 	WxtagIds                             []string                 `hcl:"wxtag_ids"`
 	WxtunnelId                           *string                  `hcl:"wxtunnel_id"`
 	WxtunnelRemoteId                     *string                  `hcl:"wxtunnel_remote_id"`
+}
+
+type SiteWlanAuthValue struct {
+	AnticlogThreshold  *int64   `cty:"anticlog_threshold" hcl:"anticlog_threshold"`
+	EapReauth          *bool    `cty:"eap_reauth" hcl:"eap_reauth"`
+	EnableMacAuth      *bool    `cty:"enable_mac_auth" hcl:"enable_mac_auth"`
+	KeyIdx             *int64   `cty:"key_idx" hcl:"key_idx"`
+	Keys               []string `cty:"keys" hcl:"keys"`
+	MultiPskOnly       *bool    `cty:"multi_psk_only" hcl:"multi_psk_only"`
+	Owe                *string  `cty:"owe" hcl:"owe"`
+	Pairwise           []string `cty:"pairwise" hcl:"pairwise"`
+	PrivateWlan        *bool    `cty:"private_wlan" hcl:"private_wlan"`
+	Psk                *string  `cty:"psk" hcl:"psk"`
+	AuthType           *string  `cty:"type" hcl:"type"`
+	WepAsSecondaryAuth *bool    `cty:"wep_as_secondary_auth" hcl:"wep_as_secondary_auth"`
 }

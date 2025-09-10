@@ -41,7 +41,7 @@ func TestSitePsk(t *testing.T) {
 	}
 
 	str := string(b) // convert content to a 'string'
-	fixtures := strings.Split(str, "$")
+	fixtures := strings.Split(str, "␞")
 
 	for i, fixture := range fixtures {
 		var FixtureSitePskModel SitePskModel
@@ -101,6 +101,50 @@ func (s *SitePskModel) testChecks(t testing.TB, rType, rName string) testChecks 
 	checks.append(t, "TestCheckResourceAttr", "passphrase", s.Passphrase)
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")
 	checks.append(t, "TestCheckResourceAttr", "ssid", s.Ssid)
+
+	if s.Email != nil {
+		checks.append(t, "TestCheckResourceAttr", "email", *s.Email)
+	}
+
+	if s.ExpireTime != nil {
+		checks.append(t, "TestCheckResourceAttr", "expire_time", fmt.Sprintf("%d", *s.ExpireTime))
+	}
+
+	if s.ExpiryNotificationTime != nil {
+		checks.append(t, "TestCheckResourceAttr", "expiry_notification_time", fmt.Sprintf("%d", *s.ExpiryNotificationTime))
+	}
+
+	if s.Mac != nil {
+		checks.append(t, "TestCheckResourceAttr", "mac", *s.Mac)
+	}
+
+	if s.Note != nil {
+		checks.append(t, "TestCheckResourceAttr", "note", *s.Note)
+	}
+
+	if s.NotifyExpiry != nil {
+		checks.append(t, "TestCheckResourceAttr", "notify_expiry", fmt.Sprintf("%t", *s.NotifyExpiry))
+	}
+
+	if s.NotifyOnCreateOrEdit != nil {
+		checks.append(t, "TestCheckResourceAttr", "notify_on_create_or_edit", fmt.Sprintf("%t", *s.NotifyOnCreateOrEdit))
+	}
+
+	if s.OldPassphrase != nil {
+		checks.append(t, "TestCheckResourceAttr", "old_passphrase", *s.OldPassphrase)
+	}
+
+	if s.Role != nil {
+		checks.append(t, "TestCheckResourceAttr", "role", *s.Role)
+	}
+
+	if s.Usage != nil {
+		checks.append(t, "TestCheckResourceAttr", "usage", *s.Usage)
+	}
+
+	if s.VlanId != nil {
+		checks.append(t, "TestCheckResourceAttr", "vlan_id", *s.VlanId)
+	}
 
 	return checks
 }

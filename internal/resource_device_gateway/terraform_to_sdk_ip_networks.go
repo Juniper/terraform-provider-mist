@@ -9,6 +9,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
@@ -61,15 +62,33 @@ func networksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 		}
 
 		if !plan.InternalAccess.IsNull() && !plan.InternalAccess.IsUnknown() {
-			var internalAccessInterface interface{} = plan.InternalAccess
-			internalAccessTf := internalAccessInterface.(resource_org_network.InternalAccessValue)
-			data.InternalAccess = resource_org_network.InternalAccessTerraformToSdk(internalAccessTf)
+			internalAccessType := resource_org_network.InternalAccessType{
+				ObjectType: types.ObjectType{
+					AttrTypes: resource_org_network.InternalAccessValue{}.AttributeTypes(ctx),
+				},
+			}
+			internalAccessValue, conversionDiags := internalAccessType.ValueFromObject(ctx, plan.InternalAccess)
+			if conversionDiags.HasError() {
+				diags.Append(conversionDiags...)
+			} else {
+				internalAccessTf := internalAccessValue.(resource_org_network.InternalAccessValue)
+				data.InternalAccess = resource_org_network.InternalAccessTerraformToSdk(internalAccessTf)
+			}
 		}
 
 		if !plan.InternetAccess.IsNull() && !plan.InternetAccess.IsUnknown() {
-			var internetAccessInterface interface{} = plan.InternetAccess
-			internetAccessTf := internetAccessInterface.(resource_org_network.InternetAccessValue)
-			data.InternetAccess = resource_org_network.InternetAccessTerraformToSdk(internetAccessTf)
+			internetAccessType := resource_org_network.InternetAccessType{
+				ObjectType: types.ObjectType{
+					AttrTypes: resource_org_network.InternetAccessValue{}.AttributeTypes(ctx),
+				},
+			}
+			internetAccessValue, conversionDiags := internetAccessType.ValueFromObject(ctx, plan.InternetAccess)
+			if conversionDiags.HasError() {
+				diags.Append(conversionDiags...)
+			} else {
+				internetAccessTf := internetAccessValue.(resource_org_network.InternetAccessValue)
+				data.InternetAccess = resource_org_network.InternetAccessTerraformToSdk(internetAccessTf)
+			}
 		}
 
 		if plan.Isolation.ValueBoolPointer() != nil {

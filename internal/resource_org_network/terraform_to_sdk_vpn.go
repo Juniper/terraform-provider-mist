@@ -14,13 +14,28 @@ import (
 func destinationNatVpnTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkVpnAccessDestinationNatProperty {
 	dataMap := make(map[string]models.NetworkVpnAccessDestinationNatProperty)
 	for k, v := range d.Elements() {
-		var vInterface interface{} = v
-		vPlan := vInterface.(VpnAccessDestinationNatValue)
-		data := models.NetworkVpnAccessDestinationNatProperty{}
-		data.InternalIp = vPlan.InternalIp.ValueStringPointer()
-		data.Name = vPlan.Name.ValueStringPointer()
-		data.Port = vPlan.Port.ValueStringPointer()
-		dataMap[k] = data
+		// Extract attributes directly from the ObjectValue instead of casting to specific type
+		if objVal, ok := v.(basetypes.ObjectValue); ok {
+			data := models.NetworkVpnAccessDestinationNatProperty{}
+			attrs := objVal.Attributes()
+
+			if internalIp, exists := attrs["internal_ip"]; exists {
+				if strVal, ok := internalIp.(basetypes.StringValue); ok {
+					data.InternalIp = strVal.ValueStringPointer()
+				}
+			}
+			if name, exists := attrs["name"]; exists {
+				if strVal, ok := name.(basetypes.StringValue); ok {
+					data.Name = strVal.ValueStringPointer()
+				}
+			}
+			if port, exists := attrs["port"]; exists {
+				if strVal, ok := port.(basetypes.StringValue); ok {
+					data.Port = strVal.ValueStringPointer()
+				}
+			}
+			dataMap[k] = data
+		}
 	}
 	return dataMap
 }
@@ -28,12 +43,23 @@ func destinationNatVpnTerraformToSdk(d basetypes.MapValue) map[string]models.Net
 func staticNatVpnTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkVpnAccessStaticNatProperty {
 	dataMap := make(map[string]models.NetworkVpnAccessStaticNatProperty)
 	for k, v := range d.Elements() {
-		var vInterface interface{} = v
-		vPlan := vInterface.(VpnAccessStaticNatValue)
-		data := models.NetworkVpnAccessStaticNatProperty{}
-		data.InternalIp = vPlan.InternalIp.ValueStringPointer()
-		data.Name = vPlan.Name.ValueStringPointer()
-		dataMap[k] = data
+		// Extract attributes directly from the ObjectValue instead of casting to specific type
+		if objVal, ok := v.(basetypes.ObjectValue); ok {
+			data := models.NetworkVpnAccessStaticNatProperty{}
+			attrs := objVal.Attributes()
+
+			if internalIp, exists := attrs["internal_ip"]; exists {
+				if strVal, ok := internalIp.(basetypes.StringValue); ok {
+					data.InternalIp = strVal.ValueStringPointer()
+				}
+			}
+			if name, exists := attrs["name"]; exists {
+				if strVal, ok := name.(basetypes.StringValue); ok {
+					data.Name = strVal.ValueStringPointer()
+				}
+			}
+			dataMap[k] = data
+		}
 	}
 	return dataMap
 }
@@ -41,54 +67,84 @@ func staticNatVpnTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkV
 func VpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.NetworkVpnAccessConfig {
 	dataMap := make(map[string]models.NetworkVpnAccessConfig)
 	for k, v := range d.Elements() {
-		var vInterface interface{} = v
-		plan := vInterface.(VpnAccessValue)
+		// Extract attributes directly from the ObjectValue instead of casting to specific type
+		if objVal, ok := v.(basetypes.ObjectValue); ok {
+			data := models.NetworkVpnAccessConfig{}
+			attrs := objVal.Attributes()
 
-		data := models.NetworkVpnAccessConfig{}
-		if plan.AdvertisedSubnet.ValueStringPointer() != nil {
-			data.AdvertisedSubnet = plan.AdvertisedSubnet.ValueStringPointer()
-		}
-		if plan.AllowPing.ValueBoolPointer() != nil {
-			data.AllowPing = plan.AllowPing.ValueBoolPointer()
-		}
-		if !plan.VpnAccessDestinationNat.IsNull() && !plan.VpnAccessDestinationNat.IsUnknown() {
-			data.DestinationNat = destinationNatVpnTerraformToSdk(plan.VpnAccessDestinationNat)
-		}
-		if plan.NatPool.ValueStringPointer() != nil {
-			data.NatPool = plan.NatPool.ValueStringPointer()
-		}
-		if plan.NoReadvertiseToLanBgp.ValueBoolPointer() != nil {
-			data.NoReadvertiseToLanBgp = plan.NoReadvertiseToLanBgp.ValueBoolPointer()
-		}
-		if plan.NoReadvertiseToLanOspf.ValueBoolPointer() != nil {
-			data.NoReadvertiseToLanOspf = plan.NoReadvertiseToLanOspf.ValueBoolPointer()
-		}
-		if plan.NoReadvertiseToOverlay.ValueBoolPointer() != nil {
-			data.NoReadvertiseToOverlay = plan.NoReadvertiseToOverlay.ValueBoolPointer()
-		}
-		if !plan.OtherVrfs.IsNull() && !plan.OtherVrfs.IsUnknown() {
-			data.OtherVrfs = mistutils.ListOfStringTerraformToSdk(plan.OtherVrfs)
-		}
-		if plan.Routed.ValueBoolPointer() != nil {
-			data.Routed = plan.Routed.ValueBoolPointer()
-		}
-		if !plan.SourceNat.IsNull() && !plan.SourceNat.IsUnknown() {
-			data.SourceNat = sourceNatTerraformToSdk(ctx, diags, plan.SourceNat)
-		}
-		if !plan.VpnAccessStaticNat.IsNull() && !plan.VpnAccessStaticNat.IsUnknown() {
-			data.StaticNat = staticNatVpnTerraformToSdk(plan.VpnAccessStaticNat)
-		}
-		if plan.SummarizedSubnet.ValueStringPointer() != nil {
-			data.SummarizedSubnet = plan.SummarizedSubnet.ValueStringPointer()
-		}
-		if plan.SummarizedSubnetToLanBgp.ValueStringPointer() != nil {
-			data.SummarizedSubnetToLanBgp = plan.SummarizedSubnetToLanBgp.ValueStringPointer()
-		}
-		if plan.SummarizedSubnetToLanOspf.ValueStringPointer() != nil {
-			data.SummarizedSubnetToLanOspf = plan.SummarizedSubnetToLanOspf.ValueStringPointer()
-		}
+			if advertisedSubnet, exists := attrs["advertised_subnet"]; exists {
+				if strVal, ok := advertisedSubnet.(basetypes.StringValue); ok && strVal.ValueStringPointer() != nil {
+					data.AdvertisedSubnet = strVal.ValueStringPointer()
+				}
+			}
+			if allowPing, exists := attrs["allow_ping"]; exists {
+				if boolVal, ok := allowPing.(basetypes.BoolValue); ok && boolVal.ValueBoolPointer() != nil {
+					data.AllowPing = boolVal.ValueBoolPointer()
+				}
+			}
+			if destinationNat, exists := attrs["destination_nat"]; exists {
+				if mapVal, ok := destinationNat.(basetypes.MapValue); ok && !mapVal.IsNull() && !mapVal.IsUnknown() {
+					data.DestinationNat = destinationNatVpnTerraformToSdk(mapVal)
+				}
+			}
+			if natPool, exists := attrs["nat_pool"]; exists {
+				if strVal, ok := natPool.(basetypes.StringValue); ok && strVal.ValueStringPointer() != nil {
+					data.NatPool = strVal.ValueStringPointer()
+				}
+			}
+			if noReadvertiseToLanBgp, exists := attrs["no_readvertise_to_lan_bgp"]; exists {
+				if boolVal, ok := noReadvertiseToLanBgp.(basetypes.BoolValue); ok && boolVal.ValueBoolPointer() != nil {
+					data.NoReadvertiseToLanBgp = boolVal.ValueBoolPointer()
+				}
+			}
+			if noReadvertiseToLanOspf, exists := attrs["no_readvertise_to_lan_ospf"]; exists {
+				if boolVal, ok := noReadvertiseToLanOspf.(basetypes.BoolValue); ok && boolVal.ValueBoolPointer() != nil {
+					data.NoReadvertiseToLanOspf = boolVal.ValueBoolPointer()
+				}
+			}
+			if noReadvertiseToOverlay, exists := attrs["no_readvertise_to_overlay"]; exists {
+				if boolVal, ok := noReadvertiseToOverlay.(basetypes.BoolValue); ok && boolVal.ValueBoolPointer() != nil {
+					data.NoReadvertiseToOverlay = boolVal.ValueBoolPointer()
+				}
+			}
+			if otherVrfs, exists := attrs["other_vrfs"]; exists {
+				if listVal, ok := otherVrfs.(basetypes.ListValue); ok && !listVal.IsNull() && !listVal.IsUnknown() {
+					data.OtherVrfs = mistutils.ListOfStringTerraformToSdk(listVal)
+				}
+			}
+			if routed, exists := attrs["routed"]; exists {
+				if boolVal, ok := routed.(basetypes.BoolValue); ok && boolVal.ValueBoolPointer() != nil {
+					data.Routed = boolVal.ValueBoolPointer()
+				}
+			}
+			if sourceNat, exists := attrs["source_nat"]; exists {
+				if objVal, ok := sourceNat.(basetypes.ObjectValue); ok && !objVal.IsNull() && !objVal.IsUnknown() {
+					data.SourceNat = sourceNatTerraformToSdk(ctx, diags, objVal)
+				}
+			}
+			if staticNat, exists := attrs["static_nat"]; exists {
+				if mapVal, ok := staticNat.(basetypes.MapValue); ok && !mapVal.IsNull() && !mapVal.IsUnknown() {
+					data.StaticNat = staticNatVpnTerraformToSdk(mapVal)
+				}
+			}
+			if summarizedSubnet, exists := attrs["summarized_subnet"]; exists {
+				if strVal, ok := summarizedSubnet.(basetypes.StringValue); ok && strVal.ValueStringPointer() != nil {
+					data.SummarizedSubnet = strVal.ValueStringPointer()
+				}
+			}
+			if summarizedSubnetToLanBgp, exists := attrs["summarized_subnet_to_lan_bgp"]; exists {
+				if strVal, ok := summarizedSubnetToLanBgp.(basetypes.StringValue); ok && strVal.ValueStringPointer() != nil {
+					data.SummarizedSubnetToLanBgp = strVal.ValueStringPointer()
+				}
+			}
+			if summarizedSubnetToLanOspf, exists := attrs["summarized_subnet_to_lan_ospf"]; exists {
+				if strVal, ok := summarizedSubnetToLanOspf.(basetypes.StringValue); ok && strVal.ValueStringPointer() != nil {
+					data.SummarizedSubnetToLanOspf = strVal.ValueStringPointer()
+				}
+			}
 
-		dataMap[k] = data
+			dataMap[k] = data
+		}
 	}
 	return dataMap
 }

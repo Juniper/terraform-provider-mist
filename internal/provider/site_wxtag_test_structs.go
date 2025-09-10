@@ -11,9 +11,3 @@ type SiteWxtagModel struct {
 	Values []string             `hcl:"values"`
 	VlanId *string              `hcl:"vlan_id"`
 }
-
-// type SpecsValue struct {
-// 	PortRange *string  `cty:"port_range"`
-// 	Protocol  *string  `cty:"protocol"`
-// 	Subnets   []string `cty:"subnets"`
-// }

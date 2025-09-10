@@ -21,20 +21,6 @@ func TestSiteWlanPortalImageModel(t *testing.T) {
 		steps []testStep
 	}
 
-	// var FixtureSiteWlanPortalImageModel SiteWlanPortalImageModel
-
-	// b, err := os.ReadFile("fixtures/site_wlan_portal_image_resource/site_wlan_portal_image_config.tf")
-	// if err != nil {
-	// 	fmt.Print(err)
-	// }
-
-	// str := string(b) // convert content to a 'string'
-
-	// err = hcl.Decode(&FixtureSiteWlanPortalImageModel, str)
-	// if err != nil {
-	// 	fmt.Printf("error decoding hcl: %s\n", err)
-	// }
-
 	testCases := map[string]testCase{
 		"simple_case": {
 			steps: []testStep{
