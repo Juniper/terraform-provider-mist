@@ -422,7 +422,7 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		for i, server := range s.AuthServers {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auth_servers.%d.host", i), server.Host)
 			if server.Port != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auth_servers.%d.port", i), fmt.Sprintf("%d", *server.Port))
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auth_servers.%d.port", i), *server.Port)
 			}
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auth_servers.%d.secret", i), server.Secret)
 			if server.KeywrapEnabled != nil {
@@ -449,7 +449,7 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		for i, server := range s.AcctServers {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acct_servers.%d.host", i), server.Host)
 			if server.Port != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acct_servers.%d.port", i), fmt.Sprintf("%d", *server.Port))
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acct_servers.%d.port", i), *server.Port)
 			}
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acct_servers.%d.secret", i), server.Secret)
 			if server.KeywrapEnabled != nil {

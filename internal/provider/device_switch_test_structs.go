@@ -381,7 +381,7 @@ type AcctServersValue struct {
 	KeywrapFormat               *string `hcl:"keywrap_format" cty:"keywrap_format"`
 	KeywrapKek                  *string `hcl:"keywrap_kek" cty:"keywrap_kek"`
 	KeywrapMack                 *string `hcl:"keywrap_mack" cty:"keywrap_mack"`
-	Port                        *int64  `hcl:"port" cty:"port"`
+	Port                        *string `hcl:"port" cty:"port"`
 	RequireMessageAuthenticator *bool   `hcl:"require_message_authenticator" cty:"require_message_authenticator"`
 	Secret                      string  `hcl:"secret" cty:"secret"`
 }
