@@ -6,5 +6,4 @@ dst_deny_wxtags  = ["blocked_websites", "malicious_sites"]
 dst_wxtags       = ["general_internet", "corporate_resources"]
 enabled          = true
 order            = 5
-org_id           = "901c5705-ca11-4bf1-9158-31f7195618ef"
 src_wxtags       = ["employee_devices", "guest_devices"]

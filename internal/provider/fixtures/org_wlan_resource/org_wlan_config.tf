@@ -445,7 +445,6 @@
 ␞
 
 // OWE Test Case - auth.owe field for open authentication
-  org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
   ssid   = "OWE_Test_WLAN"
   
   auth = {
