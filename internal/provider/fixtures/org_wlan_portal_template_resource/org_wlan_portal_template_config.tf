@@ -1,4 +1,3 @@
-org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
 portal_template = {
   access_code_alternate_email = "alternate@example.com"
   alignment                   = "left"
