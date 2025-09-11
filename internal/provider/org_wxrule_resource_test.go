@@ -1,10 +1,12 @@
-// WIP
 package provider
 
 import (
 	"fmt"
+	"os"
+	"strings"
 	"testing"
 
+	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -33,6 +35,33 @@ func TestOrgWxruleModel(t *testing.T) {
 		},
 	}
 
+	// Load fixture data following the org_wlan pattern
+	b, err := os.ReadFile("fixtures/org_wxrule_resource/org_wxrule_config.tf")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	str := string(b) // convert content to a 'string'
+	fixtures := strings.Split(str, "␞")
+
+	for i, fixture := range fixtures {
+		fixtureOrgWxruleModel := OrgWxruleModel{}
+		err = hcl.Decode(&fixtureOrgWxruleModel, fixture)
+		if err != nil {
+			fmt.Printf("error decoding hcl: %s\n", err)
+		}
+
+		fixtureOrgWxruleModel.OrgId = GetTestOrgId()
+
+		testCases[fmt.Sprintf("fixture_case_%d", i)] = testCase{
+			steps: []testStep{
+				{
+					config: fixtureOrgWxruleModel,
+				},
+			},
+		}
+	}
+
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 			resourceType := "org_wxrule"
@@ -55,8 +84,9 @@ func TestOrgWxruleModel(t *testing.T) {
 					Check:  resource.ComposeAggregateTestCheckFunc(checks.checks...),
 				}
 
-				// Log configuration for debugging
-				t.Logf("\n// ------ Combined Config ------\n%s\n", combinedConfig)
+				// Log configuration and checks for debugging
+				t.Logf("\n// ------ begin config for test case %s step %d ------\n%s\n// -------- end config for test case %s step %d ------\n", tName, i+1, combinedConfig, tName, i+1)
+				t.Logf("\n// ------ begin checks for test case %s step %d ------\n%s\n// -------- end checks for test case %s step %d ------\n", tName, i+1, checks.string(), tName, i+1)
 			}
 
 			resource.Test(t, resource.TestCase{
@@ -97,11 +127,74 @@ func generateOrgWxruleConfig(templateName, wxRuleName string, wxRuleConfig OrgWx
 
 func (s *OrgWxruleModel) testChecks(t testing.TB, rType, tName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.append(t, "TestCheckResourceAttrSet", "id")
-	checks.append(t, "TestCheckResourceAttrSet", "org_id")
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
-	checks.append(t, "TestCheckResourceAttr", "order", fmt.Sprintf("%d", s.Order))
+
+	// Check fields in struct order
+	// 1. Action (required)
 	checks.append(t, "TestCheckResourceAttr", "action", s.Action)
+
+	// 2. ApplyTags (optional array)
+	if len(s.ApplyTags) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "apply_tags.#", fmt.Sprintf("%d", len(s.ApplyTags)))
+		for i, tag := range s.ApplyTags {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("apply_tags.%d", i), tag)
+		}
+	}
+
+	// 3. BlockedApps (optional array)
+	if len(s.BlockedApps) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "blocked_apps.#", fmt.Sprintf("%d", len(s.BlockedApps)))
+		for i, app := range s.BlockedApps {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("blocked_apps.%d", i), app)
+		}
+	}
+
+	// 4. DstAllowWxtags (optional array)
+	if len(s.DstAllowWxtags) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "dst_allow_wxtags.#", fmt.Sprintf("%d", len(s.DstAllowWxtags)))
+		for i, tag := range s.DstAllowWxtags {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dst_allow_wxtags.%d", i), tag)
+		}
+	}
+
+	// 5. DstDenyWxtags (optional array)
+	if len(s.DstDenyWxtags) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "dst_deny_wxtags.#", fmt.Sprintf("%d", len(s.DstDenyWxtags)))
+		for i, tag := range s.DstDenyWxtags {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dst_deny_wxtags.%d", i), tag)
+		}
+	}
+
+	// 6. DstWxtags (optional array)
+	if len(s.DstWxtags) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "dst_wxtags.#", fmt.Sprintf("%d", len(s.DstWxtags)))
+		for i, tag := range s.DstWxtags {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dst_wxtags.%d", i), tag)
+		}
+	}
+
+	// 7. Enabled (optional+computed boolean)
+	if s.Enabled != nil {
+		checks.append(t, "TestCheckResourceAttr", "enabled", fmt.Sprintf("%t", *s.Enabled))
+	}
+
+	// 8. Id (computed-only)
+	checks.append(t, "TestCheckResourceAttrSet", "id")
+
+	// 9. Order (required)
+	checks.append(t, "TestCheckResourceAttr", "order", fmt.Sprintf("%d", s.Order))
+
+	// 10. OrgId (required)
+	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+
+	// 11. SrcWxtags (optional array)
+	if len(s.SrcWxtags) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "src_wxtags.#", fmt.Sprintf("%d", len(s.SrcWxtags)))
+		for i, tag := range s.SrcWxtags {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("src_wxtags.%d", i), tag)
+		}
+	}
+
+	// 12. TemplateId (required)
 	checks.append(t, "TestCheckResourceAttrSet", "template_id")
 
 	return checks

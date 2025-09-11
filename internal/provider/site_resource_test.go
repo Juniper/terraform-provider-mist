@@ -35,46 +35,44 @@ func TestSiteModel(t *testing.T) {
 		},
 	}
 
-	b, err := os.ReadFile("fixtures/site_resource/site_config.tf")
+	// Load fixture data
+	b, err := os.ReadFile("fixtures/site_resource/site_resource_config.tf")
 	if err != nil {
 		fmt.Print(err)
 	}
 
-	str := string(b) // convert content to a 'string'
+	str := string(b)
 	fixtures := strings.Split(str, "␞")
 
 	for i, fixture := range fixtures {
-
-		var FixtureSiteModel SiteModel
-		err = hcl.Decode(&FixtureSiteModel, fixture)
+		fixtureSiteModel := SiteModel{}
+		err = hcl.Decode(&fixtureSiteModel, fixture)
 		if err != nil {
 			fmt.Printf("error decoding hcl: %s\n", err)
 		}
 
-		FixtureSiteModel.OrgId = GetTestOrgId()
+		fixtureSiteModel.OrgId = GetTestOrgId()
 
 		testCases[fmt.Sprintf("fixture_case_%d", i)] = testCase{
 			steps: []testStep{
 				{
-					config: FixtureSiteModel,
+					config: fixtureSiteModel,
 				},
 			},
 		}
 	}
 
+	resourceType := "site"
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "site"
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
-				config := step.config
-
+				// Generate Terraform configuration using automated HCL generation
 				f := hclwrite.NewEmptyFile()
-				gohcl.EncodeIntoBody(&config, f.Body())
-				configStr := Render(resourceType, tName, string(f.Bytes()))
+				gohcl.EncodeIntoBody(&step.config, f.Body())
+				configStr := Render("site", tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks := step.config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -96,52 +94,88 @@ func TestSiteModel(t *testing.T) {
 	}
 }
 
-func (s *SiteModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
-	checks.append(t, "TestCheckResourceAttr", "address", s.Address)
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+func (s *SiteModel) testChecks(t testing.TB, rType, tName string) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
 
-	// Conditional checks for optional parameters
+	// Check fields in struct order
+	// 1. Address (required)
+	checks.append(t, "TestCheckResourceAttr", "address", s.Address)
+
+	// 2. AlarmtemplateId (optional)
 	if s.AlarmtemplateId != nil {
 		checks.append(t, "TestCheckResourceAttr", "alarmtemplate_id", *s.AlarmtemplateId)
 	}
+
+	// 3. AptemplateId (optional)
 	if s.AptemplateId != nil {
 		checks.append(t, "TestCheckResourceAttr", "aptemplate_id", *s.AptemplateId)
 	}
+
+	// 4. CountryCode (optional)
 	if s.CountryCode != nil {
 		checks.append(t, "TestCheckResourceAttr", "country_code", *s.CountryCode)
 	}
+
+	// 5. GatewaytemplateId (optional)
 	if s.GatewaytemplateId != nil {
 		checks.append(t, "TestCheckResourceAttr", "gatewaytemplate_id", *s.GatewaytemplateId)
 	}
+
+	// 6. Id (computed-only)
+	checks.append(t, "TestCheckResourceAttrSet", "id")
+
+	// 7. Latlng (optional nested object) - test child attributes only
 	if s.Latlng != nil {
 		checks.append(t, "TestCheckResourceAttr", "latlng.lat", fmt.Sprintf("%g", s.Latlng.Lat))
 		checks.append(t, "TestCheckResourceAttr", "latlng.lng", fmt.Sprintf("%g", s.Latlng.Lng))
 	}
+
+	// 8. Name (required)
+	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
+
+	// 9. NetworktemplateId (optional)
 	if s.NetworktemplateId != nil {
 		checks.append(t, "TestCheckResourceAttr", "networktemplate_id", *s.NetworktemplateId)
 	}
+
+	// 10. Notes (optional)
 	if s.Notes != nil {
 		checks.append(t, "TestCheckResourceAttr", "notes", *s.Notes)
 	}
+
+	// 11. OrgId (required)
+	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
+
+	// 12. RftemplateId (optional)
 	if s.RftemplateId != nil {
 		checks.append(t, "TestCheckResourceAttr", "rftemplate_id", *s.RftemplateId)
 	}
+
+	// 13. SecpolicyId (optional)
 	if s.SecpolicyId != nil {
 		checks.append(t, "TestCheckResourceAttr", "secpolicy_id", *s.SecpolicyId)
 	}
+
+	// 14. SitegroupIds (optional array)
 	if len(s.SitegroupIds) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "sitegroup_ids.#", fmt.Sprintf("%d", len(s.SitegroupIds)))
 		for i, id := range s.SitegroupIds {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("sitegroup_ids.%d", i), id)
 		}
 	}
+
+	// 15. SitetemplateId (optional)
 	if s.SitetemplateId != nil {
 		checks.append(t, "TestCheckResourceAttr", "sitetemplate_id", *s.SitetemplateId)
 	}
+
+	// 16. Timezone (optional)
 	if s.Timezone != nil {
 		checks.append(t, "TestCheckResourceAttr", "timezone", *s.Timezone)
 	}
+
+	// 17. Tzoffset (computed-only)
+	checks.append(t, "TestCheckResourceAttrSet", "tzoffset")
 
 	return checks
 }

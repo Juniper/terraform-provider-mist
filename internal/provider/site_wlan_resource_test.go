@@ -773,7 +773,7 @@ func (s *SiteWlanModel) testChecks(t testing.TB, rType, rName string) testChecks
 			checks.append(t, "TestCheckResourceAttr", "radsec.enabled", fmt.Sprintf("%t", *s.Radsec.Enabled))
 		}
 		if s.Radsec.IdleTimeout != nil {
-			checks.append(t, "TestCheckResourceAttr", "radsec.idle_timeout", fmt.Sprintf("%d", *s.Radsec.IdleTimeout))
+			checks.append(t, "TestCheckResourceAttr", "radsec.idle_timeout", *s.Radsec.IdleTimeout)
 		}
 		if len(s.Radsec.MxclusterIds) > 0 {
 			checks.append(t, "TestCheckResourceAttr", "radsec.mxcluster_ids.#", fmt.Sprintf("%d", len(s.Radsec.MxclusterIds)))
@@ -900,7 +900,7 @@ func (s *SiteWlanModel) testChecks(t testing.TB, rType, rName string) testChecks
 			}
 			checks.append(t, "TestCheckResourceAttr", prefix+".ip", server.Ip)
 			if server.Port != nil {
-				checks.append(t, "TestCheckResourceAttr", prefix+".port", fmt.Sprintf("%d", *server.Port))
+				checks.append(t, "TestCheckResourceAttr", prefix+".port", *server.Port)
 			}
 			checks.append(t, "TestCheckResourceAttr", prefix+".secret", server.Secret)
 		}
