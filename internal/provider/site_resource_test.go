@@ -126,12 +126,8 @@ func (s *SiteModel) testChecks(t testing.TB, rType, tName string) testChecks {
 
 	// 7. Latlng (optional nested object) - test child attributes only
 	if s.Latlng != nil {
-		if s.Latlng.Lat != 0 {
-			checks.append(t, "TestCheckResourceAttr", "latlng.lat", fmt.Sprintf("%g", s.Latlng.Lat))
-		}
-		if s.Latlng.Lng != 0 {
-			checks.append(t, "TestCheckResourceAttr", "latlng.lng", fmt.Sprintf("%g", s.Latlng.Lng))
-		}
+		checks.append(t, "TestCheckResourceAttr", "latlng.lat", fmt.Sprintf("%g", s.Latlng.Lat))
+		checks.append(t, "TestCheckResourceAttr", "latlng.lng", fmt.Sprintf("%g", s.Latlng.Lng))
 	}
 
 	// 8. Name (required)
