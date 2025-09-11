@@ -70,18 +70,18 @@ func TestSiteModel(t *testing.T) {
 				// Generate Terraform configuration using automated HCL generation
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&step.config, f.Body())
-				combinedConfig := Render("site", tName, string(f.Bytes()))
+				configStr := Render("site", tName, string(f.Bytes()))
 
 				checks := step.config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
 				// log config and checks here
-				t.Logf("\n// ------ begin config for %s ------\n%s// -------- end config for %s ------\n\n", stepName, combinedConfig, stepName)
+				t.Logf("\n// ------ begin config for %s ------\n%s// -------- end config for %s ------\n\n", stepName, configStr, stepName)
 				t.Logf("\n// ------ begin checks for %s ------\n%s// -------- end checks for %s ------\n\n", stepName, chkLog, stepName)
 
 				steps[i] = resource.TestStep{
-					Config: combinedConfig,
+					Config: configStr,
 					Check:  resource.ComposeAggregateTestCheckFunc(checks.checks...),
 				}
 			}

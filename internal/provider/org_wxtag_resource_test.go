@@ -26,11 +26,9 @@ func TestOrgWxtagModel(t *testing.T) {
 			steps: []testStep{
 				{
 					config: OrgWxtagModel{
-						Name:  "Test_WxTag",
 						OrgId: GetTestOrgId(),
-						Type:  "match",
-						Match: stringPtr("client_mac"),
-						Op:    stringPtr("in"),
+						Name:  "Test_WxTag",
+						Type:  "",
 					},
 				},
 			},
@@ -72,18 +70,18 @@ func TestOrgWxtagModel(t *testing.T) {
 				// Generate Terraform configuration using automated HCL generation
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&step.config, f.Body())
-				combinedConfig := Render("org_wxtag", tName, string(f.Bytes()))
+				configStr := Render("org_wxtag", tName, string(f.Bytes()))
 
 				checks := step.config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
 				// log config and checks here
-				t.Logf("\n// ------ begin config for %s ------\n%s// -------- end config for %s ------\n\n", stepName, combinedConfig, stepName)
+				t.Logf("\n// ------ begin config for %s ------\n%s// -------- end config for %s ------\n\n", stepName, configStr, stepName)
 				t.Logf("\n// ------ begin checks for %s ------\n%s// -------- end checks for %s ------\n\n", stepName, chkLog, stepName)
 
 				steps[i] = resource.TestStep{
-					Config: combinedConfig,
+					Config: configStr,
 					Check:  resource.ComposeAggregateTestCheckFunc(checks.checks...),
 				}
 			}

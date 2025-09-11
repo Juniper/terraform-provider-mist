@@ -441,9 +441,7 @@
   auth_servers_nas_ip = "192.168.1.100"
   auth_servers_retries = 5
   auth_servers_timeout = 10
-
 ␞
-
 // OWE Test Case - auth.owe field for open authentication
   ssid   = "OWE_Test_WLAN"
   

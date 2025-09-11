@@ -14,7 +14,7 @@ type OrgWxtagModel struct {
 }
 
 type OrgWxtagSpecsValue struct {
-	PortRange *string  `hcl:"port_range" cty:"port_range"`
-	Protocol  *string  `hcl:"protocol" cty:"protocol"`
-	Subnets   []string `hcl:"subnets" cty:"subnets"`
+	PortRange *string  `cty:"port_range" hcl:"port_range"`
+	Protocol  *string  `cty:"protocol" hcl:"protocol"`
+	Subnets   []string `cty:"subnets" hcl:"subnets"`
 }

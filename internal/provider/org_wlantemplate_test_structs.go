@@ -11,12 +11,12 @@ type OrgWlantemplateModel struct {
 }
 
 type AppliesValue struct {
-	OrgId        *string  `hcl:"org_id" cty:"org_id"`
-	SiteIds      []string `hcl:"site_ids" cty:"site_ids"`
-	SitegroupIds []string `hcl:"sitegroup_ids" cty:"sitegroup_ids"`
+	OrgId        *string  `cty:"org_id" hcl:"org_id"`
+	SiteIds      []string `cty:"site_ids" hcl:"site_ids"`
+	SitegroupIds []string `cty:"sitegroup_ids" hcl:"sitegroup_ids"`
 }
 
 type ExceptionsValue struct {
-	SiteIds      []string `hcl:"site_ids" cty:"site_ids"`
-	SitegroupIds []string `hcl:"sitegroup_ids" cty:"sitegroup_ids"`
+	SiteIds      []string `cty:"site_ids" hcl:"site_ids"`
+	SitegroupIds []string `cty:"sitegroup_ids" hcl:"sitegroup_ids"`
 }

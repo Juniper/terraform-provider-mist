@@ -48,6 +48,7 @@ func TestOrgWlanPortalTemplateModel(t *testing.T) {
 
 	str := string(b) // convert content to a 'string'
 	fixtures := strings.Split(str, "␞")
+	testImagePath := CreateTestPNGFile(t)
 
 	for i, fixture := range fixtures {
 		fixtureOrgWlanPortalTemplateModel := OrgWlanPortalTemplateModel{}
@@ -60,7 +61,6 @@ func TestOrgWlanPortalTemplateModel(t *testing.T) {
 
 		// Create a test image file for the logo field (following TestOrgWlanPortalImageModel pattern)
 		if fixtureOrgWlanPortalTemplateModel.PortalTemplate.Logo != nil {
-			testImagePath := CreateTestPNGFile(t)
 			fixtureOrgWlanPortalTemplateModel.PortalTemplate.Logo = &testImagePath
 		}
 
