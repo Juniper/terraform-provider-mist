@@ -826,6 +826,9 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		checks.append(t, "TestCheckResourceAttrSet", "portal_sso_url")
 	}
 
+	// NOTE: portal_image field testing is handled in TestOrgWlanPortalImageModel
+	// since it requires portal image resource creation and API propagation timing
+
 	// Portal object validation
 	if s.Portal != nil {
 		checks.append(t, "TestCheckResourceAttrSet", "portal.%")

@@ -90,7 +90,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var portalAllowedSubnets = mistutils.ListOfStringSdkToTerraformEmpty()
 	var portalApiSecret = types.StringValue("")
 	var portalDeniedHostnames = mistutils.ListOfStringSdkToTerraformEmpty()
-	var portalImage = types.StringValue("not_present")
+	var portalImage = types.StringValue("")
 	var portalSsoUrl = types.StringValue("")
 	var qos = NewQosValueNull()
 	var radsec = NewRadsecValueNull()
@@ -406,7 +406,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.PortalImage.IsValueSet() && data.PortalImage.Value() != nil {
-		portalImage = types.StringValue("present")
+		portalImage = types.StringValue(*data.PortalImage.Value())
 	}
 
 	if data.PortalSsoUrl.IsValueSet() && data.PortalSsoUrl.Value() != nil {
