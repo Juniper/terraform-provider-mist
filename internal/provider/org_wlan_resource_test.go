@@ -816,6 +816,11 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		}
 	}
 
+	// Portal API secret validation - only check when portal.auth is set to "external"
+	if s.Portal != nil && s.Portal.Auth != nil && *s.Portal.Auth == "external" {
+		checks.append(t, "TestCheckResourceAttrSet", "portal_api_secret")
+	}
+
 	// Portal object validation
 	if s.Portal != nil {
 		checks.append(t, "TestCheckResourceAttrSet", "portal.%")

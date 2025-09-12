@@ -443,6 +443,16 @@
   auth_servers_retries = 5
   auth_servers_timeout = 10
 ␞
+// External Portal Test Case - portal.auth set to external to test portal_api_secret
+  ssid = "External_Portal_Test_WLAN"
+  enabled = true
+  
+  portal = {
+    enabled = true
+    auth = "external"
+    external_portal_url = "https://external-portal.example.com"
+  }
+␞
 // OWE Test Case - auth.owe field for open authentication
   ssid   = "OWE_Test_WLAN"
   

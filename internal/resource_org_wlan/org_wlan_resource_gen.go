@@ -2122,8 +2122,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"portal_api_secret": schema.StringAttribute{
 				Computed:            true,
-				Description:         "APi secret (auto-generated) that can be used to sign guest authorization requests",
-				MarkdownDescription: "APi secret (auto-generated) that can be used to sign guest authorization requests",
+				Description:         "APi secret (auto-generated) that can be used to sign guest authorization requests, only generated  when auth is set to `external`",
+				MarkdownDescription: "APi secret (auto-generated) that can be used to sign guest authorization requests, only generated  when auth is set to `external`",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
