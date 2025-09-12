@@ -2145,7 +2145,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"portal_sso_url": schema.StringAttribute{
-				Computed: true,
+				Computed:    true,
+				Description: "Auto-generated when auth is set to `sso`",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

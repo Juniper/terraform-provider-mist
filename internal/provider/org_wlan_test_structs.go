@@ -68,7 +68,6 @@ type OrgWlanModel struct {
 	NoStaticIp                           *bool                     `hcl:"no_static_ip"`
 	OrgId                                string                    `hcl:"org_id"`
 	Portal                               *PortalValue              `hcl:"portal"`
-	PortalApiSecret                      *string                   `hcl:"portal_api_secret"`
 	PortalAllowedHostnames               []string                  `hcl:"portal_allowed_hostnames"`
 	PortalAllowedSubnets                 []string                  `hcl:"portal_allowed_subnets"`
 	PortalDeniedHostnames                []string                  `hcl:"portal_denied_hostnames"`

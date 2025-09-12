@@ -821,6 +821,11 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		checks.append(t, "TestCheckResourceAttrSet", "portal_api_secret")
 	}
 
+	// Portal SSO URL validation - only check when portal.auth is set to "sso"
+	if s.Portal != nil && s.Portal.Auth != nil && *s.Portal.Auth == "sso" {
+		checks.append(t, "TestCheckResourceAttrSet", "portal_sso_url")
+	}
+
 	// Portal object validation
 	if s.Portal != nil {
 		checks.append(t, "TestCheckResourceAttrSet", "portal.%")

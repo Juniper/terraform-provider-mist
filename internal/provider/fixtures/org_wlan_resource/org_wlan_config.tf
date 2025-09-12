@@ -453,6 +453,19 @@
     external_portal_url = "https://external-portal.example.com"
   }
 ␞
+// SSO Test Case - portal.auth set to sso to test portal_sso_url
+  ssid = "SSO_Test_WLAN"
+  enabled = true
+  
+  portal = {
+    enabled = true
+    auth = "sso"
+    sso_idp_cert = "-----BEGIN CERTIFICATE-----\nMIICertificateContent\n-----END CERTIFICATE-----"
+    sso_idp_sso_url = "https://sso.company.com/saml/login"
+    sso_issuer = "company-issuer"
+    sso_nameid_format = "email"
+  }
+␞
 // OWE Test Case - auth.owe field for open authentication
   ssid   = "OWE_Test_WLAN"
   
