@@ -57,6 +57,7 @@
     key_idx = 1
     keys = ["1234567890", "abcdef1234", "0987654321", "fedcba9876"]
     multi_psk_only = true
+    private_wlan = true
     psk = "MySecurePassword123!"
     wep_as_secondary_auth = true
   }

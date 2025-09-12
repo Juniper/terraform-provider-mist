@@ -667,6 +667,9 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		if s.Auth.WepAsSecondaryAuth != nil {
 			checks.append(t, "TestCheckResourceAttr", "auth.wep_as_secondary_auth", fmt.Sprintf("%t", *s.Auth.WepAsSecondaryAuth))
 		}
+		if s.Auth.PrivateWlan != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.private_wlan", fmt.Sprintf("%t", *s.Auth.PrivateWlan))
+		}
 	}
 
 	// Airwatch object validation
