@@ -1,0 +1,14 @@
+inventory
+inventory.{key}.claim_code
+inventory.{key}.deviceprofile_id
+inventory.{key}.hostname
+inventory.{key}.id
+inventory.{key}.mac
+inventory.{key}.model
+inventory.{key}.org_id
+inventory.{key}.serial
+inventory.{key}.site_id
+inventory.{key}.type
+inventory.{key}.unclaim_when_destroyed
+inventory.{key}.vc_mac
+org_id
