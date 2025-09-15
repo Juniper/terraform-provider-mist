@@ -17,65 +17,65 @@ type OrgRftemplateModel struct {
 }
 
 type OrgRftemplateBand24Value struct {
-	AllowRrmDisable *bool   `cty:"allow_rrm_disable"`
-	AntGain         *int64  `cty:"ant_gain"`
-	AntennaMode     *string `cty:"antenna_mode"`
-	Bandwidth       *int64  `cty:"bandwidth"`
-	Channels        []int64 `cty:"channels"`
-	Disabled        *bool   `cty:"disabled"`
-	Power           *int64  `cty:"power"`
-	PowerMax        *int64  `cty:"power_max"`
-	PowerMin        *int64  `cty:"power_min"`
-	Preamble        *string `cty:"preamble"`
+	AllowRrmDisable *bool   `cty:"allow_rrm_disable" hcl:"allow_rrm_disable"`
+	AntGain         *int64  `cty:"ant_gain" hcl:"ant_gain"`
+	AntennaMode     *string `cty:"antenna_mode" hcl:"antenna_mode"`
+	Bandwidth       *int64  `cty:"bandwidth" hcl:"bandwidth"`
+	Channels        []int64 `cty:"channels" hcl:"channels"`
+	Disabled        *bool   `cty:"disabled" hcl:"disabled"`
+	Power           *int64  `cty:"power" hcl:"power"`
+	PowerMax        *int64  `cty:"power_max" hcl:"power_max"`
+	PowerMin        *int64  `cty:"power_min" hcl:"power_min"`
+	Preamble        *string `cty:"preamble" hcl:"preamble"`
 }
 
 type OrgRftemplateBand5Value struct {
-	AllowRrmDisable *bool   `cty:"allow_rrm_disable"`
-	AntGain         *int64  `cty:"ant_gain"`
-	AntennaMode     *string `cty:"antenna_mode"`
-	Bandwidth       *int64  `cty:"bandwidth"`
-	Channels        []int64 `cty:"channels"`
-	Disabled        *bool   `cty:"disabled"`
-	Power           *int64  `cty:"power"`
-	PowerMax        *int64  `cty:"power_max"`
-	PowerMin        *int64  `cty:"power_min"`
-	Preamble        *string `cty:"preamble"`
+	AllowRrmDisable *bool   `cty:"allow_rrm_disable" hcl:"allow_rrm_disable"`
+	AntGain         *int64  `cty:"ant_gain" hcl:"ant_gain"`
+	AntennaMode     *string `cty:"antenna_mode" hcl:"antenna_mode"`
+	Bandwidth       *int64  `cty:"bandwidth" hcl:"bandwidth"`
+	Channels        []int64 `cty:"channels" hcl:"channels"`
+	Disabled        *bool   `cty:"disabled" hcl:"disabled"`
+	Power           *int64  `cty:"power" hcl:"power"`
+	PowerMax        *int64  `cty:"power_max" hcl:"power_max"`
+	PowerMin        *int64  `cty:"power_min" hcl:"power_min"`
+	Preamble        *string `cty:"preamble" hcl:"preamble"`
 }
 
 type OrgRftemplateBand5On24RadioValue struct {
-	AllowRrmDisable *bool   `cty:"allow_rrm_disable"`
-	AntGain         *int64  `cty:"ant_gain"`
-	AntennaMode     *string `cty:"antenna_mode"`
-	Bandwidth       *int64  `cty:"bandwidth"`
-	Channels        []int64 `cty:"channels"`
-	Disabled        *bool   `cty:"disabled"`
-	Power           *int64  `cty:"power"`
-	PowerMax        *int64  `cty:"power_max"`
-	PowerMin        *int64  `cty:"power_min"`
-	Preamble        *string `cty:"preamble"`
+	AllowRrmDisable *bool   `cty:"allow_rrm_disable" hcl:"allow_rrm_disable"`
+	AntGain         *int64  `cty:"ant_gain" hcl:"ant_gain"`
+	AntennaMode     *string `cty:"antenna_mode" hcl:"antenna_mode"`
+	Bandwidth       *int64  `cty:"bandwidth" hcl:"bandwidth"`
+	Channels        []int64 `cty:"channels" hcl:"channels"`
+	Disabled        *bool   `cty:"disabled" hcl:"disabled"`
+	Power           *int64  `cty:"power" hcl:"power"`
+	PowerMax        *int64  `cty:"power_max" hcl:"power_max"`
+	PowerMin        *int64  `cty:"power_min" hcl:"power_min"`
+	Preamble        *string `cty:"preamble" hcl:"preamble"`
 }
 
 type OrgRftemplateBand6Value struct {
-	AllowRrmDisable *bool   `cty:"allow_rrm_disable"`
-	AntGain         *int64  `cty:"ant_gain"`
-	AntennaMode     *string `cty:"antenna_mode"`
-	Bandwidth       *int64  `cty:"bandwidth"`
-	Channels        []int64 `cty:"channels"`
-	Disabled        *bool   `cty:"disabled"`
-	Power           *int64  `cty:"power"`
-	PowerMax        *int64  `cty:"power_max"`
-	PowerMin        *int64  `cty:"power_min"`
-	Preamble        *string `cty:"preamble"`
-	StandardPower   *bool   `cty:"standard_power"`
+	AllowRrmDisable *bool   `cty:"allow_rrm_disable" hcl:"allow_rrm_disable"`
+	AntGain         *int64  `cty:"ant_gain" hcl:"ant_gain"`
+	AntennaMode     *string `cty:"antenna_mode" hcl:"antenna_mode"`
+	Bandwidth       *int64  `cty:"bandwidth" hcl:"bandwidth"`
+	Channels        []int64 `cty:"channels" hcl:"channels"`
+	Disabled        *bool   `cty:"disabled" hcl:"disabled"`
+	Power           *int64  `cty:"power" hcl:"power"`
+	PowerMax        *int64  `cty:"power_max" hcl:"power_max"`
+	PowerMin        *int64  `cty:"power_min" hcl:"power_min"`
+	Preamble        *string `cty:"preamble" hcl:"preamble"`
+	StandardPower   *bool   `cty:"standard_power" hcl:"standard_power"`
 }
 
 type ModelSpecificValue struct {
-	AntGain24      *int64               `cty:"ant_gain_24"`
-	AntGain5       *int64               `cty:"ant_gain_5"`
-	AntGain6       *int64               `cty:"ant_gain_6"`
-	Band24         *Band24Value         `cty:"band_24"`
-	Band24Usage    *string              `cty:"band_24_usage"`
-	Band5          *Band5Value          `cty:"band_5"`
-	Band5On24Radio *Band5On24RadioValue `cty:"band_5_on_24_radio"`
-	Band6          *Band6Value          `cty:"band_6"`
+	AntGain24      *int64                            `cty:"ant_gain_24" hcl:"ant_gain_24"`
+	AntGain5       *int64                            `cty:"ant_gain_5" hcl:"ant_gain_5"`
+	AntGain6       *int64                            `cty:"ant_gain_6" hcl:"ant_gain_6"`
+	Band24         *OrgRftemplateBand24Value         `cty:"band_24" hcl:"band_24"`
+	Band24Usage    *string                           `cty:"band_24_usage" hcl:"band_24_usage"`
+	Band5          *OrgRftemplateBand5Value          `cty:"band_5" hcl:"band_5"`
+	Band5On24Radio *OrgRftemplateBand5On24RadioValue `cty:"band_5_on_24_radio" hcl:"band_5_on_24_radio"`
+	Band6          *OrgRftemplateBand6Value          `cty:"band_6" hcl:"band_6"`
 }

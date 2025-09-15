@@ -38,6 +38,12 @@ func modelSpecificTerraformToSdk(ctx context.Context, d basetypes.MapValue) map[
 			data.Band5 = band5TerraformToSdk(planBand5)
 
 		}
+
+		if !plan.Band5On24Radio.IsNull() && !plan.Band5On24Radio.IsUnknown() {
+			planBand5On24Radio, _ := NewBand5On24RadioValue(plan.Band5On24Radio.AttributeTypes(ctx), plan.Band5On24Radio.Attributes())
+			data.Band5On24Radio = band5On24RadioTerraformToSdk(planBand5On24Radio)
+		}
+
 		if !plan.Band6.IsNull() && !plan.Band6.IsUnknown() {
 			planBand6, _ := NewBand6Value(plan.Band6.AttributeTypes(ctx), plan.Band6.Attributes())
 			data.Band6 = band6TerraformToSdk(planBand6)
