@@ -50,11 +50,7 @@ Use reflection-based extraction for 100% accuracy with nested fields:
 
 ```go
 // Add temporary helper functions to your *_resource_test.go file
-func init() {
-    extractCompleteSchema()
-}
-
-func extractCompleteSchema() {
+func TestExtractSchema(t *testing.T) {
     ctx := context.Background()
     
     // Get the schema (replace with your resource schema function)
@@ -71,6 +67,8 @@ func extractCompleteSchema() {
     for _, field := range allFields {
         fmt.Fprintln(file, field)
     }
+    
+    t.Logf("Generated all_schema_fields.txt with %d fields", len(allFields))
 }
 
 func extractAllFieldPaths(prefix string, attributes map[string]schema.Attribute) []string {
@@ -115,58 +113,95 @@ func getNestedAttributes(attr schema.SingleNestedAttribute) map[string]schema.At
         return nil
     }
     
-    // Try different field access patterns
-    var nestedObj reflect.Value
-    if field := v.FieldByName("NestedObject"); field.IsValid() {
-        nestedObj = field
-    } else {
-        // Try to find any field containing attributes
-        t := reflect.TypeOf(attr)
-        for i := 0; i < t.NumField(); i++ {
-            fieldValue := v.Field(i)
-            if fieldValue.IsValid() && !fieldValue.IsNil() {
-                if attrField := fieldValue.FieldByName("Attributes"); attrField.IsValid() {
-                    if attrs, ok := attrField.Interface().(map[string]schema.Attribute); ok {
-                        return attrs
-                    }
-                }
-            }
+    // Look for Attributes field directly on the SingleNestedAttribute
+    if field := v.FieldByName("Attributes"); field.IsValid() && field.CanInterface() {
+        if attrs, ok := field.Interface().(map[string]schema.Attribute); ok {
+            return attrs
         }
-        return nil
-    }
-    
-    if !nestedObj.IsValid() || nestedObj.IsNil() {
-        return nil
-    }
-    
-    attributes := nestedObj.FieldByName("Attributes")
-    if !attributes.IsValid() || attributes.IsNil() {
-        return nil
-    }
-    
-    if attrs, ok := attributes.Interface().(map[string]schema.Attribute); ok {
-        return attrs
     }
     
     return nil
 }
 
-// Similar helper functions for List and Map nested attributes...
+func getListNestedAttributes(attr schema.ListNestedAttribute) map[string]schema.Attribute {
+    v := reflect.ValueOf(attr)
+    if !v.IsValid() {
+        return nil
+    }
+    
+    // Look for NestedObject field first
+    if nestedObjField := v.FieldByName("NestedObject"); nestedObjField.IsValid() && nestedObjField.CanInterface() {
+        nestedObj := nestedObjField.Interface()
+        
+        // Get the nested object and look for its Attributes
+        nestedV := reflect.ValueOf(nestedObj)
+        if nestedV.IsValid() && nestedV.Kind() == reflect.Struct {
+            if attributesField := nestedV.FieldByName("Attributes"); attributesField.IsValid() && attributesField.CanInterface() {
+                if attrs, ok := attributesField.Interface().(map[string]schema.Attribute); ok {
+                    return attrs
+                }
+            }
+        }
+    }
+    
+    return nil
+}
+
+func getMapNestedAttributes(attr schema.MapNestedAttribute) map[string]schema.Attribute {
+    v := reflect.ValueOf(attr)
+    if !v.IsValid() {
+        return nil
+    }
+    
+    // Look for NestedObject field first
+    if nestedObjField := v.FieldByName("NestedObject"); nestedObjField.IsValid() && nestedObjField.CanInterface() {
+        nestedObj := nestedObjField.Interface()
+        
+        // Get the nested object and look for its Attributes
+        nestedV := reflect.ValueOf(nestedObj)
+        if nestedV.IsValid() && nestedV.Kind() == reflect.Struct {
+            if attributesField := nestedV.FieldByName("Attributes"); attributesField.IsValid() && attributesField.CanInterface() {
+                if attrs, ok := attributesField.Interface().(map[string]schema.Attribute); ok {
+                    return attrs
+                }
+            }
+        }
+    }
+    
+    return nil
+}
+```
+
+**Required Imports:**
+
+```go
+import (
+    "context"
+    "fmt"
+    "os"
+    "reflect"
+    "sort"
+    "testing"
+    
+    "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+    resource_{resource_name} "github.com/Juniper/terraform-provider-mist/internal/resource_{resource_name}"
+)
 ```
 
 **Run the extraction:**
 
 ```bash
 # This generates all_schema_fields.txt with complete field list
-go test -v -run "Test{ResourceName}Model" ./internal/provider/ >/dev/null 2>&1
+go test -v -run "TestExtractSchema" ./internal/provider/ >/dev/null 2>&1
 ```
 
 **Example Results:**
 
 - Simple resources: ~10-50 fields  
-- Complex nested resources: 200+ fields (e.g., org_wlan: 283 fields)
-- **100% accuracy**: Captures all nested fields including portal.*, auth.*, dynamic_vlan.*
-- **Proper dot notation**: All fields in testable format
+- Complex nested resources: 200-400+ fields (e.g., org_wlan: 283 fields, org_networktemplate: 375 fields)
+- **100% accuracy**: Captures all nested fields including deeply nested structures like `snmp_config.v3_config.vacm.access.prefix_list.*`
+- **Proper dot notation**: All fields in testable format with infinite nesting depth support
+- **Complete reflection**: Handles SingleNestedAttribute, ListNestedAttribute, and MapNestedAttribute recursively
 
 ### Step 2: Extract Currently Tested Fields
 
@@ -276,110 +311,4 @@ go test -v -run "Test{ResourceName}Model" ./internal/provider/ 2>&1 | grep -c "T
 
 ### Understanding Validation Counts
 
-Total Validations = Schema Fields + Array Index/Map Key Validations
-
-**Common Scenarios:**
-
-- **More validations than schema fields**: Tests validate array indices (`portal.amazon_email_domains.0`) and map keys that aren't direct schema fields
-- **Fewer validations than schema fields**: Missing field coverage - use corrected analysis to identify gaps
-
-**Corrected Analysis Results:**
-
-- org_wlan: 283 schema fields, 339 validations = 56 array/map validations + 100% coverage ✅  
-- Missing coverage: 283 schema fields, 190 validations = 93 missing fields (67% coverage) ❌
-
-**Key Insight:** Use **corrected analysis** that accounts for proper container testing via `.#` and indexed access.
-
-## Field Implementation Strategy
-
-### One-by-One Field Addition (Recommended for Complex Resources)
-
-When working with complex resources with many missing fields, implement a systematic one-by-one approach:
-
-**Benefits:**
-
-- **Discover schema validation constraints** (e.g., `anticlog_threshold` must be 16-32)
-- **Identify field dependencies** (e.g., `dynamic_vlan` requires `auth.enable_mac_auth=true`)
-- **Catch provider bugs early** (e.g., memory address issues in type conversion)
-- **Ensure proper test validation** for each field before moving to next
-
-**Process:**
-
-1. **Select next field** from `truly_missing_fields.txt`
-2. **Add to fixture** with reasonable test value
-3. **Add validation** to test file
-4. **Run test** and handle any validation errors
-5. **Update missing fields list** when successful
-6. **Repeat** until zero missing fields
-
-**Example Field Dependencies Discovered:**
-
-- `dynamic_vlan.*` fields require `vlan_enabled=true` AND (`auth.enable_mac_auth=true` OR `auth.type="eap"`)
-- `auth.anticlog_threshold` has validation range 16-32 (SAE anti-clogging security)
-
-### Provider Bug Detection Through Testing
-
-**Type Conversion Issues:**
-
-- Watch for fields returning memory addresses instead of values
-- **Symptom**: Error like `"was cty.StringVal("10"), but now cty.StringVal("0x14000397000")"`
-- **Solution**: Check SDK-to-Terraform conversion functions for improper `.String()` calls
-- **Fix Pattern**: Use proper type helpers like `mistutils.VlanAsString()` instead of generic `.String()`
-
-**Example Fix:**
-
-```go
-// WRONG: Returns memory addresses
-types.StringValue(v.String())
-
-// CORRECT: Proper type conversion  
-mistutils.VlanAsString(v)
-```
-
-### Schema Validation Discovery
-
-**Field Constraints Found Through Testing:**
-
-- `auth.anticlog_threshold`: Must be Number between 16-32
-- Field validation errors provide exact constraints to use in fixtures
-
-**Testing Strategy:**
-
-1. Start with reasonable default values
-2. If validation fails, read error message for exact constraints
-3. Update fixture with valid value
-4. Document discovered constraints for future reference
-
-## Success Criteria
-
-- [ ] **100% schema field coverage** (zero missing fields)
-- [ ] **Both test cases pass** (simple_case + fixture_case_N)
-- [ ] **Clean test execution** (under 30s typical)
-- [ ] **Comprehensive validation checks** (all testable fields covered)
-
-## Reference Implementations
-
-**Primary Pattern**: `org_wlantemplate_resource_test.go` - Complete dual test case implementation
-
-**Field Coverage**: `org_wlan_portal_template_resource_test.go` - 100% coverage methodology (225 fields)
-
-**Nested Objects**: `org_wxtag_resource_test.go` - Complex nested array validation
-
-## Quick Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Missing test cases | Implement both simple_case AND fixture_case patterns |
-| HCL generation errors | Only add HCL tags to fields with CTY tags |
-| Nested object errors | Validate child attributes only (e.g., `applies.org_id` not `applies`) |
-| Field coverage gaps | Use the 4-step verification process above |
-
-**Clean up:**
-
-```bash
-# Remove temporary analysis files
-rm all_schema_fields.txt current_tested_fields.txt missing_fields.txt
-
-# Remove helper functions from test file after verification
-# Delete the init() function and all extract* helper functions
-```
+Total Validations = Schema Fields + Array Index/Map Key Validation...
