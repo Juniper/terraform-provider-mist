@@ -90,7 +90,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var portalAllowedSubnets = mistutils.ListOfStringSdkToTerraformEmpty()
 	var portalApiSecret = types.StringValue("")
 	var portalDeniedHostnames = mistutils.ListOfStringSdkToTerraformEmpty()
-	var portalImage = types.StringValue("")
+	var portalImage = types.StringValue("not_present")
 	var portalSsoUrl = types.StringValue("")
 	var qos = NewQosValueNull()
 	var radsec = NewRadsecValueNull()
@@ -406,7 +406,9 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.PortalImage.IsValueSet() && data.PortalImage.Value() != nil {
-		portalImage = types.StringValue(*data.PortalImage.Value())
+		// Using a predefined value to indicate that an image is present as the url can change due to a jwt token included in the url.
+		// Since the url changes it can cause terraform state conflicts when no actual change has been made to the image.
+		portalImage = types.StringValue("present")
 	}
 
 	if data.PortalSsoUrl.IsValueSet() && data.PortalSsoUrl.Value() != nil {

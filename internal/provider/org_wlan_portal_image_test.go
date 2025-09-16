@@ -68,7 +68,7 @@ func TestOrgWlanPortalImageModel(t *testing.T) {
 				// Step 2: Same config but now also check the WLAN's portal_image field
 				// This gives the API time to propagate the changes
 				wlanPortalImageChecks := newTestChecks("mist_org_wlan.wlanName")
-				wlanPortalImageChecks.append(t, "TestCheckResourceAttrSet", "portal_image")
+				wlanPortalImageChecks.append(t, "TestCheckResourceAttr", "portal_image", "present")
 
 				// Combine both portal image and WLAN checks for the second step
 				allChecks := make([]resource.TestCheckFunc, 0)
