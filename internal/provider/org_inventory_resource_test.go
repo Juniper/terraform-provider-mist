@@ -58,10 +58,11 @@ func TestOrgInventoryModel(t *testing.T) {
 
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			// Skip by default as this test requires real inventory with valid MAC addresses
-			// To run this test, ensure your test environment has devices with the MAC addresses
-			// specified in the fixture, or set MIST_TEST_SKIP_INVENTORY=false to run anyway
-			t.Skip("Skipping by default as test requires real devices with valid MAC addresses.")
+			// Skip fixture cases that require real devices with valid MAC addresses
+			// The simple_case can run as it only tests basic structure
+			if strings.HasPrefix(tName, "fixture_case") {
+				t.Skip("Skipping fixture case as it requires real devices with valid MAC addresses.")
+			}
 
 			resourceType := "org_inventory"
 			steps := make([]resource.TestStep, len(tCase.steps))
