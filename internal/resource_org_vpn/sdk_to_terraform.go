@@ -21,7 +21,7 @@ func SdkToTerraform(ctx context.Context, d *models.Vpn) (OrgVpnModel, diag.Diagn
 	var name types.String
 	var orgId types.String
 	var paths = types.MapNull(PathsValue{}.Type(ctx))
-	var pathSelection PathSelectionValue
+	pathSelection := NewPathSelectionValueNull()
 	var vpnType types.String
 
 	if d.Id != nil {
@@ -38,8 +38,6 @@ func SdkToTerraform(ctx context.Context, d *models.Vpn) (OrgVpnModel, diag.Diagn
 	}
 	if d.PathSelection != nil {
 		pathSelection = vpnPathSelectionSdkToTerraform(ctx, &diags, d.PathSelection)
-	} else {
-		pathSelection = NewPathSelectionValueNull()
 	}
 	if d.Type != nil {
 		vpnType = types.StringValue(string(*d.Type))
