@@ -1,5 +1,6 @@
 inventory = {
-  "5684dae9ac8b" = {
+  "0c599c8301aa" = {
     unclaim_when_destroyed = true
+    site_id                = ""
   }
 }

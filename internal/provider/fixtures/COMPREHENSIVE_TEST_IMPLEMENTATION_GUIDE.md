@@ -11,7 +11,6 @@ This guide provides a complete template for implementing comprehensive test cove
 
 1. **Extract all schema fields** using the automated reflection-based method
 2. **Extract currently tested fields** from test execution output
-3. **Compare the two lists** to identify missing coverage
 
 **This process generates two files:**
 - `all_schema_fields.txt` - Complete schema field list with proper dot notation
@@ -20,7 +19,6 @@ This guide provides a complete template for implementing comprehensive test cove
 **Expected outcomes:**
 - **100% field accuracy** using reflection-based extraction
 - **Proper nested field handling** for complex structures
-- **Gap identification** between schema and test coverage
 
 ### Field Analysis Categories
 - **Computed fields**: Read-only, populated by API (use `TestCheckResourceAttrSet`)
@@ -46,9 +44,9 @@ This guide provides a complete template for implementing comprehensive test cove
 - **Resource schema**: `/internal/{resource}/{resource}_resource_gen.go`
 
 #### Established Patterns
-- Follow the **EXACT SAME PATTERN** as `org_wlan_resource_test.go`
-- Use the same test structure, provider configuration, and validation approach
-- For tests requiring real devices/data, use skip pattern like `device_gateway_cluster_resource_test.go`
+- Follow the **EXACT SAME PATTERN** as `site_wlan_resource_test.go` for standard resources
+- Use the same test structure, provider configuration, and validation approach  
+- For resources with nested site references, see the `org_inventory_resource_test.go` pattern as a specialized case
 
 ### Step 1: Test Structs Creation
 
@@ -105,7 +103,7 @@ nested_field = {
 - Set boolean fields to `true` for comprehensive testing
 - Include all configurable fields from the provided list
 - Separate multiple configs with `␞` delimiter
-- For resources requiring real devices/data, use placeholder values and skip pattern
+- For resources requiring real devices/data, use real values when available (like MAC addresses from actual inventory)
 
 ### Step 3: Main Test Implementation
 
@@ -171,36 +169,27 @@ func Test{Resource}Model(t *testing.T) {
         }
     }
 
+    resourceType := "{resource}"
     for tName, tCase := range testCases {
         t.Run(tName, func(t *testing.T) {
-            // Skip if requires real devices/data
-            // t.Skip("Skipping by default as test requires real devices/data.")
+            // Skip if requires real devices/data (optional)
+            // if strings.HasPrefix(tName, "fixture_case") {
+            //     t.Skip("Skipping fixture case as it requires real devices.")
+            // }
 
-            resourceType := "{resource}"
             steps := make([]resource.TestStep, len(tCase.steps))
             for i, step := range tCase.steps {
                 siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
                 config := step.config
 
-                // Handle site_id references if needed
-                // if config.SiteId != nil {
-                //     config.SiteId = &siteRef
-                // }
+                // Set site_id reference for standard site resources
+                if config.SiteId != nil {
+                    config.SiteId = &siteRef
+                }
 
                 f := hclwrite.NewEmptyFile()
                 gohcl.EncodeIntoBody(&config, f.Body())
-
-                // Convert quoted site_id references to unquoted
-                hclString := string(f.Bytes())
-                hclString = strings.ReplaceAll(hclString, fmt.Sprintf(`"%s"`, siteRef), siteRef)
-
-                combinedConfig := `
-provider "mist" {
-  host     = "` + os.Getenv("MIST_HOST") + `"
-  apitoken = "` + os.Getenv("MIST_API_TOKEN") + `"
-}
-
-` + siteConfig + "\n\n" + Render(resourceType, tName, hclString)
+                combinedConfig := siteConfig + "\n\n" + Render(resourceType, tName, strings.ReplaceAll(string(f.Bytes()), fmt.Sprintf(`"%s"`, siteRef), siteRef))
 
                 checks := config.testChecks(t, "{resource}", tName)
                 chkLog := checks.string()
@@ -272,24 +261,66 @@ func (o *{Resource}Model) testChecks(t testing.TB, rType, tName string) testChec
 ## Key Patterns & Conventions
 
 ### Provider Configuration
-Always include explicit provider configuration for integration testing:
+The provider configuration is handled through environment variables, not explicit inline configuration:
 ```go
-combinedConfig := `
-provider "mist" {
-  host     = "` + os.Getenv("MIST_HOST") + `"
-  apitoken = "` + os.Getenv("MIST_API_TOKEN") + `"
+// Environment variables are used automatically by the test framework:
+// MIST_HOST, MIST_API_TOKEN, MIST_TEST_ORG_ID, TF_ACC
+
+// Site configuration is added when needed:
+siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
+configStr := ""
+if siteConfig != "" {
+    configStr = siteConfig + "\n\n"
 }
-` + siteConfig + "\n\n" + Render(resourceType, tName, hclString)
+combinedConfig = configStr + combinedConfig
 ```
 
 ### Site Reference Handling
-For resources that reference sites:
+For standard resources that reference sites directly:
 ```go
 siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
-// Set site_id in config struct
-config.SiteId = &siteRef
-// Convert quoted references to unquoted in HCL
-hclString = strings.ReplaceAll(hclString, fmt.Sprintf(`"%s"`, siteRef), siteRef)
+config := step.config
+
+// Set site_id reference for standard site resources
+if config.SiteId != nil {
+    config.SiteId = &siteRef
+}
+
+f := hclwrite.NewEmptyFile()
+gohcl.EncodeIntoBody(&config, f.Body())
+combinedConfig := siteConfig + "\n\n" + Render(resourceType, tName, strings.ReplaceAll(string(f.Bytes()), fmt.Sprintf(`"%s"`, siteRef), siteRef))
+```
+
+#### Special Case: Nested Site References (like org_inventory)
+For resources with nested objects containing site references:
+```go
+config := step.config
+siteConfig, siteRef := "", ""
+
+// Check if any nested objects need site_id and set up site config
+if config.Inventory != nil {
+    for key, inventoryItem := range config.Inventory {
+        if inventoryItem.SiteId != nil {
+            if siteConfig == "" { // only get once even if multiple items use it
+                siteConfig, siteRef = GetSiteBaseConfig(GetTestOrgId())
+            }
+            // Set placeholder for site_id in nested object
+            inventoryItem.SiteId = stringPtr("{site_id}")
+            config.Inventory[key] = inventoryItem
+        }
+    }
+}
+
+f := hclwrite.NewEmptyFile()
+gohcl.EncodeIntoBody(&config, f.Body())
+combinedConfig := Render(resourceType, tName, string(f.Bytes()))
+
+configStr := ""
+if siteConfig != "" {
+    combinedConfig = strings.ReplaceAll(combinedConfig, "\"{site_id}\"", siteRef)
+    configStr = siteConfig + "\n\n"
+}
+combinedConfig = configStr + combinedConfig
 ```
 
 ### Validation Patterns
@@ -299,17 +330,21 @@ hclString = strings.ReplaceAll(hclString, fmt.Sprintf(`"%s"`, siteRef), siteRef)
 - **Lists**: Validate count with `.#`, individual items with `.{index}.{field}`
 
 ### Skip Patterns
-For tests requiring real devices/external data:
+For tests requiring real devices/external data (use sparingly - prefer real data):
 ```go
-t.Skip("Skipping by default as test requires real devices/data.")
+// Optional skip pattern - prefer running with real data when available
+if strings.HasPrefix(tName, "fixture_case") {
+    t.Skip("Skipping fixture case as it requires real devices with valid MAC addresses.")
+}
 ```
 
 ### Environment Variables
-Standard test environment variables:
-- `MIST_HOST`: API host
-- `MIST_API_TOKEN`: API token
-- `MIST_TEST_ORG_ID`: Test organization ID
-- `TF_ACC`: Terraform account
+Standard test environment variables (all must be set):
+
+- `TF_ACC=1`: Enable Terraform acceptance tests
+- `MIST_HOST`: API host (e.g., 'api.mistsys.com')
+- `MIST_API_TOKEN`: API token (retrieve from your org settings in MIST)
+- `MIST_TEST_ORG_ID`: Test organization ID (retrieve from your org settings in MIST)
 
 ## Testing Guidelines
 
@@ -334,7 +369,7 @@ Standard test environment variables:
 ### Part 1 Prompt: Field Analysis
 
 ```
-Please extract complete schema fields and currently tested fields for {RESOURCE_NAME} following the methodology in `/internal/provider/fixtures/TESTING_GUIDELINES.md`:
+Please extract complete schema fields and currently tested fields for {RESOURCE_NAME} following the methodology in `/internal/provider/fixtures/TESTING_GUIDELINES.md` and internal/provider/fixtures/COMPREHENSIVE_TEST_IMPLEMENTATION_GUIDE.md:
 
 1. Extract all schema fields from /internal/{resource}/{resource}_resource_gen.go using the automated reflection-based method
 2. Extract currently tested fields from test execution output
@@ -342,7 +377,6 @@ Please extract complete schema fields and currently tested fields for {RESOURCE_
    - `all_schema_fields.txt` - Complete schema field list with proper dot notation
    - `current_tested_fields.txt` - Currently validated fields in tests
 4. Identify which fields are computed vs configurable
-5. Determine any missing field coverage
 
 Use the reflection-based extraction method from TESTING_GUIDELINES.md for 100% accuracy with nested fields.
 ```
@@ -358,7 +392,7 @@ FIELD LIST PROVIDED:
 IMPLEMENTATION REQUIREMENTS:
 1. Create test structs in /internal/provider/{resource}_test_structs.go with ONLY configurable fields from the provided list
 2. Create comprehensive fixture in /internal/provider/fixtures/{resource}_resource/{resource}_config.tf covering all configurable fields
-3. Implement main test in /internal/provider/{resource}_resource_test.go following the EXACT SAME PATTERN as org_inventory_resource_test.go
+3. Implement main test in /internal/provider/{resource}_resource_test.go following the EXACT SAME PATTERN as site_wlan_resource_test.go (or org_inventory_resource_test.go for nested site references)
 4. Ensure comprehensive validation of ALL fields from the provided list using appropriate TestCheck methods:
    - Computed fields: TestCheckResourceAttrSet
    - Configurable fields: TestCheckResourceAttr with expected values
@@ -372,27 +406,40 @@ Follow the established patterns exactly - do not deviate from the template struc
 
 ## Key Patterns & Conventions
 
-### Provider Configuration
-Always include explicit provider configuration for integration testing:
+### Provider Configuration (Implementation Pattern)
+Environment variables handle provider authentication automatically:
 
 ```go
-combinedConfig := `
-provider "mist" {
-  host     = "` + os.Getenv("MIST_HOST") + `"
-  apitoken = "` + os.Getenv("MIST_API_TOKEN") + `"
+// These environment variables are used by the test framework:
+// TF_ACC=1, MIST_HOST, MIST_API_TOKEN, MIST_TEST_ORG_ID
+
+// Site configuration is conditionally added:
+configStr := ""
+if siteConfig != "" {
+    configStr = siteConfig + "\n\n"
 }
-` + siteConfig + "\n\n" + Render(resourceType, tName, hclString)
+combinedConfig = configStr + combinedConfig
 ```
 
-### Site Reference Handling
-For resources that reference sites:
+### Site Reference Handling (Nested Objects)
+For resources with nested objects containing site references:
 
 ```go
-siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
-// Set site_id in config struct
-config.SiteId = &siteRef
-// Convert quoted references to unquoted in HCL
-hclString = strings.ReplaceAll(hclString, fmt.Sprintf(`"%s"`, siteRef), siteRef)
+// Pattern for nested objects like inventory maps:
+if config.Inventory != nil {
+    for key, inventoryItem := range config.Inventory {
+        if inventoryItem.SiteId != nil {
+            if siteConfig == "" {
+                siteConfig, siteRef = GetSiteBaseConfig(GetTestOrgId())
+            }
+            inventoryItem.SiteId = stringPtr("{site_id}")
+            config.Inventory[key] = inventoryItem
+        }
+    }
+}
+
+// After HCL encoding, replace placeholders:
+combinedConfig = strings.ReplaceAll(combinedConfig, "\"{site_id}\"", siteRef)
 ```
 
 ### Validation Patterns
@@ -448,20 +495,24 @@ Standard test environment variables:
 
 ### Pattern Compliance
 
-- **Exact structure**: Follow org_inventory_resource_test.go pattern precisely
+- **Exact structure**: Follow site_wlan_resource_test.go pattern precisely for standard resources
 - **No deviations**: Use established conventions without modifications
 - **Integration ready**: Include provider configuration and site handling
 - **Comprehensive fixtures**: Cover all configurable fields with realistic values
+- **Specialized cases**: Use org_inventory_resource_test.go pattern for nested site references
 
 ## Common Pitfalls to Avoid
 
 1. **Don't include computed fields** in test structs - they can't be configured
 2. **Don't forget dual tags** (`cty` and `hcl`) on struct fields
 3. **Don't hardcode site IDs** - use `GetSiteBaseConfig()` pattern
-4. **Don't skip provider configuration** - integration tests need real auth
+4. **Don't skip provider configuration** - environment variables handle authentication automatically
 5. **Don't use wrong validation methods** - computed vs configurable field validation differs
 6. **Don't forget complex type validation** - maps and lists need count + individual item validation
 7. **Don't deviate from provided field list** - it is the source of truth
 8. **Don't skip field coverage verification** - ensure 100% validation coverage
+9. **Don't use fake data when real data is available** - prefer real MAC addresses, device IDs, etc.
+10. **Don't create duplicate site names** - ensure test sites are cleaned up or use unique names
+11. **Ask user to set all required environment variables if you find them unset** - TF_ACC, MIST_HOST, MIST_API_TOKEN, MIST_TEST_ORG_ID
 
 This guide ensures consistent, comprehensive test coverage following all established patterns in the terraform-provider-mist codebase with complete field validation based on the authoritative field list.

@@ -1,0 +1,6 @@
+These checks have been removed due to them being computed fields that are set conditionally depending on the use case.
+
+checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("inventory.%s.deviceprofile_id", key))
+checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("inventory.%s.claim_code", key))
+checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("inventory.%s.hostname", key))
+checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("inventory.%s.vc_mac", key))
