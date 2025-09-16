@@ -130,24 +130,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 		passwordPolicy = passwordPolicySdkToTerraform(ctx, &diags, data.PasswordPolicy)
 	}
 	if data.Pcap != nil {
-		bucket := types.StringNull()
-		maxPktLen := types.Int64Null()
-
-		if data.Pcap.Bucket != nil {
-			bucket = types.StringValue(*data.Pcap.Bucket)
-		}
-		if data.Pcap.MaxPktLen != nil {
-			maxPktLen = types.Int64Value(int64(*data.Pcap.MaxPktLen))
-		}
-
-		var tempDiags diag.Diagnostics
-		pcap, tempDiags = NewPcapValue(PcapValue{}.AttributeTypes(ctx), map[string]attr.Value{
-			"bucket":      bucket,
-			"max_pkt_len": maxPktLen,
-		})
-		if tempDiags.HasError() {
-			pcap = NewPcapValueNull()
-		}
+		pcap = pcapSdkToTerraform(ctx, &diags, data.Pcap)
 	}
 	// if data.PcapBucketVerified != nil {
 	// 	pcap_bucket_verified = types.BoolValue(*data.PcapBucketVerified)
