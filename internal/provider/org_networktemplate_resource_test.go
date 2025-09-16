@@ -2,14 +2,17 @@ package provider
 
 import (
 	"fmt"
+	"os"
+	"strings"
 	"testing"
 
+	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestOrgNetworktemplate(t *testing.T) {
+func TestOrgNetworktemplateModel(t *testing.T) {
 	type testStep struct {
 		config OrgNetworktemplateModel
 	}
@@ -31,17 +34,45 @@ func TestOrgNetworktemplate(t *testing.T) {
 		},
 	}
 
+	b, err := os.ReadFile("fixtures/org_networktemplate_resource/org_networktemplate_config.tf")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	str := string(b) // convert content to a 'string'
+	fixtures := strings.Split(str, "␞")
+
+	for i, fixture := range fixtures {
+		FixtureOrgNetworktemplateModel := OrgNetworktemplateModel{}
+
+		err = hcl.Decode(&FixtureOrgNetworktemplateModel, fixture)
+		if err != nil {
+			fmt.Printf("error decoding hcl: %s\n", err)
+		}
+
+		FixtureOrgNetworktemplateModel.OrgId = GetTestOrgId()
+
+		testCases[fmt.Sprintf("fixture_case_%d", i)] = testCase{
+			steps: []testStep{
+				{
+					config: FixtureOrgNetworktemplateModel,
+				},
+			},
+		}
+	}
+
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
+			resourceType := "org_networktemplate"
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config
 
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
-				configStr := Render("org_networktemplate", tName, string(f.Bytes()))
+				configStr := Render(resourceType, tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, PrefixProviderName("org_networktemplate"), tName)
+				checks := config.testChecks(t, PrefixProviderName(resourceType), tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -67,6 +98,1203 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 	// Check required fields
 	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
 	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
+
+	// Optional list attributes
+	if len(o.AclPolicies) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "acl_policies.#", intToString(len(o.AclPolicies)))
+		for i, policy := range o.AclPolicies {
+			basePath := fmt.Sprintf("acl_policies.%d", i)
+			if policy.Name != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".name", *policy.Name)
+			}
+			if len(policy.SrcTags) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".src_tags.#", intToString(len(policy.SrcTags)))
+				for j, srcTag := range policy.SrcTags {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.src_tags.%d", basePath, j), srcTag)
+				}
+			}
+			if len(policy.Actions) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".actions.#", intToString(len(policy.Actions)))
+				for j, action := range policy.Actions {
+					actionPath := fmt.Sprintf("%s.actions.%d", basePath, j)
+					if action.Action != nil {
+						checks.append(t, "TestCheckResourceAttr", actionPath+".action", *action.Action)
+					}
+					checks.append(t, "TestCheckResourceAttr", actionPath+".dst_tag", action.DstTag)
+				}
+			}
+		}
+	}
+
+	if len(o.AdditionalConfigCmds) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "additional_config_cmds.#", intToString(len(o.AdditionalConfigCmds)))
+		for i, cmd := range o.AdditionalConfigCmds {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("additional_config_cmds.%d", i), cmd)
+		}
+	}
+
+	if len(o.DnsServers) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "dns_servers.#", intToString(len(o.DnsServers)))
+		for i, server := range o.DnsServers {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dns_servers.%d", i), server)
+		}
+	}
+
+	if len(o.DnsSuffix) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "dns_suffix.#", intToString(len(o.DnsSuffix)))
+		for i, suffix := range o.DnsSuffix {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dns_suffix.%d", i), suffix)
+		}
+	}
+
+	if len(o.NtpServers) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "ntp_servers.#", intToString(len(o.NtpServers)))
+		for i, server := range o.NtpServers {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ntp_servers.%d", i), server)
+		}
+	}
+
+	// Optional boolean attributes
+	if o.RemoveExistingConfigs != nil {
+		checks.append(t, "TestCheckResourceAttr", "remove_existing_configs", boolToString(*o.RemoveExistingConfigs))
+	}
+
+	// Optional complex object attributes
+	if o.DhcpSnooping != nil {
+		if o.DhcpSnooping.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.enabled", boolToString(*o.DhcpSnooping.Enabled))
+		}
+		if o.DhcpSnooping.AllNetworks != nil {
+			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.all_networks", boolToString(*o.DhcpSnooping.AllNetworks))
+		}
+		if o.DhcpSnooping.EnableArpSpoofCheck != nil {
+			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.enable_arp_spoof_check", boolToString(*o.DhcpSnooping.EnableArpSpoofCheck))
+		}
+		if o.DhcpSnooping.EnableIpSourceGuard != nil {
+			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.enable_ip_source_guard", boolToString(*o.DhcpSnooping.EnableIpSourceGuard))
+		}
+		if len(o.DhcpSnooping.Networks) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.networks.#", intToString(len(o.DhcpSnooping.Networks)))
+			for i, network := range o.DhcpSnooping.Networks {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcp_snooping.networks.%d", i), network)
+			}
+		}
+	}
+
+	if o.MistNac != nil {
+		if o.MistNac.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.enabled", boolToString(*o.MistNac.Enabled))
+		}
+		if o.MistNac.Network != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.network", *o.MistNac.Network)
+		}
+	}
+
+	if o.RadiusConfig != nil {
+		// Optional boolean fields
+		if o.RadiusConfig.AcctImmediateUpdate != nil {
+			checks.append(t, "TestCheckResourceAttr", "radius_config.acct_immediate_update", boolToString(*o.RadiusConfig.AcctImmediateUpdate))
+		}
+		if o.RadiusConfig.CoaEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "radius_config.coa_enabled", boolToString(*o.RadiusConfig.CoaEnabled))
+		}
+		if o.RadiusConfig.FastDot1xTimers != nil {
+			checks.append(t, "TestCheckResourceAttr", "radius_config.fast_dot1x_timers", boolToString(*o.RadiusConfig.FastDot1xTimers))
+		}
+
+		// Optional integer fields
+		if o.RadiusConfig.AcctInterimInterval != nil {
+			checks.append(t, "TestCheckResourceAttr", "radius_config.acct_interim_interval", intToString(int(*o.RadiusConfig.AcctInterimInterval)))
+		}
+		if o.RadiusConfig.AuthServersRetries != nil {
+			checks.append(t, "TestCheckResourceAttr", "radius_config.auth_servers_retries", intToString(int(*o.RadiusConfig.AuthServersRetries)))
+		}
+		if o.RadiusConfig.AuthServersTimeout != nil {
+			checks.append(t, "TestCheckResourceAttr", "radius_config.auth_servers_timeout", intToString(int(*o.RadiusConfig.AuthServersTimeout)))
+		}
+
+		// Optional string fields
+		if o.RadiusConfig.AuthServerSelection != nil {
+			checks.append(t, "TestCheckResourceAttr", "radius_config.auth_server_selection", *o.RadiusConfig.AuthServerSelection)
+		}
+		if o.RadiusConfig.CoaPort != nil {
+			checks.append(t, "TestCheckResourceAttr", "radius_config.coa_port", *o.RadiusConfig.CoaPort)
+		}
+		if o.RadiusConfig.Network != nil {
+			checks.append(t, "TestCheckResourceAttr", "radius_config.network", *o.RadiusConfig.Network)
+		}
+		if o.RadiusConfig.SourceIp != nil {
+			checks.append(t, "TestCheckResourceAttr", "radius_config.source_ip", *o.RadiusConfig.SourceIp)
+		}
+
+		// AcctServers list
+		if len(o.RadiusConfig.AcctServers) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "radius_config.acct_servers.#", intToString(len(o.RadiusConfig.AcctServers)))
+			for i, server := range o.RadiusConfig.AcctServers {
+				serverPath := fmt.Sprintf("radius_config.acct_servers.%d", i)
+
+				// Required fields
+				checks.append(t, "TestCheckResourceAttr", serverPath+".host", server.Host)
+				checks.append(t, "TestCheckResourceAttr", serverPath+".secret", server.Secret)
+
+				// Optional fields
+				if server.KeywrapEnabled != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".keywrap_enabled", boolToString(*server.KeywrapEnabled))
+				}
+				if server.KeywrapFormat != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".keywrap_format", *server.KeywrapFormat)
+				}
+				if server.KeywrapKek != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".keywrap_kek", *server.KeywrapKek)
+				}
+				if server.KeywrapMack != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".keywrap_mack", *server.KeywrapMack)
+				}
+				if server.Port != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".port", *server.Port)
+				}
+			}
+		}
+
+		// AuthServers list
+		if len(o.RadiusConfig.AuthServers) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "radius_config.auth_servers.#", intToString(len(o.RadiusConfig.AuthServers)))
+			for i, server := range o.RadiusConfig.AuthServers {
+				serverPath := fmt.Sprintf("radius_config.auth_servers.%d", i)
+
+				// Required fields
+				checks.append(t, "TestCheckResourceAttr", serverPath+".host", server.Host)
+				checks.append(t, "TestCheckResourceAttr", serverPath+".secret", server.Secret)
+
+				// Optional fields
+				if server.KeywrapEnabled != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".keywrap_enabled", boolToString(*server.KeywrapEnabled))
+				}
+				if server.KeywrapFormat != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".keywrap_format", *server.KeywrapFormat)
+				}
+				if server.KeywrapKek != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".keywrap_kek", *server.KeywrapKek)
+				}
+				if server.KeywrapMack != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".keywrap_mack", *server.KeywrapMack)
+				}
+				if server.Port != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".port", *server.Port)
+				}
+				if server.RequireMessageAuthenticator != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".require_message_authenticator", boolToString(*server.RequireMessageAuthenticator))
+				}
+			}
+		}
+	}
+
+	if o.RemoteSyslog != nil {
+		// Optional boolean fields
+		if o.RemoteSyslog.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "remote_syslog.enabled", boolToString(*o.RemoteSyslog.Enabled))
+		}
+		if o.RemoteSyslog.SendToAllServers != nil {
+			checks.append(t, "TestCheckResourceAttr", "remote_syslog.send_to_all_servers", boolToString(*o.RemoteSyslog.SendToAllServers))
+		}
+
+		// Optional string fields
+		if o.RemoteSyslog.Network != nil {
+			checks.append(t, "TestCheckResourceAttr", "remote_syslog.network", *o.RemoteSyslog.Network)
+		}
+		if o.RemoteSyslog.TimeFormat != nil {
+			checks.append(t, "TestCheckResourceAttr", "remote_syslog.time_format", *o.RemoteSyslog.TimeFormat)
+		}
+
+		// Cacerts list
+		if len(o.RemoteSyslog.Cacerts) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "remote_syslog.cacerts.#", intToString(len(o.RemoteSyslog.Cacerts)))
+			for i, cacert := range o.RemoteSyslog.Cacerts {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("remote_syslog.cacerts.%d", i), cacert)
+			}
+		}
+
+		// Archive configuration
+		if o.RemoteSyslog.Archive != nil {
+			if o.RemoteSyslog.Archive.Files != nil {
+				checks.append(t, "TestCheckResourceAttr", "remote_syslog.archive.files", *o.RemoteSyslog.Archive.Files)
+			}
+			if o.RemoteSyslog.Archive.Size != nil {
+				checks.append(t, "TestCheckResourceAttr", "remote_syslog.archive.size", *o.RemoteSyslog.Archive.Size)
+			}
+		}
+
+		// Console configuration
+		if o.RemoteSyslog.Console != nil {
+			if len(o.RemoteSyslog.Console.Contents) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "remote_syslog.console.contents.#", intToString(len(o.RemoteSyslog.Console.Contents)))
+				for i, content := range o.RemoteSyslog.Console.Contents {
+					contentPath := fmt.Sprintf("remote_syslog.console.contents.%d", i)
+					if content.Facility != nil {
+						checks.append(t, "TestCheckResourceAttr", contentPath+".facility", *content.Facility)
+					}
+					if content.Severity != nil {
+						checks.append(t, "TestCheckResourceAttr", contentPath+".severity", *content.Severity)
+					}
+				}
+			}
+		}
+
+		// Files configuration
+		if len(o.RemoteSyslog.Files) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "remote_syslog.files.#", intToString(len(o.RemoteSyslog.Files)))
+			for i, file := range o.RemoteSyslog.Files {
+				filePath := fmt.Sprintf("remote_syslog.files.%d", i)
+
+				// Optional boolean fields
+				if file.EnableTls != nil {
+					checks.append(t, "TestCheckResourceAttr", filePath+".enable_tls", boolToString(*file.EnableTls))
+				}
+				if file.ExplicitPriority != nil {
+					checks.append(t, "TestCheckResourceAttr", filePath+".explicit_priority", boolToString(*file.ExplicitPriority))
+				}
+				if file.StructuredData != nil {
+					checks.append(t, "TestCheckResourceAttr", filePath+".structured_data", boolToString(*file.StructuredData))
+				}
+
+				// Optional string fields
+				if file.File != nil {
+					checks.append(t, "TestCheckResourceAttr", filePath+".file", *file.File)
+				}
+				if file.Match != nil {
+					checks.append(t, "TestCheckResourceAttr", filePath+".match", *file.Match)
+				}
+
+				// File archive
+				if file.Archive != nil {
+					if file.Archive.Files != nil {
+						checks.append(t, "TestCheckResourceAttr", filePath+".archive.files", *file.Archive.Files)
+					}
+					if file.Archive.Size != nil {
+						checks.append(t, "TestCheckResourceAttr", filePath+".archive.size", *file.Archive.Size)
+					}
+				}
+
+				// File contents
+				if len(file.Contents) > 0 {
+					checks.append(t, "TestCheckResourceAttr", filePath+".contents.#", intToString(len(file.Contents)))
+					for j, content := range file.Contents {
+						contentPath := fmt.Sprintf("%s.contents.%d", filePath, j)
+						if content.Facility != nil {
+							checks.append(t, "TestCheckResourceAttr", contentPath+".facility", *content.Facility)
+						}
+						if content.Severity != nil {
+							checks.append(t, "TestCheckResourceAttr", contentPath+".severity", *content.Severity)
+						}
+					}
+				}
+			}
+		}
+
+		// Servers configuration
+		if len(o.RemoteSyslog.Servers) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "remote_syslog.servers.#", intToString(len(o.RemoteSyslog.Servers)))
+			for i, server := range o.RemoteSyslog.Servers {
+				serverPath := fmt.Sprintf("remote_syslog.servers.%d", i)
+
+				// Optional boolean fields
+				if server.ExplicitPriority != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".explicit_priority", boolToString(*server.ExplicitPriority))
+				}
+				if server.StructuredData != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".structured_data", boolToString(*server.StructuredData))
+				}
+
+				// Optional string fields
+				if server.Facility != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".facility", *server.Facility)
+				}
+				if server.Host != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".host", *server.Host)
+				}
+				if server.Match != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".match", *server.Match)
+				}
+				if server.Port != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".port", *server.Port)
+				}
+				if server.Protocol != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".protocol", *server.Protocol)
+				}
+				if server.RoutingInstance != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".routing_instance", *server.RoutingInstance)
+				}
+				if server.ServerName != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".server_name", *server.ServerName)
+				}
+				if server.Severity != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".severity", *server.Severity)
+				}
+				if server.SourceAddress != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".source_address", *server.SourceAddress)
+				}
+				if server.Tag != nil {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".tag", *server.Tag)
+				}
+
+				// Server contents
+				if len(server.Contents) > 0 {
+					checks.append(t, "TestCheckResourceAttr", serverPath+".contents.#", intToString(len(server.Contents)))
+					for j, content := range server.Contents {
+						contentPath := fmt.Sprintf("%s.contents.%d", serverPath, j)
+						if content.Facility != nil {
+							checks.append(t, "TestCheckResourceAttr", contentPath+".facility", *content.Facility)
+						}
+						if content.Severity != nil {
+							checks.append(t, "TestCheckResourceAttr", contentPath+".severity", *content.Severity)
+						}
+					}
+				}
+			}
+		}
+
+		// Users configuration
+		if len(o.RemoteSyslog.Users) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "remote_syslog.users.#", intToString(len(o.RemoteSyslog.Users)))
+			for i, user := range o.RemoteSyslog.Users {
+				userPath := fmt.Sprintf("remote_syslog.users.%d", i)
+
+				// Optional string fields
+				if user.Match != nil {
+					checks.append(t, "TestCheckResourceAttr", userPath+".match", *user.Match)
+				}
+				if user.User != nil {
+					checks.append(t, "TestCheckResourceAttr", userPath+".user", *user.User)
+				}
+
+				// User contents
+				if len(user.Contents) > 0 {
+					checks.append(t, "TestCheckResourceAttr", userPath+".contents.#", intToString(len(user.Contents)))
+					for j, content := range user.Contents {
+						contentPath := fmt.Sprintf("%s.contents.%d", userPath, j)
+						if content.Facility != nil {
+							checks.append(t, "TestCheckResourceAttr", contentPath+".facility", *content.Facility)
+						}
+						if content.Severity != nil {
+							checks.append(t, "TestCheckResourceAttr", contentPath+".severity", *content.Severity)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if o.SnmpConfig != nil {
+		// Optional boolean field
+		if o.SnmpConfig.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.enabled", boolToString(*o.SnmpConfig.Enabled))
+		}
+
+		// Optional string fields
+		if o.SnmpConfig.Contact != nil {
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.contact", *o.SnmpConfig.Contact)
+		}
+		if o.SnmpConfig.Description != nil {
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.description", *o.SnmpConfig.Description)
+		}
+		if o.SnmpConfig.EngineId != nil {
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.engine_id", *o.SnmpConfig.EngineId)
+		}
+		if o.SnmpConfig.EngineIdType != nil {
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.engine_id_type", *o.SnmpConfig.EngineIdType)
+		}
+		if o.SnmpConfig.Location != nil {
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.location", *o.SnmpConfig.Location)
+		}
+		if o.SnmpConfig.Name != nil {
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.name", *o.SnmpConfig.Name)
+		}
+		if o.SnmpConfig.Network != nil {
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.network", *o.SnmpConfig.Network)
+		}
+
+		// ClientList configuration
+		if len(o.SnmpConfig.ClientList) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.client_list.#", intToString(len(o.SnmpConfig.ClientList)))
+			for i, clientList := range o.SnmpConfig.ClientList {
+				clientPath := fmt.Sprintf("snmp_config.client_list.%d", i)
+
+				if clientList.ClientListName != nil {
+					checks.append(t, "TestCheckResourceAttr", clientPath+".client_list_name", *clientList.ClientListName)
+				}
+
+				if len(clientList.Clients) > 0 {
+					checks.append(t, "TestCheckResourceAttr", clientPath+".clients.#", intToString(len(clientList.Clients)))
+					for j, client := range clientList.Clients {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.clients.%d", clientPath, j), client)
+					}
+				}
+			}
+		}
+
+		// TrapGroups configuration
+		if len(o.SnmpConfig.TrapGroups) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.trap_groups.#", intToString(len(o.SnmpConfig.TrapGroups)))
+			for i, trapGroup := range o.SnmpConfig.TrapGroups {
+				trapPath := fmt.Sprintf("snmp_config.trap_groups.%d", i)
+
+				if trapGroup.GroupName != nil {
+					checks.append(t, "TestCheckResourceAttr", trapPath+".group_name", *trapGroup.GroupName)
+				}
+				if trapGroup.Version != nil {
+					checks.append(t, "TestCheckResourceAttr", trapPath+".version", *trapGroup.Version)
+				}
+
+				if len(trapGroup.Categories) > 0 {
+					checks.append(t, "TestCheckResourceAttr", trapPath+".categories.#", intToString(len(trapGroup.Categories)))
+					for j, category := range trapGroup.Categories {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.categories.%d", trapPath, j), category)
+					}
+				}
+
+				if len(trapGroup.Targets) > 0 {
+					checks.append(t, "TestCheckResourceAttr", trapPath+".targets.#", intToString(len(trapGroup.Targets)))
+					for j, target := range trapGroup.Targets {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.targets.%d", trapPath, j), target)
+					}
+				}
+			}
+		}
+
+		// V2cConfig configuration
+		if len(o.SnmpConfig.V2cConfig) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.v2c_config.#", intToString(len(o.SnmpConfig.V2cConfig)))
+			for i, v2cConfig := range o.SnmpConfig.V2cConfig {
+				v2cPath := fmt.Sprintf("snmp_config.v2c_config.%d", i)
+
+				if v2cConfig.Authorization != nil {
+					checks.append(t, "TestCheckResourceAttr", v2cPath+".authorization", *v2cConfig.Authorization)
+				}
+				if v2cConfig.ClientListName != nil {
+					checks.append(t, "TestCheckResourceAttr", v2cPath+".client_list_name", *v2cConfig.ClientListName)
+				}
+				if v2cConfig.CommunityName != nil {
+					checks.append(t, "TestCheckResourceAttr", v2cPath+".community_name", *v2cConfig.CommunityName)
+				}
+				if v2cConfig.View != nil {
+					checks.append(t, "TestCheckResourceAttr", v2cPath+".view", *v2cConfig.View)
+				}
+			}
+		}
+
+		// V3Config configuration (basic structure - can be expanded with nested structs)
+		if o.SnmpConfig.V3Config != nil {
+			// Add basic v3_config checks - the nested structures are very complex
+			// Can be expanded later with specific notify, usm, vacm configurations
+			if len(o.SnmpConfig.V3Config.Notify) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.notify.#", intToString(len(o.SnmpConfig.V3Config.Notify)))
+				for i, notify := range o.SnmpConfig.V3Config.Notify {
+					notifyPath := fmt.Sprintf("snmp_config.v3_config.notify.%d", i)
+					checks.append(t, "TestCheckResourceAttr", notifyPath+".name", notify.Name)
+					checks.append(t, "TestCheckResourceAttr", notifyPath+".tag", notify.Tag)
+					checks.append(t, "TestCheckResourceAttr", notifyPath+".type", notify.NotifyType)
+				}
+			}
+		}
+	}
+
+	if o.SwitchMatching != nil {
+		if o.SwitchMatching.Enable != nil {
+			checks.append(t, "TestCheckResourceAttr", "switch_matching.enable", boolToString(*o.SwitchMatching.Enable))
+		}
+		if len(o.SwitchMatching.MatchingRules) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "switch_matching.rules.#", intToString(len(o.SwitchMatching.MatchingRules)))
+			for i, rule := range o.SwitchMatching.MatchingRules {
+				basePath := fmt.Sprintf("switch_matching.rules.%d", i)
+				if rule.Name != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".name", *rule.Name)
+				}
+				if rule.MatchModel != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".match_model", *rule.MatchModel)
+				}
+				if rule.MatchName != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".match_name", *rule.MatchName)
+				}
+				if rule.MatchNameOffset != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".match_name_offset", intToString(int(*rule.MatchNameOffset)))
+				}
+				if rule.MatchRole != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".match_role", *rule.MatchRole)
+				}
+				if rule.MatchType != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".match_type", *rule.MatchType)
+				}
+				if rule.MatchValue != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".match_value", *rule.MatchValue)
+				}
+				if len(rule.AdditionalConfigCmds) > 0 {
+					checks.append(t, "TestCheckResourceAttr", basePath+".additional_config_cmds.#", intToString(len(rule.AdditionalConfigCmds)))
+					for j, cmd := range rule.AdditionalConfigCmds {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.additional_config_cmds.%d", basePath, j), cmd)
+					}
+				}
+				if rule.IpConfig != nil {
+					if rule.IpConfig.Network != nil {
+						checks.append(t, "TestCheckResourceAttr", basePath+".ip_config.network", *rule.IpConfig.Network)
+					}
+					if rule.IpConfig.IpConfigType != nil {
+						checks.append(t, "TestCheckResourceAttr", basePath+".ip_config.type", *rule.IpConfig.IpConfigType)
+					}
+				}
+				if rule.OobIpConfig != nil {
+					if rule.OobIpConfig.OobIpConfigType != nil {
+						checks.append(t, "TestCheckResourceAttr", basePath+".oob_ip_config.type", *rule.OobIpConfig.OobIpConfigType)
+					}
+					if rule.OobIpConfig.UseMgmtVrf != nil {
+						checks.append(t, "TestCheckResourceAttr", basePath+".oob_ip_config.use_mgmt_vrf", boolToString(*rule.OobIpConfig.UseMgmtVrf))
+					}
+					if rule.OobIpConfig.UseMgmtVrfForHostOut != nil {
+						checks.append(t, "TestCheckResourceAttr", basePath+".oob_ip_config.use_mgmt_vrf_for_host_out", boolToString(*rule.OobIpConfig.UseMgmtVrfForHostOut))
+					}
+				}
+			}
+		}
+	}
+
+	if o.SwitchMgmt != nil {
+		// Optional integer fields
+		if o.SwitchMgmt.ApAffinityThreshold != nil {
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.ap_affinity_threshold", intToString(int(*o.SwitchMgmt.ApAffinityThreshold)))
+		}
+		if o.SwitchMgmt.CliIdleTimeout != nil {
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.cli_idle_timeout", intToString(int(*o.SwitchMgmt.CliIdleTimeout)))
+		}
+		if o.SwitchMgmt.ConfigRevertTimer != nil {
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.config_revert_timer", intToString(int(*o.SwitchMgmt.ConfigRevertTimer)))
+		}
+
+		// Optional boolean fields
+		if o.SwitchMgmt.DhcpOptionFqdn != nil {
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.dhcp_option_fqdn", boolToString(*o.SwitchMgmt.DhcpOptionFqdn))
+		}
+		if o.SwitchMgmt.DisableOobDownAlarm != nil {
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.disable_oob_down_alarm", boolToString(*o.SwitchMgmt.DisableOobDownAlarm))
+		}
+		if o.SwitchMgmt.FipsEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.fips_enabled", boolToString(*o.SwitchMgmt.FipsEnabled))
+		}
+		if o.SwitchMgmt.RemoveExistingConfigs != nil {
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.remove_existing_configs", boolToString(*o.SwitchMgmt.RemoveExistingConfigs))
+		}
+		if o.SwitchMgmt.UseMxedgeProxy != nil {
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.use_mxedge_proxy", boolToString(*o.SwitchMgmt.UseMxedgeProxy))
+		}
+
+		// Optional string fields
+		if o.SwitchMgmt.CliBanner != nil {
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.cli_banner", *o.SwitchMgmt.CliBanner)
+		}
+		if o.SwitchMgmt.MxedgeProxyHost != nil {
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.mxedge_proxy_host", *o.SwitchMgmt.MxedgeProxyHost)
+		}
+		if o.SwitchMgmt.MxedgeProxyPort != nil {
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.mxedge_proxy_port", *o.SwitchMgmt.MxedgeProxyPort)
+		}
+		if o.SwitchMgmt.RootPassword != nil {
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.root_password", *o.SwitchMgmt.RootPassword)
+		}
+
+		// LocalAccounts map
+		if len(o.SwitchMgmt.LocalAccounts) > 0 {
+			for key, account := range o.SwitchMgmt.LocalAccounts {
+				accountPath := fmt.Sprintf("switch_mgmt.local_accounts.%s", key)
+				if account.Password != nil {
+					checks.append(t, "TestCheckResourceAttr", accountPath+".password", *account.Password)
+				}
+				if account.Role != nil {
+					checks.append(t, "TestCheckResourceAttr", accountPath+".role", *account.Role)
+				}
+			}
+		}
+
+		// ProtectRe configuration
+		if o.SwitchMgmt.ProtectRe != nil {
+			if o.SwitchMgmt.ProtectRe.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.enabled", boolToString(*o.SwitchMgmt.ProtectRe.Enabled))
+			}
+			if o.SwitchMgmt.ProtectRe.HitCount != nil {
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.hit_count", boolToString(*o.SwitchMgmt.ProtectRe.HitCount))
+			}
+
+			if len(o.SwitchMgmt.ProtectRe.AllowedServices) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.allowed_services.#", intToString(len(o.SwitchMgmt.ProtectRe.AllowedServices)))
+				for i, service := range o.SwitchMgmt.ProtectRe.AllowedServices {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("switch_mgmt.protect_re.allowed_services.%d", i), service)
+				}
+			}
+
+			if len(o.SwitchMgmt.ProtectRe.TrustedHosts) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.trusted_hosts.#", intToString(len(o.SwitchMgmt.ProtectRe.TrustedHosts)))
+				for i, host := range o.SwitchMgmt.ProtectRe.TrustedHosts {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("switch_mgmt.protect_re.trusted_hosts.%d", i), host)
+				}
+			}
+
+			// Custom protect_re rules
+			if len(o.SwitchMgmt.ProtectRe.Custom) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.custom.#", intToString(len(o.SwitchMgmt.ProtectRe.Custom)))
+				for i, custom := range o.SwitchMgmt.ProtectRe.Custom {
+					customPath := fmt.Sprintf("switch_mgmt.protect_re.custom.%d", i)
+
+					// Optional string fields
+					if custom.PortRange != nil {
+						checks.append(t, "TestCheckResourceAttr", customPath+".port_range", *custom.PortRange)
+					}
+					if custom.Protocol != nil {
+						checks.append(t, "TestCheckResourceAttr", customPath+".protocol", *custom.Protocol)
+					}
+
+					// Subnets list
+					if len(custom.Subnets) > 0 {
+						checks.append(t, "TestCheckResourceAttr", customPath+".subnets.#", intToString(len(custom.Subnets)))
+						for j, subnet := range custom.Subnets {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.subnets.%d", customPath, j), subnet)
+						}
+					}
+				}
+			}
+		}
+
+		// Tacacs configuration
+		if o.SwitchMgmt.Tacacs != nil {
+			// Optional boolean field
+			if o.SwitchMgmt.Tacacs.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.tacacs.enabled", boolToString(*o.SwitchMgmt.Tacacs.Enabled))
+			}
+
+			// Optional string fields
+			if o.SwitchMgmt.Tacacs.DefaultRole != nil {
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.tacacs.default_role", *o.SwitchMgmt.Tacacs.DefaultRole)
+			}
+			if o.SwitchMgmt.Tacacs.Network != nil {
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.tacacs.network", *o.SwitchMgmt.Tacacs.Network)
+			}
+
+			// TacacctServers (accounting servers) list
+			if len(o.SwitchMgmt.Tacacs.TacacctServers) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.tacacs.acct_servers.#", intToString(len(o.SwitchMgmt.Tacacs.TacacctServers)))
+				for i, server := range o.SwitchMgmt.Tacacs.TacacctServers {
+					serverPath := fmt.Sprintf("switch_mgmt.tacacs.acct_servers.%d", i)
+
+					// Optional string fields
+					if server.Host != nil {
+						checks.append(t, "TestCheckResourceAttr", serverPath+".host", *server.Host)
+					}
+					if server.Port != nil {
+						checks.append(t, "TestCheckResourceAttr", serverPath+".port", *server.Port)
+					}
+					if server.Secret != nil {
+						checks.append(t, "TestCheckResourceAttr", serverPath+".secret", *server.Secret)
+					}
+
+					// Optional integer field
+					if server.Timeout != nil {
+						checks.append(t, "TestCheckResourceAttr", serverPath+".timeout", intToString(int(*server.Timeout)))
+					}
+				}
+			}
+
+			// TacplusServers (authentication servers) list
+			if len(o.SwitchMgmt.Tacacs.TacplusServers) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.tacacs.tacplus_servers.#", intToString(len(o.SwitchMgmt.Tacacs.TacplusServers)))
+				for i, server := range o.SwitchMgmt.Tacacs.TacplusServers {
+					serverPath := fmt.Sprintf("switch_mgmt.tacacs.tacplus_servers.%d", i)
+
+					// Optional string fields
+					if server.Host != nil {
+						checks.append(t, "TestCheckResourceAttr", serverPath+".host", *server.Host)
+					}
+					if server.Port != nil {
+						checks.append(t, "TestCheckResourceAttr", serverPath+".port", *server.Port)
+					}
+					if server.Secret != nil {
+						checks.append(t, "TestCheckResourceAttr", serverPath+".secret", *server.Secret)
+					}
+
+					// Optional integer field
+					if server.Timeout != nil {
+						checks.append(t, "TestCheckResourceAttr", serverPath+".timeout", intToString(int(*server.Timeout)))
+					}
+				}
+			}
+		}
+	}
+
+	if o.VrfConfig != nil {
+		if o.VrfConfig.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "vrf_config.enabled", boolToString(*o.VrfConfig.Enabled))
+		}
+	}
+
+	// Map attributes
+	if len(o.AclTags) > 0 {
+		for key, tag := range o.AclTags {
+			basePath := fmt.Sprintf("acl_tags.%s", key)
+
+			// Check AclTagsType (required field)
+			checks.append(t, "TestCheckResourceAttr", basePath+".type", tag.AclTagsType)
+
+			// Optional list fields
+			if len(tag.EtherTypes) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".ether_types.#", intToString(len(tag.EtherTypes)))
+				for i, etherType := range tag.EtherTypes {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.ether_types.%d", basePath, i), etherType)
+				}
+			}
+			if len(tag.Macs) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".macs.#", intToString(len(tag.Macs)))
+				for i, mac := range tag.Macs {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.macs.%d", basePath, i), mac)
+				}
+			}
+			if len(tag.Subnets) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".subnets.#", intToString(len(tag.Subnets)))
+				for i, subnet := range tag.Subnets {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.subnets.%d", basePath, i), subnet)
+				}
+			}
+
+			// Optional pointer fields
+			if tag.GbpTag != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".gbp_tag", intToString(int(*tag.GbpTag)))
+			}
+			if tag.Network != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".network", *tag.Network)
+			}
+			if tag.PortUsage != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".port_usage", *tag.PortUsage)
+			}
+			if tag.RadiusGroup != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".radius_group", *tag.RadiusGroup)
+			}
+
+			// Check Specs list
+			if len(tag.Specs) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".specs.#", intToString(len(tag.Specs)))
+				for i, spec := range tag.Specs {
+					specPath := fmt.Sprintf("%s.specs.%d", basePath, i)
+					if spec.PortRange != nil {
+						checks.append(t, "TestCheckResourceAttr", specPath+".port_range", *spec.PortRange)
+					}
+					if spec.Protocol != nil {
+						checks.append(t, "TestCheckResourceAttr", specPath+".protocol", *spec.Protocol)
+					}
+				}
+			}
+		}
+	}
+
+	if len(o.ExtraRoutes) > 0 {
+		for key, route := range o.ExtraRoutes {
+			basePath := fmt.Sprintf("extra_routes.%s", key)
+
+			// Check required via field
+			checks.append(t, "TestCheckResourceAttr", basePath+".via", route.Via)
+
+			// Optional boolean fields
+			if route.Discard != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".discard", boolToString(*route.Discard))
+			}
+			if route.NoResolve != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".no_resolve", boolToString(*route.NoResolve))
+			}
+
+			// Optional integer fields
+			if route.Metric != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".metric", intToString(int(*route.Metric)))
+			}
+			if route.Preference != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".preference", intToString(int(*route.Preference)))
+			}
+
+			// NextQualified map
+			if len(route.NextQualified) > 0 {
+				for nqKey, nq := range route.NextQualified {
+					nqPath := fmt.Sprintf("%s.next_qualified.%s", basePath, nqKey)
+					if nq.Metric != nil {
+						checks.append(t, "TestCheckResourceAttr", nqPath+".metric", intToString(int(*nq.Metric)))
+					}
+					if nq.Preference != nil {
+						checks.append(t, "TestCheckResourceAttr", nqPath+".preference", intToString(int(*nq.Preference)))
+					}
+				}
+			}
+		}
+	}
+
+	if len(o.ExtraRoutes6) > 0 {
+		for key, route6 := range o.ExtraRoutes6 {
+			basePath := fmt.Sprintf("extra_routes6.%s", key)
+
+			// Check required via field
+			checks.append(t, "TestCheckResourceAttr", basePath+".via", route6.Via)
+
+			// Optional boolean fields
+			if route6.Discard != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".discard", boolToString(*route6.Discard))
+			}
+			if route6.NoResolve != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".no_resolve", boolToString(*route6.NoResolve))
+			}
+
+			// Optional integer fields
+			if route6.Metric != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".metric", intToString(int(*route6.Metric)))
+			}
+			if route6.Preference != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".preference", intToString(int(*route6.Preference)))
+			}
+
+			// NextQualified map
+			if len(route6.NextQualified) > 0 {
+				for nqKey, nq := range route6.NextQualified {
+					nqPath := fmt.Sprintf("%s.next_qualified.%s", basePath, nqKey)
+					if nq.Metric != nil {
+						checks.append(t, "TestCheckResourceAttr", nqPath+".metric", intToString(int(*nq.Metric)))
+					}
+					if nq.Preference != nil {
+						checks.append(t, "TestCheckResourceAttr", nqPath+".preference", intToString(int(*nq.Preference)))
+					}
+				}
+			}
+		}
+	}
+
+	if len(o.Networks) > 0 {
+		for key, network := range o.Networks {
+			basePath := fmt.Sprintf("networks.%s", key)
+
+			// Check required vlan_id field
+			checks.append(t, "TestCheckResourceAttr", basePath+".vlan_id", network.VlanId)
+
+			// Optional string fields
+			if network.Gateway != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".gateway", *network.Gateway)
+			}
+			if network.Gateway6 != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".gateway6", *network.Gateway6)
+			}
+			if network.IsolationVlanId != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".isolation_vlan_id", *network.IsolationVlanId)
+			}
+			if network.Subnet != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".subnet", *network.Subnet)
+			}
+			if network.Subnet6 != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".subnet6", *network.Subnet6)
+			}
+
+			// Optional boolean field
+			if network.Isolation != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".isolation", boolToString(*network.Isolation))
+			}
+		}
+	}
+
+	if len(o.OspfAreas) > 0 {
+		for key, area := range o.OspfAreas {
+			basePath := fmt.Sprintf("ospf_areas.%s", key)
+
+			// Optional boolean field
+			if area.IncludeLoopback != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".include_loopback", boolToString(*area.IncludeLoopback))
+			}
+
+			// Optional string field
+			if area.OspfAreasType != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".type", *area.OspfAreasType)
+			}
+
+			// OspfNetworks map
+			if len(area.OspfNetworks) > 0 {
+				for netKey, network := range area.OspfNetworks {
+					netPath := fmt.Sprintf("%s.networks.%s", basePath, netKey)
+
+					// Optional string fields
+					if network.AuthPassword != nil {
+						checks.append(t, "TestCheckResourceAttr", netPath+".auth_password", *network.AuthPassword)
+					}
+					if network.AuthType != nil {
+						checks.append(t, "TestCheckResourceAttr", netPath+".auth_type", *network.AuthType)
+					}
+					if network.ExportPolicy != nil {
+						checks.append(t, "TestCheckResourceAttr", netPath+".export_policy", *network.ExportPolicy)
+					}
+					if network.ImportPolicy != nil {
+						checks.append(t, "TestCheckResourceAttr", netPath+".import_policy", *network.ImportPolicy)
+					}
+					if network.InterfaceType != nil {
+						checks.append(t, "TestCheckResourceAttr", netPath+".interface_type", *network.InterfaceType)
+					}
+
+					// Optional integer fields
+					if network.BfdMinimumInterval != nil {
+						checks.append(t, "TestCheckResourceAttr", netPath+".bfd_minimum_interval", intToString(int(*network.BfdMinimumInterval)))
+					}
+					if network.DeadInterval != nil {
+						checks.append(t, "TestCheckResourceAttr", netPath+".dead_interval", intToString(int(*network.DeadInterval)))
+					}
+					if network.HelloInterval != nil {
+						checks.append(t, "TestCheckResourceAttr", netPath+".hello_interval", intToString(int(*network.HelloInterval)))
+					}
+					if network.Metric != nil {
+						checks.append(t, "TestCheckResourceAttr", netPath+".metric", intToString(int(*network.Metric)))
+					}
+
+					// Optional boolean fields
+					if network.NoReadvertiseToOverlay != nil {
+						checks.append(t, "TestCheckResourceAttr", netPath+".no_readvertise_to_overlay", boolToString(*network.NoReadvertiseToOverlay))
+					}
+					if network.Passive != nil {
+						checks.append(t, "TestCheckResourceAttr", netPath+".passive", boolToString(*network.Passive))
+					}
+
+					// AuthKeys map
+					if len(network.AuthKeys) > 0 {
+						for authKey, authValue := range network.AuthKeys {
+							authPath := fmt.Sprintf("%s.auth_keys.%s", netPath, authKey)
+							checks.append(t, "TestCheckResourceAttr", authPath, authValue)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if len(o.PortMirroring) > 0 {
+		for key, mirror := range o.PortMirroring {
+			basePath := fmt.Sprintf("port_mirroring.%s", key)
+
+			// Optional string fields
+			if mirror.OutputIpAddress != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".output_ip_address", *mirror.OutputIpAddress)
+			}
+			if mirror.OutputNetwork != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".output_network", *mirror.OutputNetwork)
+			}
+			if mirror.OutputPortId != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".output_port_id", *mirror.OutputPortId)
+			}
+
+			// Optional list fields
+			if len(mirror.InputNetworksIngress) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".input_networks_ingress.#", intToString(len(mirror.InputNetworksIngress)))
+				for i, network := range mirror.InputNetworksIngress {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.input_networks_ingress.%d", basePath, i), network)
+				}
+			}
+
+			if len(mirror.InputPortIdsEgress) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".input_port_ids_egress.#", intToString(len(mirror.InputPortIdsEgress)))
+				for i, portId := range mirror.InputPortIdsEgress {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.input_port_ids_egress.%d", basePath, i), portId)
+				}
+			}
+
+			if len(mirror.InputPortIdsIngress) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".input_port_ids_ingress.#", intToString(len(mirror.InputPortIdsIngress)))
+				for i, portId := range mirror.InputPortIdsIngress {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.input_port_ids_ingress.%d", basePath, i), portId)
+				}
+			}
+		}
+	}
+
+	if len(o.PortUsages) > 0 {
+		for key, usage := range o.PortUsages {
+			basePath := fmt.Sprintf("port_usages.%s", key)
+
+			// Add comprehensive port usage checks
+			if usage.AllNetworks != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".all_networks", boolToString(*usage.AllNetworks))
+			}
+			if usage.AllowDhcpd != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".allow_dhcpd", boolToString(*usage.AllowDhcpd))
+			}
+			if usage.AllowMultipleSupplicants != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".allow_multiple_supplicants", boolToString(*usage.AllowMultipleSupplicants))
+			}
+			if usage.BypassAuthWhenServerDown != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".bypass_auth_when_server_down", boolToString(*usage.BypassAuthWhenServerDown))
+			}
+			if usage.BypassAuthWhenServerDownForUnkownClient != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".bypass_auth_when_server_down_for_unkown_client", boolToString(*usage.BypassAuthWhenServerDownForUnkownClient))
+			}
+			if usage.Description != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".description", *usage.Description)
+			}
+			if usage.DisableAutoneg != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".disable_autoneg", boolToString(*usage.DisableAutoneg))
+			}
+			if usage.Disabled != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".disabled", boolToString(*usage.Disabled))
+			}
+			if usage.Duplex != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".duplex", *usage.Duplex)
+			}
+			if len(usage.DynamicVlanNetworks) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".dynamic_vlan_networks.#", intToString(len(usage.DynamicVlanNetworks)))
+				for i, network := range usage.DynamicVlanNetworks {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.dynamic_vlan_networks.%d", basePath, i), network)
+				}
+			}
+			if usage.EnableMacAuth != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".enable_mac_auth", boolToString(*usage.EnableMacAuth))
+			}
+			if usage.EnableQos != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".enable_qos", boolToString(*usage.EnableQos))
+			}
+			if usage.GuestNetwork != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".guest_network", *usage.GuestNetwork)
+			}
+			if usage.InterSwitchLink != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".inter_switch_link", boolToString(*usage.InterSwitchLink))
+			}
+			if usage.MacAuthOnly != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".mac_auth_only", boolToString(*usage.MacAuthOnly))
+			}
+			if usage.MacAuthPreferred != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".mac_auth_preferred", boolToString(*usage.MacAuthPreferred))
+			}
+			if usage.MacAuthProtocol != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".mac_auth_protocol", *usage.MacAuthProtocol)
+			}
+			if usage.MacLimit != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".mac_limit", intToString(int(*usage.MacLimit)))
+			}
+			if usage.Mode != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".mode", *usage.Mode)
+			}
+			if usage.Mtu != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".mtu", intToString(int(*usage.Mtu)))
+			}
+			if len(usage.Networks) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".networks.#", intToString(len(usage.Networks)))
+				for i, network := range usage.Networks {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.networks.%d", basePath, i), network)
+				}
+			}
+			if usage.PersistMac != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".persist_mac", boolToString(*usage.PersistMac))
+			}
+			if usage.PoeDisabled != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".poe_disabled", boolToString(*usage.PoeDisabled))
+			}
+			if usage.PortAuth != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".port_auth", *usage.PortAuth)
+			}
+			if usage.PortNetwork != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".port_network", *usage.PortNetwork)
+			}
+			if usage.ReauthInterval != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".reauth_interval", intToString(int(*usage.ReauthInterval)))
+			}
+			if usage.ResetDefaultWhen != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".reset_default_when", *usage.ResetDefaultWhen)
+			}
+			if len(usage.Rules) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".rules.#", intToString(len(usage.Rules)))
+				for i, rule := range usage.Rules {
+					rulePath := fmt.Sprintf("%s.rules.%d", basePath, i)
+
+					// Check required src field
+					checks.append(t, "TestCheckResourceAttr", rulePath+".src", rule.Src)
+
+					// Optional string fields
+					if rule.Equals != nil {
+						checks.append(t, "TestCheckResourceAttr", rulePath+".equals", *rule.Equals)
+					}
+					if rule.Expression != nil {
+						checks.append(t, "TestCheckResourceAttr", rulePath+".expression", *rule.Expression)
+					}
+					if rule.Usage != nil {
+						checks.append(t, "TestCheckResourceAttr", rulePath+".usage", *rule.Usage)
+					}
+
+					// EqualsAny list
+					if len(rule.EqualsAny) > 0 {
+						checks.append(t, "TestCheckResourceAttr", rulePath+".equals_any.#", intToString(len(rule.EqualsAny)))
+						for j, equalsAny := range rule.EqualsAny {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.equals_any.%d", rulePath, j), equalsAny)
+						}
+					}
+				}
+			}
+			if usage.ServerFailNetwork != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".server_fail_network", *usage.ServerFailNetwork)
+			}
+			if usage.ServerRejectNetwork != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".server_reject_network", *usage.ServerRejectNetwork)
+			}
+			if usage.Speed != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".speed", *usage.Speed)
+			}
+			if usage.StormControl != nil {
+				if usage.StormControl.DisablePort != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.disable_port", boolToString(*usage.StormControl.DisablePort))
+				}
+				if usage.StormControl.NoBroadcast != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.no_broadcast", boolToString(*usage.StormControl.NoBroadcast))
+				}
+				if usage.StormControl.NoMulticast != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.no_multicast", boolToString(*usage.StormControl.NoMulticast))
+				}
+				if usage.StormControl.NoRegisteredMulticast != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.no_registered_multicast", boolToString(*usage.StormControl.NoRegisteredMulticast))
+				}
+				if usage.StormControl.NoUnknownUnicast != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.no_unknown_unicast", boolToString(*usage.StormControl.NoUnknownUnicast))
+				}
+				if usage.StormControl.Percentage != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.percentage", intToString(int(*usage.StormControl.Percentage)))
+				}
+			}
+			if usage.StpEdge != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".stp_edge", boolToString(*usage.StpEdge))
+			}
+			if usage.StpNoRootPort != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".stp_no_root_port", boolToString(*usage.StpNoRootPort))
+			}
+			if usage.StpP2p != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".stp_p2p", boolToString(*usage.StpP2p))
+			}
+			if usage.UiEvpntopoId != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".ui_evpntopo_id", *usage.UiEvpntopoId)
+			}
+			if usage.UseVstp != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".use_vstp", boolToString(*usage.UseVstp))
+			}
+			if usage.VoipNetwork != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".voip_network", *usage.VoipNetwork)
+			}
+		}
+	}
+
+	if len(o.VrfInstances) > 0 {
+		for key, instance := range o.VrfInstances {
+			basePath := fmt.Sprintf("vrf_instances.%s", key)
+
+			if len(instance.Networks) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".networks.#", intToString(len(instance.Networks)))
+				for i, network := range instance.Networks {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.networks.%d", basePath, i), network)
+				}
+			}
+
+			if len(instance.VrfExtraRoutes) > 0 {
+				for routeKey, route := range instance.VrfExtraRoutes {
+					routePath := fmt.Sprintf("%s.extra_routes.%s", basePath, routeKey)
+					// Check required via field
+					checks.append(t, "TestCheckResourceAttr", routePath+".via", route.Via)
+				}
+			}
+		}
+	}
 
 	return checks
 }

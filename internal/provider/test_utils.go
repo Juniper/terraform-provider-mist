@@ -305,7 +305,18 @@ func GetSiteBaseConfig(org_ID string) (config string, wlanRef string) {
 	return siteConfigStr, fmt.Sprintf("mist_site.%s.id", siteConfig.Name)
 }
 
-// Helper function for creating string pointers
+// Helper functions
 func stringPtr(s string) *string {
 	return &s
+}
+
+func boolToString(b bool) string {
+	if b {
+		return "true"
+	}
+	return "false"
+}
+
+func intToString(i int) string {
+	return fmt.Sprintf("%d", i)
 }
