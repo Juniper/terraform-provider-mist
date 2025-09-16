@@ -29,7 +29,8 @@
 - [ ] **HCL tags on fields with CTY tags OR no tags** (see org_wlan_test_structs.go)
 - [ ] **Pointer types for optional fields** (`*string`, `*bool`, `*int64`)
 - [ ] **Concrete types for required fields** (`string`, `[]string`)
-- **Note that this is a generated file and you should not add any fields to it.**
+- **Note that this is a generated file and you should not add any fields to structs already present in the file.**
+- **The above mentioned file generator is not 100% though and it misses some nested structs. If, and only if, a whole entire nested struct is missing, may you add it to the file.**
 
 ### 4. Fixture Data Best Practices
 
