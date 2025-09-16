@@ -100,20 +100,6 @@ func (r *orgSettingResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	// Preserve plan values for Optional+Computed fields when API doesn't return them
-	if state.Pcap.IsNull() && !plan.Pcap.IsNull() {
-		state.Pcap = plan.Pcap
-	}
-	if state.WanPma.IsNull() && !plan.WanPma.IsNull() {
-		state.WanPma = plan.WanPma
-	}
-	if state.WiredPma.IsNull() && !plan.WiredPma.IsNull() {
-		state.WiredPma = plan.WiredPma
-	}
-	if state.WirelessPma.IsNull() && !plan.WirelessPma.IsNull() {
-		state.WirelessPma = plan.WirelessPma
-	}
-
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

@@ -183,4 +183,3 @@
   wireless_pma {
     enabled = true
   }
-
