@@ -1,6 +1,7 @@
 package provider
 
 type OrgServicepolicyModel struct {
+	Aamw           *AamwValue      `hcl:"aamw"`
 	Action         *string         `hcl:"action"`
 	Antivirus      *AntivirusValue `hcl:"antivirus"`
 	Appqoe         *AppqoeValue    `hcl:"appqoe"`
@@ -13,4 +14,10 @@ type OrgServicepolicyModel struct {
 	Services       []string        `hcl:"services"`
 	SslProxy       *SslProxyValue  `hcl:"ssl_proxy"`
 	Tenants        []string        `hcl:"tenants"`
+}
+
+type AamwValue struct {
+	AamwprofileId *string `cty:"aamwprofile_id" hcl:"aamwprofile_id"`
+	Enabled       *bool   `cty:"enabled" hcl:"enabled"`
+	Profile       *string `cty:"profile" hcl:"profile"`
 }
