@@ -309,6 +309,7 @@ Standard test environment variables:
 - `MIST_HOST`: API host
 - `MIST_API_TOKEN`: API token
 - `MIST_TEST_ORG_ID`: Test organization ID
+- `TF_ACC`: Terraform account
 
 ## Testing Guidelines
 
