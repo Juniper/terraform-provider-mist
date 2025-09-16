@@ -98,10 +98,12 @@ nested_field = {
 
 **Conventions:**
 
+- Never use any comments in the fixture file.
 - No terraform resource boilerplate (added by test framework)
 - Use realistic test values for maximum coverage
 - Set boolean fields to `true` for comprehensive testing
 - Include all configurable fields from the provided list
+- Try to use a single config code block to test all fields, if you can
 - Separate multiple configs with `␞` delimiter
 - For resources requiring real devices/data, use real values when available (like MAC addresses from actual inventory)
 
@@ -139,7 +141,7 @@ func Test{Resource}Model(t *testing.T) {
                 {
                     config: {Resource}Model{
                         OrgId: GetTestOrgId(),
-                        // Minimal required configuration
+                        // Leave this test case damn well alone. It is already good to go. Add other fields to test via the .tf file. 
                     },
                 },
             },
@@ -355,7 +357,7 @@ Standard test environment variables (all must be set):
 4. **Complex structures**: Properly validate nested objects, maps, and lists
 
 ### Test Structure
-1. **Simple case**: Minimal valid configuration
+1. **Simple case**: Leave it alone
 2. **Fixture cases**: Comprehensive realistic configurations from fixture file
 3. **Multiple steps**: Use multiple test steps for update scenarios if needed
 
@@ -384,14 +386,14 @@ Use the reflection-based extraction method from TESTING_GUIDELINES.md for 100% a
 ### Part 2 Prompt: Test Implementation (Use after receiving field list)
 
 ```
-Please implement comprehensive test coverage for {RESOURCE_NAME} using the provided field list as the source of truth.
+``Please implement comprehensive test coverage for {RESOURCE_NAME} using the provided field list as the source of truth.
 
 FIELD LIST PROVIDED:
 [User provides the definitive field list here]
 
 IMPLEMENTATION REQUIREMENTS:
 1. Create test structs in /internal/provider/{resource}_test_structs.go with ONLY configurable fields from the provided list
-2. Create comprehensive fixture in /internal/provider/fixtures/{resource}_resource/{resource}_config.tf covering all configurable fields
+2. Create comprehensive fixture in /internal/provider/fixtures/{``resource}_resource/{resource}_config.tf covering all configurable fields
 3. Implement main test in /internal/provider/{resource}_resource_test.go following the EXACT SAME PATTERN as site_wlan_resource_test.go (or org_inventory_resource_test.go for nested site references)
 4. Ensure comprehensive validation of ALL fields from the provided list using appropriate TestCheck methods:
    - Computed fields: TestCheckResourceAttrSet
@@ -504,7 +506,7 @@ Standard test environment variables:
 ## Common Pitfalls to Avoid
 
 1. **Don't include computed fields** in test structs - they can't be configured
-2. **Don't forget dual tags** (`cty` and `hcl`) on struct fields
+2. **Don't forget dual tags** (`cty` and `hcl`) on nested struct fields - base struct uses hcl only
 3. **Don't hardcode site IDs** - use `GetSiteBaseConfig()` pattern
 4. **Don't skip provider configuration** - environment variables handle authentication automatically
 5. **Don't use wrong validation methods** - computed vs configurable field validation differs
@@ -513,6 +515,6 @@ Standard test environment variables:
 8. **Don't skip field coverage verification** - ensure 100% validation coverage
 9. **Don't use fake data when real data is available** - prefer real MAC addresses, device IDs, etc.
 10. **Don't create duplicate site names** - ensure test sites are cleaned up or use unique names
-11. **Ask user to set all required environment variables if you find them unset** - TF_ACC, MIST_HOST, MIST_API_TOKEN, MIST_TEST_ORG_ID
+11. **Use longer timeouts for tests if they fail** - Real API integration tests need time for Terraform binary downloads and API calls. Use `-timeout=300s` (5 minutes) instead of default timeouts.
 
 This guide ensures consistent, comprehensive test coverage following all established patterns in the terraform-provider-mist codebase with complete field validation based on the authoritative field list.
