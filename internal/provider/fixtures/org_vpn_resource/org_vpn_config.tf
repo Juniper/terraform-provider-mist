@@ -42,6 +42,9 @@
 ␞
   name   = "test-org-vpn-mesh2"
   type   = "mesh"
+  path_selection = {
+    strategy = "manual"
+  }
   paths = {
     "interface_1" = {
       bfd_profile         = "broadband"

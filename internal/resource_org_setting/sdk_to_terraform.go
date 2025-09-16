@@ -6,6 +6,7 @@ import (
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -129,7 +130,24 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 		passwordPolicy = passwordPolicySdkToTerraform(ctx, &diags, data.PasswordPolicy)
 	}
 	if data.Pcap != nil {
-		pcap = pcapSdkToTerraform(ctx, &diags, data.Pcap)
+		bucket := types.StringNull()
+		maxPktLen := types.Int64Null()
+
+		if data.Pcap.Bucket != nil {
+			bucket = types.StringValue(*data.Pcap.Bucket)
+		}
+		if data.Pcap.MaxPktLen != nil {
+			maxPktLen = types.Int64Value(int64(*data.Pcap.MaxPktLen))
+		}
+
+		var tempDiags diag.Diagnostics
+		pcap, tempDiags = NewPcapValue(PcapValue{}.AttributeTypes(ctx), map[string]attr.Value{
+			"bucket":      bucket,
+			"max_pkt_len": maxPktLen,
+		})
+		if tempDiags.HasError() {
+			pcap = NewPcapValueNull()
+		}
 	}
 	// if data.PcapBucketVerified != nil {
 	// 	pcap_bucket_verified = types.BoolValue(*data.PcapBucketVerified)
@@ -159,13 +177,31 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 		vpnOptions = vpnOptionsSdkToTerraform(ctx, &diags, data.VpnOptions)
 	}
 	if data.WanPma != nil && data.WanPma.Enabled != nil {
-		wanPma.Enabled = types.BoolValue(*data.WanPma.Enabled)
+		var tempDiags diag.Diagnostics
+		wanPma, tempDiags = NewWanPmaValue(WanPmaValue{}.AttributeTypes(ctx), map[string]attr.Value{
+			"enabled": types.BoolValue(*data.WanPma.Enabled),
+		})
+		if tempDiags.HasError() {
+			wanPma = NewWanPmaValueNull()
+		}
 	}
 	if data.WiredPma != nil && data.WiredPma.Enabled != nil {
-		wiredPma.Enabled = types.BoolValue(*data.WiredPma.Enabled)
+		var tempDiags diag.Diagnostics
+		wiredPma, tempDiags = NewWiredPmaValue(WiredPmaValue{}.AttributeTypes(ctx), map[string]attr.Value{
+			"enabled": types.BoolValue(*data.WiredPma.Enabled),
+		})
+		if tempDiags.HasError() {
+			wiredPma = NewWiredPmaValueNull()
+		}
 	}
 	if data.WirelessPma != nil && data.WirelessPma.Enabled != nil {
-		wirelessPma.Enabled = types.BoolValue(*data.WirelessPma.Enabled)
+		var tempDiags diag.Diagnostics
+		wirelessPma, tempDiags = NewWirelessPmaValue(WirelessPmaValue{}.AttributeTypes(ctx), map[string]attr.Value{
+			"enabled": types.BoolValue(*data.WirelessPma.Enabled),
+		})
+		if tempDiags.HasError() {
+			wirelessPma = NewWirelessPmaValueNull()
+		}
 	}
 
 	state.ApUpdownThreshold = apUpdownThreshold

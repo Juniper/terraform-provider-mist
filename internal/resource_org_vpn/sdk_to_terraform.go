@@ -21,7 +21,7 @@ func SdkToTerraform(ctx context.Context, d *models.Vpn) (OrgVpnModel, diag.Diagn
 	var name types.String
 	var orgId types.String
 	var paths = types.MapNull(PathsValue{}.Type(ctx))
-	pathSelection := NewPathSelectionValueNull()
+	var pathSelection PathSelectionValue
 	var vpnType types.String
 
 	if d.Id != nil {
@@ -38,6 +38,8 @@ func SdkToTerraform(ctx context.Context, d *models.Vpn) (OrgVpnModel, diag.Diagn
 	}
 	if d.PathSelection != nil {
 		pathSelection = vpnPathSelectionSdkToTerraform(ctx, &diags, d.PathSelection)
+	} else {
+		pathSelection = NewPathSelectionValueNull()
 	}
 	if d.Type != nil {
 		vpnType = types.StringValue(string(*d.Type))
@@ -54,10 +56,23 @@ func SdkToTerraform(ctx context.Context, d *models.Vpn) (OrgVpnModel, diag.Diagn
 }
 
 func vpnPathSelectionSdkToTerraform(_ context.Context, _ *diag.Diagnostics, d *models.VpnPathSelection) (data PathSelectionValue) {
+	data = NewPathSelectionValueNull()
 
-	if d.Strategy != nil {
-		data.Strategy = types.StringValue(string(*d.Strategy))
+	if d != nil && d.Strategy != nil {
+		strategy := types.StringValue(string(*d.Strategy))
+
+		dataMapValue := map[string]attr.Value{
+			"strategy": strategy,
+		}
+
+		var diags diag.Diagnostics
+		data, diags = NewPathSelectionValue(PathSelectionValue{}.AttributeTypes(context.Background()), dataMapValue)
+		if diags.HasError() {
+			// Fallback to null if creation fails
+			data = NewPathSelectionValueNull()
+		}
 	}
+
 	return data
 }
 
@@ -74,7 +89,7 @@ func vpnPathsPeerPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 			"preference": preference,
 		}
 
-		data, e := NewPathsValue(PeerPathsValue{}.AttributeTypes(ctx), dataMapValue)
+		data, e := NewPeerPathsValue(PeerPathsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
 		mapAttrValues[k] = data

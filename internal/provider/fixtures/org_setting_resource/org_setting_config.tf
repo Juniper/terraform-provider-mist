@@ -172,5 +172,15 @@
     st_subnet = "10.224.0.0/12"
   }
 
+  wan_pma {
+    enabled = true
+  }
 
+  wired_pma {
+    enabled = true
+  }
+
+  wireless_pma {
+    enabled = true
+  }
 
