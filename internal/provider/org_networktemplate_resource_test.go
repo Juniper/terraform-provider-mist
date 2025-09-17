@@ -584,8 +584,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 		// V3Config configuration (basic structure - can be expanded with nested structs)
 		if o.SnmpConfig.V3Config != nil {
-			// Add basic v3_config checks - the nested structures are very complex
-			// Can be expanded later with specific notify, usm, vacm configurations
+			// Notify configuration
 			if len(o.SnmpConfig.V3Config.Notify) > 0 {
 				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.notify.#", intToString(len(o.SnmpConfig.V3Config.Notify)))
 				for i, notify := range o.SnmpConfig.V3Config.Notify {
@@ -593,6 +592,177 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 					checks.append(t, "TestCheckResourceAttr", notifyPath+".name", notify.Name)
 					checks.append(t, "TestCheckResourceAttr", notifyPath+".tag", notify.Tag)
 					checks.append(t, "TestCheckResourceAttr", notifyPath+".type", notify.NotifyType)
+				}
+			}
+
+			// NotifyFilter configuration
+			if len(o.SnmpConfig.V3Config.NotifyFilter) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.notify_filter.#", intToString(len(o.SnmpConfig.V3Config.NotifyFilter)))
+				for i, notifyFilter := range o.SnmpConfig.V3Config.NotifyFilter {
+					filterPath := fmt.Sprintf("snmp_config.v3_config.notify_filter.%d", i)
+					if notifyFilter.ProfileName != nil {
+						checks.append(t, "TestCheckResourceAttr", filterPath+".profile_name", *notifyFilter.ProfileName)
+					}
+					if len(notifyFilter.Snmpv3Contents) > 0 {
+						checks.append(t, "TestCheckResourceAttr", filterPath+".contents.#", intToString(len(notifyFilter.Snmpv3Contents)))
+						for j, content := range notifyFilter.Snmpv3Contents {
+							contentPath := fmt.Sprintf("%s.contents.%d", filterPath, j)
+							checks.append(t, "TestCheckResourceAttr", contentPath+".oid", content.Oid)
+							if content.Include != nil {
+								checks.append(t, "TestCheckResourceAttr", contentPath+".include", boolToString(*content.Include))
+							}
+						}
+					}
+				}
+			}
+
+			// TargetAddress configuration
+			if len(o.SnmpConfig.V3Config.TargetAddress) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.target_address.#", intToString(len(o.SnmpConfig.V3Config.TargetAddress)))
+				for i, targetAddr := range o.SnmpConfig.V3Config.TargetAddress {
+					addrPath := fmt.Sprintf("snmp_config.v3_config.target_address.%d", i)
+					checks.append(t, "TestCheckResourceAttr", addrPath+".address", targetAddr.Address)
+					checks.append(t, "TestCheckResourceAttr", addrPath+".address_mask", targetAddr.AddressMask)
+					checks.append(t, "TestCheckResourceAttr", addrPath+".target_address_name", targetAddr.TargetAddressName)
+					if targetAddr.Port != nil {
+						checks.append(t, "TestCheckResourceAttr", addrPath+".port", *targetAddr.Port)
+					}
+					if targetAddr.TagList != nil {
+						checks.append(t, "TestCheckResourceAttr", addrPath+".tag_list", *targetAddr.TagList)
+					}
+					if targetAddr.TargetParameters != nil {
+						checks.append(t, "TestCheckResourceAttr", addrPath+".target_parameters", *targetAddr.TargetParameters)
+					}
+				}
+			}
+
+			// TargetParameters configuration
+			if len(o.SnmpConfig.V3Config.TargetParameters) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.target_parameters.#", intToString(len(o.SnmpConfig.V3Config.TargetParameters)))
+				for i, targetParam := range o.SnmpConfig.V3Config.TargetParameters {
+					paramPath := fmt.Sprintf("snmp_config.v3_config.target_parameters.%d", i)
+					checks.append(t, "TestCheckResourceAttr", paramPath+".message_processing_model", targetParam.MessageProcessingModel)
+					checks.append(t, "TestCheckResourceAttr", paramPath+".name", targetParam.Name)
+					if targetParam.NotifyFilter != nil {
+						checks.append(t, "TestCheckResourceAttr", paramPath+".notify_filter", *targetParam.NotifyFilter)
+					}
+					if targetParam.SecurityLevel != nil {
+						checks.append(t, "TestCheckResourceAttr", paramPath+".security_level", *targetParam.SecurityLevel)
+					}
+					if targetParam.SecurityModel != nil {
+						checks.append(t, "TestCheckResourceAttr", paramPath+".security_model", *targetParam.SecurityModel)
+					}
+					if targetParam.SecurityName != nil {
+						checks.append(t, "TestCheckResourceAttr", paramPath+".security_name", *targetParam.SecurityName)
+					}
+				}
+			}
+
+			// Usm configuration
+			if len(o.SnmpConfig.V3Config.Usm) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.usm.#", intToString(len(o.SnmpConfig.V3Config.Usm)))
+				for i, usm := range o.SnmpConfig.V3Config.Usm {
+					usmPath := fmt.Sprintf("snmp_config.v3_config.usm.%d", i)
+					checks.append(t, "TestCheckResourceAttr", usmPath+".engine_type", usm.EngineType)
+					if usm.RemoteEngineId != nil {
+						checks.append(t, "TestCheckResourceAttr", usmPath+".remote_engine_id", *usm.RemoteEngineId)
+					}
+					if len(usm.Snmpv3Users) > 0 {
+						checks.append(t, "TestCheckResourceAttr", usmPath+".users.#", intToString(len(usm.Snmpv3Users)))
+						for j, user := range usm.Snmpv3Users {
+							userPath := fmt.Sprintf("%s.users.%d", usmPath, j)
+							if user.Name != nil {
+								checks.append(t, "TestCheckResourceAttr", userPath+".name", *user.Name)
+							}
+							if user.AuthenticationType != nil {
+								checks.append(t, "TestCheckResourceAttr", userPath+".authentication_type", *user.AuthenticationType)
+							}
+							if user.AuthenticationPassword != nil {
+								checks.append(t, "TestCheckResourceAttr", userPath+".authentication_password", *user.AuthenticationPassword)
+							}
+							if user.EncryptionType != nil {
+								checks.append(t, "TestCheckResourceAttr", userPath+".encryption_type", *user.EncryptionType)
+							}
+							if user.EncryptionPassword != nil {
+								checks.append(t, "TestCheckResourceAttr", userPath+".encryption_password", *user.EncryptionPassword)
+							}
+						}
+					}
+				}
+			}
+
+			// Vacm configuration
+			if o.SnmpConfig.V3Config.Vacm != nil {
+				if len(o.SnmpConfig.V3Config.Vacm.Access) > 0 {
+					checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.vacm.access.#", intToString(len(o.SnmpConfig.V3Config.Vacm.Access)))
+					for i, access := range o.SnmpConfig.V3Config.Vacm.Access {
+						accessPath := fmt.Sprintf("snmp_config.v3_config.vacm.access.%d", i)
+						if access.GroupName != nil {
+							checks.append(t, "TestCheckResourceAttr", accessPath+".group_name", *access.GroupName)
+						}
+						if len(access.PrefixList) > 0 {
+							checks.append(t, "TestCheckResourceAttr", accessPath+".prefix_list.#", intToString(len(access.PrefixList)))
+							for j, prefix := range access.PrefixList {
+								prefixPath := fmt.Sprintf("%s.prefix_list.%d", accessPath, j)
+								if prefix.ContextPrefix != nil {
+									checks.append(t, "TestCheckResourceAttr", prefixPath+".context_prefix", *prefix.ContextPrefix)
+								}
+								if prefix.NotifyView != nil {
+									checks.append(t, "TestCheckResourceAttr", prefixPath+".notify_view", *prefix.NotifyView)
+								}
+								if prefix.ReadView != nil {
+									checks.append(t, "TestCheckResourceAttr", prefixPath+".read_view", *prefix.ReadView)
+								}
+								if prefix.SecurityLevel != nil {
+									checks.append(t, "TestCheckResourceAttr", prefixPath+".security_level", *prefix.SecurityLevel)
+								}
+								if prefix.SecurityModel != nil {
+									checks.append(t, "TestCheckResourceAttr", prefixPath+".security_model", *prefix.SecurityModel)
+								}
+								if prefix.PrefixListType != nil {
+									checks.append(t, "TestCheckResourceAttr", prefixPath+".type", *prefix.PrefixListType)
+								}
+								if prefix.WriteView != nil {
+									checks.append(t, "TestCheckResourceAttr", prefixPath+".write_view", *prefix.WriteView)
+								}
+							}
+						}
+					}
+				}
+
+				if o.SnmpConfig.V3Config.Vacm.SecurityToGroup != nil {
+					if o.SnmpConfig.V3Config.Vacm.SecurityToGroup.SecurityModel != nil {
+						checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.vacm.security_to_group.security_model", *o.SnmpConfig.V3Config.Vacm.SecurityToGroup.SecurityModel)
+					}
+					if len(o.SnmpConfig.V3Config.Vacm.SecurityToGroup.Snmpv3VacmContent) > 0 {
+						checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.vacm.security_to_group.content.#", intToString(len(o.SnmpConfig.V3Config.Vacm.SecurityToGroup.Snmpv3VacmContent)))
+						for i, content := range o.SnmpConfig.V3Config.Vacm.SecurityToGroup.Snmpv3VacmContent {
+							contentPath := fmt.Sprintf("snmp_config.v3_config.vacm.security_to_group.content.%d", i)
+							if content.Group != nil {
+								checks.append(t, "TestCheckResourceAttr", contentPath+".group", *content.Group)
+							}
+							if content.SecurityName != nil {
+								checks.append(t, "TestCheckResourceAttr", contentPath+".security_name", *content.SecurityName)
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Views configuration
+		if len(o.SnmpConfig.Views) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.views.#", intToString(len(o.SnmpConfig.Views)))
+			for i, view := range o.SnmpConfig.Views {
+				viewPath := fmt.Sprintf("snmp_config.views.%d", i)
+				if view.ViewName != nil {
+					checks.append(t, "TestCheckResourceAttr", viewPath+".view_name", *view.ViewName)
+				}
+				if view.Oid != nil {
+					checks.append(t, "TestCheckResourceAttr", viewPath+".oid", *view.Oid)
+				}
+				if view.Include != nil {
+					checks.append(t, "TestCheckResourceAttr", viewPath+".include", boolToString(*view.Include))
 				}
 			}
 		}
