@@ -39,7 +39,7 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 		antivirus = avSdkToTerraform(ctx, &diags, d.Antivirus)
 	}
 	if d.Appqoe != nil {
-		appqoe = appQoeToTerraform(d.Appqoe)
+		appqoe = appQoeToTerraform(ctx, &diags, d.Appqoe)
 	}
 	if d.Ewf != nil {
 		ewf = ewfSdkToTerraform(ctx, &diags, d.Ewf)

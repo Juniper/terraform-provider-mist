@@ -287,6 +287,51 @@ cat truly_missing_fields.txt
 - [ ] **All other fields**: Use `TestCheckResourceAttr` with expected values
 - [ ] **Never validate parent nested objects** - test child attributes only
 
+### Nested Attribute Path Structure (CRITICAL)
+
+**Problem**: `SingleNestedAttribute` in schema doesn't always require `.0` indexing in test paths
+
+**Determination Method**: Check existing working tests for similar nested structures in your provider
+
+**Common Patterns:**
+
+1. **Direct nested access** (most common in this provider):
+
+   ```go
+   // Schema: band_24 as SingleNestedAttribute
+   // Test path: "band_24.allow_rrm_disable" ✅
+   // NOT: "band_24.0.allow_rrm_disable" ❌
+   checks.append(t, "TestCheckResourceAttr", "band_24.allow_rrm_disable", "true")
+   ```
+
+2. **Indexed nested access** (less common):
+
+   ```go
+   // Schema: some_config as SingleNestedAttribute  
+   // Test path: "some_config.0.field_name" ✅
+   checks.append(t, "TestCheckResourceAttr", "some_config.0.field_name", "value")
+   ```
+
+**How to Determine Correct Pattern:**
+
+1. **Look at working tests** in same provider (e.g., `org_deviceprofile_ap_resource_test.go`, `device_ap_resource_test.go`)
+2. **Check similar nested structures** - if they use direct paths, use direct paths
+3. **Test error messages** - if test fails with "Attribute 'field.0.subfield' not found", try without `.0`
+
+**Examples from this provider:**
+
+- ✅ `"radio_config.band_24.allow_rrm_disable"` (direct - works)
+- ✅ `"band_24.ant_gain"` (direct - works)  
+- ❌ `"band_24.0.ant_gain"` (indexed - fails)
+
+**Common Error Symptom:**
+
+```text
+Check failed: mist_resource.test: Attribute 'nested_field.0.subfield' not found
+```
+
+**Solution**: Remove `.0` and use direct nested path: `nested_field.subfield`
+
 ### Manual Test Quality Verification
 
 - [ ] **Boolean field values**: Search test output for `"false"` - should be minimal
@@ -408,6 +453,7 @@ mistutils.VlanAsString(v)
 | HCL generation errors | Only add HCL tags to fields with CTY tags |
 | Nested object errors | Validate child attributes only (e.g., `applies.org_id` not `applies`) |
 | Field coverage gaps | Use the 4-step verification process above |
+| "Attribute 'field.0.subfield' not found" | Remove `.0` - use direct nested paths (see Nested Attribute Path Structure) |
 
 **Clean up:**
 
@@ -418,3 +464,4 @@ rm all_schema_fields.txt current_tested_fields.txt missing_fields.txt
 # Remove helper functions from test file after verification
 # Delete the TestExtractSchema() function and all extract* helper functions
 ```
+
