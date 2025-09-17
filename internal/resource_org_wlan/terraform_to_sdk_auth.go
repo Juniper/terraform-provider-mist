@@ -53,6 +53,9 @@ func authTerraformToSdk(plan AuthValue) *models.WlanAuth {
 	if plan.MultiPskOnly.ValueBoolPointer() != nil {
 		data.MultiPskOnly = plan.MultiPskOnly.ValueBoolPointer()
 	}
+	if plan.PrivateWlan.ValueBoolPointer() != nil {
+		data.PrivateWlan = plan.PrivateWlan.ValueBoolPointer()
+	}
 	if plan.Owe.ValueStringPointer() != nil {
 		data.Owe = models.ToPointer(models.WlanAuthOweEnum(plan.Owe.ValueString()))
 	}

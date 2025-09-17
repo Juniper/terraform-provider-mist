@@ -57,6 +57,7 @@
     key_idx = 1
     keys = ["1234567890", "abcdef1234", "0987654321", "fedcba9876"]
     multi_psk_only = true
+    private_wlan = true
     psk = "MySecurePassword123!"
     wep_as_secondary_auth = true
   }
@@ -441,6 +442,29 @@
   auth_servers_nas_ip = "192.168.1.100"
   auth_servers_retries = 5
   auth_servers_timeout = 10
+␞
+// External Portal Test Case - portal.auth set to external to test portal_api_secret
+  ssid = "External_Portal_Test_WLAN"
+  enabled = true
+  
+  portal = {
+    enabled = true
+    auth = "external"
+    external_portal_url = "https://external-portal.example.com"
+  }
+␞
+// SSO Test Case - portal.auth set to sso to test portal_sso_url
+  ssid = "SSO_Test_WLAN"
+  enabled = true
+  
+  portal = {
+    enabled = true
+    auth = "sso"
+    sso_idp_cert = "-----BEGIN CERTIFICATE-----\nMIICertificateContent\n-----END CERTIFICATE-----"
+    sso_idp_sso_url = "https://sso.company.com/saml/login"
+    sso_issuer = "company-issuer"
+    sso_nameid_format = "email"
+  }
 ␞
 // OWE Test Case - auth.owe field for open authentication
   ssid   = "OWE_Test_WLAN"

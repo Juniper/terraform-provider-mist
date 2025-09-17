@@ -667,6 +667,9 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		if s.Auth.WepAsSecondaryAuth != nil {
 			checks.append(t, "TestCheckResourceAttr", "auth.wep_as_secondary_auth", fmt.Sprintf("%t", *s.Auth.WepAsSecondaryAuth))
 		}
+		if s.Auth.PrivateWlan != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.private_wlan", fmt.Sprintf("%t", *s.Auth.PrivateWlan))
+		}
 	}
 
 	// Airwatch object validation
@@ -812,6 +815,19 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 			checks.append(t, "TestCheckResourceAttr", "mist_nac.enabled", fmt.Sprintf("%t", *s.MistNac.Enabled))
 		}
 	}
+
+	// Portal API secret validation - only check when portal.auth is set to "external"
+	if s.Portal != nil && s.Portal.Auth != nil && *s.Portal.Auth == "external" {
+		checks.append(t, "TestCheckResourceAttrSet", "portal_api_secret")
+	}
+
+	// Portal SSO URL validation - only check when portal.auth is set to "sso"
+	if s.Portal != nil && s.Portal.Auth != nil && *s.Portal.Auth == "sso" {
+		checks.append(t, "TestCheckResourceAttrSet", "portal_sso_url")
+	}
+
+	// NOTE: portal_image field testing is handled in TestOrgWlanPortalImageModel
+	// since it requires portal image resource creation and API propagation timing
 
 	// Portal object validation
 	if s.Portal != nil {
