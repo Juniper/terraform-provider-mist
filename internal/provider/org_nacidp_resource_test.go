@@ -45,8 +45,7 @@ func TestOrgNacidpModel(t *testing.T) {
 		fmt.Print(err)
 	}
 
-	str := string(b)
-	fixtures := strings.Split(str, "␞")
+	fixtures := strings.Split(string(b), "␞")
 
 	for i, fixture := range fixtures {
 		var FixtureOrgNacidpModel OrgNacidpModel

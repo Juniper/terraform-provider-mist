@@ -34,6 +34,7 @@ org_id = "{org_id}"
 name = "test-nactag-group"
 type = "radius_group"
 radius_group = "guest_users"
+allow_usermac_override = true
 ␞
 org_id = "{org_id}"
 name = "test-nactag-username"
@@ -44,6 +45,7 @@ org_id = "{org_id}"
 name = "test-nactag-vlan"
 type = "vlan"
 vlan = "100"
+allow_usermac_override = false
 ␞
 org_id = "{org_id}"
 name = "test-nactag-portal"
