@@ -45,7 +45,7 @@ func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, 
 	}
 	name = types.StringValue(data.Name)
 	if data.NotMatching != nil {
-		notMatching = notMatchingSdkToTerraform(ctx, &diags, data.Matching)
+		notMatching = notMatchingSdkToTerraform(ctx, &diags, data.NotMatching)
 	}
 	if data.Order != nil {
 		order = types.Int64Value(int64(*data.Order))
