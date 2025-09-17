@@ -309,14 +309,3 @@ func GetSiteBaseConfig(org_ID string) (config string, wlanRef string) {
 func stringPtr(s string) *string {
 	return &s
 }
-
-func boolToString(b bool) string {
-	if b {
-		return "true"
-	}
-	return "false"
-}
-
-func intToString(i int) string {
-	return fmt.Sprintf("%d", i)
-}

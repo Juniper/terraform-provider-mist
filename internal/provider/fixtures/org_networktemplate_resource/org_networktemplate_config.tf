@@ -103,6 +103,20 @@
       isolation       = true
       isolation_vlan_id = "201"
     }
+    "management" = {
+      vlan_id         = "10"
+      subnet          = "192.168.10.0/24"
+      gateway         = "192.168.10.1"
+      isolation       = false
+    }
+    "voip" = {
+      vlan_id         = "300"
+      subnet          = "10.10.10.0/24"
+      gateway         = "10.10.10.1"
+      subnet6         = "2001:db8:300::/64"
+      gateway6        = "2001:db8:300::1"
+      isolation       = false
+    }
   }
 
   ntp_servers = ["pool.ntp.org", "time.google.com"]
@@ -129,6 +143,34 @@
             "2" = "key2value"
           }
         }
+        "guest" = {
+          auth_type                = "password"
+          auth_password           = "guestpwd"
+          interface_type          = "p2p"
+          hello_interval          = 5
+          dead_interval           = 20
+          metric                  = 20
+          passive                 = true
+          bfd_minimum_interval    = 100
+          no_readvertise_to_overlay = true
+          export_policy           = "guest_export"
+          import_policy           = "guest_import"
+        }
+      }
+    }
+    "0.0.0.1" = {
+      type             = "stub"
+      include_loopback = false
+      networks = {
+        "management" = {
+          auth_type                = "none"
+          interface_type          = "broadcast"
+          hello_interval          = 30
+          dead_interval           = 120
+          metric                  = 5
+          passive                 = false
+          bfd_minimum_interval    = 300
+        }
       }
     }
   }
@@ -139,7 +181,12 @@
       input_port_ids_ingress = ["ge-0/0/1", "ge-0/0/2"]
       input_port_ids_egress  = ["ge-0/0/3"]
       output_port_id         = "ge-0/0/10"
-      output_ip_address      = "192.168.1.100"
+    }
+    "mirror2" = {
+      input_networks_ingress = ["guest"]
+      input_port_ids_ingress = ["ge-0/0/4"]
+      input_port_ids_egress  = ["ge-0/0/5"]
+      output_port_id         = "ge-0/0/11"
     }
   }
 
@@ -195,6 +242,37 @@
       all_networks = true
       description  = "Trunk port usage"
       networks     = ["lan", "guest", "management"]
+      native_vlan_id = "1"
+      voip_network = "voip"
+    }
+    "dot1x_trunk" = {
+      mode                    = "trunk"
+      description            = "802.1X authenticated trunk port"
+      port_auth              = "dot1x"
+      mac_limit              = 5
+      dynamic_vlan_networks  = ["dynamic_vlan1"]
+      networks               = ["lan", "guest"]
+      enable_qos             = true
+      reauth_interval        = 7200
+      allow_multiple_supplicants = true
+      guest_network          = "guest"
+      server_fail_network    = "quarantine"
+      server_reject_network  = "reject"
+    }
+    "dynamic_access" = {
+      mode                    = "dynamic"
+      port_auth              = "dot1x"
+      enable_mac_auth        = true
+      all_networks           = false
+      dynamic_vlan_networks  = ["dynamic_vlan1"]
+      rules = [
+        {
+          equals = "admin"
+          equals_any = ["user1", "user2"]
+          expression = "{user.role == admin}"
+          usage      = "trunk"
+        }
+      ]
     }
   }
 
@@ -348,7 +426,87 @@
           type = "trap"
         }
       ]
+      notify_filter = [
+        {
+          profile_name = "filter1"
+          contents = [
+            {
+              oid     = "1.3.6.1.2.1.1"
+              include = true
+            }
+          ]
+        }
+      ]
+      target_address = [
+        {
+          address              = "192.168.1.100"
+          address_mask         = "255.255.255.255"
+          target_address_name  = "trap_target1"
+          port                 = "162"
+          tag_list             = "trap_targets"
+          target_parameters    = "trap_params"
+        }
+      ]
+      target_parameters = [
+        {
+          message_processing_model = "v3"
+          name                    = "trap_params"
+          notify_filter          = "filter1"
+          security_level         = "privacy"
+          security_model         = "usm"
+          security_name          = "admin"
+        }
+      ]
+      usm = [
+        {
+          engine_type      = "local_engine"
+          remote_engine_id = "0x80001234567890"
+          users = [
+            {
+              name                    = "admin"
+              authentication_type     = "authentication-md5"
+              authentication_password = "auth_pass123"
+              encryption_type         = "privacy-des"
+              encryption_password     = "priv_pass123"
+            }
+          ]
+        }
+      ]
+      vacm = {
+        access = [
+          {
+            group_name = "admin_group"
+            prefix_list = [
+              {
+                context_prefix  = "default"
+                notify_view     = "all"
+                read_view       = "all"
+                security_level  = "privacy"
+                security_model  = "usm"
+                type           = "context_prefix"
+                write_view     = "all"
+              }
+            ]
+          }
+        ]
+        security_to_group = {
+          security_model = "usm"
+          content = [
+            {
+              group         = "admin_group"
+              security_name = "admin"
+            }
+          ]
+        }
+      }
     }
+    views = [
+      {
+        view_name = "all"
+        oid       = "1"
+        include   = true
+      }
+    ]
   }
 
   switch_matching = {
@@ -371,6 +529,22 @@
           type                     = "dhcp"
           use_mgmt_vrf            = true
           use_mgmt_vrf_for_host_out = false
+        }
+        port_config = {
+          "ge-0/0/0" = {
+            usage = "access"
+            speed = "1g"
+          }
+          "ge-0/0/1" = {
+            usage = "trunk"
+            speed = "10g"
+          }
+        }
+        port_mirroring = {
+          "local_mirror" = {
+            input_port_ids_ingress = ["ge-0/0/2"]
+            output_port_id         = "ge-0/0/10"
+          }
         }
       }
     ]
@@ -453,6 +627,17 @@
       extra_routes = {
         "10.0.0.0/8" = {
           via = "192.168.2.254"
+        }
+        "172.16.0.0/12" = {
+          via = "192.168.2.1"
+        }
+      }
+    }
+    "voice" = {
+      networks = ["voip"]
+      extra_routes = {
+        "0.0.0.0/0" = {
+          via = "10.10.10.254"
         }
       }
     }

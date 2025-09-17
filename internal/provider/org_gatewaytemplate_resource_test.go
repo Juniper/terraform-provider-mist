@@ -34,7 +34,7 @@ func TestOrgGatewaytemplateModel(t *testing.T) {
 		},
 	}
 
-	b, err := os.ReadFile("fixtures/site_setting_resource/site_setting_config.tf")
+	b, err := os.ReadFile("fixtures/org_gatewaytemplate_resource/org_gatewaytemplate_config.tf")
 	if err != nil {
 		fmt.Print(err)
 	}

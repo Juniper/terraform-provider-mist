@@ -62,9 +62,9 @@ func TestOrgNetworkModel(t *testing.T) {
 		}
 	}
 
+	resourceType := "org_network"
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "org_network"
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config
@@ -104,7 +104,7 @@ func (o *OrgNetworkModel) testChecks(t testing.TB, rType, rName string) testChec
 
 	// Optional basic attributes
 	if o.DisallowMistServices != nil {
-		checks.append(t, "TestCheckResourceAttr", "disallow_mist_services", boolToString(*o.DisallowMistServices))
+		checks.append(t, "TestCheckResourceAttr", "disallow_mist_services", fmt.Sprintf("%t", *o.DisallowMistServices))
 	}
 	if o.Gateway != nil {
 		checks.append(t, "TestCheckResourceAttr", "gateway", *o.Gateway)
@@ -113,7 +113,7 @@ func (o *OrgNetworkModel) testChecks(t testing.TB, rType, rName string) testChec
 		checks.append(t, "TestCheckResourceAttr", "gateway6", *o.Gateway6)
 	}
 	if o.Isolation != nil {
-		checks.append(t, "TestCheckResourceAttr", "isolation", boolToString(*o.Isolation))
+		checks.append(t, "TestCheckResourceAttr", "isolation", fmt.Sprintf("%t", *o.Isolation))
 	}
 	if o.Subnet6 != nil {
 		checks.append(t, "TestCheckResourceAttr", "subnet6", *o.Subnet6)
@@ -124,7 +124,7 @@ func (o *OrgNetworkModel) testChecks(t testing.TB, rType, rName string) testChec
 
 	// Routed for networks
 	if len(o.RoutedForNetworks) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "routed_for_networks.#", intToString(len(o.RoutedForNetworks)))
+		checks.append(t, "TestCheckResourceAttr", "routed_for_networks.#", fmt.Sprintf("%d", len(o.RoutedForNetworks)))
 		for i, network := range o.RoutedForNetworks {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routed_for_networks.%d", i), network)
 		}
@@ -133,20 +133,20 @@ func (o *OrgNetworkModel) testChecks(t testing.TB, rType, rName string) testChec
 	// Internal Access
 	if o.InternalAccess != nil {
 		if o.InternalAccess.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "internal_access.enabled", boolToString(*o.InternalAccess.Enabled))
+			checks.append(t, "TestCheckResourceAttr", "internal_access.enabled", fmt.Sprintf("%t", *o.InternalAccess.Enabled))
 		}
 	}
 
 	// Internet Access
 	if o.InternetAccess != nil {
 		if o.InternetAccess.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "internet_access.enabled", boolToString(*o.InternetAccess.Enabled))
+			checks.append(t, "TestCheckResourceAttr", "internet_access.enabled", fmt.Sprintf("%t", *o.InternetAccess.Enabled))
 		}
 		if o.InternetAccess.CreateSimpleServicePolicy != nil {
-			checks.append(t, "TestCheckResourceAttr", "internet_access.create_simple_service_policy", boolToString(*o.InternetAccess.CreateSimpleServicePolicy))
+			checks.append(t, "TestCheckResourceAttr", "internet_access.create_simple_service_policy", fmt.Sprintf("%t", *o.InternetAccess.CreateSimpleServicePolicy))
 		}
 		if o.InternetAccess.Restricted != nil {
-			checks.append(t, "TestCheckResourceAttr", "internet_access.restricted", boolToString(*o.InternetAccess.Restricted))
+			checks.append(t, "TestCheckResourceAttr", "internet_access.restricted", fmt.Sprintf("%t", *o.InternetAccess.Restricted))
 		}
 
 		// Internet Access Destination NAT
@@ -182,10 +182,10 @@ func (o *OrgNetworkModel) testChecks(t testing.TB, rType, rName string) testChec
 	// Multicast
 	if o.Multicast != nil {
 		if o.Multicast.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "multicast.enabled", boolToString(*o.Multicast.Enabled))
+			checks.append(t, "TestCheckResourceAttr", "multicast.enabled", fmt.Sprintf("%t", *o.Multicast.Enabled))
 		}
 		if o.Multicast.DisableIgmp != nil {
-			checks.append(t, "TestCheckResourceAttr", "multicast.disable_igmp", boolToString(*o.Multicast.DisableIgmp))
+			checks.append(t, "TestCheckResourceAttr", "multicast.disable_igmp", fmt.Sprintf("%t", *o.Multicast.DisableIgmp))
 		}
 
 		// Multicast Groups
@@ -204,7 +204,7 @@ func (o *OrgNetworkModel) testChecks(t testing.TB, rType, rName string) testChec
 		for key, tenant := range o.Tenants {
 			basePath := fmt.Sprintf("tenants.%s", key)
 			if len(tenant.Addresses) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".addresses.#", intToString(len(tenant.Addresses)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".addresses.#", fmt.Sprintf("%d", len(tenant.Addresses)))
 				for i, address := range tenant.Addresses {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.addresses.%d", basePath, i), address)
 				}
@@ -221,22 +221,22 @@ func (o *OrgNetworkModel) testChecks(t testing.TB, rType, rName string) testChec
 				checks.append(t, "TestCheckResourceAttr", basePath+".advertised_subnet", *vpnAccess.AdvertisedSubnet)
 			}
 			if vpnAccess.AllowPing != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".allow_ping", boolToString(*vpnAccess.AllowPing))
+				checks.append(t, "TestCheckResourceAttr", basePath+".allow_ping", fmt.Sprintf("%t", *vpnAccess.AllowPing))
 			}
 			if vpnAccess.NatPool != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".nat_pool", *vpnAccess.NatPool)
 			}
 			if vpnAccess.NoReadvertiseToLanBgp != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".no_readvertise_to_lan_bgp", boolToString(*vpnAccess.NoReadvertiseToLanBgp))
+				checks.append(t, "TestCheckResourceAttr", basePath+".no_readvertise_to_lan_bgp", fmt.Sprintf("%t", *vpnAccess.NoReadvertiseToLanBgp))
 			}
 			if vpnAccess.NoReadvertiseToLanOspf != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".no_readvertise_to_lan_ospf", boolToString(*vpnAccess.NoReadvertiseToLanOspf))
+				checks.append(t, "TestCheckResourceAttr", basePath+".no_readvertise_to_lan_ospf", fmt.Sprintf("%t", *vpnAccess.NoReadvertiseToLanOspf))
 			}
 			if vpnAccess.NoReadvertiseToOverlay != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".no_readvertise_to_overlay", boolToString(*vpnAccess.NoReadvertiseToOverlay))
+				checks.append(t, "TestCheckResourceAttr", basePath+".no_readvertise_to_overlay", fmt.Sprintf("%t", *vpnAccess.NoReadvertiseToOverlay))
 			}
 			if vpnAccess.Routed != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".routed", boolToString(*vpnAccess.Routed))
+				checks.append(t, "TestCheckResourceAttr", basePath+".routed", fmt.Sprintf("%t", *vpnAccess.Routed))
 			}
 			if vpnAccess.SummarizedSubnet != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".summarized_subnet", *vpnAccess.SummarizedSubnet)
@@ -250,7 +250,7 @@ func (o *OrgNetworkModel) testChecks(t testing.TB, rType, rName string) testChec
 
 			// Other VRFs
 			if len(vpnAccess.OtherVrfs) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".other_vrfs.#", intToString(len(vpnAccess.OtherVrfs)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".other_vrfs.#", fmt.Sprintf("%d", len(vpnAccess.OtherVrfs)))
 				for i, vrf := range vpnAccess.OtherVrfs {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.other_vrfs.%d", basePath, i), vrf)
 				}

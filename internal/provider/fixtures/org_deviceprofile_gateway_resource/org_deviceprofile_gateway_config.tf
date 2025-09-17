@@ -1,5 +1,5 @@
 
-  name = "comprehensive_gateway_profile_15"
+  name = "comprehensive_gateway_profile"
   additional_config_cmds = [
     "set system host-name gateway-profile",
     "set system domain-name example.com"

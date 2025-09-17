@@ -61,9 +61,9 @@ func TestOrgNetworktemplateModel(t *testing.T) {
 		}
 	}
 
+	resourceType := "org_networktemplate"
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "org_networktemplate"
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config
@@ -101,20 +101,20 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 	// Optional list attributes
 	if len(o.AclPolicies) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "acl_policies.#", intToString(len(o.AclPolicies)))
+		checks.append(t, "TestCheckResourceAttr", "acl_policies.#", fmt.Sprintf("%d", len(o.AclPolicies)))
 		for i, policy := range o.AclPolicies {
 			basePath := fmt.Sprintf("acl_policies.%d", i)
 			if policy.Name != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".name", *policy.Name)
 			}
 			if len(policy.SrcTags) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".src_tags.#", intToString(len(policy.SrcTags)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".src_tags.#", fmt.Sprintf("%d", len(policy.SrcTags)))
 				for j, srcTag := range policy.SrcTags {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.src_tags.%d", basePath, j), srcTag)
 				}
 			}
 			if len(policy.Actions) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".actions.#", intToString(len(policy.Actions)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".actions.#", fmt.Sprintf("%d", len(policy.Actions)))
 				for j, action := range policy.Actions {
 					actionPath := fmt.Sprintf("%s.actions.%d", basePath, j)
 					if action.Action != nil {
@@ -127,28 +127,28 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 	}
 
 	if len(o.AdditionalConfigCmds) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "additional_config_cmds.#", intToString(len(o.AdditionalConfigCmds)))
+		checks.append(t, "TestCheckResourceAttr", "additional_config_cmds.#", fmt.Sprintf("%d", len(o.AdditionalConfigCmds)))
 		for i, cmd := range o.AdditionalConfigCmds {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("additional_config_cmds.%d", i), cmd)
 		}
 	}
 
 	if len(o.DnsServers) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "dns_servers.#", intToString(len(o.DnsServers)))
+		checks.append(t, "TestCheckResourceAttr", "dns_servers.#", fmt.Sprintf("%d", len(o.DnsServers)))
 		for i, server := range o.DnsServers {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dns_servers.%d", i), server)
 		}
 	}
 
 	if len(o.DnsSuffix) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "dns_suffix.#", intToString(len(o.DnsSuffix)))
+		checks.append(t, "TestCheckResourceAttr", "dns_suffix.#", fmt.Sprintf("%d", len(o.DnsSuffix)))
 		for i, suffix := range o.DnsSuffix {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dns_suffix.%d", i), suffix)
 		}
 	}
 
 	if len(o.NtpServers) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "ntp_servers.#", intToString(len(o.NtpServers)))
+		checks.append(t, "TestCheckResourceAttr", "ntp_servers.#", fmt.Sprintf("%d", len(o.NtpServers)))
 		for i, server := range o.NtpServers {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ntp_servers.%d", i), server)
 		}
@@ -156,25 +156,25 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 	// Optional boolean attributes
 	if o.RemoveExistingConfigs != nil {
-		checks.append(t, "TestCheckResourceAttr", "remove_existing_configs", boolToString(*o.RemoveExistingConfigs))
+		checks.append(t, "TestCheckResourceAttr", "remove_existing_configs", fmt.Sprintf("%t", *o.RemoveExistingConfigs))
 	}
 
 	// Optional complex object attributes
 	if o.DhcpSnooping != nil {
 		if o.DhcpSnooping.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.enabled", boolToString(*o.DhcpSnooping.Enabled))
+			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.enabled", fmt.Sprintf("%t", *o.DhcpSnooping.Enabled))
 		}
 		if o.DhcpSnooping.AllNetworks != nil {
-			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.all_networks", boolToString(*o.DhcpSnooping.AllNetworks))
+			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.all_networks", fmt.Sprintf("%t", *o.DhcpSnooping.AllNetworks))
 		}
 		if o.DhcpSnooping.EnableArpSpoofCheck != nil {
-			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.enable_arp_spoof_check", boolToString(*o.DhcpSnooping.EnableArpSpoofCheck))
+			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.enable_arp_spoof_check", fmt.Sprintf("%t", *o.DhcpSnooping.EnableArpSpoofCheck))
 		}
 		if o.DhcpSnooping.EnableIpSourceGuard != nil {
-			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.enable_ip_source_guard", boolToString(*o.DhcpSnooping.EnableIpSourceGuard))
+			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.enable_ip_source_guard", fmt.Sprintf("%t", *o.DhcpSnooping.EnableIpSourceGuard))
 		}
 		if len(o.DhcpSnooping.Networks) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.networks.#", intToString(len(o.DhcpSnooping.Networks)))
+			checks.append(t, "TestCheckResourceAttr", "dhcp_snooping.networks.#", fmt.Sprintf("%d", len(o.DhcpSnooping.Networks)))
 			for i, network := range o.DhcpSnooping.Networks {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcp_snooping.networks.%d", i), network)
 			}
@@ -183,7 +183,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 	if o.MistNac != nil {
 		if o.MistNac.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "mist_nac.enabled", boolToString(*o.MistNac.Enabled))
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.enabled", fmt.Sprintf("%t", *o.MistNac.Enabled))
 		}
 		if o.MistNac.Network != nil {
 			checks.append(t, "TestCheckResourceAttr", "mist_nac.network", *o.MistNac.Network)
@@ -193,24 +193,24 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 	if o.RadiusConfig != nil {
 		// Optional boolean fields
 		if o.RadiusConfig.AcctImmediateUpdate != nil {
-			checks.append(t, "TestCheckResourceAttr", "radius_config.acct_immediate_update", boolToString(*o.RadiusConfig.AcctImmediateUpdate))
+			checks.append(t, "TestCheckResourceAttr", "radius_config.acct_immediate_update", fmt.Sprintf("%t", *o.RadiusConfig.AcctImmediateUpdate))
 		}
 		if o.RadiusConfig.CoaEnabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "radius_config.coa_enabled", boolToString(*o.RadiusConfig.CoaEnabled))
+			checks.append(t, "TestCheckResourceAttr", "radius_config.coa_enabled", fmt.Sprintf("%t", *o.RadiusConfig.CoaEnabled))
 		}
 		if o.RadiusConfig.FastDot1xTimers != nil {
-			checks.append(t, "TestCheckResourceAttr", "radius_config.fast_dot1x_timers", boolToString(*o.RadiusConfig.FastDot1xTimers))
+			checks.append(t, "TestCheckResourceAttr", "radius_config.fast_dot1x_timers", fmt.Sprintf("%t", *o.RadiusConfig.FastDot1xTimers))
 		}
 
 		// Optional integer fields
 		if o.RadiusConfig.AcctInterimInterval != nil {
-			checks.append(t, "TestCheckResourceAttr", "radius_config.acct_interim_interval", intToString(int(*o.RadiusConfig.AcctInterimInterval)))
+			checks.append(t, "TestCheckResourceAttr", "radius_config.acct_interim_interval", fmt.Sprintf("%d", int(*o.RadiusConfig.AcctInterimInterval)))
 		}
 		if o.RadiusConfig.AuthServersRetries != nil {
-			checks.append(t, "TestCheckResourceAttr", "radius_config.auth_servers_retries", intToString(int(*o.RadiusConfig.AuthServersRetries)))
+			checks.append(t, "TestCheckResourceAttr", "radius_config.auth_servers_retries", fmt.Sprintf("%d", int(*o.RadiusConfig.AuthServersRetries)))
 		}
 		if o.RadiusConfig.AuthServersTimeout != nil {
-			checks.append(t, "TestCheckResourceAttr", "radius_config.auth_servers_timeout", intToString(int(*o.RadiusConfig.AuthServersTimeout)))
+			checks.append(t, "TestCheckResourceAttr", "radius_config.auth_servers_timeout", fmt.Sprintf("%d", int(*o.RadiusConfig.AuthServersTimeout)))
 		}
 
 		// Optional string fields
@@ -229,7 +229,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 		// AcctServers list
 		if len(o.RadiusConfig.AcctServers) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "radius_config.acct_servers.#", intToString(len(o.RadiusConfig.AcctServers)))
+			checks.append(t, "TestCheckResourceAttr", "radius_config.acct_servers.#", fmt.Sprintf("%d", len(o.RadiusConfig.AcctServers)))
 			for i, server := range o.RadiusConfig.AcctServers {
 				serverPath := fmt.Sprintf("radius_config.acct_servers.%d", i)
 
@@ -239,7 +239,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 				// Optional fields
 				if server.KeywrapEnabled != nil {
-					checks.append(t, "TestCheckResourceAttr", serverPath+".keywrap_enabled", boolToString(*server.KeywrapEnabled))
+					checks.append(t, "TestCheckResourceAttr", serverPath+".keywrap_enabled", fmt.Sprintf("%t", *server.KeywrapEnabled))
 				}
 				if server.KeywrapFormat != nil {
 					checks.append(t, "TestCheckResourceAttr", serverPath+".keywrap_format", *server.KeywrapFormat)
@@ -258,7 +258,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 		// AuthServers list
 		if len(o.RadiusConfig.AuthServers) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "radius_config.auth_servers.#", intToString(len(o.RadiusConfig.AuthServers)))
+			checks.append(t, "TestCheckResourceAttr", "radius_config.auth_servers.#", fmt.Sprintf("%d", len(o.RadiusConfig.AuthServers)))
 			for i, server := range o.RadiusConfig.AuthServers {
 				serverPath := fmt.Sprintf("radius_config.auth_servers.%d", i)
 
@@ -268,7 +268,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 				// Optional fields
 				if server.KeywrapEnabled != nil {
-					checks.append(t, "TestCheckResourceAttr", serverPath+".keywrap_enabled", boolToString(*server.KeywrapEnabled))
+					checks.append(t, "TestCheckResourceAttr", serverPath+".keywrap_enabled", fmt.Sprintf("%t", *server.KeywrapEnabled))
 				}
 				if server.KeywrapFormat != nil {
 					checks.append(t, "TestCheckResourceAttr", serverPath+".keywrap_format", *server.KeywrapFormat)
@@ -283,7 +283,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 					checks.append(t, "TestCheckResourceAttr", serverPath+".port", *server.Port)
 				}
 				if server.RequireMessageAuthenticator != nil {
-					checks.append(t, "TestCheckResourceAttr", serverPath+".require_message_authenticator", boolToString(*server.RequireMessageAuthenticator))
+					checks.append(t, "TestCheckResourceAttr", serverPath+".require_message_authenticator", fmt.Sprintf("%t", *server.RequireMessageAuthenticator))
 				}
 			}
 		}
@@ -292,10 +292,10 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 	if o.RemoteSyslog != nil {
 		// Optional boolean fields
 		if o.RemoteSyslog.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "remote_syslog.enabled", boolToString(*o.RemoteSyslog.Enabled))
+			checks.append(t, "TestCheckResourceAttr", "remote_syslog.enabled", fmt.Sprintf("%t", *o.RemoteSyslog.Enabled))
 		}
 		if o.RemoteSyslog.SendToAllServers != nil {
-			checks.append(t, "TestCheckResourceAttr", "remote_syslog.send_to_all_servers", boolToString(*o.RemoteSyslog.SendToAllServers))
+			checks.append(t, "TestCheckResourceAttr", "remote_syslog.send_to_all_servers", fmt.Sprintf("%t", *o.RemoteSyslog.SendToAllServers))
 		}
 
 		// Optional string fields
@@ -308,7 +308,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 		// Cacerts list
 		if len(o.RemoteSyslog.Cacerts) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "remote_syslog.cacerts.#", intToString(len(o.RemoteSyslog.Cacerts)))
+			checks.append(t, "TestCheckResourceAttr", "remote_syslog.cacerts.#", fmt.Sprintf("%d", len(o.RemoteSyslog.Cacerts)))
 			for i, cacert := range o.RemoteSyslog.Cacerts {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("remote_syslog.cacerts.%d", i), cacert)
 			}
@@ -327,7 +327,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 		// Console configuration
 		if o.RemoteSyslog.Console != nil {
 			if len(o.RemoteSyslog.Console.Contents) > 0 {
-				checks.append(t, "TestCheckResourceAttr", "remote_syslog.console.contents.#", intToString(len(o.RemoteSyslog.Console.Contents)))
+				checks.append(t, "TestCheckResourceAttr", "remote_syslog.console.contents.#", fmt.Sprintf("%d", len(o.RemoteSyslog.Console.Contents)))
 				for i, content := range o.RemoteSyslog.Console.Contents {
 					contentPath := fmt.Sprintf("remote_syslog.console.contents.%d", i)
 					if content.Facility != nil {
@@ -342,19 +342,19 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 		// Files configuration
 		if len(o.RemoteSyslog.Files) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "remote_syslog.files.#", intToString(len(o.RemoteSyslog.Files)))
+			checks.append(t, "TestCheckResourceAttr", "remote_syslog.files.#", fmt.Sprintf("%d", len(o.RemoteSyslog.Files)))
 			for i, file := range o.RemoteSyslog.Files {
 				filePath := fmt.Sprintf("remote_syslog.files.%d", i)
 
 				// Optional boolean fields
 				if file.EnableTls != nil {
-					checks.append(t, "TestCheckResourceAttr", filePath+".enable_tls", boolToString(*file.EnableTls))
+					checks.append(t, "TestCheckResourceAttr", filePath+".enable_tls", fmt.Sprintf("%t", *file.EnableTls))
 				}
 				if file.ExplicitPriority != nil {
-					checks.append(t, "TestCheckResourceAttr", filePath+".explicit_priority", boolToString(*file.ExplicitPriority))
+					checks.append(t, "TestCheckResourceAttr", filePath+".explicit_priority", fmt.Sprintf("%t", *file.ExplicitPriority))
 				}
 				if file.StructuredData != nil {
-					checks.append(t, "TestCheckResourceAttr", filePath+".structured_data", boolToString(*file.StructuredData))
+					checks.append(t, "TestCheckResourceAttr", filePath+".structured_data", fmt.Sprintf("%t", *file.StructuredData))
 				}
 
 				// Optional string fields
@@ -377,7 +377,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 				// File contents
 				if len(file.Contents) > 0 {
-					checks.append(t, "TestCheckResourceAttr", filePath+".contents.#", intToString(len(file.Contents)))
+					checks.append(t, "TestCheckResourceAttr", filePath+".contents.#", fmt.Sprintf("%d", len(file.Contents)))
 					for j, content := range file.Contents {
 						contentPath := fmt.Sprintf("%s.contents.%d", filePath, j)
 						if content.Facility != nil {
@@ -393,16 +393,16 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 		// Servers configuration
 		if len(o.RemoteSyslog.Servers) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "remote_syslog.servers.#", intToString(len(o.RemoteSyslog.Servers)))
+			checks.append(t, "TestCheckResourceAttr", "remote_syslog.servers.#", fmt.Sprintf("%d", len(o.RemoteSyslog.Servers)))
 			for i, server := range o.RemoteSyslog.Servers {
 				serverPath := fmt.Sprintf("remote_syslog.servers.%d", i)
 
 				// Optional boolean fields
 				if server.ExplicitPriority != nil {
-					checks.append(t, "TestCheckResourceAttr", serverPath+".explicit_priority", boolToString(*server.ExplicitPriority))
+					checks.append(t, "TestCheckResourceAttr", serverPath+".explicit_priority", fmt.Sprintf("%t", *server.ExplicitPriority))
 				}
 				if server.StructuredData != nil {
-					checks.append(t, "TestCheckResourceAttr", serverPath+".structured_data", boolToString(*server.StructuredData))
+					checks.append(t, "TestCheckResourceAttr", serverPath+".structured_data", fmt.Sprintf("%t", *server.StructuredData))
 				}
 
 				// Optional string fields
@@ -439,7 +439,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 				// Server contents
 				if len(server.Contents) > 0 {
-					checks.append(t, "TestCheckResourceAttr", serverPath+".contents.#", intToString(len(server.Contents)))
+					checks.append(t, "TestCheckResourceAttr", serverPath+".contents.#", fmt.Sprintf("%d", len(server.Contents)))
 					for j, content := range server.Contents {
 						contentPath := fmt.Sprintf("%s.contents.%d", serverPath, j)
 						if content.Facility != nil {
@@ -455,7 +455,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 		// Users configuration
 		if len(o.RemoteSyslog.Users) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "remote_syslog.users.#", intToString(len(o.RemoteSyslog.Users)))
+			checks.append(t, "TestCheckResourceAttr", "remote_syslog.users.#", fmt.Sprintf("%d", len(o.RemoteSyslog.Users)))
 			for i, user := range o.RemoteSyslog.Users {
 				userPath := fmt.Sprintf("remote_syslog.users.%d", i)
 
@@ -469,7 +469,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 				// User contents
 				if len(user.Contents) > 0 {
-					checks.append(t, "TestCheckResourceAttr", userPath+".contents.#", intToString(len(user.Contents)))
+					checks.append(t, "TestCheckResourceAttr", userPath+".contents.#", fmt.Sprintf("%d", len(user.Contents)))
 					for j, content := range user.Contents {
 						contentPath := fmt.Sprintf("%s.contents.%d", userPath, j)
 						if content.Facility != nil {
@@ -487,7 +487,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 	if o.SnmpConfig != nil {
 		// Optional boolean field
 		if o.SnmpConfig.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "snmp_config.enabled", boolToString(*o.SnmpConfig.Enabled))
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.enabled", fmt.Sprintf("%t", *o.SnmpConfig.Enabled))
 		}
 
 		// Optional string fields
@@ -515,7 +515,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 		// ClientList configuration
 		if len(o.SnmpConfig.ClientList) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "snmp_config.client_list.#", intToString(len(o.SnmpConfig.ClientList)))
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.client_list.#", fmt.Sprintf("%d", len(o.SnmpConfig.ClientList)))
 			for i, clientList := range o.SnmpConfig.ClientList {
 				clientPath := fmt.Sprintf("snmp_config.client_list.%d", i)
 
@@ -524,7 +524,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 				}
 
 				if len(clientList.Clients) > 0 {
-					checks.append(t, "TestCheckResourceAttr", clientPath+".clients.#", intToString(len(clientList.Clients)))
+					checks.append(t, "TestCheckResourceAttr", clientPath+".clients.#", fmt.Sprintf("%d", len(clientList.Clients)))
 					for j, client := range clientList.Clients {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.clients.%d", clientPath, j), client)
 					}
@@ -534,7 +534,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 		// TrapGroups configuration
 		if len(o.SnmpConfig.TrapGroups) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "snmp_config.trap_groups.#", intToString(len(o.SnmpConfig.TrapGroups)))
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.trap_groups.#", fmt.Sprintf("%d", len(o.SnmpConfig.TrapGroups)))
 			for i, trapGroup := range o.SnmpConfig.TrapGroups {
 				trapPath := fmt.Sprintf("snmp_config.trap_groups.%d", i)
 
@@ -546,14 +546,14 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 				}
 
 				if len(trapGroup.Categories) > 0 {
-					checks.append(t, "TestCheckResourceAttr", trapPath+".categories.#", intToString(len(trapGroup.Categories)))
+					checks.append(t, "TestCheckResourceAttr", trapPath+".categories.#", fmt.Sprintf("%d", len(trapGroup.Categories)))
 					for j, category := range trapGroup.Categories {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.categories.%d", trapPath, j), category)
 					}
 				}
 
 				if len(trapGroup.Targets) > 0 {
-					checks.append(t, "TestCheckResourceAttr", trapPath+".targets.#", intToString(len(trapGroup.Targets)))
+					checks.append(t, "TestCheckResourceAttr", trapPath+".targets.#", fmt.Sprintf("%d", len(trapGroup.Targets)))
 					for j, target := range trapGroup.Targets {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.targets.%d", trapPath, j), target)
 					}
@@ -563,7 +563,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 		// V2cConfig configuration
 		if len(o.SnmpConfig.V2cConfig) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "snmp_config.v2c_config.#", intToString(len(o.SnmpConfig.V2cConfig)))
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.v2c_config.#", fmt.Sprintf("%d", len(o.SnmpConfig.V2cConfig)))
 			for i, v2cConfig := range o.SnmpConfig.V2cConfig {
 				v2cPath := fmt.Sprintf("snmp_config.v2c_config.%d", i)
 
@@ -586,7 +586,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 		if o.SnmpConfig.V3Config != nil {
 			// Notify configuration
 			if len(o.SnmpConfig.V3Config.Notify) > 0 {
-				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.notify.#", intToString(len(o.SnmpConfig.V3Config.Notify)))
+				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.notify.#", fmt.Sprintf("%d", len(o.SnmpConfig.V3Config.Notify)))
 				for i, notify := range o.SnmpConfig.V3Config.Notify {
 					notifyPath := fmt.Sprintf("snmp_config.v3_config.notify.%d", i)
 					checks.append(t, "TestCheckResourceAttr", notifyPath+".name", notify.Name)
@@ -597,19 +597,19 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// NotifyFilter configuration
 			if len(o.SnmpConfig.V3Config.NotifyFilter) > 0 {
-				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.notify_filter.#", intToString(len(o.SnmpConfig.V3Config.NotifyFilter)))
+				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.notify_filter.#", fmt.Sprintf("%d", len(o.SnmpConfig.V3Config.NotifyFilter)))
 				for i, notifyFilter := range o.SnmpConfig.V3Config.NotifyFilter {
 					filterPath := fmt.Sprintf("snmp_config.v3_config.notify_filter.%d", i)
 					if notifyFilter.ProfileName != nil {
 						checks.append(t, "TestCheckResourceAttr", filterPath+".profile_name", *notifyFilter.ProfileName)
 					}
 					if len(notifyFilter.Snmpv3Contents) > 0 {
-						checks.append(t, "TestCheckResourceAttr", filterPath+".contents.#", intToString(len(notifyFilter.Snmpv3Contents)))
+						checks.append(t, "TestCheckResourceAttr", filterPath+".contents.#", fmt.Sprintf("%d", len(notifyFilter.Snmpv3Contents)))
 						for j, content := range notifyFilter.Snmpv3Contents {
 							contentPath := fmt.Sprintf("%s.contents.%d", filterPath, j)
 							checks.append(t, "TestCheckResourceAttr", contentPath+".oid", content.Oid)
 							if content.Include != nil {
-								checks.append(t, "TestCheckResourceAttr", contentPath+".include", boolToString(*content.Include))
+								checks.append(t, "TestCheckResourceAttr", contentPath+".include", fmt.Sprintf("%t", *content.Include))
 							}
 						}
 					}
@@ -618,7 +618,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// TargetAddress configuration
 			if len(o.SnmpConfig.V3Config.TargetAddress) > 0 {
-				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.target_address.#", intToString(len(o.SnmpConfig.V3Config.TargetAddress)))
+				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.target_address.#", fmt.Sprintf("%d", len(o.SnmpConfig.V3Config.TargetAddress)))
 				for i, targetAddr := range o.SnmpConfig.V3Config.TargetAddress {
 					addrPath := fmt.Sprintf("snmp_config.v3_config.target_address.%d", i)
 					checks.append(t, "TestCheckResourceAttr", addrPath+".address", targetAddr.Address)
@@ -638,7 +638,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// TargetParameters configuration
 			if len(o.SnmpConfig.V3Config.TargetParameters) > 0 {
-				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.target_parameters.#", intToString(len(o.SnmpConfig.V3Config.TargetParameters)))
+				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.target_parameters.#", fmt.Sprintf("%d", len(o.SnmpConfig.V3Config.TargetParameters)))
 				for i, targetParam := range o.SnmpConfig.V3Config.TargetParameters {
 					paramPath := fmt.Sprintf("snmp_config.v3_config.target_parameters.%d", i)
 					checks.append(t, "TestCheckResourceAttr", paramPath+".message_processing_model", targetParam.MessageProcessingModel)
@@ -660,7 +660,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// Usm configuration
 			if len(o.SnmpConfig.V3Config.Usm) > 0 {
-				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.usm.#", intToString(len(o.SnmpConfig.V3Config.Usm)))
+				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.usm.#", fmt.Sprintf("%d", len(o.SnmpConfig.V3Config.Usm)))
 				for i, usm := range o.SnmpConfig.V3Config.Usm {
 					usmPath := fmt.Sprintf("snmp_config.v3_config.usm.%d", i)
 					checks.append(t, "TestCheckResourceAttr", usmPath+".engine_type", usm.EngineType)
@@ -668,7 +668,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 						checks.append(t, "TestCheckResourceAttr", usmPath+".remote_engine_id", *usm.RemoteEngineId)
 					}
 					if len(usm.Snmpv3Users) > 0 {
-						checks.append(t, "TestCheckResourceAttr", usmPath+".users.#", intToString(len(usm.Snmpv3Users)))
+						checks.append(t, "TestCheckResourceAttr", usmPath+".users.#", fmt.Sprintf("%d", len(usm.Snmpv3Users)))
 						for j, user := range usm.Snmpv3Users {
 							userPath := fmt.Sprintf("%s.users.%d", usmPath, j)
 							if user.Name != nil {
@@ -694,14 +694,14 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 			// Vacm configuration
 			if o.SnmpConfig.V3Config.Vacm != nil {
 				if len(o.SnmpConfig.V3Config.Vacm.Access) > 0 {
-					checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.vacm.access.#", intToString(len(o.SnmpConfig.V3Config.Vacm.Access)))
+					checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.vacm.access.#", fmt.Sprintf("%d", len(o.SnmpConfig.V3Config.Vacm.Access)))
 					for i, access := range o.SnmpConfig.V3Config.Vacm.Access {
 						accessPath := fmt.Sprintf("snmp_config.v3_config.vacm.access.%d", i)
 						if access.GroupName != nil {
 							checks.append(t, "TestCheckResourceAttr", accessPath+".group_name", *access.GroupName)
 						}
 						if len(access.PrefixList) > 0 {
-							checks.append(t, "TestCheckResourceAttr", accessPath+".prefix_list.#", intToString(len(access.PrefixList)))
+							checks.append(t, "TestCheckResourceAttr", accessPath+".prefix_list.#", fmt.Sprintf("%d", len(access.PrefixList)))
 							for j, prefix := range access.PrefixList {
 								prefixPath := fmt.Sprintf("%s.prefix_list.%d", accessPath, j)
 								if prefix.ContextPrefix != nil {
@@ -735,7 +735,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 						checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.vacm.security_to_group.security_model", *o.SnmpConfig.V3Config.Vacm.SecurityToGroup.SecurityModel)
 					}
 					if len(o.SnmpConfig.V3Config.Vacm.SecurityToGroup.Snmpv3VacmContent) > 0 {
-						checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.vacm.security_to_group.content.#", intToString(len(o.SnmpConfig.V3Config.Vacm.SecurityToGroup.Snmpv3VacmContent)))
+						checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.vacm.security_to_group.content.#", fmt.Sprintf("%d", len(o.SnmpConfig.V3Config.Vacm.SecurityToGroup.Snmpv3VacmContent)))
 						for i, content := range o.SnmpConfig.V3Config.Vacm.SecurityToGroup.Snmpv3VacmContent {
 							contentPath := fmt.Sprintf("snmp_config.v3_config.vacm.security_to_group.content.%d", i)
 							if content.Group != nil {
@@ -752,7 +752,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 		// Views configuration
 		if len(o.SnmpConfig.Views) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "snmp_config.views.#", intToString(len(o.SnmpConfig.Views)))
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.views.#", fmt.Sprintf("%d", len(o.SnmpConfig.Views)))
 			for i, view := range o.SnmpConfig.Views {
 				viewPath := fmt.Sprintf("snmp_config.views.%d", i)
 				if view.ViewName != nil {
@@ -762,7 +762,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 					checks.append(t, "TestCheckResourceAttr", viewPath+".oid", *view.Oid)
 				}
 				if view.Include != nil {
-					checks.append(t, "TestCheckResourceAttr", viewPath+".include", boolToString(*view.Include))
+					checks.append(t, "TestCheckResourceAttr", viewPath+".include", fmt.Sprintf("%t", *view.Include))
 				}
 			}
 		}
@@ -770,10 +770,10 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 	if o.SwitchMatching != nil {
 		if o.SwitchMatching.Enable != nil {
-			checks.append(t, "TestCheckResourceAttr", "switch_matching.enable", boolToString(*o.SwitchMatching.Enable))
+			checks.append(t, "TestCheckResourceAttr", "switch_matching.enable", fmt.Sprintf("%t", *o.SwitchMatching.Enable))
 		}
 		if len(o.SwitchMatching.MatchingRules) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "switch_matching.rules.#", intToString(len(o.SwitchMatching.MatchingRules)))
+			checks.append(t, "TestCheckResourceAttr", "switch_matching.rules.#", fmt.Sprintf("%d", len(o.SwitchMatching.MatchingRules)))
 			for i, rule := range o.SwitchMatching.MatchingRules {
 				basePath := fmt.Sprintf("switch_matching.rules.%d", i)
 				if rule.Name != nil {
@@ -786,7 +786,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 					checks.append(t, "TestCheckResourceAttr", basePath+".match_name", *rule.MatchName)
 				}
 				if rule.MatchNameOffset != nil {
-					checks.append(t, "TestCheckResourceAttr", basePath+".match_name_offset", intToString(int(*rule.MatchNameOffset)))
+					checks.append(t, "TestCheckResourceAttr", basePath+".match_name_offset", fmt.Sprintf("%d", int(*rule.MatchNameOffset)))
 				}
 				if rule.MatchRole != nil {
 					checks.append(t, "TestCheckResourceAttr", basePath+".match_role", *rule.MatchRole)
@@ -798,7 +798,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 					checks.append(t, "TestCheckResourceAttr", basePath+".match_value", *rule.MatchValue)
 				}
 				if len(rule.AdditionalConfigCmds) > 0 {
-					checks.append(t, "TestCheckResourceAttr", basePath+".additional_config_cmds.#", intToString(len(rule.AdditionalConfigCmds)))
+					checks.append(t, "TestCheckResourceAttr", basePath+".additional_config_cmds.#", fmt.Sprintf("%d", len(rule.AdditionalConfigCmds)))
 					for j, cmd := range rule.AdditionalConfigCmds {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.additional_config_cmds.%d", basePath, j), cmd)
 					}
@@ -816,10 +816,10 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 						checks.append(t, "TestCheckResourceAttr", basePath+".oob_ip_config.type", *rule.OobIpConfig.OobIpConfigType)
 					}
 					if rule.OobIpConfig.UseMgmtVrf != nil {
-						checks.append(t, "TestCheckResourceAttr", basePath+".oob_ip_config.use_mgmt_vrf", boolToString(*rule.OobIpConfig.UseMgmtVrf))
+						checks.append(t, "TestCheckResourceAttr", basePath+".oob_ip_config.use_mgmt_vrf", fmt.Sprintf("%t", *rule.OobIpConfig.UseMgmtVrf))
 					}
 					if rule.OobIpConfig.UseMgmtVrfForHostOut != nil {
-						checks.append(t, "TestCheckResourceAttr", basePath+".oob_ip_config.use_mgmt_vrf_for_host_out", boolToString(*rule.OobIpConfig.UseMgmtVrfForHostOut))
+						checks.append(t, "TestCheckResourceAttr", basePath+".oob_ip_config.use_mgmt_vrf_for_host_out", fmt.Sprintf("%t", *rule.OobIpConfig.UseMgmtVrfForHostOut))
 					}
 				}
 			}
@@ -829,30 +829,30 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 	if o.SwitchMgmt != nil {
 		// Optional integer fields
 		if o.SwitchMgmt.ApAffinityThreshold != nil {
-			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.ap_affinity_threshold", intToString(int(*o.SwitchMgmt.ApAffinityThreshold)))
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.ap_affinity_threshold", fmt.Sprintf("%d", int(*o.SwitchMgmt.ApAffinityThreshold)))
 		}
 		if o.SwitchMgmt.CliIdleTimeout != nil {
-			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.cli_idle_timeout", intToString(int(*o.SwitchMgmt.CliIdleTimeout)))
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.cli_idle_timeout", fmt.Sprintf("%d", int(*o.SwitchMgmt.CliIdleTimeout)))
 		}
 		if o.SwitchMgmt.ConfigRevertTimer != nil {
-			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.config_revert_timer", intToString(int(*o.SwitchMgmt.ConfigRevertTimer)))
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.config_revert_timer", fmt.Sprintf("%d", int(*o.SwitchMgmt.ConfigRevertTimer)))
 		}
 
 		// Optional boolean fields
 		if o.SwitchMgmt.DhcpOptionFqdn != nil {
-			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.dhcp_option_fqdn", boolToString(*o.SwitchMgmt.DhcpOptionFqdn))
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.dhcp_option_fqdn", fmt.Sprintf("%t", *o.SwitchMgmt.DhcpOptionFqdn))
 		}
 		if o.SwitchMgmt.DisableOobDownAlarm != nil {
-			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.disable_oob_down_alarm", boolToString(*o.SwitchMgmt.DisableOobDownAlarm))
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.disable_oob_down_alarm", fmt.Sprintf("%t", *o.SwitchMgmt.DisableOobDownAlarm))
 		}
 		if o.SwitchMgmt.FipsEnabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.fips_enabled", boolToString(*o.SwitchMgmt.FipsEnabled))
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.fips_enabled", fmt.Sprintf("%t", *o.SwitchMgmt.FipsEnabled))
 		}
 		if o.SwitchMgmt.RemoveExistingConfigs != nil {
-			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.remove_existing_configs", boolToString(*o.SwitchMgmt.RemoveExistingConfigs))
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.remove_existing_configs", fmt.Sprintf("%t", *o.SwitchMgmt.RemoveExistingConfigs))
 		}
 		if o.SwitchMgmt.UseMxedgeProxy != nil {
-			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.use_mxedge_proxy", boolToString(*o.SwitchMgmt.UseMxedgeProxy))
+			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.use_mxedge_proxy", fmt.Sprintf("%t", *o.SwitchMgmt.UseMxedgeProxy))
 		}
 
 		// Optional string fields
@@ -885,21 +885,21 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 		// ProtectRe configuration
 		if o.SwitchMgmt.ProtectRe != nil {
 			if o.SwitchMgmt.ProtectRe.Enabled != nil {
-				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.enabled", boolToString(*o.SwitchMgmt.ProtectRe.Enabled))
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.enabled", fmt.Sprintf("%t", *o.SwitchMgmt.ProtectRe.Enabled))
 			}
 			if o.SwitchMgmt.ProtectRe.HitCount != nil {
-				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.hit_count", boolToString(*o.SwitchMgmt.ProtectRe.HitCount))
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.hit_count", fmt.Sprintf("%t", *o.SwitchMgmt.ProtectRe.HitCount))
 			}
 
 			if len(o.SwitchMgmt.ProtectRe.AllowedServices) > 0 {
-				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.allowed_services.#", intToString(len(o.SwitchMgmt.ProtectRe.AllowedServices)))
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.allowed_services.#", fmt.Sprintf("%d", len(o.SwitchMgmt.ProtectRe.AllowedServices)))
 				for i, service := range o.SwitchMgmt.ProtectRe.AllowedServices {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("switch_mgmt.protect_re.allowed_services.%d", i), service)
 				}
 			}
 
 			if len(o.SwitchMgmt.ProtectRe.TrustedHosts) > 0 {
-				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.trusted_hosts.#", intToString(len(o.SwitchMgmt.ProtectRe.TrustedHosts)))
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.trusted_hosts.#", fmt.Sprintf("%d", len(o.SwitchMgmt.ProtectRe.TrustedHosts)))
 				for i, host := range o.SwitchMgmt.ProtectRe.TrustedHosts {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("switch_mgmt.protect_re.trusted_hosts.%d", i), host)
 				}
@@ -907,7 +907,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// Custom protect_re rules
 			if len(o.SwitchMgmt.ProtectRe.Custom) > 0 {
-				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.custom.#", intToString(len(o.SwitchMgmt.ProtectRe.Custom)))
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.protect_re.custom.#", fmt.Sprintf("%d", len(o.SwitchMgmt.ProtectRe.Custom)))
 				for i, custom := range o.SwitchMgmt.ProtectRe.Custom {
 					customPath := fmt.Sprintf("switch_mgmt.protect_re.custom.%d", i)
 
@@ -921,7 +921,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 					// Subnets list
 					if len(custom.Subnets) > 0 {
-						checks.append(t, "TestCheckResourceAttr", customPath+".subnets.#", intToString(len(custom.Subnets)))
+						checks.append(t, "TestCheckResourceAttr", customPath+".subnets.#", fmt.Sprintf("%d", len(custom.Subnets)))
 						for j, subnet := range custom.Subnets {
 							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.subnets.%d", customPath, j), subnet)
 						}
@@ -934,7 +934,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 		if o.SwitchMgmt.Tacacs != nil {
 			// Optional boolean field
 			if o.SwitchMgmt.Tacacs.Enabled != nil {
-				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.tacacs.enabled", boolToString(*o.SwitchMgmt.Tacacs.Enabled))
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.tacacs.enabled", fmt.Sprintf("%t", *o.SwitchMgmt.Tacacs.Enabled))
 			}
 
 			// Optional string fields
@@ -947,7 +947,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// TacacctServers (accounting servers) list
 			if len(o.SwitchMgmt.Tacacs.TacacctServers) > 0 {
-				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.tacacs.acct_servers.#", intToString(len(o.SwitchMgmt.Tacacs.TacacctServers)))
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.tacacs.acct_servers.#", fmt.Sprintf("%d", len(o.SwitchMgmt.Tacacs.TacacctServers)))
 				for i, server := range o.SwitchMgmt.Tacacs.TacacctServers {
 					serverPath := fmt.Sprintf("switch_mgmt.tacacs.acct_servers.%d", i)
 
@@ -964,14 +964,14 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 					// Optional integer field
 					if server.Timeout != nil {
-						checks.append(t, "TestCheckResourceAttr", serverPath+".timeout", intToString(int(*server.Timeout)))
+						checks.append(t, "TestCheckResourceAttr", serverPath+".timeout", fmt.Sprintf("%d", int(*server.Timeout)))
 					}
 				}
 			}
 
 			// TacplusServers (authentication servers) list
 			if len(o.SwitchMgmt.Tacacs.TacplusServers) > 0 {
-				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.tacacs.tacplus_servers.#", intToString(len(o.SwitchMgmt.Tacacs.TacplusServers)))
+				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.tacacs.tacplus_servers.#", fmt.Sprintf("%d", len(o.SwitchMgmt.Tacacs.TacplusServers)))
 				for i, server := range o.SwitchMgmt.Tacacs.TacplusServers {
 					serverPath := fmt.Sprintf("switch_mgmt.tacacs.tacplus_servers.%d", i)
 
@@ -988,7 +988,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 					// Optional integer field
 					if server.Timeout != nil {
-						checks.append(t, "TestCheckResourceAttr", serverPath+".timeout", intToString(int(*server.Timeout)))
+						checks.append(t, "TestCheckResourceAttr", serverPath+".timeout", fmt.Sprintf("%d", int(*server.Timeout)))
 					}
 				}
 			}
@@ -997,7 +997,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 	if o.VrfConfig != nil {
 		if o.VrfConfig.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "vrf_config.enabled", boolToString(*o.VrfConfig.Enabled))
+			checks.append(t, "TestCheckResourceAttr", "vrf_config.enabled", fmt.Sprintf("%t", *o.VrfConfig.Enabled))
 		}
 	}
 
@@ -1011,19 +1011,19 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// Optional list fields
 			if len(tag.EtherTypes) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".ether_types.#", intToString(len(tag.EtherTypes)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".ether_types.#", fmt.Sprintf("%d", len(tag.EtherTypes)))
 				for i, etherType := range tag.EtherTypes {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.ether_types.%d", basePath, i), etherType)
 				}
 			}
 			if len(tag.Macs) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".macs.#", intToString(len(tag.Macs)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".macs.#", fmt.Sprintf("%d", len(tag.Macs)))
 				for i, mac := range tag.Macs {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.macs.%d", basePath, i), mac)
 				}
 			}
 			if len(tag.Subnets) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".subnets.#", intToString(len(tag.Subnets)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".subnets.#", fmt.Sprintf("%d", len(tag.Subnets)))
 				for i, subnet := range tag.Subnets {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.subnets.%d", basePath, i), subnet)
 				}
@@ -1031,7 +1031,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// Optional pointer fields
 			if tag.GbpTag != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".gbp_tag", intToString(int(*tag.GbpTag)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".gbp_tag", fmt.Sprintf("%d", int(*tag.GbpTag)))
 			}
 			if tag.Network != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".network", *tag.Network)
@@ -1045,7 +1045,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// Check Specs list
 			if len(tag.Specs) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".specs.#", intToString(len(tag.Specs)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".specs.#", fmt.Sprintf("%d", len(tag.Specs)))
 				for i, spec := range tag.Specs {
 					specPath := fmt.Sprintf("%s.specs.%d", basePath, i)
 					if spec.PortRange != nil {
@@ -1068,18 +1068,18 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// Optional boolean fields
 			if route.Discard != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".discard", boolToString(*route.Discard))
+				checks.append(t, "TestCheckResourceAttr", basePath+".discard", fmt.Sprintf("%t", *route.Discard))
 			}
 			if route.NoResolve != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".no_resolve", boolToString(*route.NoResolve))
+				checks.append(t, "TestCheckResourceAttr", basePath+".no_resolve", fmt.Sprintf("%t", *route.NoResolve))
 			}
 
 			// Optional integer fields
 			if route.Metric != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".metric", intToString(int(*route.Metric)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".metric", fmt.Sprintf("%d", int(*route.Metric)))
 			}
 			if route.Preference != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".preference", intToString(int(*route.Preference)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".preference", fmt.Sprintf("%d", int(*route.Preference)))
 			}
 
 			// NextQualified map
@@ -1087,10 +1087,10 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 				for nqKey, nq := range route.NextQualified {
 					nqPath := fmt.Sprintf("%s.next_qualified.%s", basePath, nqKey)
 					if nq.Metric != nil {
-						checks.append(t, "TestCheckResourceAttr", nqPath+".metric", intToString(int(*nq.Metric)))
+						checks.append(t, "TestCheckResourceAttr", nqPath+".metric", fmt.Sprintf("%d", int(*nq.Metric)))
 					}
 					if nq.Preference != nil {
-						checks.append(t, "TestCheckResourceAttr", nqPath+".preference", intToString(int(*nq.Preference)))
+						checks.append(t, "TestCheckResourceAttr", nqPath+".preference", fmt.Sprintf("%d", int(*nq.Preference)))
 					}
 				}
 			}
@@ -1106,18 +1106,18 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// Optional boolean fields
 			if route6.Discard != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".discard", boolToString(*route6.Discard))
+				checks.append(t, "TestCheckResourceAttr", basePath+".discard", fmt.Sprintf("%t", *route6.Discard))
 			}
 			if route6.NoResolve != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".no_resolve", boolToString(*route6.NoResolve))
+				checks.append(t, "TestCheckResourceAttr", basePath+".no_resolve", fmt.Sprintf("%t", *route6.NoResolve))
 			}
 
 			// Optional integer fields
 			if route6.Metric != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".metric", intToString(int(*route6.Metric)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".metric", fmt.Sprintf("%d", int(*route6.Metric)))
 			}
 			if route6.Preference != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".preference", intToString(int(*route6.Preference)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".preference", fmt.Sprintf("%d", int(*route6.Preference)))
 			}
 
 			// NextQualified map
@@ -1125,10 +1125,10 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 				for nqKey, nq := range route6.NextQualified {
 					nqPath := fmt.Sprintf("%s.next_qualified.%s", basePath, nqKey)
 					if nq.Metric != nil {
-						checks.append(t, "TestCheckResourceAttr", nqPath+".metric", intToString(int(*nq.Metric)))
+						checks.append(t, "TestCheckResourceAttr", nqPath+".metric", fmt.Sprintf("%d", int(*nq.Metric)))
 					}
 					if nq.Preference != nil {
-						checks.append(t, "TestCheckResourceAttr", nqPath+".preference", intToString(int(*nq.Preference)))
+						checks.append(t, "TestCheckResourceAttr", nqPath+".preference", fmt.Sprintf("%d", int(*nq.Preference)))
 					}
 				}
 			}
@@ -1161,7 +1161,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// Optional boolean field
 			if network.Isolation != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".isolation", boolToString(*network.Isolation))
+				checks.append(t, "TestCheckResourceAttr", basePath+".isolation", fmt.Sprintf("%t", *network.Isolation))
 			}
 		}
 	}
@@ -1172,7 +1172,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// Optional boolean field
 			if area.IncludeLoopback != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".include_loopback", boolToString(*area.IncludeLoopback))
+				checks.append(t, "TestCheckResourceAttr", basePath+".include_loopback", fmt.Sprintf("%t", *area.IncludeLoopback))
 			}
 
 			// Optional string field
@@ -1204,24 +1204,24 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 					// Optional integer fields
 					if network.BfdMinimumInterval != nil {
-						checks.append(t, "TestCheckResourceAttr", netPath+".bfd_minimum_interval", intToString(int(*network.BfdMinimumInterval)))
+						checks.append(t, "TestCheckResourceAttr", netPath+".bfd_minimum_interval", fmt.Sprintf("%d", int(*network.BfdMinimumInterval)))
 					}
 					if network.DeadInterval != nil {
-						checks.append(t, "TestCheckResourceAttr", netPath+".dead_interval", intToString(int(*network.DeadInterval)))
+						checks.append(t, "TestCheckResourceAttr", netPath+".dead_interval", fmt.Sprintf("%d", int(*network.DeadInterval)))
 					}
 					if network.HelloInterval != nil {
-						checks.append(t, "TestCheckResourceAttr", netPath+".hello_interval", intToString(int(*network.HelloInterval)))
+						checks.append(t, "TestCheckResourceAttr", netPath+".hello_interval", fmt.Sprintf("%d", int(*network.HelloInterval)))
 					}
 					if network.Metric != nil {
-						checks.append(t, "TestCheckResourceAttr", netPath+".metric", intToString(int(*network.Metric)))
+						checks.append(t, "TestCheckResourceAttr", netPath+".metric", fmt.Sprintf("%d", int(*network.Metric)))
 					}
 
 					// Optional boolean fields
 					if network.NoReadvertiseToOverlay != nil {
-						checks.append(t, "TestCheckResourceAttr", netPath+".no_readvertise_to_overlay", boolToString(*network.NoReadvertiseToOverlay))
+						checks.append(t, "TestCheckResourceAttr", netPath+".no_readvertise_to_overlay", fmt.Sprintf("%t", *network.NoReadvertiseToOverlay))
 					}
 					if network.Passive != nil {
-						checks.append(t, "TestCheckResourceAttr", netPath+".passive", boolToString(*network.Passive))
+						checks.append(t, "TestCheckResourceAttr", netPath+".passive", fmt.Sprintf("%t", *network.Passive))
 					}
 
 					// AuthKeys map
@@ -1253,21 +1253,21 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// Optional list fields
 			if len(mirror.InputNetworksIngress) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".input_networks_ingress.#", intToString(len(mirror.InputNetworksIngress)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".input_networks_ingress.#", fmt.Sprintf("%d", len(mirror.InputNetworksIngress)))
 				for i, network := range mirror.InputNetworksIngress {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.input_networks_ingress.%d", basePath, i), network)
 				}
 			}
 
 			if len(mirror.InputPortIdsEgress) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".input_port_ids_egress.#", intToString(len(mirror.InputPortIdsEgress)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".input_port_ids_egress.#", fmt.Sprintf("%d", len(mirror.InputPortIdsEgress)))
 				for i, portId := range mirror.InputPortIdsEgress {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.input_port_ids_egress.%d", basePath, i), portId)
 				}
 			}
 
 			if len(mirror.InputPortIdsIngress) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".input_port_ids_ingress.#", intToString(len(mirror.InputPortIdsIngress)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".input_port_ids_ingress.#", fmt.Sprintf("%d", len(mirror.InputPortIdsIngress)))
 				for i, portId := range mirror.InputPortIdsIngress {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.input_port_ids_ingress.%d", basePath, i), portId)
 				}
@@ -1281,79 +1281,79 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 			// Add comprehensive port usage checks
 			if usage.AllNetworks != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".all_networks", boolToString(*usage.AllNetworks))
+				checks.append(t, "TestCheckResourceAttr", basePath+".all_networks", fmt.Sprintf("%t", *usage.AllNetworks))
 			}
 			if usage.AllowDhcpd != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".allow_dhcpd", boolToString(*usage.AllowDhcpd))
+				checks.append(t, "TestCheckResourceAttr", basePath+".allow_dhcpd", fmt.Sprintf("%t", *usage.AllowDhcpd))
 			}
 			if usage.AllowMultipleSupplicants != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".allow_multiple_supplicants", boolToString(*usage.AllowMultipleSupplicants))
+				checks.append(t, "TestCheckResourceAttr", basePath+".allow_multiple_supplicants", fmt.Sprintf("%t", *usage.AllowMultipleSupplicants))
 			}
 			if usage.BypassAuthWhenServerDown != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".bypass_auth_when_server_down", boolToString(*usage.BypassAuthWhenServerDown))
+				checks.append(t, "TestCheckResourceAttr", basePath+".bypass_auth_when_server_down", fmt.Sprintf("%t", *usage.BypassAuthWhenServerDown))
 			}
 			if usage.BypassAuthWhenServerDownForUnkownClient != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".bypass_auth_when_server_down_for_unkown_client", boolToString(*usage.BypassAuthWhenServerDownForUnkownClient))
+				checks.append(t, "TestCheckResourceAttr", basePath+".bypass_auth_when_server_down_for_unkown_client", fmt.Sprintf("%t", *usage.BypassAuthWhenServerDownForUnkownClient))
 			}
 			if usage.Description != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".description", *usage.Description)
 			}
 			if usage.DisableAutoneg != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".disable_autoneg", boolToString(*usage.DisableAutoneg))
+				checks.append(t, "TestCheckResourceAttr", basePath+".disable_autoneg", fmt.Sprintf("%t", *usage.DisableAutoneg))
 			}
 			if usage.Disabled != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".disabled", boolToString(*usage.Disabled))
+				checks.append(t, "TestCheckResourceAttr", basePath+".disabled", fmt.Sprintf("%t", *usage.Disabled))
 			}
 			if usage.Duplex != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".duplex", *usage.Duplex)
 			}
 			if len(usage.DynamicVlanNetworks) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".dynamic_vlan_networks.#", intToString(len(usage.DynamicVlanNetworks)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".dynamic_vlan_networks.#", fmt.Sprintf("%d", len(usage.DynamicVlanNetworks)))
 				for i, network := range usage.DynamicVlanNetworks {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.dynamic_vlan_networks.%d", basePath, i), network)
 				}
 			}
 			if usage.EnableMacAuth != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".enable_mac_auth", boolToString(*usage.EnableMacAuth))
+				checks.append(t, "TestCheckResourceAttr", basePath+".enable_mac_auth", fmt.Sprintf("%t", *usage.EnableMacAuth))
 			}
 			if usage.EnableQos != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".enable_qos", boolToString(*usage.EnableQos))
+				checks.append(t, "TestCheckResourceAttr", basePath+".enable_qos", fmt.Sprintf("%t", *usage.EnableQos))
 			}
 			if usage.GuestNetwork != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".guest_network", *usage.GuestNetwork)
 			}
 			if usage.InterSwitchLink != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".inter_switch_link", boolToString(*usage.InterSwitchLink))
+				checks.append(t, "TestCheckResourceAttr", basePath+".inter_switch_link", fmt.Sprintf("%t", *usage.InterSwitchLink))
 			}
 			if usage.MacAuthOnly != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".mac_auth_only", boolToString(*usage.MacAuthOnly))
+				checks.append(t, "TestCheckResourceAttr", basePath+".mac_auth_only", fmt.Sprintf("%t", *usage.MacAuthOnly))
 			}
 			if usage.MacAuthPreferred != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".mac_auth_preferred", boolToString(*usage.MacAuthPreferred))
+				checks.append(t, "TestCheckResourceAttr", basePath+".mac_auth_preferred", fmt.Sprintf("%t", *usage.MacAuthPreferred))
 			}
 			if usage.MacAuthProtocol != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".mac_auth_protocol", *usage.MacAuthProtocol)
 			}
 			if usage.MacLimit != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".mac_limit", intToString(int(*usage.MacLimit)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".mac_limit", fmt.Sprintf("%d", int(*usage.MacLimit)))
 			}
 			if usage.Mode != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".mode", *usage.Mode)
 			}
 			if usage.Mtu != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".mtu", intToString(int(*usage.Mtu)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".mtu", fmt.Sprintf("%d", int(*usage.Mtu)))
 			}
 			if len(usage.Networks) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".networks.#", intToString(len(usage.Networks)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".networks.#", fmt.Sprintf("%d", len(usage.Networks)))
 				for i, network := range usage.Networks {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.networks.%d", basePath, i), network)
 				}
 			}
 			if usage.PersistMac != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".persist_mac", boolToString(*usage.PersistMac))
+				checks.append(t, "TestCheckResourceAttr", basePath+".persist_mac", fmt.Sprintf("%t", *usage.PersistMac))
 			}
 			if usage.PoeDisabled != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".poe_disabled", boolToString(*usage.PoeDisabled))
+				checks.append(t, "TestCheckResourceAttr", basePath+".poe_disabled", fmt.Sprintf("%t", *usage.PoeDisabled))
 			}
 			if usage.PortAuth != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".port_auth", *usage.PortAuth)
@@ -1362,13 +1362,13 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 				checks.append(t, "TestCheckResourceAttr", basePath+".port_network", *usage.PortNetwork)
 			}
 			if usage.ReauthInterval != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".reauth_interval", intToString(int(*usage.ReauthInterval)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".reauth_interval", fmt.Sprintf("%d", int(*usage.ReauthInterval)))
 			}
 			if usage.ResetDefaultWhen != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".reset_default_when", *usage.ResetDefaultWhen)
 			}
 			if len(usage.Rules) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".rules.#", intToString(len(usage.Rules)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".rules.#", fmt.Sprintf("%d", len(usage.Rules)))
 				for i, rule := range usage.Rules {
 					rulePath := fmt.Sprintf("%s.rules.%d", basePath, i)
 
@@ -1388,7 +1388,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 
 					// EqualsAny list
 					if len(rule.EqualsAny) > 0 {
-						checks.append(t, "TestCheckResourceAttr", rulePath+".equals_any.#", intToString(len(rule.EqualsAny)))
+						checks.append(t, "TestCheckResourceAttr", rulePath+".equals_any.#", fmt.Sprintf("%d", len(rule.EqualsAny)))
 						for j, equalsAny := range rule.EqualsAny {
 							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.equals_any.%d", rulePath, j), equalsAny)
 						}
@@ -1406,38 +1406,38 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 			}
 			if usage.StormControl != nil {
 				if usage.StormControl.DisablePort != nil {
-					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.disable_port", boolToString(*usage.StormControl.DisablePort))
+					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.disable_port", fmt.Sprintf("%t", *usage.StormControl.DisablePort))
 				}
 				if usage.StormControl.NoBroadcast != nil {
-					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.no_broadcast", boolToString(*usage.StormControl.NoBroadcast))
+					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.no_broadcast", fmt.Sprintf("%t", *usage.StormControl.NoBroadcast))
 				}
 				if usage.StormControl.NoMulticast != nil {
-					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.no_multicast", boolToString(*usage.StormControl.NoMulticast))
+					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.no_multicast", fmt.Sprintf("%t", *usage.StormControl.NoMulticast))
 				}
 				if usage.StormControl.NoRegisteredMulticast != nil {
-					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.no_registered_multicast", boolToString(*usage.StormControl.NoRegisteredMulticast))
+					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.no_registered_multicast", fmt.Sprintf("%t", *usage.StormControl.NoRegisteredMulticast))
 				}
 				if usage.StormControl.NoUnknownUnicast != nil {
-					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.no_unknown_unicast", boolToString(*usage.StormControl.NoUnknownUnicast))
+					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.no_unknown_unicast", fmt.Sprintf("%t", *usage.StormControl.NoUnknownUnicast))
 				}
 				if usage.StormControl.Percentage != nil {
-					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.percentage", intToString(int(*usage.StormControl.Percentage)))
+					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.percentage", fmt.Sprintf("%d", int(*usage.StormControl.Percentage)))
 				}
 			}
 			if usage.StpEdge != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".stp_edge", boolToString(*usage.StpEdge))
+				checks.append(t, "TestCheckResourceAttr", basePath+".stp_edge", fmt.Sprintf("%t", *usage.StpEdge))
 			}
 			if usage.StpNoRootPort != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".stp_no_root_port", boolToString(*usage.StpNoRootPort))
+				checks.append(t, "TestCheckResourceAttr", basePath+".stp_no_root_port", fmt.Sprintf("%t", *usage.StpNoRootPort))
 			}
 			if usage.StpP2p != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".stp_p2p", boolToString(*usage.StpP2p))
+				checks.append(t, "TestCheckResourceAttr", basePath+".stp_p2p", fmt.Sprintf("%t", *usage.StpP2p))
 			}
 			if usage.UiEvpntopoId != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".ui_evpntopo_id", *usage.UiEvpntopoId)
 			}
 			if usage.UseVstp != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".use_vstp", boolToString(*usage.UseVstp))
+				checks.append(t, "TestCheckResourceAttr", basePath+".use_vstp", fmt.Sprintf("%t", *usage.UseVstp))
 			}
 			if usage.VoipNetwork != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".voip_network", *usage.VoipNetwork)
@@ -1450,7 +1450,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 			basePath := fmt.Sprintf("vrf_instances.%s", key)
 
 			if len(instance.Networks) > 0 {
-				checks.append(t, "TestCheckResourceAttr", basePath+".networks.#", intToString(len(instance.Networks)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".networks.#", fmt.Sprintf("%d", len(instance.Networks)))
 				for i, network := range instance.Networks {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.networks.%d", basePath, i), network)
 				}
