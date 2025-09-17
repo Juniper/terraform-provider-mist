@@ -6,7 +6,6 @@ type OrgInventoryModel struct {
 }
 
 type InventoryValue struct {
-	// All inventory nested fields for comprehensive testing
 	SiteId               *string `cty:"site_id" hcl:"site_id"`
 	UnclaimWhenDestroyed *bool   `cty:"unclaim_when_destroyed" hcl:"unclaim_when_destroyed"`
 }

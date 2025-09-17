@@ -41,7 +41,7 @@ func TestOrgNacruleModel(t *testing.T) {
 		fmt.Print(err)
 	}
 
-	str := string(b) // convert content to a 'string'
+	str := string(b)
 	fixtures := strings.Split(str, "␞")
 
 	for i, fixture := range fixtures {
@@ -60,9 +60,9 @@ func TestOrgNacruleModel(t *testing.T) {
 		}
 	}
 
+	resourceType := "org_nacrule"
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "org_nacrule"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {

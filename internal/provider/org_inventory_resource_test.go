@@ -97,7 +97,7 @@ func TestOrgInventoryModel(t *testing.T) {
 
 				// log config and checks here
 				t.Logf("\n// ------ begin config for %s ------\n%s// -------- end config for %s ------\n\n", stepName, combinedConfig, stepName)
-				t.Logf("\n// ------ begin checks for %s ------\n%s// -------- end config for %s ------\n\n", stepName, chkLog, stepName)
+				t.Logf("\n// ------ begin checks for %s ------\n%s// -------- end checks for %s ------\n\n", stepName, chkLog, stepName)
 
 				steps[i] = resource.TestStep{
 					Config: combinedConfig,
