@@ -1,8 +1,8 @@
-# Comprehensive Test Implementation Guide for Terraform Provider Mist Resources
+# Test Implementation Guide for Terraform Provider Mist Resources
 
 ## Overview
 
-This guide provides a complete template for implementing comprehensive test coverage for any resource in the terraform-provider-mist codebase, following established patterns and conventions.
+This guide provides a complete template for implementing test coverage for any resource in the terraform-provider-mist codebase, following established patterns and conventions.
 
 ## Part 1: Field Analysis & Discovery
 
@@ -371,7 +371,7 @@ Standard test environment variables (all must be set):
 - **Exact structure**: Follow site_wlan_resource_test.go pattern precisely for standard resources
 - **No deviations**: Use established conventions without modifications
 - **Integration ready**: Include provider configuration and site handling
-- **Comprehensive fixtures**: Cover all configurable fields with realistic values
+- **Fixtures**: Cover ALL configurable fields with realistic values
 - **Specialized cases**: Use org_inventory_resource_test.go pattern for nested site references
 
 ## Common Pitfalls to Avoid
@@ -390,6 +390,7 @@ Standard test environment variables (all must be set):
 12. **Don't use fake data when real data is available** - prefer real MAC addresses, device IDs, etc.
 13. **Don't create duplicate site names** - ensure test sites are cleaned up or use unique names
 14. **Use longer timeouts for tests** - Real API integration tests need time. Use `-timeout=10m` for complex resources
+15. **DO NOT FLUFF UP VARIABLE, FUNCTION OR FIELD NAMES WITH "COMPREHENSIVE" PREFIXES AND OTHER NONSENSE!**
 
 **Most Important: Accept that test coverage will be limited by the generated test structs. Focus on testing available fields thoroughly rather than achieving 100% coverage.**
 
