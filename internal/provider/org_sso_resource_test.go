@@ -64,9 +64,9 @@ func TestOrgSsoModel(t *testing.T) {
 		}
 	}
 
+	resourceType := "org_sso"
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "org_sso"
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config

@@ -59,9 +59,9 @@ func TestOrgSettingModel(t *testing.T) {
 		}
 	}
 
+	resourceType := "org_setting"
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "org_setting"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
