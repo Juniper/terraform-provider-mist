@@ -44,6 +44,9 @@ func matchingTerraformToSdk(d MatchingValue) *models.NacRuleMatching {
 		data.PortTypes = matchingPortTypesTerraformToSdk(d.PortTypes)
 	}
 	if !d.SiteIds.IsNull() && !d.SiteIds.IsUnknown() {
+		data.SiteIds = mistutils.ListOfUuidTerraformToSdk(d.SiteIds)
+	}
+	if !d.SitegroupIds.IsNull() && !d.SitegroupIds.IsUnknown() {
 		data.SitegroupIds = mistutils.ListOfUuidTerraformToSdk(d.SitegroupIds)
 	}
 	if !d.Vendor.IsNull() && !d.Vendor.IsUnknown() {
@@ -78,6 +81,9 @@ func notMatchingTerraformToSdk(d NotMatchingValue) *models.NacRuleMatching {
 		data.PortTypes = matchingPortTypesTerraformToSdk(d.PortTypes)
 	}
 	if !d.SiteIds.IsNull() && !d.SiteIds.IsUnknown() {
+		data.SiteIds = mistutils.ListOfUuidTerraformToSdk(d.SiteIds)
+	}
+	if !d.SitegroupIds.IsNull() && !d.SitegroupIds.IsUnknown() {
 		data.SitegroupIds = mistutils.ListOfUuidTerraformToSdk(d.SitegroupIds)
 	}
 	if !d.Vendor.IsNull() && !d.Vendor.IsUnknown() {

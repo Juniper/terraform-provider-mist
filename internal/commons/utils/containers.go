@@ -270,6 +270,16 @@ func SponsorLinkValidityDurationAsString(bgpAs *models.SponsorLinkValidityDurati
 	}
 }
 
+func GbpTagAsString(gbpTag models.NacTagGbpTag) basetypes.StringValue {
+	if v, ok := gbpTag.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := gbpTag.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
 func WlanLimitAsString(bgpAs *models.WlanLimit) basetypes.StringValue {
 	if v, ok := bgpAs.AsString(); ok {
 		return types.StringValue(*v)

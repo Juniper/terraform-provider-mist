@@ -27,6 +27,7 @@ func SdkToTerraform(data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
 	var radiusVendorAttrs = types.ListNull(types.StringType)
 	var sessionTimeout types.Int64
 	var typeNactag types.String
+	var usernameAttr types.String
 	var values = types.ListNull(types.StringType)
 	var vlan types.String
 
@@ -37,7 +38,7 @@ func SdkToTerraform(data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
 		egressVlanNames = mistutils.ListOfStringSdkToTerraform(data.EgressVlanNames)
 	}
 	if data.GbpTag != nil {
-		gbpTag = types.StringValue(data.GbpTag.String())
+		gbpTag = mistutils.GbpTagAsString(*data.GbpTag)
 	}
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
@@ -70,6 +71,9 @@ func SdkToTerraform(data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
 		sessionTimeout = types.Int64Value(int64(*data.SessionTimeout))
 	}
 	typeNactag = types.StringValue(string(data.Type))
+	if data.UsernameAttr != nil {
+		usernameAttr = types.StringValue(string(*data.UsernameAttr))
+	}
 	if data.Values != nil {
 		values = mistutils.ListOfStringSdkToTerraform(data.Values)
 	}
@@ -91,6 +95,7 @@ func SdkToTerraform(data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
 	state.RadiusVendorAttrs = radiusVendorAttrs
 	state.SessionTimeout = sessionTimeout
 	state.Type = typeNactag
+	state.UsernameAttr = usernameAttr
 	state.Values = values
 	state.Vlan = vlan
 
