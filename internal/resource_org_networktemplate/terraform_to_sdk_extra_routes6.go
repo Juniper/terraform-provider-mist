@@ -26,7 +26,7 @@ func extraRoutes6TerraformToSdk(d basetypes.MapValue) map[string]models.ExtraRou
 	data := make(map[string]models.ExtraRoute6)
 	for k, v := range d.Elements() {
 		var vInterface interface{} = v
-		vPlan := vInterface.(ExtraRoutesValue)
+		vPlan := vInterface.(ExtraRoutes6Value)
 
 		vData := models.ExtraRoute6{}
 		if vPlan.Discard.ValueBoolPointer() != nil {

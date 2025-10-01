@@ -48,7 +48,7 @@ func TestOrgAlarmtemplate(t *testing.T) {
 	}
 
 	str := string(b) // convert content to a 'string'
-	fixtures := strings.Split(str, "$")
+	fixtures := strings.Split(str, "␞")
 
 	for i, fixture := range fixtures {
 		FixtureOrgAlarmtemplateModel := OrgAlarmtemplateModel{}
