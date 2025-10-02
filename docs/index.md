@@ -25,7 +25,10 @@ This provider can be used with the following Mist Clouds:
 * EMEA 01 (api.eu.mist.com)
 * EMEA 02 (api.gc3.mist.com)
 * EMEA 03 (api.ac6.mist.com)
+* EMEA 04 (api.gc6.mist.com)
 * APAC 01 (api.ac5.mist.com)
+* APAC 02 (api.gc5.mist.com)
+* APAC 03 (api.gc7.mist.com)
 
 ## Configuration
 

@@ -74,7 +74,10 @@ func (p *mistProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp 
 			"* EMEA 01 (api.eu.mist.com)\n" +
 			"* EMEA 02 (api.gc3.mist.com)\n" +
 			"* EMEA 03 (api.ac6.mist.com)\n" +
-			"* APAC 01 (api.ac5.mist.com)",
+			"* EMEA 04 (api.gc6.mist.com)\n" +
+			"* APAC 01 (api.ac5.mist.com)\n" +
+			"* APAC 02 (api.gc5.mist.com)\n" +
+			"* APAC 03 (api.gc7.mist.com)",
 		Attributes: map[string]schema.Attribute{
 			"host": schema.StringAttribute{
 				MarkdownDescription: "URL of the Mist Cloud, e.g. `api.mist.com`.",
@@ -274,8 +277,14 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		mistCloud = mistapi.MIST_EMEA_02
 	case "api.ac6.mist.com":
 		mistCloud = mistapi.MIST_EMEA_03
+	case "api.gc6.mist.com":
+		mistCloud = mistapi.MIST_EMEA_04
 	case "api.ac5.mist.com":
 		mistCloud = mistapi.MIST_APAC_01
+	case "api.gc5.mist.com":
+		mistCloud = mistapi.MIST_APAC_02
+	case "api.gc7.mist.com":
+		mistCloud = mistapi.MIST_APAC_03
 	case "api.mistsys.com":
 		mistCloud = mistapi.AWS_STAGING
 	case "api.us.mist-federal.com":
