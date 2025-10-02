@@ -133,9 +133,11 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var serverRejectNetwork basetypes.StringValue
 		var speed basetypes.StringValue
 		var stormControl = types.ObjectNull(StormControlValue{}.AttributeTypes(ctx))
+		var stpDisable basetypes.BoolValue
 		var stpEdge basetypes.BoolValue
 		var stpNoRootPort basetypes.BoolValue
 		var stpP2p basetypes.BoolValue
+		var stpRequired basetypes.BoolValue
 		var useVstp basetypes.BoolValue
 		var voipNetwork basetypes.StringValue
 
@@ -241,6 +243,9 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.StormControl != nil {
 			stormControl = portUsageStormControlSdkToTerraform(ctx, diags, *d.StormControl)
 		}
+		if d.StpDisable != nil {
+			stpDisable = types.BoolValue(*d.StpDisable)
+		}
 		if d.StpEdge != nil {
 			stpEdge = types.BoolValue(*d.StpEdge)
 		}
@@ -249,6 +254,9 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		}
 		if d.StpP2p != nil {
 			stpP2p = types.BoolValue(*d.StpP2p)
+		}
+		if d.StpRequired != nil {
+			stpRequired = types.BoolValue(*d.StpRequired)
 		}
 		if d.UseVstp != nil {
 			useVstp = types.BoolValue(*d.UseVstp)
@@ -292,9 +300,11 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"server_reject_network":                           serverRejectNetwork,
 			"speed":                                           speed,
 			"storm_control":                                   stormControl,
+			"stp_disable":                                     stpDisable,
 			"stp_edge":                                        stpEdge,
 			"stp_no_root_port":                                stpNoRootPort,
 			"stp_p2p":                                         stpP2p,
+			"stp_required":                                    stpRequired,
 			"use_vstp":                                        useVstp,
 			"voip_network":                                    voipNetwork,
 		}
