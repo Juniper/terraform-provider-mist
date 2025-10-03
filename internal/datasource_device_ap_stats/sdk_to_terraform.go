@@ -40,7 +40,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var eslStat = types.ObjectNull(EslStatValue{}.AttributeTypes(ctx))
 	var extIp basetypes.StringValue
 	var fwupdate = types.ObjectNull(FwupdateValue{}.AttributeTypes(ctx))
-	var gps = types.ObjectNull(GpsValue{}.AttributeTypes(ctx))
+	var gpsStats = types.ObjectNull(GpsValue{}.AttributeTypes(ctx))
 	var hwRev basetypes.StringValue
 	var id basetypes.StringValue
 	var inactiveWiredVlans = types.ListNull(types.Int64Type)
@@ -129,8 +129,8 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.Fwupdate != nil {
 		fwupdate = fwupdateSdkToTerraform(ctx, diags, d.Fwupdate)
 	}
-	if d.Gps != nil {
-		gps = gpsStatsSdkToTerraform(ctx, diags, d.Gps)
+	if d.GpsStat != nil {
+		gpsStats = gpsStatsSdkToTerraform(ctx, diags, d.GpsStat)
 	}
 	if d.HwRev.Value() != nil {
 		hwRev = types.StringValue(*d.HwRev.Value())
@@ -291,7 +291,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		"esl_stat":             eslStat,
 		"ext_ip":               extIp,
 		"fwupdate":             fwupdate,
-		"gps":                  gps,
+		"gps":                  gpsStats,
 		"hw_rev":               hwRev,
 		"id":                   id,
 		"inactive_wired_vlans": inactiveWiredVlans,
