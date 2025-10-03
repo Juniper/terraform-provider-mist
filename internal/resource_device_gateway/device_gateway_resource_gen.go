@@ -308,13 +308,16 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
 											"ip": schema.StringAttribute{
-												Required: true,
+												Optional: true,
 												Validators: []validator.String{
 													mistvalidator.ParseIp(true, false),
 												},
 											},
 											"ip6": schema.StringAttribute{
 												Optional: true,
+												Validators: []validator.String{
+													mistvalidator.ParseIp(false, true),
+												},
 											},
 											"name": schema.StringAttribute{
 												Optional: true,
@@ -332,6 +335,11 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 										mapvalidator.KeysAre(mistvalidator.ParseMac()),
+										mistvalidator.AtLeastNOf(
+											1,
+											path.MatchRelative().AtName("ip"),
+											path.MatchRelative().AtName("ip6"),
+										),
 									},
 								},
 								"gateway": schema.StringAttribute{
@@ -2097,6 +2105,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Only if `usage`==`wan`, optional. If spoke should reach this port by a different IPv6",
 							MarkdownDescription: "Only if `usage`==`wan`, optional. If spoke should reach this port by a different IPv6",
+							Validators: []validator.String{
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan")),
+							},
 						},
 						"wan_extra_routes": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
