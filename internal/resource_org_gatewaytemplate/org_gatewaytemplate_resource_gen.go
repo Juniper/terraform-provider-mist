@@ -302,9 +302,15 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
 											"ip": schema.StringAttribute{
-												Required: true,
+												Optional: true,
 												Validators: []validator.String{
 													mistvalidator.ParseIp(true, false),
+												},
+											},
+											"ip6": schema.StringAttribute{
+												Optional: true,
+												Validators: []validator.String{
+													mistvalidator.ParseIp(false, true),
 												},
 											},
 											"name": schema.StringAttribute{
@@ -323,6 +329,11 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 										mapvalidator.KeysAre(mistvalidator.ParseMac()),
+										mistvalidator.AtLeastNOf(
+											1,
+											path.MatchRelative().AtName("ip"),
+											path.MatchRelative().AtName("ip6"),
+										),
 									},
 								},
 								"gateway": schema.StringAttribute{
@@ -2050,6 +2061,14 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan")),
 							},
 						},
+						"wan_ext_ip6": schema.StringAttribute{
+							Optional:            true,
+							Description:         "Only if `usage`==`wan`, optional. If spoke should reach this port by a different IPv6",
+							MarkdownDescription: "Only if `usage`==`wan`, optional. If spoke should reach this port by a different IPv6",
+							Validators: []validator.String{
+								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan")),
+							},
+						},
 						"wan_extra_routes": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -2151,6 +2170,11 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Or to disable the source-nat",
 									MarkdownDescription: "Or to disable the source-nat",
+								},
+								"nat6_pool": schema.StringAttribute{
+									Optional:            true,
+									Description:         "If alternative nat_pool is desired",
+									MarkdownDescription: "If alternative nat_pool is desired",
 								},
 								"nat_pool": schema.StringAttribute{
 									Optional:            true,
@@ -3367,6 +3391,11 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Default: stringdefault.StaticString("standalone"),
 			},
+			"url_filtering_deny_msg": schema.StringAttribute{
+				Optional:            true,
+				Description:         "When a service policy denies a app_category, what message to show in user's browser",
+				MarkdownDescription: "When a service policy denies a app_category, what message to show in user's browser",
+			},
 			"vrf_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
@@ -3437,6 +3466,7 @@ type OrgGatewaytemplateModel struct {
 	TunnelConfigs           types.Map                  `tfsdk:"tunnel_configs"`
 	TunnelProviderOptions   TunnelProviderOptionsValue `tfsdk:"tunnel_provider_options"`
 	Type                    types.String               `tfsdk:"type"`
+	UrlFilteringDenyMsg     types.String               `tfsdk:"url_filtering_deny_msg"`
 	VrfConfig               VrfConfigValue             `tfsdk:"vrf_config"`
 	VrfInstances            types.Map                  `tfsdk:"vrf_instances"`
 }
@@ -7526,6 +7556,24 @@ func (t FixedBindingsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`ip expected to be basetypes.StringValue, was: %T`, ipAttribute))
 	}
 
+	ip6Attribute, ok := attributes["ip6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ip6 is missing from object`)
+
+		return nil, diags
+	}
+
+	ip6Val, ok := ip6Attribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ip6 expected to be basetypes.StringValue, was: %T`, ip6Attribute))
+	}
+
 	nameAttribute, ok := attributes["name"]
 
 	if !ok {
@@ -7550,6 +7598,7 @@ func (t FixedBindingsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 
 	return FixedBindingsValue{
 		Ip:    ipVal,
+		Ip6:   ip6Val,
 		Name:  nameVal,
 		state: attr.ValueStateKnown,
 	}, diags
@@ -7636,6 +7685,24 @@ func NewFixedBindingsValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`ip expected to be basetypes.StringValue, was: %T`, ipAttribute))
 	}
 
+	ip6Attribute, ok := attributes["ip6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ip6 is missing from object`)
+
+		return NewFixedBindingsValueUnknown(), diags
+	}
+
+	ip6Val, ok := ip6Attribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ip6 expected to be basetypes.StringValue, was: %T`, ip6Attribute))
+	}
+
 	nameAttribute, ok := attributes["name"]
 
 	if !ok {
@@ -7660,6 +7727,7 @@ func NewFixedBindingsValue(attributeTypes map[string]attr.Type, attributes map[s
 
 	return FixedBindingsValue{
 		Ip:    ipVal,
+		Ip6:   ip6Val,
 		Name:  nameVal,
 		state: attr.ValueStateKnown,
 	}, diags
@@ -7734,24 +7802,26 @@ var _ basetypes.ObjectValuable = FixedBindingsValue{}
 
 type FixedBindingsValue struct {
 	Ip    basetypes.StringValue `tfsdk:"ip"`
+	Ip6   basetypes.StringValue `tfsdk:"ip6"`
 	Name  basetypes.StringValue `tfsdk:"name"`
 	state attr.ValueState
 }
 
 func (v FixedBindingsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["ip"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["ip6"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 3)
 
 		val, err = v.Ip.ToTerraformValue(ctx)
 
@@ -7760,6 +7830,14 @@ func (v FixedBindingsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		}
 
 		vals["ip"] = val
+
+		val, err = v.Ip6.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ip6"] = val
 
 		val, err = v.Name.ToTerraformValue(ctx)
 
@@ -7800,6 +7878,7 @@ func (v FixedBindingsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 
 	attributeTypes := map[string]attr.Type{
 		"ip":   basetypes.StringType{},
+		"ip6":  basetypes.StringType{},
 		"name": basetypes.StringType{},
 	}
 
@@ -7815,6 +7894,7 @@ func (v FixedBindingsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		attributeTypes,
 		map[string]attr.Value{
 			"ip":   v.Ip,
+			"ip6":  v.Ip6,
 			"name": v.Name,
 		})
 
@@ -7840,6 +7920,10 @@ func (v FixedBindingsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Ip6.Equal(other.Ip6) {
+		return false
+	}
+
 	if !v.Name.Equal(other.Name) {
 		return false
 	}
@@ -7858,6 +7942,7 @@ func (v FixedBindingsValue) Type(ctx context.Context) attr.Type {
 func (v FixedBindingsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"ip":   basetypes.StringType{},
+		"ip6":  basetypes.StringType{},
 		"name": basetypes.StringType{},
 	}
 }
@@ -21415,6 +21500,24 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`wan_ext_ip expected to be basetypes.StringValue, was: %T`, wanExtIpAttribute))
 	}
 
+	wanExtIp6Attribute, ok := attributes["wan_ext_ip6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`wan_ext_ip6 is missing from object`)
+
+		return nil, diags
+	}
+
+	wanExtIp6Val, ok := wanExtIp6Attribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`wan_ext_ip6 expected to be basetypes.StringValue, was: %T`, wanExtIp6Attribute))
+	}
+
 	wanExtraRoutesAttribute, ok := attributes["wan_extra_routes"]
 
 	if !ok {
@@ -21568,6 +21671,7 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 		WanArpPolicer:       wanArpPolicerVal,
 		WanDisableSpeedtest: wanDisableSpeedtestVal,
 		WanExtIp:            wanExtIpVal,
+		WanExtIp6:           wanExtIp6Val,
 		WanExtraRoutes:      wanExtraRoutesVal,
 		WanExtraRoutes6:     wanExtraRoutes6Val,
 		WanNetworks:         wanNetworksVal,
@@ -22361,6 +22465,24 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`wan_ext_ip expected to be basetypes.StringValue, was: %T`, wanExtIpAttribute))
 	}
 
+	wanExtIp6Attribute, ok := attributes["wan_ext_ip6"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`wan_ext_ip6 is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	wanExtIp6Val, ok := wanExtIp6Attribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`wan_ext_ip6 expected to be basetypes.StringValue, was: %T`, wanExtIp6Attribute))
+	}
+
 	wanExtraRoutesAttribute, ok := attributes["wan_extra_routes"]
 
 	if !ok {
@@ -22514,6 +22636,7 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 		WanArpPolicer:       wanArpPolicerVal,
 		WanDisableSpeedtest: wanDisableSpeedtestVal,
 		WanExtIp:            wanExtIpVal,
+		WanExtIp6:           wanExtIp6Val,
 		WanExtraRoutes:      wanExtraRoutesVal,
 		WanExtraRoutes6:     wanExtraRoutes6Val,
 		WanNetworks:         wanNetworksVal,
@@ -22632,6 +22755,7 @@ type PortConfigValue struct {
 	WanArpPolicer       basetypes.StringValue `tfsdk:"wan_arp_policer"`
 	WanDisableSpeedtest basetypes.BoolValue   `tfsdk:"wan_disable_speedtest"`
 	WanExtIp            basetypes.StringValue `tfsdk:"wan_ext_ip"`
+	WanExtIp6           basetypes.StringValue `tfsdk:"wan_ext_ip6"`
 	WanExtraRoutes      basetypes.MapValue    `tfsdk:"wan_extra_routes"`
 	WanExtraRoutes6     basetypes.MapValue    `tfsdk:"wan_extra_routes6"`
 	WanNetworks         basetypes.ListValue   `tfsdk:"wan_networks"`
@@ -22642,7 +22766,7 @@ type PortConfigValue struct {
 }
 
 func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 46)
+	attrTypes := make(map[string]tftypes.Type, 47)
 
 	var val tftypes.Value
 	var err error
@@ -22697,6 +22821,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["wan_arp_policer"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["wan_disable_speedtest"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["wan_ext_ip"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["wan_ext_ip6"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["wan_extra_routes"] = basetypes.MapType{
 		ElemType: WanExtraRoutesValue{}.Type(ctx),
 	}.TerraformType(ctx)
@@ -22718,7 +22843,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 46)
+		vals := make(map[string]tftypes.Value, 47)
 
 		val, err = v.AeDisableLacp.ToTerraformValue(ctx)
 
@@ -23040,6 +23165,14 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["wan_ext_ip"] = val
 
+		val, err = v.WanExtIp6.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["wan_ext_ip6"] = val
+
 		val, err = v.WanExtraRoutes.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -23352,6 +23485,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"wan_arp_policer":       basetypes.StringType{},
 			"wan_disable_speedtest": basetypes.BoolType{},
 			"wan_ext_ip":            basetypes.StringType{},
+			"wan_ext_ip6":           basetypes.StringType{},
 			"wan_extra_routes": basetypes.MapType{
 				ElemType: WanExtraRoutesValue{}.Type(ctx),
 			},
@@ -23435,6 +23569,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"wan_arp_policer":       basetypes.StringType{},
 			"wan_disable_speedtest": basetypes.BoolType{},
 			"wan_ext_ip":            basetypes.StringType{},
+			"wan_ext_ip6":           basetypes.StringType{},
 			"wan_extra_routes": basetypes.MapType{
 				ElemType: WanExtraRoutesValue{}.Type(ctx),
 			},
@@ -23518,6 +23653,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"wan_arp_policer":       basetypes.StringType{},
 			"wan_disable_speedtest": basetypes.BoolType{},
 			"wan_ext_ip":            basetypes.StringType{},
+			"wan_ext_ip6":           basetypes.StringType{},
 			"wan_extra_routes": basetypes.MapType{
 				ElemType: WanExtraRoutesValue{}.Type(ctx),
 			},
@@ -23588,6 +23724,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"wan_arp_policer":       basetypes.StringType{},
 		"wan_disable_speedtest": basetypes.BoolType{},
 		"wan_ext_ip":            basetypes.StringType{},
+		"wan_ext_ip6":           basetypes.StringType{},
 		"wan_extra_routes": basetypes.MapType{
 			ElemType: WanExtraRoutesValue{}.Type(ctx),
 		},
@@ -23657,6 +23794,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"wan_arp_policer":       v.WanArpPolicer,
 			"wan_disable_speedtest": v.WanDisableSpeedtest,
 			"wan_ext_ip":            v.WanExtIp,
+			"wan_ext_ip6":           v.WanExtIp6,
 			"wan_extra_routes":      wanExtraRoutes,
 			"wan_extra_routes6":     wanExtraRoutes6,
 			"wan_networks":          wanNetworksVal,
@@ -23843,6 +23981,10 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.WanExtIp6.Equal(other.WanExtIp6) {
+		return false
+	}
+
 	if !v.WanExtraRoutes.Equal(other.WanExtraRoutes) {
 		return false
 	}
@@ -23930,6 +24072,7 @@ func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"wan_arp_policer":       basetypes.StringType{},
 		"wan_disable_speedtest": basetypes.BoolType{},
 		"wan_ext_ip":            basetypes.StringType{},
+		"wan_ext_ip6":           basetypes.StringType{},
 		"wan_extra_routes": basetypes.MapType{
 			ElemType: WanExtraRoutesValue{}.Type(ctx),
 		},
@@ -27288,6 +27431,24 @@ func (t WanSourceNatType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
 	}
 
+	nat6PoolAttribute, ok := attributes["nat6_pool"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`nat6_pool is missing from object`)
+
+		return nil, diags
+	}
+
+	nat6PoolVal, ok := nat6PoolAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`nat6_pool expected to be basetypes.StringValue, was: %T`, nat6PoolAttribute))
+	}
+
 	natPoolAttribute, ok := attributes["nat_pool"]
 
 	if !ok {
@@ -27312,6 +27473,7 @@ func (t WanSourceNatType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	return WanSourceNatValue{
 		Disabled: disabledVal,
+		Nat6Pool: nat6PoolVal,
 		NatPool:  natPoolVal,
 		state:    attr.ValueStateKnown,
 	}, diags
@@ -27398,6 +27560,24 @@ func NewWanSourceNatValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
 	}
 
+	nat6PoolAttribute, ok := attributes["nat6_pool"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`nat6_pool is missing from object`)
+
+		return NewWanSourceNatValueUnknown(), diags
+	}
+
+	nat6PoolVal, ok := nat6PoolAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`nat6_pool expected to be basetypes.StringValue, was: %T`, nat6PoolAttribute))
+	}
+
 	natPoolAttribute, ok := attributes["nat_pool"]
 
 	if !ok {
@@ -27422,6 +27602,7 @@ func NewWanSourceNatValue(attributeTypes map[string]attr.Type, attributes map[st
 
 	return WanSourceNatValue{
 		Disabled: disabledVal,
+		Nat6Pool: nat6PoolVal,
 		NatPool:  natPoolVal,
 		state:    attr.ValueStateKnown,
 	}, diags
@@ -27496,24 +27677,26 @@ var _ basetypes.ObjectValuable = WanSourceNatValue{}
 
 type WanSourceNatValue struct {
 	Disabled basetypes.BoolValue   `tfsdk:"disabled"`
+	Nat6Pool basetypes.StringValue `tfsdk:"nat6_pool"`
 	NatPool  basetypes.StringValue `tfsdk:"nat_pool"`
 	state    attr.ValueState
 }
 
 func (v WanSourceNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["nat6_pool"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["nat_pool"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 3)
 
 		val, err = v.Disabled.ToTerraformValue(ctx)
 
@@ -27522,6 +27705,14 @@ func (v WanSourceNatValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 		}
 
 		vals["disabled"] = val
+
+		val, err = v.Nat6Pool.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["nat6_pool"] = val
 
 		val, err = v.NatPool.ToTerraformValue(ctx)
 
@@ -27561,8 +27752,9 @@ func (v WanSourceNatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"disabled": basetypes.BoolType{},
-		"nat_pool": basetypes.StringType{},
+		"disabled":  basetypes.BoolType{},
+		"nat6_pool": basetypes.StringType{},
+		"nat_pool":  basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -27576,8 +27768,9 @@ func (v WanSourceNatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"disabled": v.Disabled,
-			"nat_pool": v.NatPool,
+			"disabled":  v.Disabled,
+			"nat6_pool": v.Nat6Pool,
+			"nat_pool":  v.NatPool,
 		})
 
 	return objVal, diags
@@ -27602,6 +27795,10 @@ func (v WanSourceNatValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Nat6Pool.Equal(other.Nat6Pool) {
+		return false
+	}
+
 	if !v.NatPool.Equal(other.NatPool) {
 		return false
 	}
@@ -27619,8 +27816,9 @@ func (v WanSourceNatValue) Type(ctx context.Context) attr.Type {
 
 func (v WanSourceNatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"disabled": basetypes.BoolType{},
-		"nat_pool": basetypes.StringType{},
+		"disabled":  basetypes.BoolType{},
+		"nat6_pool": basetypes.StringType{},
+		"nat_pool":  basetypes.StringType{},
 	}
 }
 
