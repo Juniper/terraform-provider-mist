@@ -1229,6 +1229,30 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"send_mist_nac_user_info": schema.BoolAttribute{
 						Optional: true,
 					},
+					"auto_upgrade": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"custom_versions": schema.MapAttribute{
+								ElementType:         types.StringType,
+								Optional:            true,
+								Description:         "Property key is the SRX Hardware model (e.g. \"SRX4600\")",
+								MarkdownDescription: "Property key is the SRX Hardware model (e.g. \"SRX4600\")",
+							},
+							"enabled": schema.BoolAttribute{
+								Optional: true,
+							},
+							"snapshot": schema.BoolAttribute{
+								Optional: true,
+							},
+						},
+						CustomType: SrxAutoUpgradeType{
+							ObjectType: types.ObjectType{
+								AttrTypes: SrxAutoUpgradeValue{}.AttributeTypes(ctx),
+							},
+						},
+						Optional:            true,
+						Description:         "auto_upgrade device first time it is onboarded",
+						MarkdownDescription: "auto_upgrade device first time it is onboarded",
+					},
 				},
 				CustomType: JuniperSrxType{
 					ObjectType: types.ObjectType{
@@ -1772,6 +1796,55 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Disable stats collection on SSR devices",
 						MarkdownDescription: "Disable stats collection on SSR devices",
 					},
+					"proxy": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"url": schema.StringAttribute{
+								Optional: true,
+							},
+						},
+						CustomType: ProxyType{
+							ObjectType: types.ObjectType{
+								AttrTypes: ProxyValue{}.AttributeTypes(ctx),
+							},
+						},
+						Optional:            true,
+						Description:         "Proxy Configuration to talk to Mist",
+						MarkdownDescription: "Proxy Configuration to talk to Mist",
+					},
+					"auto_upgrade": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"channel": schema.StringAttribute{
+								Optional:            true,
+								Description:         "upgrade channel to follow. enum: `alpha`, `beta`, `stable`",
+								MarkdownDescription: "upgrade channel to follow. enum: `alpha`, `beta`, `stable`",
+								Validators: []validator.String{
+									stringvalidator.OneOf(
+										"",
+										"alpha",
+										"beta",
+										"stable",
+									),
+								},
+							},
+							"custom_versions": schema.MapAttribute{
+								ElementType:         types.StringType,
+								Optional:            true,
+								Description:         "Property key is the SSR model (e.g. \"SSR130\").",
+								MarkdownDescription: "Property key is the SSR model (e.g. \"SSR130\").",
+							},
+							"enabled": schema.BoolAttribute{
+								Optional: true,
+							},
+						},
+						CustomType: SsrAutoUpgradeType{
+							ObjectType: types.ObjectType{
+								AttrTypes: SsrAutoUpgradeValue{}.AttributeTypes(ctx),
+							},
+						},
+						Optional:            true,
+						Description:         "auto_upgrade device first time it is onboarded",
+						MarkdownDescription: "auto_upgrade device first time it is onboarded",
+					},
 				},
 				CustomType: SsrType{
 					ObjectType: types.ObjectType{
@@ -1956,7 +2029,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional: true,
+						Optional:           true,
+						DeprecationMessage: "This attribute is deprecated.",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -13884,6 +13958,24 @@ func (t JuniperSrxType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`send_mist_nac_user_info expected to be basetypes.BoolValue, was: %T`, sendMistNacUserInfoAttribute))
 	}
 
+	srxAutoUpgradeAttribute, ok := attributes["auto_upgrade"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auto_upgrade is missing from object`)
+
+		return nil, diags
+	}
+
+	srxAutoUpgradeVal, ok := srxAutoUpgradeAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auto_upgrade expected to be basetypes.ObjectValue, was: %T`, srxAutoUpgradeAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -13891,6 +13983,7 @@ func (t JuniperSrxType) ValueFromObject(ctx context.Context, in basetypes.Object
 	return JuniperSrxValue{
 		Gateways:            gatewaysVal,
 		SendMistNacUserInfo: sendMistNacUserInfoVal,
+		SrxAutoUpgrade:      srxAutoUpgradeVal,
 		state:               attr.ValueStateKnown,
 	}, diags
 }
@@ -13994,6 +14087,24 @@ func NewJuniperSrxValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`send_mist_nac_user_info expected to be basetypes.BoolValue, was: %T`, sendMistNacUserInfoAttribute))
 	}
 
+	srxAutoUpgradeAttribute, ok := attributes["auto_upgrade"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auto_upgrade is missing from object`)
+
+		return NewJuniperSrxValueUnknown(), diags
+	}
+
+	srxAutoUpgradeVal, ok := srxAutoUpgradeAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auto_upgrade expected to be basetypes.ObjectValue, was: %T`, srxAutoUpgradeAttribute))
+	}
+
 	if diags.HasError() {
 		return NewJuniperSrxValueUnknown(), diags
 	}
@@ -14001,6 +14112,7 @@ func NewJuniperSrxValue(attributeTypes map[string]attr.Type, attributes map[stri
 	return JuniperSrxValue{
 		Gateways:            gatewaysVal,
 		SendMistNacUserInfo: sendMistNacUserInfoVal,
+		SrxAutoUpgrade:      srxAutoUpgradeVal,
 		state:               attr.ValueStateKnown,
 	}, diags
 }
@@ -14073,13 +14185,14 @@ func (t JuniperSrxType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = JuniperSrxValue{}
 
 type JuniperSrxValue struct {
-	Gateways            basetypes.ListValue `tfsdk:"gateways"`
-	SendMistNacUserInfo basetypes.BoolValue `tfsdk:"send_mist_nac_user_info"`
+	Gateways            basetypes.ListValue   `tfsdk:"gateways"`
+	SendMistNacUserInfo basetypes.BoolValue   `tfsdk:"send_mist_nac_user_info"`
+	SrxAutoUpgrade      basetypes.ObjectValue `tfsdk:"auto_upgrade"`
 	state               attr.ValueState
 }
 
 func (v JuniperSrxValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
@@ -14088,12 +14201,15 @@ func (v JuniperSrxValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		ElemType: GatewaysValue{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["send_mist_nac_user_info"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["auto_upgrade"] = basetypes.ObjectType{
+		AttrTypes: SrxAutoUpgradeValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 3)
 
 		val, err = v.Gateways.ToTerraformValue(ctx)
 
@@ -14110,6 +14226,14 @@ func (v JuniperSrxValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["send_mist_nac_user_info"] = val
+
+		val, err = v.SrxAutoUpgrade.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auto_upgrade"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -14169,11 +14293,35 @@ func (v JuniperSrxValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		)
 	}
 
+	var srxAutoUpgrade basetypes.ObjectValue
+
+	if v.SrxAutoUpgrade.IsNull() {
+		srxAutoUpgrade = types.ObjectNull(
+			SrxAutoUpgradeValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.SrxAutoUpgrade.IsUnknown() {
+		srxAutoUpgrade = types.ObjectUnknown(
+			SrxAutoUpgradeValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.SrxAutoUpgrade.IsNull() && !v.SrxAutoUpgrade.IsUnknown() {
+		srxAutoUpgrade = types.ObjectValueMust(
+			SrxAutoUpgradeValue{}.AttributeTypes(ctx),
+			v.SrxAutoUpgrade.Attributes(),
+		)
+	}
+
 	attributeTypes := map[string]attr.Type{
 		"gateways": basetypes.ListType{
 			ElemType: GatewaysValue{}.Type(ctx),
 		},
 		"send_mist_nac_user_info": basetypes.BoolType{},
+		"auto_upgrade": basetypes.ObjectType{
+			AttrTypes: SrxAutoUpgradeValue{}.AttributeTypes(ctx),
+		},
 	}
 
 	if v.IsNull() {
@@ -14189,6 +14337,7 @@ func (v JuniperSrxValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		map[string]attr.Value{
 			"gateways":                gateways,
 			"send_mist_nac_user_info": v.SendMistNacUserInfo,
+			"auto_upgrade":            srxAutoUpgrade,
 		})
 
 	return objVal, diags
@@ -14217,6 +14366,10 @@ func (v JuniperSrxValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.SrxAutoUpgrade.Equal(other.SrxAutoUpgrade) {
+		return false
+	}
+
 	return true
 }
 
@@ -14234,6 +14387,9 @@ func (v JuniperSrxValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 			ElemType: GatewaysValue{}.Type(ctx),
 		},
 		"send_mist_nac_user_info": basetypes.BoolType{},
+		"auto_upgrade": basetypes.ObjectType{
+			AttrTypes: SrxAutoUpgradeValue{}.AttributeTypes(ctx),
+		},
 	}
 }
 
@@ -14668,6 +14824,468 @@ func (v GatewaysValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"api_key":      basetypes.StringType{},
 		"api_password": basetypes.StringType{},
 		"api_url":      basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = SrxAutoUpgradeType{}
+
+type SrxAutoUpgradeType struct {
+	basetypes.ObjectType
+}
+
+func (t SrxAutoUpgradeType) Equal(o attr.Type) bool {
+	other, ok := o.(SrxAutoUpgradeType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t SrxAutoUpgradeType) String() string {
+	return "SrxAutoUpgradeType"
+}
+
+func (t SrxAutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	customVersionsAttribute, ok := attributes["custom_versions"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`custom_versions is missing from object`)
+
+		return nil, diags
+	}
+
+	customVersionsVal, ok := customVersionsAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`custom_versions expected to be basetypes.MapValue, was: %T`, customVersionsAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	snapshotAttribute, ok := attributes["snapshot"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`snapshot is missing from object`)
+
+		return nil, diags
+	}
+
+	snapshotVal, ok := snapshotAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`snapshot expected to be basetypes.BoolValue, was: %T`, snapshotAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return SrxAutoUpgradeValue{
+		CustomVersions: customVersionsVal,
+		Enabled:        enabledVal,
+		Snapshot:       snapshotVal,
+		state:          attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSrxAutoUpgradeValueNull() SrxAutoUpgradeValue {
+	return SrxAutoUpgradeValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewSrxAutoUpgradeValueUnknown() SrxAutoUpgradeValue {
+	return SrxAutoUpgradeValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewSrxAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (SrxAutoUpgradeValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing SrxAutoUpgradeValue Attribute Value",
+				"While creating a SrxAutoUpgradeValue value, a missing attribute value was detected. "+
+					"A SrxAutoUpgradeValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SrxAutoUpgradeValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid SrxAutoUpgradeValue Attribute Type",
+				"While creating a SrxAutoUpgradeValue value, an invalid attribute value was detected. "+
+					"A SrxAutoUpgradeValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SrxAutoUpgradeValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("SrxAutoUpgradeValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra SrxAutoUpgradeValue Attribute Value",
+				"While creating a SrxAutoUpgradeValue value, an extra attribute value was detected. "+
+					"A SrxAutoUpgradeValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra SrxAutoUpgradeValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewSrxAutoUpgradeValueUnknown(), diags
+	}
+
+	customVersionsAttribute, ok := attributes["custom_versions"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`custom_versions is missing from object`)
+
+		return NewSrxAutoUpgradeValueUnknown(), diags
+	}
+
+	customVersionsVal, ok := customVersionsAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`custom_versions expected to be basetypes.MapValue, was: %T`, customVersionsAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewSrxAutoUpgradeValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	snapshotAttribute, ok := attributes["snapshot"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`snapshot is missing from object`)
+
+		return NewSrxAutoUpgradeValueUnknown(), diags
+	}
+
+	snapshotVal, ok := snapshotAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`snapshot expected to be basetypes.BoolValue, was: %T`, snapshotAttribute))
+	}
+
+	if diags.HasError() {
+		return NewSrxAutoUpgradeValueUnknown(), diags
+	}
+
+	return SrxAutoUpgradeValue{
+		CustomVersions: customVersionsVal,
+		Enabled:        enabledVal,
+		Snapshot:       snapshotVal,
+		state:          attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSrxAutoUpgradeValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) SrxAutoUpgradeValue {
+	object, diags := NewSrxAutoUpgradeValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewSrxAutoUpgradeValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t SrxAutoUpgradeType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewSrxAutoUpgradeValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewSrxAutoUpgradeValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewSrxAutoUpgradeValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewSrxAutoUpgradeValueMust(SrxAutoUpgradeValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t SrxAutoUpgradeType) ValueType(ctx context.Context) attr.Value {
+	return SrxAutoUpgradeValue{}
+}
+
+var _ basetypes.ObjectValuable = SrxAutoUpgradeValue{}
+
+type SrxAutoUpgradeValue struct {
+	CustomVersions basetypes.MapValue  `tfsdk:"custom_versions"`
+	Enabled        basetypes.BoolValue `tfsdk:"enabled"`
+	Snapshot       basetypes.BoolValue `tfsdk:"snapshot"`
+	state          attr.ValueState
+}
+
+func (v SrxAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["custom_versions"] = basetypes.MapType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["snapshot"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.CustomVersions.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["custom_versions"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.Snapshot.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["snapshot"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v SrxAutoUpgradeValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v SrxAutoUpgradeValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v SrxAutoUpgradeValue) String() string {
+	return "SrxAutoUpgradeValue"
+}
+
+func (v SrxAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var customVersionsVal basetypes.MapValue
+	switch {
+	case v.CustomVersions.IsUnknown():
+		customVersionsVal = types.MapUnknown(types.StringType)
+	case v.CustomVersions.IsNull():
+		customVersionsVal = types.MapNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		customVersionsVal, d = types.MapValue(types.StringType, v.CustomVersions.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"custom_versions": basetypes.MapType{
+				ElemType: types.StringType,
+			},
+			"enabled":  basetypes.BoolType{},
+			"snapshot": basetypes.BoolType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"custom_versions": basetypes.MapType{
+			ElemType: types.StringType,
+		},
+		"enabled":  basetypes.BoolType{},
+		"snapshot": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"custom_versions": customVersionsVal,
+			"enabled":         v.Enabled,
+			"snapshot":        v.Snapshot,
+		})
+
+	return objVal, diags
+}
+
+func (v SrxAutoUpgradeValue) Equal(o attr.Value) bool {
+	other, ok := o.(SrxAutoUpgradeValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.CustomVersions.Equal(other.CustomVersions) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.Snapshot.Equal(other.Snapshot) {
+		return false
+	}
+
+	return true
+}
+
+func (v SrxAutoUpgradeValue) Type(ctx context.Context) attr.Type {
+	return SrxAutoUpgradeType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v SrxAutoUpgradeValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"custom_versions": basetypes.MapType{
+			ElemType: types.StringType,
+		},
+		"enabled":  basetypes.BoolType{},
+		"snapshot": basetypes.BoolType{},
 	}
 }
 
@@ -21213,6 +21831,42 @@ func (t SsrType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) 
 			fmt.Sprintf(`disable_stats expected to be basetypes.BoolValue, was: %T`, disableStatsAttribute))
 	}
 
+	proxyAttribute, ok := attributes["proxy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`proxy is missing from object`)
+
+		return nil, diags
+	}
+
+	proxyVal, ok := proxyAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`proxy expected to be basetypes.ObjectValue, was: %T`, proxyAttribute))
+	}
+
+	ssrAutoUpgradeAttribute, ok := attributes["auto_upgrade"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auto_upgrade is missing from object`)
+
+		return nil, diags
+	}
+
+	ssrAutoUpgradeVal, ok := ssrAutoUpgradeAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auto_upgrade expected to be basetypes.ObjectValue, was: %T`, ssrAutoUpgradeAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -21221,6 +21875,8 @@ func (t SsrType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) 
 		ConductorHosts: conductorHostsVal,
 		ConductorToken: conductorTokenVal,
 		DisableStats:   disableStatsVal,
+		Proxy:          proxyVal,
+		SsrAutoUpgrade: ssrAutoUpgradeVal,
 		state:          attr.ValueStateKnown,
 	}, diags
 }
@@ -21342,6 +21998,42 @@ func NewSsrValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 			fmt.Sprintf(`disable_stats expected to be basetypes.BoolValue, was: %T`, disableStatsAttribute))
 	}
 
+	proxyAttribute, ok := attributes["proxy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`proxy is missing from object`)
+
+		return NewSsrValueUnknown(), diags
+	}
+
+	proxyVal, ok := proxyAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`proxy expected to be basetypes.ObjectValue, was: %T`, proxyAttribute))
+	}
+
+	ssrAutoUpgradeAttribute, ok := attributes["auto_upgrade"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auto_upgrade is missing from object`)
+
+		return NewSsrValueUnknown(), diags
+	}
+
+	ssrAutoUpgradeVal, ok := ssrAutoUpgradeAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auto_upgrade expected to be basetypes.ObjectValue, was: %T`, ssrAutoUpgradeAttribute))
+	}
+
 	if diags.HasError() {
 		return NewSsrValueUnknown(), diags
 	}
@@ -21350,6 +22042,8 @@ func NewSsrValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 		ConductorHosts: conductorHostsVal,
 		ConductorToken: conductorTokenVal,
 		DisableStats:   disableStatsVal,
+		Proxy:          proxyVal,
+		SsrAutoUpgrade: ssrAutoUpgradeVal,
 		state:          attr.ValueStateKnown,
 	}, diags
 }
@@ -21425,11 +22119,13 @@ type SsrValue struct {
 	ConductorHosts basetypes.ListValue   `tfsdk:"conductor_hosts"`
 	ConductorToken basetypes.StringValue `tfsdk:"conductor_token"`
 	DisableStats   basetypes.BoolValue   `tfsdk:"disable_stats"`
+	Proxy          basetypes.ObjectValue `tfsdk:"proxy"`
+	SsrAutoUpgrade basetypes.ObjectValue `tfsdk:"auto_upgrade"`
 	state          attr.ValueState
 }
 
 func (v SsrValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
@@ -21439,12 +22135,18 @@ func (v SsrValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 	}.TerraformType(ctx)
 	attrTypes["conductor_token"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["disable_stats"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["proxy"] = basetypes.ObjectType{
+		AttrTypes: ProxyValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["auto_upgrade"] = basetypes.ObjectType{
+		AttrTypes: SsrAutoUpgradeValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 5)
 
 		val, err = v.ConductorHosts.ToTerraformValue(ctx)
 
@@ -21469,6 +22171,22 @@ func (v SsrValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 		}
 
 		vals["disable_stats"] = val
+
+		val, err = v.Proxy.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["proxy"] = val
+
+		val, err = v.SsrAutoUpgrade.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auto_upgrade"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -21499,6 +22217,48 @@ func (v SsrValue) String() string {
 func (v SsrValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var proxy basetypes.ObjectValue
+
+	if v.Proxy.IsNull() {
+		proxy = types.ObjectNull(
+			ProxyValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Proxy.IsUnknown() {
+		proxy = types.ObjectUnknown(
+			ProxyValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Proxy.IsNull() && !v.Proxy.IsUnknown() {
+		proxy = types.ObjectValueMust(
+			ProxyValue{}.AttributeTypes(ctx),
+			v.Proxy.Attributes(),
+		)
+	}
+
+	var ssrAutoUpgrade basetypes.ObjectValue
+
+	if v.SsrAutoUpgrade.IsNull() {
+		ssrAutoUpgrade = types.ObjectNull(
+			SsrAutoUpgradeValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.SsrAutoUpgrade.IsUnknown() {
+		ssrAutoUpgrade = types.ObjectUnknown(
+			SsrAutoUpgradeValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.SsrAutoUpgrade.IsNull() && !v.SsrAutoUpgrade.IsUnknown() {
+		ssrAutoUpgrade = types.ObjectValueMust(
+			SsrAutoUpgradeValue{}.AttributeTypes(ctx),
+			v.SsrAutoUpgrade.Attributes(),
+		)
+	}
+
 	var conductorHostsVal basetypes.ListValue
 	switch {
 	case v.ConductorHosts.IsUnknown():
@@ -21518,6 +22278,12 @@ func (v SsrValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, dia
 			},
 			"conductor_token": basetypes.StringType{},
 			"disable_stats":   basetypes.BoolType{},
+			"proxy": basetypes.ObjectType{
+				AttrTypes: ProxyValue{}.AttributeTypes(ctx),
+			},
+			"auto_upgrade": basetypes.ObjectType{
+				AttrTypes: SsrAutoUpgradeValue{}.AttributeTypes(ctx),
+			},
 		}), diags
 	}
 
@@ -21527,6 +22293,12 @@ func (v SsrValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, dia
 		},
 		"conductor_token": basetypes.StringType{},
 		"disable_stats":   basetypes.BoolType{},
+		"proxy": basetypes.ObjectType{
+			AttrTypes: ProxyValue{}.AttributeTypes(ctx),
+		},
+		"auto_upgrade": basetypes.ObjectType{
+			AttrTypes: SsrAutoUpgradeValue{}.AttributeTypes(ctx),
+		},
 	}
 
 	if v.IsNull() {
@@ -21543,6 +22315,8 @@ func (v SsrValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, dia
 			"conductor_hosts": conductorHostsVal,
 			"conductor_token": v.ConductorToken,
 			"disable_stats":   v.DisableStats,
+			"proxy":           proxy,
+			"auto_upgrade":    ssrAutoUpgrade,
 		})
 
 	return objVal, diags
@@ -21575,6 +22349,14 @@ func (v SsrValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Proxy.Equal(other.Proxy) {
+		return false
+	}
+
+	if !v.SsrAutoUpgrade.Equal(other.SsrAutoUpgrade) {
+		return false
+	}
+
 	return true
 }
 
@@ -21593,6 +22375,474 @@ func (v SsrValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		},
 		"conductor_token": basetypes.StringType{},
 		"disable_stats":   basetypes.BoolType{},
+		"proxy": basetypes.ObjectType{
+			AttrTypes: ProxyValue{}.AttributeTypes(ctx),
+		},
+		"auto_upgrade": basetypes.ObjectType{
+			AttrTypes: SsrAutoUpgradeValue{}.AttributeTypes(ctx),
+		},
+	}
+}
+
+var _ basetypes.ObjectTypable = SsrAutoUpgradeType{}
+
+type SsrAutoUpgradeType struct {
+	basetypes.ObjectType
+}
+
+func (t SsrAutoUpgradeType) Equal(o attr.Type) bool {
+	other, ok := o.(SsrAutoUpgradeType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t SsrAutoUpgradeType) String() string {
+	return "SsrAutoUpgradeType"
+}
+
+func (t SsrAutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	channelAttribute, ok := attributes["channel"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channel is missing from object`)
+
+		return nil, diags
+	}
+
+	channelVal, ok := channelAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channel expected to be basetypes.StringValue, was: %T`, channelAttribute))
+	}
+
+	customVersionsAttribute, ok := attributes["custom_versions"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`custom_versions is missing from object`)
+
+		return nil, diags
+	}
+
+	customVersionsVal, ok := customVersionsAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`custom_versions expected to be basetypes.MapValue, was: %T`, customVersionsAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return SsrAutoUpgradeValue{
+		Channel:        channelVal,
+		CustomVersions: customVersionsVal,
+		Enabled:        enabledVal,
+		state:          attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSsrAutoUpgradeValueNull() SsrAutoUpgradeValue {
+	return SsrAutoUpgradeValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewSsrAutoUpgradeValueUnknown() SsrAutoUpgradeValue {
+	return SsrAutoUpgradeValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewSsrAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (SsrAutoUpgradeValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing SsrAutoUpgradeValue Attribute Value",
+				"While creating a SsrAutoUpgradeValue value, a missing attribute value was detected. "+
+					"A SsrAutoUpgradeValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SsrAutoUpgradeValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid SsrAutoUpgradeValue Attribute Type",
+				"While creating a SsrAutoUpgradeValue value, an invalid attribute value was detected. "+
+					"A SsrAutoUpgradeValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SsrAutoUpgradeValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("SsrAutoUpgradeValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra SsrAutoUpgradeValue Attribute Value",
+				"While creating a SsrAutoUpgradeValue value, an extra attribute value was detected. "+
+					"A SsrAutoUpgradeValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra SsrAutoUpgradeValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewSsrAutoUpgradeValueUnknown(), diags
+	}
+
+	channelAttribute, ok := attributes["channel"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channel is missing from object`)
+
+		return NewSsrAutoUpgradeValueUnknown(), diags
+	}
+
+	channelVal, ok := channelAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channel expected to be basetypes.StringValue, was: %T`, channelAttribute))
+	}
+
+	customVersionsAttribute, ok := attributes["custom_versions"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`custom_versions is missing from object`)
+
+		return NewSsrAutoUpgradeValueUnknown(), diags
+	}
+
+	customVersionsVal, ok := customVersionsAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`custom_versions expected to be basetypes.MapValue, was: %T`, customVersionsAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewSsrAutoUpgradeValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewSsrAutoUpgradeValueUnknown(), diags
+	}
+
+	return SsrAutoUpgradeValue{
+		Channel:        channelVal,
+		CustomVersions: customVersionsVal,
+		Enabled:        enabledVal,
+		state:          attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSsrAutoUpgradeValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) SsrAutoUpgradeValue {
+	object, diags := NewSsrAutoUpgradeValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewSsrAutoUpgradeValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t SsrAutoUpgradeType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewSsrAutoUpgradeValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewSsrAutoUpgradeValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewSsrAutoUpgradeValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewSsrAutoUpgradeValueMust(SsrAutoUpgradeValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t SsrAutoUpgradeType) ValueType(ctx context.Context) attr.Value {
+	return SsrAutoUpgradeValue{}
+}
+
+var _ basetypes.ObjectValuable = SsrAutoUpgradeValue{}
+
+type SsrAutoUpgradeValue struct {
+	Channel        basetypes.StringValue `tfsdk:"channel"`
+	CustomVersions basetypes.MapValue    `tfsdk:"custom_versions"`
+	Enabled        basetypes.BoolValue   `tfsdk:"enabled"`
+	state          attr.ValueState
+}
+
+func (v SsrAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["channel"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["custom_versions"] = basetypes.MapType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.Channel.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["channel"] = val
+
+		val, err = v.CustomVersions.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["custom_versions"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v SsrAutoUpgradeValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v SsrAutoUpgradeValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v SsrAutoUpgradeValue) String() string {
+	return "SsrAutoUpgradeValue"
+}
+
+func (v SsrAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var customVersionsVal basetypes.MapValue
+	switch {
+	case v.CustomVersions.IsUnknown():
+		customVersionsVal = types.MapUnknown(types.StringType)
+	case v.CustomVersions.IsNull():
+		customVersionsVal = types.MapNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		customVersionsVal, d = types.MapValue(types.StringType, v.CustomVersions.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"channel": basetypes.StringType{},
+			"custom_versions": basetypes.MapType{
+				ElemType: types.StringType,
+			},
+			"enabled": basetypes.BoolType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"channel": basetypes.StringType{},
+		"custom_versions": basetypes.MapType{
+			ElemType: types.StringType,
+		},
+		"enabled": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"channel":         v.Channel,
+			"custom_versions": customVersionsVal,
+			"enabled":         v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v SsrAutoUpgradeValue) Equal(o attr.Value) bool {
+	other, ok := o.(SsrAutoUpgradeValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Channel.Equal(other.Channel) {
+		return false
+	}
+
+	if !v.CustomVersions.Equal(other.CustomVersions) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v SsrAutoUpgradeValue) Type(ctx context.Context) attr.Type {
+	return SsrAutoUpgradeType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v SsrAutoUpgradeValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"channel": basetypes.StringType{},
+		"custom_versions": basetypes.MapType{
+			ElemType: types.StringType,
+		},
+		"enabled": basetypes.BoolType{},
 	}
 }
 
