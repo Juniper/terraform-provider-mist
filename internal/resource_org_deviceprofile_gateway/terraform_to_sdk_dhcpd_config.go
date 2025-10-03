@@ -18,6 +18,9 @@ func dhcpdConfigFixedBindingsTerraformToSdk(d basetypes.MapValue) map[string]mod
 		if plan.Ip.ValueStringPointer() != nil {
 			data.Ip = models.ToPointer(plan.Ip.ValueString())
 		}
+		if plan.Ip6.ValueStringPointer() != nil {
+			data.Ip6 = models.ToPointer(plan.Ip6.ValueString())
+		}
 		if plan.Name.ValueStringPointer() != nil {
 			data.Name = models.ToPointer(plan.Name.ValueString())
 		}
