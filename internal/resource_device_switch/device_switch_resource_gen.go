@@ -2294,10 +2294,12 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"stp_disable": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `stp_required`==`false`. Drop bridge protocol data units (BPDUs ) that enter any interface or a specified interface",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `stp_required`==`false`. Drop bridge protocol data units (BPDUs ) that enter any interface or a specified interface",
-							Default:             booldefault.StaticBool(false),
+							Validators: []validator.Bool{
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
+								mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("stp_required"), types.BoolValue(false)),
+							},
 						},
 						"stp_edge": schema.BoolAttribute{
 							Optional:            true,
@@ -2325,10 +2327,11 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"stp_required": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic`. Whether to remain in block state if no BPDU is received",
 							MarkdownDescription: "Only if `mode`!=`dynamic`. Whether to remain in block state if no BPDU is received",
-							Default:             booldefault.StaticBool(false),
+							Validators: []validator.Bool{
+								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
+							},
 						},
 						"use_vstp": schema.BoolAttribute{
 							Optional:            true,
