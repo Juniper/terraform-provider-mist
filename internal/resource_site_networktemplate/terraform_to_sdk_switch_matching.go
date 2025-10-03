@@ -69,12 +69,15 @@ func switchMatchingRulesPortConfigTerraformToSdk(d basetypes.MapValue) map[strin
 	}
 	return data
 }
+
 func switchMatchingRulesIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SwitchMatchingRuleIpConfig {
 	data := models.SwitchMatchingRuleIpConfig{}
 	if !d.IsNull() && !d.IsUnknown() {
 		item, e := NewIpConfigValue(IpConfigValue{}.AttributeTypes(ctx), d.Attributes())
-		diags.Append(e...)
-		if e == nil {
+		if e != nil {
+			diags.Append(e...)
+			return &data
+		} else {
 			if item.IpConfigType.ValueStringPointer() != nil {
 				data.Type = (*models.IpTypeEnum)(item.IpConfigType.ValueStringPointer())
 			}
@@ -85,12 +88,15 @@ func switchMatchingRulesIpConfigTerraformToSdk(ctx context.Context, diags *diag.
 	}
 	return &data
 }
+
 func switchMatchingRulesOobIpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SwitchMatchingRuleOobIpConfig {
 	data := models.SwitchMatchingRuleOobIpConfig{}
 	if !d.IsNull() && !d.IsUnknown() {
 		item, e := NewOobIpConfigValue(OobIpConfigValue{}.AttributeTypes(ctx), d.Attributes())
-		diags.Append(e...)
-		if e == nil {
+		if e != nil {
+			diags.Append(e...)
+			return &data
+		} else {
 			if item.OobIpConfigType.ValueStringPointer() != nil {
 				data.Type = (*models.IpTypeEnum)(item.OobIpConfigType.ValueStringPointer())
 			}
@@ -104,6 +110,24 @@ func switchMatchingRulesOobIpConfigTerraformToSdk(ctx context.Context, diags *di
 	}
 	return &data
 }
+
+func switchMatchingRulesStpConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SwitchStpConfig {
+	data := models.SwitchStpConfig{}
+	if !d.IsNull() && !d.IsUnknown() {
+		item, e := NewStpConfigValue(StpConfigValue{}.AttributeTypes(context.Background()), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+			return &data
+		} else {
+			if item.BridgePriority.ValueStringPointer() != nil {
+				data.BridgePriority = item.BridgePriority.ValueStringPointer()
+			}
+		}
+	}
+
+	return &data
+}
+
 func switchMatchingRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ListValue) []models.SwitchMatchingRule {
 
 	var data []models.SwitchMatchingRule
@@ -123,6 +147,9 @@ func switchMatchingRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		}
 		if !planObj.PortMirroring.IsNull() && !planObj.PortMirroring.IsUnknown() {
 			itemObj.PortMirroring = portMirroringTerraformToSdk(planObj.PortMirroring)
+		}
+		if !planObj.StpConfig.IsNull() && !planObj.StpConfig.IsUnknown() {
+			itemObj.StpConfig = switchMatchingRulesStpConfigTerraformToSdk(ctx, diags, planObj.StpConfig)
 		}
 		if !planObj.IpConfig.IsNull() && !planObj.IpConfig.IsUnknown() {
 			itemObj.IpConfig = switchMatchingRulesIpConfigTerraformToSdk(ctx, diags, planObj.IpConfig)
