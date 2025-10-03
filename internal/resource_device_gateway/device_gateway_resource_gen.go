@@ -3482,6 +3482,11 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Default: stringdefault.StaticString("gateway"),
 			},
+			"url_filtering_deny_msg": schema.StringAttribute{
+				Optional:            true,
+				Description:         "When a service policy denies a app_category, what message to show in user's browser",
+				MarkdownDescription: "When a service policy denies a app_category, what message to show in user's browser",
+			},
 			"vars": schema.MapAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
@@ -3578,6 +3583,7 @@ type DeviceGatewayModel struct {
 	TunnelConfigs           types.Map                  `tfsdk:"tunnel_configs"`
 	TunnelProviderOptions   TunnelProviderOptionsValue `tfsdk:"tunnel_provider_options"`
 	Type                    types.String               `tfsdk:"type"`
+	UrlFilteringDenyMsg     types.String               `tfsdk:"url_filtering_deny_msg"`
 	Vars                    types.Map                  `tfsdk:"vars"`
 	VrfConfig               VrfConfigValue             `tfsdk:"vrf_config"`
 	VrfInstances            types.Map                  `tfsdk:"vrf_instances"`
