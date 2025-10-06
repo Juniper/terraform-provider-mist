@@ -71,7 +71,7 @@ func ssrAutoUpgradeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 
 func ssrSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SettingSsr) SsrValue {
 
-	var conductorHosts = mistutils.ListOfStringSdkToTerraformEmpty()
+	var conductorHosts = types.ListNull(types.StringType)
 	var conductorToken basetypes.StringValue
 	var disableStats basetypes.BoolValue
 	var proxy = types.ObjectNull(ProxyValue{}.AttributeTypes(ctx))
