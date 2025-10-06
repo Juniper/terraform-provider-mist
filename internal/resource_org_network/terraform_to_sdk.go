@@ -40,19 +40,19 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworkModel) (*models.Network
 	}
 
 	if !plan.Multicast.IsNull() && !plan.Multicast.IsUnknown() {
-		data.Multicast = MulticastTerraformToSdk(plan.Multicast)
+		data.Multicast = multicastTerraformToSdk(plan.Multicast)
 	} else {
 		unset["-multicast"] = ""
 	}
 
 	if !plan.InternalAccess.IsNull() && !plan.InternalAccess.IsUnknown() {
-		data.InternalAccess = InternalAccessTerraformToSdk(plan.InternalAccess)
+		data.InternalAccess = internalAccessTerraformToSdk(plan.InternalAccess)
 	} else {
 		unset["-internal_access"] = ""
 	}
 
 	if !plan.InternetAccess.IsNull() && !plan.InternetAccess.IsUnknown() {
-		data.InternetAccess = InternetAccessTerraformToSdk(plan.InternetAccess)
+		data.InternetAccess = internetAccessTerraformToSdk(plan.InternetAccess)
 	} else {
 		unset["-internet_access"] = ""
 	}
@@ -82,7 +82,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworkModel) (*models.Network
 	}
 
 	if !plan.Tenants.IsNull() && !plan.Tenants.IsUnknown() {
-		data.Tenants = TenantTerraformToSdk(plan.Tenants)
+		data.Tenants = tenantTerraformToSdk(plan.Tenants)
 	} else {
 		unset["-tenants"] = ""
 	}
@@ -94,7 +94,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworkModel) (*models.Network
 	}
 
 	if !plan.VpnAccess.IsNull() && !plan.VpnAccess.IsUnknown() {
-		data.VpnAccess = VpnTerraformToSdk(ctx, &diags, plan.VpnAccess)
+		data.VpnAccess = vpnTerraformToSdk(ctx, &diags, plan.VpnAccess)
 	} else {
 		unset["-vpn_access"] = ""
 	}

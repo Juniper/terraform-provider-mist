@@ -50,10 +50,10 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 		id = types.StringValue(data.Id.String())
 	}
 	if data.InternalAccess != nil {
-		internalAccess = InternalAccessSdkToTerraform(ctx, &diags, *data.InternalAccess)
+		internalAccess = internalAccessSdkToTerraform(ctx, &diags, *data.InternalAccess)
 	}
 	if data.InternetAccess != nil {
-		internetAccess = InternetAccessSdkToTerraform(ctx, &diags, *data.InternetAccess)
+		internetAccess = internetAccessSdkToTerraform(ctx, &diags, *data.InternetAccess)
 	}
 	if data.Isolation != nil {
 		isolation = types.BoolValue(*data.Isolation)
@@ -72,13 +72,13 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 		subnet6 = types.StringValue(*data.Subnet6)
 	}
 	if len(data.Tenants) > 0 {
-		tenants = TenantSdkToTerraform(ctx, &diags, data.Tenants)
+		tenants = tenantSdkToTerraform(ctx, &diags, data.Tenants)
 	}
 	if data.VlanId != nil {
 		vlanId = mistutils.VlanAsString(*data.VlanId)
 	}
 	if len(data.VpnAccess) > 0 {
-		vpnAccess = VpnSdkToTerraform(ctx, &diags, data.VpnAccess)
+		vpnAccess = vpnSdkToTerraform(ctx, &diags, data.VpnAccess)
 	}
 
 	state.DisallowMistServices = disallowMistServices

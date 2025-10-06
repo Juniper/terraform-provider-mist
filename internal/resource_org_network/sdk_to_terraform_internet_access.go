@@ -80,7 +80,7 @@ func staticNatInternetAccessSdkToTerraform(ctx context.Context, diags *diag.Diag
 	return stateResultMap
 }
 
-func InternetAccessSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.NetworkInternetAccess) InternetAccessValue {
+func internetAccessSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.NetworkInternetAccess) InternetAccessValue {
 	var createSimpleServicePolicy = types.BoolValue(false)
 	var destinationNat = types.MapNull(InternetAccessDestinationNatValue{}.Type(ctx))
 	var enabled basetypes.BoolValue

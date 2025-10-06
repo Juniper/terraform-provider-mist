@@ -38,7 +38,7 @@ func staticNatVpnTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkV
 	return dataMap
 }
 
-func VpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.NetworkVpnAccessConfig {
+func vpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.NetworkVpnAccessConfig {
 	dataMap := make(map[string]models.NetworkVpnAccessConfig)
 	for k, v := range d.Elements() {
 		var vInterface interface{} = v

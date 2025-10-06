@@ -18,7 +18,7 @@ func groupMulticastTerraformToSdk(d basetypes.MapValue) map[string]models.Networ
 	return dataMap
 }
 
-func MulticastTerraformToSdk(d MulticastValue) *models.NetworkMulticast {
+func multicastTerraformToSdk(d MulticastValue) *models.NetworkMulticast {
 	data := models.NetworkMulticast{}
 
 	if d.DisableIgmp.ValueBoolPointer() != nil {
