@@ -796,6 +796,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "List of Conductor IP Addresses or Hosts to be used by the SSR Devices",
 						MarkdownDescription: "List of Conductor IP Addresses or Hosts to be used by the SSR Devices",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"conductor_token": schema.StringAttribute{
 						Optional:            true,
