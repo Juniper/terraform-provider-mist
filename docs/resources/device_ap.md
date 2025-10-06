@@ -382,6 +382,7 @@ Optional:
 - `ant_gain_24` (Number) Antenna gain for 2.4G - for models with external antenna only
 - `ant_gain_5` (Number) Antenna gain for 5G - for models with external antenna only
 - `ant_gain_6` (Number) Antenna gain for 6G - for models with external antenna only
+- `ant_mode` (String) Antenna Mode for AP which supports selectable antennas. enum: `external`, `internal`
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
 - `band_24` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_24))
 - `band_24_usage` (String) enum: `24`, `5`, `6`, `auto`
@@ -400,7 +401,7 @@ Optional:
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 2.4GHz band. enum: `20`, `40`
+- `bandwidth` (Number) channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) Whether to disable the radio
@@ -418,7 +419,7 @@ Optional:
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 5GHz band. enum: `20`, `40`, `80`
+- `bandwidth` (Number) channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) Whether to disable the radio
@@ -436,7 +437,7 @@ Optional:
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 5GHz band. enum: `20`, `40`, `80`
+- `bandwidth` (Number) channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) Whether to disable the radio
@@ -454,7 +455,7 @@ Optional:
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`
+- `bandwidth` (Number) channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) Whether to disable the radio

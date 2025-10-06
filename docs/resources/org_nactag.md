@@ -34,21 +34,21 @@ resource "mist_org_nactag" "tag_one" {
 
 - `name` (String)
 - `org_id` (String)
-- `type` (String) enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `redirect_guest_portal`, `session_timeout`, `username_attr`, `vlan`
+- `type` (String) enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `redirect_nacportal_id`, `session_timeout`, `username_attr`, `vlan`
 
 ### Optional
 
 - `allow_usermac_override` (Boolean) Can be set to true to allow the override by usermac result
 - `egress_vlan_names` (List of String) If `type`==`egress_vlan_names`, list of egress vlans to return
 - `gbp_tag` (String)
-- `match` (String) if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
+- `match` (String) if `type`==`match`. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_health`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
 - `match_all` (Boolean) This field is applicable only when `type`==`match`
   * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)
   * `true`: means all values should be matched (i.e., match-all behavior)
 
 
-Currently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`
-- `nacportal_id` (String) If `type`==`redirect_guest_portal`, the ID of the guest portal to redirect to
+Currently it makes sense to set this field to `true` only if the `match`==`idp_role`, `match`==`usermac_label` and `edr_status`
+- `nacportal_id` (String) If `type`==`redirect_nacportal_id`, the ID of the NAC portal to redirect to
 - `radius_attrs` (List of String) If `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field "radius_attrs". 
 It is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.
 Note that it is allowed to have more than one radius_attrs in the result of a given rule.
