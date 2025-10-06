@@ -5,8 +5,10 @@ package resource_site_setting
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistplanmodifiers "github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -25,7 +27,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -1860,6 +1861,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							"conductor_hosts": types.ListValueMust(types.StringType, []attr.Value{}),
 							"conductor_token": types.StringNull(),
 							"disable_stats":   types.BoolNull(),
+							"auto_upgrade":    types.ObjectNull(SsrAutoUpgradeValue{}.AttributeTypes(ctx)),
+							"proxy":           types.ObjectNull(ProxyValue{}.AttributeTypes(ctx)),
 						},
 					),
 				),
