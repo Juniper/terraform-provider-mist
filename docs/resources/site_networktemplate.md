@@ -350,8 +350,8 @@ Optional:
 - `enable_mac_auth` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Whether to enable MAC Auth
 - `enable_qos` (Boolean) Only if `mode`!=`dynamic`
 - `guest_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Which network to put the device into if the device cannot do dot1x. default is null (i.e. not allowed)
-- `inter_isolation_network_link` (Boolean) Only if `mode`!=`dynamic`. `inter_isolation_network_link` is used together with `isolation` under networks, signaling that this port connects to isolated networks
-- `inter_switch_link` (Boolean) Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper devices. This has to be applied to both ports connected together
+- `inter_isolation_network_link` (Boolean) Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper device. This has to be applied to both ports connected together
+- `inter_switch_link` (Boolean) Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together
 - `mac_auth_only` (Boolean) Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`
 - `mac_auth_preferred` (Boolean) Only if `mode`!=`dynamic` + `enable_mac_auth`==`true` + `mac_auth_only`==`false`, dot1x will be given priority then mac_auth. Enable this to prefer mac_auth over dot1x.
 - `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`
