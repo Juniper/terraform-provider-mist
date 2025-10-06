@@ -322,6 +322,12 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 												AttrTypes: FixedBindingsValue{}.AttributeTypes(ctx),
 											},
 										},
+										Validators: []validator.Object{
+											objectvalidator.AtLeastOneOf(
+												path.MatchRelative().AtName("ip"),
+												path.MatchRelative().AtName("ip6"),
+											),
+										},
 									},
 									Optional:            true,
 									Description:         "If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. \"5684dae9ac8b\")",
@@ -329,11 +335,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 										mapvalidator.KeysAre(mistvalidator.ParseMac()),
-										mistvalidator.AtLeastNOf(
-											1,
-											path.MatchRelative().AtName("ip"),
-											path.MatchRelative().AtName("ip6"),
-										),
 									},
 								},
 								"gateway": schema.StringAttribute{

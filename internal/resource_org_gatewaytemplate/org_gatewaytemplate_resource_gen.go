@@ -5,7 +5,9 @@ package resource_org_gatewaytemplate
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -25,7 +27,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -322,6 +323,12 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 												AttrTypes: FixedBindingsValue{}.AttributeTypes(ctx),
 											},
 										},
+										Validators: []validator.Object{
+											objectvalidator.AtLeastOneOf(
+												path.MatchRelative().AtName("ip"),
+												path.MatchRelative().AtName("ip6"),
+											),
+										},
 									},
 									Optional:            true,
 									Description:         "If `type`==`local` or `type6`==`local`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. \"5684dae9ac8b\")",
@@ -329,11 +336,6 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 										mapvalidator.KeysAre(mistvalidator.ParseMac()),
-										mistvalidator.AtLeastNOf(
-											1,
-											path.MatchRelative().AtName("ip"),
-											path.MatchRelative().AtName("ip6"),
-										),
 									},
 								},
 								"gateway": schema.StringAttribute{
