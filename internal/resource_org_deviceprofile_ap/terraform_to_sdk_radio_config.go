@@ -176,7 +176,9 @@ func radioConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, pla
 	if !plan.AntennaMode.IsNull() && !plan.AntennaMode.IsUnknown() {
 		data.AntennaMode = models.ToPointer(models.ApRadioAntennaModeEnum(plan.AntennaMode.ValueString()))
 	}
-
+	if !plan.AntMode.IsNull() && !plan.AntMode.IsUnknown() {
+		data.AntMode = models.ToPointer(models.AntModeEnum(plan.AntMode.ValueString()))
+	}
 	if !plan.Band24.IsNull() && !plan.Band24.IsUnknown() {
 		data.Band24 = band24TerraformToSdk(ctx, diags, plan.Band24)
 	}

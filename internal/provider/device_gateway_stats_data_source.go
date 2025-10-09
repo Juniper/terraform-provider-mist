@@ -79,19 +79,19 @@ func (d *deviceGatewayStatsDataSource) Read(ctx context.Context, req datasource.
 	}
 
 	var duration string
-	var end int
+	var end string
 	var fields = "*"
 	var mac string
 	var siteId string
 	var status models.DeviceStatusEnum
-	var start int
+	var start string
 	var mType = models.DeviceTypeWithAllEnum_GATEWAY
 
 	if !ds.Duration.IsNull() && !ds.Duration.IsUnknown() {
 		duration = ds.Duration.ValueString()
 	}
 	if !ds.End.IsNull() && !ds.End.IsUnknown() {
-		end = int(ds.End.ValueInt64())
+		end = strconv.Itoa(int(ds.End.ValueInt64()))
 	}
 	if !ds.Mac.IsNull() && !ds.Mac.IsUnknown() {
 		mac = ds.Mac.ValueString()
@@ -103,7 +103,7 @@ func (d *deviceGatewayStatsDataSource) Read(ctx context.Context, req datasource.
 		status = (models.DeviceStatusEnum)(ds.Status.ValueString())
 	}
 	if !ds.Start.IsNull() && !ds.Start.IsUnknown() {
-		start = int(ds.Start.ValueInt64())
+		start = strconv.Itoa(int(ds.Start.ValueInt64()))
 	}
 
 	var limit = 1000

@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func InternalAccessSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.NetworkInternalAccess) InternalAccessValue {
+func internalAccessSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.NetworkInternalAccess) InternalAccessValue {
 	var enabled basetypes.BoolValue
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)

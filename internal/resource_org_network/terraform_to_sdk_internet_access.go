@@ -69,7 +69,7 @@ func staticNatInternetAccessTerraformToSdk(d basetypes.MapValue) map[string]mode
 	return dataMap
 }
 
-func InternetAccessTerraformToSdk(d InternetAccessValue) *models.NetworkInternetAccess {
+func internetAccessTerraformToSdk(d InternetAccessValue) *models.NetworkInternetAccess {
 	data := models.NetworkInternetAccess{}
 
 	if !d.CreateSimpleServicePolicy.IsNull() && !d.CreateSimpleServicePolicy.IsUnknown() {

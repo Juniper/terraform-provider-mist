@@ -372,8 +372,19 @@ Optional:
 
 Optional:
 
+- `auto_upgrade` (Attributes) auto_upgrade device first time it is onboarded (see [below for nested schema](#nestedatt--juniper_srx--auto_upgrade))
 - `gateways` (Attributes List) (see [below for nested schema](#nestedatt--juniper_srx--gateways))
 - `send_mist_nac_user_info` (Boolean)
+
+<a id="nestedatt--juniper_srx--auto_upgrade"></a>
+### Nested Schema for `juniper_srx.auto_upgrade`
+
+Optional:
+
+- `custom_versions` (Map of String) Property key is the SRX Hardware model (e.g. "SRX4600")
+- `enabled` (Boolean)
+- `snapshot` (Boolean)
+
 
 <a id="nestedatt--juniper_srx--gateways"></a>
 ### Nested Schema for `juniper_srx.gateways`
@@ -534,9 +545,29 @@ Optional:
 
 Optional:
 
+- `auto_upgrade` (Attributes) auto_upgrade device first time it is onboarded (see [below for nested schema](#nestedatt--ssr--auto_upgrade))
 - `conductor_hosts` (List of String) List of Conductor IP Addresses or Hosts to be used by the SSR Devices
 - `conductor_token` (String, Sensitive) Token to be used by the SSR Devices to connect to the Conductor
 - `disable_stats` (Boolean) Disable stats collection on SSR devices
+- `proxy` (Attributes) Proxy Configuration to talk to Mist (see [below for nested schema](#nestedatt--ssr--proxy))
+
+<a id="nestedatt--ssr--auto_upgrade"></a>
+### Nested Schema for `ssr.auto_upgrade`
+
+Optional:
+
+- `channel` (String) upgrade channel to follow. enum: `alpha`, `beta`, `stable`
+- `custom_versions` (Map of String) Property key is the SSR model (e.g. "SSR130").
+- `enabled` (Boolean)
+
+
+<a id="nestedatt--ssr--proxy"></a>
+### Nested Schema for `ssr.proxy`
+
+Optional:
+
+- `url` (String)
+
 
 
 <a id="nestedatt--synthetic_test"></a>
@@ -548,7 +579,7 @@ Optional:
 - `custom_probes` (Attributes Map) Custom probes to be used for synthetic tests (see [below for nested schema](#nestedatt--synthetic_test--custom_probes))
 - `disabled` (Boolean)
 - `lan_networks` (Attributes List) List of networks to be used for synthetic tests (see [below for nested schema](#nestedatt--synthetic_test--lan_networks))
-- `vlans` (Attributes List) (see [below for nested schema](#nestedatt--synthetic_test--vlans))
+- `vlans` (Attributes List, Deprecated) (see [below for nested schema](#nestedatt--synthetic_test--vlans))
 - `wan_speedtest` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test--wan_speedtest))
 
 <a id="nestedatt--synthetic_test--custom_probes"></a>

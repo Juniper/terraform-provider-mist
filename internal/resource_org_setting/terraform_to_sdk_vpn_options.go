@@ -11,6 +11,10 @@ func vpnOptionsTerraformToSdk(d VpnOptionsValue) *models.OrgSettingVpnOptions {
 		data.AsBase = models.ToPointer(int(d.AsBase.ValueInt64()))
 	}
 
+	if d.EnableIpv6.ValueBoolPointer() != nil {
+		data.EnableIpv6 = models.ToPointer(d.EnableIpv6.ValueBool())
+	}
+
 	if d.StSubnet.ValueStringPointer() != nil {
 		data.StSubnet = d.StSubnet.ValueStringPointer()
 	}

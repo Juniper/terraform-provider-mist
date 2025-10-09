@@ -98,6 +98,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-juniper"] = ""
 	}
 
+	if !plan.JuniperSrx.IsNull() && !plan.JuniperSrx.IsUnknown() {
+		data.JuniperSrx = juniperSrxTerraformToSdk(ctx, &diags, plan.JuniperSrx)
+	} else {
+		unset["-juniper_srx"] = ""
+	}
+
 	if !plan.JunosShellAccess.IsNull() && !plan.JunosShellAccess.IsUnknown() {
 		data.JunosShellAccess = junosShellAccessTerraformToSdk(plan.JunosShellAccess)
 	} else {
@@ -152,6 +158,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-security"] = ""
 	}
 
+	if !plan.Ssr.IsNull() && !plan.Ssr.IsUnknown() {
+		data.Ssr = ssrTerraformToSdk(plan.Ssr)
+	} else {
+		unset["-ssr"] = ""
+	}
+
 	if !plan.Switch.IsNull() && !plan.Switch.IsUnknown() {
 		data.Switch = switchTerraformToSdk(ctx, plan.Switch)
 	} else {
@@ -180,6 +192,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		data.UiIdleTimeout = models.ToPointer(int(plan.UiIdleTimeout.ValueInt64()))
 	} else {
 		unset["-ui_idle_timeout"] = ""
+	}
+
+	if plan.UiNoTracking.ValueBoolPointer() != nil {
+		data.UiNoTracking = plan.UiNoTracking.ValueBoolPointer()
+	} else {
+		unset["-ui_no_tracking"] = ""
 	}
 
 	if !plan.VpnOptions.IsNull() && !plan.VpnOptions.IsUnknown() {

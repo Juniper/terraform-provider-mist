@@ -238,6 +238,7 @@ func portConfigWanSourceNatSdkToTerraform(ctx context.Context, diags *diag.Diagn
 
 	var disabled basetypes.BoolValue
 	var natPool basetypes.StringValue
+	var nat6Pool basetypes.StringValue
 
 	if g != nil && g.Disabled != nil {
 		disabled = types.BoolValue(*g.Disabled)
@@ -245,10 +246,14 @@ func portConfigWanSourceNatSdkToTerraform(ctx context.Context, diags *diag.Diagn
 	if g != nil && g.NatPool != nil {
 		natPool = types.StringValue(*g.NatPool)
 	}
+	if g != nil && g.Nat6Pool != nil {
+		nat6Pool = types.StringValue(*g.Nat6Pool)
+	}
 
 	rAttrValue := map[string]attr.Value{
-		"disabled": disabled,
-		"nat_pool": natPool,
+		"disabled":  disabled,
+		"nat_pool":  natPool,
+		"nat6_pool": nat6Pool,
 	}
 
 	r, e := basetypes.NewObjectValue(WanSourceNatValue{}.AttributeTypes(ctx), rAttrValue)
@@ -301,6 +306,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var wanArpPolicer basetypes.StringValue
 		var wanDisableSpeedtest types.Bool
 		var wanExtIp basetypes.StringValue
+		var wanExtIp6 basetypes.StringValue
 		var wanExtraRoutes = types.MapNull(WanExtraRoutesValue{}.Type(ctx))
 		var wanExtraRoutes6 = types.MapNull(WanExtraRoutes6Value{}.Type(ctx))
 		var wanNetworks = types.ListNull(types.StringType)
@@ -422,6 +428,9 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.WanExtIp != nil {
 			wanExtIp = types.StringValue(*v.WanExtIp)
 		}
+		if v.WanExtIp6 != nil {
+			wanExtIp6 = types.StringValue(*v.WanExtIp6)
+		}
 		if v.WanExtraRoutes != nil {
 			wanExtraRoutes = wanExtraRoutesPortConfigIpConfigSdkToTerraform(ctx, diags, v.WanExtraRoutes)
 		}
@@ -482,6 +491,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 			"wan_arp_policer":       wanArpPolicer,
 			"wan_disable_speedtest": wanDisableSpeedtest,
 			"wan_ext_ip":            wanExtIp,
+			"wan_ext_ip6":           wanExtIp6,
 			"wan_extra_routes":      wanExtraRoutes,
 			"wan_extra_routes6":     wanExtraRoutes6,
 			"wan_networks":          wanNetworks,

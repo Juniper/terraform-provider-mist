@@ -84,6 +84,7 @@ resource "mist_org_setting" "terraform_test" {
 - `installer` (Attributes) (see [below for nested schema](#nestedatt--installer))
 - `jcloud` (Attributes) (see [below for nested schema](#nestedatt--jcloud))
 - `jcloud_ra` (Attributes) JCloud Routing Assurance connexion (see [below for nested schema](#nestedatt--jcloud_ra))
+- `juniper_srx` (Attributes) (see [below for nested schema](#nestedatt--juniper_srx))
 - `junos_shell_access` (Attributes) junos_shell_access: Manages role-based web-shell access.  
 When junos_shell access is not defined (Default) - No additional users are configured and web-shell uses default `mist` user to login.  
 When junos_shell_access is defined - Additional users mist-web-admin (admin permission), mist-web-viewer(viewer permission) are configured on the device and web-shell logs in with the mist-web-admin/mist-web-viewer user depending upon the shell access level. Setting the shell access level to "none", disables web-shell access for that specific role. (see [below for nested schema](#nestedatt--junos_shell_access))
@@ -101,6 +102,7 @@ When junos_shell_access is defined - Additional users mist-web-admin (admin perm
 - `switch_updown_threshold` (Number) Enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.
 - `synthetic_test` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test))
 - `ui_idle_timeout` (Number) Automatically logout the user when UI session is inactive. `0` means disabled
+- `ui_no_tracking` (Boolean)
 - `vpn_options` (Attributes) (see [below for nested schema](#nestedatt--vpn_options))
 - `wan_pma` (Attributes) (see [below for nested schema](#nestedatt--wan_pma))
 - `wired_pma` (Attributes) (see [below for nested schema](#nestedatt--wired_pma))
@@ -177,6 +179,24 @@ Optional:
 - `org_apitoken` (String) JCloud Routing Assurance Org Token
 - `org_apitoken_name` (String) JCloud Routing Assurance Org Token Name
 - `org_id` (String) JCloud Routing Assurance Org ID
+
+
+<a id="nestedatt--juniper_srx"></a>
+### Nested Schema for `juniper_srx`
+
+Optional:
+
+- `auto_upgrade` (Attributes) auto_upgrade device first time it is onboarded (see [below for nested schema](#nestedatt--juniper_srx--auto_upgrade))
+
+<a id="nestedatt--juniper_srx--auto_upgrade"></a>
+### Nested Schema for `juniper_srx.auto_upgrade`
+
+Optional:
+
+- `custom_versions` (Map of String) Property key is the SRX Hardware model (e.g. "SRX4600")
+- `enabled` (Boolean)
+- `snapshot` (Boolean)
+
 
 
 <a id="nestedatt--junos_shell_access"></a>
@@ -319,9 +339,29 @@ Optional:
 
 Optional:
 
+- `auto_upgrade` (Attributes) auto_upgrade device first time it is onboarded (see [below for nested schema](#nestedatt--ssr--auto_upgrade))
 - `conductor_hosts` (List of String) List of Conductor IP Addresses or Hosts to be used by the SSR Devices
 - `conductor_token` (String, Sensitive) Token to be used by the SSR Devices to connect to the Conductor
 - `disable_stats` (Boolean) Disable stats collection on SSR devices
+- `proxy` (Attributes) Proxy Configuration to talk to Mist (see [below for nested schema](#nestedatt--ssr--proxy))
+
+<a id="nestedatt--ssr--auto_upgrade"></a>
+### Nested Schema for `ssr.auto_upgrade`
+
+Optional:
+
+- `channel` (String) upgrade channel to follow. enum: `alpha`, `beta`, `stable`
+- `custom_versions` (Map of String) Property key is the SSR model (e.g. "SSR130").
+- `enabled` (Boolean)
+
+
+<a id="nestedatt--ssr--proxy"></a>
+### Nested Schema for `ssr.proxy`
+
+Optional:
+
+- `url` (String)
+
 
 
 <a id="nestedatt--switch"></a>
@@ -359,7 +399,7 @@ Optional:
 - `custom_probes` (Attributes Map) Custom probes to be used for synthetic tests (see [below for nested schema](#nestedatt--synthetic_test--custom_probes))
 - `disabled` (Boolean)
 - `lan_networks` (Attributes List) List of networks to be used for synthetic tests (see [below for nested schema](#nestedatt--synthetic_test--lan_networks))
-- `vlans` (Attributes List) (see [below for nested schema](#nestedatt--synthetic_test--vlans))
+- `vlans` (Attributes List, Deprecated) (see [below for nested schema](#nestedatt--synthetic_test--vlans))
 - `wan_speedtest` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test--wan_speedtest))
 
 <a id="nestedatt--synthetic_test--custom_probes"></a>
@@ -411,6 +451,7 @@ Optional:
 Optional:
 
 - `as_base` (Number)
+- `enable_ipv6` (Boolean)
 - `st_subnet` (String) requiring /12 or bigger to support 16 private IPs for 65535 gateways
 
 
