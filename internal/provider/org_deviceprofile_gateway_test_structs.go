@@ -29,20 +29,20 @@ type OrgDeviceprofileGatewayModel struct {
 }
 
 type OrgDeviceprofileGatewayNetworksValue struct {
-	DisallowMistServices *bool                     `cty:"disallow_mist_services" hcl:"disallow_mist_services"`
-	Gateway              *string                   `cty:"gateway" hcl:"gateway"`
-	Gateway6             *string                   `cty:"gateway6" hcl:"gateway6"`
-	InternalAccess       *InternalAccessValue      `cty:"internal_access" hcl:"internal_access"`
-	InternetAccess       *InternetAccessValue      `cty:"internet_access" hcl:"internet_access"`
-	Isolation            *bool                     `cty:"isolation" hcl:"isolation"`
-	Multicast            *MulticastValue           `cty:"multicast" hcl:"multicast"`
-	Name                 *string                   `cty:"name" hcl:"name"`
-	RoutedForNetworks    []string                  `cty:"routed_for_networks" hcl:"routed_for_networks"`
-	Subnet               string                    `cty:"subnet" hcl:"subnet"`
-	Subnet6              *string                   `cty:"subnet6" hcl:"subnet6"`
-	Tenants              map[string]TenantsValue   `cty:"tenants" hcl:"tenants"`
-	VlanId               *string                   `cty:"vlan_id" hcl:"vlan_id"`
-	VpnAccess            map[string]VpnAccessValue `cty:"vpn_access" hcl:"vpn_access"`
+	DisallowMistServices *bool                                       `cty:"disallow_mist_services" hcl:"disallow_mist_services"`
+	Gateway              *string                                     `cty:"gateway" hcl:"gateway"`
+	Gateway6             *string                                     `cty:"gateway6" hcl:"gateway6"`
+	InternalAccess       *OrgDeviceprofileGatewayInternetAccessValue `cty:"internal_access" hcl:"internal_access"`
+	InternetAccess       *InternetAccessValue                        `cty:"internet_access" hcl:"internet_access"`
+	Isolation            *bool                                       `cty:"isolation" hcl:"isolation"`
+	Multicast            *MulticastValue                             `cty:"multicast" hcl:"multicast"`
+	Name                 *string                                     `cty:"name" hcl:"name"`
+	RoutedForNetworks    []string                                    `cty:"routed_for_networks" hcl:"routed_for_networks"`
+	Subnet               string                                      `cty:"subnet" hcl:"subnet"`
+	Subnet6              *string                                     `cty:"subnet6" hcl:"subnet6"`
+	Tenants              map[string]TenantsValue                     `cty:"tenants" hcl:"tenants"`
+	VlanId               *string                                     `cty:"vlan_id" hcl:"vlan_id"`
+	VpnAccess            map[string]VpnAccessValue                   `cty:"vpn_access" hcl:"vpn_access"`
 }
 
 type OrgDeviceprofileGatewayPortConfigValue struct {
@@ -92,4 +92,12 @@ type OrgDeviceprofileGatewayPortConfigValue struct {
 	WanProbeOverride    *WanProbeOverrideValue         `cty:"wan_probe_override" hcl:"wan_probe_override"`
 	WanSourceNat        *WanSourceNatValue             `cty:"wan_source_nat" hcl:"wan_source_nat"`
 	WanType             *string                        `cty:"wan_type" hcl:"wan_type"`
+}
+
+type OrgDeviceprofileGatewayInternetAccessValue struct {
+	CreateSimpleServicePolicy    *bool                                        `cty:"create_simple_service_policy"`
+	Enabled                      *bool                                        `cty:"enabled"`
+	InternetAccessDestinationNat map[string]InternetAccessDestinationNatValue `cty:"destination_nat"`
+	InternetAccessStaticNat      map[string]InternetAccessStaticNatValue      `cty:"static_nat"`
+	Restricted                   *bool                                        `cty:"restricted"`
 }
