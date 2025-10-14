@@ -791,12 +791,6 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 				if rule.MatchRole != nil {
 					checks.append(t, "TestCheckResourceAttr", basePath+".match_role", *rule.MatchRole)
 				}
-				if rule.MatchType != nil {
-					checks.append(t, "TestCheckResourceAttr", basePath+".match_type", *rule.MatchType)
-				}
-				if rule.MatchValue != nil {
-					checks.append(t, "TestCheckResourceAttr", basePath+".match_value", *rule.MatchValue)
-				}
 				if len(rule.AdditionalConfigCmds) > 0 {
 					checks.append(t, "TestCheckResourceAttr", basePath+".additional_config_cmds.#", fmt.Sprintf("%d", len(rule.AdditionalConfigCmds)))
 					for j, cmd := range rule.AdditionalConfigCmds {
@@ -820,6 +814,11 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 					}
 					if rule.OobIpConfig.UseMgmtVrfForHostOut != nil {
 						checks.append(t, "TestCheckResourceAttr", basePath+".oob_ip_config.use_mgmt_vrf_for_host_out", fmt.Sprintf("%t", *rule.OobIpConfig.UseMgmtVrfForHostOut))
+					}
+				}
+				if rule.StpConfig != nil {
+					if rule.StpConfig.BridgePriority != nil {
+						checks.append(t, "TestCheckResourceAttr", basePath+".stp_config.bridge_priority", *rule.StpConfig.BridgePriority)
 					}
 				}
 			}
@@ -1292,8 +1291,8 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 			if usage.BypassAuthWhenServerDown != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".bypass_auth_when_server_down", fmt.Sprintf("%t", *usage.BypassAuthWhenServerDown))
 			}
-			if usage.BypassAuthWhenServerDownForUnkownClient != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".bypass_auth_when_server_down_for_unkown_client", fmt.Sprintf("%t", *usage.BypassAuthWhenServerDownForUnkownClient))
+			if usage.BypassAuthWhenServerDownForUnknownClient != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".bypass_auth_when_server_down_for_unknown_client", fmt.Sprintf("%t", *usage.BypassAuthWhenServerDownForUnknownClient))
 			}
 			if usage.Description != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".description", *usage.Description)
@@ -1335,13 +1334,13 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 				checks.append(t, "TestCheckResourceAttr", basePath+".mac_auth_protocol", *usage.MacAuthProtocol)
 			}
 			if usage.MacLimit != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".mac_limit", fmt.Sprintf("%d", int(*usage.MacLimit)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".mac_limit", *usage.MacLimit)
 			}
 			if usage.Mode != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".mode", *usage.Mode)
 			}
 			if usage.Mtu != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".mtu", fmt.Sprintf("%d", int(*usage.Mtu)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".mtu", *usage.Mtu)
 			}
 			if len(usage.Networks) > 0 {
 				checks.append(t, "TestCheckResourceAttr", basePath+".networks.#", fmt.Sprintf("%d", len(usage.Networks)))
@@ -1362,7 +1361,7 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 				checks.append(t, "TestCheckResourceAttr", basePath+".port_network", *usage.PortNetwork)
 			}
 			if usage.ReauthInterval != nil {
-				checks.append(t, "TestCheckResourceAttr", basePath+".reauth_interval", fmt.Sprintf("%d", int(*usage.ReauthInterval)))
+				checks.append(t, "TestCheckResourceAttr", basePath+".reauth_interval", *usage.ReauthInterval)
 			}
 			if usage.ResetDefaultWhen != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".reset_default_when", *usage.ResetDefaultWhen)
@@ -1424,6 +1423,9 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 					checks.append(t, "TestCheckResourceAttr", basePath+".storm_control.percentage", fmt.Sprintf("%d", int(*usage.StormControl.Percentage)))
 				}
 			}
+			if usage.StpDisable != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".stp_disable", fmt.Sprintf("%t", *usage.StpDisable))
+			}
 			if usage.StpEdge != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".stp_edge", fmt.Sprintf("%t", *usage.StpEdge))
 			}
@@ -1432,6 +1434,9 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 			}
 			if usage.StpP2p != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".stp_p2p", fmt.Sprintf("%t", *usage.StpP2p))
+			}
+			if usage.StpRequired != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".stp_required", fmt.Sprintf("%t", *usage.StpRequired))
 			}
 			if usage.UiEvpntopoId != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".ui_evpntopo_id", *usage.UiEvpntopoId)

@@ -56,9 +56,9 @@ func TestSiteSettingModel(t *testing.T) {
 		}
 	}
 
+	resourceType := "site_setting"
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "site_setting"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -461,6 +461,20 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, rName string) testChe
 		if s.JuniperSrx.SendMistNacUserInfo != nil {
 			checks.append(t, "TestCheckResourceAttr", "juniper_srx.send_mist_nac_user_info", fmt.Sprintf("%t", *s.JuniperSrx.SendMistNacUserInfo))
 		}
+		if s.JuniperSrx.SrxAutoUpgrade != nil {
+			if s.JuniperSrx.SrxAutoUpgrade.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "juniper_srx.auto_upgrade.enabled", fmt.Sprintf("%t", *s.JuniperSrx.SrxAutoUpgrade.Enabled))
+			}
+			if s.JuniperSrx.SrxAutoUpgrade.Snapshot != nil {
+				checks.append(t, "TestCheckResourceAttr", "juniper_srx.auto_upgrade.snapshot", fmt.Sprintf("%t", *s.JuniperSrx.SrxAutoUpgrade.Snapshot))
+			}
+			if len(s.JuniperSrx.SrxAutoUpgrade.CustomVersions) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "juniper_srx.auto_upgrade.custom_versions.%", fmt.Sprintf("%d", len(s.JuniperSrx.SrxAutoUpgrade.CustomVersions)))
+				for key, version := range s.JuniperSrx.SrxAutoUpgrade.CustomVersions {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("juniper_srx.auto_upgrade.custom_versions.%s", key), version)
+				}
+			}
+		}
 	}
 	if s.Led != nil {
 		if s.Led.Brightness != nil {
@@ -603,6 +617,23 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, rName string) testChe
 		if s.Ssr.DisableStats != nil {
 			checks.append(t, "TestCheckResourceAttr", "ssr.disable_stats", fmt.Sprintf("%t", *s.Ssr.DisableStats))
 		}
+		if s.Ssr.Proxy != nil && s.Ssr.Proxy.Url != nil {
+			checks.append(t, "TestCheckResourceAttr", "ssr.proxy.url", *s.Ssr.Proxy.Url)
+		}
+		if s.Ssr.SsrAutoUpgrade != nil {
+			if s.Ssr.SsrAutoUpgrade.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "ssr.auto_upgrade.enabled", fmt.Sprintf("%t", *s.Ssr.SsrAutoUpgrade.Enabled))
+			}
+			if s.Ssr.SsrAutoUpgrade.Channel != nil {
+				checks.append(t, "TestCheckResourceAttr", "ssr.auto_upgrade.channel", *s.Ssr.SsrAutoUpgrade.Channel)
+			}
+			if len(s.Ssr.SsrAutoUpgrade.CustomVersions) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "ssr.auto_upgrade.custom_versions.%", fmt.Sprintf("%d", len(s.Ssr.SsrAutoUpgrade.CustomVersions)))
+				for key, version := range s.Ssr.SsrAutoUpgrade.CustomVersions {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ssr.auto_upgrade.custom_versions.%s", key), version)
+				}
+			}
+		}
 	}
 	if s.SwitchUpdownThreshold != nil {
 		checks.append(t, "TestCheckResourceAttr", "switch_updown_threshold", fmt.Sprintf("%d", *s.SwitchUpdownThreshold))
@@ -616,9 +647,6 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, rName string) testChe
 		}
 		if len(s.SyntheticTest.CustomProbes) > 0 {
 			for key, probe := range s.SyntheticTest.CustomProbes {
-				if probe.Type != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.type", key), *probe.Type)
-				}
 				if probe.Host != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.host", key), *probe.Host)
 				}

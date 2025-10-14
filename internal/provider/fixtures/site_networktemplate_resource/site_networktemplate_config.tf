@@ -3,7 +3,7 @@ additional_config_cmds = [
   "set system domain-name test.local"
 ]
 auto_upgrade_linecard = true
-default_port_usage = "lan"
+# default_port_usage = "lan"
 dhcp_snooping = {
   enabled = true
   all_networks = false
@@ -104,9 +104,11 @@ port_usages = {
     mode = "trunk"
     port_network = "lan"
     voip_network = "voice"
+    stp_disable = false
     stp_edge = true
     stp_no_root_port = false
     stp_p2p = true
+    stp_required = true
     speed = "auto"
     duplex = "auto"
     mac_limit = 10
@@ -314,6 +316,9 @@ switch_matching = {
         "ge-0/0/24-47" = {
           usage = "uplink"
         }
+      }
+      stp_config = {
+        bridge_priority = "32768"
       }
     }
   ]

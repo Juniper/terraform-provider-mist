@@ -1,111 +1,110 @@
 package provider
 
 type OrgWlanModel struct {
-	AcctImmediateUpdate                  *bool                     `hcl:"acct_immediate_update"`
-	AcctInterimInterval                  *int64                    `hcl:"acct_interim_interval"`
-	AcctServers                          []OrgWlanAcctServersValue `hcl:"acct_servers"`
-	Airwatch                             *AirwatchValue            `hcl:"airwatch"`
-	AllowIpv6Ndp                         *bool                     `hcl:"allow_ipv6_ndp"`
-	AllowMdns                            *bool                     `hcl:"allow_mdns"`
-	AllowSsdp                            *bool                     `hcl:"allow_ssdp"`
-	ApIds                                []string                  `hcl:"ap_ids"`
-	AppLimit                             *AppLimitValue            `hcl:"app_limit"`
-	AppQos                               *AppQosValue              `hcl:"app_qos"`
-	ApplyTo                              *string                   `hcl:"apply_to"`
-	ArpFilter                            *bool                     `hcl:"arp_filter"`
-	Auth                                 *OrgWlanAuthValue         `hcl:"auth"`
-	AuthServerSelection                  *string                   `hcl:"auth_server_selection"`
-	AuthServers                          []AuthServersValue        `hcl:"auth_servers"`
-	AuthServersNasId                     *string                   `hcl:"auth_servers_nas_id"`
-	AuthServersNasIp                     *string                   `hcl:"auth_servers_nas_ip"`
-	AuthServersRetries                   *int64                    `hcl:"auth_servers_retries"`
-	AuthServersTimeout                   *int64                    `hcl:"auth_servers_timeout"`
-	BandSteer                            *bool                     `hcl:"band_steer"`
-	BandSteerForceBand5                  *bool                     `hcl:"band_steer_force_band5"`
-	Bands                                []string                  `hcl:"bands"`
-	BlockBlacklistClients                *bool                     `hcl:"block_blacklist_clients"`
-	Bonjour                              *BonjourValue             `hcl:"bonjour"`
-	CiscoCwa                             *CiscoCwaValue            `hcl:"cisco_cwa"`
-	ClientLimitDown                      *int64                    `hcl:"client_limit_down"`
-	ClientLimitDownEnabled               *bool                     `hcl:"client_limit_down_enabled"`
-	ClientLimitUp                        *int64                    `hcl:"client_limit_up"`
-	ClientLimitUpEnabled                 *bool                     `hcl:"client_limit_up_enabled"`
-	CoaServers                           []CoaServersValue         `hcl:"coa_servers"`
-	Disable11ax                          *bool                     `hcl:"disable_11ax"`
-	Disable11be                          *bool                     `hcl:"disable_11be"`
-	DisableHtVhtRates                    *bool                     `hcl:"disable_ht_vht_rates"`
-	DisableUapsd                         *bool                     `hcl:"disable_uapsd"`
-	DisableV1RoamNotify                  *bool                     `hcl:"disable_v1_roam_notify"`
-	DisableV2RoamNotify                  *bool                     `hcl:"disable_v2_roam_notify"`
-	DisableWhenGatewayUnreachable        *bool                     `hcl:"disable_when_gateway_unreachable"`
-	DisableWhenMxtunnelDown              *bool                     `hcl:"disable_when_mxtunnel_down"`
-	DisableWmm                           *bool                     `hcl:"disable_wmm"`
-	DnsServerRewrite                     *DnsServerRewriteValue    `hcl:"dns_server_rewrite"`
-	Dtim                                 *int64                    `hcl:"dtim"`
-	DynamicPsk                           *DynamicPskValue          `hcl:"dynamic_psk"`
-	DynamicVlan                          *DynamicVlanValue         `hcl:"dynamic_vlan"`
-	EnableLocalKeycaching                *bool                     `hcl:"enable_local_keycaching"`
-	EnableWirelessBridging               *bool                     `hcl:"enable_wireless_bridging"`
-	EnableWirelessBridgingDhcpTracking   *bool                     `hcl:"enable_wireless_bridging_dhcp_tracking"`
-	Enabled                              *bool                     `hcl:"enabled"`
-	FastDot1xTimers                      *bool                     `hcl:"fast_dot1x_timers"`
-	HideSsid                             *bool                     `hcl:"hide_ssid"`
-	HostnameIe                           *bool                     `hcl:"hostname_ie"`
-	Hotspot20                            *Hotspot20Value           `hcl:"hotspot20"`
-	InjectDhcpOption82                   *InjectDhcpOption82Value  `hcl:"inject_dhcp_option_82"`
-	Interface                            *string                   `hcl:"interface"`
-	Isolation                            *bool                     `hcl:"isolation"`
-	L2Isolation                          *bool                     `hcl:"l2_isolation"`
-	LegacyOverds                         *bool                     `hcl:"legacy_overds"`
-	LimitBcast                           *bool                     `hcl:"limit_bcast"`
-	LimitProbeResponse                   *bool                     `hcl:"limit_probe_response"`
-	MaxIdletime                          *int64                    `hcl:"max_idletime"`
-	MaxNumClients                        *int64                    `hcl:"max_num_clients"`
-	MistNac                              *OrgWlanMistNacValue      `hcl:"mist_nac"`
-	MxtunnelIds                          []string                  `hcl:"mxtunnel_ids"`
-	MxtunnelName                         []string                  `hcl:"mxtunnel_name"`
-	NoStaticDns                          *bool                     `hcl:"no_static_dns"`
-	NoStaticIp                           *bool                     `hcl:"no_static_ip"`
-	OrgId                                string                    `hcl:"org_id"`
-	Portal                               *PortalValue              `hcl:"portal"`
-	PortalAllowedHostnames               []string                  `hcl:"portal_allowed_hostnames"`
-	PortalAllowedSubnets                 []string                  `hcl:"portal_allowed_subnets"`
-	PortalDeniedHostnames                []string                  `hcl:"portal_denied_hostnames"`
-	Qos                                  *QosValue                 `hcl:"qos"`
-	Radsec                               *RadsecValue              `hcl:"radsec"`
-	Rateset                              map[string]RatesetValue   `hcl:"rateset"`
-	ReconnectClientsWhenRoamingMxcluster *bool                     `hcl:"reconnect_clients_when_roaming_mxcluster"`
-	RoamMode                             *string                   `hcl:"roam_mode"`
-	Schedule                             *ScheduleValue            `hcl:"schedule"`
-	SleExcluded                          *bool                     `hcl:"sle_excluded"`
-	Ssid                                 string                    `hcl:"ssid"`
-	TemplateId                           string                    `hcl:"template_id"`
-	UseEapolV1                           *bool                     `hcl:"use_eapol_v1"`
-	VlanEnabled                          *bool                     `hcl:"vlan_enabled"`
-	VlanId                               *string                   `hcl:"vlan_id"`
-	VlanIds                              []string                  `hcl:"vlan_ids"`
-	VlanPooling                          *bool                     `hcl:"vlan_pooling"`
-	WlanLimitDown                        *int64                    `hcl:"wlan_limit_down"`
-	WlanLimitDownEnabled                 *bool                     `hcl:"wlan_limit_down_enabled"`
-	WlanLimitUp                          *int64                    `hcl:"wlan_limit_up"`
-	WlanLimitUpEnabled                   *bool                     `hcl:"wlan_limit_up_enabled"`
-	WxtagIds                             []string                  `hcl:"wxtag_ids"`
-	WxtunnelId                           *string                   `hcl:"wxtunnel_id"`
-	WxtunnelRemoteId                     *string                   `hcl:"wxtunnel_remote_id"`
+	AcctImmediateUpdate                  *bool                           `hcl:"acct_immediate_update"`
+	AcctInterimInterval                  *int64                          `hcl:"acct_interim_interval"`
+	AcctServers                          []OrgWlanAcctServersValue       `hcl:"acct_servers"`
+	Airwatch                             *OrgWlanAirwatchValue           `hcl:"airwatch"`
+	AllowIpv6Ndp                         *bool                           `hcl:"allow_ipv6_ndp"`
+	AllowMdns                            *bool                           `hcl:"allow_mdns"`
+	AllowSsdp                            *bool                           `hcl:"allow_ssdp"`
+	ApIds                                []string                        `hcl:"ap_ids"`
+	AppLimit                             *OrgWlanAppLimitValue           `hcl:"app_limit"`
+	AppQos                               *OrgWlanAppQosValue             `hcl:"app_qos"`
+	ApplyTo                              *string                         `hcl:"apply_to"`
+	ArpFilter                            *bool                           `hcl:"arp_filter"`
+	Auth                                 *OrgWlanAuthValue               `hcl:"auth"`
+	AuthServerSelection                  *string                         `hcl:"auth_server_selection"`
+	AuthServers                          []OrgWlanAuthServersValue       `hcl:"auth_servers"`
+	AuthServersNasId                     *string                         `hcl:"auth_servers_nas_id"`
+	AuthServersNasIp                     *string                         `hcl:"auth_servers_nas_ip"`
+	AuthServersRetries                   *int64                          `hcl:"auth_servers_retries"`
+	AuthServersTimeout                   *int64                          `hcl:"auth_servers_timeout"`
+	BandSteer                            *bool                           `hcl:"band_steer"`
+	BandSteerForceBand5                  *bool                           `hcl:"band_steer_force_band5"`
+	Bands                                []string                        `hcl:"bands"`
+	BlockBlacklistClients                *bool                           `hcl:"block_blacklist_clients"`
+	Bonjour                              *OrgWlanBonjourValue            `hcl:"bonjour"`
+	CiscoCwa                             *OrgWlanCiscoCwaValue           `hcl:"cisco_cwa"`
+	ClientLimitDown                      *string                         `hcl:"client_limit_down"`
+	ClientLimitDownEnabled               *bool                           `hcl:"client_limit_down_enabled"`
+	ClientLimitUp                        *string                         `hcl:"client_limit_up"`
+	ClientLimitUpEnabled                 *bool                           `hcl:"client_limit_up_enabled"`
+	CoaServers                           []OrgWlanCoaServersValue        `hcl:"coa_servers"`
+	Disable11ax                          *bool                           `hcl:"disable_11ax"`
+	Disable11be                          *bool                           `hcl:"disable_11be"`
+	DisableHtVhtRates                    *bool                           `hcl:"disable_ht_vht_rates"`
+	DisableUapsd                         *bool                           `hcl:"disable_uapsd"`
+	DisableV1RoamNotify                  *bool                           `hcl:"disable_v1_roam_notify"`
+	DisableV2RoamNotify                  *bool                           `hcl:"disable_v2_roam_notify"`
+	DisableWhenGatewayUnreachable        *bool                           `hcl:"disable_when_gateway_unreachable"`
+	DisableWhenMxtunnelDown              *bool                           `hcl:"disable_when_mxtunnel_down"`
+	DisableWmm                           *bool                           `hcl:"disable_wmm"`
+	DnsServerRewrite                     *OrgWlanDnsServerRewriteValue   `hcl:"dns_server_rewrite"`
+	Dtim                                 *int64                          `hcl:"dtim"`
+	DynamicPsk                           *OrgWlanDynamicPskValue         `hcl:"dynamic_psk"`
+	DynamicVlan                          *OrgWlanDynamicVlanValue        `hcl:"dynamic_vlan"`
+	EnableLocalKeycaching                *bool                           `hcl:"enable_local_keycaching"`
+	EnableWirelessBridging               *bool                           `hcl:"enable_wireless_bridging"`
+	EnableWirelessBridgingDhcpTracking   *bool                           `hcl:"enable_wireless_bridging_dhcp_tracking"`
+	Enabled                              *bool                           `hcl:"enabled"`
+	FastDot1xTimers                      *bool                           `hcl:"fast_dot1x_timers"`
+	HideSsid                             *bool                           `hcl:"hide_ssid"`
+	HostnameIe                           *bool                           `hcl:"hostname_ie"`
+	Hotspot20                            *OrgWlanHotspot20Value          `hcl:"hotspot20"`
+	InjectDhcpOption82                   *OrgWlanInjectDhcpOption82Value `hcl:"inject_dhcp_option_82"`
+	Interface                            *string                         `hcl:"interface"`
+	Isolation                            *bool                           `hcl:"isolation"`
+	L2Isolation                          *bool                           `hcl:"l2_isolation"`
+	LegacyOverds                         *bool                           `hcl:"legacy_overds"`
+	LimitBcast                           *bool                           `hcl:"limit_bcast"`
+	LimitProbeResponse                   *bool                           `hcl:"limit_probe_response"`
+	MaxIdletime                          *int64                          `hcl:"max_idletime"`
+	MaxNumClients                        *int64                          `hcl:"max_num_clients"`
+	MistNac                              *OrgWlanMistNacValue            `hcl:"mist_nac"`
+	MxtunnelIds                          []string                        `hcl:"mxtunnel_ids"`
+	MxtunnelName                         []string                        `hcl:"mxtunnel_name"`
+	NoStaticDns                          *bool                           `hcl:"no_static_dns"`
+	NoStaticIp                           *bool                           `hcl:"no_static_ip"`
+	OrgId                                string                          `hcl:"org_id"`
+	Portal                               *OrgWlanPortalValue             `hcl:"portal"`
+	PortalAllowedHostnames               []string                        `hcl:"portal_allowed_hostnames"`
+	PortalAllowedSubnets                 []string                        `hcl:"portal_allowed_subnets"`
+	PortalDeniedHostnames                []string                        `hcl:"portal_denied_hostnames"`
+	Qos                                  *OrgWlanQosValue                `hcl:"qos"`
+	Radsec                               *OrgWlanRadsecValue             `hcl:"radsec"`
+	Rateset                              map[string]OrgWlanRatesetValue  `hcl:"rateset"`
+	ReconnectClientsWhenRoamingMxcluster *bool                           `hcl:"reconnect_clients_when_roaming_mxcluster"`
+	RoamMode                             *string                         `hcl:"roam_mode"`
+	Schedule                             *OrgWlanScheduleValue           `hcl:"schedule"`
+	SleExcluded                          *bool                           `hcl:"sle_excluded"`
+	Ssid                                 string                          `hcl:"ssid"`
+	TemplateId                           string                          `hcl:"template_id"`
+	UseEapolV1                           *bool                           `hcl:"use_eapol_v1"`
+	VlanEnabled                          *bool                           `hcl:"vlan_enabled"`
+	VlanId                               *string                         `hcl:"vlan_id"`
+	VlanIds                              []string                        `hcl:"vlan_ids"`
+	VlanPooling                          *bool                           `hcl:"vlan_pooling"`
+	WlanLimitDown                        *string                         `hcl:"wlan_limit_down"`
+	WlanLimitDownEnabled                 *bool                           `hcl:"wlan_limit_down_enabled"`
+	WlanLimitUp                          *string                         `hcl:"wlan_limit_up"`
+	WlanLimitUpEnabled                   *bool                           `hcl:"wlan_limit_up_enabled"`
+	WxtagIds                             []string                        `hcl:"wxtag_ids"`
+	WxtunnelId                           *string                         `hcl:"wxtunnel_id"`
+	WxtunnelRemoteId                     *string                         `hcl:"wxtunnel_remote_id"`
 }
 
 type OrgWlanAcctServersValue struct {
-	Host                        string  `cty:"host" hcl:"host"`
-	KeywrapEnabled              *bool   `cty:"keywrap_enabled" hcl:"keywrap_enabled"`
-	KeywrapFormat               *string `cty:"keywrap_format" hcl:"keywrap_format"`
-	KeywrapKek                  *string `cty:"keywrap_kek" hcl:"keywrap_kek"`
-	KeywrapMack                 *string `cty:"keywrap_mack" hcl:"keywrap_mack"`
-	Port                        *string `cty:"port" hcl:"port"`
-	RequireMessageAuthenticator *bool   `cty:"require_message_authenticator" hcl:"require_message_authenticator"`
-	Secret                      string  `cty:"secret" hcl:"secret"`
+	Host           string  `cty:"host" hcl:"host"`
+	KeywrapEnabled *bool   `cty:"keywrap_enabled" hcl:"keywrap_enabled"`
+	KeywrapFormat  *string `cty:"keywrap_format" hcl:"keywrap_format"`
+	KeywrapKek     *string `cty:"keywrap_kek" hcl:"keywrap_kek"`
+	KeywrapMack    *string `cty:"keywrap_mack" hcl:"keywrap_mack"`
+	Port           *string `cty:"port" hcl:"port"`
+	Secret         string  `cty:"secret" hcl:"secret"`
 }
 
-type AirwatchValue struct {
+type OrgWlanAirwatchValue struct {
 	ApiKey     *string `cty:"api_key" hcl:"api_key"`
 	ConsoleUrl *string `cty:"console_url" hcl:"console_url"`
 	Enabled    *bool   `cty:"enabled" hcl:"enabled"`
@@ -113,26 +112,26 @@ type AirwatchValue struct {
 	Username   *string `cty:"username" hcl:"username"`
 }
 
-type AppLimitValue struct {
+type OrgWlanAppLimitValue struct {
 	Apps     map[string]int64 `cty:"apps" hcl:"apps"`
 	Enabled  *bool            `cty:"enabled" hcl:"enabled"`
 	WxtagIds map[string]int64 `cty:"wxtag_ids" hcl:"wxtag_ids"`
 }
 
-type AppQosValue struct {
-	Apps    map[string]AppsValue `cty:"apps" hcl:"apps"`
-	Enabled *bool                `cty:"enabled" hcl:"enabled"`
-	Others  []OthersValue        `cty:"others" hcl:"others"`
+type OrgWlanAppQosValue struct {
+	Apps    map[string]OrgWlanAppsValue `cty:"apps" hcl:"apps"`
+	Enabled *bool                       `cty:"enabled" hcl:"enabled"`
+	Others  []OrgWlanOthersValue        `cty:"others" hcl:"others"`
 }
 
-type AppsValue struct {
-	Dscp      *int64  `cty:"dscp" hcl:"dscp"`
+type OrgWlanAppsValue struct {
+	Dscp      *string `cty:"dscp" hcl:"dscp"`
 	DstSubnet *string `cty:"dst_subnet" hcl:"dst_subnet"`
 	SrcSubnet *string `cty:"src_subnet" hcl:"src_subnet"`
 }
 
-type OthersValue struct {
-	Dscp       *int64  `cty:"dscp" hcl:"dscp"`
+type OrgWlanOthersValue struct {
+	Dscp       *string `cty:"dscp" hcl:"dscp"`
 	DstSubnet  *string `cty:"dst_subnet" hcl:"dst_subnet"`
 	PortRanges *string `cty:"port_ranges" hcl:"port_ranges"`
 	Protocol   *string `cty:"protocol" hcl:"protocol"`
@@ -154,26 +153,37 @@ type OrgWlanAuthValue struct {
 	WepAsSecondaryAuth *bool    `cty:"wep_as_secondary_auth" hcl:"wep_as_secondary_auth"`
 }
 
-type BonjourValue struct {
-	AdditionalVlanIds []string                 `cty:"additional_vlan_ids" hcl:"additional_vlan_ids"`
-	Enabled           *bool                    `cty:"enabled" hcl:"enabled"`
-	Services          map[string]ServicesValue `cty:"services" hcl:"services"`
+type OrgWlanAuthServersValue struct {
+	Host                        string  `cty:"host" hcl:"host"`
+	KeywrapEnabled              *bool   `cty:"keywrap_enabled" hcl:"keywrap_enabled"`
+	KeywrapFormat               *string `cty:"keywrap_format" hcl:"keywrap_format"`
+	KeywrapKek                  *string `cty:"keywrap_kek" hcl:"keywrap_kek"`
+	KeywrapMack                 *string `cty:"keywrap_mack" hcl:"keywrap_mack"`
+	Port                        *string `cty:"port" hcl:"port"`
+	RequireMessageAuthenticator *bool   `cty:"require_message_authenticator" hcl:"require_message_authenticator"`
+	Secret                      string  `cty:"secret" hcl:"secret"`
 }
 
-type ServicesValue struct {
+type OrgWlanBonjourValue struct {
+	AdditionalVlanIds []string                        `cty:"additional_vlan_ids" hcl:"additional_vlan_ids"`
+	Enabled           *bool                           `cty:"enabled" hcl:"enabled"`
+	Services          map[string]OrgWlanServicesValue `cty:"services" hcl:"services"`
+}
+
+type OrgWlanServicesValue struct {
 	DisableLocal *bool    `cty:"disable_local" hcl:"disable_local"`
 	RadiusGroups []string `cty:"radius_groups" hcl:"radius_groups"`
 	Scope        *string  `cty:"scope" hcl:"scope"`
 }
 
-type CiscoCwaValue struct {
+type OrgWlanCiscoCwaValue struct {
 	AllowedHostnames []string `cty:"allowed_hostnames" hcl:"allowed_hostnames"`
 	AllowedSubnets   []string `cty:"allowed_subnets" hcl:"allowed_subnets"`
 	BlockedSubnets   []string `cty:"blocked_subnets" hcl:"blocked_subnets"`
 	Enabled          *bool    `cty:"enabled" hcl:"enabled"`
 }
 
-type CoaServersValue struct {
+type OrgWlanCoaServersValue struct {
 	DisableEventTimestampCheck *bool   `cty:"disable_event_timestamp_check" hcl:"disable_event_timestamp_check"`
 	Enabled                    *bool   `cty:"enabled" hcl:"enabled"`
 	Ip                         string  `cty:"ip" hcl:"ip"`
@@ -181,12 +191,12 @@ type CoaServersValue struct {
 	Secret                     string  `cty:"secret" hcl:"secret"`
 }
 
-type DnsServerRewriteValue struct {
+type OrgWlanDnsServerRewriteValue struct {
 	Enabled      *bool             `cty:"enabled" hcl:"enabled"`
 	RadiusGroups map[string]string `cty:"radius_groups" hcl:"radius_groups"`
 }
 
-type DynamicPskValue struct {
+type OrgWlanDynamicPskValue struct {
 	DefaultPsk    *string `cty:"default_psk" hcl:"default_psk"`
 	DefaultVlanId *string `cty:"default_vlan_id" hcl:"default_vlan_id"`
 	Enabled       *bool   `cty:"enabled" hcl:"enabled"`
@@ -194,7 +204,7 @@ type DynamicPskValue struct {
 	Source        *string `cty:"source" hcl:"source"`
 }
 
-type DynamicVlanValue struct {
+type OrgWlanDynamicVlanValue struct {
 	DefaultVlanIds  []string          `cty:"default_vlan_ids" hcl:"default_vlan_ids"`
 	Enabled         *bool             `cty:"enabled" hcl:"enabled"`
 	LocalVlanIds    []string          `cty:"local_vlan_ids" hcl:"local_vlan_ids"`
@@ -202,7 +212,7 @@ type DynamicVlanValue struct {
 	Vlans           map[string]string `cty:"vlans" hcl:"vlans"`
 }
 
-type Hotspot20Value struct {
+type OrgWlanHotspot20Value struct {
 	DomainName []string `cty:"domain_name" hcl:"domain_name"`
 	Enabled    *bool    `cty:"enabled" hcl:"enabled"`
 	NaiRealms  []string `cty:"nai_realms" hcl:"nai_realms"`
@@ -211,16 +221,24 @@ type Hotspot20Value struct {
 	VenueName  *string  `cty:"venue_name" hcl:"venue_name"`
 }
 
-type InjectDhcpOption82Value struct {
+type OrgWlanInjectDhcpOption82Value struct {
 	CircuitId *string `cty:"circuit_id" hcl:"circuit_id"`
 	Enabled   *bool   `cty:"enabled" hcl:"enabled"`
 }
 
 type OrgWlanMistNacValue struct {
-	Enabled *bool `cty:"enabled" hcl:"enabled"`
+	AcctInterimInterval *int64  `cty:"acct_interim_interval" hcl:"acct_interim_interval"`
+	AuthServersRetries  *int64  `cty:"auth_servers_retries" hcl:"auth_servers_retries"`
+	AuthServersTimeout  *int64  `cty:"auth_servers_timeout" hcl:"auth_servers_timeout"`
+	CoaEnabled          *bool   `cty:"coa_enabled" hcl:"coa_enabled"`
+	CoaPort             *int64  `cty:"coa_port" hcl:"coa_port"`
+	Enabled             *bool   `cty:"enabled" hcl:"enabled"`
+	FastDot1xTimers     *bool   `cty:"fast_dot1x_timers" hcl:"fast_dot1x_timers"`
+	Network             *string `cty:"network" hcl:"network"`
+	SourceIp            *string `cty:"source_ip" hcl:"source_ip"`
 }
 
-type PortalValue struct {
+type OrgWlanPortalValue struct {
 	AllowWlanIdRoam             *bool             `cty:"allow_wlan_id_roam" hcl:"allow_wlan_id_roam"`
 	AmazonClientId              *string           `cty:"amazon_client_id" hcl:"amazon_client_id"`
 	AmazonClientSecret          *string           `cty:"amazon_client_secret" hcl:"amazon_client_secret"`
@@ -299,12 +317,12 @@ type PortalValue struct {
 	TwilioSid                   *string           `cty:"twilio_sid" hcl:"twilio_sid"`
 }
 
-type QosValue struct {
+type OrgWlanQosValue struct {
 	Class     *string `cty:"class" hcl:"class"`
 	Overwrite *bool   `cty:"overwrite" hcl:"overwrite"`
 }
 
-type RadsecValue struct {
+type OrgWlanRadsecValue struct {
 	CoaEnabled    *bool                 `cty:"coa_enabled" hcl:"coa_enabled"`
 	Enabled       *bool                 `cty:"enabled" hcl:"enabled"`
 	IdleTimeout   *string               `cty:"idle_timeout" hcl:"idle_timeout"`
@@ -321,7 +339,7 @@ type OrgWlanServersValue struct {
 	Port *int64  `cty:"port" hcl:"port"`
 }
 
-type RatesetValue struct {
+type OrgWlanRatesetValue struct {
 	Eht      *string  `cty:"eht" hcl:"eht"`
 	He       *string  `cty:"he" hcl:"he"`
 	Ht       *string  `cty:"ht" hcl:"ht"`
@@ -331,12 +349,12 @@ type RatesetValue struct {
 	Vht      *string  `cty:"vht" hcl:"vht"`
 }
 
-type ScheduleValue struct {
-	Enabled *bool       `cty:"enabled" hcl:"enabled"`
-	Hours   *HoursValue `cty:"hours" hcl:"hours"`
+type OrgWlanScheduleValue struct {
+	Enabled *bool              `cty:"enabled" hcl:"enabled"`
+	Hours   *OrgWlanHoursValue `cty:"hours" hcl:"hours"`
 }
 
-type HoursValue struct {
+type OrgWlanHoursValue struct {
 	Fri *string `cty:"fri" hcl:"fri"`
 	Mon *string `cty:"mon" hcl:"mon"`
 	Sat *string `cty:"sat" hcl:"sat"`

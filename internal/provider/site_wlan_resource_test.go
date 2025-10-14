@@ -228,10 +228,10 @@ func (s *SiteWlanModel) testChecks(t testing.TB, rType, rName string) testChecks
 		checks.append(t, "TestCheckResourceAttr", "auth_servers_timeout", fmt.Sprintf("%d", *s.AuthServersTimeout))
 	}
 	if s.ClientLimitDown != nil {
-		checks.append(t, "TestCheckResourceAttr", "client_limit_down", fmt.Sprintf("%d", *s.ClientLimitDown))
+		checks.append(t, "TestCheckResourceAttr", "client_limit_down", *s.ClientLimitDown)
 	}
 	if s.ClientLimitUp != nil {
-		checks.append(t, "TestCheckResourceAttr", "client_limit_up", fmt.Sprintf("%d", *s.ClientLimitUp))
+		checks.append(t, "TestCheckResourceAttr", "client_limit_up", *s.ClientLimitUp)
 	}
 	if s.Dtim != nil {
 		checks.append(t, "TestCheckResourceAttr", "dtim", fmt.Sprintf("%d", *s.Dtim))
@@ -243,10 +243,10 @@ func (s *SiteWlanModel) testChecks(t testing.TB, rType, rName string) testChecks
 		checks.append(t, "TestCheckResourceAttr", "max_num_clients", fmt.Sprintf("%d", *s.MaxNumClients))
 	}
 	if s.WlanLimitDown != nil {
-		checks.append(t, "TestCheckResourceAttr", "wlan_limit_down", fmt.Sprintf("%d", *s.WlanLimitDown))
+		checks.append(t, "TestCheckResourceAttr", "wlan_limit_down", *s.WlanLimitDown)
 	}
 	if s.WlanLimitUp != nil {
-		checks.append(t, "TestCheckResourceAttr", "wlan_limit_up", fmt.Sprintf("%d", *s.WlanLimitUp))
+		checks.append(t, "TestCheckResourceAttr", "wlan_limit_up", *s.WlanLimitUp)
 	}
 
 	// String attributes
@@ -375,7 +375,7 @@ func (s *SiteWlanModel) testChecks(t testing.TB, rType, rName string) testChecks
 			for appKey, app := range s.AppQos.Apps {
 				prefix := fmt.Sprintf("app_qos.apps.%s", appKey)
 				if app.Dscp != nil {
-					checks.append(t, "TestCheckResourceAttr", prefix+".dscp", fmt.Sprintf("%d", *app.Dscp))
+					checks.append(t, "TestCheckResourceAttr", prefix+".dscp", *app.Dscp)
 				}
 				if app.DstSubnet != nil {
 					checks.append(t, "TestCheckResourceAttr", prefix+".dst_subnet", *app.DstSubnet)
@@ -393,7 +393,7 @@ func (s *SiteWlanModel) testChecks(t testing.TB, rType, rName string) testChecks
 			for i, other := range s.AppQos.Others {
 				prefix := fmt.Sprintf("app_qos.others.%d", i)
 				if other.Dscp != nil {
-					checks.append(t, "TestCheckResourceAttr", prefix+".dscp", fmt.Sprintf("%d", *other.Dscp))
+					checks.append(t, "TestCheckResourceAttr", prefix+".dscp", *other.Dscp)
 				}
 				if other.DstSubnet != nil {
 					checks.append(t, "TestCheckResourceAttr", prefix+".dst_subnet", *other.DstSubnet)

@@ -318,7 +318,7 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 		}
 
 		if !plan.WanExtraRoutes6.IsNull() && !plan.WanExtraRoutes6.IsUnknown() {
-			data.WanExtraRoutes6 = wanExtraRoutesPortVpnPathTerraformToSdk(plan.WanExtraRoutes6)
+			data.WanExtraRoutes6 = wanExtraRoutes6PortVpnPathTerraformToSdk(plan.WanExtraRoutes6)
 		}
 
 		if !plan.WanNetworks.IsNull() && !plan.WanNetworks.IsUnknown() {

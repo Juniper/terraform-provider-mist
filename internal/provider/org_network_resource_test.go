@@ -156,7 +156,9 @@ func (o *OrgNetworkModel) testChecks(t testing.TB, rType, rName string) testChec
 				if destNat.InternalIp != nil {
 					checks.append(t, "TestCheckResourceAttr", basePath+".internal_ip", *destNat.InternalIp)
 				}
-				checks.append(t, "TestCheckResourceAttr", basePath+".name", destNat.Name)
+				if destNat.Name != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".name", *destNat.Name)
+				}
 				if destNat.Port != nil {
 					checks.append(t, "TestCheckResourceAttr", basePath+".port", *destNat.Port)
 				}

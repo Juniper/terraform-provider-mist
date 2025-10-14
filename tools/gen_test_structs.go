@@ -55,6 +55,7 @@ func main() {
 	isSchema := false
 	attrLookup := make(map[string][]attrParameters)
 	attrStack := stack{}
+	resourceModel := "UnknownModel"
 
 	scanner := bufio.NewScanner(in)
 	for scanner.Scan() {
@@ -62,10 +63,14 @@ func main() {
 
 		if strings.Contains(line, "Model struct {") {
 			isStruct = true
+			modelName := strings.Split(line, " ")[1]
+			resourceModel = modelName[:len(modelName)-5] // Remove last 5 letters ("Model")
 		}
 		if strings.Contains(line, "Value struct {") {
 			isStruct = true
 			nested = true
+			structName := strings.Split(line, " ")[1]
+			line = strings.Replace(line, structName, resourceModel+structName, 1)
 		}
 
 		if strings.Contains(line, "return schema.Schema{") {
@@ -151,11 +156,6 @@ func main() {
 
 		// parse go struct and populate tags
 		if isStruct {
-			tag := "hcl"
-			if nested {
-				tag = "cty"
-			}
-
 			if !strings.Contains(line, "attr.ValueState") {
 				splittedLine := strings.Fields(line)
 				if len(splittedLine) == 3 {
@@ -186,69 +186,75 @@ func main() {
 						continue
 					}
 
+					fullTag := fmt.Sprintf("`hcl:\"%s\"`", varTag)
+					if nested {
+						fullTag = fmt.Sprintf("`cty:\"%s\" hcl:\"%s\"`", varTag, varTag)
+					}
+
 					if strings.Contains(varType, "types.List") {
 						fmt.Println("Found a list type:", varName)
 						fmt.Println("Element Type:", attrParam.ElemType)
+
 						switch {
 						case attrParam.ElemType == "types.StringType":
-							line = fmt.Sprintf("\t%s []string `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s []string %s\n", varName, fullTag)
 						case attrParam.ElemType == "types.Bool":
-							line = fmt.Sprintf("\t%s []bool `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s []bool %s\n", varName, fullTag)
 						case attrParam.ElemType == "types.Float64":
-							line = fmt.Sprintf("\t%s []float64 `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s []float64 %s\n", varName, fullTag)
 						case attrParam.ElemType == "types.Int64Type":
-							line = fmt.Sprintf("\t%s []int64 `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s []int64 %s\n", varName, fullTag)
 						default:
-							line = fmt.Sprintf("\t%s []%sValue `%s:\"%s\"`\n", varName, varName, tag, varTag)
+							line = fmt.Sprintf("\t%s []%s%sValue %s\n", varName, resourceModel, varName, fullTag)
 						}
 					} else if strings.Contains(varType, "types.String") {
 						if attrParam.Optional {
-							line = fmt.Sprintf("\t%s *string `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s *string %s\n", varName, fullTag)
 						} else {
-							line = fmt.Sprintf("\t%s string `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s string %s\n", varName, fullTag)
 						}
 					} else if strings.Contains(varType, "types.Bool") {
 						if attrParam.Optional {
-							line = fmt.Sprintf("\t%s *bool `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s *bool %s\n", varName, fullTag)
 						} else {
-							line = fmt.Sprintf("\t%s bool `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s bool %s\n", varName, fullTag)
 						}
 					} else if strings.Contains(varType, "types.Float64") {
 						if attrParam.Optional {
-							line = fmt.Sprintf("\t%s *float64 `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s *float64 %s\n", varName, fullTag)
 						} else {
-							line = fmt.Sprintf("\t%s float64 `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s float64 %s\n", varName, fullTag)
 						}
 					} else if strings.Contains(varType, "types.Int64") {
 						if attrParam.Optional {
-							line = fmt.Sprintf("\t%s *int64 `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s *int64 %s\n", varName, fullTag)
 						} else {
-							line = fmt.Sprintf("\t%s int64 `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s int64 %s\n", varName, fullTag)
 						}
 					} else if strings.Contains(varType, "types.Object") {
 						if attrParam.Optional {
-							line = fmt.Sprintf("\t%s *%sValue `%s:\"%s\"`\n", varName, varName, tag, varTag)
+							line = fmt.Sprintf("\t%s *%s%sValue %s\n", varName, resourceModel, varName, fullTag)
 						} else {
-							line = fmt.Sprintf("\t%s %sValue `%s:\"%s\"`\n", varName, varName, tag, varTag)
+							line = fmt.Sprintf("\t%s %s%sValue %s\n", varName, resourceModel, varName, fullTag)
 						}
 					} else if strings.Contains(varType, "types.Map") {
 						switch {
 						case attrParam.ElemType == "types.StringType":
-							line = fmt.Sprintf("\t%s map[string]string `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s map[string]string %s\n", varName, fullTag)
 						case attrParam.ElemType == "types.Bool":
-							line = fmt.Sprintf("\t%s map[string]bool `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s map[string]bool %s\n", varName, fullTag)
 						case attrParam.ElemType == "types.Float64":
-							line = fmt.Sprintf("\t%s map[string]float64 `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s map[string]float64 %s\n", varName, fullTag)
 						case attrParam.ElemType == "types.Int64Type":
-							line = fmt.Sprintf("\t%s map[string]int64 `%s:\"%s\"`\n", varName, tag, varTag)
+							line = fmt.Sprintf("\t%s map[string]int64 %s\n", varName, fullTag)
 						default:
-							line = fmt.Sprintf("\t%s map[string]%sValue `%s:\"%s\"`\n", varName, varName, tag, varTag)
+							line = fmt.Sprintf("\t%s map[string]%s%sValue %s\n", varName, resourceModel, varName, fullTag)
 						}
 					} else {
 						if attrParam.Optional {
-							line = fmt.Sprintf("\t%s *%s `%s:\"%s\"`\n", varName, varType, tag, varTag)
+							line = fmt.Sprintf("\t%s *%s%s %s\n", varName, resourceModel, varType, fullTag)
 						} else {
-							line = fmt.Sprintf("\t%s %s `%s:\"%s\"`\n", varName, varType, tag, varTag)
+							line = fmt.Sprintf("\t%s %s%s %s\n", varName, resourceModel, varType, fullTag)
 						}
 					}
 				} else {

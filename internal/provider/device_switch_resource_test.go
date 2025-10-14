@@ -286,6 +286,16 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, rName string) testCh
 				}
 				if len(config.FixedBindings) > 0 {
 					checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("dhcpd_config.config.%s.fixed_bindings", key))
+					for bindingKey, binding := range config.FixedBindings {
+						prefix := fmt.Sprintf("dhcpd_config.config.%s.fixed_bindings.%s", key, bindingKey)
+						checks.append(t, "TestCheckResourceAttr", prefix+".ip", binding.Ip)
+						if binding.Ip6 != nil {
+							checks.append(t, "TestCheckResourceAttr", prefix+".ip6", *binding.Ip6)
+						}
+						if binding.Name != nil {
+							checks.append(t, "TestCheckResourceAttr", prefix+".name", *binding.Name)
+						}
+					}
 				}
 				if len(config.Options) > 0 {
 					checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("dhcpd_config.config.%s.options", key))
@@ -810,6 +820,12 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, rName string) testCh
 			}
 			if usage.StormControl != nil {
 				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("port_usages.%s.storm_control", key))
+			}
+			if usage.StpDisable != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.stp_disable", key), fmt.Sprintf("%t", *usage.StpDisable))
+			}
+			if usage.StpRequired != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.stp_required", key), fmt.Sprintf("%t", *usage.StpRequired))
 			}
 		}
 	}
