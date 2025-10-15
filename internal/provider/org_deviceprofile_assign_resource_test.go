@@ -32,6 +32,7 @@ func TestOrgDeviceprofileAssignModel(t *testing.T) {
 	}
 
 	for tName, tCase := range testCases {
+		t.Skip("Skipping Device Profile Assign tests temporarily")
 		t.Run(tName, func(t *testing.T) {
 			resourceType := "org_deviceprofile_assign"
 

@@ -49,5 +49,5 @@ allow_usermac_override = false
 ␞
 org_id = "{org_id}"
 name = "test-nactag-portal"
-type = "redirect_guest_portal"
+type = "redirect_nacportal_id"
 nacportal_id = "11111111-1111-1111-1111-111111111111"

@@ -15,17 +15,6 @@
     version      = "stable"
   }
   
-  auto_upgrade_esl = {
-    allow_downgrade = false
-    custom_versions = {
-      "AP41" = "0.14.26348"
-    }
-    day_of_week = "sat"
-    enabled     = true
-    time_of_day = "03:00"
-    version     = "0.14.26348"
-  }
-  
   bgp_neighbor_updown_threshold = 10
   blacklist_url                 = "https://blacklist.example.com"
   
@@ -116,6 +105,14 @@
     idp_enabled            = true
     intrusion_detection     = true
     utm_idp_features       = ["application-firewall", "application-identification"]
+    auto_upgrade = {
+      enabled = true
+      snapshot = false
+      custom_versions = {
+        "WAN-SRX-1" = "21.4R3.15"
+        "WAN-SRX-2" = "21.4R3.15"
+      }
+    }
   }
   
   led = {
@@ -221,6 +218,20 @@
   
   srx_app = {
     enabled = true
+  }
+  
+  ssr = {
+    proxy = {
+      url = "http://ssr-proxy.example.com:8080"
+    }
+    auto_upgrade = {
+      enabled = true
+      channel = "stable"
+      custom_versions = {
+        "router-1" = "6.2.3"
+        "router-2" = "6.2.3"
+      }
+    }
   }
   
   ssh_keys = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC..."]

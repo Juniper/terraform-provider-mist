@@ -618,6 +618,9 @@ func (s *DeviceApModel) testChecks(t testing.TB, rType, rName string) testChecks
 		if s.RadioConfig.AntGain6 != nil {
 			checks.append(t, "TestCheckResourceAttr", "radio_config.ant_gain_6", fmt.Sprintf("%d", *s.RadioConfig.AntGain6))
 		}
+		if s.RadioConfig.AntMode != nil {
+			checks.append(t, "TestCheckResourceAttr", "radio_config.ant_mode", *s.RadioConfig.AntMode)
+		}
 		if s.RadioConfig.AntennaMode != nil {
 			checks.append(t, "TestCheckResourceAttr", "radio_config.antenna_mode", *s.RadioConfig.AntennaMode)
 		}

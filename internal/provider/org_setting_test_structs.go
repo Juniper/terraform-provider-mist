@@ -1,183 +1,263 @@
 package provider
 
 type OrgSettingModel struct {
-	ApUpdownThreshold      *int64                          `hcl:"ap_updown_threshold"`
-	ApiPolicy              *ApiPolicyValue                 `hcl:"api_policy"`
-	Cacerts                []string                        `hcl:"cacerts"`
-	Celona                 *CelonaValue                    `hcl:"celona"`
-	Cloudshark             *CloudsharkValue                `hcl:"cloudshark"`
-	DeviceCert             *DeviceCertValue                `hcl:"device_cert"`
-	DeviceUpdownThreshold  *int64                          `hcl:"device_updown_threshold"`
-	DisablePcap            *bool                           `hcl:"disable_pcap"`
-	DisableRemoteShell     *bool                           `hcl:"disable_remote_shell"`
-	GatewayUpdownThreshold *int64                          `hcl:"gateway_updown_threshold"`
-	Installer              *InstallerValue                 `hcl:"installer"`
-	Jcloud                 *JcloudValue                    `hcl:"jcloud"`
-	JcloudRa               *JcloudRaValue                  `hcl:"jcloud_ra"`
-	Mgmt                   *MgmtValue                      `hcl:"mgmt"`
-	MistNac                *OrgSettingMistNacValue         `hcl:"mist_nac"`
-	MxedgeFipsEnabled      *bool                           `hcl:"mxedge_fips_enabled"`
-	MxedgeMgmt             *MxedgeMgmtValue                `hcl:"mxedge_mgmt"`
-	OpticPortConfig        map[string]OpticPortConfigValue `hcl:"optic_port_config"`
-	OrgId                  string                          `hcl:"org_id"`
-	PasswordPolicy         *PasswordPolicyValue            `hcl:"password_policy"`
-	Pcap                   *PcapValue                      `hcl:"pcap"`
-	Security               *SecurityValue                  `hcl:"security"`
-	SwitchMgmt             *OrgSettingSwitchMgmtValue      `hcl:"switch_mgmt"`
-	SwitchUpdownThreshold  *int64                          `hcl:"switch_updown_threshold"`
-	SyntheticTest          *SyntheticTestValue             `hcl:"synthetic_test"`
-	UiIdleTimeout          *int64                          `hcl:"ui_idle_timeout"`
-	VpnOptions             *VpnOptionsValue                `hcl:"vpn_options"`
-	WanPma                 *WanPmaValue                    `hcl:"wan_pma"`
-	WiredPma               *WiredPmaValue                  `hcl:"wired_pma"`
-	WirelessPma            *WirelessPmaValue               `hcl:"wireless_pma"`
+	ApUpdownThreshold      *int64                                    `hcl:"ap_updown_threshold"`
+	ApiPolicy              *OrgSettingApiPolicyValue                 `hcl:"api_policy"`
+	Cacerts                []string                                  `hcl:"cacerts"`
+	Celona                 *OrgSettingCelonaValue                    `hcl:"celona"`
+	Cloudshark             *OrgSettingCloudsharkValue                `hcl:"cloudshark"`
+	DeviceCert             *OrgSettingDeviceCertValue                `hcl:"device_cert"`
+	DeviceUpdownThreshold  *int64                                    `hcl:"device_updown_threshold"`
+	DisablePcap            *bool                                     `hcl:"disable_pcap"`
+	DisableRemoteShell     *bool                                     `hcl:"disable_remote_shell"`
+	GatewayUpdownThreshold *int64                                    `hcl:"gateway_updown_threshold"`
+	Installer              *OrgSettingInstallerValue                 `hcl:"installer"`
+	Jcloud                 *OrgSettingJcloudValue                    `hcl:"jcloud"`
+	JcloudRa               *OrgSettingJcloudRaValue                  `hcl:"jcloud_ra"`
+	JuniperSrx             *OrgSettingJuniperSrxValue                `hcl:"juniper_srx"`
+	JunosShellAccess       *OrgSettingJunosShellAccessValue          `hcl:"junos_shell_access"`
+	Marvis                 *OrgSettingMarvisValue                    `hcl:"marvis"`
+	Mgmt                   *OrgSettingMgmtValue                      `hcl:"mgmt"`
+	MistNac                *OrgSettingMistNacValue                   `hcl:"mist_nac"`
+	MxedgeMgmt             *OrgSettingMxedgeMgmtValue                `hcl:"mxedge_mgmt"`
+	OpticPortConfig        map[string]OrgSettingOpticPortConfigValue `hcl:"optic_port_config"`
+	OrgId                  string                                    `hcl:"org_id"`
+	PasswordPolicy         *OrgSettingPasswordPolicyValue            `hcl:"password_policy"`
+	Pcap                   *OrgSettingPcapValue                      `hcl:"pcap"`
+	Security               *OrgSettingSecurityValue                  `hcl:"security"`
+	Ssr                    *OrgSettingSsrValue                       `hcl:"ssr"`
+	Switch                 *OrgSettingSwitchValue                    `hcl:"switch"`
+	SwitchMgmt             *OrgSettingSwitchMgmtValue                `hcl:"switch_mgmt"`
+	SwitchUpdownThreshold  *int64                                    `hcl:"switch_updown_threshold"`
+	SyntheticTest          *OrgSettingSyntheticTestValue             `hcl:"synthetic_test"`
+	UiIdleTimeout          *int64                                    `hcl:"ui_idle_timeout"`
+	UiNoTracking           *bool                                     `hcl:"ui_no_tracking"`
+	VpnOptions             *OrgSettingVpnOptionsValue                `hcl:"vpn_options"`
+	WanPma                 *OrgSettingWanPmaValue                    `hcl:"wan_pma"`
+	WiredPma               *OrgSettingWiredPmaValue                  `hcl:"wired_pma"`
+	WirelessPma            *OrgSettingWirelessPmaValue               `hcl:"wireless_pma"`
 }
 
-type ApiPolicyValue struct {
-	NoReveal *bool `cty:"no_reveal"`
+type OrgSettingApiPolicyValue struct {
+	NoReveal *bool `cty:"no_reveal" hcl:"no_reveal"`
 }
 
-type CelonaValue struct {
-	ApiKey    string `cty:"api_key"`
-	ApiPrefix string `cty:"api_prefix"`
+type OrgSettingCelonaValue struct {
+	ApiKey    string `cty:"api_key" hcl:"api_key"`
+	ApiPrefix string `cty:"api_prefix" hcl:"api_prefix"`
 }
 
-type CloudsharkValue struct {
-	Apitoken string  `cty:"apitoken"`
-	Url      *string `cty:"url"`
+type OrgSettingCloudsharkValue struct {
+	Apitoken *string `cty:"apitoken" hcl:"apitoken"`
+	Url      *string `cty:"url" hcl:"url"`
 }
 
-type CradlepointValue struct {
+type OrgSettingCradlepointValue struct {
 }
 
-type DeviceCertValue struct {
-	Cert string `cty:"cert"`
-	Key  string `cty:"key"`
+type OrgSettingDeviceCertValue struct {
+	Cert string `cty:"cert" hcl:"cert"`
+	Key  string `cty:"key" hcl:"key"`
 }
 
-type InstallerValue struct {
-	AllowAllDevices *bool    `cty:"allow_all_devices"`
-	AllowAllSites   *bool    `cty:"allow_all_sites"`
-	ExtraSiteIds    []string `cty:"extra_site_ids"`
-	GracePeriod     *int64   `cty:"grace_period"`
+type OrgSettingInstallerValue struct {
+	AllowAllDevices *bool    `cty:"allow_all_devices" hcl:"allow_all_devices"`
+	AllowAllSites   *bool    `cty:"allow_all_sites" hcl:"allow_all_sites"`
+	ExtraSiteIds    []string `cty:"extra_site_ids" hcl:"extra_site_ids"`
+	GracePeriod     *int64   `cty:"grace_period" hcl:"grace_period"`
 }
 
-type JcloudValue struct {
-	OrgApitoken     string `cty:"org_apitoken"`
-	OrgApitokenName string `cty:"org_apitoken_name"`
-	OrgId           string `cty:"org_id"`
+type OrgSettingJcloudValue struct {
+	OrgApitoken     string `cty:"org_apitoken" hcl:"org_apitoken"`
+	OrgApitokenName string `cty:"org_apitoken_name" hcl:"org_apitoken_name"`
+	OrgId           string `cty:"org_id" hcl:"org_id"`
 }
 
-type JcloudRaValue struct {
-	OrgApitoken     *string `cty:"org_apitoken"`
-	OrgApitokenName *string `cty:"org_apitoken_name"`
-	OrgId           *string `cty:"org_id"`
+type OrgSettingJcloudRaValue struct {
+	OrgApitoken     *string `cty:"org_apitoken" hcl:"org_apitoken"`
+	OrgApitokenName *string `cty:"org_apitoken_name" hcl:"org_apitoken_name"`
+	OrgId           *string `cty:"org_id" hcl:"org_id"`
 }
 
-type JuniperValue struct {
+type OrgSettingJuniperValue struct {
 }
 
-type AccountsValue struct {
+type OrgSettingAccountsValue struct {
 }
 
-type MgmtValue struct {
-	MxtunnelIds []string `cty:"mxtunnel_ids"`
-	UseMxtunnel *bool    `cty:"use_mxtunnel"`
-	UseWxtunnel *bool    `cty:"use_wxtunnel"`
+type OrgSettingJuniperSrxValue struct {
+	SrxAutoUpgrade *OrgSettingSrxAutoUpgradeValue `cty:"auto_upgrade" hcl:"auto_upgrade"`
+}
+
+type OrgSettingSrxAutoUpgradeValue struct {
+	CustomVersions map[string]string `cty:"custom_versions" hcl:"custom_versions"`
+	Enabled        *bool             `cty:"enabled" hcl:"enabled"`
+	Snapshot       *bool             `cty:"snapshot" hcl:"snapshot"`
+}
+
+type OrgSettingJunosShellAccessValue struct {
+	Admin    *string `cty:"admin" hcl:"admin"`
+	Helpdesk *string `cty:"helpdesk" hcl:"helpdesk"`
+	Read     *string `cty:"read" hcl:"read"`
+	Write    *string `cty:"write" hcl:"write"`
+}
+
+type OrgSettingMarvisValue struct {
+	AutoOperations *OrgSettingAutoOperationsValue `cty:"auto_operations" hcl:"auto_operations"`
+}
+
+type OrgSettingAutoOperationsValue struct {
+	BouncePortForAbnormalPoeClient         *bool `cty:"bounce_port_for_abnormal_poe_client" hcl:"bounce_port_for_abnormal_poe_client"`
+	DisablePortWhenDdosProtocolViolation   *bool `cty:"disable_port_when_ddos_protocol_violation" hcl:"disable_port_when_ddos_protocol_violation"`
+	DisablePortWhenRogueDhcpServerDetected *bool `cty:"disable_port_when_rogue_dhcp_server_detected" hcl:"disable_port_when_rogue_dhcp_server_detected"`
+}
+
+type OrgSettingMgmtValue struct {
+	MxtunnelIds []string `cty:"mxtunnel_ids" hcl:"mxtunnel_ids"`
+	UseMxtunnel *bool    `cty:"use_mxtunnel" hcl:"use_mxtunnel"`
+	UseWxtunnel *bool    `cty:"use_wxtunnel" hcl:"use_wxtunnel"`
 }
 
 type OrgSettingMistNacValue struct {
-	Cacerts                   []string         `cty:"cacerts"`
-	DefaultIdpId              *string          `cty:"default_idp_id"`
-	DisableRsaeAlgorithms     *bool            `cty:"disable_rsae_algorithms"`
-	EapSslSecurityLevel       *int64           `cty:"eap_ssl_security_level"`
-	EuOnly                    *bool            `cty:"eu_only"`
-	IdpMachineCertLookupField *string          `cty:"idp_machine_cert_lookup_field"`
-	IdpUserCertLookupField    *string          `cty:"idp_user_cert_lookup_field"`
-	Idps                      []IdpsValue      `cty:"idps"`
-	ServerCert                *ServerCertValue `cty:"server_cert"`
-	UseIpVersion              *string          `cty:"use_ip_version"`
-	UseSslPort                *bool            `cty:"use_ssl_port"`
+	Cacerts                   []string                   `cty:"cacerts" hcl:"cacerts"`
+	DefaultIdpId              *string                    `cty:"default_idp_id" hcl:"default_idp_id"`
+	DisableRsaeAlgorithms     *bool                      `cty:"disable_rsae_algorithms" hcl:"disable_rsae_algorithms"`
+	EapSslSecurityLevel       *int64                     `cty:"eap_ssl_security_level" hcl:"eap_ssl_security_level"`
+	EuOnly                    *bool                      `cty:"eu_only" hcl:"eu_only"`
+	IdpMachineCertLookupField *string                    `cty:"idp_machine_cert_lookup_field" hcl:"idp_machine_cert_lookup_field"`
+	IdpUserCertLookupField    *string                    `cty:"idp_user_cert_lookup_field" hcl:"idp_user_cert_lookup_field"`
+	Idps                      []OrgSettingIdpsValue      `cty:"idps" hcl:"idps"`
+	ServerCert                *OrgSettingServerCertValue `cty:"server_cert" hcl:"server_cert"`
+	UseIpVersion              *string                    `cty:"use_ip_version" hcl:"use_ip_version"`
+	UseSslPort                *bool                      `cty:"use_ssl_port" hcl:"use_ssl_port"`
 }
 
-type IdpsValue struct {
-	ExcludeRealms []string `cty:"exclude_realms"`
-	Id            string   `cty:"id"`
-	UserRealms    []string `cty:"user_realms"`
+type OrgSettingIdpsValue struct {
+	ExcludeRealms []string `cty:"exclude_realms" hcl:"exclude_realms"`
+	Id            string   `cty:"id" hcl:"id"`
+	UserRealms    []string `cty:"user_realms" hcl:"user_realms"`
 }
 
-type ServerCertValue struct {
-	Cert     *string `cty:"cert"`
-	Key      *string `cty:"key"`
-	Password *string `cty:"password"`
+type OrgSettingServerCertValue struct {
+	Cert     *string `cty:"cert" hcl:"cert"`
+	Key      *string `cty:"key" hcl:"key"`
+	Password *string `cty:"password" hcl:"password"`
 }
 
-type MxedgeMgmtValue struct {
-	FipsEnabled  *bool   `cty:"fips_enabled"`
-	MistPassword *string `cty:"mist_password"`
-	OobIpType    *string `cty:"oob_ip_type"`
-	OobIpType6   *string `cty:"oob_ip_type6"`
-	RootPassword *string `cty:"root_password"`
+type OrgSettingMxedgeMgmtValue struct {
+	ConfigAutoRevert *bool   `cty:"config_auto_revert" hcl:"config_auto_revert"`
+	FipsEnabled      *bool   `cty:"fips_enabled" hcl:"fips_enabled"`
+	MistPassword     *string `cty:"mist_password" hcl:"mist_password"`
+	OobIpType        *string `cty:"oob_ip_type" hcl:"oob_ip_type"`
+	OobIpType6       *string `cty:"oob_ip_type6" hcl:"oob_ip_type6"`
+	RootPassword     *string `cty:"root_password" hcl:"root_password"`
 }
 
-type OpticPortConfigValue struct {
-	Channelized *bool   `cty:"channelized"`
-	Speed       *string `cty:"speed"`
+type OrgSettingOpticPortConfigValue struct {
+	Channelized *bool   `cty:"channelized" hcl:"channelized"`
+	Speed       *string `cty:"speed" hcl:"speed"`
 }
 
-type PasswordPolicyValue struct {
-	Enabled               *bool  `cty:"enabled"`
-	ExpiryInDays          *int64 `cty:"expiry_in_days"`
-	MinLength             *int64 `cty:"min_length"`
-	RequiresSpecialChar   *bool  `cty:"requires_special_char"`
-	RequiresTwoFactorAuth *bool  `cty:"requires_two_factor_auth"`
+type OrgSettingPasswordPolicyValue struct {
+	Enabled               *bool  `cty:"enabled" hcl:"enabled"`
+	ExpiryInDays          *int64 `cty:"expiry_in_days" hcl:"expiry_in_days"`
+	MinLength             *int64 `cty:"min_length" hcl:"min_length"`
+	RequiresSpecialChar   *bool  `cty:"requires_special_char" hcl:"requires_special_char"`
+	RequiresTwoFactorAuth *bool  `cty:"requires_two_factor_auth" hcl:"requires_two_factor_auth"`
 }
 
-type PcapValue struct {
-	Bucket    *string `cty:"bucket"`
-	MaxPktLen *int64  `cty:"max_pkt_len"`
+type OrgSettingPcapValue struct {
+	Bucket    *string `cty:"bucket" hcl:"bucket"`
+	MaxPktLen *int64  `cty:"max_pkt_len" hcl:"max_pkt_len"`
 }
 
-type SecurityValue struct {
-	DisableLocalSsh     *bool   `cty:"disable_local_ssh"`
-	FipsZeroizePassword *string `cty:"fips_zeroize_password"`
-	LimitSshAccess      *bool   `cty:"limit_ssh_access"`
+type OrgSettingSecurityValue struct {
+	DisableLocalSsh     *bool   `cty:"disable_local_ssh" hcl:"disable_local_ssh"`
+	FipsZeroizePassword *string `cty:"fips_zeroize_password" hcl:"fips_zeroize_password"`
+	LimitSshAccess      *bool   `cty:"limit_ssh_access" hcl:"limit_ssh_access"`
+}
+
+type OrgSettingSsrValue struct {
+	ConductorHosts []string                       `cty:"conductor_hosts" hcl:"conductor_hosts"`
+	ConductorToken *string                        `cty:"conductor_token" hcl:"conductor_token"`
+	DisableStats   *bool                          `cty:"disable_stats" hcl:"disable_stats"`
+	Proxy          *OrgSettingProxyValue          `cty:"proxy" hcl:"proxy"`
+	SsrAutoUpgrade *OrgSettingSsrAutoUpgradeValue `cty:"auto_upgrade" hcl:"auto_upgrade"`
+}
+
+type OrgSettingProxyValue struct {
+	Url *string `cty:"url" hcl:"url"`
+}
+
+type OrgSettingSsrAutoUpgradeValue struct {
+	Channel        *string           `cty:"channel" hcl:"channel"`
+	CustomVersions map[string]string `cty:"custom_versions" hcl:"custom_versions"`
+	Enabled        *bool             `cty:"enabled" hcl:"enabled"`
+}
+
+type OrgSettingSwitchValue struct {
+	AutoUpgrade *OrgSettingAutoUpgradeValue `cty:"auto_upgrade" hcl:"auto_upgrade"`
+}
+
+type OrgSettingAutoUpgradeValue struct {
+	CustomVersions map[string]string `cty:"custom_versions" hcl:"custom_versions"`
+	Enabled        *bool             `cty:"enabled" hcl:"enabled"`
+	Snapshot       *bool             `cty:"snapshot" hcl:"snapshot"`
 }
 
 type OrgSettingSwitchMgmtValue struct {
-	ApAffinityThreshold *int64 `cty:"ap_affinity_threshold"`
+	ApAffinityThreshold *int64 `cty:"ap_affinity_threshold" hcl:"ap_affinity_threshold"`
 }
 
-type SyntheticTestValue struct {
-	Disabled     *bool              `cty:"disabled"`
-	Vlans        []VlansValue       `cty:"vlans"`
-	WanSpeedtest *WanSpeedtestValue `cty:"wan_speedtest"`
+type OrgSettingSyntheticTestValue struct {
+	Aggressiveness *string                                `cty:"aggressiveness" hcl:"aggressiveness"`
+	CustomProbes   map[string]OrgSettingCustomProbesValue `cty:"custom_probes" hcl:"custom_probes"`
+	Disabled       *bool                                  `cty:"disabled" hcl:"disabled"`
+	LanNetworks    []OrgSettingLanNetworksValue           `cty:"lan_networks" hcl:"lan_networks"`
+	Vlans          []OrgSettingVlansValue                 `cty:"vlans" hcl:"vlans"`
+	WanSpeedtest   *OrgSettingWanSpeedtestValue           `cty:"wan_speedtest" hcl:"wan_speedtest"`
 }
 
-type VlansValue struct {
-	CustomTestUrls []string `cty:"custom_test_urls"`
-	Disabled       *bool    `cty:"disabled"`
-	VlanIds        []string `cty:"vlan_ids"`
+type OrgSettingCustomProbesValue struct {
+	Aggressiveness   *string `cty:"aggressiveness" hcl:"aggressiveness"`
+	Host             *string `cty:"host" hcl:"host"`
+	Port             *int64  `cty:"port" hcl:"port"`
+	Threshold        *int64  `cty:"threshold" hcl:"threshold"`
+	CustomProbesType *string `cty:"type" hcl:"type"`
+	Url              *string `cty:"url" hcl:"url"`
 }
 
-type WanSpeedtestValue struct {
+type OrgSettingLanNetworksValue struct {
+	Networks []string `cty:"networks" hcl:"networks"`
+	Probes   []string `cty:"probes" hcl:"probes"`
+}
+
+type OrgSettingVlansValue struct {
+	CustomTestUrls []string `cty:"custom_test_urls" hcl:"custom_test_urls"`
+	Disabled       *bool    `cty:"disabled" hcl:"disabled"`
+	Probes         []string `cty:"probes" hcl:"probes"`
+	VlanIds        []string `cty:"vlan_ids" hcl:"vlan_ids"`
+}
+
+type OrgSettingWanSpeedtestValue struct {
 	Enabled   *bool   `cty:"enabled" hcl:"enabled"`
 	TimeOfDay *string `cty:"time_of_day" hcl:"time_of_day"`
 }
 
-type VpnOptionsValue struct {
-	AsBase   *int64  `cty:"as_base"`
-	StSubnet *string `cty:"st_subnet"`
+type OrgSettingVpnOptionsValue struct {
+	AsBase     *int64  `cty:"as_base" hcl:"as_base"`
+	EnableIpv6 *bool   `cty:"enable_ipv6" hcl:"enable_ipv6"`
+	StSubnet   *string `cty:"st_subnet" hcl:"st_subnet"`
 }
 
-type WanPmaValue struct {
-	Enabled *bool `cty:"enabled"`
+type OrgSettingWanPmaValue struct {
+	Enabled *bool `cty:"enabled" hcl:"enabled"`
 }
 
-type WiredPmaValue struct {
-	Enabled *bool `cty:"enabled"`
+type OrgSettingWiredPmaValue struct {
+	Enabled *bool `cty:"enabled" hcl:"enabled"`
 }
 
-type WirelessPmaValue struct {
-	Enabled *bool `cty:"enabled"`
+type OrgSettingWirelessPmaValue struct {
+	Enabled *bool `cty:"enabled" hcl:"enabled"`
 }

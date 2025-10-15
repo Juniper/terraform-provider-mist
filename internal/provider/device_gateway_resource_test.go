@@ -154,10 +154,10 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.import_policy", k), *v.ImportPolicy)
 			}
 			if v.LocalAs != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.local_as", k), fmt.Sprintf("%s", *v.LocalAs))
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.local_as", k), *v.LocalAs)
 			}
 			if v.NeighborAs != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.neighbor_as", k), fmt.Sprintf("%s", *v.NeighborAs))
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.neighbor_as", k), *v.NeighborAs)
 			}
 			if len(v.Neighbors) > 0 {
 				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("bgp_config.%s.neighbors", k))
@@ -210,6 +210,10 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.wan_name", k), *v.WanName)
 			}
 		}
+	}
+
+	if s.UrlFilteringDenyMsg != nil {
+		checks.append(t, "TestCheckResourceAttr", "url_filtering_deny_msg", *s.UrlFilteringDenyMsg)
 	}
 
 	if s.DhcpdConfig != nil {
@@ -831,6 +835,9 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 			if v.WanExtIp != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_ext_ip", k), *v.WanExtIp)
 			}
+			if v.WanExtIp6 != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_ext_ip6", k), *v.WanExtIp6)
+			}
 			if len(v.WanExtraRoutes) > 0 {
 				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("port_config.%s.wan_extra_routes", k))
 				for wanRouteKey, wanRoute := range v.WanExtraRoutes {
@@ -878,6 +885,9 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				}
 				if v.WanSourceNat.NatPool != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_source_nat.nat_pool", k), *v.WanSourceNat.NatPool)
+				}
+				if v.WanSourceNat.Nat6Pool != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_source_nat.nat6_pool", k), *v.WanSourceNat.Nat6Pool)
 				}
 			}
 			if v.WanType != nil {

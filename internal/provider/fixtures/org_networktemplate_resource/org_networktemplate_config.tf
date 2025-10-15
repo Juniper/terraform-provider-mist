@@ -215,9 +215,11 @@
       bypass_auth_when_server_down = true
       bypass_auth_when_server_down_for_unkown_client = false
       inter_switch_link      = false
+      stp_disable            = false
       stp_edge               = true
       stp_no_root_port       = false
       stp_p2p                = true
+      stp_required           = true
       use_vstp               = false
       all_networks           = false
       dynamic_vlan_networks  = ["dynamic1", "dynamic2"]
@@ -227,7 +229,7 @@
       voip_network           = "voip"
       reset_default_when     = "link_down"
       community_vlan_id      = 300
-      ui_evpntopo_id         = "topo1"
+      ui_evpntopo_id         = "550e8400-e29b-41d4-a716-446655440000"
       storm_control = {
         no_broadcast           = false
         no_multicast          = false
@@ -261,10 +263,7 @@
     }
     "dynamic_access" = {
       mode                    = "dynamic"
-      port_auth              = "dot1x"
-      enable_mac_auth        = true
       all_networks           = false
-      dynamic_vlan_networks  = ["dynamic_vlan1"]
       rules = [
         {
           equals = "admin"
@@ -545,6 +544,9 @@
             input_port_ids_ingress = ["ge-0/0/2"]
             output_port_id         = "ge-0/0/10"
           }
+        }
+        stp_config = {
+          bridge_priority = "32768"
         }
       }
     ]

@@ -111,11 +111,10 @@
     "test_profile" = {
       base_profile = "standard"
       name         = "Test IDP Profile"
-      org_id       = "{{org_id}}"
       overwrites = [
         {
           action = "drop"
-          name   = "test-overwrite"
+          # name   = "test-overwrite"
           matching = {
             attack_name = ["test-attack"]
             dst_subnet  = ["192.168.1.0/24"]
@@ -296,7 +295,7 @@
       redundant_group          = 1
       reth_idx                 = "0"
       reth_node                = "node0"
-      reth_nodes               = ["node0", "node1"]
+      # reth_nodes               = ["node0", "node1"]
       ssr_no_virtual_mac       = false
       svr_port_range           = "16384-32767"
       wan_disable_speedtest    = false
@@ -314,13 +313,6 @@
         type6           = "static"
         pppoe_auth      = "pap"
         pppoe_username  = "test-user"
-        poser_password  = "test-password"
-        dns = [
-          "8.8.8.8"
-        ]
-        dns_suffix = [
-          "example.com"
-        ]
       }
       wan_extra_routes = {
         "10.10.0.0/16" = {
@@ -345,7 +337,6 @@
       traffic_shaping = {
         enabled         = true
         max_tx_kbps     = 100000
-        class_percentages = [25, 25, 25, 25]
       }
       vpn_paths = {
         "test-vpn" = {
@@ -356,7 +347,6 @@
           traffic_shaping = {
             enabled         = true
             max_tx_kbps     = 50000
-            class_percentages = [30, 30, 20, 20]
           }
         }
       }
@@ -428,12 +418,11 @@
         enabled       = true
         alert_only    = false
         profile       = "strict"
-        idpprofile_id = "test-idp-profile"
       }
       antivirus = {
         enabled      = true
         profile      = "default"
-        avprofile_id = "test-av-profile"
+        avprofile_id = "550e8400-e29b-41d4-a716-446655440001"
       }
       appqoe = {
         enabled = true

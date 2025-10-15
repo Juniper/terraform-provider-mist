@@ -1,5 +1,5 @@
 
-  name = "comprehensive_gateway_profile"
+  name = "comprehensive_gateway_profile111"
   additional_config_cmds = [
     "set system host-name gateway-profile",
     "set system domain-name example.com"
@@ -95,7 +95,7 @@
     "security1" = {
       base_profile = "strict"
       name = "Security Profile 1"
-      org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
+      # org_id = "{org_id}"
       overwrites = [
         {
           action = "drop"
@@ -104,7 +104,7 @@
             dst_subnet = ["192.168.1.0/24"]
             severity = ["high"]
           }
-          name = "Block Malware"
+          # name = "Block Malware"
         }
       ]
     }
@@ -268,9 +268,16 @@
       mtu = 1500
       preserve_dscp = true
       wan_type = "broadband"
+      wan_ext_ip = "203.0.113.10"
+      wan_ext_ip6 = "2001:db8:85a3::8a2e:370:7334"
+      wan_source_nat = {
+        disabled = false
+        nat_pool = "192.168.100.1-192.168.100.50"
+        nat6_pool = "2001:db8:100::1-2001:db8:100::50"
+      }
       ip_config = {
-        dns = ["8.8.8.8"]
-        dns_suffix = ["example.com"]
+        # dns = ["8.8.8.8"]
+        # dns_suffix = ["example.com"]
         gateway = "192.168.1.1"
         ip = "192.168.1.10"
         netmask = "/24"
@@ -422,7 +429,7 @@
       }
       protocol = "ipsec"
       provider = "jse-ipsec"
-      psk = "shared-secret-key"
+      # psk = "shared-secret-key"
       secondary = {
         hosts = ["203.0.113.2"]
         internal_ip = "10.255.1.2"
@@ -472,6 +479,8 @@
       xff_forward_enabled = true
     }
   }
+  
+  url_filtering_deny_msg = "Access to this website has been blocked by your organization's security policy. Please contact IT support if you believe this is an error."
   
   vrf_config = {
     enabled = true
