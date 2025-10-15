@@ -305,9 +305,9 @@ switch_matching = {
   enable = true
   rules = [
     {
-      match_model = ["EX4300"]
-      match_name = ["switch-*"]
-      match_role = ["access"]
+      match_model = "EX4300"
+      match_name = "switch-*"
+      match_role = "access"
       name = "access_switches"
       port_config = {
         "ge-0/0/0-23" = {

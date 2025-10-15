@@ -647,6 +647,9 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, rName string) testChe
 		}
 		if len(s.SyntheticTest.CustomProbes) > 0 {
 			for key, probe := range s.SyntheticTest.CustomProbes {
+				if probe.CustomProbesType != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.custom_probes_type", key), *probe.CustomProbesType)
+				}
 				if probe.Host != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.host", key), *probe.Host)
 				}
