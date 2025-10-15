@@ -1281,7 +1281,7 @@ func (s *OrgGatewaytemplateModel) testChecks(t testing.TB, rType, rName string) 
 	if s.Type != nil {
 		checks.append(t, "TestCheckResourceAttr", "type", *s.Type)
 	}
-	if s.VrfConfig != nil {
+	if s.TunnelConfigs != nil {
 		checks.append(t, "TestCheckResourceAttr", "tunnel_configs.%", fmt.Sprintf("%d", len(s.TunnelConfigs)))
 		for key, tunnelConfig := range s.TunnelConfigs {
 			if tunnelConfig.IkeLifetime != nil {
