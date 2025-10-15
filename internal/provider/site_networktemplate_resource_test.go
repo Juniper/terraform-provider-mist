@@ -452,6 +452,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, rName string)
 			if usage.BypassAuthWhenServerDown != nil {
 				checks.append(t, "TestCheckResourceAttr", prefix+".bypass_auth_when_server_down", fmt.Sprintf("%t", *usage.BypassAuthWhenServerDown))
 			}
+			if usage.BypassAuthWhenServerDownForUnknownClient != nil {
+				checks.append(t, "TestCheckResourceAttr", prefix+".bypass_auth_when_server_down_for_unknown_client", fmt.Sprintf("%t", *usage.BypassAuthWhenServerDownForUnknownClient))
+			}
 			if usage.Description != nil {
 				checks.append(t, "TestCheckResourceAttr", prefix+".description", *usage.Description)
 			}
