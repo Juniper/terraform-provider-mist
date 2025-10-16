@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
@@ -614,13 +613,11 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"config_revert_timer": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Rollback timer for commit confirmed",
 						MarkdownDescription: "Rollback timer for commit confirmed",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 30),
 						},
-						Default: int64default.StaticInt64(10),
 					},
 				},
 				CustomType: GatewayMgmtType{
