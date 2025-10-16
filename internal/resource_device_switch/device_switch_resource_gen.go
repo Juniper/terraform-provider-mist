@@ -327,13 +327,16 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
 											"ip": schema.StringAttribute{
-												Required: true,
+												Optional: true,
 												Validators: []validator.String{
-													mistvalidator.ParseIp(true, false),
+													stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 												},
 											},
 											"ip6": schema.StringAttribute{
 												Optional: true,
+												Validators: []validator.String{
+													stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
+												},
 											},
 											"name": schema.StringAttribute{
 												Optional: true,
@@ -920,8 +923,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"inter_switch_link": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "inter_switch_link is used together with \"isolation\" under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
-							MarkdownDescription: "inter_switch_link is used together with \"isolation\" under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
+							Description:         "inter_switch_link is used together with \"isolation\" under networks. NOTE: inter_switch_link works only between Juniper devices. This has to be applied to both ports connected together",
+							MarkdownDescription: "inter_switch_link is used together with \"isolation\" under networks. NOTE: inter_switch_link works only between Juniper devices. This has to be applied to both ports connected together",
 						},
 						"mac_auth_only": schema.BoolAttribute{
 							Optional:            true,
@@ -2024,13 +2027,13 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"inter_isolation_network_link": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper device. This has to be applied to both ports connected together",
-							MarkdownDescription: "Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper device. This has to be applied to both ports connected together",
+							Description:         "Only if `mode`!=`dynamic`. `inter_isolation_network_link` is used together with `isolation` under networks, signaling that this port connects to isolated networks",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. `inter_isolation_network_link` is used together with `isolation` under networks, signaling that this port connects to isolated networks",
 						},
 						"inter_switch_link": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
-							MarkdownDescription: "Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
+							Description:         "Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper devices. This has to be applied to both ports connected together",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper devices. This has to be applied to both ports connected together",
 							Validators: []validator.Bool{
 								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
