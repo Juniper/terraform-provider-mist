@@ -80,6 +80,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 		data.ExtraRoutes6 = extraRoutes6TerraformToSdk(plan.ExtraRoutes6)
 	}
 
+	if plan.GatewayMgmt.IsNull() || plan.GatewayMgmt.IsUnknown() {
+		unset["-gateway_mgmt"] = ""
+	} else {
+		data.GatewayMgmt = gatewayMgmtTerraformToSdk(plan.GatewayMgmt)
+	}
+
 	if plan.IdpProfiles.IsNull() || plan.IdpProfiles.IsUnknown() {
 		unset["-idp_profiles"] = ""
 	} else {
