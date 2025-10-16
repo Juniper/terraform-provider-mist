@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
@@ -608,6 +609,28 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
+			},
+			"gateway_mgmt": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"config_revert_timer": schema.Int64Attribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Rollback timer for commit confirmed",
+						MarkdownDescription: "Rollback timer for commit confirmed",
+						Validators: []validator.Int64{
+							int64validator.Between(1, 30),
+						},
+						Default: int64default.StaticInt64(10),
+					},
+				},
+				CustomType: GatewayMgmtType{
+					ObjectType: types.ObjectType{
+						AttrTypes: GatewayMgmtValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "Gateway settings",
+				MarkdownDescription: "Gateway settings",
 			},
 			"idp_profiles": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -3556,6 +3579,7 @@ type DeviceGatewayModel struct {
 	DnsSuffix               types.List                 `tfsdk:"dns_suffix"`
 	ExtraRoutes             types.Map                  `tfsdk:"extra_routes"`
 	ExtraRoutes6            types.Map                  `tfsdk:"extra_routes6"`
+	GatewayMgmt             GatewayMgmtValue           `tfsdk:"gateway_mgmt"`
 	IdpProfiles             types.Map                  `tfsdk:"idp_profiles"`
 	Image1Url               types.String               `tfsdk:"image1_url"`
 	Image2Url               types.String               `tfsdk:"image2_url"`
@@ -9471,6 +9495,330 @@ func (v ExtraRoutes6Value) Type(ctx context.Context) attr.Type {
 func (v ExtraRoutes6Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"via": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = GatewayMgmtType{}
+
+type GatewayMgmtType struct {
+	basetypes.ObjectType
+}
+
+func (t GatewayMgmtType) Equal(o attr.Type) bool {
+	other, ok := o.(GatewayMgmtType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t GatewayMgmtType) String() string {
+	return "GatewayMgmtType"
+}
+
+func (t GatewayMgmtType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	configRevertTimerAttribute, ok := attributes["config_revert_timer"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`config_revert_timer is missing from object`)
+
+		return nil, diags
+	}
+
+	configRevertTimerVal, ok := configRevertTimerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`config_revert_timer expected to be basetypes.Int64Value, was: %T`, configRevertTimerAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return GatewayMgmtValue{
+		ConfigRevertTimer: configRevertTimerVal,
+		state:             attr.ValueStateKnown,
+	}, diags
+}
+
+func NewGatewayMgmtValueNull() GatewayMgmtValue {
+	return GatewayMgmtValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewGatewayMgmtValueUnknown() GatewayMgmtValue {
+	return GatewayMgmtValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (GatewayMgmtValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing GatewayMgmtValue Attribute Value",
+				"While creating a GatewayMgmtValue value, a missing attribute value was detected. "+
+					"A GatewayMgmtValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("GatewayMgmtValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid GatewayMgmtValue Attribute Type",
+				"While creating a GatewayMgmtValue value, an invalid attribute value was detected. "+
+					"A GatewayMgmtValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("GatewayMgmtValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("GatewayMgmtValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra GatewayMgmtValue Attribute Value",
+				"While creating a GatewayMgmtValue value, an extra attribute value was detected. "+
+					"A GatewayMgmtValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra GatewayMgmtValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	configRevertTimerAttribute, ok := attributes["config_revert_timer"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`config_revert_timer is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	configRevertTimerVal, ok := configRevertTimerAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`config_revert_timer expected to be basetypes.Int64Value, was: %T`, configRevertTimerAttribute))
+	}
+
+	if diags.HasError() {
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	return GatewayMgmtValue{
+		ConfigRevertTimer: configRevertTimerVal,
+		state:             attr.ValueStateKnown,
+	}, diags
+}
+
+func NewGatewayMgmtValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) GatewayMgmtValue {
+	object, diags := NewGatewayMgmtValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewGatewayMgmtValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t GatewayMgmtType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewGatewayMgmtValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewGatewayMgmtValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewGatewayMgmtValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewGatewayMgmtValueMust(GatewayMgmtValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t GatewayMgmtType) ValueType(ctx context.Context) attr.Value {
+	return GatewayMgmtValue{}
+}
+
+var _ basetypes.ObjectValuable = GatewayMgmtValue{}
+
+type GatewayMgmtValue struct {
+	ConfigRevertTimer basetypes.Int64Value `tfsdk:"config_revert_timer"`
+	state             attr.ValueState
+}
+
+func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["config_revert_timer"] = basetypes.Int64Type{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.ConfigRevertTimer.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["config_revert_timer"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v GatewayMgmtValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v GatewayMgmtValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v GatewayMgmtValue) String() string {
+	return "GatewayMgmtValue"
+}
+
+func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"config_revert_timer": basetypes.Int64Type{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"config_revert_timer": v.ConfigRevertTimer,
+		})
+
+	return objVal, diags
+}
+
+func (v GatewayMgmtValue) Equal(o attr.Value) bool {
+	other, ok := o.(GatewayMgmtValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.ConfigRevertTimer.Equal(other.ConfigRevertTimer) {
+		return false
+	}
+
+	return true
+}
+
+func (v GatewayMgmtValue) Type(ctx context.Context) attr.Type {
+	return GatewayMgmtType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v GatewayMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"config_revert_timer": basetypes.Int64Type{},
 	}
 }
 
