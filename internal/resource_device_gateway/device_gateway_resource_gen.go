@@ -310,13 +310,13 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											"ip": schema.StringAttribute{
 												Optional: true,
 												Validators: []validator.String{
-													mistvalidator.ParseIp(true, false),
+													stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 												},
 											},
 											"ip6": schema.StringAttribute{
 												Optional: true,
 												Validators: []validator.String{
-													mistvalidator.ParseIp(false, true),
+													stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
 												},
 											},
 											"name": schema.StringAttribute{
