@@ -243,8 +243,8 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, rName str
 				if config.IpStart != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_start", configKey), *config.IpStart)
 				}
-				if config.Ip6End != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_start6", configKey), *config.Ip6End)
+				if config.Ip6Start != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_start6", configKey), *config.Ip6Start)
 				}
 				if config.LeaseTime != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.lease_time", configKey), fmt.Sprintf("%d", *config.LeaseTime))
