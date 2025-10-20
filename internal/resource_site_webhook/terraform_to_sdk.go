@@ -36,7 +36,9 @@ func TerraformToSdk(plan *SiteWebhookModel) (models.Webhook, diag.Diagnostics) {
 	if !plan.Headers.IsNull() && !plan.Headers.IsUnknown() {
 		items := make(map[string]string)
 		for k, v := range plan.Headers.Elements() {
-			items[k] = v.String()
+			var iface interface{} = v
+			val := iface.(basetypes.StringValue)
+			items[k] = val.ValueString()
 		}
 		data.Headers = models.NewOptional(models.ToPointer(items))
 	} else {

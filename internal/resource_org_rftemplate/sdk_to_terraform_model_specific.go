@@ -21,7 +21,7 @@ func modelSpecificSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		var band24 = types.ObjectNull(Band24Value{}.AttributeTypes(ctx))
 		var band24Usage basetypes.StringValue
 		var band5 = types.ObjectNull(Band5Value{}.AttributeTypes(ctx))
-		var band5On24Radio = types.ObjectNull(Band5Value{}.AttributeTypes(ctx))
+		var band5On24Radio = types.ObjectNull(Band5On24RadioValue{}.AttributeTypes(ctx))
 		var band6 = types.ObjectNull(Band6Value{}.AttributeTypes(ctx))
 
 		if d.AntGain24 != nil {
@@ -43,7 +43,7 @@ func modelSpecificSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 			band5, _ = band5SdkToTerraform(ctx, diags, d.Band5).ToObjectValue(ctx)
 		}
 		if d.Band5On24Radio != nil {
-			band5On24Radio, _ = band5SdkToTerraform(ctx, diags, d.Band5On24Radio).ToObjectValue(ctx)
+			band5On24Radio, _ = band5On24RadioSdkToTerraform(ctx, diags, d.Band5On24Radio).ToObjectValue(ctx)
 		}
 		if d.Band6 != nil {
 			band6, _ = band6SdkToTerraform(ctx, diags, d.Band6).ToObjectValue(ctx)

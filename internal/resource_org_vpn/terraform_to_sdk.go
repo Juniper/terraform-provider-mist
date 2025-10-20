@@ -23,6 +23,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgVpnModel) (*models.Vpn, diag.D
 }
 
 func vpnPathSelectionTerraformToSdk(d PathSelectionValue) (data *models.VpnPathSelection) {
+	data = &models.VpnPathSelection{}
 	if d.Strategy.ValueStringPointer() != nil {
 		data.Strategy = (*models.VpnPathSelectionStrategyEnum)(d.Strategy.ValueStringPointer())
 	}
@@ -32,8 +33,7 @@ func vpnPathSelectionTerraformToSdk(d PathSelectionValue) (data *models.VpnPathS
 func vpnPathsPeerPathsTerraformToSdk(d basetypes.MapValue) (dataMap map[string]models.VpnPathPeerPathsPeer) {
 	dataMap = make(map[string]models.VpnPathPeerPathsPeer)
 	for k, v := range d.Elements() {
-		var vInterface interface{} = v
-		plan := vInterface.(PeerPathsValue)
+		plan := v.(PeerPathsValue)
 		data := models.VpnPathPeerPathsPeer{}
 
 		if plan.Preference.ValueInt64Pointer() != nil {
@@ -51,6 +51,7 @@ func vpnPathsTrafficShapingTerraformToSdk(ctx context.Context, diags *diag.Diagn
 	if e != nil {
 		diags.Append(e...)
 	} else {
+		data = &models.VpnPathTrafficShaping{}
 		if !d.ClassPercentage.IsNull() && !d.ClassPercentage.IsUnknown() {
 			data.ClassPercentage = mistutils.ListOfIntTerraformToSdk(d.ClassPercentage)
 		}
@@ -67,8 +68,7 @@ func vpnPathsTrafficShapingTerraformToSdk(ctx context.Context, diags *diag.Diagn
 func vpnPathsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) (dataMap map[string]models.VpnPath) {
 	dataMap = make(map[string]models.VpnPath)
 	for k, v := range d.Elements() {
-		var vInterface interface{} = v
-		plan := vInterface.(PathsValue)
+		plan := v.(PathsValue)
 		data := models.VpnPath{}
 
 		if plan.BfdProfile.ValueStringPointer() != nil {

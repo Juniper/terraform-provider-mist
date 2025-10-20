@@ -270,10 +270,60 @@ func SponsorLinkValidityDurationAsString(bgpAs *models.SponsorLinkValidityDurati
 	}
 }
 
+func GbpTagAsString(gbpTag models.NacTagGbpTag) basetypes.StringValue {
+	if v, ok := gbpTag.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := gbpTag.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
 func WlanLimitAsString(bgpAs *models.WlanLimit) basetypes.StringValue {
 	if v, ok := bgpAs.AsString(); ok {
 		return types.StringValue(*v)
 	} else if v, ok := bgpAs.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func ServiceDscpAsString(container *models.ServiceDscp) basetypes.StringValue {
+	if v, ok := container.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := container.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func ServiceMaxJitterAsString(container *models.ServiceMaxJitter) basetypes.StringValue {
+	if v, ok := container.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := container.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func ServiceMaxLatencyAsString(container *models.ServiceMaxLatency) basetypes.StringValue {
+	if v, ok := container.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := container.AsNumber(); ok {
+		return types.StringValue(fmt.Sprint(*v))
+	} else {
+		return types.StringNull()
+	}
+}
+
+func ServiceMaxLossAsString(container *models.ServiceMaxLoss) basetypes.StringValue {
+	if v, ok := container.AsString(); ok {
+		return types.StringValue(*v)
+	} else if v, ok := container.AsNumber(); ok {
 		return types.StringValue(fmt.Sprint(*v))
 	} else {
 		return types.StringNull()

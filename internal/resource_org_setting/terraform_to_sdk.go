@@ -207,25 +207,19 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 	}
 
 	if !plan.WanPma.IsNull() && !plan.WanPma.IsUnknown() {
-		if plan.WanPma.Enabled.ValueBoolPointer() != nil {
-			data.WanPma.Enabled = plan.WanPma.Enabled.ValueBoolPointer()
-		}
+		data.WanPma = wanPmaTerraformToSdk(plan.WanPma)
 	} else {
 		unset["-wan_pma"] = ""
 	}
 
 	if !plan.WiredPma.IsNull() && !plan.WiredPma.IsUnknown() {
-		if plan.WiredPma.Enabled.ValueBoolPointer() != nil {
-			data.WiredPma.Enabled = plan.WiredPma.Enabled.ValueBoolPointer()
-		}
+		data.WiredPma = wiredPmaTerraformToSdk(plan.WiredPma)
 	} else {
 		unset["-wired_pma"] = ""
 	}
 
 	if !plan.WirelessPma.IsNull() && !plan.WirelessPma.IsUnknown() {
-		if plan.WirelessPma.Enabled.ValueBoolPointer() != nil {
-			data.WirelessPma.Enabled = plan.WirelessPma.Enabled.ValueBoolPointer()
-		}
+		data.WirelessPma = wirelessPmaTerraformToSdk(plan.WirelessPma)
 	} else {
 		unset["-wireless_pma"] = ""
 	}

@@ -18,7 +18,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworkModel) (*models.Network
 	if plan.Name.ValueStringPointer() != nil {
 		data.Name = plan.Name.ValueString()
 	} else {
-		unset["-ap_updown_threshold"] = ""
+		unset["-name"] = ""
 	}
 
 	if plan.DisallowMistServices.ValueBoolPointer() != nil {

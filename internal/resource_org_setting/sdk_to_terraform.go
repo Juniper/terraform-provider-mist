@@ -6,6 +6,7 @@ import (
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -167,13 +168,31 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 		vpnOptions = vpnOptionsSdkToTerraform(ctx, &diags, data.VpnOptions)
 	}
 	if data.WanPma != nil && data.WanPma.Enabled != nil {
-		wanPma.Enabled = types.BoolValue(*data.WanPma.Enabled)
+		var tempDiags diag.Diagnostics
+		wanPma, tempDiags = NewWanPmaValue(WanPmaValue{}.AttributeTypes(ctx), map[string]attr.Value{
+			"enabled": types.BoolValue(*data.WanPma.Enabled),
+		})
+		if tempDiags.HasError() {
+			wanPma = NewWanPmaValueNull()
+		}
 	}
 	if data.WiredPma != nil && data.WiredPma.Enabled != nil {
-		wiredPma.Enabled = types.BoolValue(*data.WiredPma.Enabled)
+		var tempDiags diag.Diagnostics
+		wiredPma, tempDiags = NewWiredPmaValue(WiredPmaValue{}.AttributeTypes(ctx), map[string]attr.Value{
+			"enabled": types.BoolValue(*data.WiredPma.Enabled),
+		})
+		if tempDiags.HasError() {
+			wiredPma = NewWiredPmaValueNull()
+		}
 	}
 	if data.WirelessPma != nil && data.WirelessPma.Enabled != nil {
-		wirelessPma.Enabled = types.BoolValue(*data.WirelessPma.Enabled)
+		var tempDiags diag.Diagnostics
+		wirelessPma, tempDiags = NewWirelessPmaValue(WirelessPmaValue{}.AttributeTypes(ctx), map[string]attr.Value{
+			"enabled": types.BoolValue(*data.WirelessPma.Enabled),
+		})
+		if tempDiags.HasError() {
+			wirelessPma = NewWirelessPmaValueNull()
+		}
 	}
 
 	state.ApUpdownThreshold = apUpdownThreshold

@@ -85,7 +85,7 @@ func internetAccessSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	var destinationNat = types.MapNull(InternetAccessDestinationNatValue{}.Type(ctx))
 	var enabled basetypes.BoolValue
 	var restricted = types.BoolValue(false)
-	var staticNac = types.MapNull(InternetAccessStaticNatValue{}.Type(ctx))
+	var staticNat = types.MapNull(InternetAccessStaticNatValue{}.Type(ctx))
 
 	if d.CreateSimpleServicePolicy != nil {
 		createSimpleServicePolicy = types.BoolValue(*d.CreateSimpleServicePolicy)
@@ -100,7 +100,7 @@ func internetAccessSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		restricted = types.BoolValue(*d.Restricted)
 	}
 	if len(d.StaticNat) > 0 {
-		staticNac = staticNatInternetAccessSdkToTerraform(ctx, diags, d.StaticNat)
+		staticNat = staticNatInternetAccessSdkToTerraform(ctx, diags, d.StaticNat)
 	}
 
 	dataMapValue := map[string]attr.Value{
@@ -108,7 +108,7 @@ func internetAccessSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		"destination_nat":              destinationNat,
 		"enabled":                      enabled,
 		"restricted":                   restricted,
-		"static_nat":                   staticNac,
+		"static_nat":                   staticNat,
 	}
 	data, e := NewInternetAccessValue(InternetAccessValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

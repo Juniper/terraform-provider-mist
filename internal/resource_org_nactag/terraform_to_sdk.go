@@ -25,7 +25,7 @@ func TerraformToSdk(plan *OrgNactagModel) (models.NacTag, diag.Diagnostics) {
 		unset["-egress_vlan_names"] = ""
 	}
 	if !plan.GbpTag.IsNull() && !plan.GbpTag.IsUnknown() {
-		data.GbpTag = models.ToPointer(models.NacTagGbpTagContainer.FromString(plan.GbpTag.String()))
+		data.GbpTag = models.ToPointer(models.NacTagGbpTagContainer.FromString(plan.GbpTag.ValueString()))
 	} else {
 		unset["-gbp_tag"] = ""
 	}
@@ -68,7 +68,12 @@ func TerraformToSdk(plan *OrgNactagModel) (models.NacTag, diag.Diagnostics) {
 	if !plan.SessionTimeout.IsNull() && !plan.SessionTimeout.IsUnknown() {
 		data.SessionTimeout = models.ToPointer(int(plan.SessionTimeout.ValueInt64()))
 	} else {
-		unset["-allow_usermac_override"] = ""
+		unset["-session_timeout"] = ""
+	}
+	if !plan.UsernameAttr.IsNull() && !plan.UsernameAttr.IsUnknown() {
+		data.UsernameAttr = models.ToPointer(models.NacTagUsernameAttrEnum(plan.UsernameAttr.ValueString()))
+	} else {
+		unset["-username_attr"] = ""
 	}
 	if !plan.Type.IsNull() && !plan.Type.IsUnknown() {
 		data.Type = models.NacTagTypeEnum(plan.Type.ValueString())

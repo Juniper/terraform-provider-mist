@@ -14,21 +14,26 @@ import (
 )
 
 func engagementDwellTagNamesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteEngagementDwellTagNames) basetypes.ObjectValue {
-	var bounce basetypes.StringValue
-	var engaged basetypes.StringValue
-	var passerby basetypes.StringValue
-	var stationed basetypes.StringValue
+	// Return null object if data is nil or has no values
+	if d == nil || (d.Bounce == nil && d.Engaged == nil && d.Passerby == nil && d.Stationed == nil) {
+		return types.ObjectNull(DwellTagNamesValue{}.AttributeTypes(ctx))
+	}
 
-	if d != nil && d.Bounce != nil {
+	var bounce = types.StringNull()
+	var engaged = types.StringNull()
+	var passerby = types.StringNull()
+	var stationed = types.StringNull()
+
+	if d.Bounce != nil {
 		bounce = types.StringValue(*d.Bounce)
 	}
-	if d != nil && d.Engaged != nil {
+	if d.Engaged != nil {
 		engaged = types.StringValue(*d.Engaged)
 	}
-	if d != nil && d.Passerby != nil {
+	if d.Passerby != nil {
 		passerby = types.StringValue(*d.Passerby)
 	}
-	if d != nil && d.Stationed != nil {
+	if d.Stationed != nil {
 		stationed = types.StringValue(*d.Stationed)
 	}
 
@@ -45,22 +50,26 @@ func engagementDwellTagNamesSdkToTerraform(ctx context.Context, diags *diag.Diag
 }
 
 func engagementDwellTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteEngagementDwellTags) basetypes.ObjectValue {
+	// Return null object if data is nil or has no values
+	if d == nil || (d.Bounce.Value() == nil && d.Engaged.Value() == nil && d.Passerby.Value() == nil && d.Stationed.Value() == nil) {
+		return types.ObjectNull(DwellTagsValue{}.AttributeTypes(ctx))
+	}
 
-	var bounce basetypes.StringValue
-	var engaged basetypes.StringValue
-	var passerby basetypes.StringValue
-	var stationed basetypes.StringValue
+	var bounce = types.StringNull()
+	var engaged = types.StringNull()
+	var passerby = types.StringNull()
+	var stationed = types.StringNull()
 
-	if d != nil && d.Bounce.Value() != nil {
+	if d.Bounce.Value() != nil {
 		bounce = types.StringValue(*d.Bounce.Value())
 	}
-	if d != nil && d.Engaged.Value() != nil {
+	if d.Engaged.Value() != nil {
 		engaged = types.StringValue(*d.Engaged.Value())
 	}
-	if d != nil && d.Passerby.Value() != nil {
+	if d.Passerby.Value() != nil {
 		passerby = types.StringValue(*d.Passerby.Value())
 	}
-	if d != nil && d.Stationed.Value() != nil {
+	if d.Stationed.Value() != nil {
 		stationed = types.StringValue(*d.Stationed.Value())
 	}
 
@@ -81,8 +90,8 @@ func engagementSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var dwellTagNames = types.ObjectNull(DwellTagNamesValue{}.AttributeTypes(ctx))
 	var dwellTags = types.ObjectNull(DwellTagsValue{}.AttributeTypes(ctx))
 	var hours = types.ObjectNull(HoursValue{}.AttributeTypes(ctx))
-	var maxDwell basetypes.Int64Value
-	var minDwell basetypes.Int64Value
+	var maxDwell = types.Int64Null()
+	var minDwell = types.Int64Null()
 
 	if d != nil && d.DwellTagNames != nil {
 		dwellTagNames = engagementDwellTagNamesSdkToTerraform(ctx, diags, d.DwellTagNames)
