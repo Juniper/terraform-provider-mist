@@ -291,7 +291,7 @@ func GetSiteWlanBaseConfig(org_ID string) (config string, siteRef string, wlanRe
 	return siteConfigStr + "\n\n" + wlanConfigStr, fmt.Sprintf("mist_site.%s.id", siteConfig.Name), "mist_site_wlan.wlanName.id"
 }
 
-func GetSiteBaseConfig(org_ID string) (config string, wlanRef string) {
+func GetSiteBaseConfig(org_ID string) (config string, siteRef string) {
 	siteConfig := SiteModel{
 		Name:    "TestSite",
 		OrgId:   org_ID,
@@ -305,7 +305,20 @@ func GetSiteBaseConfig(org_ID string) (config string, wlanRef string) {
 	return siteConfigStr, fmt.Sprintf("mist_site.%s.id", siteConfig.Name)
 }
 
-// Helper functions
+func GetSitegroupBaseConfig(org_ID string) (config string, sitegroupRef string) {
+	sitegroupConfig := OrgSitegroupModel{
+		Name:  "TestSitegroup",
+		OrgId: org_ID,
+	}
+
+	f := hclwrite.NewEmptyFile()
+	gohcl.EncodeIntoBody(&sitegroupConfig, f.Body())
+	sitegroupConfigStr := Render("org_sitegroup", sitegroupConfig.Name, string(f.Bytes()))
+
+	return sitegroupConfigStr, fmt.Sprintf("mist_org_sitegroup.%s.id", sitegroupConfig.Name)
+}
+
+// Helper function for creating string pointers
 func stringPtr(s string) *string {
 	return &s
 }

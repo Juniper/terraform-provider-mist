@@ -31,6 +31,7 @@ func TestOrgSitegroup(t *testing.T) {
 		},
 	}
 
+	resourceType := "org_sitegroup"
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 			steps := make([]resource.TestStep, len(tCase.steps))
@@ -39,9 +40,9 @@ func TestOrgSitegroup(t *testing.T) {
 
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
-				configStr := Render("org_sitegroup", tName, string(f.Bytes()))
+				configStr := Render(resourceType, tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, PrefixProviderName("org_sitegroup"), tName)
+				checks := config.testChecks(t, PrefixProviderName(resourceType), tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
