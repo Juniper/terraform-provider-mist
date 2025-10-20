@@ -520,8 +520,8 @@ func (p *mistProvider) Functions(_ context.Context) []func() function.Function {
 		NewSearchInventoryByClaimcodeFunction,
 		NewSearchInventoryByMacFunction,
 		NewSearchInventoryBySerialFunction,
-		// NewSearchVcByMemberClaimcodeFunction,
-		// NewSearchVcByMemberMacFunction,
-		// NewSearchVcByMemberSerialFunction,
+		NewSearchVcByMemberClaimcodeFunction,
+		NewSearchVcByMemberMacFunction,
+		NewSearchVcByMemberSerialFunction,
 	}
 }

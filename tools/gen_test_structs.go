@@ -29,7 +29,6 @@ func main() {
 	inRes := os.Args[1]
 	inFile := pvdFolder + "/internal/resource_" + inRes + "/" + inRes + "_resource_gen.go"
 	outFile := pvdFolder + "/internal/provider/" + inRes + "_test_structs.go"
-	// matchFile := "./test/" + inRes + "/matching.yaml" // Currently unused
 
 	in, err := os.Open(inFile)
 	if err != nil {
