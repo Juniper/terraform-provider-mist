@@ -50,11 +50,7 @@ Use reflection-based extraction for 100% accuracy with nested fields:
 
 ```go
 // Add temporary helper functions to your *_resource_test.go file
-func init() {
-    extractCompleteSchema()
-}
-
-func extractCompleteSchema() {
+func TestExtractSchema(t *testing.T) {
     ctx := context.Background()
     
     // Get the schema (replace with your resource schema function)
@@ -71,6 +67,8 @@ func extractCompleteSchema() {
     for _, field := range allFields {
         fmt.Fprintln(file, field)
     }
+    
+    t.Logf("Generated all_schema_fields.txt with %d fields", len(allFields))
 }
 
 func extractAllFieldPaths(prefix string, attributes map[string]schema.Attribute) []string {
@@ -115,58 +113,95 @@ func getNestedAttributes(attr schema.SingleNestedAttribute) map[string]schema.At
         return nil
     }
     
-    // Try different field access patterns
-    var nestedObj reflect.Value
-    if field := v.FieldByName("NestedObject"); field.IsValid() {
-        nestedObj = field
-    } else {
-        // Try to find any field containing attributes
-        t := reflect.TypeOf(attr)
-        for i := 0; i < t.NumField(); i++ {
-            fieldValue := v.Field(i)
-            if fieldValue.IsValid() && !fieldValue.IsNil() {
-                if attrField := fieldValue.FieldByName("Attributes"); attrField.IsValid() {
-                    if attrs, ok := attrField.Interface().(map[string]schema.Attribute); ok {
-                        return attrs
-                    }
-                }
-            }
+    // Look for Attributes field directly on the SingleNestedAttribute
+    if field := v.FieldByName("Attributes"); field.IsValid() && field.CanInterface() {
+        if attrs, ok := field.Interface().(map[string]schema.Attribute); ok {
+            return attrs
         }
-        return nil
-    }
-    
-    if !nestedObj.IsValid() || nestedObj.IsNil() {
-        return nil
-    }
-    
-    attributes := nestedObj.FieldByName("Attributes")
-    if !attributes.IsValid() || attributes.IsNil() {
-        return nil
-    }
-    
-    if attrs, ok := attributes.Interface().(map[string]schema.Attribute); ok {
-        return attrs
     }
     
     return nil
 }
 
-// Similar helper functions for List and Map nested attributes...
+func getListNestedAttributes(attr schema.ListNestedAttribute) map[string]schema.Attribute {
+    v := reflect.ValueOf(attr)
+    if !v.IsValid() {
+        return nil
+    }
+    
+    // Look for NestedObject field first
+    if nestedObjField := v.FieldByName("NestedObject"); nestedObjField.IsValid() && nestedObjField.CanInterface() {
+        nestedObj := nestedObjField.Interface()
+        
+        // Get the nested object and look for its Attributes
+        nestedV := reflect.ValueOf(nestedObj)
+        if nestedV.IsValid() && nestedV.Kind() == reflect.Struct {
+            if attributesField := nestedV.FieldByName("Attributes"); attributesField.IsValid() && attributesField.CanInterface() {
+                if attrs, ok := attributesField.Interface().(map[string]schema.Attribute); ok {
+                    return attrs
+                }
+            }
+        }
+    }
+    
+    return nil
+}
+
+func getMapNestedAttributes(attr schema.MapNestedAttribute) map[string]schema.Attribute {
+    v := reflect.ValueOf(attr)
+    if !v.IsValid() {
+        return nil
+    }
+    
+    // Look for NestedObject field first
+    if nestedObjField := v.FieldByName("NestedObject"); nestedObjField.IsValid() && nestedObjField.CanInterface() {
+        nestedObj := nestedObjField.Interface()
+        
+        // Get the nested object and look for its Attributes
+        nestedV := reflect.ValueOf(nestedObj)
+        if nestedV.IsValid() && nestedV.Kind() == reflect.Struct {
+            if attributesField := nestedV.FieldByName("Attributes"); attributesField.IsValid() && attributesField.CanInterface() {
+                if attrs, ok := attributesField.Interface().(map[string]schema.Attribute); ok {
+                    return attrs
+                }
+            }
+        }
+    }
+    
+    return nil
+}
+```
+
+**Required Imports:**
+
+```go
+import (
+    "context"
+    "fmt"
+    "os"
+    "reflect"
+    "sort"
+    "testing"
+    
+    "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+    resource_{resource_name} "github.com/Juniper/terraform-provider-mist/internal/resource_{resource_name}"
+)
 ```
 
 **Run the extraction:**
 
 ```bash
 # This generates all_schema_fields.txt with complete field list
-go test -v -run "Test{ResourceName}Model" ./internal/provider/ >/dev/null 2>&1
+go test -v -run "TestExtractSchema" ./internal/provider/ >/dev/null 2>&1
 ```
 
 **Example Results:**
 
 - Simple resources: ~10-50 fields  
-- Complex nested resources: 200+ fields (e.g., org_wlan: 283 fields)
-- **100% accuracy**: Captures all nested fields including portal.*, auth.*, dynamic_vlan.*
-- **Proper dot notation**: All fields in testable format
+- Complex nested resources: 200-400+ fields (e.g., org_wlan: 283 fields, org_networktemplate: 375 fields)
+- **100% accuracy**: Captures all nested fields including deeply nested structures like `snmp_config.v3_config.vacm.access.prefix_list.*`
+- **Proper dot notation**: All fields in testable format with infinite nesting depth support
+- **Complete reflection**: Handles SingleNestedAttribute, ListNestedAttribute, and MapNestedAttribute recursively
 
 ### Step 2: Extract Currently Tested Fields
 
@@ -251,6 +286,51 @@ cat truly_missing_fields.txt
 - [ ] **Computed-only fields** (like `id`): Use `TestCheckResourceAttrSet`
 - [ ] **All other fields**: Use `TestCheckResourceAttr` with expected values
 - [ ] **Never validate parent nested objects** - test child attributes only
+
+### Nested Attribute Path Structure (CRITICAL)
+
+**Problem**: `SingleNestedAttribute` in schema doesn't always require `.0` indexing in test paths
+
+**Determination Method**: Check existing working tests for similar nested structures in your provider
+
+**Common Patterns:**
+
+1. **Direct nested access** (most common in this provider):
+
+   ```go
+   // Schema: band_24 as SingleNestedAttribute
+   // Test path: "band_24.allow_rrm_disable" ✅
+   // NOT: "band_24.0.allow_rrm_disable" ❌
+   checks.append(t, "TestCheckResourceAttr", "band_24.allow_rrm_disable", "true")
+   ```
+
+2. **Indexed nested access** (less common):
+
+   ```go
+   // Schema: some_config as SingleNestedAttribute  
+   // Test path: "some_config.0.field_name" ✅
+   checks.append(t, "TestCheckResourceAttr", "some_config.0.field_name", "value")
+   ```
+
+**How to Determine Correct Pattern:**
+
+1. **Look at working tests** in same provider (e.g., `org_deviceprofile_ap_resource_test.go`, `device_ap_resource_test.go`)
+2. **Check similar nested structures** - if they use direct paths, use direct paths
+3. **Test error messages** - if test fails with "Attribute 'field.0.subfield' not found", try without `.0`
+
+**Examples from this provider:**
+
+- ✅ `"radio_config.band_24.allow_rrm_disable"` (direct - works)
+- ✅ `"band_24.ant_gain"` (direct - works)  
+- ❌ `"band_24.0.ant_gain"` (indexed - fails)
+
+**Common Error Symptom:**
+
+```text
+Check failed: mist_resource.test: Attribute 'nested_field.0.subfield' not found
+```
+
+**Solution**: Remove `.0` and use direct nested path: `nested_field.subfield`
 
 ### Manual Test Quality Verification
 
@@ -373,6 +453,7 @@ mistutils.VlanAsString(v)
 | HCL generation errors | Only add HCL tags to fields with CTY tags |
 | Nested object errors | Validate child attributes only (e.g., `applies.org_id` not `applies`) |
 | Field coverage gaps | Use the 4-step verification process above |
+| "Attribute 'field.0.subfield' not found" | Remove `.0` - use direct nested paths (see Nested Attribute Path Structure) |
 
 **Clean up:**
 
@@ -381,5 +462,6 @@ mistutils.VlanAsString(v)
 rm all_schema_fields.txt current_tested_fields.txt missing_fields.txt
 
 # Remove helper functions from test file after verification
-# Delete the init() function and all extract* helper functions
+# Delete the TestExtractSchema() function and all extract* helper functions
 ```
+

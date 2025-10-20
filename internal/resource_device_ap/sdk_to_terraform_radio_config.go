@@ -223,6 +223,7 @@ func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var antGain5 basetypes.Int64Value
 	var antGain6 basetypes.Int64Value
 	var antennaMode basetypes.StringValue
+	var antMode basetypes.StringValue
 	var band24 = types.ObjectNull(Band24Value{}.AttributeTypes(ctx))
 	var band24Usage basetypes.StringValue
 	var band5 = types.ObjectNull(Band5Value{}.AttributeTypes(ctx))
@@ -246,6 +247,9 @@ func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	}
 	if d.AntennaMode != nil {
 		antennaMode = types.StringValue(string(*d.AntennaMode))
+	}
+	if d.AntMode != nil {
+		antMode = types.StringValue(string(*d.AntMode))
 	}
 	if d.Band24 != nil {
 		band24 = band24SdkToTerraform(ctx, diags, d.Band24)
@@ -278,6 +282,7 @@ func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		"ant_gain_5":         antGain5,
 		"ant_gain_6":         antGain6,
 		"antenna_mode":       antennaMode,
+		"ant_mode":           antMode,
 		"band_24":            band24,
 		"band_24_usage":      band24Usage,
 		"band_5":             band5,

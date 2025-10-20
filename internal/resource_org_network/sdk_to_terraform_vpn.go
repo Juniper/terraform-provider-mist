@@ -72,7 +72,7 @@ func staticNatVpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	return stateResultMap
 }
 
-func VpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.NetworkVpnAccessConfig) basetypes.MapValue {
+func vpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.NetworkVpnAccessConfig) basetypes.MapValue {
 
 	stateValueMapValue := make(map[string]attr.Value)
 	for k, d := range m {

@@ -186,6 +186,7 @@
     ant_gain_24 = 0
     ant_gain_5 = 2
     ant_gain_6 = 3
+    ant_mode = "external"
     antenna_mode = "default"
     band_24_usage = "auto"
     full_automatic_rrm = false

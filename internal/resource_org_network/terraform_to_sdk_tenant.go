@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func TenantTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkTenant {
+func tenantTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkTenant {
 	dataMap := make(map[string]models.NetworkTenant)
 	for k, v := range d.Elements() {
 		// Extract attributes directly from the ObjectValue instead of casting to specific type

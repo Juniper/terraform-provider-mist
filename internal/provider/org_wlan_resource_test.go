@@ -297,13 +297,13 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		checks.append(t, "TestCheckResourceAttr", "wlan_limit_down_enabled", fmt.Sprintf("%t", *s.WlanLimitDownEnabled))
 	}
 	if s.WlanLimitDown != nil {
-		checks.append(t, "TestCheckResourceAttr", "wlan_limit_down", fmt.Sprintf("%d", *s.WlanLimitDown))
+		checks.append(t, "TestCheckResourceAttr", "wlan_limit_down", *s.WlanLimitDown)
 	}
 	if s.WlanLimitUpEnabled != nil {
 		checks.append(t, "TestCheckResourceAttr", "wlan_limit_up_enabled", fmt.Sprintf("%t", *s.WlanLimitUpEnabled))
 	}
 	if s.WlanLimitUp != nil {
-		checks.append(t, "TestCheckResourceAttr", "wlan_limit_up", fmt.Sprintf("%d", *s.WlanLimitUp))
+		checks.append(t, "TestCheckResourceAttr", "wlan_limit_up", *s.WlanLimitUp)
 	}
 
 	// Bandwidth limits - Client level
@@ -311,13 +311,13 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		checks.append(t, "TestCheckResourceAttr", "client_limit_down_enabled", fmt.Sprintf("%t", *s.ClientLimitDownEnabled))
 	}
 	if s.ClientLimitDown != nil {
-		checks.append(t, "TestCheckResourceAttr", "client_limit_down", fmt.Sprintf("%d", *s.ClientLimitDown))
+		checks.append(t, "TestCheckResourceAttr", "client_limit_down", *s.ClientLimitDown)
 	}
 	if s.ClientLimitUpEnabled != nil {
 		checks.append(t, "TestCheckResourceAttr", "client_limit_up_enabled", fmt.Sprintf("%t", *s.ClientLimitUpEnabled))
 	}
 	if s.ClientLimitUp != nil {
-		checks.append(t, "TestCheckResourceAttr", "client_limit_up", fmt.Sprintf("%d", *s.ClientLimitUp))
+		checks.append(t, "TestCheckResourceAttr", "client_limit_up", *s.ClientLimitUp)
 	}
 
 	// Auth server settings
@@ -551,7 +551,7 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		if s.AppQos.Apps != nil {
 			for appName, appConfig := range s.AppQos.Apps {
 				if appConfig.Dscp != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.apps.%s.dscp", appName), fmt.Sprintf("%d", *appConfig.Dscp))
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.apps.%s.dscp", appName), *appConfig.Dscp)
 				}
 				if appConfig.DstSubnet != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.apps.%s.dst_subnet", appName), *appConfig.DstSubnet)
@@ -565,7 +565,7 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 			checks.append(t, "TestCheckResourceAttr", "app_qos.others.#", fmt.Sprintf("%d", len(s.AppQos.Others)))
 			for i, othersConfig := range s.AppQos.Others {
 				if othersConfig.Dscp != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.others.%d.dscp", i), fmt.Sprintf("%d", *othersConfig.Dscp))
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.others.%d.dscp", i), *othersConfig.Dscp)
 				}
 				if othersConfig.DstSubnet != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("app_qos.others.%d.dst_subnet", i), *othersConfig.DstSubnet)
@@ -666,6 +666,9 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 		}
 		if s.Auth.WepAsSecondaryAuth != nil {
 			checks.append(t, "TestCheckResourceAttr", "auth.wep_as_secondary_auth", fmt.Sprintf("%t", *s.Auth.WepAsSecondaryAuth))
+		}
+		if s.Auth.PrivateWlan != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.private_wlan", fmt.Sprintf("%t", *s.Auth.PrivateWlan))
 		}
 	}
 
@@ -812,6 +815,19 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks 
 			checks.append(t, "TestCheckResourceAttr", "mist_nac.enabled", fmt.Sprintf("%t", *s.MistNac.Enabled))
 		}
 	}
+
+	// Portal API secret validation - only check when portal.auth is set to "external"
+	if s.Portal != nil && s.Portal.Auth != nil && *s.Portal.Auth == "external" {
+		checks.append(t, "TestCheckResourceAttrSet", "portal_api_secret")
+	}
+
+	// Portal SSO URL validation - only check when portal.auth is set to "sso"
+	if s.Portal != nil && s.Portal.Auth != nil && *s.Portal.Auth == "sso" {
+		checks.append(t, "TestCheckResourceAttrSet", "portal_sso_url")
+	}
+
+	// NOTE: portal_image field testing is handled in TestOrgWlanPortalImageModel
+	// since it requires portal image resource creation and API propagation timing
 
 	// Portal object validation
 	if s.Portal != nil {

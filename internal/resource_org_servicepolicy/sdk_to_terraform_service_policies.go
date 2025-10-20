@@ -11,11 +11,19 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func appQoeToTerraform(d *models.ServicePolicyAppqoe) AppqoeValue {
-	data := AppqoeValue{}
+func appQoeToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ServicePolicyAppqoe) AppqoeValue {
+	var enabled basetypes.BoolValue
+
 	if d != nil && d.Enabled != nil {
-		data.Enabled = types.BoolValue(*d.Enabled)
+		enabled = types.BoolValue(*d.Enabled)
 	}
+
+	dataMapValue := map[string]attr.Value{
+		"enabled": enabled,
+	}
+	data, e := NewAppqoeValue(AppqoeValue{}.AttributeTypes(ctx), dataMapValue)
+	diags.Append(e...)
+
 	return data
 }
 

@@ -164,6 +164,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 		data.TunnelProviderOptions = tunnelProviderOptionsTerraformToSdk(ctx, plan.TunnelProviderOptions)
 	}
 
+	if data.UrlFilteringDenyMsg == nil && (plan.UrlFilteringDenyMsg.IsNull() || plan.UrlFilteringDenyMsg.IsUnknown()) {
+		unset["-url_filtering_deny_msg"] = ""
+	} else if !plan.UrlFilteringDenyMsg.IsNull() && !plan.UrlFilteringDenyMsg.IsUnknown() {
+		data.UrlFilteringDenyMsg = plan.UrlFilteringDenyMsg.ValueStringPointer()
+	}
+
 	if !plan.Vars.IsNull() && !plan.Vars.IsUnknown() {
 		data.Vars = varsTerraformToSdk(plan.Vars)
 	} else {

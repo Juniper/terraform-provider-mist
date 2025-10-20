@@ -177,6 +177,9 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 			stormControl := portUsageScTerraformToSdk(ctx, diags, puAttrValue.StormControl)
 			newPu.StormControl = models.ToPointer(stormControl)
 		}
+		if puAttrValue.StpDisable.ValueBoolPointer() != nil {
+			newPu.StpDisable = models.ToPointer(puAttrValue.StpDisable.ValueBool())
+		}
 		if puAttrValue.StpEdge.ValueBoolPointer() != nil {
 			newPu.StpEdge = models.ToPointer(puAttrValue.StpEdge.ValueBool())
 		}
@@ -185,6 +188,9 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		}
 		if puAttrValue.StpP2p.ValueBoolPointer() != nil {
 			newPu.StpP2p = puAttrValue.StpP2p.ValueBoolPointer()
+		}
+		if puAttrValue.StpRequired.ValueBoolPointer() != nil {
+			newPu.StpRequired = models.ToPointer(puAttrValue.StpRequired.ValueBool())
 		}
 		if puAttrValue.UiEvpntopoId.ValueStringPointer() != nil {
 			uiEvpntopoId, e := uuid.Parse(puAttrValue.UiEvpntopoId.ValueString())

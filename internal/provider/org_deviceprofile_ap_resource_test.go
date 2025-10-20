@@ -61,9 +61,9 @@ func TestOrgDeviceprofileApModel(t *testing.T) {
 		}
 	}
 
+	resourceType := "org_deviceprofile_ap"
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "org_deviceprofile_ap"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -347,6 +347,9 @@ func (s *OrgDeviceprofileApModel) testChecks(t testing.TB, rType, rName string) 
 		if s.RadioConfig.AntGain6 != nil {
 			checks.append(t, "TestCheckResourceAttr", "radio_config.ant_gain_6", fmt.Sprintf("%d", *s.RadioConfig.AntGain6))
 		}
+		if s.RadioConfig.AntMode != nil {
+			checks.append(t, "TestCheckResourceAttr", "radio_config.ant_mode", *s.RadioConfig.AntMode)
+		}
 		if s.RadioConfig.AntennaMode != nil {
 			checks.append(t, "TestCheckResourceAttr", "radio_config.antenna_mode", *s.RadioConfig.AntennaMode)
 		}
@@ -559,6 +562,256 @@ func (s *OrgDeviceprofileApModel) testChecks(t testing.TB, rType, rName string) 
 		}
 		if s.UsbConfig.VlanId != nil {
 			checks.append(t, "TestCheckResourceAttr", "usb_config.vlan_id", fmt.Sprintf("%d", *s.UsbConfig.VlanId))
+		}
+	}
+	if s.Airista != nil {
+		checks.append(t, "TestCheckResourceAttrSet", "airista.%")
+		if s.Airista.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "airista.enabled", fmt.Sprintf("%t", *s.Airista.Enabled))
+		}
+		if s.Airista.Host != nil {
+			checks.append(t, "TestCheckResourceAttr", "airista.host", *s.Airista.Host)
+		}
+		if s.Airista.Port != nil {
+			checks.append(t, "TestCheckResourceAttr", "airista.port", fmt.Sprintf("%d", *s.Airista.Port))
+		}
+	}
+	if s.LacpConfig != nil {
+		checks.append(t, "TestCheckResourceAttrSet", "lacp_config.%")
+		if s.LacpConfig.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "lacp_config.enabled", fmt.Sprintf("%t", *s.LacpConfig.Enabled))
+		}
+	}
+	if len(s.PortConfig) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "port_config.%", fmt.Sprintf("%d", len(s.PortConfig)))
+		for portName, portCfg := range s.PortConfig {
+			portPrefix := fmt.Sprintf("port_config.%s", portName)
+			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("%s.%%", portPrefix))
+
+			if portCfg.Disabled != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.disabled", portPrefix), fmt.Sprintf("%t", *portCfg.Disabled))
+			}
+			if portCfg.Forwarding != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.forwarding", portPrefix), *portCfg.Forwarding)
+			}
+			if portCfg.EnableMacAuth != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.enable_mac_auth", portPrefix), fmt.Sprintf("%t", *portCfg.EnableMacAuth))
+			}
+			if portCfg.MacAuthPreferred != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.mac_auth_preferred", portPrefix), fmt.Sprintf("%t", *portCfg.MacAuthPreferred))
+			}
+			if portCfg.MacAuthProtocol != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.mac_auth_protocol", portPrefix), *portCfg.MacAuthProtocol)
+			}
+			if portCfg.MxTunnelId != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.mx_tunnel_id", portPrefix), *portCfg.MxTunnelId)
+			}
+			if portCfg.MxtunnelName != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.mxtunnel_name", portPrefix), *portCfg.MxtunnelName)
+			}
+			if portCfg.PortAuth != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.port_auth", portPrefix), *portCfg.PortAuth)
+			}
+			if portCfg.PortVlanId != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.port_vlan_id", portPrefix), fmt.Sprintf("%d", *portCfg.PortVlanId))
+			}
+			if portCfg.VlanId != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.vlan_id", portPrefix), fmt.Sprintf("%d", *portCfg.VlanId))
+			}
+			if len(portCfg.VlanIds) > 0 {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.vlan_ids.#", portPrefix), fmt.Sprintf("%d", len(portCfg.VlanIds)))
+				for i, vlanId := range portCfg.VlanIds {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.vlan_ids.%d", portPrefix, i), fmt.Sprintf("%d", vlanId))
+				}
+			}
+			if portCfg.WxtunnelId != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.wxtunnel_id", portPrefix), *portCfg.WxtunnelId)
+			}
+			if portCfg.WxtunnelRemoteId != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.wxtunnel_remote_id", portPrefix), *portCfg.WxtunnelRemoteId)
+			}
+
+			// Dynamic VLAN checks
+			if portCfg.DynamicVlan != nil {
+				dynVlanPrefix := fmt.Sprintf("%s.dynamic_vlan", portPrefix)
+				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("%s.%%", dynVlanPrefix))
+				if portCfg.DynamicVlan.Enabled != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.enabled", dynVlanPrefix), fmt.Sprintf("%t", *portCfg.DynamicVlan.Enabled))
+				}
+				if portCfg.DynamicVlan.DefaultVlanId != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.default_vlan_id", dynVlanPrefix), fmt.Sprintf("%d", *portCfg.DynamicVlan.DefaultVlanId))
+				}
+				if portCfg.DynamicVlan.DynamicVlanType != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.type", dynVlanPrefix), *portCfg.DynamicVlan.DynamicVlanType)
+				}
+				if len(portCfg.DynamicVlan.Vlans) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.vlans.%%", dynVlanPrefix), fmt.Sprintf("%d", len(portCfg.DynamicVlan.Vlans)))
+					for key, value := range portCfg.DynamicVlan.Vlans {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.vlans.%s", dynVlanPrefix, key), value)
+					}
+				}
+			}
+
+			// Mist NAC checks
+			if portCfg.MistNac != nil {
+				mistNacPrefix := fmt.Sprintf("%s.mist_nac", portPrefix)
+				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("%s.%%", mistNacPrefix))
+				if portCfg.MistNac.Enabled != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.enabled", mistNacPrefix), fmt.Sprintf("%t", *portCfg.MistNac.Enabled))
+				}
+				if portCfg.MistNac.AcctInterimInterval != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.acct_interim_interval", mistNacPrefix), fmt.Sprintf("%d", *portCfg.MistNac.AcctInterimInterval))
+				}
+				if portCfg.MistNac.AuthServersRetries != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.auth_servers_retries", mistNacPrefix), fmt.Sprintf("%d", *portCfg.MistNac.AuthServersRetries))
+				}
+				if portCfg.MistNac.AuthServersTimeout != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.auth_servers_timeout", mistNacPrefix), fmt.Sprintf("%d", *portCfg.MistNac.AuthServersTimeout))
+				}
+				if portCfg.MistNac.CoaEnabled != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.coa_enabled", mistNacPrefix), fmt.Sprintf("%t", *portCfg.MistNac.CoaEnabled))
+				}
+				if portCfg.MistNac.CoaPort != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.coa_port", mistNacPrefix), fmt.Sprintf("%d", *portCfg.MistNac.CoaPort))
+				}
+				if portCfg.MistNac.FastDot1xTimers != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.fast_dot1x_timers", mistNacPrefix), fmt.Sprintf("%t", *portCfg.MistNac.FastDot1xTimers))
+				}
+				if portCfg.MistNac.Network != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.network", mistNacPrefix), *portCfg.MistNac.Network)
+				}
+				if portCfg.MistNac.SourceIp != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.source_ip", mistNacPrefix), *portCfg.MistNac.SourceIp)
+				}
+			}
+
+			// RADIUS Config checks
+			if portCfg.RadiusConfig != nil {
+				radiusPrefix := fmt.Sprintf("%s.radius_config", portPrefix)
+				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("%s.%%", radiusPrefix))
+				if portCfg.RadiusConfig.AcctInterimInterval != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.acct_interim_interval", radiusPrefix), fmt.Sprintf("%d", *portCfg.RadiusConfig.AcctInterimInterval))
+				}
+				if portCfg.RadiusConfig.AuthServersRetries != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.auth_servers_retries", radiusPrefix), fmt.Sprintf("%d", *portCfg.RadiusConfig.AuthServersRetries))
+				}
+				if portCfg.RadiusConfig.AuthServersTimeout != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.auth_servers_timeout", radiusPrefix), fmt.Sprintf("%d", *portCfg.RadiusConfig.AuthServersTimeout))
+				}
+				if portCfg.RadiusConfig.CoaEnabled != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.coa_enabled", radiusPrefix), fmt.Sprintf("%t", *portCfg.RadiusConfig.CoaEnabled))
+				}
+				if portCfg.RadiusConfig.CoaPort != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.coa_port", radiusPrefix), fmt.Sprintf("%d", *portCfg.RadiusConfig.CoaPort))
+				}
+				if portCfg.RadiusConfig.Network != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.network", radiusPrefix), *portCfg.RadiusConfig.Network)
+				}
+				if portCfg.RadiusConfig.SourceIp != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.source_ip", radiusPrefix), *portCfg.RadiusConfig.SourceIp)
+				}
+
+				// Auth servers checks
+				if len(portCfg.RadiusConfig.AuthServers) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.auth_servers.#", radiusPrefix), fmt.Sprintf("%d", len(portCfg.RadiusConfig.AuthServers)))
+					for i, authSrv := range portCfg.RadiusConfig.AuthServers {
+						authSrvPrefix := fmt.Sprintf("%s.auth_servers.%d", radiusPrefix, i)
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.host", authSrvPrefix), authSrv.Host)
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.secret", authSrvPrefix), authSrv.Secret)
+						if authSrv.Port != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.port", authSrvPrefix), *authSrv.Port)
+						}
+						if authSrv.KeywrapEnabled != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.keywrap_enabled", authSrvPrefix), fmt.Sprintf("%t", *authSrv.KeywrapEnabled))
+						}
+						if authSrv.KeywrapFormat != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.keywrap_format", authSrvPrefix), *authSrv.KeywrapFormat)
+						}
+						if authSrv.KeywrapKek != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.keywrap_kek", authSrvPrefix), *authSrv.KeywrapKek)
+						}
+						if authSrv.KeywrapMack != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.keywrap_mack", authSrvPrefix), *authSrv.KeywrapMack)
+						}
+						if authSrv.RequireMessageAuthenticator != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.require_message_authenticator", authSrvPrefix), fmt.Sprintf("%t", *authSrv.RequireMessageAuthenticator))
+						}
+					}
+				}
+
+				// Acct servers checks
+				if len(portCfg.RadiusConfig.AcctServers) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.acct_servers.#", radiusPrefix), fmt.Sprintf("%d", len(portCfg.RadiusConfig.AcctServers)))
+					for i, acctSrv := range portCfg.RadiusConfig.AcctServers {
+						acctSrvPrefix := fmt.Sprintf("%s.acct_servers.%d", radiusPrefix, i)
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.host", acctSrvPrefix), acctSrv.Host)
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.secret", acctSrvPrefix), acctSrv.Secret)
+						if acctSrv.Port != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.port", acctSrvPrefix), *acctSrv.Port)
+						}
+						if acctSrv.KeywrapEnabled != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.keywrap_enabled", acctSrvPrefix), fmt.Sprintf("%t", *acctSrv.KeywrapEnabled))
+						}
+						if acctSrv.KeywrapFormat != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.keywrap_format", acctSrvPrefix), *acctSrv.KeywrapFormat)
+						}
+						if acctSrv.KeywrapKek != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.keywrap_kek", acctSrvPrefix), *acctSrv.KeywrapKek)
+						}
+						if acctSrv.KeywrapMack != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.keywrap_mack", acctSrvPrefix), *acctSrv.KeywrapMack)
+						}
+					}
+				}
+			}
+
+			// RADSEC checks
+			if portCfg.Radsec != nil {
+				radsecPrefix := fmt.Sprintf("%s.radsec", portPrefix)
+				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("%s.%%", radsecPrefix))
+				if portCfg.Radsec.Enabled != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.enabled", radsecPrefix), fmt.Sprintf("%t", *portCfg.Radsec.Enabled))
+				}
+				if portCfg.Radsec.CoaEnabled != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.coa_enabled", radsecPrefix), fmt.Sprintf("%t", *portCfg.Radsec.CoaEnabled))
+				}
+				if portCfg.Radsec.IdleTimeout != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.idle_timeout", radsecPrefix), *portCfg.Radsec.IdleTimeout)
+				}
+				if portCfg.Radsec.ServerName != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.server_name", radsecPrefix), *portCfg.Radsec.ServerName)
+				}
+				if portCfg.Radsec.UseMxedge != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.use_mxedge", radsecPrefix), fmt.Sprintf("%t", *portCfg.Radsec.UseMxedge))
+				}
+				if portCfg.Radsec.UseSiteMxedge != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.use_site_mxedge", radsecPrefix), fmt.Sprintf("%t", *portCfg.Radsec.UseSiteMxedge))
+				}
+				if len(portCfg.Radsec.MxclusterIds) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.mxcluster_ids.#", radsecPrefix), fmt.Sprintf("%d", len(portCfg.Radsec.MxclusterIds)))
+					for i, clusterId := range portCfg.Radsec.MxclusterIds {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.mxcluster_ids.%d", radsecPrefix, i), clusterId)
+					}
+				}
+				if len(portCfg.Radsec.ProxyHosts) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.proxy_hosts.#", radsecPrefix), fmt.Sprintf("%d", len(portCfg.Radsec.ProxyHosts)))
+					for i, proxyHost := range portCfg.Radsec.ProxyHosts {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.proxy_hosts.%d", radsecPrefix, i), proxyHost)
+					}
+				}
+				if len(portCfg.Radsec.Servers) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.servers.#", radsecPrefix), fmt.Sprintf("%d", len(portCfg.Radsec.Servers)))
+					for i, server := range portCfg.Radsec.Servers {
+						serverPrefix := fmt.Sprintf("%s.servers.%d", radsecPrefix, i)
+						if server.Host != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.host", serverPrefix), *server.Host)
+						}
+						if server.Port != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.port", serverPrefix), fmt.Sprintf("%d", *server.Port))
+						}
+					}
+				}
+			}
 		}
 	}
 	if len(s.Vars) > 0 {

@@ -169,6 +169,9 @@ func portConfigWanSourceNatTerraformToSdk(ctx context.Context, d basetypes.Objec
 		if plan.NatPool.ValueStringPointer() != nil {
 			data.NatPool = plan.NatPool.ValueStringPointer()
 		}
+		if plan.Nat6Pool.ValueStringPointer() != nil {
+			data.Nat6Pool = plan.Nat6Pool.ValueStringPointer()
+		}
 		return &data
 	}
 }
@@ -301,8 +304,13 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 		if plan.WanDisableSpeedtest.ValueBoolPointer() != nil {
 			data.WanDisableSpeedtest = plan.WanDisableSpeedtest.ValueBoolPointer()
 		}
+
 		if plan.WanExtIp.ValueStringPointer() != nil {
 			data.WanExtIp = plan.WanExtIp.ValueStringPointer()
+		}
+
+		if !plan.WanExtIp6.IsNull() && !plan.WanExtIp6.IsUnknown() {
+			data.WanExtIp6 = plan.WanExtIp6.ValueStringPointer()
 		}
 
 		if !plan.WanExtraRoutes.IsNull() && !plan.WanExtraRoutes.IsUnknown() {

@@ -3,9 +3,10 @@ package provider
 type OrgNactagModel struct {
 	AllowUsermacOverride *bool    `hcl:"allow_usermac_override"`
 	EgressVlanNames      []string `hcl:"egress_vlan_names"`
-	GbpTag               *int64   `hcl:"gbp_tag"`
+	GbpTag               *string  `hcl:"gbp_tag"`
 	Match                *string  `hcl:"match"`
 	MatchAll             *bool    `hcl:"match_all"`
+	NacportalId          *string  `hcl:"nacportal_id"`
 	Name                 string   `hcl:"name"`
 	OrgId                string   `hcl:"org_id"`
 	RadiusAttrs          []string `hcl:"radius_attrs"`

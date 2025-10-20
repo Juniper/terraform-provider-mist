@@ -73,10 +73,104 @@
     enabled                = true
     networks               = ["net1", "net2", "net3"]
   }
+  dhcpd_config = {
+    enabled = true
+    config = {
+      "lan" = {
+        dns_servers  = ["8.8.8.8", "8.8.4.4"]
+        dns_suffix   = ["example.com"]
+        gateway      = "192.168.1.1"
+        ip_start     = "192.168.1.100"
+        ip_end       = "192.168.1.200"
+        ip_start6    = "2001:db8::100"
+        ip_end6      = "2001:db8::200"
+        lease_time   = 86400
+        type         = "local"
+        type6        = "local"
+        server_id_override = false
+        servers      = ["192.168.1.1"]
+        servers6     = ["2001:db8::1"]
+        fixed_bindings = {
+          "client1" = {
+            ip   = "192.168.1.50"
+            ip6  = "2001:db8::50"
+            name = "test-client"
+          }
+          "client2" = {
+            ip   = "192.168.1.51"
+            name = "another-client"
+          }
+        }
+        options = {
+          "option1" = {
+            type  = "ip"
+            value = "192.168.1.1"
+          }
+        }
+        vendor_encapsulated = {
+          "vendor1" = {
+            type  = "string"
+            value = "test-value"
+          }
+        }
+      }
+    }
+  }
   port_config = {
     "eth0" = "up"
     "eth1" = "down"
     "eth2" = "up"
+  }
+  port_usages = {
+    "access_port" = {
+      all_networks     = false
+      allow_dhcpd      = true
+      description      = "Access port usage"
+      disabled         = false
+      enable_qos       = true
+      mac_limit        = "5"
+      mode             = "access"
+      networks         = ["lan"]
+      port_network     = "lan"
+      speed            = "auto"
+      stp_disable      = false
+      stp_required     = true
+      rules = [
+        {
+          src   = "mac"
+          equals = "aa:bb:cc:dd:ee:ff"
+          usage = "access"
+        }
+      ]
+      storm_control = {
+        no_broadcast          = false
+        no_multicast          = false
+        no_registered_multicast = false
+        no_unknown_unicast    = false
+        percentage            = 80
+      }
+    }
+    "trunk_port" = {
+      all_networks     = true
+      allow_dhcpd      = false
+      description      = "Trunk port usage"
+      disabled         = false
+      enable_qos       = false
+      mac_limit        = "10"
+      mode             = "trunk"
+      networks         = ["lan", "wan"]
+      port_network     = "lan"
+      speed            = "1g"
+      stp_disable      = true
+      stp_required     = false
+      rules = [
+        {
+          src   = "vlan"
+          equals_any = ["100", "200"]
+          usage = "trunk"
+        }
+      ]
+    }
   }
   image_url = "https://example.com/switch.png"
   notes     = "Comprehensive switch config"

@@ -45,6 +45,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	var ssrAdditionalConfigCmds = types.ListNull(types.StringType)
 	var tunnelConfigs = types.MapNull(TunnelConfigsValue{}.Type(ctx))
 	var tunnelProviderOptions = NewTunnelProviderOptionsValueNull()
+	var urlFilteringDenyMsg = types.StringNull()
 	var vars = types.MapNull(types.StringType)
 	var vrfConfig = NewVrfConfigValueNull()
 	var vrfInstances = types.MapNull(VrfInstancesValue{}.Type(ctx))
@@ -148,6 +149,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 			tunnelProviderOptions = tunnelProviderOptionsTmp
 		}
 	}
+	if data.UrlFilteringDenyMsg != nil {
+		urlFilteringDenyMsg = types.StringValue(*data.UrlFilteringDenyMsg)
+	}
 	if len(data.Vars) > 0 {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
@@ -208,6 +212,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	state.SsrAdditionalConfigCmds = ssrAdditionalConfigCmds
 	state.TunnelConfigs = tunnelConfigs
 	state.TunnelProviderOptions = tunnelProviderOptions
+	state.UrlFilteringDenyMsg = urlFilteringDenyMsg
 	state.Vars = vars
 	state.VrfConfig = vrfConfig
 	state.VrfInstances = vrfInstances

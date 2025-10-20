@@ -169,6 +169,9 @@ func portConfigWanSourceNatTerraformToSdk(ctx context.Context, d basetypes.Objec
 		if plan.NatPool.ValueStringPointer() != nil {
 			data.NatPool = plan.NatPool.ValueStringPointer()
 		}
+		if plan.Nat6Pool.ValueStringPointer() != nil {
+			data.Nat6Pool = plan.Nat6Pool.ValueStringPointer()
+		}
 		return &data
 	}
 }
@@ -306,12 +309,16 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 			data.WanExtIp = plan.WanExtIp.ValueStringPointer()
 		}
 
+		if !plan.WanExtIp6.IsNull() && !plan.WanExtIp6.IsUnknown() {
+			data.WanExtIp6 = plan.WanExtIp6.ValueStringPointer()
+		}
+
 		if !plan.WanExtraRoutes.IsNull() && !plan.WanExtraRoutes.IsUnknown() {
 			data.WanExtraRoutes = wanExtraRoutesPortVpnPathTerraformToSdk(plan.WanExtraRoutes)
 		}
 
 		if !plan.WanExtraRoutes6.IsNull() && !plan.WanExtraRoutes6.IsUnknown() {
-			data.WanExtraRoutes6 = wanExtraRoutesPortVpnPathTerraformToSdk(plan.WanExtraRoutes6)
+			data.WanExtraRoutes6 = wanExtraRoutes6PortVpnPathTerraformToSdk(plan.WanExtraRoutes6)
 		}
 
 		if !plan.WanNetworks.IsNull() && !plan.WanNetworks.IsUnknown() {

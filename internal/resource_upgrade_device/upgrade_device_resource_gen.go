@@ -39,8 +39,8 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"status": schema.StringAttribute{
 						Computed:            true,
-						Description:         "enum: `inprogress`, `failed`, `upgraded`",
-						MarkdownDescription: "enum: `inprogress`, `failed`, `upgraded`",
+						Description:         "enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`",
+						MarkdownDescription: "enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`",
 					},
 					"status_id": schema.Int64Attribute{
 						Computed: true,

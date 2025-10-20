@@ -18,7 +18,7 @@ func band24SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 	var antGain basetypes.Int64Value
 	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
-	var channels = mistutils.ListOfIntSdkToTerraformEmpty()
+	var channels = types.ListNull(types.Int64Type)
 	var disabled basetypes.BoolValue
 	var power basetypes.Int64Value
 	var powerMax basetypes.Int64Value
@@ -79,7 +79,7 @@ func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var antGain basetypes.Int64Value
 	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
-	var channels = mistutils.ListOfIntSdkToTerraformEmpty()
+	var channels = types.ListNull(types.Int64Type)
 	var disabled basetypes.BoolValue
 	var power basetypes.Int64Value
 	var powerMax basetypes.Int64Value
@@ -140,7 +140,7 @@ func band5On24RadioSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	var antGain basetypes.Int64Value
 	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
-	var channels = mistutils.ListOfIntSdkToTerraformEmpty()
+	var channels = types.ListNull(types.Int64Type)
 	var disabled basetypes.BoolValue
 	var power basetypes.Int64Value
 	var powerMax basetypes.Int64Value
@@ -201,7 +201,7 @@ func band6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var antGain basetypes.Int64Value
 	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
-	var channels = mistutils.ListOfIntSdkToTerraformEmpty()
+	var channels = types.ListNull(types.Int64Type)
 	var disabled basetypes.BoolValue
 	var power basetypes.Int64Value
 	var powerMax basetypes.Int64Value

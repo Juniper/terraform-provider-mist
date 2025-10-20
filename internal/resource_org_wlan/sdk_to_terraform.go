@@ -406,6 +406,8 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	}
 
 	if data.PortalImage.IsValueSet() && data.PortalImage.Value() != nil {
+		// Using a predefined value to indicate that an image is present as the url can change due to a jwt token included in the url.
+		// Since the url changes it can cause terraform state conflicts when no actual change has been made to the image.
 		portalImage = types.StringValue("present")
 	}
 

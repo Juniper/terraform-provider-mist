@@ -64,7 +64,7 @@ func staticNatVpnTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkV
 	return dataMap
 }
 
-func VpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.NetworkVpnAccessConfig {
+func vpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.MapValue) map[string]models.NetworkVpnAccessConfig {
 	dataMap := make(map[string]models.NetworkVpnAccessConfig)
 	for k, v := range d.Elements() {
 		// Extract attributes directly from the ObjectValue instead of casting to specific type
@@ -73,12 +73,12 @@ func VpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes
 			attrs := objVal.Attributes()
 
 			if advertisedSubnet, exists := attrs["advertised_subnet"]; exists {
-				if strVal, ok := advertisedSubnet.(basetypes.StringValue); ok && strVal.ValueStringPointer() != nil {
+				if strVal, ok := advertisedSubnet.(basetypes.StringValue); ok && !strVal.IsNull() && !strVal.IsUnknown() {
 					data.AdvertisedSubnet = strVal.ValueStringPointer()
 				}
 			}
 			if allowPing, exists := attrs["allow_ping"]; exists {
-				if boolVal, ok := allowPing.(basetypes.BoolValue); ok && boolVal.ValueBoolPointer() != nil {
+				if boolVal, ok := allowPing.(basetypes.BoolValue); ok && !boolVal.IsNull() && !boolVal.IsUnknown() {
 					data.AllowPing = boolVal.ValueBoolPointer()
 				}
 			}
@@ -88,22 +88,22 @@ func VpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes
 				}
 			}
 			if natPool, exists := attrs["nat_pool"]; exists {
-				if strVal, ok := natPool.(basetypes.StringValue); ok && strVal.ValueStringPointer() != nil {
+				if strVal, ok := natPool.(basetypes.StringValue); ok && !strVal.IsNull() && !strVal.IsUnknown() {
 					data.NatPool = strVal.ValueStringPointer()
 				}
 			}
 			if noReadvertiseToLanBgp, exists := attrs["no_readvertise_to_lan_bgp"]; exists {
-				if boolVal, ok := noReadvertiseToLanBgp.(basetypes.BoolValue); ok && boolVal.ValueBoolPointer() != nil {
+				if boolVal, ok := noReadvertiseToLanBgp.(basetypes.BoolValue); ok && !boolVal.IsNull() && !boolVal.IsUnknown() {
 					data.NoReadvertiseToLanBgp = boolVal.ValueBoolPointer()
 				}
 			}
 			if noReadvertiseToLanOspf, exists := attrs["no_readvertise_to_lan_ospf"]; exists {
-				if boolVal, ok := noReadvertiseToLanOspf.(basetypes.BoolValue); ok && boolVal.ValueBoolPointer() != nil {
+				if boolVal, ok := noReadvertiseToLanOspf.(basetypes.BoolValue); ok && !boolVal.IsNull() && !boolVal.IsUnknown() {
 					data.NoReadvertiseToLanOspf = boolVal.ValueBoolPointer()
 				}
 			}
 			if noReadvertiseToOverlay, exists := attrs["no_readvertise_to_overlay"]; exists {
-				if boolVal, ok := noReadvertiseToOverlay.(basetypes.BoolValue); ok && boolVal.ValueBoolPointer() != nil {
+				if boolVal, ok := noReadvertiseToOverlay.(basetypes.BoolValue); ok && !boolVal.IsNull() && !boolVal.IsUnknown() {
 					data.NoReadvertiseToOverlay = boolVal.ValueBoolPointer()
 				}
 			}
@@ -113,7 +113,7 @@ func VpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes
 				}
 			}
 			if routed, exists := attrs["routed"]; exists {
-				if boolVal, ok := routed.(basetypes.BoolValue); ok && boolVal.ValueBoolPointer() != nil {
+				if boolVal, ok := routed.(basetypes.BoolValue); ok && !boolVal.IsNull() && !boolVal.IsUnknown() {
 					data.Routed = boolVal.ValueBoolPointer()
 				}
 			}
@@ -128,17 +128,17 @@ func VpnTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes
 				}
 			}
 			if summarizedSubnet, exists := attrs["summarized_subnet"]; exists {
-				if strVal, ok := summarizedSubnet.(basetypes.StringValue); ok && strVal.ValueStringPointer() != nil {
+				if strVal, ok := summarizedSubnet.(basetypes.StringValue); ok && !strVal.IsNull() && !strVal.IsUnknown() {
 					data.SummarizedSubnet = strVal.ValueStringPointer()
 				}
 			}
 			if summarizedSubnetToLanBgp, exists := attrs["summarized_subnet_to_lan_bgp"]; exists {
-				if strVal, ok := summarizedSubnetToLanBgp.(basetypes.StringValue); ok && strVal.ValueStringPointer() != nil {
+				if strVal, ok := summarizedSubnetToLanBgp.(basetypes.StringValue); ok && !strVal.IsNull() && !strVal.IsUnknown() {
 					data.SummarizedSubnetToLanBgp = strVal.ValueStringPointer()
 				}
 			}
 			if summarizedSubnetToLanOspf, exists := attrs["summarized_subnet_to_lan_ospf"]; exists {
-				if strVal, ok := summarizedSubnetToLanOspf.(basetypes.StringValue); ok && strVal.ValueStringPointer() != nil {
+				if strVal, ok := summarizedSubnetToLanOspf.(basetypes.StringValue); ok && !strVal.IsNull() && !strVal.IsUnknown() {
 					data.SummarizedSubnetToLanOspf = strVal.ValueStringPointer()
 				}
 			}

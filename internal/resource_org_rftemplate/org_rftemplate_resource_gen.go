@@ -75,10 +75,11 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "channel width for the 2.4GHz band. enum: `20`, `40`",
-						MarkdownDescription: "channel width for the 2.4GHz band. enum: `20`, `40`",
+						Description:         "channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`",
+						MarkdownDescription: "channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
+								0,
 								20,
 								40,
 							),
@@ -192,10 +193,11 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
-						MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+						Description:         "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
+						MarkdownDescription: "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
+								0,
 								20,
 								40,
 								80,
@@ -298,10 +300,11 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
-						MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+						Description:         "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
+						MarkdownDescription: "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
+								0,
 								20,
 								40,
 								80,
@@ -410,10 +413,11 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
-						MarkdownDescription: "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
+						Description:         "channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`",
+						MarkdownDescription: "channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
+								0,
 								20,
 								40,
 								80,
@@ -542,10 +546,11 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "channel width for the 2.4GHz band. enum: `20`, `40`",
-									MarkdownDescription: "channel width for the 2.4GHz band. enum: `20`, `40`",
+									Description:         "channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`",
+									MarkdownDescription: "channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
+											0,
 											20,
 											40,
 										),
@@ -653,10 +658,11 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
-									MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+									Description:         "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
+									MarkdownDescription: "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
+											0,
 											20,
 											40,
 											80,
@@ -756,10 +762,11 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
-									MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+									Description:         "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
+									MarkdownDescription: "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
+											0,
 											20,
 											40,
 											80,
@@ -865,10 +872,11 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
-									MarkdownDescription: "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
+									Description:         "channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`",
+									MarkdownDescription: "channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
+											0,
 											20,
 											40,
 											80,
