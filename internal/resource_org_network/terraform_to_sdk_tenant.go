@@ -11,18 +11,11 @@ import (
 func tenantTerraformToSdk(d basetypes.MapValue) map[string]models.NetworkTenant {
 	dataMap := make(map[string]models.NetworkTenant)
 	for k, v := range d.Elements() {
-		// Extract attributes directly from the ObjectValue instead of casting to specific type
-		if objVal, ok := v.(basetypes.ObjectValue); ok {
-			data := models.NetworkTenant{}
-			attrs := objVal.Attributes()
-
-			if addresses, exists := attrs["addresses"]; exists {
-				if listVal, ok := addresses.(basetypes.ListValue); ok {
-					data.Addresses = mistutils.ListOfStringTerraformToSdk(listVal)
-				}
-			}
-			dataMap[k] = data
-		}
+		var vInterface interface{} = v
+		vPlan := vInterface.(TenantsValue)
+		data := models.NetworkTenant{}
+		data.Addresses = mistutils.ListOfStringTerraformToSdk(vPlan.Addresses)
+		dataMap[k] = data
 	}
 	return dataMap
 }

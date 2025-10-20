@@ -8,7 +8,6 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
@@ -73,16 +72,10 @@ func tunnelConfigsAutoProvisionTerraformToSdk(ctx context.Context, diags *diag.D
 			}
 
 			if !plan.Latlng.IsNull() && !plan.Latlng.IsUnknown() {
-				latlngType := LatlngType{
-					ObjectType: types.ObjectType{
-						AttrTypes: LatlngValue{}.AttributeTypes(ctx),
-					},
-				}
-				latlngValue, conversionDiags := latlngType.ValueFromObject(ctx, plan.Latlng)
-				if conversionDiags.HasError() {
-					diags.Append(conversionDiags...)
+				planLatlng, e := NewLatlngValue(plan.Latlng.AttributeTypes(ctx), plan.Latlng.Attributes())
+				if e != nil {
+					diags.Append(e...)
 				} else {
-					planLatlng := latlngValue.(LatlngValue)
 					var latlng models.TunnelConfigAutoProvisionLatLng
 					latlng.Lat = planLatlng.Lat.ValueFloat64()
 					latlng.Lng = planLatlng.Lng.ValueFloat64()
