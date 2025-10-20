@@ -119,13 +119,13 @@ func simpleAlertSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var dhcpFailure = types.ObjectNull(DhcpFailureValue{}.AttributeTypes(ctx))
 	var dnsFailure = types.ObjectNull(DnsFailureValue{}.AttributeTypes(ctx))
 
-	if d.ArpFailure != nil {
+	if d != nil && d.ArpFailure != nil {
 		arpFailure = simpleAlertArpSdkToTerraform(ctx, diags, d.ArpFailure)
 	}
-	if d.DhcpFailure != nil {
+	if d != nil && d.DhcpFailure != nil {
 		dhcpFailure = simpleAlertDhcpSdkToTerraform(ctx, diags, d.DhcpFailure)
 	}
-	if d.DnsFailure != nil {
+	if d != nil && d.DnsFailure != nil {
 		dnsFailure = simpleAlertDnsSdkToTerraform(ctx, diags, d.DnsFailure)
 	}
 
