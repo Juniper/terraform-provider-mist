@@ -102,23 +102,6 @@
     limit_ssh_access        = true
   }
 
-  ssr {
-    conductor_hosts  = ["10.1.1.1", "10.1.1.2"]
-    conductor_token  = "ssr_conductor_token_example"
-    disable_stats    = false
-  }
-
-  switch {
-    auto_upgrade {
-      custom_versions = {
-        "EX4650-48Y" = "21.4R3.15"
-        "QFX5120-48Y" = "20.4R3.8"
-      }
-      enabled  = true
-      snapshot = true
-    }
-  }
-
   switch_mgmt {
     ap_affinity_threshold = 15
   }

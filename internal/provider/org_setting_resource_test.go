@@ -123,8 +123,8 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, rName string) testChec
 	if o.DisableRemoteShell != nil {
 		checks.append(t, "TestCheckResourceAttr", "disable_remote_shell", fmt.Sprintf("%t", *o.DisableRemoteShell))
 	}
-	if o.MxedgeFipsEnabled != nil {
-		checks.append(t, "TestCheckResourceAttr", "mxedge_fips_enabled", fmt.Sprintf("%t", *o.MxedgeFipsEnabled))
+	if o.UiNoTracking != nil {
+		checks.append(t, "TestCheckResourceAttr", "ui_no_tracking", fmt.Sprintf("%t", *o.UiNoTracking))
 	}
 
 	// Check array fields
@@ -150,7 +150,9 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, rName string) testChec
 
 	// Check Cloudshark nested object
 	if o.Cloudshark != nil {
-		checks.append(t, "TestCheckResourceAttr", "cloudshark.apitoken", o.Cloudshark.Apitoken)
+		if o.Cloudshark.Apitoken != nil {
+			checks.append(t, "TestCheckResourceAttr", "cloudshark.apitoken", *o.Cloudshark.Apitoken)
+		}
 		if o.Cloudshark.Url != nil {
 			checks.append(t, "TestCheckResourceAttr", "cloudshark.url", *o.Cloudshark.Url)
 		}
@@ -282,6 +284,9 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, rName string) testChec
 
 	// Check MxedgeMgmt nested object
 	if o.MxedgeMgmt != nil {
+		if o.MxedgeMgmt.ConfigAutoRevert != nil {
+			checks.append(t, "TestCheckResourceAttr", "mxedge_mgmt.config_auto_revert", fmt.Sprintf("%t", *o.MxedgeMgmt.ConfigAutoRevert))
+		}
 		if o.MxedgeMgmt.FipsEnabled != nil {
 			checks.append(t, "TestCheckResourceAttr", "mxedge_mgmt.fips_enabled", fmt.Sprintf("%t", *o.MxedgeMgmt.FipsEnabled))
 		}
@@ -296,6 +301,108 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, rName string) testChec
 		}
 		if o.MxedgeMgmt.RootPassword != nil {
 			checks.append(t, "TestCheckResourceAttr", "mxedge_mgmt.root_password", *o.MxedgeMgmt.RootPassword)
+		}
+	}
+
+	// Check Marvis nested object
+	if o.Marvis != nil {
+		if o.Marvis.AutoOperations != nil {
+			if o.Marvis.AutoOperations.BouncePortForAbnormalPoeClient != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.bounce_port_for_abnormal_poe_client", fmt.Sprintf("%t", *o.Marvis.AutoOperations.BouncePortForAbnormalPoeClient))
+			}
+			if o.Marvis.AutoOperations.DisablePortWhenDdosProtocolViolation != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.disable_port_when_ddos_protocol_violation", fmt.Sprintf("%t", *o.Marvis.AutoOperations.DisablePortWhenDdosProtocolViolation))
+			}
+			if o.Marvis.AutoOperations.DisablePortWhenRogueDhcpServerDetected != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.disable_port_when_rogue_dhcp_server_detected", fmt.Sprintf("%t", *o.Marvis.AutoOperations.DisablePortWhenRogueDhcpServerDetected))
+			}
+		}
+	}
+
+	// Check JuniperSrx nested object
+	if o.JuniperSrx != nil {
+		if o.JuniperSrx.SrxAutoUpgrade != nil {
+			if o.JuniperSrx.SrxAutoUpgrade.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "juniper_srx.auto_upgrade.enabled", fmt.Sprintf("%t", *o.JuniperSrx.SrxAutoUpgrade.Enabled))
+			}
+			if o.JuniperSrx.SrxAutoUpgrade.Snapshot != nil {
+				checks.append(t, "TestCheckResourceAttr", "juniper_srx.auto_upgrade.snapshot", fmt.Sprintf("%t", *o.JuniperSrx.SrxAutoUpgrade.Snapshot))
+			}
+			if len(o.JuniperSrx.SrxAutoUpgrade.CustomVersions) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "juniper_srx.auto_upgrade.custom_versions.%", fmt.Sprintf("%d", len(o.JuniperSrx.SrxAutoUpgrade.CustomVersions)))
+				for key, version := range o.JuniperSrx.SrxAutoUpgrade.CustomVersions {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("juniper_srx.auto_upgrade.custom_versions.%s", key), version)
+				}
+			}
+		}
+	}
+
+	// Check JunosShellAccess nested object
+	if o.JunosShellAccess != nil {
+		if o.JunosShellAccess.Admin != nil {
+			checks.append(t, "TestCheckResourceAttr", "junos_shell_access.admin", *o.JunosShellAccess.Admin)
+		}
+		if o.JunosShellAccess.Helpdesk != nil {
+			checks.append(t, "TestCheckResourceAttr", "junos_shell_access.helpdesk", *o.JunosShellAccess.Helpdesk)
+		}
+		if o.JunosShellAccess.Read != nil {
+			checks.append(t, "TestCheckResourceAttr", "junos_shell_access.read", *o.JunosShellAccess.Read)
+		}
+		if o.JunosShellAccess.Write != nil {
+			checks.append(t, "TestCheckResourceAttr", "junos_shell_access.write", *o.JunosShellAccess.Write)
+		}
+	}
+
+	// Check Ssr nested object
+	if o.Ssr != nil {
+		if len(o.Ssr.ConductorHosts) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "ssr.conductor_hosts.#", fmt.Sprintf("%d", len(o.Ssr.ConductorHosts)))
+			for i, host := range o.Ssr.ConductorHosts {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ssr.conductor_hosts.%d", i), host)
+			}
+		}
+		if o.Ssr.ConductorToken != nil {
+			checks.append(t, "TestCheckResourceAttr", "ssr.conductor_token", *o.Ssr.ConductorToken)
+		}
+		if o.Ssr.DisableStats != nil {
+			checks.append(t, "TestCheckResourceAttr", "ssr.disable_stats", fmt.Sprintf("%t", *o.Ssr.DisableStats))
+		}
+		if o.Ssr.Proxy != nil {
+			if o.Ssr.Proxy.Url != nil {
+				checks.append(t, "TestCheckResourceAttr", "ssr.proxy.url", *o.Ssr.Proxy.Url)
+			}
+		}
+		if o.Ssr.SsrAutoUpgrade != nil {
+			if o.Ssr.SsrAutoUpgrade.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "ssr.auto_upgrade.enabled", fmt.Sprintf("%t", *o.Ssr.SsrAutoUpgrade.Enabled))
+			}
+			if o.Ssr.SsrAutoUpgrade.Channel != nil {
+				checks.append(t, "TestCheckResourceAttr", "ssr.auto_upgrade.channel", *o.Ssr.SsrAutoUpgrade.Channel)
+			}
+			if len(o.Ssr.SsrAutoUpgrade.CustomVersions) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "ssr.auto_upgrade.custom_versions.%", fmt.Sprintf("%d", len(o.Ssr.SsrAutoUpgrade.CustomVersions)))
+				for key, version := range o.Ssr.SsrAutoUpgrade.CustomVersions {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ssr.auto_upgrade.custom_versions.%s", key), version)
+				}
+			}
+		}
+	}
+
+	// Check Switch nested object
+	if o.Switch != nil {
+		if o.Switch.AutoUpgrade != nil {
+			if o.Switch.AutoUpgrade.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "switch.auto_upgrade.enabled", fmt.Sprintf("%t", *o.Switch.AutoUpgrade.Enabled))
+			}
+			if o.Switch.AutoUpgrade.Snapshot != nil {
+				checks.append(t, "TestCheckResourceAttr", "switch.auto_upgrade.snapshot", fmt.Sprintf("%t", *o.Switch.AutoUpgrade.Snapshot))
+			}
+			if len(o.Switch.AutoUpgrade.CustomVersions) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "switch.auto_upgrade.custom_versions.%", fmt.Sprintf("%d", len(o.Switch.AutoUpgrade.CustomVersions)))
+				for key, version := range o.Switch.AutoUpgrade.CustomVersions {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("switch.auto_upgrade.custom_versions.%s", key), version)
+				}
+			}
 		}
 	}
 
@@ -350,9 +457,57 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, rName string) testChec
 
 	// Check SyntheticTest nested object
 	if o.SyntheticTest != nil {
+		if o.SyntheticTest.Aggressiveness != nil {
+			checks.append(t, "TestCheckResourceAttr", "synthetic_test.aggressiveness", *o.SyntheticTest.Aggressiveness)
+		}
 		if o.SyntheticTest.Disabled != nil {
 			checks.append(t, "TestCheckResourceAttr", "synthetic_test.disabled", fmt.Sprintf("%t", *o.SyntheticTest.Disabled))
 		}
+
+		// Check CustomProbes map
+		if len(o.SyntheticTest.CustomProbes) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "synthetic_test.custom_probes.%", fmt.Sprintf("%d", len(o.SyntheticTest.CustomProbes)))
+			for key, probe := range o.SyntheticTest.CustomProbes {
+				if probe.Aggressiveness != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.aggressiveness", key), *probe.Aggressiveness)
+				}
+				if probe.Host != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.host", key), *probe.Host)
+				}
+				if probe.Port != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.port", key), fmt.Sprintf("%d", *probe.Port))
+				}
+				if probe.Threshold != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.threshold", key), fmt.Sprintf("%d", *probe.Threshold))
+				}
+				if probe.CustomProbesType != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.type", key), *probe.CustomProbesType)
+				}
+				if probe.Url != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.url", key), *probe.Url)
+				}
+			}
+		}
+
+		// Check LanNetworks array
+		if len(o.SyntheticTest.LanNetworks) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "synthetic_test.lan_networks.#", fmt.Sprintf("%d", len(o.SyntheticTest.LanNetworks)))
+			for i, lanNetwork := range o.SyntheticTest.LanNetworks {
+				if len(lanNetwork.Networks) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.lan_networks.%d.networks.#", i), fmt.Sprintf("%d", len(lanNetwork.Networks)))
+					for j, network := range lanNetwork.Networks {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.lan_networks.%d.networks.%d", i, j), network)
+					}
+				}
+				if len(lanNetwork.Probes) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.lan_networks.%d.probes.#", i), fmt.Sprintf("%d", len(lanNetwork.Probes)))
+					for j, probe := range lanNetwork.Probes {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.lan_networks.%d.probes.%d", i, j), probe)
+					}
+				}
+			}
+		}
+
 		if len(o.SyntheticTest.Vlans) > 0 {
 			checks.append(t, "TestCheckResourceAttr", "synthetic_test.vlans.#", fmt.Sprintf("%d", len(o.SyntheticTest.Vlans)))
 			for i, vlan := range o.SyntheticTest.Vlans {
@@ -363,6 +518,12 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, rName string) testChec
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.vlans.%d.custom_test_urls.#", i), fmt.Sprintf("%d", len(vlan.CustomTestUrls)))
 					for j, url := range vlan.CustomTestUrls {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.vlans.%d.custom_test_urls.%d", i, j), url)
+					}
+				}
+				if len(vlan.Probes) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.vlans.%d.probes.#", i), fmt.Sprintf("%d", len(vlan.Probes)))
+					for j, probe := range vlan.Probes {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.vlans.%d.probes.%d", i, j), probe)
 					}
 				}
 				if len(vlan.VlanIds) > 0 {
@@ -387,6 +548,9 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, rName string) testChec
 	if o.VpnOptions != nil {
 		if o.VpnOptions.AsBase != nil {
 			checks.append(t, "TestCheckResourceAttr", "vpn_options.as_base", fmt.Sprintf("%d", *o.VpnOptions.AsBase))
+		}
+		if o.VpnOptions.EnableIpv6 != nil {
+			checks.append(t, "TestCheckResourceAttr", "vpn_options.enable_ipv6", fmt.Sprintf("%t", *o.VpnOptions.EnableIpv6))
 		}
 		if o.VpnOptions.StSubnet != nil {
 			checks.append(t, "TestCheckResourceAttr", "vpn_options.st_subnet", *o.VpnOptions.StSubnet)

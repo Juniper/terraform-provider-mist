@@ -317,3 +317,8 @@ func GetSitegroupBaseConfig(org_ID string) (config string, sitegroupRef string) 
 
 	return sitegroupConfigStr, fmt.Sprintf("mist_org_sitegroup.%s.id", sitegroupConfig.Name)
 }
+
+// Helper function for creating string pointers
+func stringPtr(s string) *string {
+	return &s
+}
