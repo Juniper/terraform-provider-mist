@@ -251,6 +251,11 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("extra_routes6.%s.via", k), v.Via)
 		}
 	}
+	if s.GatewayMgmt != nil {
+		if s.GatewayMgmt.ConfigRevertTimer != nil {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.config_revert_timer", fmt.Sprintf("%d", *s.GatewayMgmt.ConfigRevertTimer))
+		}
+	}
 	if len(s.IdpProfiles) > 0 {
 		checks.append(t, "TestCheckResourceAttr", "idp_profiles.%", fmt.Sprintf("%d", len(s.IdpProfiles)))
 		for k, v := range s.IdpProfiles {

@@ -70,6 +70,10 @@
     }
   }
 
+  gateway_mgmt = {
+    config_revert_timer = 16
+  }
+
   # idp_profiles section temporarily removed due to provider framework issue with missing id field
   # idp_profiles = {
   #   security_profile = {

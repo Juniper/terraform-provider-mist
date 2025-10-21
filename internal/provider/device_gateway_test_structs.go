@@ -9,6 +9,7 @@ type DeviceGatewayModel struct {
 	DnsSuffix               []string                                     `hcl:"dns_suffix"`
 	ExtraRoutes             map[string]DeviceGatewayExtraRoutesValue     `hcl:"extra_routes"`
 	ExtraRoutes6            map[string]DeviceGatewayExtraRoutes6Value    `hcl:"extra_routes6"`
+	GatewayMgmt             *DeviceGatewayGatewayMgmtValue               `hcl:"gateway_mgmt"`
 	IdpProfiles             map[string]DeviceGatewayIdpProfilesValue     `hcl:"idp_profiles"`
 	IpConfigs               map[string]DeviceGatewayIpConfigsValue       `hcl:"ip_configs"`
 	Managed                 *bool                                        `hcl:"managed"`
@@ -83,12 +84,12 @@ type DeviceGatewayConfigValue struct {
 	Gateway            *string                                         `cty:"gateway" hcl:"gateway"`
 	Ip6End             *string                                         `cty:"ip6_end" hcl:"ip6_end"`
 	Ip6Start           *string                                         `cty:"ip6_start" hcl:"ip6_start"`
-	IpEnd              *string                                         `cty:"ip_end" hcl:"ip_end"`
-	IpStart            *string                                         `cty:"ip_start" hcl:"ip_start"`
+	IpEnd4             *string                                         `cty:"ip_end" hcl:"ip_end"`
+	IpStart4           *string                                         `cty:"ip_start" hcl:"ip_start"`
 	LeaseTime          *int64                                          `cty:"lease_time" hcl:"lease_time"`
 	Options            map[string]DeviceGatewayOptionsValue            `cty:"options" hcl:"options"`
 	ServerIdOverride   *bool                                           `cty:"server_id_override" hcl:"server_id_override"`
-	Servers            []string                                        `cty:"servers" hcl:"servers"`
+	Servers4           []string                                        `cty:"servers" hcl:"servers"`
 	Serversv6          []string                                        `cty:"serversv6" hcl:"serversv6"`
 	Type4              *string                                         `cty:"type" hcl:"type"`
 	Type6              *string                                         `cty:"type6" hcl:"type6"`
@@ -117,6 +118,10 @@ type DeviceGatewayExtraRoutesValue struct {
 
 type DeviceGatewayExtraRoutes6Value struct {
 	Via string `cty:"via" hcl:"via"`
+}
+
+type DeviceGatewayGatewayMgmtValue struct {
+	ConfigRevertTimer *int64 `cty:"config_revert_timer" hcl:"config_revert_timer"`
 }
 
 type DeviceGatewayIdpProfilesValue struct {

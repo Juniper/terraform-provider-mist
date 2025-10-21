@@ -68,6 +68,14 @@
             ip   = "192.168.1.50"
             name = "test-device"
           }
+          "112233445567" = {
+            ip = "{{server_ip4_var}}"
+            name = "server2"
+          }
+          "112233445568" = {
+            ip6 = "{{server_ip6_var}}"
+            name = "server3"
+          }
         }
         options = {
           "15" = {
