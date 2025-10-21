@@ -1,10 +1,9 @@
-  device_id = "00000000-0000-0000-1000-5c5b35000010"
+  device_id = "00000000-0000-0000-1000-f4bfa8426080"
   name = "test-gateway-comprehensive"
   managed = false
-  map_id = "845a23bf-bed9-e43c-4c86-6fa474be7ae5"
-  msp_id = "msp-12345678-1234-5678-9abc-def012345678"
   notes = "Comprehensive test gateway configuration with all possible attributes"
   router_id = "192.168.1.1"
+  # site_id = "2c107c8e-2e06-404a-ba61-e25b5757ecea"
   x = 150.5
   y = 250.75
 
@@ -120,7 +119,7 @@
         create_simple_service_policy = true
         enabled = true
         destination_nat = {
-          web_server = {
+          "192.168.1.100" = {
             internal_ip = "192.168.1.100"
             name = "web-server-nat"
             port = "80"
@@ -128,7 +127,7 @@
           }
         }
         static_nat = {
-          mail_server = {
+          "192.168.1.200" = {
             internal_ip = "192.168.1.200"
             name = "mail-server-static"
             wan_name = "wan1"
@@ -161,7 +160,7 @@
           advertised_subnet = "192.168.0.0/16"
           allow_ping = true
           destination_nat = {
-            internal_service = {
+            "192.168.1.50" = {
               internal_ip = "192.168.1.50"
               name = "internal-api"
               port = "8080"
@@ -177,7 +176,7 @@
             external_ip = "203.0.113.50"
           }
           static_nat = {
-            vpn_server = {
+            "192.168.1.150" = {
               internal_ip = "192.168.1.150"
               name = "vpn-gateway"
             }
@@ -215,13 +214,9 @@
         {
           cost = 100
           disabled = false
-          gateway_ip = "203.0.113.1"
-          internet_access = true
           name = "primary-wan"
           networks = ["default"]
-          target_ips = ["8.8.8.8", "1.1.1.1"]
           type = "wan"
-          wan_name = "wan1"
         }
       ]
       strategy = "ordered"
@@ -229,7 +224,7 @@
   }
 
   port_config = {
-    ge_0_0_0 = {
+    "ge-0/0/1" = {
       ae_disable_lacp = false
       ae_idx = "ae0"
       ae_lacp_force_up = true
@@ -238,17 +233,8 @@
       description = "Primary LAN interface"
       disable_autoneg = false
       disabled = false
-      dsl_type = "adsl"
-      dsl_vci = 100
-      dsl_vpi = 1
       duplex = "auto"
-      lte_apn = "internet"
-      lte_auth = "none"
-      lte_backup = false
-      lte_password = "lte-password"
-      lte_username = "lte-user"
       mtu = 1500
-      name = "LAN-Interface"
       networks = ["corporate-lan"]
       outer_vlan_id = 200
       poe_disabled = false
@@ -287,7 +273,7 @@
       vlan_id = "100"
       vpn_paths = {
         corporate_vpn = {
-          bfd_profile = "default"
+          bfd_profile = "broadband"
           bfd_use_tunnel_mode = true
           preference = 100
           role = "spoke"
@@ -298,30 +284,6 @@
           }
         }
       }
-      wan_arp_policer = "strict"
-      wan_disable_speedtest = false
-      wan_ext_ip = "203.0.113.10"
-      wan_extra_routes = {
-        backup_route = {
-          via = "203.0.113.1"
-        }
-      }
-      wan_extra_routes6 = {
-        ipv6_backup = {
-          via = "2001:db8::1"
-        }
-      }
-      wan_networks = ["wan-network-1"]
-      wan_probe_override = {
-        ip6s = ["2001:4860:4860::8888"]
-        ips = ["8.8.8.8", "1.1.1.1"]
-        probe_profile = "default"
-      }
-      wan_source_nat = {
-        disabled = false
-        nat_pool = "wan-nat-pool"
-      }
-      wan_type = "broadband"
     }
   }
 
@@ -329,16 +291,12 @@
     bgp_import_policy = {
       terms = [
         {
-          actions = [
-            {
-              accept = true
-            }
-          ]
-          matching = [
-            {
-              prefix = ["10.0.0.0/8", "192.168.0.0/16"]
-            }
-          ]
+          actions = {
+            accept = true
+          }
+          matching = {
+            prefix = ["10.0.0.0/8", "192.168.0.0/16"]
+          }
         }
       ]
     }
@@ -360,12 +318,11 @@
 
   tunnel_configs = {
     ipsec_tunnel_1 = {
-      auto_preemption = true
       ike_lifetime = 28800
       ike_mode = "main"
       ike_proposals = [
         {
-          auth_algo = "sha256"
+          auth_algo = "sha2"
           dh_group = "14"
           enc_algo = "aes256"
         }
@@ -373,36 +330,22 @@
       ipsec_lifetime = 3600
       ipsec_proposals = [
         {
-          auth_algo = "sha256"
+          auth_algo = "sha2"
           enc_algo = "aes256"
         }
       ]
       local_id = "gateway1@example.com"
-      mode = "route-based"
-      networks = ["192.168.1.0/24"]
+      mode = "active-standby"
       primary = {
         hosts = ["vpn.example.com"]
-        interface = "wan1"
-        probe = {
-          interval = 10
-          threshold = 5
-          type = "ping"
-        }
-        protocol = "ipsec"
         remote_ids = ["gateway2@example.com"]
-        role = "initiator"
-        traffic_shaping = {
-          enabled = true
-          max_tx_kbps = 10000
-        }
         wan_names = ["wan1"]
       }
       protocol = "ipsec"
-      provider = "custom"
+      provider = "custom-ipsec"
       psk = "pre-shared-key-123"
       secondary = {
         hosts = ["backup-vpn.example.com"]
-        interface = "wan2"
         wan_names = ["wan2"]
       }
       version = "2"
@@ -453,39 +396,4 @@
       networks = ["iot-devices"]
     }
   }
-}
-␞
-resource "mist_device_gateway" "test_minimal" {
-  device_id = "00000000-0000-0000-1000-5c5b35000011"
-  name = "test-gateway-minimal"
-  site_id = "87654321-1234-5678-9abc-def012345678"
-  managed = false
 
-  additional_config_cmds = ["set system host-name gateway-minimal"]
-  dns_servers = ["8.8.8.8"]
-  ntp_servers = ["pool.ntp.org"]
-
-  vars = {
-    environment = "test"
-  }
-
-  ip_configs = {
-    wan = {
-      type = "dhcp"
-    }
-  }
-
-  networks = [
-    {
-      subnet = "192.168.100.0/24"
-      gateway = "192.168.100.1"
-      name = "test-network"
-    }
-  ]
-
-  port_config = {
-    ge_0_0_0 = {
-      usage = "lan"
-      networks = ["test-network"]
-    }
-  }}
