@@ -26,8 +26,9 @@ func TestDeviceGatewayModel(t *testing.T) {
 			steps: []testStep{
 				{
 					config: DeviceGatewayModel{
-						DeviceId: "",
+						DeviceId: "00000000-0000-0000-1000-f4bfa8426080",
 						Name:     "test_device_gateway",
+						SiteId:   "2c107c8e-2e06-404a-ba61-e25b5757ecea",
 					},
 				},
 			},
@@ -59,19 +60,19 @@ func TestDeviceGatewayModel(t *testing.T) {
 	}
 
 	for tName, tCase := range testCases {
-		t.Skip("Skipping device_gateway tests, as they require a real device.")
+		// t.Skip("Skipping device_gateway tests, as they require a real device.")
 		t.Run(tName, func(t *testing.T) {
 			resourceType := "device_gateway"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
-				siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
+				// siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
 				config := step.config
 
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
-				f.Body().SetAttributeRaw("site_id", hclwrite.TokensForIdentifier(siteRef))
-				combinedConfig := siteConfig + "\n\n" + Render(resourceType, tName, string(f.Bytes()))
+				// f.Body().SetAttributeRaw("site_id", hclwrite.TokensForIdentifier(siteRef))
+				combinedConfig := Render(resourceType, tName, string(f.Bytes()))
 
 				checks := config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
@@ -118,7 +119,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 	}
 
 	if len(s.BgpConfig) > 0 {
-		checks.append(t, "TestCheckResourceAttrSet", "bgp_config")
+		checks.append(t, "TestCheckResourceAttr", "bgp_config.%", fmt.Sprintf("%d", len(s.BgpConfig)))
 		for k, v := range s.BgpConfig {
 			if v.AuthKey != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.auth_key", k), *v.AuthKey)
@@ -160,7 +161,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.neighbor_as", k), *v.NeighborAs)
 			}
 			if len(v.Neighbors) > 0 {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("bgp_config.%s.neighbors", k))
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.neighbors.%%", k), fmt.Sprintf("%d", len(v.Neighbors)))
 				// Add detailed neighbor checks
 				for neighborKey, neighbor := range v.Neighbors {
 					if neighbor.Disabled != nil {
@@ -178,7 +179,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 					if neighbor.MultihopTtl != nil {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.neighbors.%s.multihop_ttl", k, neighborKey), fmt.Sprintf("%d", *neighbor.MultihopTtl))
 					}
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.neighbors.%s.neighbor_as", k, neighborKey), fmt.Sprintf("%s", neighbor.NeighborAs))
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.neighbors.%s.neighbor_as", k, neighborKey), neighbor.NeighborAs)
 
 				}
 			}
@@ -217,10 +218,9 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 	}
 
 	if s.DhcpdConfig != nil {
-		checks.append(t, "TestCheckResourceAttrSet", "dhcpd_config")
 		if len(s.DhcpdConfig.Config) > 0 {
 			// check nested struct
-			checks.append(t, "TestCheckResourceAttrSet", "dhcpd_config.config")
+			checks.append(t, "TestCheckResourceAttr", "dhcpd_config.config.%", fmt.Sprintf("%d", len(s.DhcpdConfig.Config)))
 		}
 		if s.DhcpdConfig.Enabled != nil {
 			checks.append(t, "TestCheckResourceAttr", "dhcpd_config.enabled", fmt.Sprintf("%t", *s.DhcpdConfig.Enabled))
@@ -240,19 +240,19 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 		}
 	}
 	if len(s.ExtraRoutes) > 0 {
-		checks.append(t, "TestCheckResourceAttrSet", "extra_routes")
+		checks.append(t, "TestCheckResourceAttr", "extra_routes.%", fmt.Sprintf("%d", len(s.ExtraRoutes)))
 		for k, v := range s.ExtraRoutes {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("extra_routes.%s.via", k), v.Via)
 		}
 	}
 	if len(s.ExtraRoutes6) > 0 {
-		checks.append(t, "TestCheckResourceAttrSet", "extra_routes6")
+		checks.append(t, "TestCheckResourceAttr", "extra_routes6.%", fmt.Sprintf("%d", len(s.ExtraRoutes6)))
 		for k, v := range s.ExtraRoutes6 {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("extra_routes6.%s.via", k), v.Via)
 		}
 	}
 	if len(s.IdpProfiles) > 0 {
-		checks.append(t, "TestCheckResourceAttrSet", "idp_profiles")
+		checks.append(t, "TestCheckResourceAttr", "idp_profiles.%", fmt.Sprintf("%d", len(s.IdpProfiles)))
 		for k, v := range s.IdpProfiles {
 			if v.BaseProfile != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("idp_profiles.%s.base_profile", k), *v.BaseProfile)
@@ -276,7 +276,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("idp_profiles.%s.overwrites.%d.name", k, i), *overwrite.Name)
 					}
 					if overwrite.IpdProfileOverwriteMatching != nil {
-						checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("idp_profiles.%s.overwrites.%d.matching", k, i))
 						if len(overwrite.IpdProfileOverwriteMatching.AttackName) > 0 {
 							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("idp_profiles.%s.overwrites.%d.matching.attack_name.#", k, i), fmt.Sprintf("%d", len(overwrite.IpdProfileOverwriteMatching.AttackName)))
 							for j, attackName := range overwrite.IpdProfileOverwriteMatching.AttackName {
@@ -302,7 +301,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 	}
 
 	if len(s.IpConfigs) > 0 {
-		checks.append(t, "TestCheckResourceAttrSet", "ip_configs")
+		checks.append(t, "TestCheckResourceAttr", "ip_configs.%", fmt.Sprintf("%d", len(s.IpConfigs)))
 		for k, v := range s.IpConfigs {
 			if v.Ip != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ip_configs.%s.ip", k), *v.Ip)
@@ -354,13 +353,11 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.gateway6", i), *network.Gateway6)
 			}
 			if network.InternalAccess != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("networks.%d.internal_access", i))
 				if network.InternalAccess.Enabled != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.internal_access.enabled", i), fmt.Sprintf("%t", *network.InternalAccess.Enabled))
 				}
 			}
 			if network.InternetAccess != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("networks.%d.internet_access", i))
 				if network.InternetAccess.CreateSimpleServicePolicy != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.internet_access.create_simple_service_policy", i), fmt.Sprintf("%t", *network.InternetAccess.CreateSimpleServicePolicy))
 				}
@@ -371,7 +368,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.internet_access.restricted", i), fmt.Sprintf("%t", *network.InternetAccess.Restricted))
 				}
 				if len(network.InternetAccess.InternetAccessDestinationNat) > 0 {
-					checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("networks.%d.internet_access.destination_nat", i))
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.internet_access.destination_nat.%%", i), fmt.Sprintf("%d", len(network.InternetAccess.InternetAccessDestinationNat)))
 					for destNatKey, destNat := range network.InternetAccess.InternetAccessDestinationNat {
 						if destNat.InternalIp != nil {
 							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.internet_access.destination_nat.%s.internal_ip", i, destNatKey), *destNat.InternalIp)
@@ -386,7 +383,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 					}
 				}
 				if len(network.InternetAccess.InternetAccessStaticNat) > 0 {
-					checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("networks.%d.internet_access.static_nat", i))
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.internet_access.static_nat.%%", i), fmt.Sprintf("%d", len(network.InternetAccess.InternetAccessStaticNat)))
 					for staticNatKey, staticNat := range network.InternetAccess.InternetAccessStaticNat {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.internet_access.static_nat.%s.internal_ip", i, staticNatKey), staticNat.InternalIp)
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.internet_access.static_nat.%s.name", i, staticNatKey), staticNat.Name)
@@ -400,7 +397,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.isolation", i), fmt.Sprintf("%t", *network.Isolation))
 			}
 			if network.Multicast != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("networks.%d.multicast", i))
 				if network.Multicast.DisableIgmp != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.multicast.disable_igmp", i), fmt.Sprintf("%t", *network.Multicast.DisableIgmp))
 				}
@@ -408,7 +404,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.multicast.enabled", i), fmt.Sprintf("%t", *network.Multicast.Enabled))
 				}
 				if len(network.Multicast.Groups) > 0 {
-					checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("networks.%d.multicast.groups", i))
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.multicast.groups.%%", i), fmt.Sprintf("%d", len(network.Multicast.Groups)))
 					for groupKey, group := range network.Multicast.Groups {
 						if group.RpIp != nil {
 							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.multicast.groups.%s.rp_ip", i, groupKey), *group.RpIp)
@@ -430,7 +426,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.subnet6", i), *network.Subnet6)
 			}
 			if len(network.Tenants) > 0 {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("networks.%d.tenants", i))
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.tenants.%%", i), fmt.Sprintf("%d", len(network.Tenants)))
 				for tenantKey, tenant := range network.Tenants {
 					if len(tenant.Addresses) > 0 {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.tenants.%s.addresses.#", i, tenantKey), fmt.Sprintf("%d", len(tenant.Addresses)))
@@ -444,7 +440,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.vlan_id", i), *network.VlanId)
 			}
 			if len(network.VpnAccess) > 0 {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("networks.%d.vpn_access", i))
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.vpn_access.%%", i), fmt.Sprintf("%d", len(network.VpnAccess)))
 				for vpnKey, vpn := range network.VpnAccess {
 					if vpn.AdvertisedSubnet != nil {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.vpn_access.%s.advertised_subnet", i, vpnKey), *vpn.AdvertisedSubnet)
@@ -474,7 +470,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.vpn_access.%s.routed", i, vpnKey), fmt.Sprintf("%t", *vpn.Routed))
 					}
 					if vpn.SourceNat != nil {
-						checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("networks.%d.vpn_access.%s.source_nat", i, vpnKey))
 						if vpn.SourceNat.ExternalIp != nil {
 							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.vpn_access.%s.source_nat.external_ip", i, vpnKey), *vpn.SourceNat.ExternalIp)
 						}
@@ -489,7 +484,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.vpn_access.%s.summarized_subnet_to_lan_ospf", i, vpnKey), *vpn.SummarizedSubnetToLanOspf)
 					}
 					if len(vpn.VpnAccessDestinationNat) > 0 {
-						checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("networks.%d.vpn_access.%s.destination_nat", i, vpnKey))
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.vpn_access.%s.destination_nat.%%", i, vpnKey), fmt.Sprintf("%d", len(vpn.VpnAccessDestinationNat)))
 						for destNatKey, destNat := range vpn.VpnAccessDestinationNat {
 							if destNat.InternalIp != nil {
 								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.vpn_access.%s.destination_nat.%s.internal_ip", i, vpnKey, destNatKey), *destNat.InternalIp)
@@ -503,7 +498,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 						}
 					}
 					if len(vpn.VpnAccessStaticNat) > 0 {
-						checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("networks.%d.vpn_access.%s.static_nat", i, vpnKey))
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.vpn_access.%s.static_nat.%%", i, vpnKey), fmt.Sprintf("%d", len(vpn.VpnAccessStaticNat)))
 						for staticNatKey, staticNat := range vpn.VpnAccessStaticNat {
 							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.vpn_access.%s.static_nat.%s.internal_ip", i, vpnKey, staticNatKey), staticNat.InternalIp)
 							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%d.vpn_access.%s.static_nat.%s.name", i, vpnKey, staticNatKey), staticNat.Name)
@@ -526,7 +521,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 	}
 
 	if s.OobIpConfig != nil {
-		checks.append(t, "TestCheckResourceAttrSet", "oob_ip_config")
 		if s.OobIpConfig.Gateway != nil {
 			checks.append(t, "TestCheckResourceAttr", "oob_ip_config.gateway", *s.OobIpConfig.Gateway)
 		}
@@ -537,7 +531,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 			checks.append(t, "TestCheckResourceAttr", "oob_ip_config.netmask", *s.OobIpConfig.Netmask)
 		}
 		if s.OobIpConfig.Node1 != nil {
-			checks.append(t, "TestCheckResourceAttrSet", "oob_ip_config.node1")
 			if s.OobIpConfig.Node1.Gateway != nil {
 				checks.append(t, "TestCheckResourceAttr", "oob_ip_config.node1.gateway", *s.OobIpConfig.Node1.Gateway)
 			}
@@ -575,7 +568,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 	}
 
 	if len(s.PathPreferences) > 0 {
-		checks.append(t, "TestCheckResourceAttrSet", "path_preferences")
+		checks.append(t, "TestCheckResourceAttr", "path_preferences.%", fmt.Sprintf("%d", len(s.PathPreferences)))
 		for k, v := range s.PathPreferences {
 			if len(v.Paths) > 0 {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("path_preferences.%s.paths.#", k), fmt.Sprintf("%d", len(v.Paths)))
@@ -620,7 +613,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 	}
 
 	if len(s.PortConfig) > 0 {
-		checks.append(t, "TestCheckResourceAttrSet", "port_config")
+		checks.append(t, "TestCheckResourceAttr", "port_config.%", fmt.Sprintf("%d", len(s.PortConfig)))
 		for k, v := range s.PortConfig {
 			if v.AeDisableLacp != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.ae_disable_lacp", k), fmt.Sprintf("%t", *v.AeDisableLacp))
@@ -704,7 +697,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.redundant_group", k), fmt.Sprintf("%d", *v.RedundantGroup))
 			}
 			if v.RethIdx != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.reth_idx", k), fmt.Sprintf("%s", *v.RethIdx))
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.reth_idx", k), *v.RethIdx)
 			}
 			if v.RethNode != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.reth_node", k), *v.RethNode)
@@ -725,7 +718,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.svr_port_range", k), *v.SvrPortRange)
 			}
 			if v.TrafficShaping != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("port_config.%s.traffic_shaping", k))
 				if len(v.TrafficShaping.ClassPercentages) > 0 {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.traffic_shaping.class_percentages.#", k), fmt.Sprintf("%d", len(v.TrafficShaping.ClassPercentages)))
 					for i, percentage := range v.TrafficShaping.ClassPercentages {
@@ -744,7 +736,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.vlan_id", k), *v.VlanId)
 			}
 			if v.PortIpConfig != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("port_config.%s.ip_config", k))
 				if len(v.PortIpConfig.Dns) > 0 {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.ip_config.dns.#", k), fmt.Sprintf("%d", len(v.PortIpConfig.Dns)))
 					for i, dns := range v.PortIpConfig.Dns {
@@ -795,7 +786,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				}
 			}
 			if len(v.VpnPaths) > 0 {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("port_config.%s.vpn_paths", k))
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.vpn_paths.%%", k), fmt.Sprintf("%d", len(v.VpnPaths)))
 				for vpnPathKey, vpnPath := range v.VpnPaths {
 					if vpnPath.BfdProfile != nil {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.vpn_paths.%s.bfd_profile", k, vpnPathKey), *vpnPath.BfdProfile)
@@ -810,7 +801,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.vpn_paths.%s.role", k, vpnPathKey), *vpnPath.Role)
 					}
 					if vpnPath.TrafficShaping != nil {
-						checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("port_config.%s.vpn_paths.%s.traffic_shaping", k, vpnPathKey))
 						if len(vpnPath.TrafficShaping.ClassPercentages) > 0 {
 							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.vpn_paths.%s.traffic_shaping.class_percentages.#", k, vpnPathKey), fmt.Sprintf("%d", len(vpnPath.TrafficShaping.ClassPercentages)))
 							for i, percentage := range vpnPath.TrafficShaping.ClassPercentages {
@@ -839,7 +829,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_ext_ip6", k), *v.WanExtIp6)
 			}
 			if len(v.WanExtraRoutes) > 0 {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("port_config.%s.wan_extra_routes", k))
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_extra_routes.%%", k), fmt.Sprintf("%d", len(v.WanExtraRoutes)))
 				for wanRouteKey, wanRoute := range v.WanExtraRoutes {
 					if wanRoute.Via != nil {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_extra_routes.%s.via", k, wanRouteKey), *wanRoute.Via)
@@ -847,7 +837,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				}
 			}
 			if len(v.WanExtraRoutes6) > 0 {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("port_config.%s.wan_extra_routes6", k))
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_extra_routes6.%%", k), fmt.Sprintf("%d", len(v.WanExtraRoutes6)))
 				for wanRoute6Key, wanRoute6 := range v.WanExtraRoutes6 {
 					if wanRoute6.Via != nil {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_extra_routes6.%s.via", k, wanRoute6Key), *wanRoute6.Via)
@@ -861,7 +851,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				}
 			}
 			if v.WanProbeOverride != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("port_config.%s.wan_probe_override", k))
 				if len(v.WanProbeOverride.Ip6s) > 0 {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_probe_override.ip6s.#", k), fmt.Sprintf("%d", len(v.WanProbeOverride.Ip6s)))
 					for i, ip6 := range v.WanProbeOverride.Ip6s {
@@ -879,7 +868,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				}
 			}
 			if v.WanSourceNat != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("port_config.%s.wan_source_nat", k))
 				if v.WanSourceNat.Disabled != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_source_nat.disabled", k), fmt.Sprintf("%t", *v.WanSourceNat.Disabled))
 				}
@@ -897,9 +885,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 	}
 
 	if s.PortMirroring != nil {
-		checks.append(t, "TestCheckResourceAttrSet", "port_mirroring")
 		if s.PortMirroring.PortMirror != nil {
-			checks.append(t, "TestCheckResourceAttrSet", "port_mirroring.port_mirror")
 			if s.PortMirroring.PortMirror.FamilyType != nil {
 				checks.append(t, "TestCheckResourceAttr", "port_mirroring.port_mirror.family_type", *s.PortMirroring.PortMirror.FamilyType)
 			}
@@ -924,13 +910,12 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 		checks.append(t, "TestCheckResourceAttr", "router_id", *s.RouterId)
 	}
 	if len(s.RoutingPolicies) > 0 {
-		checks.append(t, "TestCheckResourceAttrSet", "routing_policies")
+		checks.append(t, "TestCheckResourceAttr", "routing_policies.%", fmt.Sprintf("%d", len(s.RoutingPolicies)))
 		for k, v := range s.RoutingPolicies {
 			if len(v.Terms) > 0 {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.#", k), fmt.Sprintf("%d", len(v.Terms)))
 				for i, term := range v.Terms {
 					if term.Actions != nil {
-						checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("routing_policies.%s.terms.%d.actions", k, i))
 						if term.Actions.Accept != nil {
 							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.accept", k, i), fmt.Sprintf("%t", *term.Actions.Accept))
 						}
@@ -981,7 +966,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 						}
 					}
 					if term.RoutingPolicyTermMatching != nil {
-						checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("routing_policies.%s.terms.%d.matching", k, i))
 						if len(term.RoutingPolicyTermMatching.AsPath) > 0 {
 							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.as_path.#", k, i), fmt.Sprintf("%d", len(term.RoutingPolicyTermMatching.AsPath)))
 							for j, asPath := range term.RoutingPolicyTermMatching.AsPath {
@@ -1013,7 +997,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 							}
 						}
 						if term.RoutingPolicyTermMatching.RouteExists != nil {
-							checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("routing_policies.%s.terms.%d.matching.route_exists", k, i))
 							if term.RoutingPolicyTermMatching.RouteExists.Route != nil {
 								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.route_exists.route", k, i), *term.RoutingPolicyTermMatching.RouteExists.Route)
 							}
@@ -1034,7 +1017,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 							}
 						}
 						if term.RoutingPolicyTermMatching.VpnPathSla != nil {
-							checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("routing_policies.%s.terms.%d.matching.vpn_path_sla", k, i))
 							if term.RoutingPolicyTermMatching.VpnPathSla.MaxJitter != nil {
 								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.vpn_path_sla.max_jitter", k, i), fmt.Sprintf("%d", *term.RoutingPolicyTermMatching.VpnPathSla.MaxJitter))
 							}
@@ -1057,7 +1039,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.action", i), *v.Action)
 			}
 			if v.Antivirus != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("service_policies.%d.antivirus", i))
 				if v.Antivirus.AvprofileId != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.antivirus.avprofile_id", i), *v.Antivirus.AvprofileId)
 				}
@@ -1069,7 +1050,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				}
 			}
 			if v.Appqoe != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("service_policies.%d.appqoe", i))
 				if v.Appqoe.Enabled != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.appqoe.enabled", i), fmt.Sprintf("%t", *v.Appqoe.Enabled))
 				}
@@ -1092,7 +1072,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				}
 			}
 			if v.Idp != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("service_policies.%d.idp", i))
 				if v.Idp.AlertOnly != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.idp.alert_only", i), fmt.Sprintf("%t", *v.Idp.AlertOnly))
 				}
@@ -1125,7 +1104,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				}
 			}
 			if v.SslProxy != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("service_policies.%d.ssl_proxy", i))
 				if v.SslProxy.CiphersCategory != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.ssl_proxy.ciphers_category", i), *v.SslProxy.CiphersCategory)
 				}
@@ -1142,12 +1120,10 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 		}
 	}
 	if len(s.TunnelConfigs) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "tunnel_configs.#", fmt.Sprintf("%d", len(s.TunnelConfigs)))
+		checks.append(t, "TestCheckResourceAttr", "tunnel_configs.%", fmt.Sprintf("%d", len(s.TunnelConfigs)))
 		for i, v := range s.TunnelConfigs {
 			if v.AutoProvision != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("tunnel_configs.%s.auto_provision", i))
 				if v.AutoProvision.AutoProvisionPrimary != nil {
-					checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("tunnel_configs.%s.auto_provision.primary", i))
 					if len(v.AutoProvision.AutoProvisionPrimary.ProbeIps) > 0 {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.auto_provision.primary.probe_ips.#", i), fmt.Sprintf("%d", len(v.AutoProvision.AutoProvisionPrimary.ProbeIps)))
 						for j, probeIp := range v.AutoProvision.AutoProvisionPrimary.ProbeIps {
@@ -1162,7 +1138,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 					}
 				}
 				if v.AutoProvision.AutoProvisionSecondary != nil {
-					checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("tunnel_configs.%s.auto_provision.secondary", i))
 					if len(v.AutoProvision.AutoProvisionSecondary.ProbeIps) > 0 {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.auto_provision.secondary.probe_ips.#", i), fmt.Sprintf("%d", len(v.AutoProvision.AutoProvisionSecondary.ProbeIps)))
 						for j, probeIp := range v.AutoProvision.AutoProvisionSecondary.ProbeIps {
@@ -1180,7 +1155,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.auto_provision.enabled", i), fmt.Sprintf("%t", *v.AutoProvision.Enabled))
 				}
 				if v.AutoProvision.Latlng != nil {
-					checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("tunnel_configs.%s.auto_provision.latlng", i))
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.auto_provision.latlng.lat", i), fmt.Sprintf("%f", v.AutoProvision.Latlng.Lat))
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.auto_provision.latlng.lng", i), fmt.Sprintf("%f", v.AutoProvision.Latlng.Lng))
 				}
@@ -1250,7 +1224,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				}
 			}
 			if v.Primary != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("tunnel_configs.%s.primary", i))
 				if len(v.Primary.Hosts) > 0 {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.hosts.#", i), fmt.Sprintf("%d", len(v.Primary.Hosts)))
 					for j, host := range v.Primary.Hosts {
@@ -1283,7 +1256,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				}
 			}
 			if v.Probe != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("tunnel_configs.%s.probe", i))
 				if v.Probe.Interval != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.probe.interval", i), fmt.Sprintf("%d", *v.Probe.Interval))
 				}
@@ -1311,7 +1283,6 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 				}
 			}
 			if v.Secondary != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("tunnel_configs.%s.secondary", i))
 				if len(v.Secondary.Hosts) > 0 {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.hosts.#", i), fmt.Sprintf("%d", len(v.Secondary.Hosts)))
 					for j, host := range v.Secondary.Hosts {
@@ -1349,9 +1320,7 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 		}
 	}
 	if s.TunnelProviderOptions != nil {
-		checks.append(t, "TestCheckResourceAttrSet", "tunnel_provider_options")
 		if s.TunnelProviderOptions.Jse != nil {
-			checks.append(t, "TestCheckResourceAttrSet", "tunnel_provider_options.jse")
 			if s.TunnelProviderOptions.Jse.NumUsers != nil {
 				checks.append(t, "TestCheckResourceAttr", "tunnel_provider_options.jse.num_users", fmt.Sprintf("%d", *s.TunnelProviderOptions.Jse.NumUsers))
 			}
@@ -1360,13 +1329,11 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 			}
 		}
 		if s.TunnelProviderOptions.Prisma != nil {
-			checks.append(t, "TestCheckResourceAttrSet", "tunnel_provider_options.prisma")
 			if s.TunnelProviderOptions.Prisma.ServiceAccountName != nil {
 				checks.append(t, "TestCheckResourceAttr", "tunnel_provider_options.prisma.service_account_name", *s.TunnelProviderOptions.Prisma.ServiceAccountName)
 			}
 		}
 		if s.TunnelProviderOptions.Zscaler != nil {
-			checks.append(t, "TestCheckResourceAttrSet", "tunnel_provider_options.zscaler")
 			if s.TunnelProviderOptions.Zscaler.AupBlockInternetUntilAccepted != nil {
 				checks.append(t, "TestCheckResourceAttr", "tunnel_provider_options.zscaler.aup_block_internet_until_accepted", fmt.Sprintf("%t", *s.TunnelProviderOptions.Zscaler.AupBlockInternetUntilAccepted))
 			}
@@ -1459,16 +1426,15 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 		}
 	}
 	if len(s.Vars) > 0 {
-		checks.append(t, "TestCheckResourceAttrSet", "vars")
+		checks.append(t, "TestCheckResourceAttr", "vars.%", fmt.Sprintf("%d", len(s.Vars)))
 	}
 	if s.VrfConfig != nil {
-		checks.append(t, "TestCheckResourceAttrSet", "vrf_config")
 		if s.VrfConfig.Enabled != nil {
 			checks.append(t, "TestCheckResourceAttr", "vrf_config.enabled", fmt.Sprintf("%t", *s.VrfConfig.Enabled))
 		}
 	}
 	if len(s.VrfInstances) > 0 {
-		checks.append(t, "TestCheckResourceAttrSet", "vrf_instances")
+		checks.append(t, "TestCheckResourceAttr", "vrf_instances.%", fmt.Sprintf("%d", len(s.VrfInstances)))
 		for k, v := range s.VrfInstances {
 			if len(v.Networks) > 0 {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vrf_instances.%s.networks.#", k), fmt.Sprintf("%d", len(v.Networks)))
