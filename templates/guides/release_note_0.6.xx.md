@@ -28,7 +28,7 @@ description: |-
     - url_filtering_deny_msg
 
 - **`mist_device_gateway` resource**:
-    - gateway_mgtm.config_revert_timer
+    - gateway_mgmt.config_revert_timer
 
 - ** `mist_org_networktemplate` and `mist_site_networktemplate` resources**:
     - port_usage.stp_disable
