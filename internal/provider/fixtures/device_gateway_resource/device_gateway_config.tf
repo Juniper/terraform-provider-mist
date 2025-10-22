@@ -24,6 +24,61 @@
     tier = "core"
   }
 
+  dhcpd_config = {
+    enabled = true
+    config = {
+      "lan" = {
+        dns_servers = ["8.8.8.8", "8.8.4.4"]
+        dns_suffix = ["example.com", "test.local"]
+        fixed_bindings = {
+          "112233445566" = {
+            ip = "192.168.1.100"
+            name = "server1"
+          }
+          "112233445567" = {
+            ip6 = "2001:db8:100::100"
+            name = "server2"
+          }
+          "112233445568" = {
+            ip = "{{server_ip4_var}}"
+            name = "server3"
+          }
+          "112233445569" = {
+            ip6 = "{{server_ip6_var}}"
+            name = "server4"
+          }
+        }
+        gateway = "192.168.1.1"
+        ip_end = "192.168.1.200"
+        ip_start = "192.168.1.50"
+        ip6_end = "2001:db8:100::200"
+        ip6_start = "2001:db8:100::50"
+        lease_time = 86400
+        options = {
+          "42" = {
+            type = "ip"
+            value = "192.168.1.1"
+          }
+          "6" = {
+            type = "ip"
+            value = "8.8.8.8"
+          }
+        }
+        server_id_override = false
+        servers = ["192.168.1.1"]
+        serversv6 = ["2001:db8:100::1"]
+        type = "local"
+        type6 = "local"
+        vendor_encapsulated = {
+          "43:1" = {
+            type = "string"
+            value = "test-vendor-option"
+          }
+        }
+      }
+    }
+  }
+
   bgp_config = {
     external_peers = {
       auth_key = "bgp-auth-key-123"
@@ -68,6 +123,10 @@
     ipv6_route_1 = {
       via = "2001:db8::1"
     }
+  }
+
+  gateway_mgmt = {
+    config_revert_timer = 16
   }
 
   # idp_profiles section temporarily removed due to provider framework issue with missing id field

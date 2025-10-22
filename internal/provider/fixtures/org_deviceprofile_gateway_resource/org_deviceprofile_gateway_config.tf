@@ -51,6 +51,14 @@
             ip = "192.168.1.100"
             name = "server1"
           }
+          "112233445567" = {
+            ip = "{{server_ip4_var}}"
+            name = "server2"
+          }
+          "112233445568" = {
+            ip6 = "{{server_ip6_var}}"
+            name = "server3"
+          }
         }
         gateway = "192.168.1.1"
         ip_end = "192.168.1.200"

@@ -28,7 +28,7 @@ func TestOrgApitoken(t *testing.T) {
 					config: OrgApitokenModel{
 						Name:  "apitoken1",
 						OrgId: GetTestOrgId(),
-						Privileges: []PrivilegesValue{
+						Privileges: []OrgApitokenPrivilegesValue{
 							{
 								Role:  "read",
 								Scope: "org",

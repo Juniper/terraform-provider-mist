@@ -60,7 +60,7 @@ func TestDeviceGatewayModel(t *testing.T) {
 	}
 
 	for tName, tCase := range testCases {
-		// t.Skip("Skipping device_gateway tests, as they require a real device.")
+		t.Skip("Skipping device_gateway tests, as they require a real device.")
 		t.Run(tName, func(t *testing.T) {
 			resourceType := "device_gateway"
 
@@ -218,12 +218,122 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 	}
 
 	if s.DhcpdConfig != nil {
-		if len(s.DhcpdConfig.Config) > 0 {
-			// check nested struct
-			checks.append(t, "TestCheckResourceAttr", "dhcpd_config.config.%", fmt.Sprintf("%d", len(s.DhcpdConfig.Config)))
-		}
 		if s.DhcpdConfig.Enabled != nil {
 			checks.append(t, "TestCheckResourceAttr", "dhcpd_config.enabled", fmt.Sprintf("%t", *s.DhcpdConfig.Enabled))
+		}
+		if len(s.DhcpdConfig.Config) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "dhcpd_config.config.%", fmt.Sprintf("%d", len(s.DhcpdConfig.Config)))
+			for configKey, config := range s.DhcpdConfig.Config {
+				configPath := fmt.Sprintf("dhcpd_config.config.%s", configKey)
+
+				// DNS servers
+				if len(config.DnsServers) > 0 {
+					checks.append(t, "TestCheckResourceAttr", configPath+".dns_servers.#", fmt.Sprintf("%d", len(config.DnsServers)))
+					for i, server := range config.DnsServers {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.dns_servers.%d", configPath, i), server)
+					}
+				}
+
+				// DNS suffix
+				if len(config.DnsSuffix) > 0 {
+					checks.append(t, "TestCheckResourceAttr", configPath+".dns_suffix.#", fmt.Sprintf("%d", len(config.DnsSuffix)))
+					for i, suffix := range config.DnsSuffix {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.dns_suffix.%d", configPath, i), suffix)
+					}
+				}
+
+				// Fixed bindings
+				if len(config.FixedBindings) > 0 {
+					checks.append(t, "TestCheckResourceAttr", configPath+".fixed_bindings.%", fmt.Sprintf("%d", len(config.FixedBindings)))
+					for bindingKey, binding := range config.FixedBindings {
+						bindingPath := fmt.Sprintf("%s.fixed_bindings.%s", configPath, bindingKey)
+						if binding.Ip != nil {
+							checks.append(t, "TestCheckResourceAttr", bindingPath+".ip", *binding.Ip)
+						}
+						if binding.Ip6 != nil {
+							checks.append(t, "TestCheckResourceAttr", bindingPath+".ip6", *binding.Ip6)
+						}
+						if binding.Name != nil {
+							checks.append(t, "TestCheckResourceAttr", bindingPath+".name", *binding.Name)
+						}
+					}
+				}
+
+				// Gateway and IP ranges
+				if config.Gateway != nil {
+					checks.append(t, "TestCheckResourceAttr", configPath+".gateway", *config.Gateway)
+				}
+				if config.IpEnd4 != nil {
+					checks.append(t, "TestCheckResourceAttr", configPath+".ip_end", *config.IpEnd4)
+				}
+				if config.IpStart4 != nil {
+					checks.append(t, "TestCheckResourceAttr", configPath+".ip_start", *config.IpStart4)
+				}
+				if config.Ip6End != nil {
+					checks.append(t, "TestCheckResourceAttr", configPath+".ip6_end", *config.Ip6End)
+				}
+				if config.Ip6Start != nil {
+					checks.append(t, "TestCheckResourceAttr", configPath+".ip6_start", *config.Ip6Start)
+				}
+
+				// Lease time
+				if config.LeaseTime != nil {
+					checks.append(t, "TestCheckResourceAttr", configPath+".lease_time", fmt.Sprintf("%d", *config.LeaseTime))
+				}
+
+				// Options
+				if len(config.Options) > 0 {
+					checks.append(t, "TestCheckResourceAttr", configPath+".options.%", fmt.Sprintf("%d", len(config.Options)))
+					for optionKey, option := range config.Options {
+						optionPath := fmt.Sprintf("%s.options.%s", configPath, optionKey)
+						if option.OptionsType != nil {
+							checks.append(t, "TestCheckResourceAttr", optionPath+".type", *option.OptionsType)
+						}
+						if option.Value != nil {
+							checks.append(t, "TestCheckResourceAttr", optionPath+".value", *option.Value)
+						}
+					}
+				}
+
+				// Server settings
+				if config.ServerIdOverride != nil {
+					checks.append(t, "TestCheckResourceAttr", configPath+".server_id_override", fmt.Sprintf("%t", *config.ServerIdOverride))
+				}
+				if len(config.Servers4) > 0 {
+					checks.append(t, "TestCheckResourceAttr", configPath+".servers.#", fmt.Sprintf("%d", len(config.Servers4)))
+					for i, server := range config.Servers4 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.servers.%d", configPath, i), server)
+					}
+				}
+				if len(config.Serversv6) > 0 {
+					checks.append(t, "TestCheckResourceAttr", configPath+".serversv6.#", fmt.Sprintf("%d", len(config.Serversv6)))
+					for i, server := range config.Serversv6 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.serversv6.%d", configPath, i), server)
+					}
+				}
+
+				// Types
+				if config.Type4 != nil {
+					checks.append(t, "TestCheckResourceAttr", configPath+".type", *config.Type4)
+				}
+				if config.Type6 != nil {
+					checks.append(t, "TestCheckResourceAttr", configPath+".type6", *config.Type6)
+				}
+
+				// Vendor encapsulated options
+				if len(config.VendorEncapsulated) > 0 {
+					checks.append(t, "TestCheckResourceAttr", configPath+".vendor_encapsulated.%", fmt.Sprintf("%d", len(config.VendorEncapsulated)))
+					for vendorKey, vendorOption := range config.VendorEncapsulated {
+						vendorPath := fmt.Sprintf("%s.vendor_encapsulated.%s", configPath, vendorKey)
+						if vendorOption.VendorEncapsulatedType != nil {
+							checks.append(t, "TestCheckResourceAttr", vendorPath+".type", *vendorOption.VendorEncapsulatedType)
+						}
+						if vendorOption.Value != nil {
+							checks.append(t, "TestCheckResourceAttr", vendorPath+".value", *vendorOption.Value)
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -249,6 +359,11 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, rName string) testC
 		checks.append(t, "TestCheckResourceAttr", "extra_routes6.%", fmt.Sprintf("%d", len(s.ExtraRoutes6)))
 		for k, v := range s.ExtraRoutes6 {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("extra_routes6.%s.via", k), v.Via)
+		}
+	}
+	if s.GatewayMgmt != nil {
+		if s.GatewayMgmt.ConfigRevertTimer != nil {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.config_revert_timer", fmt.Sprintf("%d", *s.GatewayMgmt.ConfigRevertTimer))
 		}
 	}
 	if len(s.IdpProfiles) > 0 {

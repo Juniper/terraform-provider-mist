@@ -28,7 +28,7 @@ func TestOrgAlarmtemplate(t *testing.T) {
 					config: OrgAlarmtemplateModel{
 						Name:  "test_alarm_template",
 						OrgId: GetTestOrgId(),
-						Delivery: DeliveryValue{
+						Delivery: OrgAlarmtemplateDeliveryValue{
 							Enabled: false,
 						},
 						Rules: map[string]OrgAlarmtemplateRulesValue{
