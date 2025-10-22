@@ -27,6 +27,9 @@ description: |-
     - port_config.wan_source_nat.nat6_pool
     - url_filtering_deny_msg
 
+- **`mist_device_gateway` resource**:
+    - gateway_mgtm.config_revert_timer
+
 - ** `mist_org_networktemplate` and `mist_site_networktemplate` resources**:
     - port_usage.stp_disable
     - port_usage.stp_required

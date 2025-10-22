@@ -56,6 +56,7 @@ resource "mist_device_gateway" "gateway_one" {
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8"), the destination Network name or a variable (e.g. "{{myvar}}") (see [below for nested schema](#nestedatt--extra_routes))
 - `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64"), the destination Network name or a variable (e.g. "{{myvar}}") (see [below for nested schema](#nestedatt--extra_routes6))
+- `gateway_mgmt` (Attributes) Gateway settings (see [below for nested schema](#nestedatt--gateway_mgmt))
 - `idp_profiles` (Attributes Map) Property key is the profile name (see [below for nested schema](#nestedatt--idp_profiles))
 - `ip_configs` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--ip_configs))
 - `managed` (Boolean)
@@ -219,6 +220,14 @@ Required:
 Required:
 
 - `via` (String)
+
+
+<a id="nestedatt--gateway_mgmt"></a>
+### Nested Schema for `gateway_mgmt`
+
+Optional:
+
+- `config_revert_timer` (Number) Rollback timer for commit confirmed
 
 
 <a id="nestedatt--idp_profiles"></a>
