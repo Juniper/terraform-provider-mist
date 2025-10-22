@@ -9,7 +9,7 @@ description: |-
 
 
 ## Release Notes for v0.6.0
-**Release Date**: September 21st, 2025
+**Release Date**: October 22nd, 2025
 
 ### New Features
 * Adding support for APAC 02 Mist Cloud region.
