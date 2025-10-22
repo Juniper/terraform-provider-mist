@@ -16,7 +16,7 @@ func ospfAreasNetworksTerraformToSdk(d basetypes.MapValue) map[string]models.Osp
 		if !itemObj.AuthKeys.IsNull() && !itemObj.AuthKeys.IsUnknown() {
 			authKeysVm := make(map[string]string)
 			for k, v := range itemObj.AuthKeys.Elements() {
-				authKeysVm[k] = v.String()
+				authKeysVm[k] = v.(basetypes.StringValue).ValueString()
 			}
 			dataItem.AuthKeys = authKeysVm
 		}

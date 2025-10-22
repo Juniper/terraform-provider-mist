@@ -16,7 +16,7 @@ func mistNacIdpsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l [
 
 	var dataList []IdpsValue
 	for _, d := range l {
-		var excludeRealms = mistutils.ListOfStringSdkToTerraformEmpty()
+		var excludeRealms = types.ListNull(types.StringType)
 		var id basetypes.StringValue
 		var userRealms = types.ListNull(types.StringType)
 

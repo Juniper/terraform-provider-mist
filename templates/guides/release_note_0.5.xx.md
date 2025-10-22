@@ -12,23 +12,10 @@ description: |-
 **Release Date**: September 5th, 2025 
 
 ### Fixes
-* remove the `Computed` marker to the from the following attributes to prevent configuration drift when importing resources or saving changes from the Mist UI.
-    * `mist_org_rftemplate.band_24.channels`
-    * `mist_org_rftemplate.band_5.channels`
-    * `mist_org_rftemplate.band_6.channels`
-    * `mist_device_ap.dns`
-    * `mist_device_ap.dns_suffix`
-    * `mist_deviceprofile_ap.dns`
-    * `mist_deviceprofile_ap.dns_suffix`
-    * `mist_device_switch.acl_tags.macs`
-    * `mist_device_switch.acl_tags.subnets`
-    * `mist_device_switch.acl_tags.auth_keys`
-    * `mist_org_networktemplate.acl_tags.macs`
-    * `mist_org_networktemplate.acl_tags.subnets`
-    * `mist_org_networktemplate.acl_tags.auth_keys`
-    * `mist_site_networktemplate.acl_tags.macs`
-    * `mist_site_networktemplate.acl_tags.subnets`
-    * `mist_site_networktemplate.acl_tags.auth_keys`
+* Removed the `Computed` marker from the following attributes to prevent configuration drift when importing resources or saving changes from the Mist UI:
+    * **`mist_org_rftemplate` resource**: `band_24.channels`, `band_5.channels`, `band_6.channels`
+    * **`mist_device_ap` and `mist_deviceprofile_ap` resources**: `dns`, `dns_suffix`
+    * **`mist_device_switch`, `mist_org_networktemplate`, and `mist_site_networktemplate` resources**: `acl_tags.macs`, `acl_tags.subnets`, `acl_tags.auth_keys`
 
 ### Improvements
 * **[Issue 130](https://github.com/Juniper/terraform-provider-mist/issues/130):** Adding support for the `ssr_additional_config_cmds` attribute in the `mist_device_gateway`, `mist_org_gateway_template`, and `mist_deviceprofile_gateway` resources. 

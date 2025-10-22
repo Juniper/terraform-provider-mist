@@ -4,7 +4,7 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func InternalAccessTerraformToSdk(d InternalAccessValue) *models.NetworkInternalAccess {
+func internalAccessTerraformToSdk(d InternalAccessValue) *models.NetworkInternalAccess {
 	data := models.NetworkInternalAccess{}
 	data.Enabled = d.Enabled.ValueBoolPointer()
 	return &data

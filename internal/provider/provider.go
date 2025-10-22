@@ -61,55 +61,76 @@ func (p *mistProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp 
 
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "The Mist Provider allows Terraform to manage Juniper Mist Organizations.\n\n" +
-			"It is mainly focusing on day 0 and day 1 operations (provisioning and deployment) but will be " +
-			"completed over time.\n\nUse the navigation tree to the left to read about the available resources " +
-			"and data sources.\n\nIt is possible to use API Token or Username/Password authentication (without 2FA)" +
-			", but only one method should be configured.\n\n## Supported Mist Clouds\n\nThis provider can be used with " +
-			"the following Mist Clouds:\n" +
-			"* Global 01 (api.mist.com)\n" +
-			"* Global 02 (api.gc1.mist.com)\n" +
-			"* Global 03 (api.ac2.mist.com)\n" +
-			"* Global 04 (api.gc2.mist.com)\n" +
-			"* Global 05 (api.gc4.mist.com)\n" +
-			"* EMEA 01 (api.eu.mist.com)\n" +
-			"* EMEA 02 (api.gc3.mist.com)\n" +
-			"* EMEA 03 (api.ac6.mist.com)\n" +
-			"* APAC 01 (api.ac5.mist.com)",
+			"It enables Infrastructure as Code (IaC) automation to provision, deploy and manage Juniper Mist deployments. " +
+			"The provider can be used to manage Wi-Fi, Wired/Switch, WAN/SD-WAN and NAC resources in a Mist Organization.\n\n" +
+			"Use the navigation tree to the left to read about the available resources " +
+			"and data sources.\n\n## Authentication\n\n" +
+			"The provider supports two authentication methods:\n" +
+			"* **API Token** (recommended): Use a Mist API token for authentication\n" +
+			"* **Username/Password**: Use Mist account credentials (2FA must be disabled)\n\n" +
+			"**Note:** Only one authentication method should be configured at a time.\n\n" +			
+			"## Supported Mist Clouds\n\n" +
+			"This provider supports the following Mist Clouds:\n\n" +
+			"**Global Clouds:**\n" +
+			"* Global 01: `api.mist.com`\n" +
+			"* Global 02: `api.gc1.mist.com`\n" +
+			"* Global 03: `api.ac2.mist.com`\n" +
+			"* Global 04: `api.gc2.mist.com`\n" +
+			"* Global 05: `api.gc4.mist.com`\n\n" +
+			"**EMEA Clouds:**\n" +
+			"* EMEA 01: `api.eu.mist.com`\n" +
+			"* EMEA 02: `api.gc3.mist.com`\n" +
+			"* EMEA 03: `api.ac6.mist.com`\n" +
+			"* EMEA 04: `api.gc6.mist.com`\n\n" +
+			"**APAC Clouds:**\n" +
+			"* APAC 01: `api.ac5.mist.com`\n" +
+			"* APAC 02: `api.gc5.mist.com`\n" +
+			"* APAC 03: `api.gc7.mist.com`",
 		Attributes: map[string]schema.Attribute{
 			"host": schema.StringAttribute{
-				MarkdownDescription: "URL of the Mist Cloud, e.g. `api.mist.com`.",
-				Optional:            true,
+				MarkdownDescription: "URL of the Mist Cloud (e.g., `api.mist.com`). " +
+					"Can also be set via the `MIST_HOST` environment variable.",
+				Optional: true,
 			},
 			"apitoken": schema.StringAttribute{
-				MarkdownDescription: "For API Token authentication, the Mist API Token.",
-				Optional:            true,
-				Sensitive:           true,
+				MarkdownDescription: "Mist API Token for authentication. " +
+					"Can also be set via the `MIST_APITOKEN` environment variable. " +
+					"This is the recommended authentication method.",
+				Optional:  true,
+				Sensitive: true,
 			},
 			"username": schema.StringAttribute{
-				MarkdownDescription: "For username/password authentication, the Mist Account username.",
-				Optional:            true,
+				MarkdownDescription: "Mist Account username for basic authentication. " +
+					"Can also be set via the `MIST_USERNAME` environment variable. " +
+					"Requires `password` to be set and 2FA to be disabled.",
+				Optional: true,
 			},
 			"password": schema.StringAttribute{
-				MarkdownDescription: "For username/password authentication, the Mist Account password.",
-				Optional:            true,
-				Sensitive:           true,
+				MarkdownDescription: "Mist Account password for basic authentication. " +
+					"Can also be set via the `MIST_PASSWORD` environment variable. " +
+					"Requires `username` to be set.",
+				Optional:  true,
+				Sensitive: true,
 			},
 			"api_debug": schema.BoolAttribute{
-				MarkdownDescription: "Flag to enable debugging API calls. Default is false.",
-				Optional:            true,
+				MarkdownDescription: "Enable API request/response debugging. When enabled, " +
+					"request and response bodies, headers, and other sensitive data may be logged. " +
+					"Can also be set via the `MIST_API_DEBUG` environment variable. Default: `false`.",
+				Optional: true,
 			},
 			"api_timeout": schema.Float64Attribute{
-				MarkdownDescription: fmt.Sprintf("Timeout in seconds for completing API transactions "+
-					"with the Mist Cloud. Omit for default value of %d seconds. Value of 0 results in "+
-					"infinite timeout.",
-					defaultApiTimeout),
+				MarkdownDescription: fmt.Sprintf("Timeout in seconds for API requests. " +
+					"Set to 0 for infinite timeout. " +
+					"Can also be set via the `MIST_API_TIMEOUT` environment variable. " +
+					"Default: `%d` seconds.", defaultApiTimeout),
 				Optional:   true,
 				Validators: []validator.Float64{float64validator.AtLeast(0)},
 			},
 			"proxy": schema.StringAttribute{
-				MarkdownDescription: "Requests use the configured proxy to reach the Mist Cloud.\n" +
-					"The value may be either a complete URL or a `[username:password@]host[:port]`, in which case the `http` scheme is assumed. " +
-					"The schemes `http`, `https`, and `socks5` are supported.",
+				MarkdownDescription: "Proxy configuration for API requests. " +
+					"The value may be either a complete URL or `[username:password@]host[:port]` format. " +
+					"Supported schemes: `http`, `https`, and `socks5`. If no scheme is provided, `http` is assumed. " +
+					"Can also be set via the `MIST_PROXY` environment variable.",
 				Optional: true,
 			},
 		},
@@ -274,8 +295,14 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		mistCloud = mistapi.MIST_EMEA_02
 	case "api.ac6.mist.com":
 		mistCloud = mistapi.MIST_EMEA_03
+	case "api.gc6.mist.com":
+		mistCloud = mistapi.MIST_EMEA_04
 	case "api.ac5.mist.com":
 		mistCloud = mistapi.MIST_APAC_01
+	case "api.gc5.mist.com":
+		mistCloud = mistapi.MIST_APAC_02
+	case "api.gc7.mist.com":
+		mistCloud = mistapi.MIST_APAC_03
 	case "api.mistsys.com":
 		mistCloud = mistapi.AWS_STAGING
 	case "api.us.mist-federal.com":

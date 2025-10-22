@@ -6,6 +6,7 @@ import (
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -30,6 +31,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var jcloud = NewJcloudValueNull()
 	var jcloudRa = NewJcloudRaValueNull()
 	var juniper = NewJuniperValueNull()
+	var juniperSrx = NewJuniperSrxValueNull()
 	var junosShellAccess = NewJunosShellAccessValueNull()
 	var marvis = NewMarvisValueNull()
 	var mgmt = NewMgmtValueNull()
@@ -48,6 +50,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var switchUpdownThreshold types.Int64
 	var syntheticTest = NewSyntheticTestValueNull()
 	var uiIdleTimeout types.Int64
+	var uiNoTracking types.Bool
 	var vpnOptions = NewVpnOptionsValueNull()
 	var wanPma = NewWanPmaValueNull()
 	var wiredPma = NewWiredPmaValueNull()
@@ -100,6 +103,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	}
 	if data.Juniper != nil {
 		juniper = juniperSdkToTerraform(ctx, &diags, data.Juniper)
+	}
+	if data.JuniperSrx != nil {
+		juniperSrx = juniperSrxSdkToTerraform(ctx, &diags, data.JuniperSrx)
 	}
 	if data.JunosShellAccess != nil {
 		junosShellAccess = junosShellAccessSdkToTerraform(ctx, &diags, data.JunosShellAccess)
@@ -155,17 +161,38 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.UiIdleTimeout != nil {
 		uiIdleTimeout = types.Int64Value(int64(*data.UiIdleTimeout))
 	}
+	if data.UiNoTracking != nil {
+		uiNoTracking = types.BoolValue(*data.UiNoTracking)
+	}
 	if data.VpnOptions != nil {
 		vpnOptions = vpnOptionsSdkToTerraform(ctx, &diags, data.VpnOptions)
 	}
 	if data.WanPma != nil && data.WanPma.Enabled != nil {
-		wanPma.Enabled = types.BoolValue(*data.WanPma.Enabled)
+		var tempDiags diag.Diagnostics
+		wanPma, tempDiags = NewWanPmaValue(WanPmaValue{}.AttributeTypes(ctx), map[string]attr.Value{
+			"enabled": types.BoolValue(*data.WanPma.Enabled),
+		})
+		if tempDiags.HasError() {
+			wanPma = NewWanPmaValueNull()
+		}
 	}
 	if data.WiredPma != nil && data.WiredPma.Enabled != nil {
-		wiredPma.Enabled = types.BoolValue(*data.WiredPma.Enabled)
+		var tempDiags diag.Diagnostics
+		wiredPma, tempDiags = NewWiredPmaValue(WiredPmaValue{}.AttributeTypes(ctx), map[string]attr.Value{
+			"enabled": types.BoolValue(*data.WiredPma.Enabled),
+		})
+		if tempDiags.HasError() {
+			wiredPma = NewWiredPmaValueNull()
+		}
 	}
 	if data.WirelessPma != nil && data.WirelessPma.Enabled != nil {
-		wirelessPma.Enabled = types.BoolValue(*data.WirelessPma.Enabled)
+		var tempDiags diag.Diagnostics
+		wirelessPma, tempDiags = NewWirelessPmaValue(WirelessPmaValue{}.AttributeTypes(ctx), map[string]attr.Value{
+			"enabled": types.BoolValue(*data.WirelessPma.Enabled),
+		})
+		if tempDiags.HasError() {
+			wirelessPma = NewWirelessPmaValueNull()
+		}
 	}
 
 	state.ApUpdownThreshold = apUpdownThreshold
@@ -184,6 +211,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.Jcloud = jcloud
 	state.JcloudRa = jcloudRa
 	state.Juniper = juniper
+	state.JuniperSrx = juniperSrx
 	state.JunosShellAccess = junosShellAccess
 	state.Marvis = marvis
 	state.Mgmt = mgmt
@@ -202,6 +230,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.SwitchUpdownThreshold = switchUpdownThreshold
 	state.SyntheticTest = syntheticTest
 	state.UiIdleTimeout = uiIdleTimeout
+	state.UiNoTracking = uiNoTracking
 	state.VpnOptions = vpnOptions
 	state.WanPma = wanPma
 	state.WiredPma = wiredPma

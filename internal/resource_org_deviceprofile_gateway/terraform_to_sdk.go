@@ -59,7 +59,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileGatewayModel) (mo
 	if plan.ExtraRoutes6.IsNull() || plan.ExtraRoutes6.IsUnknown() {
 		unset["-extra_routes6"] = ""
 	} else {
-		data.ExtraRoutes6 = extraRoutesTerraformToSdk(plan.ExtraRoutes6)
+		data.ExtraRoutes6 = extraRoutes6TerraformToSdk(plan.ExtraRoutes6)
 	}
 
 	if plan.IdpProfiles.IsNull() || plan.IdpProfiles.IsUnknown() {
@@ -144,6 +144,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileGatewayModel) (mo
 		unset["-tunnel_provider_options"] = ""
 	} else {
 		data.TunnelProviderOptions = tunnelProviderOptionsTerraformToSdk(ctx, plan.TunnelProviderOptions)
+	}
+
+	if data.UrlFilteringDenyMsg == nil && (plan.UrlFilteringDenyMsg.IsNull() || plan.UrlFilteringDenyMsg.IsUnknown()) {
+		unset["-url_filtering_deny_msg"] = ""
+	} else if !plan.UrlFilteringDenyMsg.IsNull() && !plan.UrlFilteringDenyMsg.IsUnknown() {
+		data.UrlFilteringDenyMsg = plan.UrlFilteringDenyMsg.ValueStringPointer()
 	}
 
 	if plan.VrfConfig.IsNull() || plan.VrfConfig.IsUnknown() {

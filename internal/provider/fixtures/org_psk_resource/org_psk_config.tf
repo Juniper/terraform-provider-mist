@@ -1,0 +1,20 @@
+name                       = "test-psk-comprehensive"
+passphrase                 = "testpassphrase123"
+ssid                       = "test-ssid-comprehensive"
+email                      = "test@example.com"
+expire_time                = 1
+expiry_notification_time   = 7
+macs                       = ["aabbccddeef1", "aabbccddeef2"]
+max_usage                  = 10
+note                       = "Comprehensive test PSK for fixture testing"
+notify_expiry              = true
+notify_on_create_or_edit   = true
+role                       = "guest"
+usage                      = "macs"
+vlan_id                    = "100"
+␞
+name                       = "test-psk-single-mac"
+passphrase                 = "testpassphrase456"
+ssid                       = "test-ssid-single"
+mac                        = "aabbccddeeaa"
+usage                      = "single"

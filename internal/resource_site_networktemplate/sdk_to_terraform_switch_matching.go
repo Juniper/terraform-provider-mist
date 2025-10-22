@@ -111,6 +111,7 @@ func switchMatchingRulesPortConfigSdkToTerraform(ctx context.Context, diags *dia
 	diags.Append(e...)
 	return r
 }
+
 func switchMatchingRulesIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchMatchingRuleIpConfig) basetypes.ObjectValue {
 	var network basetypes.StringValue
 	var ipType basetypes.StringValue
@@ -133,6 +134,7 @@ func switchMatchingRulesIpConfigSdkToTerraform(ctx context.Context, diags *diag.
 	diags.Append(e...)
 	return o
 }
+
 func switchMatchingRulesOobIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchMatchingRuleOobIpConfig) basetypes.ObjectValue {
 	var oobIpType basetypes.StringValue
 	var useMgmtVrf basetypes.BoolValue
@@ -160,6 +162,27 @@ func switchMatchingRulesOobIpConfigSdkToTerraform(ctx context.Context, diags *di
 	diags.Append(e...)
 	return o
 }
+
+func switchMatchingRulesStpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchStpConfig) basetypes.ObjectValue {
+
+	var bridgePriority basetypes.StringValue
+
+	if d.BridgePriority != nil {
+		bridgePriority = types.StringValue(*d.BridgePriority)
+	}
+
+	dataMapValue := map[string]attr.Value{
+		"bridge_priority": bridgePriority,
+	}
+	data, e := NewStpConfigValue(StpConfigValue{}.AttributeTypes(ctx), dataMapValue)
+	diags.Append(e...)
+
+	o, e := data.ToObjectValue(ctx)
+	diags.Append(e...)
+	return o
+
+}
+
 func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SwitchMatchingRule) basetypes.ListValue {
 	var dataList []MatchingRulesValue
 
@@ -173,6 +196,7 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		var name basetypes.StringValue
 		var portConfig = types.MapNull(PortConfigValue{}.Type(ctx))
 		var portMirroring = types.MapNull(PortMirroringValue{}.Type(ctx))
+		var stpConfig = types.ObjectNull(StpConfigValue{}.AttributeTypes(ctx))
 		var ipConfig = types.ObjectNull(IpConfigValue{}.AttributeTypes(ctx))
 		var oobIpConfig = types.ObjectNull(OobIpConfigValue{}.AttributeTypes(ctx))
 
@@ -207,6 +231,9 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		if len(d.PortMirroring) > 0 {
 			portMirroring = portMirroringSdkToTerraform(ctx, diags, d.PortMirroring)
 		}
+		if d.StpConfig != nil {
+			stpConfig = switchMatchingRulesStpConfigSdkToTerraform(ctx, diags, d.StpConfig)
+		}
 		if d.IpConfig != nil {
 			ipConfig = switchMatchingRulesIpConfigSdkToTerraform(ctx, diags, d.IpConfig)
 		}
@@ -223,6 +250,7 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 			"name":                   name,
 			"port_config":            portConfig,
 			"port_mirroring":         portMirroring,
+			"stp_config":             stpConfig,
 			"ip_config":              ipConfig,
 			"oob_ip_config":          oobIpConfig,
 		}

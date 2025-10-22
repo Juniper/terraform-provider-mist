@@ -5,7 +5,9 @@ package resource_org_wlan
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -26,7 +28,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -332,7 +333,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						},
 						Optional: true,
 						Validators: []validator.List{
-							listvalidator.SizeAtLeast(1),
 							listvalidator.UniqueValues(),
 						},
 					},
@@ -2113,16 +2113,16 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(stringvalidator.Any(
-						mistvalidator.ParseCidr(true, false)),
+						mistvalidator.ParseCidr(true, false),
 						mistvalidator.ParseVar(),
-					),
+					)),
 				},
 				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"portal_api_secret": schema.StringAttribute{
 				Computed:            true,
-				Description:         "APi secret (auto-generated) that can be used to sign guest authorization requests",
-				MarkdownDescription: "APi secret (auto-generated) that can be used to sign guest authorization requests",
+				Description:         "API secret (auto-generated) that can be used to sign guest authorization requests, only generated when auth is set to `external`",
+				MarkdownDescription: "API secret (auto-generated) that can be used to sign guest authorization requests, only generated when auth is set to `external`",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -2144,7 +2144,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"portal_sso_url": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "URL used in the SSO process, auto-generated when auth is set to `sso`",
+				MarkdownDescription: "URL used in the SSO process, auto-generated when auth is set to `sso`",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

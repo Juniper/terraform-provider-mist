@@ -56,6 +56,7 @@ resource "mist_device_gateway" "gateway_one" {
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8"), the destination Network name or a variable (e.g. "{{myvar}}") (see [below for nested schema](#nestedatt--extra_routes))
 - `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64"), the destination Network name or a variable (e.g. "{{myvar}}") (see [below for nested schema](#nestedatt--extra_routes6))
+- `gateway_mgmt` (Attributes) Gateway settings (see [below for nested schema](#nestedatt--gateway_mgmt))
 - `idp_profiles` (Attributes Map) Property key is the profile name (see [below for nested schema](#nestedatt--idp_profiles))
 - `ip_configs` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--ip_configs))
 - `managed` (Boolean)
@@ -74,6 +75,7 @@ resource "mist_device_gateway" "gateway_one" {
 - `ssr_additional_config_cmds` (List of String) additional CLI commands to append to the generated SSR config. **Note**: no check is done
 - `tunnel_configs` (Attributes Map) Property key is the tunnel name (see [below for nested schema](#nestedatt--tunnel_configs))
 - `tunnel_provider_options` (Attributes) (see [below for nested schema](#nestedatt--tunnel_provider_options))
+- `url_filtering_deny_msg` (String) When a service policy denies a app_category, what message to show in user's browser
 - `vars` (Map of String) Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
 - `vrf_config` (Attributes) (see [below for nested schema](#nestedatt--vrf_config))
 - `vrf_instances` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--vrf_instances))
@@ -177,12 +179,10 @@ should overwrite the Sever Identifier option (i.e. DHCP option 54) in DHCP respo
 <a id="nestedatt--dhcpd_config--config--fixed_bindings"></a>
 ### Nested Schema for `dhcpd_config.config.fixed_bindings`
 
-Required:
-
-- `ip` (String)
-
 Optional:
 
+- `ip` (String)
+- `ip6` (String)
 - `name` (String)
 
 
@@ -220,6 +220,14 @@ Required:
 Required:
 
 - `via` (String)
+
+
+<a id="nestedatt--gateway_mgmt"></a>
+### Nested Schema for `gateway_mgmt`
+
+Optional:
+
+- `config_revert_timer` (Number) Rollback timer for commit confirmed
 
 
 <a id="nestedatt--idp_profiles"></a>
@@ -520,6 +528,7 @@ Optional:
 - `wan_arp_policer` (String) Only when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`
 - `wan_disable_speedtest` (Boolean) If `wan_type`==`wan`, disable speedtest
 - `wan_ext_ip` (String) Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP
+- `wan_ext_ip6` (String) Only if `usage`==`wan`, optional. If spoke should reach this port by a different IPv6
 - `wan_extra_routes` (Attributes Map) Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. "100.100.100.0/24") (see [below for nested schema](#nestedatt--port_config--wan_extra_routes))
 - `wan_extra_routes6` (Attributes Map) Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--port_config--wan_extra_routes6))
 - `wan_networks` (List of String) Only if `usage`==`wan`. If some networks are connected to this WAN port, it can be added here so policies can be defined
@@ -612,6 +621,7 @@ Optional:
 Optional:
 
 - `disabled` (Boolean) Or to disable the source-nat
+- `nat6_pool` (String) If alternative nat_pool is desired
 - `nat_pool` (String) If alternative nat_pool is desired
 
 

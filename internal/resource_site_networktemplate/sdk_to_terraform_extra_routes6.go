@@ -77,12 +77,12 @@ func extraRoutes6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m 
 			"preference":     preference,
 			"via":            via,
 		}
-		data, e := NewExtraRoutesValue(ExtraRoutesValue{}.AttributeTypes(ctx), dataMapValue)
+		data, e := NewExtraRoutes6Value(ExtraRoutes6Value{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
 
 		stateValueMapValue[k] = data
 	}
-	stateResultMapType := ExtraRoutesValue{}.Type(ctx)
+	stateResultMapType := ExtraRoutes6Value{}.Type(ctx)
 	stateResultMap, e := types.MapValueFrom(ctx, stateResultMapType, stateValueMapValue)
 	diags.Append(e...)
 	return stateResultMap

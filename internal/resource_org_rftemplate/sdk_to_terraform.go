@@ -19,7 +19,7 @@ func SdkToTerraform(ctx context.Context, data models.RfTemplate) (OrgRftemplateM
 	var band24 = NewBand24ValueNull()
 	var band24Usage types.String
 	var band5 = NewBand5ValueNull()
-	var band5On24Radio Band5On24RadioValue
+	var band5On24Radio = NewBand5On24RadioValueNull()
 	var band6 = NewBand6ValueNull()
 	var countryCode types.String
 	var id types.String

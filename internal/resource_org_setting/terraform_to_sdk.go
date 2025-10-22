@@ -98,6 +98,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-juniper"] = ""
 	}
 
+	if !plan.JuniperSrx.IsNull() && !plan.JuniperSrx.IsUnknown() {
+		data.JuniperSrx = juniperSrxTerraformToSdk(ctx, &diags, plan.JuniperSrx)
+	} else {
+		unset["-juniper_srx"] = ""
+	}
+
 	if !plan.JunosShellAccess.IsNull() && !plan.JunosShellAccess.IsUnknown() {
 		data.JunosShellAccess = junosShellAccessTerraformToSdk(plan.JunosShellAccess)
 	} else {
@@ -152,6 +158,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-security"] = ""
 	}
 
+	if !plan.Ssr.IsNull() && !plan.Ssr.IsUnknown() {
+		data.Ssr = ssrTerraformToSdk(plan.Ssr)
+	} else {
+		unset["-ssr"] = ""
+	}
+
 	if !plan.Switch.IsNull() && !plan.Switch.IsUnknown() {
 		data.Switch = switchTerraformToSdk(ctx, plan.Switch)
 	} else {
@@ -182,6 +194,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-ui_idle_timeout"] = ""
 	}
 
+	if plan.UiNoTracking.ValueBoolPointer() != nil {
+		data.UiNoTracking = plan.UiNoTracking.ValueBoolPointer()
+	} else {
+		unset["-ui_no_tracking"] = ""
+	}
+
 	if !plan.VpnOptions.IsNull() && !plan.VpnOptions.IsUnknown() {
 		data.VpnOptions = vpnOptionsTerraformToSdk(plan.VpnOptions)
 	} else {
@@ -189,25 +207,19 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 	}
 
 	if !plan.WanPma.IsNull() && !plan.WanPma.IsUnknown() {
-		if plan.WanPma.Enabled.ValueBoolPointer() != nil {
-			data.WanPma.Enabled = plan.WanPma.Enabled.ValueBoolPointer()
-		}
+		data.WanPma = wanPmaTerraformToSdk(plan.WanPma)
 	} else {
 		unset["-wan_pma"] = ""
 	}
 
 	if !plan.WiredPma.IsNull() && !plan.WiredPma.IsUnknown() {
-		if plan.WiredPma.Enabled.ValueBoolPointer() != nil {
-			data.WiredPma.Enabled = plan.WiredPma.Enabled.ValueBoolPointer()
-		}
+		data.WiredPma = wiredPmaTerraformToSdk(plan.WiredPma)
 	} else {
 		unset["-wired_pma"] = ""
 	}
 
 	if !plan.WirelessPma.IsNull() && !plan.WirelessPma.IsUnknown() {
-		if plan.WirelessPma.Enabled.ValueBoolPointer() != nil {
-			data.WirelessPma.Enabled = plan.WirelessPma.Enabled.ValueBoolPointer()
-		}
+		data.WirelessPma = wirelessPmaTerraformToSdk(plan.WirelessPma)
 	} else {
 		unset["-wireless_pma"] = ""
 	}

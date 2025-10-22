@@ -1163,7 +1163,6 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 									},
 									Optional: true,
 									Validators: []validator.List{
-										listvalidator.SizeAtLeast(1),
 										listvalidator.UniqueValues(),
 									},
 								},
@@ -1389,6 +1388,18 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							int64validator.AtLeast(0),
 						},
 					},
+					"ant_mode": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Antenna Mode for AP which supports selectable antennas. enum: `external`, `internal`",
+						MarkdownDescription: "Antenna Mode for AP which supports selectable antennas. enum: `external`, `internal`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"external",
+								"internal",
+							),
+						},
+					},
 					"antenna_mode": schema.StringAttribute{
 						Optional:            true,
 						Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
@@ -1439,10 +1450,11 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "channel width for the 2.4GHz band. enum: `20`, `40`",
-								MarkdownDescription: "channel width for the 2.4GHz band. enum: `20`, `40`",
+								Description:         "channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`",
+								MarkdownDescription: "channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
+										0,
 										20,
 										40,
 									),
@@ -1576,10 +1588,11 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
-								MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+								Description:         "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
+								MarkdownDescription: "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
+										0,
 										20,
 										40,
 										80,
@@ -1697,10 +1710,11 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "channel width for the 5GHz band. enum: `20`, `40`, `80`",
-								MarkdownDescription: "channel width for the 5GHz band. enum: `20`, `40`, `80`",
+								Description:         "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
+								MarkdownDescription: "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
+										0,
 										20,
 										40,
 										80,
@@ -1818,10 +1832,11 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
-								MarkdownDescription: "channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`",
+								Description:         "channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`",
+								MarkdownDescription: "channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
+										0,
 										20,
 										40,
 										80,
@@ -15558,6 +15573,24 @@ func (t RadioConfigType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`ant_gain_6 expected to be basetypes.Int64Value, was: %T`, antGain6Attribute))
 	}
 
+	antModeAttribute, ok := attributes["ant_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_mode is missing from object`)
+
+		return nil, diags
+	}
+
+	antModeVal, ok := antModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_mode expected to be basetypes.StringValue, was: %T`, antModeAttribute))
+	}
+
 	antennaModeAttribute, ok := attributes["antenna_mode"]
 
 	if !ok {
@@ -15729,6 +15762,7 @@ func (t RadioConfigType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		AntGain24:        antGain24Val,
 		AntGain5:         antGain5Val,
 		AntGain6:         antGain6Val,
+		AntMode:          antModeVal,
 		AntennaMode:      antennaModeVal,
 		Band24:           band24Val,
 		Band24Usage:      band24UsageVal,
@@ -15877,6 +15911,24 @@ func NewRadioConfigValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`ant_gain_6 expected to be basetypes.Int64Value, was: %T`, antGain6Attribute))
 	}
 
+	antModeAttribute, ok := attributes["ant_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ant_mode is missing from object`)
+
+		return NewRadioConfigValueUnknown(), diags
+	}
+
+	antModeVal, ok := antModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ant_mode expected to be basetypes.StringValue, was: %T`, antModeAttribute))
+	}
+
 	antennaModeAttribute, ok := attributes["antenna_mode"]
 
 	if !ok {
@@ -16048,6 +16100,7 @@ func NewRadioConfigValue(attributeTypes map[string]attr.Type, attributes map[str
 		AntGain24:        antGain24Val,
 		AntGain5:         antGain5Val,
 		AntGain6:         antGain6Val,
+		AntMode:          antModeVal,
 		AntennaMode:      antennaModeVal,
 		Band24:           band24Val,
 		Band24Usage:      band24UsageVal,
@@ -16133,6 +16186,7 @@ type RadioConfigValue struct {
 	AntGain24        basetypes.Int64Value  `tfsdk:"ant_gain_24"`
 	AntGain5         basetypes.Int64Value  `tfsdk:"ant_gain_5"`
 	AntGain6         basetypes.Int64Value  `tfsdk:"ant_gain_6"`
+	AntMode          basetypes.StringValue `tfsdk:"ant_mode"`
 	AntennaMode      basetypes.StringValue `tfsdk:"antenna_mode"`
 	Band24           basetypes.ObjectValue `tfsdk:"band_24"`
 	Band24Usage      basetypes.StringValue `tfsdk:"band_24_usage"`
@@ -16146,7 +16200,7 @@ type RadioConfigValue struct {
 }
 
 func (v RadioConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 13)
+	attrTypes := make(map[string]tftypes.Type, 14)
 
 	var val tftypes.Value
 	var err error
@@ -16155,6 +16209,7 @@ func (v RadioConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["ant_gain_24"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["ant_gain_5"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["ant_gain_6"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["ant_mode"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["antenna_mode"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["band_24"] = basetypes.ObjectType{
 		AttrTypes: Band24Value{}.AttributeTypes(ctx),
@@ -16177,7 +16232,7 @@ func (v RadioConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 13)
+		vals := make(map[string]tftypes.Value, 14)
 
 		val, err = v.AllowRrmDisable.ToTerraformValue(ctx)
 
@@ -16210,6 +16265,14 @@ func (v RadioConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["ant_gain_6"] = val
+
+		val, err = v.AntMode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ant_mode"] = val
 
 		val, err = v.AntennaMode.ToTerraformValue(ctx)
 
@@ -16401,6 +16464,7 @@ func (v RadioConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"ant_gain_24":       basetypes.Int64Type{},
 		"ant_gain_5":        basetypes.Int64Type{},
 		"ant_gain_6":        basetypes.Int64Type{},
+		"ant_mode":          basetypes.StringType{},
 		"antenna_mode":      basetypes.StringType{},
 		"band_24": basetypes.ObjectType{
 			AttrTypes: Band24Value{}.AttributeTypes(ctx),
@@ -16435,6 +16499,7 @@ func (v RadioConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"ant_gain_24":        v.AntGain24,
 			"ant_gain_5":         v.AntGain5,
 			"ant_gain_6":         v.AntGain6,
+			"ant_mode":           v.AntMode,
 			"antenna_mode":       v.AntennaMode,
 			"band_24":            band24,
 			"band_24_usage":      v.Band24Usage,
@@ -16477,6 +16542,10 @@ func (v RadioConfigValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.AntGain6.Equal(other.AntGain6) {
+		return false
+	}
+
+	if !v.AntMode.Equal(other.AntMode) {
 		return false
 	}
 
@@ -16533,6 +16602,7 @@ func (v RadioConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"ant_gain_24":       basetypes.Int64Type{},
 		"ant_gain_5":        basetypes.Int64Type{},
 		"ant_gain_6":        basetypes.Int64Type{},
+		"ant_mode":          basetypes.StringType{},
 		"antenna_mode":      basetypes.StringType{},
 		"band_24": basetypes.ObjectType{
 			AttrTypes: Band24Value{}.AttributeTypes(ctx),

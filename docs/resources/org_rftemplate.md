@@ -82,7 +82,7 @@ Optional:
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 2.4GHz band. enum: `20`, `40`
+- `bandwidth` (Number) channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0
@@ -99,7 +99,7 @@ Optional:
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 5GHz band. enum: `20`, `40`, `80`
+- `bandwidth` (Number) channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
@@ -116,7 +116,7 @@ Optional:
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 5GHz band. enum: `20`, `40`, `80`
+- `bandwidth` (Number) channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
@@ -133,7 +133,7 @@ Optional:
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`
+- `bandwidth` (Number) channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
@@ -165,7 +165,7 @@ Optional:
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 2.4GHz band. enum: `20`, `40`
+- `bandwidth` (Number) channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0
@@ -182,7 +182,7 @@ Optional:
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 5GHz band. enum: `20`, `40`, `80`
+- `bandwidth` (Number) channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
@@ -199,7 +199,7 @@ Optional:
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 5GHz band. enum: `20`, `40`, `80`
+- `bandwidth` (Number) channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
@@ -216,7 +216,7 @@ Optional:
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 6GHz band. enum: `20`, `40`, `80`, `160`
+- `bandwidth` (Number) channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`
 - `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …

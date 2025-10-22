@@ -8,16 +8,24 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 func autoUpgradeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SiteSettingAutoUpgrade) AutoUpgradeValue {
 
+	// Check if all fields are effectively empty/null
+	if d.CustomVersions == nil &&
+		(d.DayOfWeek == nil || string(*d.DayOfWeek) == "") &&
+		d.Enabled == nil &&
+		(d.TimeOfDay == nil || *d.TimeOfDay == "") &&
+		(d.Version == nil || string(*d.Version) == "") {
+		return NewAutoUpgradeValueNull()
+	}
+
 	var customVersions = types.MapNull(types.StringType)
-	var dayOfWeek basetypes.StringValue
-	var enabled basetypes.BoolValue
-	var timeOfDay basetypes.StringValue
-	var version basetypes.StringValue
+	var dayOfWeek = types.StringNull()
+	var enabled = types.BoolNull()
+	var timeOfDay = types.StringNull()
+	var version = types.StringNull()
 
 	if d.CustomVersions != nil {
 		customVersionsMapValue := make(map[string]attr.Value)
@@ -27,16 +35,16 @@ func autoUpgradeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d m
 		customVersions = types.MapValueMust(types.StringType, customVersionsMapValue)
 	}
 
-	if d.DayOfWeek != nil {
+	if d.DayOfWeek != nil && string(*d.DayOfWeek) != "" {
 		dayOfWeek = types.StringValue(string(*d.DayOfWeek))
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d.TimeOfDay != nil {
+	if d.TimeOfDay != nil && *d.TimeOfDay != "" {
 		timeOfDay = types.StringValue(*d.TimeOfDay)
 	}
-	if d.Version != nil {
+	if d.Version != nil && string(*d.Version) != "" {
 		version = types.StringValue(string(*d.Version))
 	}
 

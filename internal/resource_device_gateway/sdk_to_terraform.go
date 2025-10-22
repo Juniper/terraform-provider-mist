@@ -17,12 +17,13 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 
 	var additionalConfigCmds = types.ListNull(types.StringType)
 	var bgpConfig = types.MapNull(BgpConfigValue{}.Type(ctx))
+	var deviceId types.String
 	var dhcpdConfig = NewDhcpdConfigValueNull()
 	var dnsServers = types.ListNull(types.StringType)
 	var dnsSuffix = types.ListNull(types.StringType)
 	var extraRoutes = types.MapNull(ExtraRoutesValue{}.Type(ctx))
 	var extraRoutes6 = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
-	var deviceId types.String
+	var gatewayMgmt = NewGatewayMgmtValueNull()
 	var idpProfiles = types.MapNull(IdpProfilesValue{}.Type(ctx))
 	var image1Url = types.StringValue("not_present")
 	var image2Url = types.StringValue("not_present")
@@ -45,6 +46,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	var ssrAdditionalConfigCmds = types.ListNull(types.StringType)
 	var tunnelConfigs = types.MapNull(TunnelConfigsValue{}.Type(ctx))
 	var tunnelProviderOptions = NewTunnelProviderOptionsValueNull()
+	var urlFilteringDenyMsg = types.StringNull()
 	var vars = types.MapNull(types.StringType)
 	var vrfConfig = NewVrfConfigValueNull()
 	var vrfInstances = types.MapNull(VrfInstancesValue{}.Type(ctx))
@@ -76,6 +78,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	}
 	if len(data.ExtraRoutes6) > 0 {
 		extraRoutes6 = extraRoutes6SdkToTerraform(ctx, &diags, data.ExtraRoutes6)
+	}
+	if data.GatewayMgmt != nil {
+		gatewayMgmt = gatewayMgmtSdkToTerraform(ctx, &diags, data.GatewayMgmt)
 	}
 	if data.Id != nil {
 		deviceId = types.StringValue(data.Id.String())
@@ -148,6 +153,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 			tunnelProviderOptions = tunnelProviderOptionsTmp
 		}
 	}
+	if data.UrlFilteringDenyMsg != nil {
+		urlFilteringDenyMsg = types.StringValue(*data.UrlFilteringDenyMsg)
+	}
 	if len(data.Vars) > 0 {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
@@ -186,6 +194,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	state.ExtraRoutes = extraRoutes
 	state.ExtraRoutes6 = extraRoutes6
 	state.DeviceId = deviceId
+	state.GatewayMgmt = gatewayMgmt
 	state.IdpProfiles = idpProfiles
 	state.Image1Url = image1Url
 	state.Image2Url = image2Url
@@ -208,6 +217,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	state.SsrAdditionalConfigCmds = ssrAdditionalConfigCmds
 	state.TunnelConfigs = tunnelConfigs
 	state.TunnelProviderOptions = tunnelProviderOptions
+	state.UrlFilteringDenyMsg = urlFilteringDenyMsg
 	state.Vars = vars
 	state.VrfConfig = vrfConfig
 	state.VrfInstances = vrfInstances

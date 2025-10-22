@@ -150,9 +150,9 @@ resource "mist_org_wlan" "wlan_one" {
 
 - `id` (String) Unique ID of the object instance in the Mist Organization
 - `msp_id` (String)
-- `portal_api_secret` (String) APi secret (auto-generated) that can be used to sign guest authorization requests
+- `portal_api_secret` (String) API secret (auto-generated) that can be used to sign guest authorization requests, only generated when auth is set to `external`
 - `portal_image` (String) Url of portal background image
-- `portal_sso_url` (String)
+- `portal_sso_url` (String) URL used in the SSO process, auto-generated when auth is set to `sso`
 
 <a id="nestedatt--acct_servers"></a>
 ### Nested Schema for `acct_servers`

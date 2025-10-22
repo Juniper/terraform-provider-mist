@@ -100,7 +100,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	}
 
 	if !plan.JuniperSrx.IsNull() && !plan.JuniperSrx.IsUnknown() {
-		data.JuniperSrx = juniperSrxTerraformToSdk(plan.JuniperSrx)
+		data.JuniperSrx = juniperSrxTerraformToSdk(ctx, &diags, plan.JuniperSrx)
 	} else {
 		unset["-juniper_srx"] = ""
 	}
@@ -191,7 +191,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	}
 
 	if !plan.Ssr.IsNull() && !plan.Ssr.IsUnknown() {
-		data.Ssr = ssrTerraformToSdk(plan.Ssr)
+		data.Ssr = ssrTerraformToSdk(ctx, &diags, plan.Ssr)
 	} else {
 		unset["-ssr"] = ""
 	}

@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func TenantSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.NetworkTenant) basetypes.MapValue {
+func tenantSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d map[string]models.NetworkTenant) basetypes.MapValue {
 
 	stateValueMapAttrType := TenantsValue{}.AttributeTypes(ctx)
 	stateValueMapValue := make(map[string]attr.Value)

@@ -166,8 +166,8 @@ SOFTWARE.
 ## github.com/hashicorp/go-plugin
 
 * Name: github.com/hashicorp/go-plugin
-* Version: v1.6.3
-* License: [MPL-2.0](https://github.com/hashicorp/go-plugin/blob/v1.6.3/LICENSE)
+* Version: v1.7.0
+* License: [MPL-2.0](https://github.com/hashicorp/go-plugin/blob/v1.7.0/LICENSE)
 
 ```
 Copyright (c) 2016 HashiCorp, Inc.
@@ -906,8 +906,8 @@ Exhibit B - "Incompatible With Secondary Licenses" Notice
 ## github.com/hashicorp/terraform-plugin-framework
 
 * Name: github.com/hashicorp/terraform-plugin-framework
-* Version: v1.15.0
-* License: [MPL-2.0](https://github.com/hashicorp/terraform-plugin-framework/blob/v1.15.0/LICENSE)
+* Version: v1.15.1
+* License: [MPL-2.0](https://github.com/hashicorp/terraform-plugin-framework/blob/v1.15.1/LICENSE)
 
 ```
 Copyright (c) 2021 HashiCorp, Inc.
@@ -2370,8 +2370,8 @@ Exhibit B - “Incompatible With Secondary Licenses” Notice
 ## github.com/hashicorp/terraform-registry-address
 
 * Name: github.com/hashicorp/terraform-registry-address
-* Version: v0.3.0
-* License: [MPL-2.0](https://github.com/hashicorp/terraform-registry-address/blob/v0.3.0/LICENSE)
+* Version: v0.4.0
+* License: [MPL-2.0](https://github.com/hashicorp/terraform-registry-address/blob/v0.4.0/LICENSE)
 
 ```
 Copyright (c) 2021 HashiCorp, Inc.
@@ -3766,8 +3766,8 @@ THE SOFTWARE.
 ## github.com/tmunzer/mistapi-go/mistapi
 
 * Name: github.com/tmunzer/mistapi-go/mistapi
-* Version: v0.4.84
-* License: [MIT](https://github.com/tmunzer/mistapi-go/blob/v0.4.84/LICENSE)
+* Version: v0.4.90
+* License: [MIT](https://github.com/tmunzer/mistapi-go/blob/v0.4.90/LICENSE)
 
 ```
 License: 
@@ -3868,8 +3868,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## golang.org/x/net
 
 * Name: golang.org/x/net
-* Version: v0.42.0
-* License: [BSD-3-Clause](https://cs.opensource.google/go/x/net/+/v0.42.0:LICENSE)
+* Version: v0.43.0
+* License: [BSD-3-Clause](https://cs.opensource.google/go/x/net/+/v0.43.0:LICENSE)
 
 ```
 Copyright 2009 The Go Authors.
@@ -3905,8 +3905,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## golang.org/x/text
 
 * Name: golang.org/x/text
-* Version: v0.27.0
-* License: [BSD-3-Clause](https://cs.opensource.google/go/x/text/+/v0.27.0:LICENSE)
+* Version: v0.28.0
+* License: [BSD-3-Clause](https://cs.opensource.google/go/x/text/+/v0.28.0:LICENSE)
 
 ```
 Copyright 2009 The Go Authors.
@@ -3942,8 +3942,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## google.golang.org/genproto/googleapis/rpc/status
 
 * Name: google.golang.org/genproto/googleapis/rpc/status
-* Version: v0.0.0-20250728155136-f173205681a0
-* License: [Apache-2.0](https://github.com/googleapis/go-genproto/blob/f173205681a0/googleapis/rpc/LICENSE)
+* Version: v0.0.0-20250826171959-ef028d996bc1
+* License: [Apache-2.0](https://github.com/googleapis/go-genproto/blob/ef028d996bc1/googleapis/rpc/LICENSE)
 
 ```
 
@@ -4154,8 +4154,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## google.golang.org/grpc
 
 * Name: google.golang.org/grpc
-* Version: v1.74.2
-* License: [Apache-2.0](https://github.com/grpc/grpc-go/blob/v1.74.2/LICENSE)
+* Version: v1.75.0
+* License: [Apache-2.0](https://github.com/grpc/grpc-go/blob/v1.75.0/LICENSE)
 
 ```
 
@@ -4366,8 +4366,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## google.golang.org/protobuf
 
 * Name: google.golang.org/protobuf
-* Version: v1.36.6
-* License: [BSD-3-Clause](https://github.com/protocolbuffers/protobuf-go/blob/v1.36.6/LICENSE)
+* Version: v1.36.8
+* License: [BSD-3-Clause](https://github.com/protocolbuffers/protobuf-go/blob/v1.36.8/LICENSE)
 
 ```
 Copyright (c) 2018 The Go Authors. All rights reserved.

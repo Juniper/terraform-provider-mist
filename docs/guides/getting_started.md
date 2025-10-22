@@ -189,17 +189,18 @@ To manage the Mist Organization inventory, we will use the [`mist_org_inventory`
 
 ```terraform
 resource "mist_org_inventory" "inventory" {
+  org_id = mist_org.org_one.id
   inventory = {
     // to claim a device with its Claim Code
     // replace "XXXXXXXXXXXXXXX" with the actual Claim Code
     "XXXXXXXXXXXXXXX" = {
-      site_id = mist_site.terraform_site.id
+      site_id = mist_site.site_one.id
       unclaim_when_destroyed = true
     }
-    // to manage a device already claimed or adopted
-    // replace "XXXXXXXXXXXXXXX" with the actual Claim Code
+    // to manage a device that was manually claimed or adopted
+    // replace "020004000000" with the actual MAC Address of the device
     "020004000000" = {
-      site_id = mist_site.terraform_site.id
+      site_id = mist_site.site_one.id
       unclaim_when_destroyed = false
     }
   }

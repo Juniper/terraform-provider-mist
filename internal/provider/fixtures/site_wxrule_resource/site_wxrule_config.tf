@@ -1,0 +1,29 @@
+action = "allow"
+order = 1
+enabled = true
+apply_tags = ["tag1", "tag2", "tag3"]
+blocked_apps = ["facebook", "youtube", "instagram"]
+dst_allow_wxtags = ["550e8400-e29b-41d4-a716-446655440001", "550e8400-e29b-41d4-a716-446655440002"]
+dst_deny_wxtags = ["550e8400-e29b-41d4-a716-446655440003", "550e8400-e29b-41d4-a716-446655440004"]
+dst_wxtags = ["550e8400-e29b-41d4-a716-446655440005", "550e8400-e29b-41d4-a716-446655440006"]
+src_wxtags = ["550e8400-e29b-41d4-a716-446655440007", "550e8400-e29b-41d4-a716-446655440008"]
+␞
+action = "block"
+order = 10
+enabled = false
+apply_tags = ["quarantine", "restricted"]
+blocked_apps = ["twitter", "snapchat"]
+dst_allow_wxtags = ["550e8400-e29b-41d4-a716-446655440009"]
+dst_deny_wxtags = ["550e8400-e29b-41d4-a716-446655440010", "550e8400-e29b-41d4-a716-446655440011"]
+dst_wxtags = ["550e8400-e29b-41d4-a716-446655440012"]
+src_wxtags = ["550e8400-e29b-41d4-a716-446655440013", "550e8400-e29b-41d4-a716-446655440014", "550e8400-e29b-41d4-a716-446655440015"]
+␞
+action = "block"
+order = 5
+enabled = true
+apply_tags = ["security", "compliance"]
+blocked_apps = ["tiktok", "gaming-apps", "streaming"]
+dst_allow_wxtags = ["550e8400-e29b-41d4-a716-446655440016", "550e8400-e29b-41d4-a716-446655440017", "550e8400-e29b-41d4-a716-446655440018"]
+dst_deny_wxtags = ["550e8400-e29b-41d4-a716-446655440019", "550e8400-e29b-41d4-a716-446655440020"]
+dst_wxtags = ["550e8400-e29b-41d4-a716-446655440021", "550e8400-e29b-41d4-a716-446655440022", "550e8400-e29b-41d4-a716-446655440023", "550e8400-e29b-41d4-a716-446655440024"]
+src_wxtags = ["550e8400-e29b-41d4-a716-446655440025"]

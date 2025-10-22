@@ -94,7 +94,7 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 		description = types.StringValue(*d.Description)
 	}
 	if d.Dscp != nil {
-		dscp = types.StringValue(d.Dscp.String())
+		dscp = mistutils.ServiceDscpAsString(d.Dscp)
 	}
 	if d.FailoverPolicy != nil {
 		failoverPolicy = types.StringValue(string(*d.FailoverPolicy))
@@ -106,13 +106,13 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 		id = types.StringValue(d.Id.String())
 	}
 	if d.MaxJitter != nil {
-		maxJitter = types.StringValue(d.MaxJitter.String())
+		maxJitter = mistutils.ServiceMaxJitterAsString(d.MaxJitter)
 	}
 	if d.MaxLatency != nil {
-		maxLatency = types.StringValue(d.MaxLatency.String())
+		maxLatency = mistutils.ServiceMaxLatencyAsString(d.MaxLatency)
 	}
 	if d.MaxLoss != nil {
-		maxLoss = types.StringValue(d.MaxLoss.String())
+		maxLoss = mistutils.ServiceMaxLossAsString(d.MaxLoss)
 	}
 	if d.Name != nil {
 		name = types.StringValue(*d.Name)

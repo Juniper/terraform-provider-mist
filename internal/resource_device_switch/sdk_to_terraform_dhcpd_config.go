@@ -75,10 +75,14 @@ func dhcpdConfigFixedBindingsSdkToTerraform(ctx context.Context, diags *diag.Dia
 	rMap := make(map[string]attr.Value)
 	for k, d := range m {
 		var ip basetypes.StringValue
+		var ip6 basetypes.StringValue
 		var name basetypes.StringValue
 
 		if d.Ip != nil {
 			ip = types.StringValue(*d.Ip)
+		}
+		if d.Ip6 != nil {
+			ip6 = types.StringValue(*d.Ip6)
 		}
 		if d.Name != nil {
 			name = types.StringValue(*d.Name)
@@ -86,6 +90,7 @@ func dhcpdConfigFixedBindingsSdkToTerraform(ctx context.Context, diags *diag.Dia
 
 		dataMapValue := map[string]attr.Value{
 			"ip":   ip,
+			"ip6":  ip6,
 			"name": name,
 		}
 		data, e := NewFixedBindingsValue(FixedBindingsValue{}.AttributeTypes(ctx), dataMapValue)

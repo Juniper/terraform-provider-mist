@@ -58,6 +58,7 @@ func idpProfileOverwritesSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 	for _, d := range l {
 		var action basetypes.StringValue
 		var matching = types.ObjectNull(IpdProfileOverwriteMatchingValue{}.AttributeTypes(ctx))
+		var name basetypes.StringValue
 
 		if d.Action != nil {
 			action = types.StringValue(string(*d.Action))
@@ -65,10 +66,14 @@ func idpProfileOverwritesSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 		if d.Matching != nil {
 			matching = idpProfileOverwriteMatchingSdkToTerraform(ctx, diags, d.Matching)
 		}
+		if d.Name != nil {
+			name = types.StringValue(*d.Name)
+		}
 
 		dataMapValue := map[string]attr.Value{
 			"action":   action,
 			"matching": matching,
+			"name":     name,
 		}
 		data, e := NewOverwritesValue(OverwritesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
@@ -88,6 +93,7 @@ func idpProfileSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 
 		var baseProfile basetypes.StringValue
 		var name basetypes.StringValue
+		var orgId basetypes.StringValue
 		var overwrites = types.ListNull(OverwritesValue{}.Type(ctx))
 
 		if d.BaseProfile != nil {
@@ -96,6 +102,8 @@ func idpProfileSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.Name != nil {
 			name = types.StringValue(*d.Name)
 		}
+		// Note: OrgId field appears to be Terraform-only and not part of SDK model
+		// Setting to null for now until we confirm the correct source
 		if d.Overwrites != nil {
 			overwrites = idpProfileOverwritesSdkToTerraform(ctx, diags, d.Overwrites)
 		}
@@ -103,6 +111,7 @@ func idpProfileSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		dataMapValue := map[string]attr.Value{
 			"base_profile": baseProfile,
 			"name":         name,
+			"org_id":       orgId,
 			"overwrites":   overwrites,
 		}
 		data, e := NewIdpProfilesValue(IdpProfilesValue{}.AttributeTypes(ctx), dataMapValue)

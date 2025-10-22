@@ -134,8 +134,10 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var speed basetypes.StringValue
 		var stormControl = types.ObjectNull(StormControlValue{}.AttributeTypes(ctx))
 		var stpEdge basetypes.BoolValue
+		var stpDisable basetypes.BoolValue
 		var stpNoRootPort basetypes.BoolValue
 		var stpP2p basetypes.BoolValue
+		var stpRequired basetypes.BoolValue
 		var uiEvpntopoId basetypes.StringValue
 		var useVstp basetypes.BoolValue
 		var voipNetwork basetypes.StringValue
@@ -245,11 +247,17 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.StpEdge != nil {
 			stpEdge = types.BoolValue(*d.StpEdge)
 		}
+		if d.StpDisable != nil {
+			stpDisable = types.BoolValue(*d.StpDisable)
+		}
 		if d.StpNoRootPort != nil {
 			stpNoRootPort = types.BoolValue(*d.StpNoRootPort)
 		}
 		if d.StpP2p != nil {
 			stpP2p = types.BoolValue(*d.StpP2p)
+		}
+		if d.StpRequired != nil {
+			stpRequired = types.BoolValue(*d.StpRequired)
 		}
 		if d.UiEvpntopoId != nil {
 			uiEvpntopoId = types.StringValue(d.UiEvpntopoId.String())
@@ -297,8 +305,10 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"speed":                                           speed,
 			"storm_control":                                   stormControl,
 			"stp_edge":                                        stpEdge,
+			"stp_disable":                                     stpDisable,
 			"stp_no_root_port":                                stpNoRootPort,
 			"stp_p2p":                                         stpP2p,
+			"stp_required":                                    stpRequired,
 			"ui_evpntopo_id":                                  uiEvpntopoId,
 			"use_vstp":                                        useVstp,
 			"voip_network":                                    voipNetwork,

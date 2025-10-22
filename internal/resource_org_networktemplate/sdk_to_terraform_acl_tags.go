@@ -48,7 +48,7 @@ func aclTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 	for k, d := range m {
 		var etherTypes = types.ListNull(types.StringType)
 		var gbpTag basetypes.Int64Value
-		var macs = mistutils.ListOfStringSdkToTerraformEmpty()
+		var macs = types.ListNull(types.StringType)
 		var network basetypes.StringValue
 		var portUsage basetypes.StringValue
 		var radiusGroup basetypes.StringValue

@@ -12,17 +12,26 @@ import (
 )
 
 func simpleAlertArpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SimpleAlertArpFailure) basetypes.ObjectValue {
-	var clientCount basetypes.Int64Value
-	var duration basetypes.Int64Value
-	var incidentCount basetypes.Int64Value
+	if d == nil {
+		return types.ObjectNull(ArpFailureValue{}.AttributeTypes(ctx))
+	}
 
-	if d != nil && d.ClientCount != nil {
+	// If all fields are nil, return null object
+	if d.ClientCount == nil && d.Duration == nil && d.IncidentCount == nil {
+		return types.ObjectNull(ArpFailureValue{}.AttributeTypes(ctx))
+	}
+
+	var clientCount = types.Int64Null()
+	var duration = types.Int64Null()
+	var incidentCount = types.Int64Null()
+
+	if d.ClientCount != nil {
 		clientCount = types.Int64Value(int64(*d.ClientCount))
 	}
-	if d != nil && d.Duration != nil {
+	if d.Duration != nil {
 		duration = types.Int64Value(int64(*d.Duration))
 	}
-	if d != nil && d.IncidentCount != nil {
+	if d.IncidentCount != nil {
 		incidentCount = types.Int64Value(int64(*d.IncidentCount))
 	}
 
@@ -37,17 +46,26 @@ func simpleAlertArpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	return data
 }
 func simpleAlertDnsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SimpleAlertDnsFailure) basetypes.ObjectValue {
-	var clientCount basetypes.Int64Value
-	var duration basetypes.Int64Value
-	var incidentCount basetypes.Int64Value
+	if d == nil {
+		return types.ObjectNull(DnsFailureValue{}.AttributeTypes(ctx))
+	}
 
-	if d != nil && d.ClientCount != nil {
+	// If all fields are nil, return null object
+	if d.ClientCount == nil && d.Duration == nil && d.IncidentCount == nil {
+		return types.ObjectNull(DnsFailureValue{}.AttributeTypes(ctx))
+	}
+
+	var clientCount = types.Int64Null()
+	var duration = types.Int64Null()
+	var incidentCount = types.Int64Null()
+
+	if d.ClientCount != nil {
 		clientCount = types.Int64Value(int64(*d.ClientCount))
 	}
-	if d != nil && d.Duration != nil {
+	if d.Duration != nil {
 		duration = types.Int64Value(int64(*d.Duration))
 	}
-	if d != nil && d.IncidentCount != nil {
+	if d.IncidentCount != nil {
 		incidentCount = types.Int64Value(int64(*d.IncidentCount))
 	}
 
@@ -62,18 +80,26 @@ func simpleAlertDnsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	return data
 }
 func simpleAlertDhcpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SimpleAlertDhcpFailure) basetypes.ObjectValue {
+	if d == nil {
+		return types.ObjectNull(DhcpFailureValue{}.AttributeTypes(ctx))
+	}
 
-	var clientCount basetypes.Int64Value
-	var duration basetypes.Int64Value
-	var incidentCount basetypes.Int64Value
+	// If all fields are nil, return null object
+	if d.ClientCount == nil && d.Duration == nil && d.IncidentCount == nil {
+		return types.ObjectNull(DhcpFailureValue{}.AttributeTypes(ctx))
+	}
 
-	if d != nil && d.ClientCount != nil {
+	var clientCount = types.Int64Null()
+	var duration = types.Int64Null()
+	var incidentCount = types.Int64Null()
+
+	if d.ClientCount != nil {
 		clientCount = types.Int64Value(int64(*d.ClientCount))
 	}
-	if d != nil && d.Duration != nil {
+	if d.Duration != nil {
 		duration = types.Int64Value(int64(*d.Duration))
 	}
-	if d != nil && d.IncidentCount != nil {
+	if d.IncidentCount != nil {
 		incidentCount = types.Int64Value(int64(*d.IncidentCount))
 	}
 

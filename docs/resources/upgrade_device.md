@@ -71,7 +71,7 @@ resource "mist_upgrade_device" "switch_upgrade" {
 Read-Only:
 
 - `progress` (Number)
-- `status` (String) enum: `inprogress`, `failed`, `upgraded`
+- `status` (String) enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`
 - `status_id` (Number)
 - `timestamp` (Number) Epoch (seconds)
 - `will_retry` (Boolean)
