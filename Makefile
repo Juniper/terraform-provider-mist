@@ -6,6 +6,7 @@ VERSION=0.4.0
 OS_ARCH=darwin_arm64
 GOBIN ?= $(if $(shell go env GOBIN),$(shell go env GOBIN),$(shell go env GOPATH)/bin)
 GOLANGCI_LINT_VER=v2.5.0
+TESTDIRS += $(sort $(shell go list ./... | grep -Ev '(cmd|test|mock|fake|tools)'))
 
 default: install
 
@@ -75,12 +76,11 @@ lint:
 	@test -s $(GOBIN)/golangci-lint || { echo "golangci-lint does not exist! Ensure you run 'make tools' first!"; exit 1; }
 	@rm -fr vendor
 	golangci-lint run --timeout 5m --show-stats --no-config ./...
-	govulncheck -show verbose ./...
+	govulncheck --show verbose ./...
 
 test: fmt
 	go vet ./...
-	go test -i $(TEST) || exit 1
-	echo $(TEST) | xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4   
+	go test -count 1 -timeout 5m -v -race -cover $(TESTDIRS)
 
 fmt-check:
 	@sh -c "$(CURDIR)/scripts/gofmtcheck.sh"
