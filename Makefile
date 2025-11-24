@@ -4,6 +4,8 @@ NAME=mist
 BINARY=terraform-provider-${NAME}
 VERSION=0.4.0
 OS_ARCH=darwin_arm64
+GOBIN ?= $(if $(shell go env GOBIN),$(shell go env GOBIN),$(shell go env GOPATH)/bin)
+GOLANGCI_LINT_VER=v2.5.0
 
 default: install
 
@@ -50,7 +52,7 @@ compliance:
 	go get github.com/chrismarget-j/go-licenses || exit 1 ;\
 	go run github.com/chrismarget-j/go-licenses save   --ignore github.com/Juniper --ignore golang.org/x/sys --save_path Third_Party_Code --force ./... || exit 1 ;\
 	go run github.com/chrismarget-j/go-licenses report --ignore github.com/Juniper --ignore golang.org/x/sys --template .notices.tpl ./... > Third_Party_Code/NOTICES.md || exit 1 ;\
-    go mod tidy ;\
+	go mod tidy ;
 
 doc:
 	tfplugindocs generate
@@ -58,15 +60,26 @@ doc:
 docs-check:
 	@sh -c "$(CURDIR)/scripts/tfplugindocs.sh"
 
+tools:
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/$(GOLANGCI_LINT_VER)/install.sh | sh -s -- -b $(GOBIN) $(GOLANGCI_LINT_VER)
+	go install golang.org/x/vuln/cmd/govulncheck@latest
+
 build:
 	GPG_FINGERPRINT=82AD65745D9BAFF7 goreleaser release --clean 
 
 install: build
-		mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
-		mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
+	mkdir -p ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
+	mv ${BINARY} ~/.terraform.d/plugins/${HOSTNAME}/${NAMESPACE}/${NAME}/${VERSION}/${OS_ARCH}
+
+lint:
+	@test -s $(GOBIN)/golangci-lint || { echo "golangci-lint does not exist! Ensure you run 'make tools' first!"; exit 1; }
+	@rm -fr vendor
+	golangci-lint run --timeout 5m --show-stats --no-config ./...
+	govulncheck -show verbose ./...
 
 test: fmt
-	go test -i $(TEST) || exit 1                                                   
+	go vet ./...
+	go test -i $(TEST) || exit 1
 	echo $(TEST) | xargs -t -n4 go test $(TESTARGS) -timeout=30s -parallel=4   
 
 fmt-check:
