@@ -176,15 +176,15 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			"allow_ipv6_ndp": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through",
-				MarkdownDescription: "Only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through",
+				Description:         "Only applicable when `limit_bcast`==`true`, which allows or disallows ipv6 Neighbor Discovery packets to go through",
+				MarkdownDescription: "Only applicable when `limit_bcast`==`true`, which allows or disallows ipv6 Neighbor Discovery packets to go through",
 				Default:             booldefault.StaticBool(true),
 			},
 			"allow_mdns": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through",
-				MarkdownDescription: "Only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through",
+				Description:         "Only applicable when `limit_bcast`==`true`, which allows mDNS / Bonjour packets to go through",
+				MarkdownDescription: "Only applicable when `limit_bcast`==`true`, which allows mDNS / Bonjour packets to go through",
 				Default:             booldefault.StaticBool(false),
 			},
 			"allow_ssdp": schema.BoolAttribute{

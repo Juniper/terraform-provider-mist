@@ -58,8 +58,8 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "For SRX Only",
-				MarkdownDescription: "For SRX Only",
+				Description:         "SRX only",
+				MarkdownDescription: "SRX only",
 			},
 			"action": schema.StringAttribute{
 				Optional:            true,
@@ -115,8 +115,8 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "For SRX Only",
-				MarkdownDescription: "For SRX Only",
+				Description:         "SRX only",
+				MarkdownDescription: "SRX only",
 			},
 			"ewf": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
