@@ -125,7 +125,7 @@ func TestOrgSsoRole(t *testing.T) {
 			})
 		})
 	}
-	FieldCoverageReport(t, &checks, "after_test_run")
+	FieldCoverageReport(t, &checks)
 }
 
 func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, rName string) testChecks {
