@@ -1,14 +1,17 @@
 package provider
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"os"
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/tools/validators"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/stretchr/testify/require"
 	"gotest.tools/assert"
@@ -40,10 +43,21 @@ type testChecks struct {
 	path     string
 	logLines lineNumberer
 	checks   []resource.TestCheckFunc
+	tracker  *validators.FieldCoverageTracker // Optional field coverage tracker
+}
+
+// SetTracker enables field coverage tracking for this test check
+func (o *testChecks) SetTracker(tracker *validators.FieldCoverageTracker) {
+	o.tracker = tracker
 }
 
 func (o *testChecks) append(t testing.TB, testCheckFuncName string, testCheckFuncArgs ...string) {
 	t.Helper()
+
+	// Track field coverage if enabled via environment variable and tracker is set
+	if os.Getenv("MIST_TRACK_FIELD_COVERAGE") != "" && o.tracker != nil && len(testCheckFuncArgs) > 0 {
+		o.tracker.MarkFieldAsTested(testCheckFuncArgs[0])
+	}
 
 	switch testCheckFuncName {
 	case "TestCheckResourceAttrSet":
@@ -321,4 +335,82 @@ func GetSitegroupBaseConfig(org_ID string) (config string, sitegroupRef string) 
 // Helper function for creating string pointers
 func stringPtr(s string) *string {
 	return &s
+}
+
+// TrackFieldCoverage enables field coverage tracking for test checks
+// when the MIST_TRACK_FIELD_COVERAGE environment variable is set.
+// It extracts schema fields and prints tracker state before and after test execution.
+func TrackFieldCoverage(t testing.TB, checks *testChecks, resourceName string, schemaFunc func(context.Context) schema.Schema) {
+	if os.Getenv("MIST_TRACK_FIELD_COVERAGE") == "" {
+		return
+	}
+
+	ctx := context.Background()
+	schemaObj := schemaFunc(ctx)
+	tracker := validators.ExtractAllSchemaFields(resourceName, schemaObj.Attributes)
+	checks.SetTracker(tracker)
+}
+
+// FieldCoverageReport writes the current state of the FieldCoverageTracker to a text file.
+// Example: FieldCoverageReport(t, &checks, "after_privileges")
+func FieldCoverageReport(t testing.TB, checks *testChecks, suffix string) {
+	t.Helper()
+
+	if checks.tracker == nil {
+		return
+	}
+
+	filename := fmt.Sprintf("%s_report_%s.txt", checks.tracker.ResourceName, suffix)
+	file, err := os.Create(filename)
+	if err != nil {
+		t.Fatalf("Failed to create field coverage report file %s: %v", filename, err)
+	}
+	defer file.Close()
+
+	fmt.Fprintf(file, "%s - %s\n\n", checks.tracker.ResourceName, suffix)
+
+	// Write table header
+	fmt.Fprintf(file, "%-8s %-60s %-30s %-8s %-8s %-8s %-15s\n",
+		"Tested", "Path", "Parent", "Required", "Optional", "Computed", "Type")
+	fmt.Fprintf(file, "%s\n", strings.Repeat("-", 145))
+
+	// Count and write table rows
+	testedCount := 0
+	totalCount := 0
+
+	for path, field := range checks.tracker.SchemaFields {
+		totalCount++
+		if field.IsTested {
+			testedCount++
+		}
+
+		tested := " "
+		if field.IsTested {
+			tested = "✓"
+		}
+
+		required := " "
+		if field.Required {
+			required = "✓"
+		}
+
+		optional := " "
+		if field.Optional {
+			optional = "✓"
+		}
+
+		computed := " "
+		if field.Computed {
+			computed = "✓"
+		}
+
+		fmt.Fprintf(file, "%-8s %-60s %-30s %-8s %-8s %-8s %-15s\n",
+			tested, path, field.Parent, required, optional, computed, field.AttrType)
+	}
+
+	// Write tally
+	fmt.Fprintf(file, "\n%s\n", strings.Repeat("-", 145))
+	fmt.Fprintf(file, "Total Fields: %d | Tested: %d | Untested: %d\n", totalCount, testedCount, totalCount-testedCount)
+
+	t.Logf("Field coverage report: %s", filename)
 }
