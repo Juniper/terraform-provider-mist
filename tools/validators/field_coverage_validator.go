@@ -1,6 +1,8 @@
 package validators
 
 import (
+	"fmt"
+	"os"
 	"reflect"
 	"strings"
 	"unicode"
@@ -44,32 +46,63 @@ func ExtractAllSchemaFields(resourceName string, schemaAttrs map[string]schema.A
 
 // MarkFieldAsTested marks a field as tested, normalizing the field path to remove array indices
 func (t *FieldCoverageTracker) MarkFieldAsTested(fieldPath string) {
-	normalized := normalizeFieldPath(fieldPath)
+	normalized := t.normalizeFieldPath(fieldPath)
 	if field, exists := t.SchemaFields[normalized]; exists {
 		field.IsTested = true
 	}
+
+	// Write normalized field to debug file
+	filename := fmt.Sprintf("%s_normalized_fields.txt", t.ResourceName)
+	f, _ := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if f != nil {
+		fmt.Fprintf(f, "%s\n", normalized)
+		f.Close()
+	}
 }
 
-// normalizeFieldPath removes array indices from field paths while preserving nested paths
+// normalizeFieldPath removes array indices and replaces dynamic map keys with {key}
 // Examples:
-//   - "ldap_server_hosts.0" -> "ldap_server_hosts"
-//   - "ldap_server_hosts.#" -> "ldap_server_hosts"
 //   - "privileges.0.role" -> "privileges.role"
-//   - "privileges.2.site_id" -> "privileges.site_id"
-//   - "auth.ldap.bind_dn" -> "auth.ldap.bind_dn" (unchanged)
-func normalizeFieldPath(fieldPath string) string {
+//   - "extra_routes.0/8.via" -> "extra_routes.{key}.via"
+//   - "networks.guest.vlan_id" -> "networks.{key}.vlan_id"
+//   - "acl_tags.tag1.type" -> "acl_tags.{key}.type"
+func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
 	parts := strings.Split(fieldPath, ".")
 	normalized := make([]string, 0, len(parts))
 
 	for _, part := range parts {
-		// Skip parts that are "#" or all digits
+		// Skip array indices
 		if part == "#" || isAllDigits(part) {
 			continue
 		}
+
+		// First append the current part
 		normalized = append(normalized, part)
+
+		// Check if replacing this part with {key} yields a valid schema path
+		testNormalized := make([]string, len(normalized))
+		copy(testNormalized, normalized)
+		testNormalized[len(testNormalized)-1] = "{key}"
+		testPath := strings.Join(testNormalized, ".")
+
+		if t.hasChildrenWithKeyPattern(testPath) {
+			// Replace the part we just added with {key}
+			normalized[len(normalized)-1] = "{key}"
+		}
 	}
 
 	return strings.Join(normalized, ".")
+}
+
+// hasChildrenWithKeyPattern checks if there are any fields in the schema that start with the given path
+func (t *FieldCoverageTracker) hasChildrenWithKeyPattern(pathWithKey string) bool {
+	prefix := pathWithKey + "."
+	for fieldPath := range t.SchemaFields {
+		if strings.HasPrefix(fieldPath, prefix) {
+			return true
+		}
+	}
+	return false
 }
 
 // isAllDigits checks if a string contains only numeric digits

@@ -67,8 +67,8 @@ func TestOrgSsoRole(t *testing.T) {
 		}
 	}
 
-	var checks testChecks
 	resourceType := "org_sso_role"
+	var checks testChecks
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 			steps := make([]resource.TestStep, len(tCase.steps))

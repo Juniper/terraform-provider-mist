@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math"
 	"os"
@@ -91,11 +92,6 @@ func (o *testChecks) append(t testing.TB, testCheckFuncName string, testCheckFun
 	default:
 		t.Fatalf("unknown test check function: %s", testCheckFuncName)
 	}
-}
-
-func (o *testChecks) appendSetNestedCheck(_ testing.TB, attrName string, m map[string]string) {
-	o.checks = append(o.checks, resource.TestCheckTypeSetElemNestedAttrs(o.path, attrName, m))
-	o.logLines.appendf("TestCheckTypeSetElemNestedAttrs(%s, %s, %s)", o.path, attrName, m)
 }
 
 func (o *testChecks) string() string {
@@ -351,8 +347,7 @@ func TrackFieldCoverage(t testing.TB, checks *testChecks, resourceName string, s
 	checks.SetTracker(tracker)
 }
 
-// FieldCoverageReport writes the current state of the FieldCoverageTracker to a text file.
-// Example: FieldCoverageReport(t, &checks, "after_privileges")
+// FieldCoverageReport writes the current state of the FieldCoverageTracker to a JSON file.
 func FieldCoverageReport(t testing.TB, checks *testChecks) {
 	t.Helper()
 
@@ -360,57 +355,69 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 		return
 	}
 
-	filename := fmt.Sprintf("%s_report.txt", checks.tracker.ResourceName)
-	file, err := os.Create(filename)
-	if err != nil {
-		t.Fatalf("Failed to create field coverage report file %s: %v", filename, err)
+	type FieldReport struct {
+		Path     string `json:"path"`
+		Parent   string `json:"parent"`
+		Required bool   `json:"required"`
+		Optional bool   `json:"optional"`
+		Computed bool   `json:"computed"`
+		Type     string `json:"type"`
+		Tested   bool   `json:"tested"`
 	}
-	defer file.Close()
 
-	fmt.Fprintf(file, "%s\n\n", checks.tracker.ResourceName)
+	type CoverageReport struct {
+		ResourceName       string        `json:"resource_name"`
+		TotalFields        int           `json:"total_fields"`
+		TestedFields       int           `json:"tested_fields"`
+		UntestedFields     int           `json:"untested_fields"`
+		Fields             []FieldReport `json:"fields"`
+		UntestedFieldsList []string      `json:"untested_fields_list"`
+	}
 
-	// Write table header
-	fmt.Fprintf(file, "%-8s %-60s %-30s %-8s %-8s %-8s %-15s\n",
-		"Tested", "Path", "Parent", "Required", "Optional", "Computed", "Type")
-	fmt.Fprintf(file, "%s\n", strings.Repeat("-", 145))
-
-	// Count and write table rows
+	// Build report
+	fields := make([]FieldReport, 0, len(checks.tracker.SchemaFields))
+	untestedFieldsList := make([]string, 0)
 	testedCount := 0
-	totalCount := 0
 
 	for path, field := range checks.tracker.SchemaFields {
-		totalCount++
 		if field.IsTested {
 			testedCount++
 		}
 
-		tested := " "
-		if field.IsTested {
-			tested = "✓"
+		if !field.IsTested {
+			untestedFieldsList = append(untestedFieldsList, path)
 		}
 
-		required := " "
-		if field.Required {
-			required = "✓"
-		}
-
-		optional := " "
-		if field.Optional {
-			optional = "✓"
-		}
-
-		computed := " "
-		if field.Computed {
-			computed = "✓"
-		}
-
-		fmt.Fprintf(file, "%-8s %-60s %-30s %-8s %-8s %-8s %-15s\n",
-			tested, path, field.Parent, required, optional, computed, field.AttrType)
+		fields = append(fields, FieldReport{
+			Path:     path,
+			Parent:   field.Parent,
+			Required: field.Required,
+			Optional: field.Optional,
+			Computed: field.Computed,
+			Type:     field.AttrType,
+			Tested:   field.IsTested,
+		})
 	}
 
-	// Write tally
-	fmt.Fprintf(file, "\n%s\n", strings.Repeat("-", 145))
-	fmt.Fprintf(file, "Total Fields: %d | Tested: %d | Untested: %d\n", totalCount, testedCount, totalCount-testedCount)
+	report := CoverageReport{
+		ResourceName:       checks.tracker.ResourceName,
+		TotalFields:        len(checks.tracker.SchemaFields),
+		TestedFields:       testedCount,
+		UntestedFields:     len(checks.tracker.SchemaFields) - testedCount,
+		Fields:             fields,
+		UntestedFieldsList: untestedFieldsList,
+	}
+
+	// Write JSON file
+	filename := fmt.Sprintf("%s_report.json", checks.tracker.ResourceName)
+	data, err := json.MarshalIndent(report, "", "  ")
+	if err != nil {
+		t.Fatalf("Failed to marshal coverage report: %v", err)
+	}
+
+	if err := os.WriteFile(filename, data, 0644); err != nil {
+		t.Fatalf("Failed to write coverage report %s: %v", filename, err)
+	}
 
 	t.Logf("Field coverage report: %s", filename)
 }
