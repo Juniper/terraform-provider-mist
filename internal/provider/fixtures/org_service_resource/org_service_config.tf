@@ -1,7 +1,7 @@
 name        = "test-service-custom"
 description = "Test custom service"
 type        = "custom"
-traffic_type                     = "data"
+traffic_type                     = "custom"
 traffic_class                    = "best_effort"
 dscp                             = "21"
 failover_policy                  = "revertible"
