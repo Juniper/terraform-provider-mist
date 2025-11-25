@@ -68,7 +68,7 @@ func (p *mistProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp 
 			"The provider supports two authentication methods:\n" +
 			"* **API Token** (recommended): Use a Mist API token for authentication\n" +
 			"* **Username/Password**: Use Mist account credentials (2FA must be disabled)\n\n" +
-			"**Note:** Only one authentication method should be configured at a time.\n\n" +			
+			"**Note:** Only one authentication method should be configured at a time.\n\n" +
 			"## Supported Mist Clouds\n\n" +
 			"This provider supports the following Mist Clouds:\n\n" +
 			"**Global Clouds:**\n" +
@@ -119,9 +119,9 @@ func (p *mistProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp 
 				Optional: true,
 			},
 			"api_timeout": schema.Float64Attribute{
-				MarkdownDescription: fmt.Sprintf("Timeout in seconds for API requests. " +
-					"Set to 0 for infinite timeout. " +
-					"Can also be set via the `MIST_API_TIMEOUT` environment variable. " +
+				MarkdownDescription: fmt.Sprintf("Timeout in seconds for API requests. "+
+					"Set to 0 for infinite timeout. "+
+					"Can also be set via the `MIST_API_TIMEOUT` environment variable. "+
 					"Default: `%d` seconds.", defaultApiTimeout),
 				Optional:   true,
 				Validators: []validator.Float64{float64validator.AtLeast(0)},
