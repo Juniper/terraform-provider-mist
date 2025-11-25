@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_sso_role"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -66,6 +67,7 @@ func TestOrgSsoRole(t *testing.T) {
 		}
 	}
 
+	var checks testChecks
 	resourceType := "org_sso_role"
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
@@ -104,7 +106,7 @@ func TestOrgSsoRole(t *testing.T) {
 
 				combinedConfig = configStr + combinedConfig
 
-				checks := config.testChecks(t, PrefixProviderName(resourceType), tName)
+				checks = config.testChecks(t, PrefixProviderName(resourceType), tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -123,10 +125,14 @@ func TestOrgSsoRole(t *testing.T) {
 			})
 		})
 	}
+	FieldCoverageReport(t, &checks, "after_test_run")
 }
 
 func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(rType + "." + rName)
+
+	// Track field coverage
+	TrackFieldCoverage(t, &checks, "org_sso_role", resource_org_sso_role.OrgSsoRoleResourceSchema)
 
 	// Check required fields
 	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
