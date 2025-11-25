@@ -360,14 +360,14 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 		return
 	}
 
-	filename := fmt.Sprintf("%s_report_%s.txt", checks.tracker.ResourceName)
+	filename := fmt.Sprintf("%s_report.txt", checks.tracker.ResourceName)
 	file, err := os.Create(filename)
 	if err != nil {
 		t.Fatalf("Failed to create field coverage report file %s: %v", filename, err)
 	}
 	defer file.Close()
 
-	fmt.Fprintf(file, "%s - %s\n\n", checks.tracker.ResourceName)
+	fmt.Fprintf(file, "%s\n\n", checks.tracker.ResourceName)
 
 	// Write table header
 	fmt.Fprintf(file, "%-8s %-60s %-30s %-8s %-8s %-8s %-15s\n",
