@@ -12,14 +12,17 @@ import (
 
 // FieldCoverageTracker tracks schema fields and their test coverage
 type FieldCoverageTracker struct {
-	ResourceName string
-	SchemaFields map[string]*FieldInfo
+	ResourceName      string
+	SchemaFields      map[string]*FieldInfo
+	MapAttributePaths map[string]bool
 }
 
 // FieldInfo contains metadata about a schema field
 type FieldInfo struct {
 	Path       string           // Field path in dot notation (e.g., "ldap_server_hosts", "auth.ldap.bind_dn")
+	Field      string           // Field name only (e.g., "bind_dn")
 	Parent     string           // Full parent path ("" for root, "auth.ldap" for nested)
+	HasKey     bool             // Indicates if field has a {key}.
 	Required   bool             // Field is required
 	Optional   bool             // Field is optional
 	Computed   bool             // Field is computed
@@ -31,8 +34,9 @@ type FieldInfo struct {
 // NewFieldCoverageTracker creates a new tracker for the given resource
 func NewFieldCoverageTracker(resourceName string) *FieldCoverageTracker {
 	return &FieldCoverageTracker{
-		ResourceName: resourceName,
-		SchemaFields: make(map[string]*FieldInfo),
+		ResourceName:      resourceName,
+		SchemaFields:      make(map[string]*FieldInfo),
+		MapAttributePaths: make(map[string]bool),
 	}
 }
 
@@ -40,7 +44,7 @@ func NewFieldCoverageTracker(resourceName string) *FieldCoverageTracker {
 // and returns a populated FieldCoverageTracker
 func ExtractAllSchemaFields(resourceName string, schemaAttrs map[string]schema.Attribute) *FieldCoverageTracker {
 	tracker := NewFieldCoverageTracker(resourceName)
-	tracker.extractFields("", "", schemaAttrs)
+	tracker.extractFields("", false, schemaAttrs)
 	return tracker
 }
 
@@ -60,49 +64,49 @@ func (t *FieldCoverageTracker) MarkFieldAsTested(fieldPath string) {
 	}
 }
 
-// normalizeFieldPath removes array indices and replaces dynamic map keys with {key}
+// normalizeFieldPath removes array indices and uses schema knowledge to replace map keys with {key}
 // Examples:
 //   - "privileges.0.role" -> "privileges.role"
-//   - "extra_routes.0/8.via" -> "extra_routes.{key}.via"
+//   - "switch_mgmt.local_accounts.readonly.password" -> "switch_mgmt.local_accounts.{key}.password"
+//   - "extra_routes.10.0.0.0/8.via" -> "extra_routes.{key}.via"
 //   - "networks.guest.vlan_id" -> "networks.{key}.vlan_id"
-//   - "acl_tags.tag1.type" -> "acl_tags.{key}.type"
 func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
+	fmt.Println("Starting normilisation process for field path:", fieldPath)
+
 	parts := strings.Split(fieldPath, ".")
 	normalized := make([]string, 0, len(parts))
 
-	for _, part := range parts {
-		// Skip array indices
-		if part == "#" || isAllDigits(part) {
+	for i, part := range parts {
+		fmt.Printf("Part %d: %s\n", i, part)
+
+		// Build the parent path to check context
+		path := strings.Join(normalized, ".")
+		if part == "#" || isAllDigits(part) && !t.MapAttributePaths[path] { // Skip array indices (pure numbers or #), but NOT if we're in a map context
+			fmt.Printf("Part is an array index, skipping: %s\n", part)
 			continue
 		}
 
-		// First append the current part
-		normalized = append(normalized, part)
-
-		// Check if replacing this part with {key} yields a valid schema path
-		testNormalized := make([]string, len(normalized))
-		copy(testNormalized, normalized)
-		testNormalized[len(testNormalized)-1] = "{key}"
-		testPath := strings.Join(testNormalized, ".")
-
-		if t.hasChildrenWithKeyPattern(testPath) {
-			// Replace the part we just added with {key}
-			normalized[len(normalized)-1] = "{key}"
+		// Check if full path exists in schema
+		pathCheck := strings.Join(append(normalized, part), ".")
+		fmt.Printf("Path check: %s\n", pathCheck)
+		if _, exists := t.SchemaFields[pathCheck]; exists {
+			normalized = append(normalized, part)
+			continue
 		}
+
+		// Check if path with {key} exists in schema (for map attributes)
+		fmt.Printf("Key path check: %s\n", path)
+		if t.MapAttributePaths[path] {
+			normalized = append(normalized, "{key}")
+			continue
+		}
+
+		// Default: keep the part as is (could be a new field not in schema)
+		normalized = append(normalized, part)
+		fmt.Printf("ERROR: %s\n", part)
 	}
 
 	return strings.Join(normalized, ".")
-}
-
-// hasChildrenWithKeyPattern checks if there are any fields in the schema that start with the given path
-func (t *FieldCoverageTracker) hasChildrenWithKeyPattern(pathWithKey string) bool {
-	prefix := pathWithKey + "."
-	for fieldPath := range t.SchemaFields {
-		if strings.HasPrefix(fieldPath, prefix) {
-			return true
-		}
-	}
-	return false
 }
 
 // isAllDigits checks if a string contains only numeric digits
@@ -119,19 +123,20 @@ func isAllDigits(s string) bool {
 }
 
 // extractFields recursively extracts all fields from schema attributes with metadata
-func (t *FieldCoverageTracker) extractFields(prefix string, parent string, attributes map[string]schema.Attribute) {
+func (t *FieldCoverageTracker) extractFields(path string, hasKey bool, attributes map[string]schema.Attribute) {
 	for name, attr := range attributes {
 		currentPath := name
-		if prefix != "" {
-			currentPath = prefix + "." + name
+		if path != "" {
+			currentPath = path + "." + name
 		}
 
 		// Create FieldInfo with metadata
 		fieldInfo := &FieldInfo{
 			Path:       currentPath,
-			Parent:     parent,
+			Field:      name,
+			Parent:     path,
+			HasKey:     hasKey,
 			SchemaAttr: attr,
-			IsTested:   false,
 		}
 
 		// Extract metadata using reflection
@@ -144,17 +149,18 @@ func (t *FieldCoverageTracker) extractFields(prefix string, parent string, attri
 		switch v := attr.(type) {
 		case schema.SingleNestedAttribute:
 			if nestedAttrs := getNestedAttributes(v); nestedAttrs != nil {
-				t.extractFields(currentPath, currentPath, nestedAttrs)
+				t.extractFields(currentPath, false, nestedAttrs)
 			}
 		case schema.ListNestedAttribute:
 			if nestedAttrs := getListNestedAttributes(v); nestedAttrs != nil {
-				t.extractFields(currentPath, currentPath, nestedAttrs)
+				t.extractFields(currentPath, false, nestedAttrs)
 			}
 		case schema.MapNestedAttribute:
 			if nestedAttrs := getMapNestedAttributes(v); nestedAttrs != nil {
 				// Map uses {key} notation in path
-				mapPath := currentPath + ".{key}"
-				t.extractFields(mapPath, currentPath, nestedAttrs)
+				t.MapAttributePaths[currentPath] = true
+				keyPath := currentPath + ".{key}"
+				t.extractFields(keyPath, true, nestedAttrs)
 			}
 		}
 	}
