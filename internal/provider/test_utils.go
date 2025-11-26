@@ -357,7 +357,9 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 
 	type FieldReport struct {
 		Path     string `json:"path"`
+		Field    string `json:"field"`
 		Parent   string `json:"parent"`
+		HasKey   bool   `json:"has_key"`
 		Required bool   `json:"required"`
 		Optional bool   `json:"optional"`
 		Computed bool   `json:"computed"`
@@ -366,17 +368,20 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 	}
 
 	type CoverageReport struct {
-		ResourceName       string        `json:"resource_name"`
-		TotalFields        int           `json:"total_fields"`
-		TestedFields       int           `json:"tested_fields"`
-		UntestedFields     int           `json:"untested_fields"`
-		Fields             []FieldReport `json:"fields"`
-		UntestedFieldsList []string      `json:"untested_fields_list"`
+		ResourceName                  string          `json:"resource_name"`
+		TotalFields                   int             `json:"total_fields"`
+		TestedFields                  int             `json:"tested_fields"`
+		UntestedFields                int             `json:"untested_fields"`
+		Fields                        []FieldReport   `json:"fields"`
+		UntestedFieldsList            []string        `json:"untested_fields_list"`
+		UntestedNonOptionalFieldsList []string        `json:"untested_non_optional_fields_list"`
+		ParentPathKeyMap              map[string]bool `json:"parent_path_key_map"`
 	}
 
 	// Build report
 	fields := make([]FieldReport, 0, len(checks.tracker.SchemaFields))
 	untestedFieldsList := make([]string, 0)
+	untestedNonOptionalFieldsList := make([]string, 0)
 	testedCount := 0
 
 	for path, field := range checks.tracker.SchemaFields {
@@ -388,9 +393,15 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 			untestedFieldsList = append(untestedFieldsList, path)
 		}
 
+		if !field.IsTested && !field.Optional {
+			untestedNonOptionalFieldsList = append(untestedFieldsList, path)
+		}
+
 		fields = append(fields, FieldReport{
 			Path:     path,
+			Field:    field.Field,
 			Parent:   field.Parent,
+			HasKey:   field.HasKey,
 			Required: field.Required,
 			Optional: field.Optional,
 			Computed: field.Computed,
@@ -400,12 +411,14 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 	}
 
 	report := CoverageReport{
-		ResourceName:       checks.tracker.ResourceName,
-		TotalFields:        len(checks.tracker.SchemaFields),
-		TestedFields:       testedCount,
-		UntestedFields:     len(checks.tracker.SchemaFields) - testedCount,
-		Fields:             fields,
-		UntestedFieldsList: untestedFieldsList,
+		ResourceName:                  checks.tracker.ResourceName,
+		TotalFields:                   len(checks.tracker.SchemaFields),
+		TestedFields:                  testedCount,
+		UntestedFields:                len(checks.tracker.SchemaFields) - testedCount,
+		Fields:                        fields,
+		UntestedFieldsList:            untestedFieldsList,
+		UntestedNonOptionalFieldsList: untestedNonOptionalFieldsList,
+		ParentPathKeyMap:              checks.tracker.MapAttributePaths,
 	}
 
 	// Write JSON file
