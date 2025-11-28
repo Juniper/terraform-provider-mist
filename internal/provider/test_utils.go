@@ -368,20 +368,18 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 	}
 
 	type CoverageReport struct {
-		ResourceName                  string          `json:"resource_name"`
-		TotalFields                   int             `json:"total_fields"`
-		TestedFields                  int             `json:"tested_fields"`
-		UntestedFields                int             `json:"untested_fields"`
-		Fields                        []FieldReport   `json:"fields"`
-		UntestedFieldsList            []string        `json:"untested_fields_list"`
-		UntestedNonOptionalFieldsList []string        `json:"untested_non_optional_fields_list"`
-		ParentPathKeyMap              map[string]bool `json:"parent_path_key_map"`
+		ResourceName       string          `json:"resource_name"`
+		TotalFields        int             `json:"total_fields"`
+		TestedFields       int             `json:"tested_fields"`
+		UntestedFields     int             `json:"untested_fields"`
+		Fields             []FieldReport   `json:"fields"`
+		UntestedFieldsList []string        `json:"untested_fields_list"`
+		MapAttributePaths  map[string]bool `json:"map_attribute_paths"`
 	}
 
 	// Build report
 	fields := make([]FieldReport, 0, len(checks.tracker.SchemaFields))
 	untestedFieldsList := make([]string, 0)
-	untestedNonOptionalFieldsList := make([]string, 0)
 	testedCount := 0
 
 	for path, field := range checks.tracker.SchemaFields {
@@ -389,12 +387,8 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 			testedCount++
 		}
 
-		if !field.IsTested {
+		if !field.IsTested && !checks.tracker.MapAttributePaths[path] {
 			untestedFieldsList = append(untestedFieldsList, path)
-		}
-
-		if !field.IsTested && !field.Optional {
-			untestedNonOptionalFieldsList = append(untestedFieldsList, path)
 		}
 
 		fields = append(fields, FieldReport{
@@ -411,14 +405,13 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 	}
 
 	report := CoverageReport{
-		ResourceName:                  checks.tracker.ResourceName,
-		TotalFields:                   len(checks.tracker.SchemaFields),
-		TestedFields:                  testedCount,
-		UntestedFields:                len(checks.tracker.SchemaFields) - testedCount,
-		Fields:                        fields,
-		UntestedFieldsList:            untestedFieldsList,
-		UntestedNonOptionalFieldsList: untestedNonOptionalFieldsList,
-		ParentPathKeyMap:              checks.tracker.MapAttributePaths,
+		ResourceName:       checks.tracker.ResourceName,
+		TotalFields:        len(checks.tracker.SchemaFields),
+		TestedFields:       testedCount,
+		UntestedFields:     len(checks.tracker.SchemaFields) - testedCount,
+		Fields:             fields,
+		UntestedFieldsList: untestedFieldsList,
+		MapAttributePaths:  checks.tracker.MapAttributePaths,
 	}
 
 	// Write JSON file
