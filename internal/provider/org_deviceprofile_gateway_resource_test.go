@@ -234,11 +234,11 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, rName str
 				if config.Gateway != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.gateway", configKey), *config.Gateway)
 				}
-				if config.IpStart != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_start", configKey), *config.IpStart)
+				if config.IpStart4 != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_start", configKey), *config.IpStart4)
 				}
-				if config.IpEnd != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_end", configKey), *config.IpEnd)
+				if config.IpEnd4 != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_end", configKey), *config.IpEnd4)
 				}
 				if config.Ip6Start != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_start6", configKey), *config.Ip6Start)
@@ -263,9 +263,9 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, rName str
 				if config.ServerIdOverride != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.server_id_override", configKey), fmt.Sprintf("%t", *config.ServerIdOverride))
 				}
-				if len(config.Servers) > 0 {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.servers.#", configKey), fmt.Sprintf("%d", len(config.Servers)))
-					for i, server := range config.Servers {
+				if len(config.Servers4) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.servers.#", configKey), fmt.Sprintf("%d", len(config.Servers4)))
+					for i, server := range config.Servers4 {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.servers.%d", configKey, i), server)
 					}
 				}
@@ -275,8 +275,8 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, rName str
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.serversv6.%d", configKey, i), server)
 					}
 				}
-				if config.Type != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.type", configKey), *config.Type)
+				if config.Type4 != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.type", configKey), *config.Type4)
 				}
 				if config.Type6 != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.type6", configKey), *config.Type6)

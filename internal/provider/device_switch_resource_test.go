@@ -288,7 +288,9 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, rName string) testCh
 					checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("dhcpd_config.config.%s.fixed_bindings", key))
 					for bindingKey, binding := range config.FixedBindings {
 						prefix := fmt.Sprintf("dhcpd_config.config.%s.fixed_bindings.%s", key, bindingKey)
-						checks.append(t, "TestCheckResourceAttr", prefix+".ip", binding.Ip)
+						if binding.Ip != nil {
+							checks.append(t, "TestCheckResourceAttr", prefix+".ip", *binding.Ip)
+						}
 						if binding.Ip6 != nil {
 							checks.append(t, "TestCheckResourceAttr", prefix+".ip6", *binding.Ip6)
 						}
@@ -770,6 +772,9 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, rName string) testCh
 			if usage.AllowDhcpd != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.allow_dhcpd", key), fmt.Sprintf("%t", *usage.AllowDhcpd))
 			}
+			if usage.BypassAuthWhenServerDownForVoip != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.bypass_auth_when_server_down_for_voip", key), fmt.Sprintf("%t", *usage.BypassAuthWhenServerDownForVoip))
+			}
 			if usage.Description != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.description", key), *usage.Description)
 			}
@@ -794,6 +799,9 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, rName string) testCh
 			}
 			if usage.PortNetwork != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.port_network", key), *usage.PortNetwork)
+			}
+			if usage.PoePriority != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.poe_priority", key), *usage.PoePriority)
 			}
 			if usage.Speed != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.speed", key), *usage.Speed)

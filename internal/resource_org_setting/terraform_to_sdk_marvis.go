@@ -14,6 +14,15 @@ func marvisAutoOperationTerraformToSdk(ctx context.Context, o basetypes.ObjectVa
 	} else {
 		d := NewAutoOperationsValueMust(o.AttributeTypes(ctx), o.Attributes())
 
+		if !d.ApInsufficientCapacity.IsNull() && !d.ApInsufficientCapacity.IsUnknown() {
+			data.ApInsufficientCapacity = models.ToPointer(d.ApInsufficientCapacity.ValueBool())
+		}
+		if !d.ApLoop.IsNull() && !d.ApLoop.IsUnknown() {
+			data.ApLoop = models.ToPointer(d.ApLoop.ValueBool())
+		}
+		if !d.ApNonCompliant.IsNull() && !d.ApNonCompliant.IsUnknown() {
+			data.ApNonCompliant = models.ToPointer(d.ApNonCompliant.ValueBool())
+		}
 		if !d.BouncePortForAbnormalPoeClient.IsNull() && !d.BouncePortForAbnormalPoeClient.IsUnknown() {
 			data.BouncePortForAbnormalPoeClient = models.ToPointer(d.BouncePortForAbnormalPoeClient.ValueBool())
 		}
@@ -22,6 +31,15 @@ func marvisAutoOperationTerraformToSdk(ctx context.Context, o basetypes.ObjectVa
 		}
 		if !d.DisablePortWhenRogueDhcpServerDetected.IsNull() && !d.DisablePortWhenRogueDhcpServerDetected.IsUnknown() {
 			data.DisablePortWhenRogueDhcpServerDetected = models.ToPointer(d.DisablePortWhenRogueDhcpServerDetected.ValueBool())
+		}
+		if !d.GatewayNonCompliant.IsNull() && !d.GatewayNonCompliant.IsUnknown() {
+			data.GatewayNonCompliant = models.ToPointer(d.GatewayNonCompliant.ValueBool())
+		}
+		if !d.SwitchMisconfiguredPort.IsNull() && !d.SwitchMisconfiguredPort.IsUnknown() {
+			data.SwitchMisconfiguredPort = models.ToPointer(d.SwitchMisconfiguredPort.ValueBool())
+		}
+		if !d.SwitchPortStuck.IsNull() && !d.SwitchPortStuck.IsUnknown() {
+			data.SwitchPortStuck = models.ToPointer(d.SwitchPortStuck.ValueBool())
 		}
 
 		return &data

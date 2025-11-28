@@ -140,7 +140,8 @@
     ant_gain_24 = 0
     ant_gain_5 = 2
     ant_gain_6 = 3
-    ant_mode = "external"
+    antenna_select = "external"
+    rrm_managed = true
     antenna_mode = "default"
     band_24_usage = "auto"
     full_automatic_rrm = false
@@ -160,31 +161,33 @@
       preamble          = "auto"
     }
     band_5 = {
-      power             = 15
-      channel           = 36
-      channels          = [36, 40, 44, 48]
-      bandwidth         = 80
-      allow_rrm_disable = false
-      disabled          = false
-      ant_gain          = 2
-      antenna_mode      = "default"
-      power_max         = 16
-      power_min         = 12
-      preamble          = "auto"
+      power                = 15
+      channel              = 36
+      channels             = [36, 40, 44, 48]
+      bandwidth            = 80
+      allow_rrm_disable    = false
+      disabled             = false
+      ant_gain             = 2
+      antenna_mode         = "default"
+      antenna_beam_pattern = "narrow"
+      power_max            = 16
+      power_min            = 12
+      preamble             = "auto"
     }
     band_6 = {
-      power             = 18
-      channel           = 37
-      channels          = [37, 41, 45, 49]
-      bandwidth         = 160
-      allow_rrm_disable = false
-      disabled          = false
-      ant_gain          = 3
-      antenna_mode      = "default"
-      power_max         = 17
-      power_min         = 10
-      preamble          = "auto"
-      standard_power    = true
+      power                = 18
+      channel              = 37
+      channels             = [37, 41, 45, 49]
+      bandwidth            = 160
+      allow_rrm_disable    = false
+      disabled             = false
+      ant_gain             = 3
+      antenna_mode         = "default"
+      antenna_beam_pattern = "medium"
+      power_max            = 17
+      power_min            = 10
+      preamble             = "auto"
+      standard_power       = true
     }
   }
 
