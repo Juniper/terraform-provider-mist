@@ -21,8 +21,6 @@ func TestOrgSsoRole(t *testing.T) {
 		steps []testStep
 	}
 
-	test := ""
-
 	testCases := map[string]testCase{
 		"simple_case": {
 			steps: []testStep{
@@ -34,7 +32,6 @@ func TestOrgSsoRole(t *testing.T) {
 							{
 								Role:  "read",
 								Scope: "org",
-								View:  &test,
 							},
 						},
 					},
