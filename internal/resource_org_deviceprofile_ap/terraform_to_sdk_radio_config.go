@@ -77,6 +77,9 @@ func band5TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetyp
 			if plan.AntGain.ValueInt64Pointer() != nil {
 				data.AntGain = models.NewOptional(models.ToPointer(int(plan.AntGain.ValueInt64())))
 			}
+			if plan.AntennaBeamPattern.ValueStringPointer() != nil {
+				data.AntennaBeamPattern = (*models.RadioBandAntennaBeamPatternEnum)(plan.AntennaBeamPattern.ValueStringPointer())
+			}
 			if plan.AntennaMode.ValueStringPointer() != nil {
 				data.AntennaMode = models.ToPointer(models.RadioBandAntennaModeEnum(plan.AntennaMode.ValueString()))
 			}

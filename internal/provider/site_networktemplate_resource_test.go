@@ -455,6 +455,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, rName string)
 			if usage.BypassAuthWhenServerDownForUnknownClient != nil {
 				checks.append(t, "TestCheckResourceAttr", prefix+".bypass_auth_when_server_down_for_unknown_client", fmt.Sprintf("%t", *usage.BypassAuthWhenServerDownForUnknownClient))
 			}
+			if usage.BypassAuthWhenServerDownForVoip != nil {
+				checks.append(t, "TestCheckResourceAttr", prefix+".bypass_auth_when_server_down_for_voip", fmt.Sprintf("%t", *usage.BypassAuthWhenServerDownForVoip))
+			}
 			if usage.Description != nil {
 				checks.append(t, "TestCheckResourceAttr", prefix+".description", *usage.Description)
 			}
@@ -514,6 +517,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, rName string)
 			}
 			if usage.PoeDisabled != nil {
 				checks.append(t, "TestCheckResourceAttr", prefix+".poe_disabled", fmt.Sprintf("%t", *usage.PoeDisabled))
+			}
+			if usage.PoePriority != nil {
+				checks.append(t, "TestCheckResourceAttr", prefix+".poe_priority", *usage.PoePriority)
 			}
 			if usage.PortAuth != nil {
 				checks.append(t, "TestCheckResourceAttr", prefix+".port_auth", *usage.PortAuth)

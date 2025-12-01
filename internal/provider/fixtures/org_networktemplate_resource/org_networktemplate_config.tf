@@ -200,6 +200,7 @@
       mac_limit              = 10
       persist_mac            = true
       poe_disabled           = false
+      poe_priority           = "high"
       speed                  = "auto"
       duplex                 = "auto"
       disable_autoneg        = false
@@ -214,6 +215,7 @@
       allow_multiple_supplicants = false
       bypass_auth_when_server_down = true
       bypass_auth_when_server_down_for_unkown_client = false
+      bypass_auth_when_server_down_for_voip = true
       inter_switch_link      = false
       stp_disable            = false
       stp_edge               = true

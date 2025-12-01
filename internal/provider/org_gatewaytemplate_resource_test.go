@@ -980,6 +980,31 @@ func (s *OrgGatewaytemplateModel) testChecks(t testing.TB, rType, rName string) 
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.tenants.%d", i, j), tenant)
 				}
 			}
+			if policy.Skyatp != nil {
+				if policy.Skyatp.DnsDgaDetection != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_dga_detection", i), *policy.Skyatp.DnsDgaDetection)
+				}
+				if policy.Skyatp.DnsTunnelDetection != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_tunnel_detection", i), *policy.Skyatp.DnsTunnelDetection)
+				}
+				if policy.Skyatp.HttpInspection != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.http_inspection", i), *policy.Skyatp.HttpInspection)
+				}
+				if policy.Skyatp.IotDevicePolicy != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.iot_device_policy", i), *policy.Skyatp.IotDevicePolicy)
+				}
+			}
+			if policy.Syslog != nil {
+				if policy.Syslog.Enabled != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.syslog.enabled", i), fmt.Sprintf("%t", *policy.Syslog.Enabled))
+				}
+				if len(policy.Syslog.ServerNames) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.syslog.server_names.#", i), fmt.Sprintf("%d", len(policy.Syslog.ServerNames)))
+					for j, serverName := range policy.Syslog.ServerNames {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.syslog.server_names.%d", i, j), serverName)
+					}
+				}
+			}
 		}
 	}
 	if len(s.TunnelConfigs) > 0 {

@@ -99,6 +99,9 @@ func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d.AntGain.Value() != nil {
 		antGain = types.Int64Value(int64(*d.AntGain.Value()))
 	}
+	if d.AntennaBeamPattern != nil {
+		antennaBeamPattern = types.StringValue(string(*d.AntennaBeamPattern))
+	}
 	if d.AntennaMode != nil {
 		antennaMode = types.StringValue(string(*d.AntennaMode))
 	}
@@ -167,6 +170,9 @@ func band6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	}
 	if d.AntGain.Value() != nil {
 		antGain = types.Int64Value(int64(*d.AntGain.Value()))
+	}
+	if d.AntennaBeamPattern != nil {
+		antennaBeamPattern = types.StringValue(string(*d.AntennaBeamPattern))
 	}
 	if d.AntennaMode != nil {
 		antennaMode = types.StringValue(string(*d.AntennaMode))

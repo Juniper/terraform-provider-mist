@@ -1117,6 +1117,31 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, rName str
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.ssl_proxy.enabled", i), fmt.Sprintf("%t", *servicePolicy.SslProxy.Enabled))
 				}
 			}
+			if servicePolicy.Skyatp != nil {
+				if servicePolicy.Skyatp.DnsDgaDetection != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_dga_detection", i), *servicePolicy.Skyatp.DnsDgaDetection)
+				}
+				if servicePolicy.Skyatp.DnsTunnelDetection != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_tunnel_detection", i), *servicePolicy.Skyatp.DnsTunnelDetection)
+				}
+				if servicePolicy.Skyatp.HttpInspection != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.http_inspection", i), *servicePolicy.Skyatp.HttpInspection)
+				}
+				if servicePolicy.Skyatp.IotDevicePolicy != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.iot_device_policy", i), *servicePolicy.Skyatp.IotDevicePolicy)
+				}
+			}
+			if servicePolicy.Syslog != nil {
+				if servicePolicy.Syslog.Enabled != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.syslog.enabled", i), fmt.Sprintf("%t", *servicePolicy.Syslog.Enabled))
+				}
+				if len(servicePolicy.Syslog.ServerNames) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.syslog.server_names.#", i), fmt.Sprintf("%d", len(servicePolicy.Syslog.ServerNames)))
+					for j, serverName := range servicePolicy.Syslog.ServerNames {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.syslog.server_names.%d", i, j), serverName)
+					}
+				}
+			}
 			if len(servicePolicy.Tenants) > 0 {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.tenants.#", i), fmt.Sprintf("%d", len(servicePolicy.Tenants)))
 				for j, tenant := range servicePolicy.Tenants {

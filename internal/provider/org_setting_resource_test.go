@@ -307,6 +307,15 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, rName string) testChec
 	// Check Marvis nested object
 	if o.Marvis != nil {
 		if o.Marvis.AutoOperations != nil {
+			if o.Marvis.AutoOperations.ApInsufficientCapacity != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.ap_insufficient_capacity", fmt.Sprintf("%t", *o.Marvis.AutoOperations.ApInsufficientCapacity))
+			}
+			if o.Marvis.AutoOperations.ApLoop != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.ap_loop", fmt.Sprintf("%t", *o.Marvis.AutoOperations.ApLoop))
+			}
+			if o.Marvis.AutoOperations.ApNonCompliant != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.ap_non_compliant", fmt.Sprintf("%t", *o.Marvis.AutoOperations.ApNonCompliant))
+			}
 			if o.Marvis.AutoOperations.BouncePortForAbnormalPoeClient != nil {
 				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.bounce_port_for_abnormal_poe_client", fmt.Sprintf("%t", *o.Marvis.AutoOperations.BouncePortForAbnormalPoeClient))
 			}
@@ -315,6 +324,15 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, rName string) testChec
 			}
 			if o.Marvis.AutoOperations.DisablePortWhenRogueDhcpServerDetected != nil {
 				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.disable_port_when_rogue_dhcp_server_detected", fmt.Sprintf("%t", *o.Marvis.AutoOperations.DisablePortWhenRogueDhcpServerDetected))
+			}
+			if o.Marvis.AutoOperations.GatewayNonCompliant != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.gateway_non_compliant", fmt.Sprintf("%t", *o.Marvis.AutoOperations.GatewayNonCompliant))
+			}
+			if o.Marvis.AutoOperations.SwitchMisconfiguredPort != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.switch_misconfigured_port", fmt.Sprintf("%t", *o.Marvis.AutoOperations.SwitchMisconfiguredPort))
+			}
+			if o.Marvis.AutoOperations.SwitchPortStuck != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.switch_port_stuck", fmt.Sprintf("%t", *o.Marvis.AutoOperations.SwitchPortStuck))
 			}
 		}
 	}
@@ -368,6 +386,9 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, rName string) testChec
 			checks.append(t, "TestCheckResourceAttr", "ssr.disable_stats", fmt.Sprintf("%t", *o.Ssr.DisableStats))
 		}
 		if o.Ssr.Proxy != nil {
+			if o.Ssr.Proxy.Disabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "ssr.proxy.disabled", fmt.Sprintf("%t", *o.Ssr.Proxy.Disabled))
+			}
 			if o.Ssr.Proxy.Url != nil {
 				checks.append(t, "TestCheckResourceAttr", "ssr.proxy.url", *o.Ssr.Proxy.Url)
 			}

@@ -21,6 +21,8 @@ func TestOrgSsoRole(t *testing.T) {
 		steps []testStep
 	}
 
+	test := ""
+
 	testCases := map[string]testCase{
 		"simple_case": {
 			steps: []testStep{
@@ -32,6 +34,7 @@ func TestOrgSsoRole(t *testing.T) {
 							{
 								Role:  "read",
 								Scope: "org",
+								View:  &test,
 							},
 						},
 					},
@@ -151,6 +154,10 @@ func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, rName string) testChec
 			}
 			if privilege.SitegroupId != nil {
 				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("privileges.%d.sitegroup_id", i))
+			}
+
+			if privilege.View != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.view", i), *privilege.View)
 			}
 
 			if len(privilege.Views) > 0 {

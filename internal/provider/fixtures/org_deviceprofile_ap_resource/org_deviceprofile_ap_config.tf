@@ -169,7 +169,7 @@
       disabled             = false
       ant_gain             = 2
       antenna_mode         = "default"
-      antenna_beam_pattern = "narrow"
+      antenna_beam_pattern = "medium"
       power_max            = 16
       power_min            = 12
       preamble             = "auto"
