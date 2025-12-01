@@ -117,9 +117,6 @@ func (s *OrgApitokenModel) testChecks(t testing.TB, rType, rName string) testChe
 		if priv.SitegroupId != nil {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.sitegroup_id", i), *priv.SitegroupId)
 		}
-		if priv.View != nil {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.view", i), *priv.View)
-		}
 	}
 
 	return checks

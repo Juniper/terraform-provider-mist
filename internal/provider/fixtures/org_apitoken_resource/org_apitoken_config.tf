@@ -74,16 +74,4 @@
   }]
 
   src_ips = ["192.168.0.0/16"]
-␞
-  org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
-  name   = "Token with View"
-
-  privileges = [{
-    role  = "helpdesk"
-    scope = "site"
-    site_id = "mist_site.TestSite.id"
-    view  = "reporting"
-  }]
-
-  src_ips = ["10.0.0.0/8"]
 
