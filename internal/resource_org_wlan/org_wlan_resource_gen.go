@@ -2112,9 +2112,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(stringvalidator.Any(
-						mistvalidator.ParseCidr(true, false)),
+						mistvalidator.ParseCidr(true, false),
 						mistvalidator.ParseVar(),
-					),
+					)),
 				},
 				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
