@@ -104,6 +104,7 @@ port_usages = {
     mode = "trunk"
     port_network = "lan"
     voip_network = "voice"
+    bypass_auth_when_server_down_for_voip = true
     stp_disable = false
     stp_edge = true
     stp_no_root_port = false
@@ -114,6 +115,7 @@ port_usages = {
     mac_limit = 10
     persist_mac = false
     poe_disabled = false
+    poe_priority = "low"
     enable_qos = true
     storm_control = {
       no_broadcast = false
@@ -122,6 +124,16 @@ port_usages = {
       no_unknown_unicast = false
       percentage = 80
     }
+  }
+  "dynamic_access" = {
+    mode = "dynamic"
+    all_networks = false
+    rules = [
+      {
+        src = "lldp_system_description"
+        usage = "uplink_usage"
+      }
+    ]
   }
 }
 radius_config = {

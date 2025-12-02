@@ -42,6 +42,7 @@ func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data
 		var scope types.String
 		var siteId types.String
 		var sitegroupId types.String
+		var view types.String
 		var views = mistutils.ListOfStringSdkToTerraformEmpty()
 
 		role = types.StringValue(string(v.Role))
@@ -51,6 +52,9 @@ func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data
 		}
 		if v.SitegroupId != nil {
 			sitegroupId = types.StringValue(v.SitegroupId.String())
+		}
+		if v.View != nil {
+			view = types.StringValue(*v.View)
 		}
 		if v.Views != nil {
 			var viewsArray []attr.Value
@@ -70,6 +74,7 @@ func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data
 			"scope":        scope,
 			"site_id":      siteId,
 			"sitegroup_id": sitegroupId,
+			"view":         view,
 			"views":        views,
 		}
 		data, e := NewPrivilegesValue(PrivilegesValue{}.AttributeTypes(ctx), dataMapValue)

@@ -19,7 +19,13 @@
     views = ["switch_admin", "marketing"]
   },
   {
+    role  = "write"
+    scope = "orgsites"
+    views = ["location", "security"]
+  },
+  {
     role  = "installer"
     scope = "org"
+    view  = "security"
   }]
 

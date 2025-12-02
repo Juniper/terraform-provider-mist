@@ -1144,8 +1144,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"root_password": schema.StringAttribute{
 						Optional:            true,
 						Sensitive:           true,
-						Description:         "For SRX only",
-						MarkdownDescription: "For SRX only",
+						Description:         "SRX only",
+						MarkdownDescription: "SRX only",
 					},
 					"security_log_source_address": schema.StringAttribute{
 						Optional: true,
@@ -1300,6 +1300,21 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"auto_operations": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
+							"ap_insufficient_capacity": schema.BoolAttribute{
+								Optional: true,
+								Computed: true,
+								Default:  booldefault.StaticBool(false),
+							},
+							"ap_loop": schema.BoolAttribute{
+								Optional: true,
+								Computed: true,
+								Default:  booldefault.StaticBool(false),
+							},
+							"ap_non_compliant": schema.BoolAttribute{
+								Optional: true,
+								Computed: true,
+								Default:  booldefault.StaticBool(false),
+							},
 							"bounce_port_for_abnormal_poe_client": schema.BoolAttribute{
 								Optional: true,
 								Computed: true,
@@ -1311,6 +1326,21 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								Default:  booldefault.StaticBool(false),
 							},
 							"disable_port_when_rogue_dhcp_server_detected": schema.BoolAttribute{
+								Optional: true,
+								Computed: true,
+								Default:  booldefault.StaticBool(false),
+							},
+							"gateway_non_compliant": schema.BoolAttribute{
+								Optional: true,
+								Computed: true,
+								Default:  booldefault.StaticBool(false),
+							},
+							"switch_misconfigured_port": schema.BoolAttribute{
+								Optional: true,
+								Computed: true,
+								Default:  booldefault.StaticBool(false),
+							},
+							"switch_port_stuck": schema.BoolAttribute{
 								Optional: true,
 								Computed: true,
 								Default:  booldefault.StaticBool(false),
@@ -1398,6 +1428,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"proxy": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
+					"disabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
 					"url": schema.StringAttribute{
 						Optional: true,
 					},
@@ -1801,6 +1836,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"proxy": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
+							"disabled": schema.BoolAttribute{
+								Optional: true,
+								Computed: true,
+								Default:  booldefault.StaticBool(false),
+							},
 							"url": schema.StringAttribute{
 								Optional: true,
 							},
@@ -1811,8 +1851,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Proxy Configuration to talk to Mist",
-						MarkdownDescription: "Proxy Configuration to talk to Mist",
+						Description:         "SSR proxy configuration to talk to Mist",
+						MarkdownDescription: "SSR proxy configuration to talk to Mist",
 					},
 					"auto_upgrade": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -16036,6 +16076,60 @@ func (t AutoOperationsType) ValueFromObject(ctx context.Context, in basetypes.Ob
 
 	attributes := in.Attributes()
 
+	apInsufficientCapacityAttribute, ok := attributes["ap_insufficient_capacity"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ap_insufficient_capacity is missing from object`)
+
+		return nil, diags
+	}
+
+	apInsufficientCapacityVal, ok := apInsufficientCapacityAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ap_insufficient_capacity expected to be basetypes.BoolValue, was: %T`, apInsufficientCapacityAttribute))
+	}
+
+	apLoopAttribute, ok := attributes["ap_loop"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ap_loop is missing from object`)
+
+		return nil, diags
+	}
+
+	apLoopVal, ok := apLoopAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ap_loop expected to be basetypes.BoolValue, was: %T`, apLoopAttribute))
+	}
+
+	apNonCompliantAttribute, ok := attributes["ap_non_compliant"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ap_non_compliant is missing from object`)
+
+		return nil, diags
+	}
+
+	apNonCompliantVal, ok := apNonCompliantAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ap_non_compliant expected to be basetypes.BoolValue, was: %T`, apNonCompliantAttribute))
+	}
+
 	bouncePortForAbnormalPoeClientAttribute, ok := attributes["bounce_port_for_abnormal_poe_client"]
 
 	if !ok {
@@ -16090,14 +16184,74 @@ func (t AutoOperationsType) ValueFromObject(ctx context.Context, in basetypes.Ob
 			fmt.Sprintf(`disable_port_when_rogue_dhcp_server_detected expected to be basetypes.BoolValue, was: %T`, disablePortWhenRogueDhcpServerDetectedAttribute))
 	}
 
+	gatewayNonCompliantAttribute, ok := attributes["gateway_non_compliant"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gateway_non_compliant is missing from object`)
+
+		return nil, diags
+	}
+
+	gatewayNonCompliantVal, ok := gatewayNonCompliantAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gateway_non_compliant expected to be basetypes.BoolValue, was: %T`, gatewayNonCompliantAttribute))
+	}
+
+	switchMisconfiguredPortAttribute, ok := attributes["switch_misconfigured_port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`switch_misconfigured_port is missing from object`)
+
+		return nil, diags
+	}
+
+	switchMisconfiguredPortVal, ok := switchMisconfiguredPortAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`switch_misconfigured_port expected to be basetypes.BoolValue, was: %T`, switchMisconfiguredPortAttribute))
+	}
+
+	switchPortStuckAttribute, ok := attributes["switch_port_stuck"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`switch_port_stuck is missing from object`)
+
+		return nil, diags
+	}
+
+	switchPortStuckVal, ok := switchPortStuckAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`switch_port_stuck expected to be basetypes.BoolValue, was: %T`, switchPortStuckAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return AutoOperationsValue{
+		ApInsufficientCapacity:                 apInsufficientCapacityVal,
+		ApLoop:                                 apLoopVal,
+		ApNonCompliant:                         apNonCompliantVal,
 		BouncePortForAbnormalPoeClient:         bouncePortForAbnormalPoeClientVal,
 		DisablePortWhenDdosProtocolViolation:   disablePortWhenDdosProtocolViolationVal,
 		DisablePortWhenRogueDhcpServerDetected: disablePortWhenRogueDhcpServerDetectedVal,
+		GatewayNonCompliant:                    gatewayNonCompliantVal,
+		SwitchMisconfiguredPort:                switchMisconfiguredPortVal,
+		SwitchPortStuck:                        switchPortStuckVal,
 		state:                                  attr.ValueStateKnown,
 	}, diags
 }
@@ -16165,6 +16319,60 @@ func NewAutoOperationsValue(attributeTypes map[string]attr.Type, attributes map[
 		return NewAutoOperationsValueUnknown(), diags
 	}
 
+	apInsufficientCapacityAttribute, ok := attributes["ap_insufficient_capacity"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ap_insufficient_capacity is missing from object`)
+
+		return NewAutoOperationsValueUnknown(), diags
+	}
+
+	apInsufficientCapacityVal, ok := apInsufficientCapacityAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ap_insufficient_capacity expected to be basetypes.BoolValue, was: %T`, apInsufficientCapacityAttribute))
+	}
+
+	apLoopAttribute, ok := attributes["ap_loop"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ap_loop is missing from object`)
+
+		return NewAutoOperationsValueUnknown(), diags
+	}
+
+	apLoopVal, ok := apLoopAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ap_loop expected to be basetypes.BoolValue, was: %T`, apLoopAttribute))
+	}
+
+	apNonCompliantAttribute, ok := attributes["ap_non_compliant"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ap_non_compliant is missing from object`)
+
+		return NewAutoOperationsValueUnknown(), diags
+	}
+
+	apNonCompliantVal, ok := apNonCompliantAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ap_non_compliant expected to be basetypes.BoolValue, was: %T`, apNonCompliantAttribute))
+	}
+
 	bouncePortForAbnormalPoeClientAttribute, ok := attributes["bounce_port_for_abnormal_poe_client"]
 
 	if !ok {
@@ -16219,14 +16427,74 @@ func NewAutoOperationsValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`disable_port_when_rogue_dhcp_server_detected expected to be basetypes.BoolValue, was: %T`, disablePortWhenRogueDhcpServerDetectedAttribute))
 	}
 
+	gatewayNonCompliantAttribute, ok := attributes["gateway_non_compliant"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`gateway_non_compliant is missing from object`)
+
+		return NewAutoOperationsValueUnknown(), diags
+	}
+
+	gatewayNonCompliantVal, ok := gatewayNonCompliantAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`gateway_non_compliant expected to be basetypes.BoolValue, was: %T`, gatewayNonCompliantAttribute))
+	}
+
+	switchMisconfiguredPortAttribute, ok := attributes["switch_misconfigured_port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`switch_misconfigured_port is missing from object`)
+
+		return NewAutoOperationsValueUnknown(), diags
+	}
+
+	switchMisconfiguredPortVal, ok := switchMisconfiguredPortAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`switch_misconfigured_port expected to be basetypes.BoolValue, was: %T`, switchMisconfiguredPortAttribute))
+	}
+
+	switchPortStuckAttribute, ok := attributes["switch_port_stuck"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`switch_port_stuck is missing from object`)
+
+		return NewAutoOperationsValueUnknown(), diags
+	}
+
+	switchPortStuckVal, ok := switchPortStuckAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`switch_port_stuck expected to be basetypes.BoolValue, was: %T`, switchPortStuckAttribute))
+	}
+
 	if diags.HasError() {
 		return NewAutoOperationsValueUnknown(), diags
 	}
 
 	return AutoOperationsValue{
+		ApInsufficientCapacity:                 apInsufficientCapacityVal,
+		ApLoop:                                 apLoopVal,
+		ApNonCompliant:                         apNonCompliantVal,
 		BouncePortForAbnormalPoeClient:         bouncePortForAbnormalPoeClientVal,
 		DisablePortWhenDdosProtocolViolation:   disablePortWhenDdosProtocolViolationVal,
 		DisablePortWhenRogueDhcpServerDetected: disablePortWhenRogueDhcpServerDetectedVal,
+		GatewayNonCompliant:                    gatewayNonCompliantVal,
+		SwitchMisconfiguredPort:                switchMisconfiguredPortVal,
+		SwitchPortStuck:                        switchPortStuckVal,
 		state:                                  attr.ValueStateKnown,
 	}, diags
 }
@@ -16299,27 +16567,63 @@ func (t AutoOperationsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = AutoOperationsValue{}
 
 type AutoOperationsValue struct {
+	ApInsufficientCapacity                 basetypes.BoolValue `tfsdk:"ap_insufficient_capacity"`
+	ApLoop                                 basetypes.BoolValue `tfsdk:"ap_loop"`
+	ApNonCompliant                         basetypes.BoolValue `tfsdk:"ap_non_compliant"`
 	BouncePortForAbnormalPoeClient         basetypes.BoolValue `tfsdk:"bounce_port_for_abnormal_poe_client"`
 	DisablePortWhenDdosProtocolViolation   basetypes.BoolValue `tfsdk:"disable_port_when_ddos_protocol_violation"`
 	DisablePortWhenRogueDhcpServerDetected basetypes.BoolValue `tfsdk:"disable_port_when_rogue_dhcp_server_detected"`
+	GatewayNonCompliant                    basetypes.BoolValue `tfsdk:"gateway_non_compliant"`
+	SwitchMisconfiguredPort                basetypes.BoolValue `tfsdk:"switch_misconfigured_port"`
+	SwitchPortStuck                        basetypes.BoolValue `tfsdk:"switch_port_stuck"`
 	state                                  attr.ValueState
 }
 
 func (v AutoOperationsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["ap_insufficient_capacity"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["ap_loop"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["ap_non_compliant"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["bounce_port_for_abnormal_poe_client"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["disable_port_when_ddos_protocol_violation"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["disable_port_when_rogue_dhcp_server_detected"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["gateway_non_compliant"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["switch_misconfigured_port"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["switch_port_stuck"] = basetypes.BoolType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 9)
+
+		val, err = v.ApInsufficientCapacity.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ap_insufficient_capacity"] = val
+
+		val, err = v.ApLoop.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ap_loop"] = val
+
+		val, err = v.ApNonCompliant.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ap_non_compliant"] = val
 
 		val, err = v.BouncePortForAbnormalPoeClient.ToTerraformValue(ctx)
 
@@ -16344,6 +16648,30 @@ func (v AutoOperationsValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		}
 
 		vals["disable_port_when_rogue_dhcp_server_detected"] = val
+
+		val, err = v.GatewayNonCompliant.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["gateway_non_compliant"] = val
+
+		val, err = v.SwitchMisconfiguredPort.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["switch_misconfigured_port"] = val
+
+		val, err = v.SwitchPortStuck.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["switch_port_stuck"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -16375,9 +16703,15 @@ func (v AutoOperationsValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
+		"ap_insufficient_capacity":                     basetypes.BoolType{},
+		"ap_loop":                                      basetypes.BoolType{},
+		"ap_non_compliant":                             basetypes.BoolType{},
 		"bounce_port_for_abnormal_poe_client":          basetypes.BoolType{},
 		"disable_port_when_ddos_protocol_violation":    basetypes.BoolType{},
 		"disable_port_when_rogue_dhcp_server_detected": basetypes.BoolType{},
+		"gateway_non_compliant":                        basetypes.BoolType{},
+		"switch_misconfigured_port":                    basetypes.BoolType{},
+		"switch_port_stuck":                            basetypes.BoolType{},
 	}
 
 	if v.IsNull() {
@@ -16391,9 +16725,15 @@ func (v AutoOperationsValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"ap_insufficient_capacity":                     v.ApInsufficientCapacity,
+			"ap_loop":                                      v.ApLoop,
+			"ap_non_compliant":                             v.ApNonCompliant,
 			"bounce_port_for_abnormal_poe_client":          v.BouncePortForAbnormalPoeClient,
 			"disable_port_when_ddos_protocol_violation":    v.DisablePortWhenDdosProtocolViolation,
 			"disable_port_when_rogue_dhcp_server_detected": v.DisablePortWhenRogueDhcpServerDetected,
+			"gateway_non_compliant":                        v.GatewayNonCompliant,
+			"switch_misconfigured_port":                    v.SwitchMisconfiguredPort,
+			"switch_port_stuck":                            v.SwitchPortStuck,
 		})
 
 	return objVal, diags
@@ -16414,6 +16754,18 @@ func (v AutoOperationsValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.ApInsufficientCapacity.Equal(other.ApInsufficientCapacity) {
+		return false
+	}
+
+	if !v.ApLoop.Equal(other.ApLoop) {
+		return false
+	}
+
+	if !v.ApNonCompliant.Equal(other.ApNonCompliant) {
+		return false
+	}
+
 	if !v.BouncePortForAbnormalPoeClient.Equal(other.BouncePortForAbnormalPoeClient) {
 		return false
 	}
@@ -16423,6 +16775,18 @@ func (v AutoOperationsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.DisablePortWhenRogueDhcpServerDetected.Equal(other.DisablePortWhenRogueDhcpServerDetected) {
+		return false
+	}
+
+	if !v.GatewayNonCompliant.Equal(other.GatewayNonCompliant) {
+		return false
+	}
+
+	if !v.SwitchMisconfiguredPort.Equal(other.SwitchMisconfiguredPort) {
+		return false
+	}
+
+	if !v.SwitchPortStuck.Equal(other.SwitchPortStuck) {
 		return false
 	}
 
@@ -16439,9 +16803,15 @@ func (v AutoOperationsValue) Type(ctx context.Context) attr.Type {
 
 func (v AutoOperationsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"ap_insufficient_capacity":                     basetypes.BoolType{},
+		"ap_loop":                                      basetypes.BoolType{},
+		"ap_non_compliant":                             basetypes.BoolType{},
 		"bounce_port_for_abnormal_poe_client":          basetypes.BoolType{},
 		"disable_port_when_ddos_protocol_violation":    basetypes.BoolType{},
 		"disable_port_when_rogue_dhcp_server_detected": basetypes.BoolType{},
+		"gateway_non_compliant":                        basetypes.BoolType{},
+		"switch_misconfigured_port":                    basetypes.BoolType{},
+		"switch_port_stuck":                            basetypes.BoolType{},
 	}
 }
 
@@ -17014,6 +17384,24 @@ func (t ProxyType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 
 	attributes := in.Attributes()
 
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
 	urlAttribute, ok := attributes["url"]
 
 	if !ok {
@@ -17037,8 +17425,9 @@ func (t ProxyType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 	}
 
 	return ProxyValue{
-		Url:   urlVal,
-		state: attr.ValueStateKnown,
+		Disabled: disabledVal,
+		Url:      urlVal,
+		state:    attr.ValueStateKnown,
 	}, diags
 }
 
@@ -17105,6 +17494,24 @@ func NewProxyValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		return NewProxyValueUnknown(), diags
 	}
 
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return NewProxyValueUnknown(), diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
 	urlAttribute, ok := attributes["url"]
 
 	if !ok {
@@ -17128,8 +17535,9 @@ func NewProxyValue(attributeTypes map[string]attr.Type, attributes map[string]at
 	}
 
 	return ProxyValue{
-		Url:   urlVal,
-		state: attr.ValueStateKnown,
+		Disabled: disabledVal,
+		Url:      urlVal,
+		state:    attr.ValueStateKnown,
 	}, diags
 }
 
@@ -17201,23 +17609,33 @@ func (t ProxyType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = ProxyValue{}
 
 type ProxyValue struct {
-	Url   basetypes.StringValue `tfsdk:"url"`
-	state attr.ValueState
+	Disabled basetypes.BoolValue   `tfsdk:"disabled"`
+	Url      basetypes.StringValue `tfsdk:"url"`
+	state    attr.ValueState
 }
 
 func (v ProxyValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 1)
+	attrTypes := make(map[string]tftypes.Type, 2)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["url"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 1)
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Disabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disabled"] = val
 
 		val, err = v.Url.ToTerraformValue(ctx)
 
@@ -17257,7 +17675,8 @@ func (v ProxyValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"url": basetypes.StringType{},
+		"disabled": basetypes.BoolType{},
+		"url":      basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -17271,7 +17690,8 @@ func (v ProxyValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"url": v.Url,
+			"disabled": v.Disabled,
+			"url":      v.Url,
 		})
 
 	return objVal, diags
@@ -17292,6 +17712,10 @@ func (v ProxyValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.Disabled.Equal(other.Disabled) {
+		return false
+	}
+
 	if !v.Url.Equal(other.Url) {
 		return false
 	}
@@ -17309,7 +17733,8 @@ func (v ProxyValue) Type(ctx context.Context) attr.Type {
 
 func (v ProxyValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"url": basetypes.StringType{},
+		"disabled": basetypes.BoolType{},
+		"url":      basetypes.StringType{},
 	}
 }
 

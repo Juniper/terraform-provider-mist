@@ -41,9 +41,15 @@
 
   marvis {
     auto_operations {
+      ap_insufficient_capacity                     = true
+      ap_loop                                      = true
+      ap_non_compliant                            = true
       bounce_port_for_abnormal_poe_client         = true
       disable_port_when_ddos_protocol_violation   = true
       disable_port_when_rogue_dhcp_server_detected = true
+      gateway_non_compliant                       = true
+      switch_misconfigured_port                   = true
+      switch_port_stuck                           = true
     }
   }
 
@@ -104,6 +110,13 @@
 
   switch_mgmt {
     ap_affinity_threshold = 15
+  }
+
+  ssr {
+    proxy {
+      disabled = true
+      url      = "http://proxy.example.com:8080"
+    }
   }
 
   synthetic_test {

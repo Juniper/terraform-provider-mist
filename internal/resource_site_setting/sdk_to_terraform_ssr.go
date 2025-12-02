@@ -13,16 +13,21 @@ import (
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
-func ssrProxySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Proxy) basetypes.ObjectValue {
+func ssrProxySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SsrProxy) basetypes.ObjectValue {
 
+	var disabled basetypes.BoolValue
 	var url basetypes.StringValue
 
+	if d.Disabled != nil {
+		disabled = types.BoolValue(*d.Disabled)
+	}
 	if d.Url != nil {
 		url = types.StringValue(*d.Url)
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"url": url,
+		"disabled": disabled,
+		"url":      url,
 	}
 	data, e := NewProxyValue(ProxyValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

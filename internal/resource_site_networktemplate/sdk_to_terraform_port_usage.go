@@ -104,6 +104,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var allowMultipleSupplicants basetypes.BoolValue
 		var bypassAuthWhenServerDown basetypes.BoolValue
 		var bypassAuthWhenServerDownForUnknownClient basetypes.BoolValue
+		var bypassAuthWhenServerDownForVoip basetypes.BoolValue
 		var communityVlanId basetypes.Int64Value
 		var description basetypes.StringValue
 		var disableAutoneg basetypes.BoolValue
@@ -124,6 +125,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var networks = types.ListNull(types.StringType)
 		var persistMac basetypes.BoolValue
 		var poeDisabled basetypes.BoolValue
+		var poePriority basetypes.StringValue
 		var portAuth basetypes.StringValue
 		var portNetwork basetypes.StringValue
 		var reauthInterval basetypes.StringValue
@@ -156,6 +158,9 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		}
 		if d.BypassAuthWhenServerDownForUnknownClient != nil {
 			bypassAuthWhenServerDownForUnknownClient = types.BoolValue(*d.BypassAuthWhenServerDownForUnknownClient)
+		}
+		if d.BypassAuthWhenServerDownForVoip != nil {
+			bypassAuthWhenServerDownForVoip = types.BoolValue(*d.BypassAuthWhenServerDownForVoip)
 		}
 		if d.CommunityVlanId != nil {
 			communityVlanId = types.Int64Value(int64(*d.CommunityVlanId))
@@ -217,6 +222,9 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.PoeDisabled != nil {
 			poeDisabled = types.BoolValue(*d.PoeDisabled)
 		}
+		if d.PoePriority != nil {
+			poePriority = types.StringValue(string(*d.PoePriority))
+		}
 		if d.PortAuth.Value() != nil {
 			portAuth = types.StringValue(string(*d.PortAuth.Value()))
 		}
@@ -275,6 +283,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"allow_multiple_supplicants":                      allowMultipleSupplicants,
 			"bypass_auth_when_server_down":                    bypassAuthWhenServerDown,
 			"bypass_auth_when_server_down_for_unknown_client": bypassAuthWhenServerDownForUnknownClient,
+			"bypass_auth_when_server_down_for_voip":           bypassAuthWhenServerDownForVoip,
 			"community_vlan_id":                               communityVlanId,
 			"description":                                     description,
 			"disable_autoneg":                                 disableAutoneg,
@@ -295,6 +304,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"networks":                                        networks,
 			"persist_mac":                                     persistMac,
 			"poe_disabled":                                    poeDisabled,
+			"poe_priority":                                    poePriority,
 			"port_auth":                                       portAuth,
 			"port_network":                                    portNetwork,
 			"reauth_interval":                                 reauthInterval,

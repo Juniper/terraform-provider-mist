@@ -448,7 +448,9 @@ type DeviceGatewayServicePoliciesValue struct {
 	PathPreference  *string                      `cty:"path_preference" hcl:"path_preference"`
 	ServicepolicyId *string                      `cty:"servicepolicy_id" hcl:"servicepolicy_id"`
 	Services        []string                     `cty:"services" hcl:"services"`
+	Skyatp          *DeviceGatewaySkyatpValue    `cty:"skyatp" hcl:"skyatp"`
 	SslProxy        *DeviceGatewaySslProxyValue  `cty:"ssl_proxy" hcl:"ssl_proxy"`
+	Syslog          *DeviceGatewaySyslogValue    `cty:"syslog" hcl:"syslog"`
 	Tenants         []string                     `cty:"tenants" hcl:"tenants"`
 }
 
@@ -476,9 +478,21 @@ type DeviceGatewayIdpValue struct {
 	Profile      *string `cty:"profile" hcl:"profile"`
 }
 
+type DeviceGatewaySkyatpValue struct {
+	DnsDgaDetection    *string `cty:"dns_dga_detection" hcl:"dns_dga_detection"`
+	DnsTunnelDetection *string `cty:"dns_tunnel_detection" hcl:"dns_tunnel_detection"`
+	HttpInspection     *string `cty:"http_inspection" hcl:"http_inspection"`
+	IotDevicePolicy    *string `cty:"iot_device_policy" hcl:"iot_device_policy"`
+}
+
 type DeviceGatewaySslProxyValue struct {
 	CiphersCategory *string `cty:"ciphers_category" hcl:"ciphers_category"`
 	Enabled         *bool   `cty:"enabled" hcl:"enabled"`
+}
+
+type DeviceGatewaySyslogValue struct {
+	Enabled     *bool    `cty:"enabled" hcl:"enabled"`
+	ServerNames []string `cty:"server_names" hcl:"server_names"`
 }
 
 type DeviceGatewayTunnelConfigsValue struct {

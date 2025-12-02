@@ -76,14 +76,14 @@ type OrgDeviceprofileGatewayConfigValue struct {
 	Gateway            *string                                                   `cty:"gateway" hcl:"gateway"`
 	Ip6End             *string                                                   `cty:"ip6_end" hcl:"ip6_end"`
 	Ip6Start           *string                                                   `cty:"ip6_start" hcl:"ip6_start"`
-	IpEnd              *string                                                   `cty:"ip_end" hcl:"ip_end"`
-	IpStart            *string                                                   `cty:"ip_start" hcl:"ip_start"`
+	IpEnd4             *string                                                   `cty:"ip_end" hcl:"ip_end"`
+	IpStart4           *string                                                   `cty:"ip_start" hcl:"ip_start"`
 	LeaseTime          *int64                                                    `cty:"lease_time" hcl:"lease_time"`
 	Options            map[string]OrgDeviceprofileGatewayOptionsValue            `cty:"options" hcl:"options"`
 	ServerIdOverride   *bool                                                     `cty:"server_id_override" hcl:"server_id_override"`
-	Servers            []string                                                  `cty:"servers" hcl:"servers"`
+	Servers4           []string                                                  `cty:"servers" hcl:"servers"`
 	Serversv6          []string                                                  `cty:"serversv6" hcl:"serversv6"`
-	Type               *string                                                   `cty:"type" hcl:"type"`
+	Type4              *string                                                   `cty:"type" hcl:"type"`
 	Type6              *string                                                   `cty:"type6" hcl:"type6"`
 	VendorEncapsulated map[string]OrgDeviceprofileGatewayVendorEncapsulatedValue `cty:"vendor_encapsulated" hcl:"vendor_encapsulated"`
 }
@@ -423,7 +423,9 @@ type OrgDeviceprofileGatewayServicePoliciesValue struct {
 	PathPreference  *string                                `cty:"path_preference" hcl:"path_preference"`
 	ServicepolicyId *string                                `cty:"servicepolicy_id" hcl:"servicepolicy_id"`
 	Services        []string                               `cty:"services" hcl:"services"`
+	Skyatp          *OrgDeviceprofileGatewaySkyatpValue    `cty:"skyatp" hcl:"skyatp"`
 	SslProxy        *OrgDeviceprofileGatewaySslProxyValue  `cty:"ssl_proxy" hcl:"ssl_proxy"`
+	Syslog          *OrgDeviceprofileGatewaySyslogValue    `cty:"syslog" hcl:"syslog"`
 	Tenants         []string                               `cty:"tenants" hcl:"tenants"`
 }
 
@@ -451,9 +453,21 @@ type OrgDeviceprofileGatewayIdpValue struct {
 	Profile      *string `cty:"profile" hcl:"profile"`
 }
 
+type OrgDeviceprofileGatewaySkyatpValue struct {
+	DnsDgaDetection    *string `cty:"dns_dga_detection" hcl:"dns_dga_detection"`
+	DnsTunnelDetection *string `cty:"dns_tunnel_detection" hcl:"dns_tunnel_detection"`
+	HttpInspection     *string `cty:"http_inspection" hcl:"http_inspection"`
+	IotDevicePolicy    *string `cty:"iot_device_policy" hcl:"iot_device_policy"`
+}
+
 type OrgDeviceprofileGatewaySslProxyValue struct {
 	CiphersCategory *string `cty:"ciphers_category" hcl:"ciphers_category"`
 	Enabled         *bool   `cty:"enabled" hcl:"enabled"`
+}
+
+type OrgDeviceprofileGatewaySyslogValue struct {
+	Enabled     *bool    `cty:"enabled" hcl:"enabled"`
+	ServerNames []string `cty:"server_names" hcl:"server_names"`
 }
 
 type OrgDeviceprofileGatewayTunnelConfigsValue struct {

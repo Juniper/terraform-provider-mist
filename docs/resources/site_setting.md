@@ -290,7 +290,7 @@ Optional:
 - `protect_re` (Attributes) Restrict inbound-traffic to host
 when enabled, all traffic that is not essential to our operation will be dropped 
 e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works (see [below for nested schema](#nestedatt--gateway_mgmt--protect_re))
-- `root_password` (String, Sensitive) For SRX only
+- `root_password` (String, Sensitive) SRX only
 - `security_log_source_address` (String)
 - `security_log_source_interface` (String)
 
@@ -418,9 +418,15 @@ Optional:
 
 Optional:
 
+- `ap_insufficient_capacity` (Boolean)
+- `ap_loop` (Boolean)
+- `ap_non_compliant` (Boolean)
 - `bounce_port_for_abnormal_poe_client` (Boolean)
 - `disable_port_when_ddos_protocol_violation` (Boolean)
 - `disable_port_when_rogue_dhcp_server_detected` (Boolean)
+- `gateway_non_compliant` (Boolean)
+- `switch_misconfigured_port` (Boolean)
+- `switch_port_stuck` (Boolean)
 
 
 
@@ -441,6 +447,7 @@ Optional:
 
 Optional:
 
+- `disabled` (Boolean)
 - `url` (String)
 
 
@@ -549,7 +556,7 @@ Optional:
 - `conductor_hosts` (List of String) List of Conductor IP Addresses or Hosts to be used by the SSR Devices
 - `conductor_token` (String, Sensitive) Token to be used by the SSR Devices to connect to the Conductor
 - `disable_stats` (Boolean) Disable stats collection on SSR devices
-- `proxy` (Attributes) Proxy Configuration to talk to Mist (see [below for nested schema](#nestedatt--ssr--proxy))
+- `proxy` (Attributes) SSR proxy configuration to talk to Mist (see [below for nested schema](#nestedatt--ssr--proxy))
 
 <a id="nestedatt--ssr--auto_upgrade"></a>
 ### Nested Schema for `ssr.auto_upgrade`
@@ -566,6 +573,7 @@ Optional:
 
 Optional:
 
+- `disabled` (Boolean)
 - `url` (String)
 
 

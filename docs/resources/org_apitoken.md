@@ -64,7 +64,7 @@ resource "mist_org_apitoken" "apitoken_one" {
 Required:
 
 - `role` (String) access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`
-- `scope` (String) enum: `org`, `site`, `sitegroup`
+- `scope` (String) enum: `org`, `site`, `sitegroup`, `orgsites`
 
 Optional:
 

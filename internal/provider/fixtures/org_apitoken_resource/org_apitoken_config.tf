@@ -64,4 +64,14 @@
     role  = "read"
     scope = "org"
   }]
+␞
+  org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
+  name   = "Org Sites Token"
+
+  privileges = [{
+    role  = "admin"
+    scope = "orgsites"
+  }]
+
+  src_ips = ["192.168.0.0/16"]
 

@@ -108,6 +108,48 @@ func avTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.
 	return &data
 }
 
+func skyatpTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ServicePolicySkyatp {
+	data := models.ServicePolicySkyatp{}
+	if !d.IsNull() && !d.IsUnknown() {
+		plan, e := NewSkyatpValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.DnsDgaDetection.ValueStringPointer() != nil {
+				data.DnsDgaDetection = (*models.DnsDgaDetectionEnum)(plan.DnsDgaDetection.ValueStringPointer())
+			}
+			if plan.DnsTunnelDetection.ValueStringPointer() != nil {
+				data.DnsTunnelDetection = (*models.DnsTunnelDetectionEnum)(plan.DnsTunnelDetection.ValueStringPointer())
+			}
+			if plan.HttpInspection.ValueStringPointer() != nil {
+				data.HttpInspection = (*models.HttpInspectionEnum)(plan.HttpInspection.ValueStringPointer())
+			}
+			if plan.IotDevicePolicy.ValueStringPointer() != nil {
+				data.IotDevicePolicy = (*models.IotDevicePolicyEnum)(plan.IotDevicePolicy.ValueStringPointer())
+			}
+		}
+	}
+	return &data
+}
+
+func syslogTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ServicePolicySyslog {
+	data := models.ServicePolicySyslog{}
+	if !d.IsNull() && !d.IsUnknown() {
+		plan, e := NewSyslogValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.Enabled.ValueBoolPointer() != nil {
+				data.Enabled = plan.Enabled.ValueBoolPointer()
+			}
+			if !plan.ServerNames.IsNull() && !plan.ServerNames.IsUnknown() {
+				data.ServerNames = mistutils.ListOfStringTerraformToSdk(plan.ServerNames)
+			}
+		}
+	}
+	return &data
+}
+
 func sslProxyTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.ServicePolicySslProxy {
 	data := models.ServicePolicySslProxy{}
 	if !d.IsNull() && !d.IsUnknown() {
@@ -174,8 +216,14 @@ func servicePoliciesTerraformToSdk(ctx context.Context, diags *diag.Diagnostics,
 		if !plan.Services.IsNull() && !plan.Services.IsUnknown() {
 			data.Services = mistutils.ListOfStringTerraformToSdk(plan.Services)
 		}
+		if !plan.Skyatp.IsNull() && !plan.Skyatp.IsUnknown() {
+			data.Skyatp = skyatpTerraformToSdk(ctx, diags, plan.Skyatp)
+		}
 		if !plan.SslProxy.IsNull() && !plan.SslProxy.IsUnknown() {
 			data.SslProxy = sslProxyTerraformToSdk(ctx, diags, plan.SslProxy)
+		}
+		if !plan.Syslog.IsNull() && !plan.Syslog.IsUnknown() {
+			data.Syslog = syslogTerraformToSdk(ctx, diags, plan.Syslog)
 		}
 		if !plan.Tenants.IsNull() && !plan.Tenants.IsUnknown() {
 			data.Tenants = mistutils.ListOfStringTerraformToSdk(plan.Tenants)

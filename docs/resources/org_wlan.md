@@ -50,8 +50,8 @@ resource "mist_org_wlan" "wlan_one" {
 - `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled
 - `acct_servers` (Attributes List) List of RADIUS accounting servers, optional, order matters where the first one is treated as primary (see [below for nested schema](#nestedatt--acct_servers))
 - `airwatch` (Attributes) Airwatch wlan settings (see [below for nested schema](#nestedatt--airwatch))
-- `allow_ipv6_ndp` (Boolean) Only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through
-- `allow_mdns` (Boolean) Only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through
+- `allow_ipv6_ndp` (Boolean) Only applicable when `limit_bcast`==`true`, which allows or disallows ipv6 Neighbor Discovery packets to go through
+- `allow_mdns` (Boolean) Only applicable when `limit_bcast`==`true`, which allows mDNS / Bonjour packets to go through
 - `allow_ssdp` (Boolean) Only applicable when `limit_bcast`==`true`, which allows SSDP
 - `ap_ids` (List of String) List of device ids
 - `app_limit` (Attributes) Bandwidth limiting for apps (applies to up/down) (see [below for nested schema](#nestedatt--app_limit))

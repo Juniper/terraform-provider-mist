@@ -234,11 +234,11 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, rName str
 				if config.Gateway != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.gateway", configKey), *config.Gateway)
 				}
-				if config.IpStart != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_start", configKey), *config.IpStart)
+				if config.IpStart4 != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_start", configKey), *config.IpStart4)
 				}
-				if config.IpEnd != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_end", configKey), *config.IpEnd)
+				if config.IpEnd4 != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_end", configKey), *config.IpEnd4)
 				}
 				if config.Ip6Start != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_start6", configKey), *config.Ip6Start)
@@ -263,9 +263,9 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, rName str
 				if config.ServerIdOverride != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.server_id_override", configKey), fmt.Sprintf("%t", *config.ServerIdOverride))
 				}
-				if len(config.Servers) > 0 {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.servers.#", configKey), fmt.Sprintf("%d", len(config.Servers)))
-					for i, server := range config.Servers {
+				if len(config.Servers4) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.servers.#", configKey), fmt.Sprintf("%d", len(config.Servers4)))
+					for i, server := range config.Servers4 {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.servers.%d", configKey, i), server)
 					}
 				}
@@ -275,8 +275,8 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, rName str
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.serversv6.%d", configKey, i), server)
 					}
 				}
-				if config.Type != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.type", configKey), *config.Type)
+				if config.Type4 != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.type", configKey), *config.Type4)
 				}
 				if config.Type6 != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.type6", configKey), *config.Type6)
@@ -1115,6 +1115,31 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, rName str
 				}
 				if servicePolicy.SslProxy.Enabled != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.ssl_proxy.enabled", i), fmt.Sprintf("%t", *servicePolicy.SslProxy.Enabled))
+				}
+			}
+			if servicePolicy.Skyatp != nil {
+				if servicePolicy.Skyatp.DnsDgaDetection != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_dga_detection", i), *servicePolicy.Skyatp.DnsDgaDetection)
+				}
+				if servicePolicy.Skyatp.DnsTunnelDetection != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_tunnel_detection", i), *servicePolicy.Skyatp.DnsTunnelDetection)
+				}
+				if servicePolicy.Skyatp.HttpInspection != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.http_inspection", i), *servicePolicy.Skyatp.HttpInspection)
+				}
+				if servicePolicy.Skyatp.IotDevicePolicy != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.iot_device_policy", i), *servicePolicy.Skyatp.IotDevicePolicy)
+				}
+			}
+			if servicePolicy.Syslog != nil {
+				if servicePolicy.Syslog.Enabled != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.syslog.enabled", i), fmt.Sprintf("%t", *servicePolicy.Syslog.Enabled))
+				}
+				if len(servicePolicy.Syslog.ServerNames) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.syslog.server_names.#", i), fmt.Sprintf("%d", len(servicePolicy.Syslog.ServerNames)))
+					for j, serverName := range servicePolicy.Syslog.ServerNames {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.syslog.server_names.%d", i, j), serverName)
+					}
 				}
 			}
 			if len(servicePolicy.Tenants) > 0 {
