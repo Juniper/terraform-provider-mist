@@ -771,17 +771,15 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			"pcap": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"bucket": schema.StringAttribute{
-						Optional: true,
+						Computed: true,
 					},
 					"max_pkt_len": schema.Int64Attribute{
-						Optional:            true,
 						Computed:            true,
 						Description:         "Max_len of non-management packets to capture",
 						MarkdownDescription: "Max_len of non-management packets to capture",
 						Validators: []validator.Int64{
 							int64validator.AtMost(128),
 						},
-						Default: int64default.StaticInt64(128),
 					},
 				},
 				CustomType: PcapType{
@@ -789,7 +787,7 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: PcapValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Computed: true,
 			},
 			"security": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
