@@ -1087,8 +1087,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"src": schema.StringAttribute{
 										Required:            true,
-										Description:         "enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`",
-										MarkdownDescription: "enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`",
+										Description:         "enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_description`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`",
+										MarkdownDescription: "enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_description`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -1098,6 +1098,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												"lldp_manufacturer_name",
 												"lldp_oui",
 												"lldp_serial_number",
+												"lldp_system_description",
 												"lldp_system_name",
 												"radius_dynamicfilter",
 												"radius_usermac",
