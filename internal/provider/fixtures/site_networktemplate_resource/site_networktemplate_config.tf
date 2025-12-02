@@ -125,6 +125,16 @@ port_usages = {
       percentage = 80
     }
   }
+  "dynamic_access" = {
+    mode = "dynamic"
+    all_networks = false
+    rules = [
+      {
+        src = "lldp_system_description"
+        usage = "uplink_usage"
+      }
+    ]
+  }
 }
 radius_config = {
   acct_interim_interval = 60

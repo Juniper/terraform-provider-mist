@@ -272,6 +272,7 @@
           equals_any = ["user1", "user2"]
           expression = "{user.role == admin}"
           usage      = "trunk"
+          src    = "lldp_system_description"
         }
       ]
     }
