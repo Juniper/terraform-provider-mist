@@ -162,7 +162,7 @@ Required:
 
 Optional:
 
-- `ether_types` (List of String) Can only be used under dst tags.
+- `ether_types` (List of String) ARP / IPv6. Default is `any`
 - `gbp_tag` (Number) Required if
   - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)
   - `type`==`gbp_resource`
@@ -336,10 +336,11 @@ Optional:
 Optional:
 
 - `all_networks` (Boolean) Only if `mode`==`trunk`. Whether to trunk all network/vlans
-- `allow_dhcpd` (Boolean) Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is an access or trunk port.
+- `allow_dhcpd` (Boolean) Only applies when `mode`!=`dynamic`. Controls whether DHCP server traffic is allowed on ports using this configuration if DHCP snooping is enabled. This is a tri-state setting; true: ports become trusted ports allowing DHCP server traffic, false: ports become untrusted blocking DHCP server traffic, undefined: use system defaults (access ports default to untrusted, trunk ports default to trusted).
 - `allow_multiple_supplicants` (Boolean) Only if `mode`!=`dynamic`
 - `bypass_auth_when_server_down` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Bypass auth for known clients if set to true when RADIUS server is down
 - `bypass_auth_when_server_down_for_unknown_client` (Boolean) Only if `mode`!=`dynamic` and `port_auth`=`dot1x`. Bypass auth for all (including unknown clients) if set to true when RADIUS server is down
+- `bypass_auth_when_server_down_for_voip` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Bypass auth for VOIP if set to true when RADIUS server is down
 - `community_vlan_id` (Number) Only if `mode`!=`dynamic`. To be used together with `isolation` under networks. Signaling that this port connects to the networks isolated but wired clients belong to the same community can talk to each other
 - `description` (String) Only if `mode`!=`dynamic`
 - `disable_autoneg` (Boolean) Only if `mode`!=`dynamic`. If speed and duplex are specified, whether to disable autonegotiation
@@ -349,8 +350,8 @@ Optional:
 - `enable_mac_auth` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Whether to enable MAC Auth
 - `enable_qos` (Boolean) Only if `mode`!=`dynamic`
 - `guest_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Which network to put the device into if the device cannot do dot1x. default is null (i.e. not allowed)
-- `inter_isolation_network_link` (Boolean) Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper device. This has to be applied to both ports connected together
-- `inter_switch_link` (Boolean) Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together
+- `inter_isolation_network_link` (Boolean) Only if `mode`!=`dynamic`. `inter_isolation_network_link` is used together with `isolation` under networks, signaling that this port connects to isolated networks
+- `inter_switch_link` (Boolean) Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper devices. This has to be applied to both ports connected together
 - `mac_auth_only` (Boolean) Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`
 - `mac_auth_preferred` (Boolean) Only if `mode`!=`dynamic` + `enable_mac_auth`==`true` + `mac_auth_only`==`false`, dot1x will be given priority then mac_auth. Enable this to prefer mac_auth over dot1x.
 - `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`
@@ -360,6 +361,7 @@ Optional:
 - `networks` (List of String) Only if `mode`==`trunk`, the list of network/vlans
 - `persist_mac` (Boolean) Only if `mode`==`access` and `port_auth`!=`dot1x`. Whether the port should retain dynamically learned MAC addresses
 - `poe_disabled` (Boolean) Only if `mode`!=`dynamic`. Whether PoE capabilities are disabled for a port
+- `poe_priority` (String) PoE priority. enum: `low`, `high`
 - `port_auth` (String) Only if `mode`!=`dynamic`. If dot1x is desired, set to dot1x. enum: `dot1x`
 - `port_network` (String) Only if `mode`!=`dynamic`. Native network/vlan for untagged traffic
 - `reauth_interval` (String) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range between 10 and 65535 (default: 3600)
@@ -383,7 +385,7 @@ Optional:
 
 Required:
 
-- `src` (String) enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`
+- `src` (String) enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_description`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`
 
 Optional:
 

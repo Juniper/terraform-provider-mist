@@ -50,12 +50,13 @@ resource "mist_org_sso_role" "sso_role_one" {
 Required:
 
 - `role` (String) access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`
-- `scope` (String) enum: `org`, `site`, `sitegroup`
+- `scope` (String) enum: `org`, `site`, `sitegroup`, `orgsites`
 
 Optional:
 
 - `site_id` (String) Required if `scope`==`site`
 - `sitegroup_id` (String) Required if `scope`==`sitegroup`
+- `view` (String, Deprecated) Used for backward compatibility. Use `views` instead.
 - `views` (List of String) Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  
 You can define custom roles by adding the `views` attribute along with `role` when assigning privileges.  
 Below are the list of supported UI views. Note that this is UI only feature.  

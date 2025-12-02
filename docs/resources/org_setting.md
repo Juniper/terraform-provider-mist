@@ -94,7 +94,6 @@ When junos_shell_access is defined - Additional users mist-web-admin (admin perm
 - `mxedge_mgmt` (Attributes) (see [below for nested schema](#nestedatt--mxedge_mgmt))
 - `optic_port_config` (Attributes Map) Property key is the interface name or range (e.g. `et-0/0/47`, `et-0/0/48-49`) (see [below for nested schema](#nestedatt--optic_port_config))
 - `password_policy` (Attributes) password policy (see [below for nested schema](#nestedatt--password_policy))
-- `pcap` (Attributes) (see [below for nested schema](#nestedatt--pcap))
 - `security` (Attributes) (see [below for nested schema](#nestedatt--security))
 - `ssr` (Attributes) (see [below for nested schema](#nestedatt--ssr))
 - `switch` (Attributes) (see [below for nested schema](#nestedatt--switch))
@@ -112,6 +111,7 @@ When junos_shell_access is defined - Additional users mist-web-admin (admin perm
 
 - `cradlepoint` (Attributes) (see [below for nested schema](#nestedatt--cradlepoint))
 - `juniper` (Attributes) (see [below for nested schema](#nestedatt--juniper))
+- `pcap` (Attributes) (see [below for nested schema](#nestedatt--pcap))
 
 <a id="nestedatt--api_policy"></a>
 ### Nested Schema for `api_policy`
@@ -222,9 +222,15 @@ Optional:
 
 Optional:
 
+- `ap_insufficient_capacity` (Boolean)
+- `ap_loop` (Boolean)
+- `ap_non_compliant` (Boolean)
 - `bounce_port_for_abnormal_poe_client` (Boolean)
 - `disable_port_when_ddos_protocol_violation` (Boolean)
 - `disable_port_when_rogue_dhcp_server_detected` (Boolean)
+- `gateway_non_compliant` (Boolean)
+- `switch_misconfigured_port` (Boolean)
+- `switch_port_stuck` (Boolean)
 
 
 
@@ -315,15 +321,6 @@ Optional:
 - `requires_two_factor_auth` (Boolean) Whether to require two-factor auth
 
 
-<a id="nestedatt--pcap"></a>
-### Nested Schema for `pcap`
-
-Optional:
-
-- `bucket` (String)
-- `max_pkt_len` (Number) Max_len of non-management packets to capture
-
-
 <a id="nestedatt--security"></a>
 ### Nested Schema for `security`
 
@@ -343,7 +340,7 @@ Optional:
 - `conductor_hosts` (List of String) List of Conductor IP Addresses or Hosts to be used by the SSR Devices
 - `conductor_token` (String, Sensitive) Token to be used by the SSR Devices to connect to the Conductor
 - `disable_stats` (Boolean) Disable stats collection on SSR devices
-- `proxy` (Attributes) Proxy Configuration to talk to Mist (see [below for nested schema](#nestedatt--ssr--proxy))
+- `proxy` (Attributes) SSR proxy configuration to talk to Mist (see [below for nested schema](#nestedatt--ssr--proxy))
 
 <a id="nestedatt--ssr--auto_upgrade"></a>
 ### Nested Schema for `ssr.auto_upgrade`
@@ -360,6 +357,7 @@ Optional:
 
 Optional:
 
+- `disabled` (Boolean)
 - `url` (String)
 
 
@@ -505,6 +503,16 @@ Read-Only:
 
 - `linked_by` (String)
 - `name` (String)
+
+
+
+<a id="nestedatt--pcap"></a>
+### Nested Schema for `pcap`
+
+Read-Only:
+
+- `bucket` (String)
+- `max_pkt_len` (Number) Max_len of non-management packets to capture
 
 
 

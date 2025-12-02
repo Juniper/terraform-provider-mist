@@ -50,10 +50,10 @@ resource "mist_org_servicepolicy" "servicepolicy_one" {
 
 ### Optional
 
-- `aamw` (Attributes) For SRX Only (see [below for nested schema](#nestedatt--aamw))
+- `aamw` (Attributes) SRX only (see [below for nested schema](#nestedatt--aamw))
 - `action` (String) enum: `allow`, `deny`
 - `antivirus` (Attributes) For SRX-only (see [below for nested schema](#nestedatt--antivirus))
-- `appqoe` (Attributes) For SRX Only (see [below for nested schema](#nestedatt--appqoe))
+- `appqoe` (Attributes) SRX only (see [below for nested schema](#nestedatt--appqoe))
 - `ewf` (Attributes List) (see [below for nested schema](#nestedatt--ewf))
 - `idp` (Attributes) (see [below for nested schema](#nestedatt--idp))
 - `local_routing` (Boolean) access within the same VRF
