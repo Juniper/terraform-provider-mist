@@ -12,7 +12,7 @@ description: |-
 
 ### Fixes
 * **[Issue 152](https://github.com/Juniper/terraform-provider-mist/issues/152):** Added `orgsites` option for sso scope role.
-* **[Issue 160](https://github.com/Juniper/terraform-provider-mist/issues/160):** Added `lldp_system_descripton` option for `src` under switch `port_usages.rules`.
+* **[Issue 160](https://github.com/Juniper/terraform-provider-mist/issues/160):** Added `lldp_system_description` option for `src` under switch `port_usages.rules`.
 * **[Issue 161](https://github.com/Juniper/terraform-provider-mist/issues/161):** Handle empty `networks` attribute for `dhcp_snooping`.
 
 ### General changes
