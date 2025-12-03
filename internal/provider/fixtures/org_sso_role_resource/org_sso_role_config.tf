@@ -26,6 +26,5 @@
   {
     role  = "installer"
     scope = "org"
-    view  = "security"
   }]
 

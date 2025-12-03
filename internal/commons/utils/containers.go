@@ -24,9 +24,9 @@ func ContainerAsString[T StringOrNumberContainer](container T) basetypes.StringV
 		return types.StringValue(*v)
 	} else if v, ok := container.AsNumber(); ok && v != nil {
 		return types.StringValue(fmt.Sprintf("%d", *v))
-	} else {
-		return types.StringNull()
 	}
+
+	return types.StringNull()
 }
 
 // Legacy function wrappers for backward compatibility

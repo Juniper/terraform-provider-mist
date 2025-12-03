@@ -153,10 +153,6 @@ func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, rName string) testChec
 				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("privileges.%d.sitegroup_id", i))
 			}
 
-			if privilege.View != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.view", i), *privilege.View)
-			}
-
 			if len(privilege.Views) > 0 {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.views.#", i), fmt.Sprintf("%d", len(privilege.Views)))
 				for j, view := range privilege.Views {

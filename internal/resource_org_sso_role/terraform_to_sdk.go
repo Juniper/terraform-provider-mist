@@ -51,9 +51,7 @@ func privilegesTerraformToSdk(diags *diag.Diagnostics, d basetypes.ListValue) []
 				data.SitegroupId = &tmp
 			}
 		}
-		if !plan.View.IsNull() && !plan.View.IsUnknown() {
-			data.View = models.ToPointer(plan.View.ValueString())
-		}
+
 		if !plan.Views.IsNull() && !plan.Views.IsUnknown() {
 			for _, v := range plan.Views.Elements() {
 				var vi interface{} = v

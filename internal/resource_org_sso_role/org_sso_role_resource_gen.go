@@ -89,12 +89,6 @@ func OrgSsoRoleResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("scope"), types.StringValue("sitegroup")),
 							},
 						},
-						"view": schema.StringAttribute{
-							Optional:            true,
-							Description:         "Used for backward compatibility. Use `views` instead.",
-							MarkdownDescription: "Used for backward compatibility. Use `views` instead.",
-							DeprecationMessage:  "This attribute is deprecated.",
-						},
 						"views": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
@@ -222,24 +216,6 @@ func (t PrivilegesType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`sitegroup_id expected to be basetypes.StringValue, was: %T`, sitegroupIdAttribute))
 	}
 
-	viewAttribute, ok := attributes["view"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`view is missing from object`)
-
-		return nil, diags
-	}
-
-	viewVal, ok := viewAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`view expected to be basetypes.StringValue, was: %T`, viewAttribute))
-	}
-
 	viewsAttribute, ok := attributes["views"]
 
 	if !ok {
@@ -267,7 +243,6 @@ func (t PrivilegesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		Scope:       scopeVal,
 		SiteId:      siteIdVal,
 		SitegroupId: sitegroupIdVal,
-		View:        viewVal,
 		Views:       viewsVal,
 		state:       attr.ValueStateKnown,
 	}, diags
@@ -408,24 +383,6 @@ func NewPrivilegesValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`sitegroup_id expected to be basetypes.StringValue, was: %T`, sitegroupIdAttribute))
 	}
 
-	viewAttribute, ok := attributes["view"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`view is missing from object`)
-
-		return NewPrivilegesValueUnknown(), diags
-	}
-
-	viewVal, ok := viewAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`view expected to be basetypes.StringValue, was: %T`, viewAttribute))
-	}
-
 	viewsAttribute, ok := attributes["views"]
 
 	if !ok {
@@ -453,7 +410,6 @@ func NewPrivilegesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		Scope:       scopeVal,
 		SiteId:      siteIdVal,
 		SitegroupId: sitegroupIdVal,
-		View:        viewVal,
 		Views:       viewsVal,
 		state:       attr.ValueStateKnown,
 	}, diags
@@ -531,13 +487,12 @@ type PrivilegesValue struct {
 	Scope       basetypes.StringValue `tfsdk:"scope"`
 	SiteId      basetypes.StringValue `tfsdk:"site_id"`
 	SitegroupId basetypes.StringValue `tfsdk:"sitegroup_id"`
-	View        basetypes.StringValue `tfsdk:"view"`
 	Views       basetypes.ListValue   `tfsdk:"views"`
 	state       attr.ValueState
 }
 
 func (v PrivilegesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
@@ -546,7 +501,6 @@ func (v PrivilegesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["scope"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["site_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sitegroup_id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["view"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["views"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -555,7 +509,7 @@ func (v PrivilegesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 5)
 
 		val, err = v.Role.ToTerraformValue(ctx)
 
@@ -588,14 +542,6 @@ func (v PrivilegesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["sitegroup_id"] = val
-
-		val, err = v.View.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["view"] = val
 
 		val, err = v.Views.ToTerraformValue(ctx)
 
@@ -652,7 +598,6 @@ func (v PrivilegesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"scope":        basetypes.StringType{},
 			"site_id":      basetypes.StringType{},
 			"sitegroup_id": basetypes.StringType{},
-			"view":         basetypes.StringType{},
 			"views": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -664,7 +609,6 @@ func (v PrivilegesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"scope":        basetypes.StringType{},
 		"site_id":      basetypes.StringType{},
 		"sitegroup_id": basetypes.StringType{},
-		"view":         basetypes.StringType{},
 		"views": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -685,7 +629,6 @@ func (v PrivilegesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"scope":        v.Scope,
 			"site_id":      v.SiteId,
 			"sitegroup_id": v.SitegroupId,
-			"view":         v.View,
 			"views":        viewsVal,
 		})
 
@@ -723,10 +666,6 @@ func (v PrivilegesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.View.Equal(other.View) {
-		return false
-	}
-
 	if !v.Views.Equal(other.Views) {
 		return false
 	}
@@ -748,7 +687,6 @@ func (v PrivilegesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"scope":        basetypes.StringType{},
 		"site_id":      basetypes.StringType{},
 		"sitegroup_id": basetypes.StringType{},
-		"view":         basetypes.StringType{},
 		"views": basetypes.ListType{
 			ElemType: types.StringType,
 		},

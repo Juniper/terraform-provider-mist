@@ -11,6 +11,5 @@ type OrgSsoRolePrivilegesValue struct {
 	Scope       string   `cty:"scope" hcl:"scope"`
 	SiteId      *string  `cty:"site_id" hcl:"site_id"`
 	SitegroupId *string  `cty:"sitegroup_id" hcl:"sitegroup_id"`
-	View        *string  `cty:"view" hcl:"view"`
 	Views       []string `cty:"views" hcl:"views"`
 }
