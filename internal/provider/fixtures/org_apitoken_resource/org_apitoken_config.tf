@@ -1,4 +1,4 @@
-  org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
+  org_id = "{org_id}"
   name   = "Test API Token"
   privileges = [{
       role  = "admin"
@@ -10,7 +10,7 @@
     "203.0.113.1"
   ]
 ␞
-  org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
+  org_id = "{org_id}"
   name   = "Site Admin Token"
   privileges = [
     {
@@ -24,7 +24,7 @@
     "172.16.0.0/16"
   ]
 ␞
-  org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
+  org_id = "{org_id}"
   name   = "Multi-Privilege Token"
   privileges = [
     {
@@ -41,7 +41,7 @@
     "0.0.0.0/0"
   ]
 ␞
-  org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
+  org_id = "{org_id}"
   name   = "Installer Token"
 
   privileges = [
@@ -57,11 +57,21 @@
     "192.168.100.11"
   ]
 ␞
-  org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
+  org_id = "{org_id}"
   name   = "Read-Only Token"
 
   privileges = [{
     role  = "read"
     scope = "org"
   }]
+␞
+  org_id = "{org_id}"
+  name   = "Org Sites Token"
+
+  privileges = [{
+    role  = "admin"
+    scope = "orgsites"
+  }]
+
+  src_ips = ["192.168.0.0/16"]
 

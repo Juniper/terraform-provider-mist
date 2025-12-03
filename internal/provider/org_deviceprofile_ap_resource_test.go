@@ -347,8 +347,11 @@ func (s *OrgDeviceprofileApModel) testChecks(t testing.TB, rType, rName string) 
 		if s.RadioConfig.AntGain6 != nil {
 			checks.append(t, "TestCheckResourceAttr", "radio_config.ant_gain_6", fmt.Sprintf("%d", *s.RadioConfig.AntGain6))
 		}
-		if s.RadioConfig.AntMode != nil {
-			checks.append(t, "TestCheckResourceAttr", "radio_config.ant_mode", *s.RadioConfig.AntMode)
+		if s.RadioConfig.AntennaSelect != nil {
+			checks.append(t, "TestCheckResourceAttr", "radio_config.antenna_select", *s.RadioConfig.AntennaSelect)
+		}
+		if s.RadioConfig.RrmManaged != nil {
+			checks.append(t, "TestCheckResourceAttr", "radio_config.rrm_managed", fmt.Sprintf("%t", *s.RadioConfig.RrmManaged))
 		}
 		if s.RadioConfig.AntennaMode != nil {
 			checks.append(t, "TestCheckResourceAttr", "radio_config.antenna_mode", *s.RadioConfig.AntennaMode)
@@ -433,6 +436,9 @@ func (s *OrgDeviceprofileApModel) testChecks(t testing.TB, rType, rName string) 
 			if s.RadioConfig.Band5.Preamble != nil {
 				checks.append(t, "TestCheckResourceAttr", "radio_config.band_5.preamble", *s.RadioConfig.Band5.Preamble)
 			}
+			if s.RadioConfig.Band5.AntennaBeamPattern != nil {
+				checks.append(t, "TestCheckResourceAttr", "radio_config.band_5.antenna_beam_pattern", *s.RadioConfig.Band5.AntennaBeamPattern)
+			}
 		}
 		if s.RadioConfig.Band5On24Radio != nil {
 			checks.append(t, "TestCheckResourceAttrSet", "radio_config.band_5_on_24_radio.%")
@@ -471,6 +477,9 @@ func (s *OrgDeviceprofileApModel) testChecks(t testing.TB, rType, rName string) 
 			}
 			if s.RadioConfig.Band5On24Radio.Preamble != nil {
 				checks.append(t, "TestCheckResourceAttr", "radio_config.band_5_on_24_radio.preamble", *s.RadioConfig.Band5On24Radio.Preamble)
+			}
+			if s.RadioConfig.Band5On24Radio.AntennaBeamPattern != nil {
+				checks.append(t, "TestCheckResourceAttr", "radio_config.band_5_on_24_radio.antenna_beam_pattern", *s.RadioConfig.Band5On24Radio.AntennaBeamPattern)
 			}
 		}
 		if s.RadioConfig.Band6 != nil {
@@ -513,6 +522,9 @@ func (s *OrgDeviceprofileApModel) testChecks(t testing.TB, rType, rName string) 
 			}
 			if s.RadioConfig.Band6.StandardPower != nil {
 				checks.append(t, "TestCheckResourceAttr", "radio_config.band_6.standard_power", fmt.Sprintf("%t", *s.RadioConfig.Band6.StandardPower))
+			}
+			if s.RadioConfig.Band6.AntennaBeamPattern != nil {
+				checks.append(t, "TestCheckResourceAttr", "radio_config.band_6.antenna_beam_pattern", *s.RadioConfig.Band6.AntennaBeamPattern)
 			}
 		}
 		if s.RadioConfig.FullAutomaticRrm != nil {

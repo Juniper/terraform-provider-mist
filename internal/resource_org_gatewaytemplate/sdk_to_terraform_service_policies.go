@@ -121,6 +121,60 @@ func avSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Se
 	return r
 }
 
+func skyatpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ServicePolicySkyatp) basetypes.ObjectValue {
+
+	var dnsDgaDetection basetypes.StringValue
+	var dnsTunnelDetection basetypes.StringValue
+	var httpInspection basetypes.StringValue
+	var iotDevicePolicy basetypes.StringValue
+
+	if d.DnsDgaDetection != nil {
+		dnsDgaDetection = types.StringValue(string(*d.DnsDgaDetection))
+	}
+	if d.DnsTunnelDetection != nil {
+		dnsTunnelDetection = types.StringValue(string(*d.DnsTunnelDetection))
+	}
+	if d.HttpInspection != nil {
+		httpInspection = types.StringValue(string(*d.HttpInspection))
+	}
+	if d.IotDevicePolicy != nil {
+		iotDevicePolicy = types.StringValue(string(*d.IotDevicePolicy))
+	}
+
+	rAttrValue := map[string]attr.Value{
+		"dns_dga_detection":    dnsDgaDetection,
+		"dns_tunnel_detection": dnsTunnelDetection,
+		"http_inspection":      httpInspection,
+		"iot_device_policy":    iotDevicePolicy,
+	}
+	r, e := basetypes.NewObjectValue(SkyatpValue{}.AttributeTypes(ctx), rAttrValue)
+	diags.Append(e...)
+
+	return r
+}
+
+func syslogSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ServicePolicySyslog) basetypes.ObjectValue {
+
+	var enabled basetypes.BoolValue
+	var serverNames = types.ListNull(types.StringType)
+
+	if d.Enabled != nil {
+		enabled = types.BoolValue(*d.Enabled)
+	}
+	if d.ServerNames != nil {
+		serverNames = mistutils.ListOfStringSdkToTerraform(d.ServerNames)
+	}
+
+	rAttrValue := map[string]attr.Value{
+		"enabled":      enabled,
+		"server_names": serverNames,
+	}
+	r, e := basetypes.NewObjectValue(SyslogValue{}.AttributeTypes(ctx), rAttrValue)
+	diags.Append(e...)
+
+	return r
+}
+
 func sslProxySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ServicePolicySslProxy) basetypes.ObjectValue {
 
 	var CiphersCategory basetypes.StringValue
@@ -158,7 +212,9 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		var pathPreference basetypes.StringValue
 		var servicepolicyId basetypes.StringValue
 		var services = types.ListNull(types.StringType)
+		var skyatp = types.ObjectNull(SkyatpValue{}.AttributeTypes(ctx))
 		var sslProxy = types.ObjectNull(SslProxyValue{}.AttributeTypes(ctx))
+		var syslog = types.ObjectNull(SyslogValue{}.AttributeTypes(ctx))
 		var tenants = types.ListNull(types.StringType)
 
 		if v.Action != nil {
@@ -191,8 +247,14 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		if v.ServicepolicyId != nil {
 			servicepolicyId = types.StringValue(v.ServicepolicyId.String())
 		}
+		if v.Skyatp != nil {
+			skyatp = skyatpSdkToTerraform(ctx, diags, v.Skyatp)
+		}
 		if v.SslProxy != nil {
 			sslProxy = sslProxySdkToTerraform(ctx, diags, v.SslProxy)
+		}
+		if v.Syslog != nil {
+			syslog = syslogSdkToTerraform(ctx, diags, v.Syslog)
 		}
 		if v.Tenants != nil {
 			tenants = mistutils.ListOfStringSdkToTerraform(v.Tenants)
@@ -209,7 +271,9 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 			"path_preference":  pathPreference,
 			"servicepolicy_id": servicepolicyId,
 			"services":         services,
+			"skyatp":           skyatp,
 			"ssl_proxy":        sslProxy,
+			"syslog":           syslog,
 			"tenants":          tenants,
 		}
 

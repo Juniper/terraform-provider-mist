@@ -210,8 +210,8 @@ type OrgDeviceprofileApRadioConfigValue struct {
 	AntGain24        *int64                                 `cty:"ant_gain_24" hcl:"ant_gain_24"`
 	AntGain5         *int64                                 `cty:"ant_gain_5" hcl:"ant_gain_5"`
 	AntGain6         *int64                                 `cty:"ant_gain_6" hcl:"ant_gain_6"`
-	AntMode          *string                                `cty:"ant_mode" hcl:"ant_mode"`
 	AntennaMode      *string                                `cty:"antenna_mode" hcl:"antenna_mode"`
+	AntennaSelect    *string                                `cty:"antenna_select" hcl:"antenna_select"`
 	Band24           *OrgDeviceprofileApBand24Value         `cty:"band_24" hcl:"band_24"`
 	Band24Usage      *string                                `cty:"band_24_usage" hcl:"band_24_usage"`
 	Band5            *OrgDeviceprofileApBand5Value          `cty:"band_5" hcl:"band_5"`
@@ -219,6 +219,7 @@ type OrgDeviceprofileApRadioConfigValue struct {
 	Band6            *OrgDeviceprofileApBand6Value          `cty:"band_6" hcl:"band_6"`
 	FullAutomaticRrm *bool                                  `cty:"full_automatic_rrm" hcl:"full_automatic_rrm"`
 	IndoorUse        *bool                                  `cty:"indoor_use" hcl:"indoor_use"`
+	RrmManaged       *bool                                  `cty:"rrm_managed" hcl:"rrm_managed"`
 	ScanningEnabled  *bool                                  `cty:"scanning_enabled" hcl:"scanning_enabled"`
 }
 
@@ -237,46 +238,49 @@ type OrgDeviceprofileApBand24Value struct {
 }
 
 type OrgDeviceprofileApBand5Value struct {
-	AllowRrmDisable *bool   `cty:"allow_rrm_disable" hcl:"allow_rrm_disable"`
-	AntGain         *int64  `cty:"ant_gain" hcl:"ant_gain"`
-	AntennaMode     *string `cty:"antenna_mode" hcl:"antenna_mode"`
-	Bandwidth       *int64  `cty:"bandwidth" hcl:"bandwidth"`
-	Channel         *int64  `cty:"channel" hcl:"channel"`
-	Channels        []int64 `cty:"channels" hcl:"channels"`
-	Disabled        *bool   `cty:"disabled" hcl:"disabled"`
-	Power           *int64  `cty:"power" hcl:"power"`
-	PowerMax        *int64  `cty:"power_max" hcl:"power_max"`
-	PowerMin        *int64  `cty:"power_min" hcl:"power_min"`
-	Preamble        *string `cty:"preamble" hcl:"preamble"`
+	AllowRrmDisable    *bool   `cty:"allow_rrm_disable" hcl:"allow_rrm_disable"`
+	AntGain            *int64  `cty:"ant_gain" hcl:"ant_gain"`
+	AntennaBeamPattern *string `cty:"antenna_beam_pattern" hcl:"antenna_beam_pattern"`
+	AntennaMode        *string `cty:"antenna_mode" hcl:"antenna_mode"`
+	Bandwidth          *int64  `cty:"bandwidth" hcl:"bandwidth"`
+	Channel            *int64  `cty:"channel" hcl:"channel"`
+	Channels           []int64 `cty:"channels" hcl:"channels"`
+	Disabled           *bool   `cty:"disabled" hcl:"disabled"`
+	Power              *int64  `cty:"power" hcl:"power"`
+	PowerMax           *int64  `cty:"power_max" hcl:"power_max"`
+	PowerMin           *int64  `cty:"power_min" hcl:"power_min"`
+	Preamble           *string `cty:"preamble" hcl:"preamble"`
 }
 
 type OrgDeviceprofileApBand5On24RadioValue struct {
-	AllowRrmDisable *bool   `cty:"allow_rrm_disable" hcl:"allow_rrm_disable"`
-	AntGain         *int64  `cty:"ant_gain" hcl:"ant_gain"`
-	AntennaMode     *string `cty:"antenna_mode" hcl:"antenna_mode"`
-	Bandwidth       *int64  `cty:"bandwidth" hcl:"bandwidth"`
-	Channel         *int64  `cty:"channel" hcl:"channel"`
-	Channels        []int64 `cty:"channels" hcl:"channels"`
-	Disabled        *bool   `cty:"disabled" hcl:"disabled"`
-	Power           *int64  `cty:"power" hcl:"power"`
-	PowerMax        *int64  `cty:"power_max" hcl:"power_max"`
-	PowerMin        *int64  `cty:"power_min" hcl:"power_min"`
-	Preamble        *string `cty:"preamble" hcl:"preamble"`
+	AllowRrmDisable    *bool   `cty:"allow_rrm_disable" hcl:"allow_rrm_disable"`
+	AntGain            *int64  `cty:"ant_gain" hcl:"ant_gain"`
+	AntennaBeamPattern *string `cty:"antenna_beam_pattern" hcl:"antenna_beam_pattern"`
+	AntennaMode        *string `cty:"antenna_mode" hcl:"antenna_mode"`
+	Bandwidth          *int64  `cty:"bandwidth" hcl:"bandwidth"`
+	Channel            *int64  `cty:"channel" hcl:"channel"`
+	Channels           []int64 `cty:"channels" hcl:"channels"`
+	Disabled           *bool   `cty:"disabled" hcl:"disabled"`
+	Power              *int64  `cty:"power" hcl:"power"`
+	PowerMax           *int64  `cty:"power_max" hcl:"power_max"`
+	PowerMin           *int64  `cty:"power_min" hcl:"power_min"`
+	Preamble           *string `cty:"preamble" hcl:"preamble"`
 }
 
 type OrgDeviceprofileApBand6Value struct {
-	AllowRrmDisable *bool   `cty:"allow_rrm_disable" hcl:"allow_rrm_disable"`
-	AntGain         *int64  `cty:"ant_gain" hcl:"ant_gain"`
-	AntennaMode     *string `cty:"antenna_mode" hcl:"antenna_mode"`
-	Bandwidth       *int64  `cty:"bandwidth" hcl:"bandwidth"`
-	Channel         *int64  `cty:"channel" hcl:"channel"`
-	Channels        []int64 `cty:"channels" hcl:"channels"`
-	Disabled        *bool   `cty:"disabled" hcl:"disabled"`
-	Power           *int64  `cty:"power" hcl:"power"`
-	PowerMax        *int64  `cty:"power_max" hcl:"power_max"`
-	PowerMin        *int64  `cty:"power_min" hcl:"power_min"`
-	Preamble        *string `cty:"preamble" hcl:"preamble"`
-	StandardPower   *bool   `cty:"standard_power" hcl:"standard_power"`
+	AllowRrmDisable    *bool   `cty:"allow_rrm_disable" hcl:"allow_rrm_disable"`
+	AntGain            *int64  `cty:"ant_gain" hcl:"ant_gain"`
+	AntennaBeamPattern *string `cty:"antenna_beam_pattern" hcl:"antenna_beam_pattern"`
+	AntennaMode        *string `cty:"antenna_mode" hcl:"antenna_mode"`
+	Bandwidth          *int64  `cty:"bandwidth" hcl:"bandwidth"`
+	Channel            *int64  `cty:"channel" hcl:"channel"`
+	Channels           []int64 `cty:"channels" hcl:"channels"`
+	Disabled           *bool   `cty:"disabled" hcl:"disabled"`
+	Power              *int64  `cty:"power" hcl:"power"`
+	PowerMax           *int64  `cty:"power_max" hcl:"power_max"`
+	PowerMin           *int64  `cty:"power_min" hcl:"power_min"`
+	Preamble           *string `cty:"preamble" hcl:"preamble"`
+	StandardPower      *bool   `cty:"standard_power" hcl:"standard_power"`
 }
 
 type OrgDeviceprofileApUplinkPortConfigValue struct {

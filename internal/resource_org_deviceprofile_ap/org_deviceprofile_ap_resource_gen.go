@@ -1254,18 +1254,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							int64validator.AtLeast(0),
 						},
 					},
-					"ant_mode": schema.StringAttribute{
-						Optional:            true,
-						Description:         "Antenna Mode for AP which supports selectable antennas. enum: `external`, `internal`",
-						MarkdownDescription: "Antenna Mode for AP which supports selectable antennas. enum: `external`, `internal`",
-						Validators: []validator.String{
-							stringvalidator.OneOf(
-								"",
-								"external",
-								"internal",
-							),
-						},
-					},
 					"antenna_mode": schema.StringAttribute{
 						Optional:            true,
 						Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
@@ -1278,6 +1266,18 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								"3x3",
 								"4x4",
 								"default",
+							),
+						},
+					},
+					"antenna_select": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Antenna Mode for AP which supports selectable antennas. enum: `external`, `internal`",
+						MarkdownDescription: "Antenna Mode for AP which supports selectable antennas. enum: `external`, `internal`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"external",
+								"internal",
 							),
 						},
 					},
@@ -1434,6 +1434,19 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								},
 								Default: int64default.StaticInt64(0),
 							},
+							"antenna_beam_pattern": schema.StringAttribute{
+								Optional:            true,
+								Description:         "enum: `narrow`, `medium`, `wide`",
+								MarkdownDescription: "enum: `narrow`, `medium`, `wide`",
+								Validators: []validator.String{
+									stringvalidator.OneOf(
+										"",
+										"narrow",
+										"medium",
+										"wide",
+									),
+								},
+							},
 							"antenna_mode": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
@@ -1556,6 +1569,19 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								},
 								Default: int64default.StaticInt64(0),
 							},
+							"antenna_beam_pattern": schema.StringAttribute{
+								Optional:            true,
+								Description:         "enum: `narrow`, `medium`, `wide`",
+								MarkdownDescription: "enum: `narrow`, `medium`, `wide`",
+								Validators: []validator.String{
+									stringvalidator.OneOf(
+										"",
+										"narrow",
+										"medium",
+										"wide",
+									),
+								},
+							},
 							"antenna_mode": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
@@ -1677,6 +1703,19 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 									int64validator.Between(0, 10),
 								},
 								Default: int64default.StaticInt64(0),
+							},
+							"antenna_beam_pattern": schema.StringAttribute{
+								Optional:            true,
+								Description:         "enum: `narrow`, `medium`, `wide`",
+								MarkdownDescription: "enum: `narrow`, `medium`, `wide`",
+								Validators: []validator.String{
+									stringvalidator.OneOf(
+										"",
+										"narrow",
+										"medium",
+										"wide",
+									),
+								},
 							},
 							"antenna_mode": schema.StringAttribute{
 								Optional:            true,
@@ -1804,6 +1843,11 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "To make an outdoor operate indoor. For an outdoor-ap, some channels are disallowed by default, this allows the user to use it as an indoor-ap",
 						MarkdownDescription: "To make an outdoor operate indoor. For an outdoor-ap, some channels are disallowed by default, this allows the user to use it as an indoor-ap",
+					},
+					"rrm_managed": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "Enable RRM to manage all radio settings (ignores all band_xxx configs)",
+						MarkdownDescription: "Enable RRM to manage all radio settings (ignores all band_xxx configs)",
 					},
 					"scanning_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -14242,24 +14286,6 @@ func (t RadioConfigType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`ant_gain_6 expected to be basetypes.Int64Value, was: %T`, antGain6Attribute))
 	}
 
-	antModeAttribute, ok := attributes["ant_mode"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`ant_mode is missing from object`)
-
-		return nil, diags
-	}
-
-	antModeVal, ok := antModeAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`ant_mode expected to be basetypes.StringValue, was: %T`, antModeAttribute))
-	}
-
 	antennaModeAttribute, ok := attributes["antenna_mode"]
 
 	if !ok {
@@ -14276,6 +14302,24 @@ func (t RadioConfigType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	antennaSelectAttribute, ok := attributes["antenna_select"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_select is missing from object`)
+
+		return nil, diags
+	}
+
+	antennaSelectVal, ok := antennaSelectAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_select expected to be basetypes.StringValue, was: %T`, antennaSelectAttribute))
 	}
 
 	band24Attribute, ok := attributes["band_24"]
@@ -14404,6 +14448,24 @@ func (t RadioConfigType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`indoor_use expected to be basetypes.BoolValue, was: %T`, indoorUseAttribute))
 	}
 
+	rrmManagedAttribute, ok := attributes["rrm_managed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rrm_managed is missing from object`)
+
+		return nil, diags
+	}
+
+	rrmManagedVal, ok := rrmManagedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rrm_managed expected to be basetypes.BoolValue, was: %T`, rrmManagedAttribute))
+	}
+
 	scanningEnabledAttribute, ok := attributes["scanning_enabled"]
 
 	if !ok {
@@ -14431,8 +14493,8 @@ func (t RadioConfigType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		AntGain24:        antGain24Val,
 		AntGain5:         antGain5Val,
 		AntGain6:         antGain6Val,
-		AntMode:          antModeVal,
 		AntennaMode:      antennaModeVal,
+		AntennaSelect:    antennaSelectVal,
 		Band24:           band24Val,
 		Band24Usage:      band24UsageVal,
 		Band5:            band5Val,
@@ -14440,6 +14502,7 @@ func (t RadioConfigType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		Band6:            band6Val,
 		FullAutomaticRrm: fullAutomaticRrmVal,
 		IndoorUse:        indoorUseVal,
+		RrmManaged:       rrmManagedVal,
 		ScanningEnabled:  scanningEnabledVal,
 		state:            attr.ValueStateKnown,
 	}, diags
@@ -14580,24 +14643,6 @@ func NewRadioConfigValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`ant_gain_6 expected to be basetypes.Int64Value, was: %T`, antGain6Attribute))
 	}
 
-	antModeAttribute, ok := attributes["ant_mode"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`ant_mode is missing from object`)
-
-		return NewRadioConfigValueUnknown(), diags
-	}
-
-	antModeVal, ok := antModeAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`ant_mode expected to be basetypes.StringValue, was: %T`, antModeAttribute))
-	}
-
 	antennaModeAttribute, ok := attributes["antenna_mode"]
 
 	if !ok {
@@ -14614,6 +14659,24 @@ func NewRadioConfigValue(attributeTypes map[string]attr.Type, attributes map[str
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`antenna_mode expected to be basetypes.StringValue, was: %T`, antennaModeAttribute))
+	}
+
+	antennaSelectAttribute, ok := attributes["antenna_select"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_select is missing from object`)
+
+		return NewRadioConfigValueUnknown(), diags
+	}
+
+	antennaSelectVal, ok := antennaSelectAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_select expected to be basetypes.StringValue, was: %T`, antennaSelectAttribute))
 	}
 
 	band24Attribute, ok := attributes["band_24"]
@@ -14742,6 +14805,24 @@ func NewRadioConfigValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`indoor_use expected to be basetypes.BoolValue, was: %T`, indoorUseAttribute))
 	}
 
+	rrmManagedAttribute, ok := attributes["rrm_managed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rrm_managed is missing from object`)
+
+		return NewRadioConfigValueUnknown(), diags
+	}
+
+	rrmManagedVal, ok := rrmManagedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rrm_managed expected to be basetypes.BoolValue, was: %T`, rrmManagedAttribute))
+	}
+
 	scanningEnabledAttribute, ok := attributes["scanning_enabled"]
 
 	if !ok {
@@ -14769,8 +14850,8 @@ func NewRadioConfigValue(attributeTypes map[string]attr.Type, attributes map[str
 		AntGain24:        antGain24Val,
 		AntGain5:         antGain5Val,
 		AntGain6:         antGain6Val,
-		AntMode:          antModeVal,
 		AntennaMode:      antennaModeVal,
+		AntennaSelect:    antennaSelectVal,
 		Band24:           band24Val,
 		Band24Usage:      band24UsageVal,
 		Band5:            band5Val,
@@ -14778,6 +14859,7 @@ func NewRadioConfigValue(attributeTypes map[string]attr.Type, attributes map[str
 		Band6:            band6Val,
 		FullAutomaticRrm: fullAutomaticRrmVal,
 		IndoorUse:        indoorUseVal,
+		RrmManaged:       rrmManagedVal,
 		ScanningEnabled:  scanningEnabledVal,
 		state:            attr.ValueStateKnown,
 	}, diags
@@ -14855,8 +14937,8 @@ type RadioConfigValue struct {
 	AntGain24        basetypes.Int64Value  `tfsdk:"ant_gain_24"`
 	AntGain5         basetypes.Int64Value  `tfsdk:"ant_gain_5"`
 	AntGain6         basetypes.Int64Value  `tfsdk:"ant_gain_6"`
-	AntMode          basetypes.StringValue `tfsdk:"ant_mode"`
 	AntennaMode      basetypes.StringValue `tfsdk:"antenna_mode"`
+	AntennaSelect    basetypes.StringValue `tfsdk:"antenna_select"`
 	Band24           basetypes.ObjectValue `tfsdk:"band_24"`
 	Band24Usage      basetypes.StringValue `tfsdk:"band_24_usage"`
 	Band5            basetypes.ObjectValue `tfsdk:"band_5"`
@@ -14864,12 +14946,13 @@ type RadioConfigValue struct {
 	Band6            basetypes.ObjectValue `tfsdk:"band_6"`
 	FullAutomaticRrm basetypes.BoolValue   `tfsdk:"full_automatic_rrm"`
 	IndoorUse        basetypes.BoolValue   `tfsdk:"indoor_use"`
+	RrmManaged       basetypes.BoolValue   `tfsdk:"rrm_managed"`
 	ScanningEnabled  basetypes.BoolValue   `tfsdk:"scanning_enabled"`
 	state            attr.ValueState
 }
 
 func (v RadioConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 14)
+	attrTypes := make(map[string]tftypes.Type, 15)
 
 	var val tftypes.Value
 	var err error
@@ -14878,8 +14961,8 @@ func (v RadioConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["ant_gain_24"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["ant_gain_5"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["ant_gain_6"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["ant_mode"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["antenna_mode"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["antenna_select"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["band_24"] = basetypes.ObjectType{
 		AttrTypes: Band24Value{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -14895,13 +14978,14 @@ func (v RadioConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	}.TerraformType(ctx)
 	attrTypes["full_automatic_rrm"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["indoor_use"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["rrm_managed"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["scanning_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 14)
+		vals := make(map[string]tftypes.Value, 15)
 
 		val, err = v.AllowRrmDisable.ToTerraformValue(ctx)
 
@@ -14935,14 +15019,6 @@ func (v RadioConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 		vals["ant_gain_6"] = val
 
-		val, err = v.AntMode.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["ant_mode"] = val
-
 		val, err = v.AntennaMode.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -14950,6 +15026,14 @@ func (v RadioConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["antenna_mode"] = val
+
+		val, err = v.AntennaSelect.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["antenna_select"] = val
 
 		val, err = v.Band24.ToTerraformValue(ctx)
 
@@ -15006,6 +15090,14 @@ func (v RadioConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["indoor_use"] = val
+
+		val, err = v.RrmManaged.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["rrm_managed"] = val
 
 		val, err = v.ScanningEnabled.ToTerraformValue(ctx)
 
@@ -15133,8 +15225,8 @@ func (v RadioConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"ant_gain_24":       basetypes.Int64Type{},
 		"ant_gain_5":        basetypes.Int64Type{},
 		"ant_gain_6":        basetypes.Int64Type{},
-		"ant_mode":          basetypes.StringType{},
 		"antenna_mode":      basetypes.StringType{},
+		"antenna_select":    basetypes.StringType{},
 		"band_24": basetypes.ObjectType{
 			AttrTypes: Band24Value{}.AttributeTypes(ctx),
 		},
@@ -15150,6 +15242,7 @@ func (v RadioConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		},
 		"full_automatic_rrm": basetypes.BoolType{},
 		"indoor_use":         basetypes.BoolType{},
+		"rrm_managed":        basetypes.BoolType{},
 		"scanning_enabled":   basetypes.BoolType{},
 	}
 
@@ -15168,8 +15261,8 @@ func (v RadioConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"ant_gain_24":        v.AntGain24,
 			"ant_gain_5":         v.AntGain5,
 			"ant_gain_6":         v.AntGain6,
-			"ant_mode":           v.AntMode,
 			"antenna_mode":       v.AntennaMode,
+			"antenna_select":     v.AntennaSelect,
 			"band_24":            band24,
 			"band_24_usage":      v.Band24Usage,
 			"band_5":             band5,
@@ -15177,6 +15270,7 @@ func (v RadioConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"band_6":             band6,
 			"full_automatic_rrm": v.FullAutomaticRrm,
 			"indoor_use":         v.IndoorUse,
+			"rrm_managed":        v.RrmManaged,
 			"scanning_enabled":   v.ScanningEnabled,
 		})
 
@@ -15214,11 +15308,11 @@ func (v RadioConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.AntMode.Equal(other.AntMode) {
+	if !v.AntennaMode.Equal(other.AntennaMode) {
 		return false
 	}
 
-	if !v.AntennaMode.Equal(other.AntennaMode) {
+	if !v.AntennaSelect.Equal(other.AntennaSelect) {
 		return false
 	}
 
@@ -15250,6 +15344,10 @@ func (v RadioConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.RrmManaged.Equal(other.RrmManaged) {
+		return false
+	}
+
 	if !v.ScanningEnabled.Equal(other.ScanningEnabled) {
 		return false
 	}
@@ -15271,8 +15369,8 @@ func (v RadioConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"ant_gain_24":       basetypes.Int64Type{},
 		"ant_gain_5":        basetypes.Int64Type{},
 		"ant_gain_6":        basetypes.Int64Type{},
-		"ant_mode":          basetypes.StringType{},
 		"antenna_mode":      basetypes.StringType{},
+		"antenna_select":    basetypes.StringType{},
 		"band_24": basetypes.ObjectType{
 			AttrTypes: Band24Value{}.AttributeTypes(ctx),
 		},
@@ -15288,6 +15386,7 @@ func (v RadioConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		},
 		"full_automatic_rrm": basetypes.BoolType{},
 		"indoor_use":         basetypes.BoolType{},
+		"rrm_managed":        basetypes.BoolType{},
 		"scanning_enabled":   basetypes.BoolType{},
 	}
 }
@@ -16263,6 +16362,24 @@ func (t Band5Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
 	}
 
+	antennaBeamPatternAttribute, ok := attributes["antenna_beam_pattern"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_beam_pattern is missing from object`)
+
+		return nil, diags
+	}
+
+	antennaBeamPatternVal, ok := antennaBeamPatternAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_beam_pattern expected to be basetypes.StringValue, was: %T`, antennaBeamPatternAttribute))
+	}
+
 	antennaModeAttribute, ok := attributes["antenna_mode"]
 
 	if !ok {
@@ -16430,18 +16547,19 @@ func (t Band5Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 	}
 
 	return Band5Value{
-		AllowRrmDisable: allowRrmDisableVal,
-		AntGain:         antGainVal,
-		AntennaMode:     antennaModeVal,
-		Bandwidth:       bandwidthVal,
-		Channel:         channelVal,
-		Channels:        channelsVal,
-		Disabled:        disabledVal,
-		Power:           powerVal,
-		PowerMax:        powerMaxVal,
-		PowerMin:        powerMinVal,
-		Preamble:        preambleVal,
-		state:           attr.ValueStateKnown,
+		AllowRrmDisable:    allowRrmDisableVal,
+		AntGain:            antGainVal,
+		AntennaBeamPattern: antennaBeamPatternVal,
+		AntennaMode:        antennaModeVal,
+		Bandwidth:          bandwidthVal,
+		Channel:            channelVal,
+		Channels:           channelsVal,
+		Disabled:           disabledVal,
+		Power:              powerVal,
+		PowerMax:           powerMaxVal,
+		PowerMin:           powerMinVal,
+		Preamble:           preambleVal,
+		state:              attr.ValueStateKnown,
 	}, diags
 }
 
@@ -16544,6 +16662,24 @@ func NewBand5Value(attributeTypes map[string]attr.Type, attributes map[string]at
 			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
 	}
 
+	antennaBeamPatternAttribute, ok := attributes["antenna_beam_pattern"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_beam_pattern is missing from object`)
+
+		return NewBand5ValueUnknown(), diags
+	}
+
+	antennaBeamPatternVal, ok := antennaBeamPatternAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_beam_pattern expected to be basetypes.StringValue, was: %T`, antennaBeamPatternAttribute))
+	}
+
 	antennaModeAttribute, ok := attributes["antenna_mode"]
 
 	if !ok {
@@ -16711,18 +16847,19 @@ func NewBand5Value(attributeTypes map[string]attr.Type, attributes map[string]at
 	}
 
 	return Band5Value{
-		AllowRrmDisable: allowRrmDisableVal,
-		AntGain:         antGainVal,
-		AntennaMode:     antennaModeVal,
-		Bandwidth:       bandwidthVal,
-		Channel:         channelVal,
-		Channels:        channelsVal,
-		Disabled:        disabledVal,
-		Power:           powerVal,
-		PowerMax:        powerMaxVal,
-		PowerMin:        powerMinVal,
-		Preamble:        preambleVal,
-		state:           attr.ValueStateKnown,
+		AllowRrmDisable:    allowRrmDisableVal,
+		AntGain:            antGainVal,
+		AntennaBeamPattern: antennaBeamPatternVal,
+		AntennaMode:        antennaModeVal,
+		Bandwidth:          bandwidthVal,
+		Channel:            channelVal,
+		Channels:           channelsVal,
+		Disabled:           disabledVal,
+		Power:              powerVal,
+		PowerMax:           powerMaxVal,
+		PowerMin:           powerMinVal,
+		Preamble:           preambleVal,
+		state:              attr.ValueStateKnown,
 	}, diags
 }
 
@@ -16794,28 +16931,30 @@ func (t Band5Type) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = Band5Value{}
 
 type Band5Value struct {
-	AllowRrmDisable basetypes.BoolValue   `tfsdk:"allow_rrm_disable"`
-	AntGain         basetypes.Int64Value  `tfsdk:"ant_gain"`
-	AntennaMode     basetypes.StringValue `tfsdk:"antenna_mode"`
-	Bandwidth       basetypes.Int64Value  `tfsdk:"bandwidth"`
-	Channel         basetypes.Int64Value  `tfsdk:"channel"`
-	Channels        basetypes.ListValue   `tfsdk:"channels"`
-	Disabled        basetypes.BoolValue   `tfsdk:"disabled"`
-	Power           basetypes.Int64Value  `tfsdk:"power"`
-	PowerMax        basetypes.Int64Value  `tfsdk:"power_max"`
-	PowerMin        basetypes.Int64Value  `tfsdk:"power_min"`
-	Preamble        basetypes.StringValue `tfsdk:"preamble"`
-	state           attr.ValueState
+	AllowRrmDisable    basetypes.BoolValue   `tfsdk:"allow_rrm_disable"`
+	AntGain            basetypes.Int64Value  `tfsdk:"ant_gain"`
+	AntennaBeamPattern basetypes.StringValue `tfsdk:"antenna_beam_pattern"`
+	AntennaMode        basetypes.StringValue `tfsdk:"antenna_mode"`
+	Bandwidth          basetypes.Int64Value  `tfsdk:"bandwidth"`
+	Channel            basetypes.Int64Value  `tfsdk:"channel"`
+	Channels           basetypes.ListValue   `tfsdk:"channels"`
+	Disabled           basetypes.BoolValue   `tfsdk:"disabled"`
+	Power              basetypes.Int64Value  `tfsdk:"power"`
+	PowerMax           basetypes.Int64Value  `tfsdk:"power_max"`
+	PowerMin           basetypes.Int64Value  `tfsdk:"power_min"`
+	Preamble           basetypes.StringValue `tfsdk:"preamble"`
+	state              attr.ValueState
 }
 
 func (v Band5Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 11)
+	attrTypes := make(map[string]tftypes.Type, 12)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["allow_rrm_disable"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["ant_gain"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["antenna_beam_pattern"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["antenna_mode"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["bandwidth"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["channel"] = basetypes.Int64Type{}.TerraformType(ctx)
@@ -16832,7 +16971,7 @@ func (v Band5Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 11)
+		vals := make(map[string]tftypes.Value, 12)
 
 		val, err = v.AllowRrmDisable.ToTerraformValue(ctx)
 
@@ -16849,6 +16988,14 @@ func (v Band5Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 		}
 
 		vals["ant_gain"] = val
+
+		val, err = v.AntennaBeamPattern.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["antenna_beam_pattern"] = val
 
 		val, err = v.AntennaMode.ToTerraformValue(ctx)
 
@@ -16965,11 +17112,12 @@ func (v Band5Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"allow_rrm_disable": basetypes.BoolType{},
-			"ant_gain":          basetypes.Int64Type{},
-			"antenna_mode":      basetypes.StringType{},
-			"bandwidth":         basetypes.Int64Type{},
-			"channel":           basetypes.Int64Type{},
+			"allow_rrm_disable":    basetypes.BoolType{},
+			"ant_gain":             basetypes.Int64Type{},
+			"antenna_beam_pattern": basetypes.StringType{},
+			"antenna_mode":         basetypes.StringType{},
+			"bandwidth":            basetypes.Int64Type{},
+			"channel":              basetypes.Int64Type{},
 			"channels": basetypes.ListType{
 				ElemType: types.Int64Type,
 			},
@@ -16982,11 +17130,12 @@ func (v Band5Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"allow_rrm_disable": basetypes.BoolType{},
-		"ant_gain":          basetypes.Int64Type{},
-		"antenna_mode":      basetypes.StringType{},
-		"bandwidth":         basetypes.Int64Type{},
-		"channel":           basetypes.Int64Type{},
+		"allow_rrm_disable":    basetypes.BoolType{},
+		"ant_gain":             basetypes.Int64Type{},
+		"antenna_beam_pattern": basetypes.StringType{},
+		"antenna_mode":         basetypes.StringType{},
+		"bandwidth":            basetypes.Int64Type{},
+		"channel":              basetypes.Int64Type{},
 		"channels": basetypes.ListType{
 			ElemType: types.Int64Type,
 		},
@@ -17008,17 +17157,18 @@ func (v Band5Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"allow_rrm_disable": v.AllowRrmDisable,
-			"ant_gain":          v.AntGain,
-			"antenna_mode":      v.AntennaMode,
-			"bandwidth":         v.Bandwidth,
-			"channel":           v.Channel,
-			"channels":          channelsVal,
-			"disabled":          v.Disabled,
-			"power":             v.Power,
-			"power_max":         v.PowerMax,
-			"power_min":         v.PowerMin,
-			"preamble":          v.Preamble,
+			"allow_rrm_disable":    v.AllowRrmDisable,
+			"ant_gain":             v.AntGain,
+			"antenna_beam_pattern": v.AntennaBeamPattern,
+			"antenna_mode":         v.AntennaMode,
+			"bandwidth":            v.Bandwidth,
+			"channel":              v.Channel,
+			"channels":             channelsVal,
+			"disabled":             v.Disabled,
+			"power":                v.Power,
+			"power_max":            v.PowerMax,
+			"power_min":            v.PowerMin,
+			"preamble":             v.Preamble,
 		})
 
 	return objVal, diags
@@ -17044,6 +17194,10 @@ func (v Band5Value) Equal(o attr.Value) bool {
 	}
 
 	if !v.AntGain.Equal(other.AntGain) {
+		return false
+	}
+
+	if !v.AntennaBeamPattern.Equal(other.AntennaBeamPattern) {
 		return false
 	}
 
@@ -17096,11 +17250,12 @@ func (v Band5Value) Type(ctx context.Context) attr.Type {
 
 func (v Band5Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"allow_rrm_disable": basetypes.BoolType{},
-		"ant_gain":          basetypes.Int64Type{},
-		"antenna_mode":      basetypes.StringType{},
-		"bandwidth":         basetypes.Int64Type{},
-		"channel":           basetypes.Int64Type{},
+		"allow_rrm_disable":    basetypes.BoolType{},
+		"ant_gain":             basetypes.Int64Type{},
+		"antenna_beam_pattern": basetypes.StringType{},
+		"antenna_mode":         basetypes.StringType{},
+		"bandwidth":            basetypes.Int64Type{},
+		"channel":              basetypes.Int64Type{},
 		"channels": basetypes.ListType{
 			ElemType: types.Int64Type,
 		},
@@ -17171,6 +17326,24 @@ func (t Band5On24RadioType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaBeamPatternAttribute, ok := attributes["antenna_beam_pattern"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_beam_pattern is missing from object`)
+
+		return nil, diags
+	}
+
+	antennaBeamPatternVal, ok := antennaBeamPatternAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_beam_pattern expected to be basetypes.StringValue, was: %T`, antennaBeamPatternAttribute))
 	}
 
 	antennaModeAttribute, ok := attributes["antenna_mode"]
@@ -17340,18 +17513,19 @@ func (t Band5On24RadioType) ValueFromObject(ctx context.Context, in basetypes.Ob
 	}
 
 	return Band5On24RadioValue{
-		AllowRrmDisable: allowRrmDisableVal,
-		AntGain:         antGainVal,
-		AntennaMode:     antennaModeVal,
-		Bandwidth:       bandwidthVal,
-		Channel:         channelVal,
-		Channels:        channelsVal,
-		Disabled:        disabledVal,
-		Power:           powerVal,
-		PowerMax:        powerMaxVal,
-		PowerMin:        powerMinVal,
-		Preamble:        preambleVal,
-		state:           attr.ValueStateKnown,
+		AllowRrmDisable:    allowRrmDisableVal,
+		AntGain:            antGainVal,
+		AntennaBeamPattern: antennaBeamPatternVal,
+		AntennaMode:        antennaModeVal,
+		Bandwidth:          bandwidthVal,
+		Channel:            channelVal,
+		Channels:           channelsVal,
+		Disabled:           disabledVal,
+		Power:              powerVal,
+		PowerMax:           powerMaxVal,
+		PowerMin:           powerMinVal,
+		Preamble:           preambleVal,
+		state:              attr.ValueStateKnown,
 	}, diags
 }
 
@@ -17454,6 +17628,24 @@ func NewBand5On24RadioValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
 	}
 
+	antennaBeamPatternAttribute, ok := attributes["antenna_beam_pattern"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_beam_pattern is missing from object`)
+
+		return NewBand5On24RadioValueUnknown(), diags
+	}
+
+	antennaBeamPatternVal, ok := antennaBeamPatternAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_beam_pattern expected to be basetypes.StringValue, was: %T`, antennaBeamPatternAttribute))
+	}
+
 	antennaModeAttribute, ok := attributes["antenna_mode"]
 
 	if !ok {
@@ -17621,18 +17813,19 @@ func NewBand5On24RadioValue(attributeTypes map[string]attr.Type, attributes map[
 	}
 
 	return Band5On24RadioValue{
-		AllowRrmDisable: allowRrmDisableVal,
-		AntGain:         antGainVal,
-		AntennaMode:     antennaModeVal,
-		Bandwidth:       bandwidthVal,
-		Channel:         channelVal,
-		Channels:        channelsVal,
-		Disabled:        disabledVal,
-		Power:           powerVal,
-		PowerMax:        powerMaxVal,
-		PowerMin:        powerMinVal,
-		Preamble:        preambleVal,
-		state:           attr.ValueStateKnown,
+		AllowRrmDisable:    allowRrmDisableVal,
+		AntGain:            antGainVal,
+		AntennaBeamPattern: antennaBeamPatternVal,
+		AntennaMode:        antennaModeVal,
+		Bandwidth:          bandwidthVal,
+		Channel:            channelVal,
+		Channels:           channelsVal,
+		Disabled:           disabledVal,
+		Power:              powerVal,
+		PowerMax:           powerMaxVal,
+		PowerMin:           powerMinVal,
+		Preamble:           preambleVal,
+		state:              attr.ValueStateKnown,
 	}, diags
 }
 
@@ -17704,28 +17897,30 @@ func (t Band5On24RadioType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = Band5On24RadioValue{}
 
 type Band5On24RadioValue struct {
-	AllowRrmDisable basetypes.BoolValue   `tfsdk:"allow_rrm_disable"`
-	AntGain         basetypes.Int64Value  `tfsdk:"ant_gain"`
-	AntennaMode     basetypes.StringValue `tfsdk:"antenna_mode"`
-	Bandwidth       basetypes.Int64Value  `tfsdk:"bandwidth"`
-	Channel         basetypes.Int64Value  `tfsdk:"channel"`
-	Channels        basetypes.ListValue   `tfsdk:"channels"`
-	Disabled        basetypes.BoolValue   `tfsdk:"disabled"`
-	Power           basetypes.Int64Value  `tfsdk:"power"`
-	PowerMax        basetypes.Int64Value  `tfsdk:"power_max"`
-	PowerMin        basetypes.Int64Value  `tfsdk:"power_min"`
-	Preamble        basetypes.StringValue `tfsdk:"preamble"`
-	state           attr.ValueState
+	AllowRrmDisable    basetypes.BoolValue   `tfsdk:"allow_rrm_disable"`
+	AntGain            basetypes.Int64Value  `tfsdk:"ant_gain"`
+	AntennaBeamPattern basetypes.StringValue `tfsdk:"antenna_beam_pattern"`
+	AntennaMode        basetypes.StringValue `tfsdk:"antenna_mode"`
+	Bandwidth          basetypes.Int64Value  `tfsdk:"bandwidth"`
+	Channel            basetypes.Int64Value  `tfsdk:"channel"`
+	Channels           basetypes.ListValue   `tfsdk:"channels"`
+	Disabled           basetypes.BoolValue   `tfsdk:"disabled"`
+	Power              basetypes.Int64Value  `tfsdk:"power"`
+	PowerMax           basetypes.Int64Value  `tfsdk:"power_max"`
+	PowerMin           basetypes.Int64Value  `tfsdk:"power_min"`
+	Preamble           basetypes.StringValue `tfsdk:"preamble"`
+	state              attr.ValueState
 }
 
 func (v Band5On24RadioValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 11)
+	attrTypes := make(map[string]tftypes.Type, 12)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["allow_rrm_disable"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["ant_gain"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["antenna_beam_pattern"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["antenna_mode"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["bandwidth"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["channel"] = basetypes.Int64Type{}.TerraformType(ctx)
@@ -17742,7 +17937,7 @@ func (v Band5On24RadioValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 11)
+		vals := make(map[string]tftypes.Value, 12)
 
 		val, err = v.AllowRrmDisable.ToTerraformValue(ctx)
 
@@ -17759,6 +17954,14 @@ func (v Band5On24RadioValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		}
 
 		vals["ant_gain"] = val
+
+		val, err = v.AntennaBeamPattern.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["antenna_beam_pattern"] = val
 
 		val, err = v.AntennaMode.ToTerraformValue(ctx)
 
@@ -17875,11 +18078,12 @@ func (v Band5On24RadioValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"allow_rrm_disable": basetypes.BoolType{},
-			"ant_gain":          basetypes.Int64Type{},
-			"antenna_mode":      basetypes.StringType{},
-			"bandwidth":         basetypes.Int64Type{},
-			"channel":           basetypes.Int64Type{},
+			"allow_rrm_disable":    basetypes.BoolType{},
+			"ant_gain":             basetypes.Int64Type{},
+			"antenna_beam_pattern": basetypes.StringType{},
+			"antenna_mode":         basetypes.StringType{},
+			"bandwidth":            basetypes.Int64Type{},
+			"channel":              basetypes.Int64Type{},
 			"channels": basetypes.ListType{
 				ElemType: types.Int64Type,
 			},
@@ -17892,11 +18096,12 @@ func (v Band5On24RadioValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"allow_rrm_disable": basetypes.BoolType{},
-		"ant_gain":          basetypes.Int64Type{},
-		"antenna_mode":      basetypes.StringType{},
-		"bandwidth":         basetypes.Int64Type{},
-		"channel":           basetypes.Int64Type{},
+		"allow_rrm_disable":    basetypes.BoolType{},
+		"ant_gain":             basetypes.Int64Type{},
+		"antenna_beam_pattern": basetypes.StringType{},
+		"antenna_mode":         basetypes.StringType{},
+		"bandwidth":            basetypes.Int64Type{},
+		"channel":              basetypes.Int64Type{},
 		"channels": basetypes.ListType{
 			ElemType: types.Int64Type,
 		},
@@ -17918,17 +18123,18 @@ func (v Band5On24RadioValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"allow_rrm_disable": v.AllowRrmDisable,
-			"ant_gain":          v.AntGain,
-			"antenna_mode":      v.AntennaMode,
-			"bandwidth":         v.Bandwidth,
-			"channel":           v.Channel,
-			"channels":          channelsVal,
-			"disabled":          v.Disabled,
-			"power":             v.Power,
-			"power_max":         v.PowerMax,
-			"power_min":         v.PowerMin,
-			"preamble":          v.Preamble,
+			"allow_rrm_disable":    v.AllowRrmDisable,
+			"ant_gain":             v.AntGain,
+			"antenna_beam_pattern": v.AntennaBeamPattern,
+			"antenna_mode":         v.AntennaMode,
+			"bandwidth":            v.Bandwidth,
+			"channel":              v.Channel,
+			"channels":             channelsVal,
+			"disabled":             v.Disabled,
+			"power":                v.Power,
+			"power_max":            v.PowerMax,
+			"power_min":            v.PowerMin,
+			"preamble":             v.Preamble,
 		})
 
 	return objVal, diags
@@ -17954,6 +18160,10 @@ func (v Band5On24RadioValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.AntGain.Equal(other.AntGain) {
+		return false
+	}
+
+	if !v.AntennaBeamPattern.Equal(other.AntennaBeamPattern) {
 		return false
 	}
 
@@ -18006,11 +18216,12 @@ func (v Band5On24RadioValue) Type(ctx context.Context) attr.Type {
 
 func (v Band5On24RadioValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"allow_rrm_disable": basetypes.BoolType{},
-		"ant_gain":          basetypes.Int64Type{},
-		"antenna_mode":      basetypes.StringType{},
-		"bandwidth":         basetypes.Int64Type{},
-		"channel":           basetypes.Int64Type{},
+		"allow_rrm_disable":    basetypes.BoolType{},
+		"ant_gain":             basetypes.Int64Type{},
+		"antenna_beam_pattern": basetypes.StringType{},
+		"antenna_mode":         basetypes.StringType{},
+		"bandwidth":            basetypes.Int64Type{},
+		"channel":              basetypes.Int64Type{},
 		"channels": basetypes.ListType{
 			ElemType: types.Int64Type,
 		},
@@ -18081,6 +18292,24 @@ func (t Band6Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
+	}
+
+	antennaBeamPatternAttribute, ok := attributes["antenna_beam_pattern"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_beam_pattern is missing from object`)
+
+		return nil, diags
+	}
+
+	antennaBeamPatternVal, ok := antennaBeamPatternAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_beam_pattern expected to be basetypes.StringValue, was: %T`, antennaBeamPatternAttribute))
 	}
 
 	antennaModeAttribute, ok := attributes["antenna_mode"]
@@ -18268,19 +18497,20 @@ func (t Band6Type) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 	}
 
 	return Band6Value{
-		AllowRrmDisable: allowRrmDisableVal,
-		AntGain:         antGainVal,
-		AntennaMode:     antennaModeVal,
-		Bandwidth:       bandwidthVal,
-		Channel:         channelVal,
-		Channels:        channelsVal,
-		Disabled:        disabledVal,
-		Power:           powerVal,
-		PowerMax:        powerMaxVal,
-		PowerMin:        powerMinVal,
-		Preamble:        preambleVal,
-		StandardPower:   standardPowerVal,
-		state:           attr.ValueStateKnown,
+		AllowRrmDisable:    allowRrmDisableVal,
+		AntGain:            antGainVal,
+		AntennaBeamPattern: antennaBeamPatternVal,
+		AntennaMode:        antennaModeVal,
+		Bandwidth:          bandwidthVal,
+		Channel:            channelVal,
+		Channels:           channelsVal,
+		Disabled:           disabledVal,
+		Power:              powerVal,
+		PowerMax:           powerMaxVal,
+		PowerMin:           powerMinVal,
+		Preamble:           preambleVal,
+		StandardPower:      standardPowerVal,
+		state:              attr.ValueStateKnown,
 	}, diags
 }
 
@@ -18383,6 +18613,24 @@ func NewBand6Value(attributeTypes map[string]attr.Type, attributes map[string]at
 			fmt.Sprintf(`ant_gain expected to be basetypes.Int64Value, was: %T`, antGainAttribute))
 	}
 
+	antennaBeamPatternAttribute, ok := attributes["antenna_beam_pattern"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_beam_pattern is missing from object`)
+
+		return NewBand6ValueUnknown(), diags
+	}
+
+	antennaBeamPatternVal, ok := antennaBeamPatternAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_beam_pattern expected to be basetypes.StringValue, was: %T`, antennaBeamPatternAttribute))
+	}
+
 	antennaModeAttribute, ok := attributes["antenna_mode"]
 
 	if !ok {
@@ -18568,19 +18816,20 @@ func NewBand6Value(attributeTypes map[string]attr.Type, attributes map[string]at
 	}
 
 	return Band6Value{
-		AllowRrmDisable: allowRrmDisableVal,
-		AntGain:         antGainVal,
-		AntennaMode:     antennaModeVal,
-		Bandwidth:       bandwidthVal,
-		Channel:         channelVal,
-		Channels:        channelsVal,
-		Disabled:        disabledVal,
-		Power:           powerVal,
-		PowerMax:        powerMaxVal,
-		PowerMin:        powerMinVal,
-		Preamble:        preambleVal,
-		StandardPower:   standardPowerVal,
-		state:           attr.ValueStateKnown,
+		AllowRrmDisable:    allowRrmDisableVal,
+		AntGain:            antGainVal,
+		AntennaBeamPattern: antennaBeamPatternVal,
+		AntennaMode:        antennaModeVal,
+		Bandwidth:          bandwidthVal,
+		Channel:            channelVal,
+		Channels:           channelsVal,
+		Disabled:           disabledVal,
+		Power:              powerVal,
+		PowerMax:           powerMaxVal,
+		PowerMin:           powerMinVal,
+		Preamble:           preambleVal,
+		StandardPower:      standardPowerVal,
+		state:              attr.ValueStateKnown,
 	}, diags
 }
 
@@ -18652,29 +18901,31 @@ func (t Band6Type) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = Band6Value{}
 
 type Band6Value struct {
-	AllowRrmDisable basetypes.BoolValue   `tfsdk:"allow_rrm_disable"`
-	AntGain         basetypes.Int64Value  `tfsdk:"ant_gain"`
-	AntennaMode     basetypes.StringValue `tfsdk:"antenna_mode"`
-	Bandwidth       basetypes.Int64Value  `tfsdk:"bandwidth"`
-	Channel         basetypes.Int64Value  `tfsdk:"channel"`
-	Channels        basetypes.ListValue   `tfsdk:"channels"`
-	Disabled        basetypes.BoolValue   `tfsdk:"disabled"`
-	Power           basetypes.Int64Value  `tfsdk:"power"`
-	PowerMax        basetypes.Int64Value  `tfsdk:"power_max"`
-	PowerMin        basetypes.Int64Value  `tfsdk:"power_min"`
-	Preamble        basetypes.StringValue `tfsdk:"preamble"`
-	StandardPower   basetypes.BoolValue   `tfsdk:"standard_power"`
-	state           attr.ValueState
+	AllowRrmDisable    basetypes.BoolValue   `tfsdk:"allow_rrm_disable"`
+	AntGain            basetypes.Int64Value  `tfsdk:"ant_gain"`
+	AntennaBeamPattern basetypes.StringValue `tfsdk:"antenna_beam_pattern"`
+	AntennaMode        basetypes.StringValue `tfsdk:"antenna_mode"`
+	Bandwidth          basetypes.Int64Value  `tfsdk:"bandwidth"`
+	Channel            basetypes.Int64Value  `tfsdk:"channel"`
+	Channels           basetypes.ListValue   `tfsdk:"channels"`
+	Disabled           basetypes.BoolValue   `tfsdk:"disabled"`
+	Power              basetypes.Int64Value  `tfsdk:"power"`
+	PowerMax           basetypes.Int64Value  `tfsdk:"power_max"`
+	PowerMin           basetypes.Int64Value  `tfsdk:"power_min"`
+	Preamble           basetypes.StringValue `tfsdk:"preamble"`
+	StandardPower      basetypes.BoolValue   `tfsdk:"standard_power"`
+	state              attr.ValueState
 }
 
 func (v Band6Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 12)
+	attrTypes := make(map[string]tftypes.Type, 13)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["allow_rrm_disable"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["ant_gain"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["antenna_beam_pattern"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["antenna_mode"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["bandwidth"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["channel"] = basetypes.Int64Type{}.TerraformType(ctx)
@@ -18692,7 +18943,7 @@ func (v Band6Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 12)
+		vals := make(map[string]tftypes.Value, 13)
 
 		val, err = v.AllowRrmDisable.ToTerraformValue(ctx)
 
@@ -18709,6 +18960,14 @@ func (v Band6Value) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 		}
 
 		vals["ant_gain"] = val
+
+		val, err = v.AntennaBeamPattern.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["antenna_beam_pattern"] = val
 
 		val, err = v.AntennaMode.ToTerraformValue(ctx)
 
@@ -18833,11 +19092,12 @@ func (v Band6Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"allow_rrm_disable": basetypes.BoolType{},
-			"ant_gain":          basetypes.Int64Type{},
-			"antenna_mode":      basetypes.StringType{},
-			"bandwidth":         basetypes.Int64Type{},
-			"channel":           basetypes.Int64Type{},
+			"allow_rrm_disable":    basetypes.BoolType{},
+			"ant_gain":             basetypes.Int64Type{},
+			"antenna_beam_pattern": basetypes.StringType{},
+			"antenna_mode":         basetypes.StringType{},
+			"bandwidth":            basetypes.Int64Type{},
+			"channel":              basetypes.Int64Type{},
 			"channels": basetypes.ListType{
 				ElemType: types.Int64Type,
 			},
@@ -18851,11 +19111,12 @@ func (v Band6Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"allow_rrm_disable": basetypes.BoolType{},
-		"ant_gain":          basetypes.Int64Type{},
-		"antenna_mode":      basetypes.StringType{},
-		"bandwidth":         basetypes.Int64Type{},
-		"channel":           basetypes.Int64Type{},
+		"allow_rrm_disable":    basetypes.BoolType{},
+		"ant_gain":             basetypes.Int64Type{},
+		"antenna_beam_pattern": basetypes.StringType{},
+		"antenna_mode":         basetypes.StringType{},
+		"bandwidth":            basetypes.Int64Type{},
+		"channel":              basetypes.Int64Type{},
 		"channels": basetypes.ListType{
 			ElemType: types.Int64Type,
 		},
@@ -18878,18 +19139,19 @@ func (v Band6Value) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"allow_rrm_disable": v.AllowRrmDisable,
-			"ant_gain":          v.AntGain,
-			"antenna_mode":      v.AntennaMode,
-			"bandwidth":         v.Bandwidth,
-			"channel":           v.Channel,
-			"channels":          channelsVal,
-			"disabled":          v.Disabled,
-			"power":             v.Power,
-			"power_max":         v.PowerMax,
-			"power_min":         v.PowerMin,
-			"preamble":          v.Preamble,
-			"standard_power":    v.StandardPower,
+			"allow_rrm_disable":    v.AllowRrmDisable,
+			"ant_gain":             v.AntGain,
+			"antenna_beam_pattern": v.AntennaBeamPattern,
+			"antenna_mode":         v.AntennaMode,
+			"bandwidth":            v.Bandwidth,
+			"channel":              v.Channel,
+			"channels":             channelsVal,
+			"disabled":             v.Disabled,
+			"power":                v.Power,
+			"power_max":            v.PowerMax,
+			"power_min":            v.PowerMin,
+			"preamble":             v.Preamble,
+			"standard_power":       v.StandardPower,
 		})
 
 	return objVal, diags
@@ -18915,6 +19177,10 @@ func (v Band6Value) Equal(o attr.Value) bool {
 	}
 
 	if !v.AntGain.Equal(other.AntGain) {
+		return false
+	}
+
+	if !v.AntennaBeamPattern.Equal(other.AntennaBeamPattern) {
 		return false
 	}
 
@@ -18971,11 +19237,12 @@ func (v Band6Value) Type(ctx context.Context) attr.Type {
 
 func (v Band6Value) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"allow_rrm_disable": basetypes.BoolType{},
-		"ant_gain":          basetypes.Int64Type{},
-		"antenna_mode":      basetypes.StringType{},
-		"bandwidth":         basetypes.Int64Type{},
-		"channel":           basetypes.Int64Type{},
+		"allow_rrm_disable":    basetypes.BoolType{},
+		"ant_gain":             basetypes.Int64Type{},
+		"antenna_beam_pattern": basetypes.StringType{},
+		"antenna_mode":         basetypes.StringType{},
+		"bandwidth":            basetypes.Int64Type{},
+		"channel":              basetypes.Int64Type{},
 		"channels": basetypes.ListType{
 			ElemType: types.Int64Type,
 		},

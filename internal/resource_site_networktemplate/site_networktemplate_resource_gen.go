@@ -97,8 +97,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"ether_types": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Description:         "Can only be used under dst tags.",
-							MarkdownDescription: "Can only be used under dst tags.",
+							Description:         "ARP / IPv6. Default is `any`",
+							MarkdownDescription: "ARP / IPv6. Default is `any`",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
@@ -788,8 +788,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"allow_dhcpd": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is an access or trunk port.",
-							MarkdownDescription: "Only if `mode`!=`dynamic`. If DHCP snooping is enabled, whether DHCP server is allowed on the interfaces with. All the interfaces from port configs using this port usage are effected. Please notice that allow_dhcpd is a tri_state. When it is not defined, it means using the system's default setting which depends on whether the port is an access or trunk port.",
+							Description:         "Only applies when `mode`!=`dynamic`. Controls whether DHCP server traffic is allowed on ports using this configuration if DHCP snooping is enabled. This is a tri-state setting; true: ports become trusted ports allowing DHCP server traffic, false: ports become untrusted blocking DHCP server traffic, undefined: use system defaults (access ports default to untrusted, trunk ports default to trusted).",
+							MarkdownDescription: "Only applies when `mode`!=`dynamic`. Controls whether DHCP server traffic is allowed on ports using this configuration if DHCP snooping is enabled. This is a tri-state setting; true: ports become trusted ports allowing DHCP server traffic, false: ports become untrusted blocking DHCP server traffic, undefined: use system defaults (access ports default to untrusted, trunk ports default to trusted).",
 							Validators: []validator.Bool{
 								mistvalidator.CannotBeTrueWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
@@ -817,6 +817,13 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.Bool{
 								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
+						},
+						"bypass_auth_when_server_down_for_voip": schema.BoolAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Bypass auth for VOIP if set to true when RADIUS server is down",
+							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Bypass auth for VOIP if set to true when RADIUS server is down",
+							Default:             booldefault.StaticBool(false),
 						},
 						"community_vlan_id": schema.Int64Attribute{
 							Optional:            true,
@@ -898,13 +905,13 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"inter_isolation_network_link": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper device. This has to be applied to both ports connected together",
-							MarkdownDescription: "Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper device. This has to be applied to both ports connected together",
+							Description:         "Only if `mode`!=`dynamic`. `inter_isolation_network_link` is used together with `isolation` under networks, signaling that this port connects to isolated networks",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. `inter_isolation_network_link` is used together with `isolation` under networks, signaling that this port connects to isolated networks",
 						},
 						"inter_switch_link": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
-							MarkdownDescription: "Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: inter_switch_link works only between Juniper device. This has to be applied to both ports connected together",
+							Description:         "Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper devices. This has to be applied to both ports connected together",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper devices. This has to be applied to both ports connected together",
 							Validators: []validator.Bool{
 								mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x"), types.BoolValue(false)),
 							},
@@ -999,6 +1006,18 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
 						},
+						"poe_priority": schema.StringAttribute{
+							Optional:            true,
+							Description:         "PoE priority. enum: `low`, `high`",
+							MarkdownDescription: "PoE priority. enum: `low`, `high`",
+							Validators: []validator.String{
+								stringvalidator.OneOf(
+									"",
+									"low",
+									"high",
+								),
+							},
+						},
 						"port_auth": schema.StringAttribute{
 							Optional:            true,
 							Description:         "Only if `mode`!=`dynamic`. If dot1x is desired, set to dot1x. enum: `dot1x`",
@@ -1064,8 +1083,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"src": schema.StringAttribute{
 										Required:            true,
-										Description:         "enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`",
-										MarkdownDescription: "enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`",
+										Description:         "enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_description`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`",
+										MarkdownDescription: "enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_description`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -1075,6 +1094,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												"lldp_manufacturer_name",
 												"lldp_oui",
 												"lldp_serial_number",
+												"lldp_system_description",
 												"lldp_system_name",
 												"radius_dynamicfilter",
 												"radius_usermac",
@@ -10996,6 +11016,24 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`bypass_auth_when_server_down_for_unknown_client expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownForUnknownClientAttribute))
 	}
 
+	bypassAuthWhenServerDownForVoipAttribute, ok := attributes["bypass_auth_when_server_down_for_voip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bypass_auth_when_server_down_for_voip is missing from object`)
+
+		return nil, diags
+	}
+
+	bypassAuthWhenServerDownForVoipVal, ok := bypassAuthWhenServerDownForVoipAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bypass_auth_when_server_down_for_voip expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownForVoipAttribute))
+	}
+
 	communityVlanIdAttribute, ok := attributes["community_vlan_id"]
 
 	if !ok {
@@ -11356,6 +11394,24 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`poe_disabled expected to be basetypes.BoolValue, was: %T`, poeDisabledAttribute))
 	}
 
+	poePriorityAttribute, ok := attributes["poe_priority"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`poe_priority is missing from object`)
+
+		return nil, diags
+	}
+
+	poePriorityVal, ok := poePriorityAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`poe_priority expected to be basetypes.StringValue, was: %T`, poePriorityAttribute))
+	}
+
 	portAuthAttribute, ok := attributes["port_auth"]
 
 	if !ok {
@@ -11672,6 +11728,7 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		AllowMultipleSupplicants:                 allowMultipleSupplicantsVal,
 		BypassAuthWhenServerDown:                 bypassAuthWhenServerDownVal,
 		BypassAuthWhenServerDownForUnknownClient: bypassAuthWhenServerDownForUnknownClientVal,
+		BypassAuthWhenServerDownForVoip:          bypassAuthWhenServerDownForVoipVal,
 		CommunityVlanId:                          communityVlanIdVal,
 		Description:                              descriptionVal,
 		DisableAutoneg:                           disableAutonegVal,
@@ -11692,6 +11749,7 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		Networks:                                 networksVal,
 		PersistMac:                               persistMacVal,
 		PoeDisabled:                              poeDisabledVal,
+		PoePriority:                              poePriorityVal,
 		PortAuth:                                 portAuthVal,
 		PortNetwork:                              portNetworkVal,
 		ReauthInterval:                           reauthIntervalVal,
@@ -11866,6 +11924,24 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`bypass_auth_when_server_down_for_unknown_client expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownForUnknownClientAttribute))
 	}
 
+	bypassAuthWhenServerDownForVoipAttribute, ok := attributes["bypass_auth_when_server_down_for_voip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`bypass_auth_when_server_down_for_voip is missing from object`)
+
+		return NewPortUsagesValueUnknown(), diags
+	}
+
+	bypassAuthWhenServerDownForVoipVal, ok := bypassAuthWhenServerDownForVoipAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`bypass_auth_when_server_down_for_voip expected to be basetypes.BoolValue, was: %T`, bypassAuthWhenServerDownForVoipAttribute))
+	}
+
 	communityVlanIdAttribute, ok := attributes["community_vlan_id"]
 
 	if !ok {
@@ -12226,6 +12302,24 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`poe_disabled expected to be basetypes.BoolValue, was: %T`, poeDisabledAttribute))
 	}
 
+	poePriorityAttribute, ok := attributes["poe_priority"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`poe_priority is missing from object`)
+
+		return NewPortUsagesValueUnknown(), diags
+	}
+
+	poePriorityVal, ok := poePriorityAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`poe_priority expected to be basetypes.StringValue, was: %T`, poePriorityAttribute))
+	}
+
 	portAuthAttribute, ok := attributes["port_auth"]
 
 	if !ok {
@@ -12542,6 +12636,7 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		AllowMultipleSupplicants:                 allowMultipleSupplicantsVal,
 		BypassAuthWhenServerDown:                 bypassAuthWhenServerDownVal,
 		BypassAuthWhenServerDownForUnknownClient: bypassAuthWhenServerDownForUnknownClientVal,
+		BypassAuthWhenServerDownForVoip:          bypassAuthWhenServerDownForVoipVal,
 		CommunityVlanId:                          communityVlanIdVal,
 		Description:                              descriptionVal,
 		DisableAutoneg:                           disableAutonegVal,
@@ -12562,6 +12657,7 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		Networks:                                 networksVal,
 		PersistMac:                               persistMacVal,
 		PoeDisabled:                              poeDisabledVal,
+		PoePriority:                              poePriorityVal,
 		PortAuth:                                 portAuthVal,
 		PortNetwork:                              portNetworkVal,
 		ReauthInterval:                           reauthIntervalVal,
@@ -12656,6 +12752,7 @@ type PortUsagesValue struct {
 	AllowMultipleSupplicants                 basetypes.BoolValue   `tfsdk:"allow_multiple_supplicants"`
 	BypassAuthWhenServerDown                 basetypes.BoolValue   `tfsdk:"bypass_auth_when_server_down"`
 	BypassAuthWhenServerDownForUnknownClient basetypes.BoolValue   `tfsdk:"bypass_auth_when_server_down_for_unknown_client"`
+	BypassAuthWhenServerDownForVoip          basetypes.BoolValue   `tfsdk:"bypass_auth_when_server_down_for_voip"`
 	CommunityVlanId                          basetypes.Int64Value  `tfsdk:"community_vlan_id"`
 	Description                              basetypes.StringValue `tfsdk:"description"`
 	DisableAutoneg                           basetypes.BoolValue   `tfsdk:"disable_autoneg"`
@@ -12676,6 +12773,7 @@ type PortUsagesValue struct {
 	Networks                                 basetypes.ListValue   `tfsdk:"networks"`
 	PersistMac                               basetypes.BoolValue   `tfsdk:"persist_mac"`
 	PoeDisabled                              basetypes.BoolValue   `tfsdk:"poe_disabled"`
+	PoePriority                              basetypes.StringValue `tfsdk:"poe_priority"`
 	PortAuth                                 basetypes.StringValue `tfsdk:"port_auth"`
 	PortNetwork                              basetypes.StringValue `tfsdk:"port_network"`
 	ReauthInterval                           basetypes.StringValue `tfsdk:"reauth_interval"`
@@ -12697,7 +12795,7 @@ type PortUsagesValue struct {
 }
 
 func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 42)
+	attrTypes := make(map[string]tftypes.Type, 44)
 
 	var val tftypes.Value
 	var err error
@@ -12707,6 +12805,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["allow_multiple_supplicants"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["bypass_auth_when_server_down"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["bypass_auth_when_server_down_for_unknown_client"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["bypass_auth_when_server_down_for_voip"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["community_vlan_id"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["disable_autoneg"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -12731,6 +12830,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	}.TerraformType(ctx)
 	attrTypes["persist_mac"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["poe_disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["poe_priority"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["port_auth"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["port_network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["reauth_interval"] = basetypes.StringType{}.TerraformType(ctx)
@@ -12757,7 +12857,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 42)
+		vals := make(map[string]tftypes.Value, 44)
 
 		val, err = v.AllNetworks.ToTerraformValue(ctx)
 
@@ -12798,6 +12898,14 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["bypass_auth_when_server_down_for_unknown_client"] = val
+
+		val, err = v.BypassAuthWhenServerDownForVoip.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["bypass_auth_when_server_down_for_voip"] = val
 
 		val, err = v.CommunityVlanId.ToTerraformValue(ctx)
 
@@ -12958,6 +13066,14 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["poe_disabled"] = val
+
+		val, err = v.PoePriority.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["poe_priority"] = val
 
 		val, err = v.PortAuth.ToTerraformValue(ctx)
 
@@ -13193,6 +13309,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"allow_multiple_supplicants":                      basetypes.BoolType{},
 			"bypass_auth_when_server_down":                    basetypes.BoolType{},
 			"bypass_auth_when_server_down_for_unknown_client": basetypes.BoolType{},
+			"bypass_auth_when_server_down_for_voip":           basetypes.BoolType{},
 			"community_vlan_id":                               basetypes.Int64Type{},
 			"description":                                     basetypes.StringType{},
 			"disable_autoneg":                                 basetypes.BoolType{},
@@ -13217,6 +13334,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			},
 			"persist_mac":        basetypes.BoolType{},
 			"poe_disabled":       basetypes.BoolType{},
+			"poe_priority":       basetypes.StringType{},
 			"port_auth":          basetypes.StringType{},
 			"port_network":       basetypes.StringType{},
 			"reauth_interval":    basetypes.StringType{},
@@ -13260,6 +13378,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"allow_multiple_supplicants":                      basetypes.BoolType{},
 			"bypass_auth_when_server_down":                    basetypes.BoolType{},
 			"bypass_auth_when_server_down_for_unknown_client": basetypes.BoolType{},
+			"bypass_auth_when_server_down_for_voip":           basetypes.BoolType{},
 			"community_vlan_id":                               basetypes.Int64Type{},
 			"description":                                     basetypes.StringType{},
 			"disable_autoneg":                                 basetypes.BoolType{},
@@ -13284,6 +13403,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			},
 			"persist_mac":        basetypes.BoolType{},
 			"poe_disabled":       basetypes.BoolType{},
+			"poe_priority":       basetypes.StringType{},
 			"port_auth":          basetypes.StringType{},
 			"port_network":       basetypes.StringType{},
 			"reauth_interval":    basetypes.StringType{},
@@ -13314,6 +13434,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"allow_multiple_supplicants":                      basetypes.BoolType{},
 		"bypass_auth_when_server_down":                    basetypes.BoolType{},
 		"bypass_auth_when_server_down_for_unknown_client": basetypes.BoolType{},
+		"bypass_auth_when_server_down_for_voip":           basetypes.BoolType{},
 		"community_vlan_id":                               basetypes.Int64Type{},
 		"description":                                     basetypes.StringType{},
 		"disable_autoneg":                                 basetypes.BoolType{},
@@ -13338,6 +13459,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		},
 		"persist_mac":        basetypes.BoolType{},
 		"poe_disabled":       basetypes.BoolType{},
+		"poe_priority":       basetypes.StringType{},
 		"port_auth":          basetypes.StringType{},
 		"port_network":       basetypes.StringType{},
 		"reauth_interval":    basetypes.StringType{},
@@ -13377,6 +13499,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"allow_multiple_supplicants":                      v.AllowMultipleSupplicants,
 			"bypass_auth_when_server_down":                    v.BypassAuthWhenServerDown,
 			"bypass_auth_when_server_down_for_unknown_client": v.BypassAuthWhenServerDownForUnknownClient,
+			"bypass_auth_when_server_down_for_voip":           v.BypassAuthWhenServerDownForVoip,
 			"community_vlan_id":                               v.CommunityVlanId,
 			"description":                                     v.Description,
 			"disable_autoneg":                                 v.DisableAutoneg,
@@ -13397,6 +13520,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"networks":                                        networksVal,
 			"persist_mac":                                     v.PersistMac,
 			"poe_disabled":                                    v.PoeDisabled,
+			"poe_priority":                                    v.PoePriority,
 			"port_auth":                                       v.PortAuth,
 			"port_network":                                    v.PortNetwork,
 			"reauth_interval":                                 v.ReauthInterval,
@@ -13451,6 +13575,10 @@ func (v PortUsagesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.BypassAuthWhenServerDownForUnknownClient.Equal(other.BypassAuthWhenServerDownForUnknownClient) {
+		return false
+	}
+
+	if !v.BypassAuthWhenServerDownForVoip.Equal(other.BypassAuthWhenServerDownForVoip) {
 		return false
 	}
 
@@ -13531,6 +13659,10 @@ func (v PortUsagesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.PoeDisabled.Equal(other.PoeDisabled) {
+		return false
+	}
+
+	if !v.PoePriority.Equal(other.PoePriority) {
 		return false
 	}
 
@@ -13620,6 +13752,7 @@ func (v PortUsagesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"allow_multiple_supplicants":                      basetypes.BoolType{},
 		"bypass_auth_when_server_down":                    basetypes.BoolType{},
 		"bypass_auth_when_server_down_for_unknown_client": basetypes.BoolType{},
+		"bypass_auth_when_server_down_for_voip":           basetypes.BoolType{},
 		"community_vlan_id":                               basetypes.Int64Type{},
 		"description":                                     basetypes.StringType{},
 		"disable_autoneg":                                 basetypes.BoolType{},
@@ -13644,6 +13777,7 @@ func (v PortUsagesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		},
 		"persist_mac":        basetypes.BoolType{},
 		"poe_disabled":       basetypes.BoolType{},
+		"poe_priority":       basetypes.StringType{},
 		"port_auth":          basetypes.StringType{},
 		"port_network":       basetypes.StringType{},
 		"reauth_interval":    basetypes.StringType{},

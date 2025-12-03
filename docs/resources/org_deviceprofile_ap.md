@@ -343,8 +343,8 @@ Optional:
 - `ant_gain_24` (Number) Antenna gain for 2.4G - for models with external antenna only
 - `ant_gain_5` (Number) Antenna gain for 5G - for models with external antenna only
 - `ant_gain_6` (Number) Antenna gain for 6G - for models with external antenna only
-- `ant_mode` (String) Antenna Mode for AP which supports selectable antennas. enum: `external`, `internal`
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
+- `antenna_select` (String) Antenna Mode for AP which supports selectable antennas. enum: `external`, `internal`
 - `band_24` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_24))
 - `band_24_usage` (String) enum: `24`, `5`, `6`, `auto`
 - `band_5` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_5))
@@ -352,6 +352,7 @@ Optional:
 - `band_6` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_6))
 - `full_automatic_rrm` (Boolean) Let RRM control everything, only the `channels` and `ant_gain` will be honored (i.e. disabled/bandwidth/power/band_24_usage are all controlled by RRM)
 - `indoor_use` (Boolean) To make an outdoor operate indoor. For an outdoor-ap, some channels are disallowed by default, this allows the user to use it as an indoor-ap
+- `rrm_managed` (Boolean) Enable RRM to manage all radio settings (ignores all band_xxx configs)
 - `scanning_enabled` (Boolean) Whether scanning radio is enabled
 
 <a id="nestedatt--radio_config--band_24"></a>
@@ -379,6 +380,7 @@ Optional:
 
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
+- `antenna_beam_pattern` (String) enum: `narrow`, `medium`, `wide`
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
 - `bandwidth` (Number) channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
@@ -397,6 +399,7 @@ Optional:
 
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
+- `antenna_beam_pattern` (String) enum: `narrow`, `medium`, `wide`
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
 - `bandwidth` (Number) channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
@@ -415,6 +418,7 @@ Optional:
 
 - `allow_rrm_disable` (Boolean)
 - `ant_gain` (Number)
+- `antenna_beam_pattern` (String) enum: `narrow`, `medium`, `wide`
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
 - `bandwidth` (Number) channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting

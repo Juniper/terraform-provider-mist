@@ -82,6 +82,7 @@ func band24SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApRadioBand5) basetypes.ObjectValue {
 	var allowRrmDisable basetypes.BoolValue
 	var antGain basetypes.Int64Value
+	var antennaBeamPattern basetypes.StringValue
 	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
 	var channel basetypes.Int64Value
@@ -97,6 +98,9 @@ func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	}
 	if d.AntGain.Value() != nil {
 		antGain = types.Int64Value(int64(*d.AntGain.Value()))
+	}
+	if d.AntennaBeamPattern != nil {
+		antennaBeamPattern = types.StringValue(string(*d.AntennaBeamPattern))
 	}
 	if d.AntennaMode != nil {
 		antennaMode = types.StringValue(string(*d.AntennaMode))
@@ -127,17 +131,18 @@ func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"allow_rrm_disable": allowRrmDisable,
-		"ant_gain":          antGain,
-		"antenna_mode":      antennaMode,
-		"bandwidth":         bandwidth,
-		"channel":           channel,
-		"channels":          channels,
-		"disabled":          disabled,
-		"power":             power,
-		"power_max":         powerMax,
-		"power_min":         powerMin,
-		"preamble":          preamble,
+		"allow_rrm_disable":    allowRrmDisable,
+		"ant_gain":             antGain,
+		"antenna_beam_pattern": antennaBeamPattern,
+		"antenna_mode":         antennaMode,
+		"bandwidth":            bandwidth,
+		"channel":              channel,
+		"channels":             channels,
+		"disabled":             disabled,
+		"power":                power,
+		"power_max":            powerMax,
+		"power_min":            powerMin,
+		"preamble":             preamble,
 	}
 	data, e := basetypes.NewObjectValue(Band5Value{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
@@ -148,6 +153,7 @@ func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 func band6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApRadioBand6) basetypes.ObjectValue {
 	var allowRrmDisable basetypes.BoolValue
 	var antGain basetypes.Int64Value
+	var antennaBeamPattern basetypes.StringValue
 	var antennaMode basetypes.StringValue
 	var bandwidth basetypes.Int64Value
 	var channel basetypes.Int64Value
@@ -164,6 +170,9 @@ func band6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	}
 	if d.AntGain.Value() != nil {
 		antGain = types.Int64Value(int64(*d.AntGain.Value()))
+	}
+	if d.AntennaBeamPattern != nil {
+		antennaBeamPattern = types.StringValue(string(*d.AntennaBeamPattern))
 	}
 	if d.AntennaMode != nil {
 		antennaMode = types.StringValue(string(*d.AntennaMode))
@@ -197,18 +206,19 @@ func band6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"allow_rrm_disable": allowRrmDisable,
-		"ant_gain":          antGain,
-		"antenna_mode":      antennaMode,
-		"bandwidth":         bandwidth,
-		"channel":           channel,
-		"channels":          channels,
-		"disabled":          disabled,
-		"power":             power,
-		"power_max":         powerMax,
-		"power_min":         powerMin,
-		"preamble":          preamble,
-		"standard_power":    standardPower,
+		"allow_rrm_disable":    allowRrmDisable,
+		"ant_gain":             antGain,
+		"antenna_beam_pattern": antennaBeamPattern,
+		"antenna_mode":         antennaMode,
+		"bandwidth":            bandwidth,
+		"channel":              channel,
+		"channels":             channels,
+		"disabled":             disabled,
+		"power":                power,
+		"power_max":            powerMax,
+		"power_min":            powerMin,
+		"preamble":             preamble,
+		"standard_power":       standardPower,
 	}
 	data, e := basetypes.NewObjectValue(Band6Value{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
@@ -223,7 +233,7 @@ func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var antGain5 basetypes.Int64Value
 	var antGain6 basetypes.Int64Value
 	var antennaMode basetypes.StringValue
-	var antMode basetypes.StringValue
+	var antennaSelect basetypes.StringValue
 	var band24 = types.ObjectNull(Band24Value{}.AttributeTypes(ctx))
 	var band24Usage basetypes.StringValue
 	var band5 = types.ObjectNull(Band5Value{}.AttributeTypes(ctx))
@@ -231,6 +241,7 @@ func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var band6 = types.ObjectNull(Band6Value{}.AttributeTypes(ctx))
 	var fullAutomaticRrm basetypes.BoolValue
 	var indoorUse basetypes.BoolValue
+	var rrmManaged basetypes.BoolValue
 	var scanningEnabled basetypes.BoolValue
 
 	if d.AllowRrmDisable != nil {
@@ -248,8 +259,8 @@ func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.AntennaMode != nil {
 		antennaMode = types.StringValue(string(*d.AntennaMode))
 	}
-	if d.AntMode != nil {
-		antMode = types.StringValue(string(*d.AntMode))
+	if d.AntennaSelect != nil {
+		antennaSelect = types.StringValue(string(*d.AntennaSelect))
 	}
 	if d.Band24 != nil {
 		band24 = band24SdkToTerraform(ctx, diags, d.Band24)
@@ -272,6 +283,9 @@ func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.IndoorUse != nil {
 		indoorUse = types.BoolValue(*d.IndoorUse)
 	}
+	if d.RrmManaged != nil {
+		rrmManaged = types.BoolValue(*d.RrmManaged)
+	}
 	if d.ScanningEnabled != nil {
 		scanningEnabled = types.BoolValue(*d.ScanningEnabled)
 	}
@@ -282,7 +296,7 @@ func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		"ant_gain_5":         antGain5,
 		"ant_gain_6":         antGain6,
 		"antenna_mode":       antennaMode,
-		"ant_mode":           antMode,
+		"antenna_select":     antennaSelect,
 		"band_24":            band24,
 		"band_24_usage":      band24Usage,
 		"band_5":             band5,
@@ -290,6 +304,7 @@ func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		"band_6":             band6,
 		"full_automatic_rrm": fullAutomaticRrm,
 		"indoor_use":         indoorUse,
+		"rrm_managed":        rrmManaged,
 		"scanning_enabled":   scanningEnabled,
 	}
 	data, e := NewRadioConfigValue(RadioConfigValue{}.AttributeTypes(ctx), dataMapValue)

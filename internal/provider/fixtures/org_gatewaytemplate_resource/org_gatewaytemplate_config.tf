@@ -447,6 +447,16 @@
           block_message = "Access Denied"
         }
       ]
+      skyatp = {
+        dns_dga_detection = "strict"
+        dns_tunnel_detection = "strict"
+        http_inspection = "standard"
+        iot_device_policy = "enabled"
+      }
+      syslog = {
+        enabled = true
+        server_names = ["syslog1.example.com", "syslog2.example.com"]
+      }
     }
   ]
 

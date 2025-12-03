@@ -234,9 +234,15 @@ type SiteSettingMarvisValue struct {
 }
 
 type SiteSettingAutoOperationsValue struct {
+	ApInsufficientCapacity                 *bool `cty:"ap_insufficient_capacity" hcl:"ap_insufficient_capacity"`
+	ApLoop                                 *bool `cty:"ap_loop" hcl:"ap_loop"`
+	ApNonCompliant                         *bool `cty:"ap_non_compliant" hcl:"ap_non_compliant"`
 	BouncePortForAbnormalPoeClient         *bool `cty:"bounce_port_for_abnormal_poe_client" hcl:"bounce_port_for_abnormal_poe_client"`
 	DisablePortWhenDdosProtocolViolation   *bool `cty:"disable_port_when_ddos_protocol_violation" hcl:"disable_port_when_ddos_protocol_violation"`
 	DisablePortWhenRogueDhcpServerDetected *bool `cty:"disable_port_when_rogue_dhcp_server_detected" hcl:"disable_port_when_rogue_dhcp_server_detected"`
+	GatewayNonCompliant                    *bool `cty:"gateway_non_compliant" hcl:"gateway_non_compliant"`
+	SwitchMisconfiguredPort                *bool `cty:"switch_misconfigured_port" hcl:"switch_misconfigured_port"`
+	SwitchPortStuck                        *bool `cty:"switch_port_stuck" hcl:"switch_port_stuck"`
 }
 
 type SiteSettingOccupancyValue struct {
@@ -248,7 +254,8 @@ type SiteSettingOccupancyValue struct {
 }
 
 type SiteSettingProxyValue struct {
-	Url *string `cty:"url" hcl:"url"`
+	Disabled *bool   `cty:"disabled" hcl:"disabled"`
+	Url      *string `cty:"url" hcl:"url"`
 }
 
 type SiteSettingRogueValue struct {

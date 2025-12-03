@@ -88,6 +88,9 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if puAttrValue.BypassAuthWhenServerDownForUnknownClient.ValueBoolPointer() != nil {
 			newPu.BypassAuthWhenServerDownForUnknownClient = models.ToPointer(puAttrValue.BypassAuthWhenServerDownForUnknownClient.ValueBool())
 		}
+		if puAttrValue.BypassAuthWhenServerDownForVoip.ValueBoolPointer() != nil {
+			newPu.BypassAuthWhenServerDownForVoip = models.ToPointer(puAttrValue.BypassAuthWhenServerDownForVoip.ValueBool())
+		}
 		if puAttrValue.CommunityVlanId.ValueInt64Pointer() != nil {
 			newPu.CommunityVlanId = models.ToPointer(int(puAttrValue.CommunityVlanId.ValueInt64()))
 		}
@@ -147,6 +150,9 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		}
 		if puAttrValue.PoeDisabled.ValueBoolPointer() != nil {
 			newPu.PoeDisabled = models.ToPointer(puAttrValue.PoeDisabled.ValueBool())
+		}
+		if puAttrValue.PoePriority.ValueStringPointer() != nil {
+			newPu.PoePriority = (*models.PoePriorityEnum)(puAttrValue.PoePriority.ValueStringPointer())
 		}
 		if puAttrValue.PortAuth.ValueStringPointer() != nil {
 			newPu.PortAuth = models.NewOptional(models.ToPointer(models.SwitchPortUsageDot1xEnum(puAttrValue.PortAuth.ValueString())))

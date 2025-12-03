@@ -10,8 +10,8 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func ssrProxyTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.Proxy {
-	data := models.Proxy{}
+func ssrProxyTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) models.SsrProxy {
+	data := models.SsrProxy{}
 	if !d.IsNull() && !d.IsUnknown() {
 		item, e := NewProxyValue(ProxyValue{}.AttributeTypes(ctx), d.Attributes())
 		diags.Append(e...)
@@ -19,6 +19,9 @@ func ssrProxyTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 			diags.Append(e...)
 			return data
 		} else {
+			if item.Disabled.ValueBoolPointer() != nil {
+				data.Disabled = item.Disabled.ValueBoolPointer()
+			}
 			if item.Url.ValueStringPointer() != nil {
 				data.Url = item.Url.ValueStringPointer()
 			}

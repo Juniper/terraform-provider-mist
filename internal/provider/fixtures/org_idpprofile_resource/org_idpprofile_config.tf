@@ -32,7 +32,7 @@ overwrites = [
 ␞
 base_profile = "strict"
 name = "test_idp_profile_strict"
-org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
+org_id = "{org_id}"
 overwrites = [
   {
     name = "single_overwrite_minimal"
@@ -44,7 +44,7 @@ overwrites = [
 ␞
 base_profile = "standard"
 name = "test_idp_profile_partial"
-org_id = "901c5705-ca11-4bf1-9158-31f7195618ef"
+org_id = "{org_id}"
 overwrites = [
   {
     name = "subnet_only_rule"

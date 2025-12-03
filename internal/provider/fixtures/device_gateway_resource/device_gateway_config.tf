@@ -370,6 +370,16 @@
       name = "allow-web-traffic"
       path_preference = "wan_preference"
       services = ["web-browsing", "ssl"]
+      skyatp = {
+        dns_dga_detection = "standard"
+        dns_tunnel_detection = "strict"
+        http_inspection = "standard"
+        iot_device_policy = "enabled"
+      }
+      syslog = {
+        enabled = true
+        server_names = ["syslog-server1", "syslog-server2"]
+      }
       tenants = ["engineering"]
     }
   ]

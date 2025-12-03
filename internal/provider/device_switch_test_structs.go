@@ -108,7 +108,7 @@ type DeviceSwitchConfigValue struct {
 }
 
 type DeviceSwitchFixedBindingsValue struct {
-	Ip   string  `cty:"ip" hcl:"ip"`
+	Ip   *string `cty:"ip" hcl:"ip"`
 	Ip6  *string `cty:"ip6" hcl:"ip6"`
 	Name *string `cty:"name" hcl:"name"`
 }
@@ -317,6 +317,7 @@ type DeviceSwitchPortUsagesValue struct {
 	AllowMultipleSupplicants                 *bool                          `cty:"allow_multiple_supplicants" hcl:"allow_multiple_supplicants"`
 	BypassAuthWhenServerDown                 *bool                          `cty:"bypass_auth_when_server_down" hcl:"bypass_auth_when_server_down"`
 	BypassAuthWhenServerDownForUnknownClient *bool                          `cty:"bypass_auth_when_server_down_for_unknown_client" hcl:"bypass_auth_when_server_down_for_unknown_client"`
+	BypassAuthWhenServerDownForVoip          *bool                          `cty:"bypass_auth_when_server_down_for_voip" hcl:"bypass_auth_when_server_down_for_voip"`
 	CommunityVlanId                          *int64                         `cty:"community_vlan_id" hcl:"community_vlan_id"`
 	Description                              *string                        `cty:"description" hcl:"description"`
 	DisableAutoneg                           *bool                          `cty:"disable_autoneg" hcl:"disable_autoneg"`
@@ -337,6 +338,7 @@ type DeviceSwitchPortUsagesValue struct {
 	Networks                                 []string                       `cty:"networks" hcl:"networks"`
 	PersistMac                               *bool                          `cty:"persist_mac" hcl:"persist_mac"`
 	PoeDisabled                              *bool                          `cty:"poe_disabled" hcl:"poe_disabled"`
+	PoePriority                              *string                        `cty:"poe_priority" hcl:"poe_priority"`
 	PortAuth                                 *string                        `cty:"port_auth" hcl:"port_auth"`
 	PortNetwork                              *string                        `cty:"port_network" hcl:"port_network"`
 	ReauthInterval                           *string                        `cty:"reauth_interval" hcl:"reauth_interval"`

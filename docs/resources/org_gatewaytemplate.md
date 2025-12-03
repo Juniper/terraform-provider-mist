@@ -527,7 +527,7 @@ Optional:
 
 - `ae_disable_lacp` (Boolean) If `aggregated`==`true`. To disable LCP support for the AE interface
 - `ae_idx` (String) If `aggregated`==`true`. Users could force to use the designated AE name (must be an integer between 0 and 127)
-- `ae_lacp_force_up` (Boolean) For SRX Only, if `aggregated`==`true`.Sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only
+- `ae_lacp_force_up` (Boolean) For SRX only, if `aggregated`==`true`.Sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only
 - `aggregated` (Boolean)
 - `critical` (Boolean) To generate port up/down alarm, set it to true
 - `description` (String) Interface Description. Can be a variable (i.e. "{{myvar}}")
@@ -737,7 +737,7 @@ Optional:
 
 - `action` (String) Required when `servicepolicy_id` is not defined, optional otherwise (override the servicepolicy action). enum: `allow`, `deny`
 - `antivirus` (Attributes) For SRX-only (see [below for nested schema](#nestedatt--service_policies--antivirus))
-- `appqoe` (Attributes) For SRX Only (see [below for nested schema](#nestedatt--service_policies--appqoe))
+- `appqoe` (Attributes) SRX only (see [below for nested schema](#nestedatt--service_policies--appqoe))
 - `ewf` (Attributes List) (see [below for nested schema](#nestedatt--service_policies--ewf))
 - `idp` (Attributes) (see [below for nested schema](#nestedatt--service_policies--idp))
 - `local_routing` (Boolean) access within the same VRF
@@ -745,7 +745,9 @@ Optional:
 - `path_preference` (String) By default, we derive all paths available and use them. Optionally, you can customize by using `path_preference`
 - `servicepolicy_id` (String) Used to link servicepolicy defined at org level and overwrite some attributes
 - `services` (List of String) Required when `servicepolicy_id` is not defined. List of Applications / Destinations
+- `skyatp` (Attributes) SRX only (see [below for nested schema](#nestedatt--service_policies--skyatp))
 - `ssl_proxy` (Attributes) For SRX-only (see [below for nested schema](#nestedatt--service_policies--ssl_proxy))
+- `syslog` (Attributes) Required for syslog logging (see [below for nested schema](#nestedatt--service_policies--syslog))
 - `tenants` (List of String) Required when `servicepolicy_id` is not defined. List of Networks / Users
 
 <a id="nestedatt--service_policies--antivirus"></a>
@@ -788,6 +790,17 @@ Optional:
 - `profile` (String) enum: `Custom`, `strict` (default), `standard` or keys from idp_profiles
 
 
+<a id="nestedatt--service_policies--skyatp"></a>
+### Nested Schema for `service_policies.skyatp`
+
+Optional:
+
+- `dns_dga_detection` (String) enum: `disabled`, `default`, `standard`, `strict`
+- `dns_tunnel_detection` (String) enum: `disabled`, `default`, `standard`, `strict`
+- `http_inspection` (String) enum: `disabled`, `standard`
+- `iot_device_policy` (String) enum: `disabled`, `enabled`
+
+
 <a id="nestedatt--service_policies--ssl_proxy"></a>
 ### Nested Schema for `service_policies.ssl_proxy`
 
@@ -795,6 +808,15 @@ Optional:
 
 - `ciphers_category` (String) enum: `medium`, `strong`, `weak`
 - `enabled` (Boolean)
+
+
+<a id="nestedatt--service_policies--syslog"></a>
+### Nested Schema for `service_policies.syslog`
+
+Optional:
+
+- `enabled` (Boolean)
+- `server_names` (List of String)
 
 
 

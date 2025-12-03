@@ -59,14 +59,15 @@ func OrgSsoRoleResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"scope": schema.StringAttribute{
 							Required:            true,
-							Description:         "enum: `org`, `site`, `sitegroup`",
-							MarkdownDescription: "enum: `org`, `site`, `sitegroup`",
+							Description:         "enum: `org`, `site`, `sitegroup`, `orgsites`",
+							MarkdownDescription: "enum: `org`, `site`, `sitegroup`, `orgsites`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
 									"org",
 									"site",
 									"sitegroup",
+									"orgsites",
 								),
 							},
 						},

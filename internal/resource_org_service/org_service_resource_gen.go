@@ -5,7 +5,9 @@ package resource_org_service
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -20,7 +22,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -137,7 +138,7 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			"max_jitter": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("traffic_type"), types.StringValue("custom")),
 					stringvalidator.Any(
 						mistvalidator.ParseInt(0, 2147483647),
 						mistvalidator.ParseVar(),
@@ -147,7 +148,7 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			"max_latency": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("traffic_type"), types.StringValue("custom")),
 					stringvalidator.Any(
 						mistvalidator.ParseInt(0, 2147483647),
 						mistvalidator.ParseVar(),
@@ -157,7 +158,7 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			"max_loss": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
+					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("traffic_type"), types.StringValue("custom")),
 					stringvalidator.Any(
 						mistvalidator.ParseInt(0, 100),
 						mistvalidator.ParseVar(),

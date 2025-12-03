@@ -69,6 +69,7 @@ func TestOrgIdpprofileModel(t *testing.T) {
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config
+				config.OrgId = GetTestOrgId()
 
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())

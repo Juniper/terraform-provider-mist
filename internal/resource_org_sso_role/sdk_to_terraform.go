@@ -52,11 +52,16 @@ func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data
 		if v.SitegroupId != nil {
 			sitegroupId = types.StringValue(v.SitegroupId.String())
 		}
-		if v.Views != nil {
-			var viewsArray []attr.Value
-			for _, role := range v.Views {
-				viewsArray = append(viewsArray, types.StringValue(string(role)))
+
+		var viewsArray []attr.Value
+		if v.View != nil && v.Views == nil {
+			viewsArray = append(viewsArray, types.StringValue(string(*v.View)))
+		} else if v.Views != nil {
+			for _, view := range v.Views {
+				viewsArray = append(viewsArray, types.StringValue(string(view)))
 			}
+		}
+		if len(viewsArray) > 0 {
 			tmp, e := types.ListValueFrom(ctx, types.StringType, viewsArray)
 			if e != nil {
 				diags.Append(e...)

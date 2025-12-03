@@ -501,11 +501,47 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, rName string) testChe
 			checks.append(t, "TestCheckResourceAttr", "occupancy.unconnected_clients_enabled", fmt.Sprintf("%t", *s.Occupancy.UnconnectedClientsEnabled))
 		}
 	}
+	if s.Marvis != nil {
+		if s.Marvis.AutoOperations != nil {
+			if s.Marvis.AutoOperations.ApInsufficientCapacity != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.ap_insufficient_capacity", fmt.Sprintf("%t", *s.Marvis.AutoOperations.ApInsufficientCapacity))
+			}
+			if s.Marvis.AutoOperations.ApLoop != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.ap_loop", fmt.Sprintf("%t", *s.Marvis.AutoOperations.ApLoop))
+			}
+			if s.Marvis.AutoOperations.ApNonCompliant != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.ap_non_compliant", fmt.Sprintf("%t", *s.Marvis.AutoOperations.ApNonCompliant))
+			}
+			if s.Marvis.AutoOperations.BouncePortForAbnormalPoeClient != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.bounce_port_for_abnormal_poe_client", fmt.Sprintf("%t", *s.Marvis.AutoOperations.BouncePortForAbnormalPoeClient))
+			}
+			if s.Marvis.AutoOperations.DisablePortWhenDdosProtocolViolation != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.disable_port_when_ddos_protocol_violation", fmt.Sprintf("%t", *s.Marvis.AutoOperations.DisablePortWhenDdosProtocolViolation))
+			}
+			if s.Marvis.AutoOperations.DisablePortWhenRogueDhcpServerDetected != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.disable_port_when_rogue_dhcp_server_detected", fmt.Sprintf("%t", *s.Marvis.AutoOperations.DisablePortWhenRogueDhcpServerDetected))
+			}
+			if s.Marvis.AutoOperations.GatewayNonCompliant != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.gateway_non_compliant", fmt.Sprintf("%t", *s.Marvis.AutoOperations.GatewayNonCompliant))
+			}
+			if s.Marvis.AutoOperations.SwitchMisconfiguredPort != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.switch_misconfigured_port", fmt.Sprintf("%t", *s.Marvis.AutoOperations.SwitchMisconfiguredPort))
+			}
+			if s.Marvis.AutoOperations.SwitchPortStuck != nil {
+				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.switch_port_stuck", fmt.Sprintf("%t", *s.Marvis.AutoOperations.SwitchPortStuck))
+			}
+		}
+	}
 	if s.PersistConfigOnDevice != nil {
 		checks.append(t, "TestCheckResourceAttr", "persist_config_on_device", fmt.Sprintf("%t", *s.PersistConfigOnDevice))
 	}
-	if s.Proxy != nil && s.Proxy.Url != nil {
-		checks.append(t, "TestCheckResourceAttr", "proxy.url", *s.Proxy.Url)
+	if s.Proxy != nil {
+		if s.Proxy.Disabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "proxy.disabled", fmt.Sprintf("%t", *s.Proxy.Disabled))
+		}
+		if s.Proxy.Url != nil {
+			checks.append(t, "TestCheckResourceAttr", "proxy.url", *s.Proxy.Url)
+		}
 	}
 	if s.RemoveExistingConfigs != nil {
 		checks.append(t, "TestCheckResourceAttr", "remove_existing_configs", fmt.Sprintf("%t", *s.RemoveExistingConfigs))
@@ -617,8 +653,13 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, rName string) testChe
 		if s.Ssr.DisableStats != nil {
 			checks.append(t, "TestCheckResourceAttr", "ssr.disable_stats", fmt.Sprintf("%t", *s.Ssr.DisableStats))
 		}
-		if s.Ssr.Proxy != nil && s.Ssr.Proxy.Url != nil {
-			checks.append(t, "TestCheckResourceAttr", "ssr.proxy.url", *s.Ssr.Proxy.Url)
+		if s.Ssr.Proxy != nil {
+			if s.Ssr.Proxy.Disabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "ssr.proxy.disabled", fmt.Sprintf("%t", *s.Ssr.Proxy.Disabled))
+			}
+			if s.Ssr.Proxy.Url != nil {
+				checks.append(t, "TestCheckResourceAttr", "ssr.proxy.url", *s.Ssr.Proxy.Url)
+			}
 		}
 		if s.Ssr.SsrAutoUpgrade != nil {
 			if s.Ssr.SsrAutoUpgrade.Enabled != nil {

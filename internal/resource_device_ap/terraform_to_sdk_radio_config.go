@@ -77,6 +77,9 @@ func band5TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetyp
 			if plan.AntGain.ValueInt64Pointer() != nil {
 				data.AntGain = models.NewOptional(models.ToPointer(int(plan.AntGain.ValueInt64())))
 			}
+			if plan.AntennaBeamPattern.ValueStringPointer() != nil {
+				data.AntennaBeamPattern = (*models.RadioBandAntennaBeamPatternEnum)(plan.AntennaBeamPattern.ValueStringPointer())
+			}
 			if plan.AntennaMode.ValueStringPointer() != nil {
 				data.AntennaMode = models.ToPointer(models.RadioBandAntennaModeEnum(plan.AntennaMode.ValueString()))
 			}
@@ -121,6 +124,9 @@ func band6TerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetyp
 			}
 			if plan.AntGain.ValueInt64Pointer() != nil {
 				data.AntGain = models.NewOptional(models.ToPointer(int(plan.AntGain.ValueInt64())))
+			}
+			if plan.AntennaBeamPattern.ValueStringPointer() != nil {
+				data.AntennaBeamPattern = (*models.RadioBandAntennaBeamPatternEnum)(plan.AntennaBeamPattern.ValueStringPointer())
 			}
 			if plan.AntennaMode.ValueStringPointer() != nil {
 				data.AntennaMode = models.ToPointer(models.RadioBandAntennaModeEnum(plan.AntennaMode.ValueString()))
@@ -176,8 +182,8 @@ func radioConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, pla
 	if !plan.AntennaMode.IsNull() && !plan.AntennaMode.IsUnknown() {
 		data.AntennaMode = models.ToPointer(models.ApRadioAntennaModeEnum(plan.AntennaMode.ValueString()))
 	}
-	if !plan.AntMode.IsNull() && !plan.AntMode.IsUnknown() {
-		data.AntMode = models.ToPointer(models.AntModeEnum(plan.AntMode.ValueString()))
+	if !plan.AntennaSelect.IsNull() && !plan.AntennaSelect.IsUnknown() {
+		data.AntennaSelect = models.ToPointer(models.AntennaSelectEnum(plan.AntennaSelect.ValueString()))
 	}
 	if !plan.Band24.IsNull() && !plan.Band24.IsUnknown() {
 		data.Band24 = band24TerraformToSdk(ctx, diags, plan.Band24)
@@ -198,6 +204,9 @@ func radioConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, pla
 	}
 	if plan.IndoorUse.ValueBoolPointer() != nil {
 		data.IndoorUse = plan.IndoorUse.ValueBoolPointer()
+	}
+	if plan.RrmManaged.ValueBoolPointer() != nil {
+		data.RrmManaged = plan.RrmManaged.ValueBoolPointer()
 	}
 	if plan.ScanningEnabled.ValueBoolPointer() != nil {
 		data.ScanningEnabled = plan.ScanningEnabled.ValueBoolPointer()

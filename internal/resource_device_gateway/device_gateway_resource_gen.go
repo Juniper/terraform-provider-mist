@@ -1655,8 +1655,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"ae_lacp_force_up": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "For SRX Only, if `aggregated`==`true`.Sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only",
-							MarkdownDescription: "For SRX Only, if `aggregated`==`true`.Sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only",
+							Description:         "For SRX only, if `aggregated`==`true`.Sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only",
+							MarkdownDescription: "For SRX only, if `aggregated`==`true`.Sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only",
 						},
 						"aggregated": schema.BoolAttribute{
 							Optional: true,
@@ -2572,8 +2572,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "For SRX Only",
-							MarkdownDescription: "For SRX Only",
+							Description:         "SRX only",
+							MarkdownDescription: "SRX only",
 						},
 						"ewf": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -2681,6 +2681,79 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("servicepolicy_id")),
 							},
 						},
+						"skyatp": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"dns_dga_detection": schema.StringAttribute{
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `disabled`, `default`, `standard`, `strict`",
+									MarkdownDescription: "enum: `disabled`, `default`, `standard`, `strict`",
+									Validators: []validator.String{
+										stringvalidator.OneOf(
+											"",
+											"disabled",
+											"default",
+											"standard",
+											"strict",
+										),
+									},
+									Default: stringdefault.StaticString("disabled"),
+								},
+								"dns_tunnel_detection": schema.StringAttribute{
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `disabled`, `default`, `standard`, `strict`",
+									MarkdownDescription: "enum: `disabled`, `default`, `standard`, `strict`",
+									Validators: []validator.String{
+										stringvalidator.OneOf(
+											"",
+											"disabled",
+											"default",
+											"standard",
+											"strict",
+										),
+									},
+									Default: stringdefault.StaticString("disabled"),
+								},
+								"http_inspection": schema.StringAttribute{
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `disabled`, `standard`",
+									MarkdownDescription: "enum: `disabled`, `standard`",
+									Validators: []validator.String{
+										stringvalidator.OneOf(
+											"",
+											"disabled",
+											"standard",
+											"strict",
+										),
+									},
+									Default: stringdefault.StaticString("disabled"),
+								},
+								"iot_device_policy": schema.StringAttribute{
+									Optional:            true,
+									Computed:            true,
+									Description:         "enum: `disabled`, `enabled`",
+									MarkdownDescription: "enum: `disabled`, `enabled`",
+									Validators: []validator.String{
+										stringvalidator.OneOf(
+											"",
+											"disabled",
+											"enabled",
+										),
+									},
+									Default: stringdefault.StaticString("disabled"),
+								},
+							},
+							CustomType: SkyatpType{
+								ObjectType: types.ObjectType{
+									AttrTypes: SkyatpValue{}.AttributeTypes(ctx),
+								},
+							},
+							Optional:            true,
+							Description:         "SRX only",
+							MarkdownDescription: "SRX only",
+						},
 						"ssl_proxy": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"ciphers_category": schema.StringAttribute{
@@ -2708,6 +2781,27 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "For SRX-only",
 							MarkdownDescription: "For SRX-only",
+						},
+						"syslog": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"enabled": schema.BoolAttribute{
+									Optional: true,
+									Computed: true,
+									Default:  booldefault.StaticBool(false),
+								},
+								"server_names": schema.ListAttribute{
+									ElementType: types.StringType,
+									Optional:    true,
+								},
+							},
+							CustomType: SyslogType{
+								ObjectType: types.ObjectType{
+									AttrTypes: SyslogValue{}.AttributeTypes(ctx),
+								},
+							},
+							Optional:            true,
+							Description:         "Required for syslog logging",
+							MarkdownDescription: "Required for syslog logging",
 						},
 						"tenants": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -33332,6 +33426,24 @@ func (t ServicePoliciesType) ValueFromObject(ctx context.Context, in basetypes.O
 			fmt.Sprintf(`services expected to be basetypes.ListValue, was: %T`, servicesAttribute))
 	}
 
+	skyatpAttribute, ok := attributes["skyatp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`skyatp is missing from object`)
+
+		return nil, diags
+	}
+
+	skyatpVal, ok := skyatpAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`skyatp expected to be basetypes.ObjectValue, was: %T`, skyatpAttribute))
+	}
+
 	sslProxyAttribute, ok := attributes["ssl_proxy"]
 
 	if !ok {
@@ -33348,6 +33460,24 @@ func (t ServicePoliciesType) ValueFromObject(ctx context.Context, in basetypes.O
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`ssl_proxy expected to be basetypes.ObjectValue, was: %T`, sslProxyAttribute))
+	}
+
+	syslogAttribute, ok := attributes["syslog"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`syslog is missing from object`)
+
+		return nil, diags
+	}
+
+	syslogVal, ok := syslogAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`syslog expected to be basetypes.ObjectValue, was: %T`, syslogAttribute))
 	}
 
 	tenantsAttribute, ok := attributes["tenants"]
@@ -33383,7 +33513,9 @@ func (t ServicePoliciesType) ValueFromObject(ctx context.Context, in basetypes.O
 		PathPreference:  pathPreferenceVal,
 		ServicepolicyId: servicepolicyIdVal,
 		Services:        servicesVal,
+		Skyatp:          skyatpVal,
 		SslProxy:        sslProxyVal,
+		Syslog:          syslogVal,
 		Tenants:         tenantsVal,
 		state:           attr.ValueStateKnown,
 	}, diags
@@ -33632,6 +33764,24 @@ func NewServicePoliciesValue(attributeTypes map[string]attr.Type, attributes map
 			fmt.Sprintf(`services expected to be basetypes.ListValue, was: %T`, servicesAttribute))
 	}
 
+	skyatpAttribute, ok := attributes["skyatp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`skyatp is missing from object`)
+
+		return NewServicePoliciesValueUnknown(), diags
+	}
+
+	skyatpVal, ok := skyatpAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`skyatp expected to be basetypes.ObjectValue, was: %T`, skyatpAttribute))
+	}
+
 	sslProxyAttribute, ok := attributes["ssl_proxy"]
 
 	if !ok {
@@ -33648,6 +33798,24 @@ func NewServicePoliciesValue(attributeTypes map[string]attr.Type, attributes map
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`ssl_proxy expected to be basetypes.ObjectValue, was: %T`, sslProxyAttribute))
+	}
+
+	syslogAttribute, ok := attributes["syslog"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`syslog is missing from object`)
+
+		return NewServicePoliciesValueUnknown(), diags
+	}
+
+	syslogVal, ok := syslogAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`syslog expected to be basetypes.ObjectValue, was: %T`, syslogAttribute))
 	}
 
 	tenantsAttribute, ok := attributes["tenants"]
@@ -33683,7 +33851,9 @@ func NewServicePoliciesValue(attributeTypes map[string]attr.Type, attributes map
 		PathPreference:  pathPreferenceVal,
 		ServicepolicyId: servicepolicyIdVal,
 		Services:        servicesVal,
+		Skyatp:          skyatpVal,
 		SslProxy:        sslProxyVal,
+		Syslog:          syslogVal,
 		Tenants:         tenantsVal,
 		state:           attr.ValueStateKnown,
 	}, diags
@@ -33767,13 +33937,15 @@ type ServicePoliciesValue struct {
 	PathPreference  basetypes.StringValue `tfsdk:"path_preference"`
 	ServicepolicyId basetypes.StringValue `tfsdk:"servicepolicy_id"`
 	Services        basetypes.ListValue   `tfsdk:"services"`
+	Skyatp          basetypes.ObjectValue `tfsdk:"skyatp"`
 	SslProxy        basetypes.ObjectValue `tfsdk:"ssl_proxy"`
+	Syslog          basetypes.ObjectValue `tfsdk:"syslog"`
 	Tenants         basetypes.ListValue   `tfsdk:"tenants"`
 	state           attr.ValueState
 }
 
 func (v ServicePoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 12)
+	attrTypes := make(map[string]tftypes.Type, 14)
 
 	var val tftypes.Value
 	var err error
@@ -33798,8 +33970,14 @@ func (v ServicePoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 	attrTypes["services"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
+	attrTypes["skyatp"] = basetypes.ObjectType{
+		AttrTypes: SkyatpValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["ssl_proxy"] = basetypes.ObjectType{
 		AttrTypes: SslProxyValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["syslog"] = basetypes.ObjectType{
+		AttrTypes: SyslogValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["tenants"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -33809,7 +33987,7 @@ func (v ServicePoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 12)
+		vals := make(map[string]tftypes.Value, 14)
 
 		val, err = v.Action.ToTerraformValue(ctx)
 
@@ -33891,6 +34069,14 @@ func (v ServicePoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 
 		vals["services"] = val
 
+		val, err = v.Skyatp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["skyatp"] = val
+
 		val, err = v.SslProxy.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -33898,6 +34084,14 @@ func (v ServicePoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 		}
 
 		vals["ssl_proxy"] = val
+
+		val, err = v.Syslog.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["syslog"] = val
 
 		val, err = v.Tenants.ToTerraformValue(ctx)
 
@@ -34028,6 +34222,27 @@ func (v ServicePoliciesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 		)
 	}
 
+	var skyatp basetypes.ObjectValue
+
+	if v.Skyatp.IsNull() {
+		skyatp = types.ObjectNull(
+			SkyatpValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Skyatp.IsUnknown() {
+		skyatp = types.ObjectUnknown(
+			SkyatpValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Skyatp.IsNull() && !v.Skyatp.IsUnknown() {
+		skyatp = types.ObjectValueMust(
+			SkyatpValue{}.AttributeTypes(ctx),
+			v.Skyatp.Attributes(),
+		)
+	}
+
 	var sslProxy basetypes.ObjectValue
 
 	if v.SslProxy.IsNull() {
@@ -34046,6 +34261,27 @@ func (v ServicePoliciesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 		sslProxy = types.ObjectValueMust(
 			SslProxyValue{}.AttributeTypes(ctx),
 			v.SslProxy.Attributes(),
+		)
+	}
+
+	var syslog basetypes.ObjectValue
+
+	if v.Syslog.IsNull() {
+		syslog = types.ObjectNull(
+			SyslogValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Syslog.IsUnknown() {
+		syslog = types.ObjectUnknown(
+			SyslogValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Syslog.IsNull() && !v.Syslog.IsUnknown() {
+		syslog = types.ObjectValueMust(
+			SyslogValue{}.AttributeTypes(ctx),
+			v.Syslog.Attributes(),
 		)
 	}
 
@@ -34083,8 +34319,14 @@ func (v ServicePoliciesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 			"services": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"skyatp": basetypes.ObjectType{
+				AttrTypes: SkyatpValue{}.AttributeTypes(ctx),
+			},
 			"ssl_proxy": basetypes.ObjectType{
 				AttrTypes: SslProxyValue{}.AttributeTypes(ctx),
+			},
+			"syslog": basetypes.ObjectType{
+				AttrTypes: SyslogValue{}.AttributeTypes(ctx),
 			},
 			"tenants": basetypes.ListType{
 				ElemType: types.StringType,
@@ -34126,8 +34368,14 @@ func (v ServicePoliciesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 			"services": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"skyatp": basetypes.ObjectType{
+				AttrTypes: SkyatpValue{}.AttributeTypes(ctx),
+			},
 			"ssl_proxy": basetypes.ObjectType{
 				AttrTypes: SslProxyValue{}.AttributeTypes(ctx),
+			},
+			"syslog": basetypes.ObjectType{
+				AttrTypes: SyslogValue{}.AttributeTypes(ctx),
 			},
 			"tenants": basetypes.ListType{
 				ElemType: types.StringType,
@@ -34156,8 +34404,14 @@ func (v ServicePoliciesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 		"services": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"skyatp": basetypes.ObjectType{
+			AttrTypes: SkyatpValue{}.AttributeTypes(ctx),
+		},
 		"ssl_proxy": basetypes.ObjectType{
 			AttrTypes: SslProxyValue{}.AttributeTypes(ctx),
+		},
+		"syslog": basetypes.ObjectType{
+			AttrTypes: SyslogValue{}.AttributeTypes(ctx),
 		},
 		"tenants": basetypes.ListType{
 			ElemType: types.StringType,
@@ -34185,7 +34439,9 @@ func (v ServicePoliciesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 			"path_preference":  v.PathPreference,
 			"servicepolicy_id": v.ServicepolicyId,
 			"services":         servicesVal,
+			"skyatp":           skyatp,
 			"ssl_proxy":        sslProxy,
+			"syslog":           syslog,
 			"tenants":          tenantsVal,
 		})
 
@@ -34247,7 +34503,15 @@ func (v ServicePoliciesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Skyatp.Equal(other.Skyatp) {
+		return false
+	}
+
 	if !v.SslProxy.Equal(other.SslProxy) {
+		return false
+	}
+
+	if !v.Syslog.Equal(other.Syslog) {
 		return false
 	}
 
@@ -34288,8 +34552,14 @@ func (v ServicePoliciesValue) AttributeTypes(ctx context.Context) map[string]att
 		"services": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"skyatp": basetypes.ObjectType{
+			AttrTypes: SkyatpValue{}.AttributeTypes(ctx),
+		},
 		"ssl_proxy": basetypes.ObjectType{
 			AttrTypes: SslProxyValue{}.AttributeTypes(ctx),
+		},
+		"syslog": basetypes.ObjectType{
+			AttrTypes: SyslogValue{}.AttributeTypes(ctx),
 		},
 		"tenants": basetypes.ListType{
 			ElemType: types.StringType,
@@ -36033,6 +36303,495 @@ func (v IdpValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	}
 }
 
+var _ basetypes.ObjectTypable = SkyatpType{}
+
+type SkyatpType struct {
+	basetypes.ObjectType
+}
+
+func (t SkyatpType) Equal(o attr.Type) bool {
+	other, ok := o.(SkyatpType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t SkyatpType) String() string {
+	return "SkyatpType"
+}
+
+func (t SkyatpType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	dnsDgaDetectionAttribute, ok := attributes["dns_dga_detection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`dns_dga_detection is missing from object`)
+
+		return nil, diags
+	}
+
+	dnsDgaDetectionVal, ok := dnsDgaDetectionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`dns_dga_detection expected to be basetypes.StringValue, was: %T`, dnsDgaDetectionAttribute))
+	}
+
+	dnsTunnelDetectionAttribute, ok := attributes["dns_tunnel_detection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`dns_tunnel_detection is missing from object`)
+
+		return nil, diags
+	}
+
+	dnsTunnelDetectionVal, ok := dnsTunnelDetectionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`dns_tunnel_detection expected to be basetypes.StringValue, was: %T`, dnsTunnelDetectionAttribute))
+	}
+
+	httpInspectionAttribute, ok := attributes["http_inspection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`http_inspection is missing from object`)
+
+		return nil, diags
+	}
+
+	httpInspectionVal, ok := httpInspectionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`http_inspection expected to be basetypes.StringValue, was: %T`, httpInspectionAttribute))
+	}
+
+	iotDevicePolicyAttribute, ok := attributes["iot_device_policy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`iot_device_policy is missing from object`)
+
+		return nil, diags
+	}
+
+	iotDevicePolicyVal, ok := iotDevicePolicyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`iot_device_policy expected to be basetypes.StringValue, was: %T`, iotDevicePolicyAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return SkyatpValue{
+		DnsDgaDetection:    dnsDgaDetectionVal,
+		DnsTunnelDetection: dnsTunnelDetectionVal,
+		HttpInspection:     httpInspectionVal,
+		IotDevicePolicy:    iotDevicePolicyVal,
+		state:              attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSkyatpValueNull() SkyatpValue {
+	return SkyatpValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewSkyatpValueUnknown() SkyatpValue {
+	return SkyatpValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewSkyatpValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (SkyatpValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing SkyatpValue Attribute Value",
+				"While creating a SkyatpValue value, a missing attribute value was detected. "+
+					"A SkyatpValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SkyatpValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid SkyatpValue Attribute Type",
+				"While creating a SkyatpValue value, an invalid attribute value was detected. "+
+					"A SkyatpValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SkyatpValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("SkyatpValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra SkyatpValue Attribute Value",
+				"While creating a SkyatpValue value, an extra attribute value was detected. "+
+					"A SkyatpValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra SkyatpValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewSkyatpValueUnknown(), diags
+	}
+
+	dnsDgaDetectionAttribute, ok := attributes["dns_dga_detection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`dns_dga_detection is missing from object`)
+
+		return NewSkyatpValueUnknown(), diags
+	}
+
+	dnsDgaDetectionVal, ok := dnsDgaDetectionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`dns_dga_detection expected to be basetypes.StringValue, was: %T`, dnsDgaDetectionAttribute))
+	}
+
+	dnsTunnelDetectionAttribute, ok := attributes["dns_tunnel_detection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`dns_tunnel_detection is missing from object`)
+
+		return NewSkyatpValueUnknown(), diags
+	}
+
+	dnsTunnelDetectionVal, ok := dnsTunnelDetectionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`dns_tunnel_detection expected to be basetypes.StringValue, was: %T`, dnsTunnelDetectionAttribute))
+	}
+
+	httpInspectionAttribute, ok := attributes["http_inspection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`http_inspection is missing from object`)
+
+		return NewSkyatpValueUnknown(), diags
+	}
+
+	httpInspectionVal, ok := httpInspectionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`http_inspection expected to be basetypes.StringValue, was: %T`, httpInspectionAttribute))
+	}
+
+	iotDevicePolicyAttribute, ok := attributes["iot_device_policy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`iot_device_policy is missing from object`)
+
+		return NewSkyatpValueUnknown(), diags
+	}
+
+	iotDevicePolicyVal, ok := iotDevicePolicyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`iot_device_policy expected to be basetypes.StringValue, was: %T`, iotDevicePolicyAttribute))
+	}
+
+	if diags.HasError() {
+		return NewSkyatpValueUnknown(), diags
+	}
+
+	return SkyatpValue{
+		DnsDgaDetection:    dnsDgaDetectionVal,
+		DnsTunnelDetection: dnsTunnelDetectionVal,
+		HttpInspection:     httpInspectionVal,
+		IotDevicePolicy:    iotDevicePolicyVal,
+		state:              attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSkyatpValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) SkyatpValue {
+	object, diags := NewSkyatpValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewSkyatpValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t SkyatpType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewSkyatpValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewSkyatpValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewSkyatpValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewSkyatpValueMust(SkyatpValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t SkyatpType) ValueType(ctx context.Context) attr.Value {
+	return SkyatpValue{}
+}
+
+var _ basetypes.ObjectValuable = SkyatpValue{}
+
+type SkyatpValue struct {
+	DnsDgaDetection    basetypes.StringValue `tfsdk:"dns_dga_detection"`
+	DnsTunnelDetection basetypes.StringValue `tfsdk:"dns_tunnel_detection"`
+	HttpInspection     basetypes.StringValue `tfsdk:"http_inspection"`
+	IotDevicePolicy    basetypes.StringValue `tfsdk:"iot_device_policy"`
+	state              attr.ValueState
+}
+
+func (v SkyatpValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 4)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["dns_dga_detection"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["dns_tunnel_detection"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["http_inspection"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["iot_device_policy"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 4)
+
+		val, err = v.DnsDgaDetection.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["dns_dga_detection"] = val
+
+		val, err = v.DnsTunnelDetection.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["dns_tunnel_detection"] = val
+
+		val, err = v.HttpInspection.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["http_inspection"] = val
+
+		val, err = v.IotDevicePolicy.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["iot_device_policy"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v SkyatpValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v SkyatpValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v SkyatpValue) String() string {
+	return "SkyatpValue"
+}
+
+func (v SkyatpValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"dns_dga_detection":    basetypes.StringType{},
+		"dns_tunnel_detection": basetypes.StringType{},
+		"http_inspection":      basetypes.StringType{},
+		"iot_device_policy":    basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"dns_dga_detection":    v.DnsDgaDetection,
+			"dns_tunnel_detection": v.DnsTunnelDetection,
+			"http_inspection":      v.HttpInspection,
+			"iot_device_policy":    v.IotDevicePolicy,
+		})
+
+	return objVal, diags
+}
+
+func (v SkyatpValue) Equal(o attr.Value) bool {
+	other, ok := o.(SkyatpValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.DnsDgaDetection.Equal(other.DnsDgaDetection) {
+		return false
+	}
+
+	if !v.DnsTunnelDetection.Equal(other.DnsTunnelDetection) {
+		return false
+	}
+
+	if !v.HttpInspection.Equal(other.HttpInspection) {
+		return false
+	}
+
+	if !v.IotDevicePolicy.Equal(other.IotDevicePolicy) {
+		return false
+	}
+
+	return true
+}
+
+func (v SkyatpValue) Type(ctx context.Context) attr.Type {
+	return SkyatpType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v SkyatpValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"dns_dga_detection":    basetypes.StringType{},
+		"dns_tunnel_detection": basetypes.StringType{},
+		"http_inspection":      basetypes.StringType{},
+		"iot_device_policy":    basetypes.StringType{},
+	}
+}
+
 var _ basetypes.ObjectTypable = SslProxyType{}
 
 type SslProxyType struct {
@@ -36409,6 +37168,412 @@ func (v SslProxyValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 	return map[string]attr.Type{
 		"ciphers_category": basetypes.StringType{},
 		"enabled":          basetypes.BoolType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = SyslogType{}
+
+type SyslogType struct {
+	basetypes.ObjectType
+}
+
+func (t SyslogType) Equal(o attr.Type) bool {
+	other, ok := o.(SyslogType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t SyslogType) String() string {
+	return "SyslogType"
+}
+
+func (t SyslogType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	serverNamesAttribute, ok := attributes["server_names"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`server_names is missing from object`)
+
+		return nil, diags
+	}
+
+	serverNamesVal, ok := serverNamesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`server_names expected to be basetypes.ListValue, was: %T`, serverNamesAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return SyslogValue{
+		Enabled:     enabledVal,
+		ServerNames: serverNamesVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSyslogValueNull() SyslogValue {
+	return SyslogValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewSyslogValueUnknown() SyslogValue {
+	return SyslogValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewSyslogValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (SyslogValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing SyslogValue Attribute Value",
+				"While creating a SyslogValue value, a missing attribute value was detected. "+
+					"A SyslogValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SyslogValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid SyslogValue Attribute Type",
+				"While creating a SyslogValue value, an invalid attribute value was detected. "+
+					"A SyslogValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("SyslogValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("SyslogValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra SyslogValue Attribute Value",
+				"While creating a SyslogValue value, an extra attribute value was detected. "+
+					"A SyslogValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra SyslogValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewSyslogValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewSyslogValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	serverNamesAttribute, ok := attributes["server_names"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`server_names is missing from object`)
+
+		return NewSyslogValueUnknown(), diags
+	}
+
+	serverNamesVal, ok := serverNamesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`server_names expected to be basetypes.ListValue, was: %T`, serverNamesAttribute))
+	}
+
+	if diags.HasError() {
+		return NewSyslogValueUnknown(), diags
+	}
+
+	return SyslogValue{
+		Enabled:     enabledVal,
+		ServerNames: serverNamesVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewSyslogValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) SyslogValue {
+	object, diags := NewSyslogValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewSyslogValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t SyslogType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewSyslogValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewSyslogValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewSyslogValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewSyslogValueMust(SyslogValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t SyslogType) ValueType(ctx context.Context) attr.Value {
+	return SyslogValue{}
+}
+
+var _ basetypes.ObjectValuable = SyslogValue{}
+
+type SyslogValue struct {
+	Enabled     basetypes.BoolValue `tfsdk:"enabled"`
+	ServerNames basetypes.ListValue `tfsdk:"server_names"`
+	state       attr.ValueState
+}
+
+func (v SyslogValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["server_names"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.ServerNames.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["server_names"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v SyslogValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v SyslogValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v SyslogValue) String() string {
+	return "SyslogValue"
+}
+
+func (v SyslogValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var serverNamesVal basetypes.ListValue
+	switch {
+	case v.ServerNames.IsUnknown():
+		serverNamesVal = types.ListUnknown(types.StringType)
+	case v.ServerNames.IsNull():
+		serverNamesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		serverNamesVal, d = types.ListValue(types.StringType, v.ServerNames.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"enabled": basetypes.BoolType{},
+			"server_names": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+		"server_names": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled":      v.Enabled,
+			"server_names": serverNamesVal,
+		})
+
+	return objVal, diags
+}
+
+func (v SyslogValue) Equal(o attr.Value) bool {
+	other, ok := o.(SyslogValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.ServerNames.Equal(other.ServerNames) {
+		return false
+	}
+
+	return true
+}
+
+func (v SyslogValue) Type(ctx context.Context) attr.Type {
+	return SyslogType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v SyslogValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+		"server_names": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 	}
 }
 

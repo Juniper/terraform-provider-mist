@@ -231,14 +231,14 @@ func (s *OrgGatewaytemplateModel) testChecks(t testing.TB, rType, rName string) 
 				if config.Gateway != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.gateway", configKey), *config.Gateway)
 				}
-				if config.IpEnd != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_end", configKey), *config.IpEnd)
+				if config.IpEnd4 != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_end", configKey), *config.IpEnd4)
 				}
 				if config.Ip6End != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip6_end", configKey), *config.Ip6End)
 				}
-				if config.IpStart != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_start", configKey), *config.IpStart)
+				if config.IpStart4 != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip_start", configKey), *config.IpStart4)
 				}
 				if config.Ip6Start != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.ip6_start", configKey), *config.Ip6Start)
@@ -260,9 +260,9 @@ func (s *OrgGatewaytemplateModel) testChecks(t testing.TB, rType, rName string) 
 				if config.ServerIdOverride != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.server_id_override", configKey), fmt.Sprintf("%t", *config.ServerIdOverride))
 				}
-				if len(config.Servers) > 0 {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.servers.#", configKey), fmt.Sprintf("%d", len(config.Servers)))
-					for i, server := range config.Servers {
+				if len(config.Servers4) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.servers.#", configKey), fmt.Sprintf("%d", len(config.Servers4)))
+					for i, server := range config.Servers4 {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.servers.%d", configKey, i), server)
 					}
 				}
@@ -272,8 +272,8 @@ func (s *OrgGatewaytemplateModel) testChecks(t testing.TB, rType, rName string) 
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.serversv6.%d", configKey, i), server)
 					}
 				}
-				if config.Type != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.type", configKey), *config.Type)
+				if config.Type4 != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.type", configKey), *config.Type4)
 				}
 				if config.Type6 != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.type6", configKey), *config.Type6)
@@ -978,6 +978,31 @@ func (s *OrgGatewaytemplateModel) testChecks(t testing.TB, rType, rName string) 
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.tenants.#", i), fmt.Sprintf("%d", len(policy.Tenants)))
 				for j, tenant := range policy.Tenants {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.tenants.%d", i, j), tenant)
+				}
+			}
+			if policy.Skyatp != nil {
+				if policy.Skyatp.DnsDgaDetection != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_dga_detection", i), *policy.Skyatp.DnsDgaDetection)
+				}
+				if policy.Skyatp.DnsTunnelDetection != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_tunnel_detection", i), *policy.Skyatp.DnsTunnelDetection)
+				}
+				if policy.Skyatp.HttpInspection != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.http_inspection", i), *policy.Skyatp.HttpInspection)
+				}
+				if policy.Skyatp.IotDevicePolicy != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.iot_device_policy", i), *policy.Skyatp.IotDevicePolicy)
+				}
+			}
+			if policy.Syslog != nil {
+				if policy.Syslog.Enabled != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.syslog.enabled", i), fmt.Sprintf("%t", *policy.Syslog.Enabled))
+				}
+				if len(policy.Syslog.ServerNames) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.syslog.server_names.#", i), fmt.Sprintf("%d", len(policy.Syslog.ServerNames)))
+					for j, serverName := range policy.Syslog.ServerNames {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.syslog.server_names.%d", i, j), serverName)
+					}
 				}
 			}
 		}
