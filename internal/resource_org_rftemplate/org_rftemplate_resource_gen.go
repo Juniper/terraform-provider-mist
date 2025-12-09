@@ -5,7 +5,9 @@ package resource_org_rftemplate
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -91,6 +93,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "For RFTemplates. List of channels, null or empty array means auto",
 						MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"disabled": schema.BoolAttribute{
 						Optional:            true,
@@ -210,6 +215,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "For RFTemplates. List of channels, null or empty array means auto",
 						MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"disabled": schema.BoolAttribute{
 						Optional:            true,
@@ -431,6 +439,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "For RFTemplates. List of channels, null or empty array means auto",
 						MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"disabled": schema.BoolAttribute{
 						Optional:            true,
@@ -561,6 +572,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "For RFTemplates. List of channels, null or empty array means auto",
 									MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"disabled": schema.BoolAttribute{
 									Optional:            true,
@@ -674,6 +688,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "For RFTemplates. List of channels, null or empty array means auto",
 									MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"disabled": schema.BoolAttribute{
 									Optional:            true,
@@ -889,6 +906,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "For RFTemplates. List of channels, null or empty array means auto",
 									MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"disabled": schema.BoolAttribute{
 									Optional:            true,

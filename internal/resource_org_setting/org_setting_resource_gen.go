@@ -734,8 +734,11 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"expiry_in_days": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "password expiry in days",
-						MarkdownDescription: "password expiry in days",
+						Description:         "Password expiry in days. Password Expiry Notice banner will display in the UI 14 days before expiration",
+						MarkdownDescription: "Password expiry in days. Password Expiry Notice banner will display in the UI 14 days before expiration",
+						Validators: []validator.Int64{
+							int64validator.Between(1, 365),
+						},
 					},
 					"min_length": schema.Int64Attribute{
 						Optional:            true,

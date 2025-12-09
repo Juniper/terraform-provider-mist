@@ -176,15 +176,15 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 			"allow_ipv6_ndp": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Only applicable when `limit_bcast`==`true`, which allows or disallows ipv6 Neighbor Discovery packets to go through",
-				MarkdownDescription: "Only applicable when `limit_bcast`==`true`, which allows or disallows ipv6 Neighbor Discovery packets to go through",
+				Description:         "Only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through",
+				MarkdownDescription: "Only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through",
 				Default:             booldefault.StaticBool(true),
 			},
 			"allow_mdns": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Only applicable when `limit_bcast`==`true`, which allows mDNS / Bonjour packets to go through",
-				MarkdownDescription: "Only applicable when `limit_bcast`==`true`, which allows mDNS / Bonjour packets to go through",
+				Description:         "Only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through",
+				MarkdownDescription: "Only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through",
 				Default:             booldefault.StaticBool(false),
 			},
 			"allow_ssdp": schema.BoolAttribute{
@@ -332,6 +332,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						},
 						Optional: true,
 						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
 							listvalidator.UniqueValues(),
 						},
 					},
@@ -2115,16 +2116,16 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(stringvalidator.Any(
-						mistvalidator.ParseCidr(true, false),
+						mistvalidator.ParseCidr(true, false)),
 						mistvalidator.ParseVar(),
-					)),
+					),
 				},
 				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"portal_api_secret": schema.StringAttribute{
 				Computed:            true,
-				Description:         "API secret (auto-generated) that can be used to sign guest authorization requests, only generated when auth is set to `external`",
-				MarkdownDescription: "API secret (auto-generated) that can be used to sign guest authorization requests, only generated when auth is set to `external`",
+				Description:         "APi secret (auto-generated) that can be used to sign guest authorization requests",
+				MarkdownDescription: "APi secret (auto-generated) that can be used to sign guest authorization requests",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -2146,9 +2147,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"portal_sso_url": schema.StringAttribute{
-				Computed:            true,
-				Description:         "URL used in the SSO process, auto-generated when auth is set to `sso`",
-				MarkdownDescription: "URL used in the SSO process, auto-generated when auth is set to `sso`",
+				Computed: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

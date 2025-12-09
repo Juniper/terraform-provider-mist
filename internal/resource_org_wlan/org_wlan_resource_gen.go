@@ -5,9 +5,7 @@ package resource_org_wlan
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -28,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -177,15 +176,15 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 			"allow_ipv6_ndp": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Only applicable when `limit_bcast`==`true`, which allows or disallows ipv6 Neighbor Discovery packets to go through",
-				MarkdownDescription: "Only applicable when `limit_bcast`==`true`, which allows or disallows ipv6 Neighbor Discovery packets to go through",
+				Description:         "Only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through",
+				MarkdownDescription: "Only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through",
 				Default:             booldefault.StaticBool(true),
 			},
 			"allow_mdns": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Only applicable when `limit_bcast`==`true`, which allows mDNS / Bonjour packets to go through",
-				MarkdownDescription: "Only applicable when `limit_bcast`==`true`, which allows mDNS / Bonjour packets to go through",
+				Description:         "Only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through",
+				MarkdownDescription: "Only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through",
 				Default:             booldefault.StaticBool(false),
 			},
 			"allow_ssdp": schema.BoolAttribute{
@@ -333,6 +332,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						},
 						Optional: true,
 						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
 							listvalidator.UniqueValues(),
 						},
 					},
@@ -2113,16 +2113,16 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(stringvalidator.Any(
-						mistvalidator.ParseCidr(true, false),
+						mistvalidator.ParseCidr(true, false)),
 						mistvalidator.ParseVar(),
-					)),
+					),
 				},
 				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"portal_api_secret": schema.StringAttribute{
 				Computed:            true,
-				Description:         "API secret (auto-generated) that can be used to sign guest authorization requests, only generated when auth is set to `external`",
-				MarkdownDescription: "API secret (auto-generated) that can be used to sign guest authorization requests, only generated when auth is set to `external`",
+				Description:         "APi secret (auto-generated) that can be used to sign guest authorization requests",
+				MarkdownDescription: "APi secret (auto-generated) that can be used to sign guest authorization requests",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -2144,9 +2144,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"portal_sso_url": schema.StringAttribute{
-				Computed:            true,
-				Description:         "URL used in the SSO process, auto-generated when auth is set to `sso`",
-				MarkdownDescription: "URL used in the SSO process, auto-generated when auth is set to `sso`",
+				Computed: true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},

@@ -432,23 +432,19 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"ibeacon_major": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Major number for iBeacon",
 						MarkdownDescription: "Major number for iBeacon",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"ibeacon_minor": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Minor number for iBeacon",
 						MarkdownDescription: "Minor number for iBeacon",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"ibeacon_uuid": schema.StringAttribute{
 						Optional:            true,
@@ -466,7 +462,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Required if `power_mode`==`custom`; else use `power_mode` as default",
 						MarkdownDescription: "Required if `power_mode`==`custom`; else use `power_mode` as default",
 						Validators: []validator.Int64{
-							int64validator.Between(2, 7),
+							int64validator.Between(1, 10),
 						},
 						Default: int64default.StaticInt64(9),
 					},
