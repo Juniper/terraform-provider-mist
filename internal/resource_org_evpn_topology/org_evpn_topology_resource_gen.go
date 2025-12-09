@@ -222,6 +222,18 @@ func OrgEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 						"deviceprofile_id": schema.StringAttribute{
 							Computed: true,
 						},
+						"downlink_ips": schema.ListAttribute{
+							ElementType: types.StringType,
+							Computed:    true,
+						},
+						"downlinks": schema.ListAttribute{
+							ElementType: types.StringType,
+							Computed:    true,
+						},
+						"esilaglinks": schema.ListAttribute{
+							ElementType: types.StringType,
+							Computed:    true,
+						},
 						"evpn_id": schema.Int64Attribute{
 							Computed: true,
 							Validators: []validator.Int64{
@@ -276,6 +288,22 @@ func OrgEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"site_id": schema.StringAttribute{
 							Computed: true,
+						},
+						"suggested_downlinks": schema.ListAttribute{
+							ElementType: types.StringType,
+							Computed:    true,
+						},
+						"suggested_esilaglinks": schema.ListAttribute{
+							ElementType: types.StringType,
+							Computed:    true,
+						},
+						"suggested_uplinks": schema.ListAttribute{
+							ElementType: types.StringType,
+							Computed:    true,
+						},
+						"uplinks": schema.ListAttribute{
+							ElementType: types.StringType,
+							Computed:    true,
 						},
 					},
 					CustomType: SwitchesType{
@@ -2528,6 +2556,60 @@ func (t SwitchesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`deviceprofile_id expected to be basetypes.StringValue, was: %T`, deviceprofileIdAttribute))
 	}
 
+	downlinkIpsAttribute, ok := attributes["downlink_ips"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`downlink_ips is missing from object`)
+
+		return nil, diags
+	}
+
+	downlinkIpsVal, ok := downlinkIpsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`downlink_ips expected to be basetypes.ListValue, was: %T`, downlinkIpsAttribute))
+	}
+
+	downlinksAttribute, ok := attributes["downlinks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`downlinks is missing from object`)
+
+		return nil, diags
+	}
+
+	downlinksVal, ok := downlinksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`downlinks expected to be basetypes.ListValue, was: %T`, downlinksAttribute))
+	}
+
+	esilaglinksAttribute, ok := attributes["esilaglinks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`esilaglinks is missing from object`)
+
+		return nil, diags
+	}
+
+	esilaglinksVal, ok := esilaglinksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`esilaglinks expected to be basetypes.ListValue, was: %T`, esilaglinksAttribute))
+	}
+
 	evpnIdAttribute, ok := attributes["evpn_id"]
 
 	if !ok {
@@ -2672,21 +2754,100 @@ func (t SwitchesType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`site_id expected to be basetypes.StringValue, was: %T`, siteIdAttribute))
 	}
 
+	suggestedDownlinksAttribute, ok := attributes["suggested_downlinks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`suggested_downlinks is missing from object`)
+
+		return nil, diags
+	}
+
+	suggestedDownlinksVal, ok := suggestedDownlinksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`suggested_downlinks expected to be basetypes.ListValue, was: %T`, suggestedDownlinksAttribute))
+	}
+
+	suggestedEsilaglinksAttribute, ok := attributes["suggested_esilaglinks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`suggested_esilaglinks is missing from object`)
+
+		return nil, diags
+	}
+
+	suggestedEsilaglinksVal, ok := suggestedEsilaglinksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`suggested_esilaglinks expected to be basetypes.ListValue, was: %T`, suggestedEsilaglinksAttribute))
+	}
+
+	suggestedUplinksAttribute, ok := attributes["suggested_uplinks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`suggested_uplinks is missing from object`)
+
+		return nil, diags
+	}
+
+	suggestedUplinksVal, ok := suggestedUplinksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`suggested_uplinks expected to be basetypes.ListValue, was: %T`, suggestedUplinksAttribute))
+	}
+
+	uplinksAttribute, ok := attributes["uplinks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`uplinks is missing from object`)
+
+		return nil, diags
+	}
+
+	uplinksVal, ok := uplinksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`uplinks expected to be basetypes.ListValue, was: %T`, uplinksAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return SwitchesValue{
-		DeviceprofileId: deviceprofileIdVal,
-		EvpnId:          evpnIdVal,
-		Mac:             macVal,
-		Model:           modelVal,
-		Pod:             podVal,
-		Pods:            podsVal,
-		Role:            roleVal,
-		RouterId:        routerIdVal,
-		SiteId:          siteIdVal,
-		state:           attr.ValueStateKnown,
+		DeviceprofileId:      deviceprofileIdVal,
+		DownlinkIps:          downlinkIpsVal,
+		Downlinks:            downlinksVal,
+		Esilaglinks:          esilaglinksVal,
+		EvpnId:               evpnIdVal,
+		Mac:                  macVal,
+		Model:                modelVal,
+		Pod:                  podVal,
+		Pods:                 podsVal,
+		Role:                 roleVal,
+		RouterId:             routerIdVal,
+		SiteId:               siteIdVal,
+		SuggestedDownlinks:   suggestedDownlinksVal,
+		SuggestedEsilaglinks: suggestedEsilaglinksVal,
+		SuggestedUplinks:     suggestedUplinksVal,
+		Uplinks:              uplinksVal,
+		state:                attr.ValueStateKnown,
 	}, diags
 }
 
@@ -2771,6 +2932,60 @@ func NewSwitchesValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`deviceprofile_id expected to be basetypes.StringValue, was: %T`, deviceprofileIdAttribute))
 	}
 
+	downlinkIpsAttribute, ok := attributes["downlink_ips"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`downlink_ips is missing from object`)
+
+		return NewSwitchesValueUnknown(), diags
+	}
+
+	downlinkIpsVal, ok := downlinkIpsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`downlink_ips expected to be basetypes.ListValue, was: %T`, downlinkIpsAttribute))
+	}
+
+	downlinksAttribute, ok := attributes["downlinks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`downlinks is missing from object`)
+
+		return NewSwitchesValueUnknown(), diags
+	}
+
+	downlinksVal, ok := downlinksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`downlinks expected to be basetypes.ListValue, was: %T`, downlinksAttribute))
+	}
+
+	esilaglinksAttribute, ok := attributes["esilaglinks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`esilaglinks is missing from object`)
+
+		return NewSwitchesValueUnknown(), diags
+	}
+
+	esilaglinksVal, ok := esilaglinksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`esilaglinks expected to be basetypes.ListValue, was: %T`, esilaglinksAttribute))
+	}
+
 	evpnIdAttribute, ok := attributes["evpn_id"]
 
 	if !ok {
@@ -2915,21 +3130,100 @@ func NewSwitchesValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`site_id expected to be basetypes.StringValue, was: %T`, siteIdAttribute))
 	}
 
+	suggestedDownlinksAttribute, ok := attributes["suggested_downlinks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`suggested_downlinks is missing from object`)
+
+		return NewSwitchesValueUnknown(), diags
+	}
+
+	suggestedDownlinksVal, ok := suggestedDownlinksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`suggested_downlinks expected to be basetypes.ListValue, was: %T`, suggestedDownlinksAttribute))
+	}
+
+	suggestedEsilaglinksAttribute, ok := attributes["suggested_esilaglinks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`suggested_esilaglinks is missing from object`)
+
+		return NewSwitchesValueUnknown(), diags
+	}
+
+	suggestedEsilaglinksVal, ok := suggestedEsilaglinksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`suggested_esilaglinks expected to be basetypes.ListValue, was: %T`, suggestedEsilaglinksAttribute))
+	}
+
+	suggestedUplinksAttribute, ok := attributes["suggested_uplinks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`suggested_uplinks is missing from object`)
+
+		return NewSwitchesValueUnknown(), diags
+	}
+
+	suggestedUplinksVal, ok := suggestedUplinksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`suggested_uplinks expected to be basetypes.ListValue, was: %T`, suggestedUplinksAttribute))
+	}
+
+	uplinksAttribute, ok := attributes["uplinks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`uplinks is missing from object`)
+
+		return NewSwitchesValueUnknown(), diags
+	}
+
+	uplinksVal, ok := uplinksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`uplinks expected to be basetypes.ListValue, was: %T`, uplinksAttribute))
+	}
+
 	if diags.HasError() {
 		return NewSwitchesValueUnknown(), diags
 	}
 
 	return SwitchesValue{
-		DeviceprofileId: deviceprofileIdVal,
-		EvpnId:          evpnIdVal,
-		Mac:             macVal,
-		Model:           modelVal,
-		Pod:             podVal,
-		Pods:            podsVal,
-		Role:            roleVal,
-		RouterId:        routerIdVal,
-		SiteId:          siteIdVal,
-		state:           attr.ValueStateKnown,
+		DeviceprofileId:      deviceprofileIdVal,
+		DownlinkIps:          downlinkIpsVal,
+		Downlinks:            downlinksVal,
+		Esilaglinks:          esilaglinksVal,
+		EvpnId:               evpnIdVal,
+		Mac:                  macVal,
+		Model:                modelVal,
+		Pod:                  podVal,
+		Pods:                 podsVal,
+		Role:                 roleVal,
+		RouterId:             routerIdVal,
+		SiteId:               siteIdVal,
+		SuggestedDownlinks:   suggestedDownlinksVal,
+		SuggestedEsilaglinks: suggestedEsilaglinksVal,
+		SuggestedUplinks:     suggestedUplinksVal,
+		Uplinks:              uplinksVal,
+		state:                attr.ValueStateKnown,
 	}, diags
 }
 
@@ -3001,25 +3295,41 @@ func (t SwitchesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SwitchesValue{}
 
 type SwitchesValue struct {
-	DeviceprofileId basetypes.StringValue `tfsdk:"deviceprofile_id"`
-	EvpnId          basetypes.Int64Value  `tfsdk:"evpn_id"`
-	Mac             basetypes.StringValue `tfsdk:"mac"`
-	Model           basetypes.StringValue `tfsdk:"model"`
-	Pod             basetypes.Int64Value  `tfsdk:"pod"`
-	Pods            basetypes.ListValue   `tfsdk:"pods"`
-	Role            basetypes.StringValue `tfsdk:"role"`
-	RouterId        basetypes.StringValue `tfsdk:"router_id"`
-	SiteId          basetypes.StringValue `tfsdk:"site_id"`
-	state           attr.ValueState
+	DeviceprofileId      basetypes.StringValue `tfsdk:"deviceprofile_id"`
+	DownlinkIps          basetypes.ListValue   `tfsdk:"downlink_ips"`
+	Downlinks            basetypes.ListValue   `tfsdk:"downlinks"`
+	Esilaglinks          basetypes.ListValue   `tfsdk:"esilaglinks"`
+	EvpnId               basetypes.Int64Value  `tfsdk:"evpn_id"`
+	Mac                  basetypes.StringValue `tfsdk:"mac"`
+	Model                basetypes.StringValue `tfsdk:"model"`
+	Pod                  basetypes.Int64Value  `tfsdk:"pod"`
+	Pods                 basetypes.ListValue   `tfsdk:"pods"`
+	Role                 basetypes.StringValue `tfsdk:"role"`
+	RouterId             basetypes.StringValue `tfsdk:"router_id"`
+	SiteId               basetypes.StringValue `tfsdk:"site_id"`
+	SuggestedDownlinks   basetypes.ListValue   `tfsdk:"suggested_downlinks"`
+	SuggestedEsilaglinks basetypes.ListValue   `tfsdk:"suggested_esilaglinks"`
+	SuggestedUplinks     basetypes.ListValue   `tfsdk:"suggested_uplinks"`
+	Uplinks              basetypes.ListValue   `tfsdk:"uplinks"`
+	state                attr.ValueState
 }
 
 func (v SwitchesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 9)
+	attrTypes := make(map[string]tftypes.Type, 16)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["deviceprofile_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["downlink_ips"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["downlinks"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["esilaglinks"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["evpn_id"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["mac"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["model"] = basetypes.StringType{}.TerraformType(ctx)
@@ -3030,12 +3340,24 @@ func (v SwitchesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["role"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["router_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["site_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["suggested_downlinks"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["suggested_esilaglinks"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["suggested_uplinks"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["uplinks"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 9)
+		vals := make(map[string]tftypes.Value, 16)
 
 		val, err = v.DeviceprofileId.ToTerraformValue(ctx)
 
@@ -3044,6 +3366,30 @@ func (v SwitchesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["deviceprofile_id"] = val
+
+		val, err = v.DownlinkIps.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["downlink_ips"] = val
+
+		val, err = v.Downlinks.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["downlinks"] = val
+
+		val, err = v.Esilaglinks.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["esilaglinks"] = val
 
 		val, err = v.EvpnId.ToTerraformValue(ctx)
 
@@ -3109,6 +3455,38 @@ func (v SwitchesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 		vals["site_id"] = val
 
+		val, err = v.SuggestedDownlinks.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["suggested_downlinks"] = val
+
+		val, err = v.SuggestedEsilaglinks.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["suggested_esilaglinks"] = val
+
+		val, err = v.SuggestedUplinks.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["suggested_uplinks"] = val
+
+		val, err = v.Uplinks.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["uplinks"] = val
+
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
@@ -3138,6 +3516,153 @@ func (v SwitchesValue) String() string {
 func (v SwitchesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var downlinkIpsVal basetypes.ListValue
+	switch {
+	case v.DownlinkIps.IsUnknown():
+		downlinkIpsVal = types.ListUnknown(types.StringType)
+	case v.DownlinkIps.IsNull():
+		downlinkIpsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		downlinkIpsVal, d = types.ListValue(types.StringType, v.DownlinkIps.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"deviceprofile_id": basetypes.StringType{},
+			"downlink_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"evpn_id": basetypes.Int64Type{},
+			"mac":     basetypes.StringType{},
+			"model":   basetypes.StringType{},
+			"pod":     basetypes.Int64Type{},
+			"pods": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"role":      basetypes.StringType{},
+			"router_id": basetypes.StringType{},
+			"site_id":   basetypes.StringType{},
+			"suggested_downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var downlinksVal basetypes.ListValue
+	switch {
+	case v.Downlinks.IsUnknown():
+		downlinksVal = types.ListUnknown(types.StringType)
+	case v.Downlinks.IsNull():
+		downlinksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		downlinksVal, d = types.ListValue(types.StringType, v.Downlinks.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"deviceprofile_id": basetypes.StringType{},
+			"downlink_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"evpn_id": basetypes.Int64Type{},
+			"mac":     basetypes.StringType{},
+			"model":   basetypes.StringType{},
+			"pod":     basetypes.Int64Type{},
+			"pods": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"role":      basetypes.StringType{},
+			"router_id": basetypes.StringType{},
+			"site_id":   basetypes.StringType{},
+			"suggested_downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var esilaglinksVal basetypes.ListValue
+	switch {
+	case v.Esilaglinks.IsUnknown():
+		esilaglinksVal = types.ListUnknown(types.StringType)
+	case v.Esilaglinks.IsNull():
+		esilaglinksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		esilaglinksVal, d = types.ListValue(types.StringType, v.Esilaglinks.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"deviceprofile_id": basetypes.StringType{},
+			"downlink_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"evpn_id": basetypes.Int64Type{},
+			"mac":     basetypes.StringType{},
+			"model":   basetypes.StringType{},
+			"pod":     basetypes.Int64Type{},
+			"pods": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"role":      basetypes.StringType{},
+			"router_id": basetypes.StringType{},
+			"site_id":   basetypes.StringType{},
+			"suggested_downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
 	var podsVal basetypes.ListValue
 	switch {
 	case v.Pods.IsUnknown():
@@ -3153,31 +3678,269 @@ func (v SwitchesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"deviceprofile_id": basetypes.StringType{},
-			"evpn_id":          basetypes.Int64Type{},
-			"mac":              basetypes.StringType{},
-			"model":            basetypes.StringType{},
-			"pod":              basetypes.Int64Type{},
+			"downlink_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"evpn_id": basetypes.Int64Type{},
+			"mac":     basetypes.StringType{},
+			"model":   basetypes.StringType{},
+			"pod":     basetypes.Int64Type{},
 			"pods": basetypes.ListType{
 				ElemType: types.Int64Type,
 			},
 			"role":      basetypes.StringType{},
 			"router_id": basetypes.StringType{},
 			"site_id":   basetypes.StringType{},
+			"suggested_downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var suggestedDownlinksVal basetypes.ListValue
+	switch {
+	case v.SuggestedDownlinks.IsUnknown():
+		suggestedDownlinksVal = types.ListUnknown(types.StringType)
+	case v.SuggestedDownlinks.IsNull():
+		suggestedDownlinksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		suggestedDownlinksVal, d = types.ListValue(types.StringType, v.SuggestedDownlinks.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"deviceprofile_id": basetypes.StringType{},
+			"downlink_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"evpn_id": basetypes.Int64Type{},
+			"mac":     basetypes.StringType{},
+			"model":   basetypes.StringType{},
+			"pod":     basetypes.Int64Type{},
+			"pods": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"role":      basetypes.StringType{},
+			"router_id": basetypes.StringType{},
+			"site_id":   basetypes.StringType{},
+			"suggested_downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var suggestedEsilaglinksVal basetypes.ListValue
+	switch {
+	case v.SuggestedEsilaglinks.IsUnknown():
+		suggestedEsilaglinksVal = types.ListUnknown(types.StringType)
+	case v.SuggestedEsilaglinks.IsNull():
+		suggestedEsilaglinksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		suggestedEsilaglinksVal, d = types.ListValue(types.StringType, v.SuggestedEsilaglinks.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"deviceprofile_id": basetypes.StringType{},
+			"downlink_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"evpn_id": basetypes.Int64Type{},
+			"mac":     basetypes.StringType{},
+			"model":   basetypes.StringType{},
+			"pod":     basetypes.Int64Type{},
+			"pods": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"role":      basetypes.StringType{},
+			"router_id": basetypes.StringType{},
+			"site_id":   basetypes.StringType{},
+			"suggested_downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var suggestedUplinksVal basetypes.ListValue
+	switch {
+	case v.SuggestedUplinks.IsUnknown():
+		suggestedUplinksVal = types.ListUnknown(types.StringType)
+	case v.SuggestedUplinks.IsNull():
+		suggestedUplinksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		suggestedUplinksVal, d = types.ListValue(types.StringType, v.SuggestedUplinks.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"deviceprofile_id": basetypes.StringType{},
+			"downlink_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"evpn_id": basetypes.Int64Type{},
+			"mac":     basetypes.StringType{},
+			"model":   basetypes.StringType{},
+			"pod":     basetypes.Int64Type{},
+			"pods": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"role":      basetypes.StringType{},
+			"router_id": basetypes.StringType{},
+			"site_id":   basetypes.StringType{},
+			"suggested_downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var uplinksVal basetypes.ListValue
+	switch {
+	case v.Uplinks.IsUnknown():
+		uplinksVal = types.ListUnknown(types.StringType)
+	case v.Uplinks.IsNull():
+		uplinksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		uplinksVal, d = types.ListValue(types.StringType, v.Uplinks.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"deviceprofile_id": basetypes.StringType{},
+			"downlink_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"evpn_id": basetypes.Int64Type{},
+			"mac":     basetypes.StringType{},
+			"model":   basetypes.StringType{},
+			"pod":     basetypes.Int64Type{},
+			"pods": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"role":      basetypes.StringType{},
+			"router_id": basetypes.StringType{},
+			"site_id":   basetypes.StringType{},
+			"suggested_downlinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_esilaglinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"suggested_uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"uplinks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 		}), diags
 	}
 
 	attributeTypes := map[string]attr.Type{
 		"deviceprofile_id": basetypes.StringType{},
-		"evpn_id":          basetypes.Int64Type{},
-		"mac":              basetypes.StringType{},
-		"model":            basetypes.StringType{},
-		"pod":              basetypes.Int64Type{},
+		"downlink_ips": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"downlinks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"esilaglinks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"evpn_id": basetypes.Int64Type{},
+		"mac":     basetypes.StringType{},
+		"model":   basetypes.StringType{},
+		"pod":     basetypes.Int64Type{},
 		"pods": basetypes.ListType{
 			ElemType: types.Int64Type,
 		},
 		"role":      basetypes.StringType{},
 		"router_id": basetypes.StringType{},
 		"site_id":   basetypes.StringType{},
+		"suggested_downlinks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"suggested_esilaglinks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"suggested_uplinks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"uplinks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 	}
 
 	if v.IsNull() {
@@ -3191,15 +3954,22 @@ func (v SwitchesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"deviceprofile_id": v.DeviceprofileId,
-			"evpn_id":          v.EvpnId,
-			"mac":              v.Mac,
-			"model":            v.Model,
-			"pod":              v.Pod,
-			"pods":             podsVal,
-			"role":             v.Role,
-			"router_id":        v.RouterId,
-			"site_id":          v.SiteId,
+			"deviceprofile_id":      v.DeviceprofileId,
+			"downlink_ips":          downlinkIpsVal,
+			"downlinks":             downlinksVal,
+			"esilaglinks":           esilaglinksVal,
+			"evpn_id":               v.EvpnId,
+			"mac":                   v.Mac,
+			"model":                 v.Model,
+			"pod":                   v.Pod,
+			"pods":                  podsVal,
+			"role":                  v.Role,
+			"router_id":             v.RouterId,
+			"site_id":               v.SiteId,
+			"suggested_downlinks":   suggestedDownlinksVal,
+			"suggested_esilaglinks": suggestedEsilaglinksVal,
+			"suggested_uplinks":     suggestedUplinksVal,
+			"uplinks":               uplinksVal,
 		})
 
 	return objVal, diags
@@ -3221,6 +3991,18 @@ func (v SwitchesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.DeviceprofileId.Equal(other.DeviceprofileId) {
+		return false
+	}
+
+	if !v.DownlinkIps.Equal(other.DownlinkIps) {
+		return false
+	}
+
+	if !v.Downlinks.Equal(other.Downlinks) {
+		return false
+	}
+
+	if !v.Esilaglinks.Equal(other.Esilaglinks) {
 		return false
 	}
 
@@ -3256,6 +4038,22 @@ func (v SwitchesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.SuggestedDownlinks.Equal(other.SuggestedDownlinks) {
+		return false
+	}
+
+	if !v.SuggestedEsilaglinks.Equal(other.SuggestedEsilaglinks) {
+		return false
+	}
+
+	if !v.SuggestedUplinks.Equal(other.SuggestedUplinks) {
+		return false
+	}
+
+	if !v.Uplinks.Equal(other.Uplinks) {
+		return false
+	}
+
 	return true
 }
 
@@ -3270,15 +4068,36 @@ func (v SwitchesValue) Type(ctx context.Context) attr.Type {
 func (v SwitchesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"deviceprofile_id": basetypes.StringType{},
-		"evpn_id":          basetypes.Int64Type{},
-		"mac":              basetypes.StringType{},
-		"model":            basetypes.StringType{},
-		"pod":              basetypes.Int64Type{},
+		"downlink_ips": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"downlinks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"esilaglinks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"evpn_id": basetypes.Int64Type{},
+		"mac":     basetypes.StringType{},
+		"model":   basetypes.StringType{},
+		"pod":     basetypes.Int64Type{},
 		"pods": basetypes.ListType{
 			ElemType: types.Int64Type,
 		},
 		"role":      basetypes.StringType{},
 		"router_id": basetypes.StringType{},
 		"site_id":   basetypes.StringType{},
+		"suggested_downlinks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"suggested_esilaglinks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"suggested_uplinks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"uplinks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 	}
 }
