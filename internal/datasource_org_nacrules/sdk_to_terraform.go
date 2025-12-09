@@ -26,6 +26,7 @@ func nacruleSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 
 	var createdTime basetypes.Float64Value
 	var enabled basetypes.BoolValue
+	var guestAuthState basetypes.StringValue
 	var id basetypes.StringValue
 	var modifiedTime basetypes.Float64Value
 	var name basetypes.StringValue
@@ -37,6 +38,9 @@ func nacruleSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
+	}
+	if d.GuestAuthState != nil {
+		guestAuthState = types.StringValue(string(*d.GuestAuthState))
 	}
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
@@ -53,13 +57,14 @@ func nacruleSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"created_time":  createdTime,
-		"enabled":       enabled,
-		"id":            id,
-		"modified_time": modifiedTime,
-		"name":          name,
-		"order":         order,
-		"org_id":        orgId,
+		"created_time":     createdTime,
+		"enabled":          enabled,
+		"guest_auth_state": guestAuthState,
+		"id":               id,
+		"modified_time":    modifiedTime,
+		"name":             name,
+		"order":            order,
+		"org_id":           orgId,
 	}
 	data, e := NewOrgNacrulesValue(OrgNacrulesValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
