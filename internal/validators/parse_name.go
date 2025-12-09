@@ -53,6 +53,7 @@ func ParseName() validator.String {
 		allowSpace: false,
 	}
 }
+
 func ParseNameWithSpaces() validator.String {
 	return ParseNameValidator{
 		allowSpace: true,
