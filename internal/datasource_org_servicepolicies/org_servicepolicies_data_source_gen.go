@@ -46,8 +46,8 @@ func OrgServicepoliciesDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "For SRX Only",
-							MarkdownDescription: "For SRX Only",
+							Description:         "SRX only",
+							MarkdownDescription: "SRX only",
 						},
 						"action": schema.StringAttribute{
 							Computed:            true,
@@ -91,8 +91,8 @@ func OrgServicepoliciesDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "For SRX Only",
-							MarkdownDescription: "For SRX Only",
+							Description:         "SRX only",
+							MarkdownDescription: "SRX only",
 						},
 						"created_time": schema.Float64Attribute{
 							Computed:            true,
@@ -1360,11 +1360,19 @@ func (v OrgServicepoliciesValue) ToObjectValue(ctx context.Context) (basetypes.O
 		)
 	}
 
-	servicesVal, d := types.ListValue(types.StringType, v.Services.Elements())
+	var servicesVal basetypes.ListValue
+	switch {
+	case v.Services.IsUnknown():
+		servicesVal = types.ListUnknown(types.StringType)
+	case v.Services.IsNull():
+		servicesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		servicesVal, d = types.ListValue(types.StringType, v.Services.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"aamw": basetypes.ObjectType{
 				AttrTypes: AamwValue{}.AttributeTypes(ctx),
@@ -1401,11 +1409,19 @@ func (v OrgServicepoliciesValue) ToObjectValue(ctx context.Context) (basetypes.O
 		}), diags
 	}
 
-	tenantsVal, d := types.ListValue(types.StringType, v.Tenants.Elements())
+	var tenantsVal basetypes.ListValue
+	switch {
+	case v.Tenants.IsUnknown():
+		tenantsVal = types.ListUnknown(types.StringType)
+	case v.Tenants.IsNull():
+		tenantsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		tenantsVal, d = types.ListValue(types.StringType, v.Tenants.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"aamw": basetypes.ObjectType{
 				AttrTypes: AamwValue{}.AttributeTypes(ctx),

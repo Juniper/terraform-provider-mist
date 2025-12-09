@@ -1381,11 +1381,19 @@ func (v OrgPsksValue) String() string {
 func (v OrgPsksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	macsVal, d := types.ListValue(types.StringType, v.Macs.Elements())
+	var macsVal basetypes.ListValue
+	switch {
+	case v.Macs.IsUnknown():
+		macsVal = types.ListUnknown(types.StringType)
+	case v.Macs.IsNull():
+		macsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		macsVal, d = types.ListValue(types.StringType, v.Macs.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"admin_sso_id":             basetypes.StringType{},
 			"created_time":             basetypes.Float64Type{},

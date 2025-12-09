@@ -47,7 +47,7 @@ func gpsStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		"src":       src,
 		"timestamp": timestamp,
 	}
-	data, e := types.ObjectValue(GpsValue{}.AttributeTypes(ctx), dataMapValue)
+	data, e := types.ObjectValue(GpsStatValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

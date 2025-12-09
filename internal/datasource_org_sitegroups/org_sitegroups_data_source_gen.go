@@ -576,11 +576,19 @@ func (v OrgSitegroupsValue) String() string {
 func (v OrgSitegroupsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	siteIdsVal, d := types.ListValue(types.StringType, v.SiteIds.Elements())
+	var siteIdsVal basetypes.ListValue
+	switch {
+	case v.SiteIds.IsUnknown():
+		siteIdsVal = types.ListUnknown(types.StringType)
+	case v.SiteIds.IsNull():
+		siteIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		siteIdsVal, d = types.ListValue(types.StringType, v.SiteIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"created_time":  basetypes.Float64Type{},
 			"id":            basetypes.StringType{},
