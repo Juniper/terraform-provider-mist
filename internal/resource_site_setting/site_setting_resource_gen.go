@@ -231,9 +231,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second",
 						MarkdownDescription: "Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second",
-						Validators: []validator.Int64{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_rate_mode"), types.StringValue("custom")),
-						},
 					},
 					"beacon_rate_mode": schema.StringAttribute{
 						Optional:            true,
@@ -264,20 +261,14 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Can be enabled if `beacon_enabled`==`true`, whether to send custom packet",
 						MarkdownDescription: "Can be enabled if `beacon_enabled`==`true`, whether to send custom packet",
-						Validators: []validator.Bool{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(true)),
-						},
-						Default: booldefault.StaticBool(false),
+						Default:             booldefault.StaticBool(false),
 					},
 					"custom_ble_packet_frame": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "The custom frame to be sent out in this beacon. The frame must be a hexstring",
 						MarkdownDescription: "The custom frame to be sent out in this beacon. The frame must be a hexstring",
-						Validators: []validator.String{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("custom_ble_packet_enabled"), types.BoolValue(true)),
-						},
-						Default: stringdefault.StaticString(""),
+						Default:             stringdefault.StaticString(""),
 					},
 					"custom_ble_packet_freq_msec": schema.Int64Attribute{
 						Optional:            true,
@@ -285,7 +276,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Frequency (msec) of data emitted by custom ble beacon",
 						MarkdownDescription: "Frequency (msec) of data emitted by custom ble beacon",
 						Validators: []validator.Int64{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("custom_ble_packet_enabled"), types.BoolValue(true)),
+							int64validator.AtLeast(0),
 						},
 						Default: int64default.StaticInt64(0),
 					},
@@ -309,40 +300,28 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled",
 						MarkdownDescription: "Only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled",
-						Validators: []validator.Bool{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(false)),
-						},
-						Default: booldefault.StaticBool(false),
+						Default:             booldefault.StaticBool(false),
 					},
 					"eddystone_uid_freq_msec": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Frequency (msec) of data emit by Eddystone-UID beacon",
 						MarkdownDescription: "Frequency (msec) of data emit by Eddystone-UID beacon",
-						Validators: []validator.Int64{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_uid_enabled"), types.BoolValue(true)),
-						},
-						Default: int64default.StaticInt64(0),
+						Default:             int64default.StaticInt64(0),
 					},
 					"eddystone_uid_instance": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Eddystone-UID instance for the device",
 						MarkdownDescription: "Eddystone-UID instance for the device",
-						Validators: []validator.String{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_uid_enabled"), types.BoolValue(true)),
-						},
-						Default: stringdefault.StaticString(""),
+						Default:             stringdefault.StaticString(""),
 					},
 					"eddystone_uid_namespace": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Eddystone-UID namespace",
 						MarkdownDescription: "Eddystone-UID namespace",
-						Validators: []validator.String{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_uid_enabled"), types.BoolValue(true)),
-						},
-						Default: stringdefault.StaticString(""),
+						Default:             stringdefault.StaticString(""),
 					},
 					"eddystone_url_adv_power": schema.Int64Attribute{
 						Optional:            true,
@@ -357,40 +336,28 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"eddystone_url_beams": schema.StringAttribute{
 						Optional: true,
 						Computed: true,
-						Validators: []validator.String{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_url_enabled"), types.BoolValue(true)),
-						},
-						Default: stringdefault.StaticString(""),
+						Default:  stringdefault.StaticString(""),
 					},
 					"eddystone_url_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled",
 						MarkdownDescription: "Only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled",
-						Validators: []validator.Bool{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(false)),
-						},
-						Default: booldefault.StaticBool(false),
+						Default:             booldefault.StaticBool(false),
 					},
 					"eddystone_url_freq_msec": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Frequency (msec) of data emit by Eddystone-UID beacon",
 						MarkdownDescription: "Frequency (msec) of data emit by Eddystone-UID beacon",
-						Validators: []validator.Int64{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_url_enabled"), types.BoolValue(true)),
-						},
-						Default: int64default.StaticInt64(0),
+						Default:             int64default.StaticInt64(0),
 					},
 					"eddystone_url_url": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "URL pointed by Eddystone-URL beacon",
 						MarkdownDescription: "URL pointed by Eddystone-URL beacon",
-						Validators: []validator.String{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_url_enabled"), types.BoolValue(true)),
-						},
-						Default: stringdefault.StaticString(""),
+						Default:             stringdefault.StaticString(""),
 					},
 					"ibeacon_adv_power": schema.Int64Attribute{
 						Optional:            true,
@@ -405,56 +372,48 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"ibeacon_beams": schema.StringAttribute{
 						Optional: true,
 						Computed: true,
-						Validators: []validator.String{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
-						},
-						Default: stringdefault.StaticString(""),
+						Default:  stringdefault.StaticString(""),
 					},
 					"ibeacon_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Can be enabled if `beacon_enabled`==`true`, whether to send iBeacon",
 						MarkdownDescription: "Can be enabled if `beacon_enabled`==`true`, whether to send iBeacon",
-						Validators: []validator.Bool{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("beacon_enabled"), types.BoolValue(true)),
-						},
-						Default: booldefault.StaticBool(false),
+						Default:             booldefault.StaticBool(false),
 					},
 					"ibeacon_freq_msec": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Frequency (msec) of data emit for iBeacon",
 						MarkdownDescription: "Frequency (msec) of data emit for iBeacon",
-						Validators: []validator.Int64{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
-						},
-						Default: int64default.StaticInt64(0),
+						Default:             int64default.StaticInt64(0),
 					},
 					"ibeacon_major": schema.Int64Attribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Major number for iBeacon",
 						MarkdownDescription: "Major number for iBeacon",
 						Validators: []validator.Int64{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
+							int64validator.Between(0, 65535),
 						},
+						Default: int64default.StaticInt64(0),
 					},
 					"ibeacon_minor": schema.Int64Attribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Minor number for iBeacon",
 						MarkdownDescription: "Minor number for iBeacon",
 						Validators: []validator.Int64{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
+							int64validator.Between(0, 65535),
 						},
+						Default: int64default.StaticInt64(0),
 					},
 					"ibeacon_uuid": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Optional, if not specified, the same UUID as the beacon will be used",
 						MarkdownDescription: "Optional, if not specified, the same UUID as the beacon will be used",
-						Validators: []validator.String{
-							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
-						},
-						Default: stringdefault.StaticString(""),
+						Default:             stringdefault.StaticString(""),
 					},
 					"power": schema.Int64Attribute{
 						Optional:            true,
@@ -2149,6 +2108,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars",
 				MarkdownDescription: "Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+				},
 			},
 			"vna": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
