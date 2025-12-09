@@ -125,9 +125,6 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 				Sensitive:           true,
 				Description:         "Only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
 				MarkdownDescription: "Only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
-				Validators: []validator.String{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("http-post")),
-				},
 			},
 			"single_event_per_message": schema.BoolAttribute{
 				Optional:            true,

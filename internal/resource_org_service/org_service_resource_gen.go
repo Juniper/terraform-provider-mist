@@ -5,9 +5,7 @@ package resource_org_service
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -22,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -206,6 +205,7 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.AllowedWhenValueIsIn(
 									path.MatchRelative().AtParent().AtName("protocol"),
 									[]attr.Value{
+										types.StringValue("any"),
 										types.StringValue("tcp"),
 										types.StringValue("udp"),
 									},

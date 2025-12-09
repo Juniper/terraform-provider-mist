@@ -343,8 +343,8 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional:            true,
 				Computed:            true,
-				Description:         "APp qos wlan settings",
-				MarkdownDescription: "APp qos wlan settings",
+				Description:         "APP qos wlan settings",
+				MarkdownDescription: "APP qos wlan settings",
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						AppQosValue{}.AttributeTypes(ctx),
@@ -1016,6 +1016,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRoot("auth").AtName("enable_mac_auth"), types.BoolValue(true)),
 								mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRoot("auth").AtName("type"), types.StringValue("eap")),
 								mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRoot("auth").AtName("type"), types.StringValue("eap192")),
+								mistvalidator.CanOnlyBeTrueWhenValueIs(path.MatchRoot("mist_nac").AtName("enabled"), types.BoolValue(true)),
 							),
 						},
 						Default: booldefault.StaticBool(false),
@@ -1499,26 +1500,17 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Sensitive:           true,
 						Description:         "Required if `sms_provider`==`broadnet`",
 						MarkdownDescription: "Required if `sms_provider`==`broadnet`",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("broadnet")),
-						},
-						Default: stringdefault.StaticString(""),
+						Default:             stringdefault.StaticString(""),
 					},
 					"broadnet_sid": schema.StringAttribute{
 						Optional:            true,
 						Description:         "Required if `sms_provider`==`broadnet`",
 						MarkdownDescription: "Required if `sms_provider`==`broadnet`",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("broadnet")),
-						},
 					},
 					"broadnet_user_id": schema.StringAttribute{
 						Optional:            true,
 						Description:         "Required if `sms_provider`==`broadnet`",
 						MarkdownDescription: "Required if `sms_provider`==`broadnet`",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("broadnet")),
-						},
 					},
 					"bypass_when_cloud_down": schema.BoolAttribute{
 						Optional:            true,
@@ -1531,9 +1523,6 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Required if `sms_provider`==`clickatell`",
 						MarkdownDescription: "Required if `sms_provider`==`clickatell`",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("clickatell")),
-						},
 					},
 					"cross_site": schema.BoolAttribute{
 						Optional:            true,
@@ -1667,17 +1656,11 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Sensitive:           true,
 						Description:         "Required if `sms_provider`==`gupshup`",
 						MarkdownDescription: "Required if `sms_provider`==`gupshup`",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("gupshup")),
-						},
 					},
 					"gupshup_userid": schema.StringAttribute{
 						Optional:            true,
 						Description:         "Required if `sms_provider`==`gupshup`",
 						MarkdownDescription: "Required if `sms_provider`==`gupshup`",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("gupshup")),
-						},
 					},
 					"microsoft_client_id": schema.StringAttribute{
 						Optional:            true,
@@ -1760,9 +1743,6 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Sensitive:           true,
 						Description:         "Required if `sms_provider`==`puzzel`",
 						MarkdownDescription: "Required if `sms_provider`==`puzzel`",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("puzzel")),
-						},
 					},
 					"puzzel_service_id": schema.StringAttribute{
 						Optional:            true,
@@ -1773,9 +1753,6 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Required if `sms_provider`==`puzzel`",
 						MarkdownDescription: "Required if `sms_provider`==`puzzel`",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("puzzel")),
-						},
 					},
 					"sms_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1821,17 +1798,11 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Required if `sms_provider`==`smsglobal`, Client API Key",
 						MarkdownDescription: "Required if `sms_provider`==`smsglobal`, Client API Key",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("smsglobal")),
-						},
 					},
 					"smsglobal_api_secret": schema.StringAttribute{
 						Optional:            true,
 						Description:         "Required if `sms_provider`==`smsglobal`, Client secret",
 						MarkdownDescription: "Required if `sms_provider`==`smsglobal`, Client secret",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("smsglobal")),
-						},
 					},
 					"sponsor_auto_approve": schema.BoolAttribute{
 						Optional:            true,
@@ -1965,41 +1936,26 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Required if `sms_provider`==`telstra`, Client ID provided by Telstra",
 						MarkdownDescription: "Required if `sms_provider`==`telstra`, Client ID provided by Telstra",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("telstra")),
-						},
 					},
 					"telstra_client_secret": schema.StringAttribute{
 						Optional:            true,
 						Description:         "Required if `sms_provider`==`telstra`, Client secret provided by Telstra",
 						MarkdownDescription: "Required if `sms_provider`==`telstra`, Client secret provided by Telstra",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("telstra")),
-						},
 					},
 					"twilio_auth_token": schema.StringAttribute{
 						Optional:            true,
 						Description:         "Required if `sms_provider`==`twilio`, Auth token account with twilio account",
 						MarkdownDescription: "Required if `sms_provider`==`twilio`, Auth token account with twilio account",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("twilio")),
-						},
 					},
 					"twilio_phone_number": schema.StringAttribute{
 						Optional:            true,
 						Description:         "Required if `sms_provider`==`twilio`, Twilio phone number associated with the account. See example for accepted format.",
 						MarkdownDescription: "Required if `sms_provider`==`twilio`, Twilio phone number associated with the account. See example for accepted format.",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("twilio")),
-						},
 					},
 					"twilio_sid": schema.StringAttribute{
 						Optional:            true,
 						Description:         "Required if `sms_provider`==`twilio`, Account SID provided by Twilio",
 						MarkdownDescription: "Required if `sms_provider`==`twilio`, Account SID provided by Twilio",
-						Validators: []validator.String{
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("sms_provider"), types.StringValue("twilio")),
-						},
 					},
 				},
 				CustomType: PortalType{
