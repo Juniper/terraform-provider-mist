@@ -24,6 +24,8 @@ func SdkToTerraform(ctx context.Context, l *[]models.Inventory, elements *[]attr
 
 func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.Inventory) OrgInventoryValue {
 	var adopted basetypes.BoolValue
+	var chassisMac basetypes.StringValue
+	var chassisSerial basetypes.StringValue
 	var claimCode basetypes.StringValue
 	var connected basetypes.BoolValue
 	var deviceprofileId basetypes.StringValue
@@ -43,6 +45,12 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 
 	if d.Adopted != nil {
 		adopted = types.BoolValue(*d.Adopted)
+	}
+	if d.ChassisMac != nil {
+		chassisMac = types.StringValue(*d.ChassisMac)
+	}
+	if d.ChassisSerial != nil {
+		chassisSerial = types.StringValue(*d.ChassisSerial)
 	}
 	if d.Connected != nil {
 		connected = types.BoolValue(*d.Connected)
@@ -95,6 +103,8 @@ func inventorySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d mod
 
 	dataMapValue := map[string]attr.Value{
 		"adopted":          adopted,
+		"chassis_mac":      chassisMac,
+		"chassis_serial":   chassisSerial,
 		"claim_code":       claimCode,
 		"connected":        connected,
 		"deviceprofile_id": deviceprofileId,
