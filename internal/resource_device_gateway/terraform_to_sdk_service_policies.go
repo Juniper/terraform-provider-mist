@@ -134,16 +134,16 @@ func skyatpTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basety
 			diags.Append(e...)
 		} else {
 			if plan.DnsDgaDetection.ValueStringPointer() != nil {
-				data.DnsDgaDetection = (*models.DnsDgaDetectionEnum)(plan.DnsDgaDetection.ValueStringPointer())
+				data.DnsDgaDetection = (*models.ServicePolicySkyatpDnsDgaDetectionEnum)(plan.DnsDgaDetection.ValueStringPointer())
 			}
 			if plan.DnsTunnelDetection.ValueStringPointer() != nil {
-				data.DnsTunnelDetection = (*models.DnsTunnelDetectionEnum)(plan.DnsTunnelDetection.ValueStringPointer())
+				data.DnsTunnelDetection = (*models.ServicePolicySkyatpDnsTunnelDetectionEnum)(plan.DnsTunnelDetection.ValueStringPointer())
 			}
 			if plan.HttpInspection.ValueStringPointer() != nil {
-				data.HttpInspection = (*models.HttpInspectionEnum)(plan.HttpInspection.ValueStringPointer())
+				data.HttpInspection = (*models.ServicePolicySkyatpHttpInspectionEnum)(plan.HttpInspection.ValueStringPointer())
 			}
 			if plan.IotDevicePolicy.ValueStringPointer() != nil {
-				data.IotDevicePolicy = (*models.IotDevicePolicyEnum)(plan.IotDevicePolicy.ValueStringPointer())
+				data.IotDevicePolicy = (*models.ServicePolicySkyatpIotDevicePolicyEnum)(plan.IotDevicePolicy.ValueStringPointer())
 			}
 		}
 	}
