@@ -91,7 +91,7 @@ func (d *deviceGatewayStatsDataSource) Read(ctx context.Context, req datasource.
 		duration = ds.Duration.ValueString()
 	}
 	if !ds.End.IsNull() && !ds.End.IsUnknown() {
-		end = strconv.Itoa(int(ds.End.ValueInt64()))
+		end = ds.End.ValueString()
 	}
 	if !ds.Mac.IsNull() && !ds.Mac.IsUnknown() {
 		mac = ds.Mac.ValueString()
@@ -103,7 +103,7 @@ func (d *deviceGatewayStatsDataSource) Read(ctx context.Context, req datasource.
 		status = (models.DeviceStatusEnum)(ds.Status.ValueString())
 	}
 	if !ds.Start.IsNull() && !ds.Start.IsUnknown() {
-		start = strconv.Itoa(int(ds.Start.ValueInt64()))
+		start = ds.Start.ValueString()
 	}
 
 	var limit = 1000
