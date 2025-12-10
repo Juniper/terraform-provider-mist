@@ -2,8 +2,9 @@ package datasource_device_gateway_stats
 
 import (
 	"context"
-	"github.com/tmunzer/mistapi-go/mistapi/models"
 	"math/big"
+
+	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -16,8 +17,10 @@ func vpnPeersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 	var dataList []VpnPeersValue
 	for _, d := range l {
 		var isActive basetypes.BoolValue
+		var jitter basetypes.NumberValue
 		var lastSeen basetypes.Float64Value
 		var latency basetypes.NumberValue
+		var loss basetypes.NumberValue
 		var mos basetypes.NumberValue
 		var mtu basetypes.Int64Value
 		var peerMac basetypes.StringValue
@@ -33,11 +36,17 @@ func vpnPeersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 		if d.IsActive != nil {
 			isActive = types.BoolValue(*d.IsActive)
 		}
+		if d.Jitter != nil {
+			jitter = types.NumberValue(big.NewFloat(*d.Jitter))
+		}
 		if d.LastSeen.Value() != nil {
 			lastSeen = types.Float64Value(*d.LastSeen.Value())
 		}
 		if d.Latency != nil {
 			latency = types.NumberValue(big.NewFloat(*d.Latency))
+		}
+		if d.Loss != nil {
+			loss = types.NumberValue(big.NewFloat(*d.Loss))
 		}
 		if d.Mos != nil {
 			mos = types.NumberValue(big.NewFloat(*d.Mos))
@@ -75,8 +84,10 @@ func vpnPeersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 
 		dataMapValue := map[string]attr.Value{
 			"is_active":        isActive,
+			"jitter":           jitter,
 			"last_seen":        lastSeen,
 			"latency":          latency,
+			"loss":             loss,
 			"mos":              mos,
 			"mtu":              mtu,
 			"peer_mac":         peerMac,

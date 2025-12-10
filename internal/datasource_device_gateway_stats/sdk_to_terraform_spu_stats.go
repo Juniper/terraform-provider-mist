@@ -20,6 +20,7 @@ func spuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 		var spuMaxSession basetypes.Int64Value
 		var spuMemory basetypes.Int64Value
 		var spuPendingSession basetypes.Int64Value
+		var spuUptime basetypes.Int64Value
 		var spuValidSession basetypes.Int64Value
 
 		if d.SpuCpu != nil {
@@ -37,6 +38,9 @@ func spuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 		if d.SpuPendingSession != nil {
 			spuPendingSession = types.Int64Value(int64(*d.SpuPendingSession))
 		}
+		if d.SpuUptime != nil {
+			spuUptime = types.Int64Value(int64(*d.SpuUptime))
+		}
 		if d.SpuValidSession != nil {
 			spuValidSession = types.Int64Value(int64(*d.SpuValidSession))
 		}
@@ -47,6 +51,7 @@ func spuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 			"spu_max_session":     spuMaxSession,
 			"spu_memory":          spuMemory,
 			"spu_pending_session": spuPendingSession,
+			"spu_uptime":          spuUptime,
 			"spu_valid_session":   spuValidSession,
 		}
 		data, e := NewSpuStatValue(SpuStatValue{}.AttributeTypes(ctx), dataMapValue)

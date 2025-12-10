@@ -18,6 +18,7 @@ func moduleStatFanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l
 	for _, d := range l {
 		var airflow basetypes.StringValue
 		var name basetypes.StringValue
+		var rpm basetypes.Int64Value
 		var status basetypes.StringValue
 
 		if d.Airflow != nil {
@@ -26,6 +27,9 @@ func moduleStatFanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l
 		if d.Name != nil {
 			name = types.StringValue(*d.Name)
 		}
+		if d.Rpm != nil {
+			rpm = types.Int64Value(int64(*d.Rpm))
+		}
 		if d.Status != nil {
 			status = types.StringValue(*d.Status)
 		}
@@ -33,6 +37,7 @@ func moduleStatFanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l
 		dataMapValue := map[string]attr.Value{
 			"airflow": airflow,
 			"name":    name,
+			"rpm":     rpm,
 			"status":  status,
 		}
 		data, e := NewFansValue(FansValue{}.AttributeTypes(ctx), dataMapValue)
@@ -50,6 +55,7 @@ func moduleStatPoeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 
 	var maxPower basetypes.NumberValue
 	var powerDraw basetypes.NumberValue
+	var status basetypes.StringValue
 
 	if d.MaxPower != nil {
 		maxPower = types.NumberValue(big.NewFloat(*d.MaxPower))
@@ -57,10 +63,14 @@ func moduleStatPoeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	if d.PowerDraw != nil {
 		powerDraw = types.NumberValue(big.NewFloat(*d.PowerDraw))
 	}
+	if d.Status != nil {
+		status = types.StringValue(*d.Status)
+	}
 
 	dataMapValue := map[string]attr.Value{
 		"max_power":  maxPower,
 		"power_draw": powerDraw,
+		"status":     status,
 	}
 	data, e := basetypes.NewObjectValue(PoeValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
@@ -160,19 +170,56 @@ func moduleStatVcLinksSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 
 	return r
 }
+func moduleStatNetworkResourceSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.ModuleStatItemNetworkResource) basetypes.ListValue {
+
+	var dataList []NetworkResourcesValue
+	for _, d := range l {
+		var count basetypes.Int64Value
+		var limit basetypes.Int64Value
+		var nrType basetypes.StringValue
+
+		if d.Count != nil {
+			count = types.Int64Value(int64(*d.Count))
+		}
+		if d.Limit != nil {
+			limit = types.Int64Value(int64(*d.Limit))
+		}
+		if d.Type != nil {
+			nrType = types.StringValue(*d.Type)
+		}
+
+		dataMapValue := map[string]attr.Value{
+			"count": count,
+			"limit": limit,
+			"type":  nrType,
+		}
+		data, e := NewNetworkResourcesValue(NetworkResourcesValue{}.AttributeTypes(ctx), dataMapValue)
+		diags.Append(e...)
+
+		dataList = append(dataList, data)
+	}
+	r, e := types.ListValueFrom(ctx, NetworkResourcesValue{}.Type(ctx), dataList)
+	diags.Append(e...)
+
+	return r
+}
+
 func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.StatsGatewayModuleStatItem) basetypes.ListValue {
 
 	var dataList []ModuleStatValue
 	for _, d := range l {
 		var backupVersion basetypes.StringValue
 		var biosVersion basetypes.StringValue
+		var bootPartition basetypes.StringValue
 		var cpldVersion basetypes.StringValue
 		var fans = types.ListNull(FansValue{}.Type(ctx))
 		var fpgaVersion basetypes.StringValue
 		var lastSeen basetypes.Float64Value
 		var locating basetypes.BoolValue
 		var mac basetypes.StringValue
+		var memoryStat = types.ObjectNull(MemoryStatValue{}.AttributeTypes(ctx))
 		var model basetypes.StringValue
+		var networkResources = types.ListNull(NetworkResourcesValue{}.Type(ctx))
 		var opticsCpldVersion basetypes.StringValue
 		var pendingVersion basetypes.StringValue
 		var poe = types.ObjectNull(PoeValue{}.AttributeTypes(ctx))
@@ -196,13 +243,16 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		if d.BackupVersion.Value() != nil {
 			backupVersion = types.StringValue(*d.BackupVersion.Value())
 		}
+		if d.BootPartition != nil {
+			bootPartition = types.StringValue(*d.BootPartition)
+		}
 		if d.BiosVersion.Value() != nil {
 			biosVersion = types.StringValue(*d.BiosVersion.Value())
 		}
 		if d.CpldVersion.Value() != nil {
 			cpldVersion = types.StringValue(*d.CpldVersion.Value())
 		}
-		if d.Fans != nil {
+		if len(d.Fans) > 0 {
 			fans = moduleStatFanSdkToTerraform(ctx, diags, d.Fans)
 		}
 		if d.FpgaVersion.Value() != nil {
@@ -217,8 +267,14 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		if d.Mac != nil {
 			mac = types.StringValue(*d.Mac)
 		}
+		if d.MemoryStat != nil {
+			memoryStat = memoryStatSdkToTerraform(ctx, diags, d.MemoryStat)
+		}
 		if d.Model.Value() != nil {
 			model = types.StringValue(*d.Model.Value())
+		}
+		if d.NetworkResources != nil {
+			networkResources = moduleStatNetworkResourceSdkToTerraform(ctx, diags, d.NetworkResources)
 		}
 		if d.OpticsCpldVersion.Value() != nil {
 			opticsCpldVersion = types.StringValue(*d.OpticsCpldVersion.Value())
@@ -280,6 +336,7 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 
 		dataMapValue := map[string]attr.Value{
 			"backup_version":      backupVersion,
+			"boot_partition":      bootPartition,
 			"bios_version":        biosVersion,
 			"cpld_version":        cpldVersion,
 			"fans":                fans,
@@ -287,7 +344,9 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 			"last_seen":           lastSeen,
 			"locating":            locating,
 			"mac":                 mac,
+			"memory_stat":         memoryStat,
 			"model":               model,
+			"network_resources":   networkResources,
 			"optics_cpld_version": opticsCpldVersion,
 			"pending_version":     pendingVersion,
 			"poe":                 poe,

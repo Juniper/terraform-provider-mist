@@ -20,6 +20,7 @@ func cpuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 	var interrupt basetypes.NumberValue
 	var loadAvg = types.ListNull(types.NumberType)
 	var system basetypes.NumberValue
+	var usage basetypes.NumberValue
 	var user basetypes.NumberValue
 
 	if d.Idle.Value() != nil {
@@ -34,6 +35,9 @@ func cpuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 	if d.System.Value() != nil {
 		system = types.NumberValue(big.NewFloat(*d.System.Value()))
 	}
+	if d.Usage.Value() != nil {
+		usage = types.NumberValue(big.NewFloat(*d.Usage.Value()))
+	}
 	if d.User.Value() != nil {
 		user = types.NumberValue(big.NewFloat(*d.User.Value()))
 	}
@@ -43,6 +47,7 @@ func cpuStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 		"interrupt": interrupt,
 		"load_avg":  loadAvg,
 		"system":    system,
+		"usage":     usage,
 		"user":      user,
 	}
 	data, e := types.ObjectValue(CpuStatValue{}.AttributeTypes(ctx), dataMapValue)
