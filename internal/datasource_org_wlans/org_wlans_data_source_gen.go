@@ -116,13 +116,13 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"allow_ipv6_ndp": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "Only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through",
-							MarkdownDescription: "Only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through",
+							Description:         "Only applicable when `limit_bcast`==`true`, which allows or disallows ipv6 Neighbor Discovery packets to go through",
+							MarkdownDescription: "Only applicable when `limit_bcast`==`true`, which allows or disallows ipv6 Neighbor Discovery packets to go through",
 						},
 						"allow_mdns": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "Only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through",
-							MarkdownDescription: "Only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through",
+							Description:         "Only applicable when `limit_bcast`==`true`, which allows mDNS / Bonjour packets to go through",
+							MarkdownDescription: "Only applicable when `limit_bcast`==`true`, which allows mDNS / Bonjour packets to go through",
 						},
 						"allow_ssdp": schema.BoolAttribute{
 							Computed:            true,
@@ -229,8 +229,8 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "APp qos wlan settings",
-							MarkdownDescription: "APp qos wlan settings",
+							Description:         "APP qos wlan settings",
+							MarkdownDescription: "APP qos wlan settings",
 						},
 						"apply_to": schema.StringAttribute{
 							Computed:            true,
@@ -835,10 +835,50 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"mist_nac": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
+								"acct_interim_interval": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled.",
+									MarkdownDescription: "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled.",
+								},
+								"auth_servers_retries": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "Radius auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"retries\" are set to value of `auth_servers_timeout`. \"max-requests\" is also set when setting `auth_servers_retries` is set to default value to 3.",
+									MarkdownDescription: "Radius auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"retries\" are set to value of `auth_servers_timeout`. \"max-requests\" is also set when setting `auth_servers_retries` is set to default value to 3.",
+								},
+								"auth_servers_timeout": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "Radius auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"quite-period\" and \"transmit-period\" are set to half the value of `auth_servers_timeout`. \"supplicant-timeout\" is also set when setting `auth_servers_timeout` is set to default value of 10.",
+									MarkdownDescription: "Radius auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"quite-period\" and \"transmit-period\" are set to half the value of `auth_servers_timeout`. \"supplicant-timeout\" is also set when setting `auth_servers_timeout` is set to default value of 10.",
+								},
+								"coa_enabled": schema.BoolAttribute{
+									Computed:            true,
+									Description:         "Allows a RADIUS server to dynamically modify the authorization status of a user session.",
+									MarkdownDescription: "Allows a RADIUS server to dynamically modify the authorization status of a user session.",
+								},
+								"coa_port": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "the communication port used for “Change of Authorization” (CoA) messages",
+									MarkdownDescription: "the communication port used for “Change of Authorization” (CoA) messages",
+								},
 								"enabled": schema.BoolAttribute{
 									Computed:            true,
 									Description:         "When enabled:\n  * `auth_servers` is ignored\n  * `acct_servers` is ignored\n  * `auth_servers_*` are ignored\n  * `coa_servers` is ignored\n  * `radsec` is ignored\n  * `coa_enabled` is assumed",
 									MarkdownDescription: "When enabled:\n  * `auth_servers` is ignored\n  * `acct_servers` is ignored\n  * `auth_servers_*` are ignored\n  * `coa_servers` is ignored\n  * `radsec` is ignored\n  * `coa_enabled` is assumed",
+								},
+								"fast_dot1x_timers": schema.BoolAttribute{
+									Computed:            true,
+									Description:         "If set to true, sets default fast-timers with values calculated from `auth_servers_timeout` and `auth_server_retries`.",
+									MarkdownDescription: "If set to true, sets default fast-timers with values calculated from `auth_servers_timeout` and `auth_server_retries`.",
+								},
+								"network": schema.StringAttribute{
+									Computed:            true,
+									Description:         "Which network the mist nac server resides in",
+									MarkdownDescription: "Which network the mist nac server resides in",
+								},
+								"source_ip": schema.StringAttribute{
+									Computed:            true,
+									Description:         "In case there is a static IP for this network, we can specify it using source ip",
+									MarkdownDescription: "In case there is a static IP for this network, we can specify it using source ip",
 								},
 							},
 							CustomType: MistNacType{
@@ -1112,8 +1152,8 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"predefined_sponsors_enabled": schema.BoolAttribute{
 									Computed:            true,
-									Description:         "Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`",
-									MarkdownDescription: "Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`",
+									Description:         "Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behavior is acc to `sponsor_email_domains`",
+									MarkdownDescription: "Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behavior is acc to `sponsor_email_domains`",
 								},
 								"predefined_sponsors_hide_email": schema.BoolAttribute{
 									Computed:            true,
@@ -1156,8 +1196,18 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"sms_provider": schema.StringAttribute{
 									Computed:            true,
-									Description:         "Optioanl if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`",
-									MarkdownDescription: "Optioanl if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`",
+									Description:         "Optional if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `smsglobal`, `telstra`, `twilio`",
+									MarkdownDescription: "Optional if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `smsglobal`, `telstra`, `twilio`",
+								},
+								"smsglobal_api_key": schema.StringAttribute{
+									Computed:            true,
+									Description:         "Required if `sms_provider`==`smsglobal`, Client API Key",
+									MarkdownDescription: "Required if `sms_provider`==`smsglobal`, Client API Key",
+								},
+								"smsglobal_api_secret": schema.StringAttribute{
+									Computed:            true,
+									Description:         "Required if `sms_provider`==`smsglobal`, Client secret",
+									MarkdownDescription: "Required if `sms_provider`==`smsglobal`, Client secret",
 								},
 								"sponsor_auto_approve": schema.BoolAttribute{
 									Computed:            true,
@@ -1216,8 +1266,8 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"sso_idp_sign_algo": schema.StringAttribute{
 									Computed:            true,
-									Description:         "Optioanl if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`",
-									MarkdownDescription: "Optioanl if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`",
+									Description:         "Optional if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`",
+									MarkdownDescription: "Optional if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`",
 								},
 								"sso_idp_sso_url": schema.StringAttribute{
 									Computed:            true,
@@ -1283,8 +1333,8 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"portal_api_secret": schema.StringAttribute{
 							Computed:            true,
-							Description:         "APi secret (auto-generated) that can be used to sign guest authorization requests",
-							MarkdownDescription: "APi secret (auto-generated) that can be used to sign guest authorization requests",
+							Description:         "API secret (auto-generated) that can be used to sign guest authorization requests, only generated when auth is set to `external`",
+							MarkdownDescription: "API secret (auto-generated) that can be used to sign guest authorization requests, only generated when auth is set to `external`",
 						},
 						"portal_denied_hostnames": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -1298,7 +1348,9 @@ func OrgWlansDataSourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Url of portal background image",
 						},
 						"portal_sso_url": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "URL used in the SSO process, auto-generated when auth is set to `sso`",
+							MarkdownDescription: "URL used in the SSO process, auto-generated when auth is set to `sso`",
 						},
 						"qos": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -19172,6 +19224,96 @@ func (t MistNacType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 
 	attributes := in.Attributes()
 
+	acctInterimIntervalAttribute, ok := attributes["acct_interim_interval"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`acct_interim_interval is missing from object`)
+
+		return nil, diags
+	}
+
+	acctInterimIntervalVal, ok := acctInterimIntervalAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`acct_interim_interval expected to be basetypes.Int64Value, was: %T`, acctInterimIntervalAttribute))
+	}
+
+	authServersRetriesAttribute, ok := attributes["auth_servers_retries"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_servers_retries is missing from object`)
+
+		return nil, diags
+	}
+
+	authServersRetriesVal, ok := authServersRetriesAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_servers_retries expected to be basetypes.Int64Value, was: %T`, authServersRetriesAttribute))
+	}
+
+	authServersTimeoutAttribute, ok := attributes["auth_servers_timeout"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_servers_timeout is missing from object`)
+
+		return nil, diags
+	}
+
+	authServersTimeoutVal, ok := authServersTimeoutAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_servers_timeout expected to be basetypes.Int64Value, was: %T`, authServersTimeoutAttribute))
+	}
+
+	coaEnabledAttribute, ok := attributes["coa_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`coa_enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	coaEnabledVal, ok := coaEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`coa_enabled expected to be basetypes.BoolValue, was: %T`, coaEnabledAttribute))
+	}
+
+	coaPortAttribute, ok := attributes["coa_port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`coa_port is missing from object`)
+
+		return nil, diags
+	}
+
+	coaPortVal, ok := coaPortAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`coa_port expected to be basetypes.Int64Value, was: %T`, coaPortAttribute))
+	}
+
 	enabledAttribute, ok := attributes["enabled"]
 
 	if !ok {
@@ -19190,13 +19332,75 @@ func (t MistNacType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
+	fastDot1xTimersAttribute, ok := attributes["fast_dot1x_timers"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`fast_dot1x_timers is missing from object`)
+
+		return nil, diags
+	}
+
+	fastDot1xTimersVal, ok := fastDot1xTimersAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`fast_dot1x_timers expected to be basetypes.BoolValue, was: %T`, fastDot1xTimersAttribute))
+	}
+
+	networkAttribute, ok := attributes["network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`network is missing from object`)
+
+		return nil, diags
+	}
+
+	networkVal, ok := networkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
+	}
+
+	sourceIpAttribute, ok := attributes["source_ip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`source_ip is missing from object`)
+
+		return nil, diags
+	}
+
+	sourceIpVal, ok := sourceIpAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`source_ip expected to be basetypes.StringValue, was: %T`, sourceIpAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return MistNacValue{
-		Enabled: enabledVal,
-		state:   attr.ValueStateKnown,
+		AcctInterimInterval: acctInterimIntervalVal,
+		AuthServersRetries:  authServersRetriesVal,
+		AuthServersTimeout:  authServersTimeoutVal,
+		CoaEnabled:          coaEnabledVal,
+		CoaPort:             coaPortVal,
+		Enabled:             enabledVal,
+		FastDot1xTimers:     fastDot1xTimersVal,
+		Network:             networkVal,
+		SourceIp:            sourceIpVal,
+		state:               attr.ValueStateKnown,
 	}, diags
 }
 
@@ -19263,6 +19467,96 @@ func NewMistNacValue(attributeTypes map[string]attr.Type, attributes map[string]
 		return NewMistNacValueUnknown(), diags
 	}
 
+	acctInterimIntervalAttribute, ok := attributes["acct_interim_interval"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`acct_interim_interval is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	acctInterimIntervalVal, ok := acctInterimIntervalAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`acct_interim_interval expected to be basetypes.Int64Value, was: %T`, acctInterimIntervalAttribute))
+	}
+
+	authServersRetriesAttribute, ok := attributes["auth_servers_retries"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_servers_retries is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	authServersRetriesVal, ok := authServersRetriesAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_servers_retries expected to be basetypes.Int64Value, was: %T`, authServersRetriesAttribute))
+	}
+
+	authServersTimeoutAttribute, ok := attributes["auth_servers_timeout"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_servers_timeout is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	authServersTimeoutVal, ok := authServersTimeoutAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_servers_timeout expected to be basetypes.Int64Value, was: %T`, authServersTimeoutAttribute))
+	}
+
+	coaEnabledAttribute, ok := attributes["coa_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`coa_enabled is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	coaEnabledVal, ok := coaEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`coa_enabled expected to be basetypes.BoolValue, was: %T`, coaEnabledAttribute))
+	}
+
+	coaPortAttribute, ok := attributes["coa_port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`coa_port is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	coaPortVal, ok := coaPortAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`coa_port expected to be basetypes.Int64Value, was: %T`, coaPortAttribute))
+	}
+
 	enabledAttribute, ok := attributes["enabled"]
 
 	if !ok {
@@ -19281,13 +19575,75 @@ func NewMistNacValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
+	fastDot1xTimersAttribute, ok := attributes["fast_dot1x_timers"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`fast_dot1x_timers is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	fastDot1xTimersVal, ok := fastDot1xTimersAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`fast_dot1x_timers expected to be basetypes.BoolValue, was: %T`, fastDot1xTimersAttribute))
+	}
+
+	networkAttribute, ok := attributes["network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`network is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	networkVal, ok := networkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
+	}
+
+	sourceIpAttribute, ok := attributes["source_ip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`source_ip is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	sourceIpVal, ok := sourceIpAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`source_ip expected to be basetypes.StringValue, was: %T`, sourceIpAttribute))
+	}
+
 	if diags.HasError() {
 		return NewMistNacValueUnknown(), diags
 	}
 
 	return MistNacValue{
-		Enabled: enabledVal,
-		state:   attr.ValueStateKnown,
+		AcctInterimInterval: acctInterimIntervalVal,
+		AuthServersRetries:  authServersRetriesVal,
+		AuthServersTimeout:  authServersTimeoutVal,
+		CoaEnabled:          coaEnabledVal,
+		CoaPort:             coaPortVal,
+		Enabled:             enabledVal,
+		FastDot1xTimers:     fastDot1xTimersVal,
+		Network:             networkVal,
+		SourceIp:            sourceIpVal,
+		state:               attr.ValueStateKnown,
 	}, diags
 }
 
@@ -19359,23 +19715,79 @@ func (t MistNacType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = MistNacValue{}
 
 type MistNacValue struct {
-	Enabled basetypes.BoolValue `tfsdk:"enabled"`
-	state   attr.ValueState
+	AcctInterimInterval basetypes.Int64Value  `tfsdk:"acct_interim_interval"`
+	AuthServersRetries  basetypes.Int64Value  `tfsdk:"auth_servers_retries"`
+	AuthServersTimeout  basetypes.Int64Value  `tfsdk:"auth_servers_timeout"`
+	CoaEnabled          basetypes.BoolValue   `tfsdk:"coa_enabled"`
+	CoaPort             basetypes.Int64Value  `tfsdk:"coa_port"`
+	Enabled             basetypes.BoolValue   `tfsdk:"enabled"`
+	FastDot1xTimers     basetypes.BoolValue   `tfsdk:"fast_dot1x_timers"`
+	Network             basetypes.StringValue `tfsdk:"network"`
+	SourceIp            basetypes.StringValue `tfsdk:"source_ip"`
+	state               attr.ValueState
 }
 
 func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 1)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["acct_interim_interval"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["auth_servers_retries"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["auth_servers_timeout"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["coa_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["coa_port"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["fast_dot1x_timers"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["source_ip"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 1)
+		vals := make(map[string]tftypes.Value, 9)
+
+		val, err = v.AcctInterimInterval.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["acct_interim_interval"] = val
+
+		val, err = v.AuthServersRetries.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_servers_retries"] = val
+
+		val, err = v.AuthServersTimeout.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_servers_timeout"] = val
+
+		val, err = v.CoaEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["coa_enabled"] = val
+
+		val, err = v.CoaPort.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["coa_port"] = val
 
 		val, err = v.Enabled.ToTerraformValue(ctx)
 
@@ -19384,6 +19796,30 @@ func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["enabled"] = val
+
+		val, err = v.FastDot1xTimers.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["fast_dot1x_timers"] = val
+
+		val, err = v.Network.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["network"] = val
+
+		val, err = v.SourceIp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["source_ip"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -19415,7 +19851,15 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"enabled": basetypes.BoolType{},
+		"acct_interim_interval": basetypes.Int64Type{},
+		"auth_servers_retries":  basetypes.Int64Type{},
+		"auth_servers_timeout":  basetypes.Int64Type{},
+		"coa_enabled":           basetypes.BoolType{},
+		"coa_port":              basetypes.Int64Type{},
+		"enabled":               basetypes.BoolType{},
+		"fast_dot1x_timers":     basetypes.BoolType{},
+		"network":               basetypes.StringType{},
+		"source_ip":             basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -19429,7 +19873,15 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"enabled": v.Enabled,
+			"acct_interim_interval": v.AcctInterimInterval,
+			"auth_servers_retries":  v.AuthServersRetries,
+			"auth_servers_timeout":  v.AuthServersTimeout,
+			"coa_enabled":           v.CoaEnabled,
+			"coa_port":              v.CoaPort,
+			"enabled":               v.Enabled,
+			"fast_dot1x_timers":     v.FastDot1xTimers,
+			"network":               v.Network,
+			"source_ip":             v.SourceIp,
 		})
 
 	return objVal, diags
@@ -19450,7 +19902,39 @@ func (v MistNacValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.AcctInterimInterval.Equal(other.AcctInterimInterval) {
+		return false
+	}
+
+	if !v.AuthServersRetries.Equal(other.AuthServersRetries) {
+		return false
+	}
+
+	if !v.AuthServersTimeout.Equal(other.AuthServersTimeout) {
+		return false
+	}
+
+	if !v.CoaEnabled.Equal(other.CoaEnabled) {
+		return false
+	}
+
+	if !v.CoaPort.Equal(other.CoaPort) {
+		return false
+	}
+
 	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.FastDot1xTimers.Equal(other.FastDot1xTimers) {
+		return false
+	}
+
+	if !v.Network.Equal(other.Network) {
+		return false
+	}
+
+	if !v.SourceIp.Equal(other.SourceIp) {
 		return false
 	}
 
@@ -19467,7 +19951,15 @@ func (v MistNacValue) Type(ctx context.Context) attr.Type {
 
 func (v MistNacValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"enabled": basetypes.BoolType{},
+		"acct_interim_interval": basetypes.Int64Type{},
+		"auth_servers_retries":  basetypes.Int64Type{},
+		"auth_servers_timeout":  basetypes.Int64Type{},
+		"coa_enabled":           basetypes.BoolType{},
+		"coa_port":              basetypes.Int64Type{},
+		"enabled":               basetypes.BoolType{},
+		"fast_dot1x_timers":     basetypes.BoolType{},
+		"network":               basetypes.StringType{},
+		"source_ip":             basetypes.StringType{},
 	}
 }
 
@@ -20468,6 +20960,42 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 			fmt.Sprintf(`sms_provider expected to be basetypes.StringValue, was: %T`, smsProviderAttribute))
 	}
 
+	smsglobalApiKeyAttribute, ok := attributes["smsglobal_api_key"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`smsglobal_api_key is missing from object`)
+
+		return nil, diags
+	}
+
+	smsglobalApiKeyVal, ok := smsglobalApiKeyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`smsglobal_api_key expected to be basetypes.StringValue, was: %T`, smsglobalApiKeyAttribute))
+	}
+
+	smsglobalApiSecretAttribute, ok := attributes["smsglobal_api_secret"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`smsglobal_api_secret is missing from object`)
+
+		return nil, diags
+	}
+
+	smsglobalApiSecretVal, ok := smsglobalApiSecretAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`smsglobal_api_secret expected to be basetypes.StringValue, was: %T`, smsglobalApiSecretAttribute))
+	}
+
 	sponsorAutoApproveAttribute, ok := attributes["sponsor_auto_approve"]
 
 	if !ok {
@@ -20887,6 +21415,8 @@ func (t PortalType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		SmsExpire:                   smsExpireVal,
 		SmsMessageFormat:            smsMessageFormatVal,
 		SmsProvider:                 smsProviderVal,
+		SmsglobalApiKey:             smsglobalApiKeyVal,
+		SmsglobalApiSecret:          smsglobalApiSecretVal,
 		SponsorAutoApprove:          sponsorAutoApproveVal,
 		SponsorEmailDomains:         sponsorEmailDomainsVal,
 		SponsorEnabled:              sponsorEnabledVal,
@@ -21946,6 +22476,42 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 			fmt.Sprintf(`sms_provider expected to be basetypes.StringValue, was: %T`, smsProviderAttribute))
 	}
 
+	smsglobalApiKeyAttribute, ok := attributes["smsglobal_api_key"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`smsglobal_api_key is missing from object`)
+
+		return NewPortalValueUnknown(), diags
+	}
+
+	smsglobalApiKeyVal, ok := smsglobalApiKeyAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`smsglobal_api_key expected to be basetypes.StringValue, was: %T`, smsglobalApiKeyAttribute))
+	}
+
+	smsglobalApiSecretAttribute, ok := attributes["smsglobal_api_secret"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`smsglobal_api_secret is missing from object`)
+
+		return NewPortalValueUnknown(), diags
+	}
+
+	smsglobalApiSecretVal, ok := smsglobalApiSecretAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`smsglobal_api_secret expected to be basetypes.StringValue, was: %T`, smsglobalApiSecretAttribute))
+	}
+
 	sponsorAutoApproveAttribute, ok := attributes["sponsor_auto_approve"]
 
 	if !ok {
@@ -22365,6 +22931,8 @@ func NewPortalValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		SmsExpire:                   smsExpireVal,
 		SmsMessageFormat:            smsMessageFormatVal,
 		SmsProvider:                 smsProviderVal,
+		SmsglobalApiKey:             smsglobalApiKeyVal,
+		SmsglobalApiSecret:          smsglobalApiSecretVal,
 		SponsorAutoApprove:          sponsorAutoApproveVal,
 		SponsorEmailDomains:         sponsorEmailDomainsVal,
 		SponsorEnabled:              sponsorEnabledVal,
@@ -22511,6 +23079,8 @@ type PortalValue struct {
 	SmsExpire                   basetypes.Int64Value  `tfsdk:"sms_expire"`
 	SmsMessageFormat            basetypes.StringValue `tfsdk:"sms_message_format"`
 	SmsProvider                 basetypes.StringValue `tfsdk:"sms_provider"`
+	SmsglobalApiKey             basetypes.StringValue `tfsdk:"smsglobal_api_key"`
+	SmsglobalApiSecret          basetypes.StringValue `tfsdk:"smsglobal_api_secret"`
 	SponsorAutoApprove          basetypes.BoolValue   `tfsdk:"sponsor_auto_approve"`
 	SponsorEmailDomains         basetypes.ListValue   `tfsdk:"sponsor_email_domains"`
 	SponsorEnabled              basetypes.BoolValue   `tfsdk:"sponsor_enabled"`
@@ -22535,7 +23105,7 @@ type PortalValue struct {
 }
 
 func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 74)
+	attrTypes := make(map[string]tftypes.Type, 76)
 
 	var val tftypes.Value
 	var err error
@@ -22602,6 +23172,8 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	attrTypes["sms_expire"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["sms_message_format"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sms_provider"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["smsglobal_api_key"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["smsglobal_api_secret"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sponsor_auto_approve"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["sponsor_email_domains"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -22631,7 +23203,7 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 74)
+		vals := make(map[string]tftypes.Value, 76)
 
 		val, err = v.AllowWlanIdRoam.ToTerraformValue(ctx)
 
@@ -23065,6 +23637,22 @@ func (v PortalValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 		vals["sms_provider"] = val
 
+		val, err = v.SmsglobalApiKey.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["smsglobal_api_key"] = val
+
+		val, err = v.SmsglobalApiSecret.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["smsglobal_api_secret"] = val
+
 		val, err = v.SponsorAutoApprove.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -23330,6 +23918,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
+			"smsglobal_api_key":              basetypes.StringType{},
+			"smsglobal_api_secret":           basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
@@ -23433,6 +24023,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
+			"smsglobal_api_key":              basetypes.StringType{},
+			"smsglobal_api_secret":           basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
@@ -23536,6 +24128,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
+			"smsglobal_api_key":              basetypes.StringType{},
+			"smsglobal_api_secret":           basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
@@ -23639,6 +24233,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
+			"smsglobal_api_key":              basetypes.StringType{},
+			"smsglobal_api_secret":           basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
@@ -23742,6 +24338,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
+			"smsglobal_api_key":              basetypes.StringType{},
+			"smsglobal_api_secret":           basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
@@ -23845,6 +24443,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"sms_expire":                     basetypes.Int64Type{},
 			"sms_message_format":             basetypes.StringType{},
 			"sms_provider":                   basetypes.StringType{},
+			"smsglobal_api_key":              basetypes.StringType{},
+			"smsglobal_api_secret":           basetypes.StringType{},
 			"sponsor_auto_approve":           basetypes.BoolType{},
 			"sponsor_email_domains": basetypes.ListType{
 				ElemType: types.StringType,
@@ -23935,6 +24535,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		"sms_expire":                     basetypes.Int64Type{},
 		"sms_message_format":             basetypes.StringType{},
 		"sms_provider":                   basetypes.StringType{},
+		"smsglobal_api_key":              basetypes.StringType{},
+		"smsglobal_api_secret":           basetypes.StringType{},
 		"sponsor_auto_approve":           basetypes.BoolType{},
 		"sponsor_email_domains": basetypes.ListType{
 			ElemType: types.StringType,
@@ -24026,6 +24628,8 @@ func (v PortalValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 			"sms_expire":                     v.SmsExpire,
 			"sms_message_format":             v.SmsMessageFormat,
 			"sms_provider":                   v.SmsProvider,
+			"smsglobal_api_key":              v.SmsglobalApiKey,
+			"smsglobal_api_secret":           v.SmsglobalApiSecret,
 			"sponsor_auto_approve":           v.SponsorAutoApprove,
 			"sponsor_email_domains":          sponsorEmailDomainsVal,
 			"sponsor_enabled":                v.SponsorEnabled,
@@ -24282,6 +24886,14 @@ func (v PortalValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.SmsglobalApiKey.Equal(other.SmsglobalApiKey) {
+		return false
+	}
+
+	if !v.SmsglobalApiSecret.Equal(other.SmsglobalApiSecret) {
+		return false
+	}
+
 	if !v.SponsorAutoApprove.Equal(other.SponsorAutoApprove) {
 		return false
 	}
@@ -24437,6 +25049,8 @@ func (v PortalValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"sms_expire":                     basetypes.Int64Type{},
 		"sms_message_format":             basetypes.StringType{},
 		"sms_provider":                   basetypes.StringType{},
+		"smsglobal_api_key":              basetypes.StringType{},
+		"smsglobal_api_secret":           basetypes.StringType{},
 		"sponsor_auto_approve":           basetypes.BoolType{},
 		"sponsor_email_domains": basetypes.ListType{
 			ElemType: types.StringType,
