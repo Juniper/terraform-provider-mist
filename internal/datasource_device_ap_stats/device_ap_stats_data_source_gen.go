@@ -24,6 +24,11 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 			"device_ap_stats": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"antenna_select": schema.StringAttribute{
+							Computed:            true,
+							Description:         "Antenna Mode for AP which supports selectable antennas. enum: `\"\"` (default), `external`, `internal`",
+							MarkdownDescription: "Antenna Mode for AP which supports selectable antennas. enum: `\"\"` (default), `external`, `internal`",
+						},
 						"auto_placement": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"info": schema.SingleNestedAttribute{
@@ -156,8 +161,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"eddystone_url_freq_msec": schema.Int64Attribute{
 									Computed:            true,
-									Description:         "Frequency (msec) of data emmit by Eddystone-UID beacon",
-									MarkdownDescription: "Frequency (msec) of data emmit by Eddystone-UID beacon",
+									Description:         "Frequency (msec) of data emit by Eddystone-UID beacon",
+									MarkdownDescription: "Frequency (msec) of data emit by Eddystone-UID beacon",
 								},
 								"eddystone_url_url": schema.StringAttribute{
 									Computed: true,
@@ -169,10 +174,14 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Computed: true,
 								},
 								"ibeacon_major": schema.Int64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Major number for iBeacon",
+									MarkdownDescription: "Major number for iBeacon",
 								},
 								"ibeacon_minor": schema.Int64Attribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Minor number for iBeacon",
+									MarkdownDescription: "Minor number for iBeacon",
 								},
 								"ibeacon_uuid": schema.StringAttribute{
 									Computed: true,
@@ -230,6 +239,9 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							Computed: true,
 						},
 						"cpu_system": schema.Int64Attribute{
+							Computed: true,
+						},
+						"cpu_user": schema.Int64Attribute{
 							Computed: true,
 						},
 						"cpu_util": schema.Int64Attribute{
@@ -313,6 +325,12 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							},
 							Computed: true,
 						},
+						"expiring_certs": schema.MapAttribute{
+							ElementType:         types.Int64Type,
+							Computed:            true,
+							Description:         "Map of certificate serial numbers to their expiry timestamps (in epoch) for certificates expiring within 30 days. Property key is the certificate serial number",
+							MarkdownDescription: "Map of certificate serial numbers to their expiry timestamps (in epoch) for certificates expiring within 30 days. Property key is the certificate serial number",
+						},
 						"ext_ip": schema.StringAttribute{
 							Computed: true,
 						},
@@ -323,8 +341,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"status": schema.StringAttribute{
 									Computed:            true,
-									Description:         "enum: `inprogress`, `failed`, `upgraded`",
-									MarkdownDescription: "enum: `inprogress`, `failed`, `upgraded`",
+									Description:         "enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`",
+									MarkdownDescription: "enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`",
 								},
 								"status_id": schema.Int64Attribute{
 									Computed: true,
@@ -345,7 +363,7 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							},
 							Computed: true,
 						},
-						"gps": schema.SingleNestedAttribute{
+						"gps_stat": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"accuracy": schema.NumberAttribute{
 									Computed:            true,
@@ -369,8 +387,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"src": schema.StringAttribute{
 									Computed:            true,
-									Description:         "The origin of the GPS data. enum:\n  * `gps`: from this device’s GPS estimates\n  * `other_ap` from neighboring device GPS estimates",
-									MarkdownDescription: "The origin of the GPS data. enum:\n  * `gps`: from this device’s GPS estimates\n  * `other_ap` from neighboring device GPS estimates",
+									Description:         "The origin of the GPS data. enum: `gps`: from this device GPS estimates, `other_ap` from neighboring device GPS estimates. Note: API responses may return `other_aps` which should be treated as `other_ap`",
+									MarkdownDescription: "The origin of the GPS data. enum: `gps`: from this device GPS estimates, `other_ap` from neighboring device GPS estimates. Note: API responses may return `other_aps` which should be treated as `other_ap`",
 								},
 								"timestamp": schema.Float64Attribute{
 									Computed:            true,
@@ -378,9 +396,9 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "Epoch (seconds)",
 								},
 							},
-							CustomType: GpsType{
+							CustomType: GpsStatType{
 								ObjectType: types.ObjectType{
-									AttrTypes: GpsValue{}.AttributeTypes(ctx),
+									AttrTypes: GpsStatValue{}.AttributeTypes(ctx),
 								},
 							},
 							Computed: true,
@@ -650,30 +668,59 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"mgmt_addr": schema.StringAttribute{
 									Computed:            true,
-									Description:         "Switch’s management address (if advertised), can be IPv4, IPv6, or MAC",
-									MarkdownDescription: "Switch’s management address (if advertised), can be IPv4, IPv6, or MAC",
+									Description:         "Management IP address of the switch",
+									MarkdownDescription: "Management IP address of the switch",
 								},
 								"mgmt_addrs": schema.ListAttribute{
-									ElementType: types.StringType,
-									Computed:    true,
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of management IP addresses (IPv4 and IPv6)",
+									MarkdownDescription: "List of management IP addresses (IPv4 and IPv6)",
 								},
 								"port_desc": schema.StringAttribute{
 									Computed:            true,
-									Description:         "ge-0/0/4",
-									MarkdownDescription: "ge-0/0/4",
+									Description:         "Port description, e.g. “2/20”, “Port 2 on Switch0”",
+									MarkdownDescription: "Port description, e.g. “2/20”, “Port 2 on Switch0”",
 								},
 								"port_id": schema.StringAttribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Port identifier",
+									MarkdownDescription: "Port identifier",
 								},
 								"power_allocated": schema.NumberAttribute{
 									Computed:            true,
-									Description:         "In mW, provided/allocated by PSE",
-									MarkdownDescription: "In mW, provided/allocated by PSE",
+									Description:         "In mW, power allocated by PSE",
+									MarkdownDescription: "In mW, power allocated by PSE",
+								},
+								"power_avail": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "In mW, total Power Avail at AP from pwr source",
+									MarkdownDescription: "In mW, total Power Avail at AP from pwr source",
+								},
+								"power_budget": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "In mW, surplus if positive or deficit if negative",
+									MarkdownDescription: "In mW, surplus if positive or deficit if negative",
+								},
+								"power_constrained": schema.BoolAttribute{
+									Computed:            true,
+									Description:         "Whether power is insufficient",
+									MarkdownDescription: "Whether power is insufficient",
 								},
 								"power_draw": schema.NumberAttribute{
 									Computed:            true,
 									Description:         "In mW, total power needed by PD",
 									MarkdownDescription: "In mW, total power needed by PD",
+								},
+								"power_needed": schema.Int64Attribute{
+									Computed:            true,
+									Description:         "In mW, total Power needed incl Peripherals",
+									MarkdownDescription: "In mW, total Power needed incl Peripherals",
+								},
+								"power_opmode": schema.StringAttribute{
+									Computed:            true,
+									Description:         "Constrained mode",
+									MarkdownDescription: "Constrained mode",
 								},
 								"power_request_count": schema.Int64Attribute{
 									Computed:            true,
@@ -682,8 +729,19 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"power_requested": schema.NumberAttribute{
 									Computed:            true,
-									Description:         "In mW, the current power requested by PD",
-									MarkdownDescription: "In mW, the current power requested by PD",
+									Description:         "In mW, power requested by PD",
+									MarkdownDescription: "In mW, power requested by PD",
+								},
+								"power_src": schema.StringAttribute{
+									Computed:            true,
+									Description:         "Single power source (DC Input / PoE 802.3at / PoE 802.3af / PoE 802.3bt / MULTI-PD / LLDP / ? (unknown)).",
+									MarkdownDescription: "Single power source (DC Input / PoE 802.3at / PoE 802.3af / PoE 802.3bt / MULTI-PD / LLDP / ? (unknown)).",
+								},
+								"power_srcs": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Computed:            true,
+									Description:         "List of management IP addresses (IPv4 and IPv6)",
+									MarkdownDescription: "List of management IP addresses (IPv4 and IPv6)",
 								},
 								"system_desc": schema.StringAttribute{
 									Computed:            true,
@@ -702,8 +760,120 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Computed:            true,
-							Description:         "LLDP Stat (neighbor information, power negotiations)",
-							MarkdownDescription: "LLDP Stat (neighbor information, power negotiations)",
+							Description:         "LLDP neighbor information and power negotiations. For backward compatibility, when multiple neighbors exist, only information from the first neighbor is displayed.",
+							MarkdownDescription: "LLDP neighbor information and power negotiations. For backward compatibility, when multiple neighbors exist, only information from the first neighbor is displayed.",
+						},
+						"lldp_stats": schema.MapNestedAttribute{
+							NestedObject: schema.NestedAttributeObject{
+								Attributes: map[string]schema.Attribute{
+									"chassis_id": schema.StringAttribute{
+										Computed: true,
+									},
+									"lldp_med_supported": schema.BoolAttribute{
+										Computed:            true,
+										Description:         "Whether it support LLDP-MED",
+										MarkdownDescription: "Whether it support LLDP-MED",
+									},
+									"mgmt_addr": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Management IP address of the switch",
+										MarkdownDescription: "Management IP address of the switch",
+									},
+									"mgmt_addrs": schema.ListAttribute{
+										ElementType:         types.StringType,
+										Computed:            true,
+										Description:         "List of management IP addresses (IPv4 and IPv6)",
+										MarkdownDescription: "List of management IP addresses (IPv4 and IPv6)",
+									},
+									"port_desc": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Port description, e.g. “2/20”, “Port 2 on Switch0”",
+										MarkdownDescription: "Port description, e.g. “2/20”, “Port 2 on Switch0”",
+									},
+									"port_id": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Port identifier",
+										MarkdownDescription: "Port identifier",
+									},
+									"power_allocated": schema.NumberAttribute{
+										Computed:            true,
+										Description:         "In mW, power allocated by PSE",
+										MarkdownDescription: "In mW, power allocated by PSE",
+									},
+									"power_avail": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "In mW, total Power Avail at AP from pwr source",
+										MarkdownDescription: "In mW, total Power Avail at AP from pwr source",
+									},
+									"power_budget": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "In mW, surplus if positive or deficit if negative",
+										MarkdownDescription: "In mW, surplus if positive or deficit if negative",
+									},
+									"power_constrained": schema.BoolAttribute{
+										Computed:            true,
+										Description:         "Whether power is insufficient",
+										MarkdownDescription: "Whether power is insufficient",
+									},
+									"power_draw": schema.NumberAttribute{
+										Computed:            true,
+										Description:         "In mW, total power needed by PD",
+										MarkdownDescription: "In mW, total power needed by PD",
+									},
+									"power_needed": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "In mW, total Power needed incl Peripherals",
+										MarkdownDescription: "In mW, total Power needed incl Peripherals",
+									},
+									"power_opmode": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Constrained mode",
+										MarkdownDescription: "Constrained mode",
+									},
+									"power_request_count": schema.Int64Attribute{
+										Computed:            true,
+										Description:         "Number of negotiations, if it keeps increasing, we don’ t have a stable power",
+										MarkdownDescription: "Number of negotiations, if it keeps increasing, we don’ t have a stable power",
+									},
+									"power_requested": schema.NumberAttribute{
+										Computed:            true,
+										Description:         "In mW, power requested by PD",
+										MarkdownDescription: "In mW, power requested by PD",
+									},
+									"power_src": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Single power source (DC Input / PoE 802.3at / PoE 802.3af / PoE 802.3bt / MULTI-PD / LLDP / ? (unknown)).",
+										MarkdownDescription: "Single power source (DC Input / PoE 802.3at / PoE 802.3af / PoE 802.3bt / MULTI-PD / LLDP / ? (unknown)).",
+									},
+									"power_srcs": schema.ListAttribute{
+										ElementType:         types.StringType,
+										Computed:            true,
+										Description:         "List of management IP addresses (IPv4 and IPv6)",
+										MarkdownDescription: "List of management IP addresses (IPv4 and IPv6)",
+									},
+									"system_desc": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Description provided by switch",
+										MarkdownDescription: "Description provided by switch",
+									},
+									"system_name": schema.StringAttribute{
+										Computed:            true,
+										Description:         "Name of the switch",
+										MarkdownDescription: "Name of the switch",
+									},
+								},
+								CustomType: LldpStatsType{
+									ObjectType: types.ObjectType{
+										AttrTypes: LldpStatsValue{}.AttributeTypes(ctx),
+									},
+								},
+							},
+							Computed:            true,
+							Description:         "Property key is the port name (e.g. \"eth0\", \"eth1\", ...). Map of ethernet ports to their respective LLDP neighbor information and power negotiations. Only present when multiple neighbors exist.",
+							MarkdownDescription: "Property key is the port name (e.g. \"eth0\", \"eth1\", ...). Map of ethernet ports to their respective LLDP neighbor information and power negotiations. Only present when multiple neighbors exist.",
+							Validators: []validator.Map{
+								mapvalidator.SizeAtLeast(1),
+							},
 						},
 						"locating": schema.BoolAttribute{
 							Computed: true,
@@ -719,6 +889,9 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "Device mac",
 						},
 						"map_id": schema.StringAttribute{
+							Computed: true,
+						},
+						"mem_total_kb": schema.Int64Attribute{
 							Computed: true,
 						},
 						"mem_used_kb": schema.Int64Attribute{
@@ -1019,8 +1192,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Attributes: map[string]schema.Attribute{
 										"bandwidth": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
-											MarkdownDescription: "channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
+											Description:         "channel width for the band.enum: `0`(disabled, response only), `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
+											MarkdownDescription: "channel width for the band.enum: `0`(disabled, response only), `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
 										},
 										"channel": schema.Int64Attribute{
 											Computed:            true,
@@ -1125,8 +1298,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Attributes: map[string]schema.Attribute{
 										"bandwidth": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
-											MarkdownDescription: "channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
+											Description:         "channel width for the band.enum: `0`(disabled, response only), `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
+											MarkdownDescription: "channel width for the band.enum: `0`(disabled, response only), `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
 										},
 										"channel": schema.Int64Attribute{
 											Computed:            true,
@@ -1231,8 +1404,8 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Attributes: map[string]schema.Attribute{
 										"bandwidth": schema.Int64Attribute{
 											Computed:            true,
-											Description:         "channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
-											MarkdownDescription: "channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
+											Description:         "channel width for the band.enum: `0`(disabled, response only), `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
+											MarkdownDescription: "channel width for the band.enum: `0`(disabled, response only), `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)",
 										},
 										"channel": schema.Int64Attribute{
 											Computed:            true,
@@ -1448,10 +1621,10 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Duration like 7d, 2w",
 				MarkdownDescription: "Duration like 7d, 2w",
 			},
-			"end": schema.Int64Attribute{
+			"end": schema.StringAttribute{
 				Optional:            true,
-				Description:         "End datetime, can be epoch or relative time like -1d, -2h; now if not specified",
-				MarkdownDescription: "End datetime, can be epoch or relative time like -1d, -2h; now if not specified",
+				Description:         "End time (epoch timestamp in seconds, or relative string like \"-1d\", \"-2h\", \"now\")",
+				MarkdownDescription: "End time (epoch timestamp in seconds, or relative string like \"-1d\", \"-2h\", \"now\")",
 			},
 			"mac": schema.StringAttribute{
 				Optional: true,
@@ -1462,10 +1635,10 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 			"site_id": schema.StringAttribute{
 				Optional: true,
 			},
-			"start": schema.Int64Attribute{
+			"start": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified",
-				MarkdownDescription: "Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified",
+				Description:         "Start time (epoch timestamp in seconds, or relative string like \"-1d\", \"-1w\")",
+				MarkdownDescription: "Start time (epoch timestamp in seconds, or relative string like \"-1d\", \"-1w\")",
 			},
 			"status": schema.StringAttribute{
 				Optional:            true,
@@ -1487,11 +1660,11 @@ func DeviceApStatsDataSourceSchema(ctx context.Context) schema.Schema {
 type DeviceApStatsModel struct {
 	DeviceApStats types.Set    `tfsdk:"device_ap_stats"`
 	Duration      types.String `tfsdk:"duration"`
-	End           types.Int64  `tfsdk:"end"`
+	End           types.String `tfsdk:"end"`
 	Mac           types.String `tfsdk:"mac"`
 	OrgId         types.String `tfsdk:"org_id"`
 	SiteId        types.String `tfsdk:"site_id"`
-	Start         types.Int64  `tfsdk:"start"`
+	Start         types.String `tfsdk:"start"`
 	Status        types.String `tfsdk:"status"`
 }
 
@@ -1519,6 +1692,24 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
+
+	antennaSelectAttribute, ok := attributes["antenna_select"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_select is missing from object`)
+
+		return nil, diags
+	}
+
+	antennaSelectVal, ok := antennaSelectAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_select expected to be basetypes.StringValue, was: %T`, antennaSelectAttribute))
+	}
 
 	autoPlacementAttribute, ok := attributes["auto_placement"]
 
@@ -1628,6 +1819,24 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`cpu_system expected to be basetypes.Int64Value, was: %T`, cpuSystemAttribute))
 	}
 
+	cpuUserAttribute, ok := attributes["cpu_user"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cpu_user is missing from object`)
+
+		return nil, diags
+	}
+
+	cpuUserVal, ok := cpuUserAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cpu_user expected to be basetypes.Int64Value, was: %T`, cpuUserAttribute))
+	}
+
 	cpuUtilAttribute, ok := attributes["cpu_util"]
 
 	if !ok {
@@ -1718,6 +1927,24 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`esl_stat expected to be basetypes.ObjectValue, was: %T`, eslStatAttribute))
 	}
 
+	expiringCertsAttribute, ok := attributes["expiring_certs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`expiring_certs is missing from object`)
+
+		return nil, diags
+	}
+
+	expiringCertsVal, ok := expiringCertsAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`expiring_certs expected to be basetypes.MapValue, was: %T`, expiringCertsAttribute))
+	}
+
 	extIpAttribute, ok := attributes["ext_ip"]
 
 	if !ok {
@@ -1754,22 +1981,22 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`fwupdate expected to be basetypes.ObjectValue, was: %T`, fwupdateAttribute))
 	}
 
-	gpsAttribute, ok := attributes["gps"]
+	gpsStatAttribute, ok := attributes["gps_stat"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`gps is missing from object`)
+			`gps_stat is missing from object`)
 
 		return nil, diags
 	}
 
-	gpsVal, ok := gpsAttribute.(basetypes.ObjectValue)
+	gpsStatVal, ok := gpsStatAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`gps expected to be basetypes.ObjectValue, was: %T`, gpsAttribute))
+			fmt.Sprintf(`gps_stat expected to be basetypes.ObjectValue, was: %T`, gpsStatAttribute))
 	}
 
 	hwRevAttribute, ok := attributes["hw_rev"]
@@ -1988,6 +2215,24 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`lldp_stat expected to be basetypes.ObjectValue, was: %T`, lldpStatAttribute))
 	}
 
+	lldpStatsAttribute, ok := attributes["lldp_stats"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`lldp_stats is missing from object`)
+
+		return nil, diags
+	}
+
+	lldpStatsVal, ok := lldpStatsAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`lldp_stats expected to be basetypes.MapValue, was: %T`, lldpStatsAttribute))
+	}
+
 	locatingAttribute, ok := attributes["locating"]
 
 	if !ok {
@@ -2058,6 +2303,24 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`map_id expected to be basetypes.StringValue, was: %T`, mapIdAttribute))
+	}
+
+	memTotalKbAttribute, ok := attributes["mem_total_kb"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mem_total_kb is missing from object`)
+
+		return nil, diags
+	}
+
+	memTotalKbVal, ok := memTotalKbAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mem_total_kb expected to be basetypes.Int64Value, was: %T`, memTotalKbAttribute))
 	}
 
 	memUsedKbAttribute, ok := attributes["mem_used_kb"]
@@ -2641,20 +2904,23 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 	}
 
 	return DeviceApStatsValue{
+		AntennaSelect:      antennaSelectVal,
 		AutoPlacement:      autoPlacementVal,
 		AutoUpgradeStat:    autoUpgradeStatVal,
 		BleStat:            bleStatVal,
 		CertExpiry:         certExpiryVal,
 		ConfigReverted:     configRevertedVal,
 		CpuSystem:          cpuSystemVal,
+		CpuUser:            cpuUserVal,
 		CpuUtil:            cpuUtilVal,
 		CreatedTime:        createdTimeVal,
 		DeviceprofileId:    deviceprofileIdVal,
 		EnvStat:            envStatVal,
 		EslStat:            eslStatVal,
+		ExpiringCerts:      expiringCertsVal,
 		ExtIp:              extIpVal,
 		Fwupdate:           fwupdateVal,
-		Gps:                gpsVal,
+		GpsStat:            gpsStatVal,
 		HwRev:              hwRevVal,
 		Id:                 idVal,
 		InactiveWiredVlans: inactiveWiredVlansVal,
@@ -2667,10 +2933,12 @@ func (t DeviceApStatsType) ValueFromObject(ctx context.Context, in basetypes.Obj
 		LastTrouble:        lastTroubleVal,
 		Led:                ledVal,
 		LldpStat:           lldpStatVal,
+		LldpStats:          lldpStatsVal,
 		Locating:           locatingVal,
 		Locked:             lockedVal,
 		Mac:                macVal,
 		MapId:              mapIdVal,
+		MemTotalKb:         memTotalKbVal,
 		MemUsedKb:          memUsedKbVal,
 		MeshDownlinks:      meshDownlinksVal,
 		MeshUplink:         meshUplinkVal,
@@ -2770,6 +3038,24 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 		return NewDeviceApStatsValueUnknown(), diags
 	}
 
+	antennaSelectAttribute, ok := attributes["antenna_select"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`antenna_select is missing from object`)
+
+		return NewDeviceApStatsValueUnknown(), diags
+	}
+
+	antennaSelectVal, ok := antennaSelectAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`antenna_select expected to be basetypes.StringValue, was: %T`, antennaSelectAttribute))
+	}
+
 	autoPlacementAttribute, ok := attributes["auto_placement"]
 
 	if !ok {
@@ -2878,6 +3164,24 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`cpu_system expected to be basetypes.Int64Value, was: %T`, cpuSystemAttribute))
 	}
 
+	cpuUserAttribute, ok := attributes["cpu_user"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cpu_user is missing from object`)
+
+		return NewDeviceApStatsValueUnknown(), diags
+	}
+
+	cpuUserVal, ok := cpuUserAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cpu_user expected to be basetypes.Int64Value, was: %T`, cpuUserAttribute))
+	}
+
 	cpuUtilAttribute, ok := attributes["cpu_util"]
 
 	if !ok {
@@ -2968,6 +3272,24 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`esl_stat expected to be basetypes.ObjectValue, was: %T`, eslStatAttribute))
 	}
 
+	expiringCertsAttribute, ok := attributes["expiring_certs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`expiring_certs is missing from object`)
+
+		return NewDeviceApStatsValueUnknown(), diags
+	}
+
+	expiringCertsVal, ok := expiringCertsAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`expiring_certs expected to be basetypes.MapValue, was: %T`, expiringCertsAttribute))
+	}
+
 	extIpAttribute, ok := attributes["ext_ip"]
 
 	if !ok {
@@ -3004,22 +3326,22 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`fwupdate expected to be basetypes.ObjectValue, was: %T`, fwupdateAttribute))
 	}
 
-	gpsAttribute, ok := attributes["gps"]
+	gpsStatAttribute, ok := attributes["gps_stat"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`gps is missing from object`)
+			`gps_stat is missing from object`)
 
 		return NewDeviceApStatsValueUnknown(), diags
 	}
 
-	gpsVal, ok := gpsAttribute.(basetypes.ObjectValue)
+	gpsStatVal, ok := gpsStatAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`gps expected to be basetypes.ObjectValue, was: %T`, gpsAttribute))
+			fmt.Sprintf(`gps_stat expected to be basetypes.ObjectValue, was: %T`, gpsStatAttribute))
 	}
 
 	hwRevAttribute, ok := attributes["hw_rev"]
@@ -3238,6 +3560,24 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`lldp_stat expected to be basetypes.ObjectValue, was: %T`, lldpStatAttribute))
 	}
 
+	lldpStatsAttribute, ok := attributes["lldp_stats"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`lldp_stats is missing from object`)
+
+		return NewDeviceApStatsValueUnknown(), diags
+	}
+
+	lldpStatsVal, ok := lldpStatsAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`lldp_stats expected to be basetypes.MapValue, was: %T`, lldpStatsAttribute))
+	}
+
 	locatingAttribute, ok := attributes["locating"]
 
 	if !ok {
@@ -3308,6 +3648,24 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`map_id expected to be basetypes.StringValue, was: %T`, mapIdAttribute))
+	}
+
+	memTotalKbAttribute, ok := attributes["mem_total_kb"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mem_total_kb is missing from object`)
+
+		return NewDeviceApStatsValueUnknown(), diags
+	}
+
+	memTotalKbVal, ok := memTotalKbAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mem_total_kb expected to be basetypes.Int64Value, was: %T`, memTotalKbAttribute))
 	}
 
 	memUsedKbAttribute, ok := attributes["mem_used_kb"]
@@ -3891,20 +4249,23 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 	}
 
 	return DeviceApStatsValue{
+		AntennaSelect:      antennaSelectVal,
 		AutoPlacement:      autoPlacementVal,
 		AutoUpgradeStat:    autoUpgradeStatVal,
 		BleStat:            bleStatVal,
 		CertExpiry:         certExpiryVal,
 		ConfigReverted:     configRevertedVal,
 		CpuSystem:          cpuSystemVal,
+		CpuUser:            cpuUserVal,
 		CpuUtil:            cpuUtilVal,
 		CreatedTime:        createdTimeVal,
 		DeviceprofileId:    deviceprofileIdVal,
 		EnvStat:            envStatVal,
 		EslStat:            eslStatVal,
+		ExpiringCerts:      expiringCertsVal,
 		ExtIp:              extIpVal,
 		Fwupdate:           fwupdateVal,
-		Gps:                gpsVal,
+		GpsStat:            gpsStatVal,
 		HwRev:              hwRevVal,
 		Id:                 idVal,
 		InactiveWiredVlans: inactiveWiredVlansVal,
@@ -3917,10 +4278,12 @@ func NewDeviceApStatsValue(attributeTypes map[string]attr.Type, attributes map[s
 		LastTrouble:        lastTroubleVal,
 		Led:                ledVal,
 		LldpStat:           lldpStatVal,
+		LldpStats:          lldpStatsVal,
 		Locating:           locatingVal,
 		Locked:             lockedVal,
 		Mac:                macVal,
 		MapId:              mapIdVal,
+		MemTotalKb:         memTotalKbVal,
 		MemUsedKb:          memUsedKbVal,
 		MeshDownlinks:      meshDownlinksVal,
 		MeshUplink:         meshUplinkVal,
@@ -4025,20 +4388,23 @@ func (t DeviceApStatsType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = DeviceApStatsValue{}
 
 type DeviceApStatsValue struct {
+	AntennaSelect      basetypes.StringValue  `tfsdk:"antenna_select"`
 	AutoPlacement      basetypes.ObjectValue  `tfsdk:"auto_placement"`
 	AutoUpgradeStat    basetypes.ObjectValue  `tfsdk:"auto_upgrade_stat"`
 	BleStat            basetypes.ObjectValue  `tfsdk:"ble_stat"`
 	CertExpiry         basetypes.NumberValue  `tfsdk:"cert_expiry"`
 	ConfigReverted     basetypes.BoolValue    `tfsdk:"config_reverted"`
 	CpuSystem          basetypes.Int64Value   `tfsdk:"cpu_system"`
+	CpuUser            basetypes.Int64Value   `tfsdk:"cpu_user"`
 	CpuUtil            basetypes.Int64Value   `tfsdk:"cpu_util"`
 	CreatedTime        basetypes.Float64Value `tfsdk:"created_time"`
 	DeviceprofileId    basetypes.StringValue  `tfsdk:"deviceprofile_id"`
 	EnvStat            basetypes.ObjectValue  `tfsdk:"env_stat"`
 	EslStat            basetypes.ObjectValue  `tfsdk:"esl_stat"`
+	ExpiringCerts      basetypes.MapValue     `tfsdk:"expiring_certs"`
 	ExtIp              basetypes.StringValue  `tfsdk:"ext_ip"`
 	Fwupdate           basetypes.ObjectValue  `tfsdk:"fwupdate"`
-	Gps                basetypes.ObjectValue  `tfsdk:"gps"`
+	GpsStat            basetypes.ObjectValue  `tfsdk:"gps_stat"`
 	HwRev              basetypes.StringValue  `tfsdk:"hw_rev"`
 	Id                 basetypes.StringValue  `tfsdk:"id"`
 	InactiveWiredVlans basetypes.ListValue    `tfsdk:"inactive_wired_vlans"`
@@ -4051,10 +4417,12 @@ type DeviceApStatsValue struct {
 	LastTrouble        basetypes.ObjectValue  `tfsdk:"last_trouble"`
 	Led                basetypes.ObjectValue  `tfsdk:"led"`
 	LldpStat           basetypes.ObjectValue  `tfsdk:"lldp_stat"`
+	LldpStats          basetypes.MapValue     `tfsdk:"lldp_stats"`
 	Locating           basetypes.BoolValue    `tfsdk:"locating"`
 	Locked             basetypes.BoolValue    `tfsdk:"locked"`
 	Mac                basetypes.StringValue  `tfsdk:"mac"`
 	MapId              basetypes.StringValue  `tfsdk:"map_id"`
+	MemTotalKb         basetypes.Int64Value   `tfsdk:"mem_total_kb"`
 	MemUsedKb          basetypes.Int64Value   `tfsdk:"mem_used_kb"`
 	MeshDownlinks      basetypes.MapValue     `tfsdk:"mesh_downlinks"`
 	MeshUplink         basetypes.ObjectValue  `tfsdk:"mesh_uplink"`
@@ -4091,11 +4459,12 @@ type DeviceApStatsValue struct {
 }
 
 func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 62)
+	attrTypes := make(map[string]tftypes.Type, 67)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["antenna_select"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["auto_placement"] = basetypes.ObjectType{
 		AttrTypes: AutoPlacementValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -4108,6 +4477,7 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["cert_expiry"] = basetypes.NumberType{}.TerraformType(ctx)
 	attrTypes["config_reverted"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["cpu_system"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["cpu_user"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["cpu_util"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["deviceprofile_id"] = basetypes.StringType{}.TerraformType(ctx)
@@ -4117,12 +4487,15 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["esl_stat"] = basetypes.ObjectType{
 		AttrTypes: EslStatValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
+	attrTypes["expiring_certs"] = basetypes.MapType{
+		ElemType: types.Int64Type,
+	}.TerraformType(ctx)
 	attrTypes["ext_ip"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["fwupdate"] = basetypes.ObjectType{
 		AttrTypes: FwupdateValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
-	attrTypes["gps"] = basetypes.ObjectType{
-		AttrTypes: GpsValue{}.AttributeTypes(ctx),
+	attrTypes["gps_stat"] = basetypes.ObjectType{
+		AttrTypes: GpsStatValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["hw_rev"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
@@ -4152,10 +4525,14 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["lldp_stat"] = basetypes.ObjectType{
 		AttrTypes: LldpStatValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
+	attrTypes["lldp_stats"] = basetypes.MapType{
+		ElemType: LldpStatsValue{}.Type(ctx),
+	}.TerraformType(ctx)
 	attrTypes["locating"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["locked"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["mac"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["map_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["mem_total_kb"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["mem_used_kb"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["mesh_downlinks"] = basetypes.MapType{
 		ElemType: MeshDownlinksValue{}.Type(ctx),
@@ -4205,7 +4582,15 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 62)
+		vals := make(map[string]tftypes.Value, 67)
+
+		val, err = v.AntennaSelect.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["antenna_select"] = val
 
 		val, err = v.AutoPlacement.ToTerraformValue(ctx)
 
@@ -4255,6 +4640,14 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 		vals["cpu_system"] = val
 
+		val, err = v.CpuUser.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["cpu_user"] = val
+
 		val, err = v.CpuUtil.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -4295,6 +4688,14 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 		vals["esl_stat"] = val
 
+		val, err = v.ExpiringCerts.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["expiring_certs"] = val
+
 		val, err = v.ExtIp.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -4311,13 +4712,13 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 		vals["fwupdate"] = val
 
-		val, err = v.Gps.ToTerraformValue(ctx)
+		val, err = v.GpsStat.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["gps"] = val
+		vals["gps_stat"] = val
 
 		val, err = v.HwRev.ToTerraformValue(ctx)
 
@@ -4415,6 +4816,14 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 		vals["lldp_stat"] = val
 
+		val, err = v.LldpStats.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["lldp_stats"] = val
+
 		val, err = v.Locating.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -4446,6 +4855,14 @@ func (v DeviceApStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		}
 
 		vals["map_id"] = val
+
+		val, err = v.MemTotalKb.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mem_total_kb"] = val
 
 		val, err = v.MemUsedKb.ToTerraformValue(ctx)
 
@@ -4858,24 +5275,24 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		)
 	}
 
-	var gps basetypes.ObjectValue
+	var gpsStat basetypes.ObjectValue
 
-	if v.Gps.IsNull() {
-		gps = types.ObjectNull(
-			GpsValue{}.AttributeTypes(ctx),
+	if v.GpsStat.IsNull() {
+		gpsStat = types.ObjectNull(
+			GpsStatValue{}.AttributeTypes(ctx),
 		)
 	}
 
-	if v.Gps.IsUnknown() {
-		gps = types.ObjectUnknown(
-			GpsValue{}.AttributeTypes(ctx),
+	if v.GpsStat.IsUnknown() {
+		gpsStat = types.ObjectUnknown(
+			GpsStatValue{}.AttributeTypes(ctx),
 		)
 	}
 
-	if !v.Gps.IsNull() && !v.Gps.IsUnknown() {
-		gps = types.ObjectValueMust(
-			GpsValue{}.AttributeTypes(ctx),
-			v.Gps.Attributes(),
+	if !v.GpsStat.IsNull() && !v.GpsStat.IsUnknown() {
+		gpsStat = types.ObjectValueMust(
+			GpsStatValue{}.AttributeTypes(ctx),
+			v.GpsStat.Attributes(),
 		)
 	}
 
@@ -5042,6 +5459,35 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		)
 	}
 
+	lldpStats := types.MapValueMust(
+		LldpStatsType{
+			basetypes.ObjectType{
+				AttrTypes: LldpStatsValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.LldpStats.Elements(),
+	)
+
+	if v.LldpStats.IsNull() {
+		lldpStats = types.MapNull(
+			LldpStatsType{
+				basetypes.ObjectType{
+					AttrTypes: LldpStatsValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.LldpStats.IsUnknown() {
+		lldpStats = types.MapUnknown(
+			LldpStatsType{
+				basetypes.ObjectType{
+					AttrTypes: LldpStatsValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
 	meshDownlinks := types.MapValueMust(
 		MeshDownlinksType{
 			basetypes.ObjectType{
@@ -5184,12 +5630,21 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		)
 	}
 
-	inactiveWiredVlansVal, d := types.ListValue(types.Int64Type, v.InactiveWiredVlans.Elements())
+	var expiringCertsVal basetypes.MapValue
+	switch {
+	case v.ExpiringCerts.IsUnknown():
+		expiringCertsVal = types.MapUnknown(types.Int64Type)
+	case v.ExpiringCerts.IsNull():
+		expiringCertsVal = types.MapNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		expiringCertsVal, d = types.MapValue(types.Int64Type, v.ExpiringCerts.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"antenna_select": basetypes.StringType{},
 			"auto_placement": basetypes.ObjectType{
 				AttrTypes: AutoPlacementValue{}.AttributeTypes(ctx),
 			},
@@ -5202,6 +5657,7 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"cert_expiry":      basetypes.NumberType{},
 			"config_reverted":  basetypes.BoolType{},
 			"cpu_system":       basetypes.Int64Type{},
+			"cpu_user":         basetypes.Int64Type{},
 			"cpu_util":         basetypes.Int64Type{},
 			"created_time":     basetypes.Float64Type{},
 			"deviceprofile_id": basetypes.StringType{},
@@ -5211,12 +5667,15 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"esl_stat": basetypes.ObjectType{
 				AttrTypes: EslStatValue{}.AttributeTypes(ctx),
 			},
+			"expiring_certs": basetypes.MapType{
+				ElemType: types.Int64Type,
+			},
 			"ext_ip": basetypes.StringType{},
 			"fwupdate": basetypes.ObjectType{
 				AttrTypes: FwupdateValue{}.AttributeTypes(ctx),
 			},
-			"gps": basetypes.ObjectType{
-				AttrTypes: GpsValue{}.AttributeTypes(ctx),
+			"gps_stat": basetypes.ObjectType{
+				AttrTypes: GpsStatValue{}.AttributeTypes(ctx),
 			},
 			"hw_rev": basetypes.StringType{},
 			"id":     basetypes.StringType{},
@@ -5246,11 +5705,145 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"lldp_stat": basetypes.ObjectType{
 				AttrTypes: LldpStatValue{}.AttributeTypes(ctx),
 			},
-			"locating":    basetypes.BoolType{},
-			"locked":      basetypes.BoolType{},
-			"mac":         basetypes.StringType{},
-			"map_id":      basetypes.StringType{},
-			"mem_used_kb": basetypes.Int64Type{},
+			"lldp_stats": basetypes.MapType{
+				ElemType: LldpStatsValue{}.Type(ctx),
+			},
+			"locating":     basetypes.BoolType{},
+			"locked":       basetypes.BoolType{},
+			"mac":          basetypes.StringType{},
+			"map_id":       basetypes.StringType{},
+			"mem_total_kb": basetypes.Int64Type{},
+			"mem_used_kb":  basetypes.Int64Type{},
+			"mesh_downlinks": basetypes.MapType{
+				ElemType: MeshDownlinksValue{}.Type(ctx),
+			},
+			"mesh_uplink": basetypes.ObjectType{
+				AttrTypes: MeshUplinkValue{}.AttributeTypes(ctx),
+			},
+			"model":         basetypes.StringType{},
+			"modified_time": basetypes.Float64Type{},
+			"mount":         basetypes.StringType{},
+			"name":          basetypes.StringType{},
+			"notes":         basetypes.StringType{},
+			"num_clients":   basetypes.Int64Type{},
+			"num_wlans":     basetypes.Int64Type{},
+			"org_id":        basetypes.StringType{},
+			"port_stat": basetypes.MapType{
+				ElemType: PortStatValue{}.Type(ctx),
+			},
+			"power_budget":      basetypes.Int64Type{},
+			"power_constrained": basetypes.BoolType{},
+			"power_opmode":      basetypes.StringType{},
+			"power_src":         basetypes.StringType{},
+			"radio_stat": basetypes.ObjectType{
+				AttrTypes: RadioStatValue{}.AttributeTypes(ctx),
+			},
+			"rx_bps":   basetypes.Int64Type{},
+			"rx_bytes": basetypes.Int64Type{},
+			"rx_pkts":  basetypes.Int64Type{},
+			"serial":   basetypes.StringType{},
+			"site_id":  basetypes.StringType{},
+			"status":   basetypes.StringType{},
+			"switch_redundancy": basetypes.ObjectType{
+				AttrTypes: SwitchRedundancyValue{}.AttributeTypes(ctx),
+			},
+			"tx_bps":   basetypes.Int64Type{},
+			"tx_bytes": basetypes.Int64Type{},
+			"tx_pkts":  basetypes.Int64Type{},
+			"uptime":   basetypes.NumberType{},
+			"usb_stat": basetypes.ObjectType{
+				AttrTypes: UsbStatValue{}.AttributeTypes(ctx),
+			},
+			"version": basetypes.StringType{},
+			"x":       basetypes.Float64Type{},
+			"y":       basetypes.Float64Type{},
+		}), diags
+	}
+
+	var inactiveWiredVlansVal basetypes.ListValue
+	switch {
+	case v.InactiveWiredVlans.IsUnknown():
+		inactiveWiredVlansVal = types.ListUnknown(types.Int64Type)
+	case v.InactiveWiredVlans.IsNull():
+		inactiveWiredVlansVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		inactiveWiredVlansVal, d = types.ListValue(types.Int64Type, v.InactiveWiredVlans.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"antenna_select": basetypes.StringType{},
+			"auto_placement": basetypes.ObjectType{
+				AttrTypes: AutoPlacementValue{}.AttributeTypes(ctx),
+			},
+			"auto_upgrade_stat": basetypes.ObjectType{
+				AttrTypes: AutoUpgradeStatValue{}.AttributeTypes(ctx),
+			},
+			"ble_stat": basetypes.ObjectType{
+				AttrTypes: BleStatValue{}.AttributeTypes(ctx),
+			},
+			"cert_expiry":      basetypes.NumberType{},
+			"config_reverted":  basetypes.BoolType{},
+			"cpu_system":       basetypes.Int64Type{},
+			"cpu_user":         basetypes.Int64Type{},
+			"cpu_util":         basetypes.Int64Type{},
+			"created_time":     basetypes.Float64Type{},
+			"deviceprofile_id": basetypes.StringType{},
+			"env_stat": basetypes.ObjectType{
+				AttrTypes: EnvStatValue{}.AttributeTypes(ctx),
+			},
+			"esl_stat": basetypes.ObjectType{
+				AttrTypes: EslStatValue{}.AttributeTypes(ctx),
+			},
+			"expiring_certs": basetypes.MapType{
+				ElemType: types.Int64Type,
+			},
+			"ext_ip": basetypes.StringType{},
+			"fwupdate": basetypes.ObjectType{
+				AttrTypes: FwupdateValue{}.AttributeTypes(ctx),
+			},
+			"gps_stat": basetypes.ObjectType{
+				AttrTypes: GpsStatValue{}.AttributeTypes(ctx),
+			},
+			"hw_rev": basetypes.StringType{},
+			"id":     basetypes.StringType{},
+			"inactive_wired_vlans": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"iot_stat": basetypes.MapType{
+				ElemType: IotStatValue{}.Type(ctx),
+			},
+			"ip": basetypes.StringType{},
+			"ip_config": basetypes.ObjectType{
+				AttrTypes: IpConfigValue{}.AttributeTypes(ctx),
+			},
+			"ip_stat": basetypes.ObjectType{
+				AttrTypes: IpStatValue{}.AttributeTypes(ctx),
+			},
+			"l2tp_stat": basetypes.MapType{
+				ElemType: L2tpStatValue{}.Type(ctx),
+			},
+			"last_seen": basetypes.Float64Type{},
+			"last_trouble": basetypes.ObjectType{
+				AttrTypes: LastTroubleValue{}.AttributeTypes(ctx),
+			},
+			"led": basetypes.ObjectType{
+				AttrTypes: LedValue{}.AttributeTypes(ctx),
+			},
+			"lldp_stat": basetypes.ObjectType{
+				AttrTypes: LldpStatValue{}.AttributeTypes(ctx),
+			},
+			"lldp_stats": basetypes.MapType{
+				ElemType: LldpStatsValue{}.Type(ctx),
+			},
+			"locating":     basetypes.BoolType{},
+			"locked":       basetypes.BoolType{},
+			"mac":          basetypes.StringType{},
+			"map_id":       basetypes.StringType{},
+			"mem_total_kb": basetypes.Int64Type{},
+			"mem_used_kb":  basetypes.Int64Type{},
 			"mesh_downlinks": basetypes.MapType{
 				ElemType: MeshDownlinksValue{}.Type(ctx),
 			},
@@ -5298,6 +5891,7 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 	}
 
 	attributeTypes := map[string]attr.Type{
+		"antenna_select": basetypes.StringType{},
 		"auto_placement": basetypes.ObjectType{
 			AttrTypes: AutoPlacementValue{}.AttributeTypes(ctx),
 		},
@@ -5310,6 +5904,7 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"cert_expiry":      basetypes.NumberType{},
 		"config_reverted":  basetypes.BoolType{},
 		"cpu_system":       basetypes.Int64Type{},
+		"cpu_user":         basetypes.Int64Type{},
 		"cpu_util":         basetypes.Int64Type{},
 		"created_time":     basetypes.Float64Type{},
 		"deviceprofile_id": basetypes.StringType{},
@@ -5319,12 +5914,15 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"esl_stat": basetypes.ObjectType{
 			AttrTypes: EslStatValue{}.AttributeTypes(ctx),
 		},
+		"expiring_certs": basetypes.MapType{
+			ElemType: types.Int64Type,
+		},
 		"ext_ip": basetypes.StringType{},
 		"fwupdate": basetypes.ObjectType{
 			AttrTypes: FwupdateValue{}.AttributeTypes(ctx),
 		},
-		"gps": basetypes.ObjectType{
-			AttrTypes: GpsValue{}.AttributeTypes(ctx),
+		"gps_stat": basetypes.ObjectType{
+			AttrTypes: GpsStatValue{}.AttributeTypes(ctx),
 		},
 		"hw_rev": basetypes.StringType{},
 		"id":     basetypes.StringType{},
@@ -5354,11 +5952,15 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"lldp_stat": basetypes.ObjectType{
 			AttrTypes: LldpStatValue{}.AttributeTypes(ctx),
 		},
-		"locating":    basetypes.BoolType{},
-		"locked":      basetypes.BoolType{},
-		"mac":         basetypes.StringType{},
-		"map_id":      basetypes.StringType{},
-		"mem_used_kb": basetypes.Int64Type{},
+		"lldp_stats": basetypes.MapType{
+			ElemType: LldpStatsValue{}.Type(ctx),
+		},
+		"locating":     basetypes.BoolType{},
+		"locked":       basetypes.BoolType{},
+		"mac":          basetypes.StringType{},
+		"map_id":       basetypes.StringType{},
+		"mem_total_kb": basetypes.Int64Type{},
+		"mem_used_kb":  basetypes.Int64Type{},
 		"mesh_downlinks": basetypes.MapType{
 			ElemType: MeshDownlinksValue{}.Type(ctx),
 		},
@@ -5415,20 +6017,23 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"antenna_select":       v.AntennaSelect,
 			"auto_placement":       autoPlacement,
 			"auto_upgrade_stat":    autoUpgradeStat,
 			"ble_stat":             bleStat,
 			"cert_expiry":          v.CertExpiry,
 			"config_reverted":      v.ConfigReverted,
 			"cpu_system":           v.CpuSystem,
+			"cpu_user":             v.CpuUser,
 			"cpu_util":             v.CpuUtil,
 			"created_time":         v.CreatedTime,
 			"deviceprofile_id":     v.DeviceprofileId,
 			"env_stat":             envStat,
 			"esl_stat":             eslStat,
+			"expiring_certs":       expiringCertsVal,
 			"ext_ip":               v.ExtIp,
 			"fwupdate":             fwupdate,
-			"gps":                  gps,
+			"gps_stat":             gpsStat,
 			"hw_rev":               v.HwRev,
 			"id":                   v.Id,
 			"inactive_wired_vlans": inactiveWiredVlansVal,
@@ -5441,10 +6046,12 @@ func (v DeviceApStatsValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"last_trouble":         lastTrouble,
 			"led":                  led,
 			"lldp_stat":            lldpStat,
+			"lldp_stats":           lldpStats,
 			"locating":             v.Locating,
 			"locked":               v.Locked,
 			"mac":                  v.Mac,
 			"map_id":               v.MapId,
+			"mem_total_kb":         v.MemTotalKb,
 			"mem_used_kb":          v.MemUsedKb,
 			"mesh_downlinks":       meshDownlinks,
 			"mesh_uplink":          meshUplink,
@@ -5497,6 +6104,10 @@ func (v DeviceApStatsValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.AntennaSelect.Equal(other.AntennaSelect) {
+		return false
+	}
+
 	if !v.AutoPlacement.Equal(other.AutoPlacement) {
 		return false
 	}
@@ -5521,6 +6132,10 @@ func (v DeviceApStatsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.CpuUser.Equal(other.CpuUser) {
+		return false
+	}
+
 	if !v.CpuUtil.Equal(other.CpuUtil) {
 		return false
 	}
@@ -5541,6 +6156,10 @@ func (v DeviceApStatsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.ExpiringCerts.Equal(other.ExpiringCerts) {
+		return false
+	}
+
 	if !v.ExtIp.Equal(other.ExtIp) {
 		return false
 	}
@@ -5549,7 +6168,7 @@ func (v DeviceApStatsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Gps.Equal(other.Gps) {
+	if !v.GpsStat.Equal(other.GpsStat) {
 		return false
 	}
 
@@ -5601,6 +6220,10 @@ func (v DeviceApStatsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.LldpStats.Equal(other.LldpStats) {
+		return false
+	}
+
 	if !v.Locating.Equal(other.Locating) {
 		return false
 	}
@@ -5614,6 +6237,10 @@ func (v DeviceApStatsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.MapId.Equal(other.MapId) {
+		return false
+	}
+
+	if !v.MemTotalKb.Equal(other.MemTotalKb) {
 		return false
 	}
 
@@ -5758,6 +6385,7 @@ func (v DeviceApStatsValue) Type(ctx context.Context) attr.Type {
 
 func (v DeviceApStatsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"antenna_select": basetypes.StringType{},
 		"auto_placement": basetypes.ObjectType{
 			AttrTypes: AutoPlacementValue{}.AttributeTypes(ctx),
 		},
@@ -5770,6 +6398,7 @@ func (v DeviceApStatsValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"cert_expiry":      basetypes.NumberType{},
 		"config_reverted":  basetypes.BoolType{},
 		"cpu_system":       basetypes.Int64Type{},
+		"cpu_user":         basetypes.Int64Type{},
 		"cpu_util":         basetypes.Int64Type{},
 		"created_time":     basetypes.Float64Type{},
 		"deviceprofile_id": basetypes.StringType{},
@@ -5779,12 +6408,15 @@ func (v DeviceApStatsValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"esl_stat": basetypes.ObjectType{
 			AttrTypes: EslStatValue{}.AttributeTypes(ctx),
 		},
+		"expiring_certs": basetypes.MapType{
+			ElemType: types.Int64Type,
+		},
 		"ext_ip": basetypes.StringType{},
 		"fwupdate": basetypes.ObjectType{
 			AttrTypes: FwupdateValue{}.AttributeTypes(ctx),
 		},
-		"gps": basetypes.ObjectType{
-			AttrTypes: GpsValue{}.AttributeTypes(ctx),
+		"gps_stat": basetypes.ObjectType{
+			AttrTypes: GpsStatValue{}.AttributeTypes(ctx),
 		},
 		"hw_rev": basetypes.StringType{},
 		"id":     basetypes.StringType{},
@@ -5814,11 +6446,15 @@ func (v DeviceApStatsValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"lldp_stat": basetypes.ObjectType{
 			AttrTypes: LldpStatValue{}.AttributeTypes(ctx),
 		},
-		"locating":    basetypes.BoolType{},
-		"locked":      basetypes.BoolType{},
-		"mac":         basetypes.StringType{},
-		"map_id":      basetypes.StringType{},
-		"mem_used_kb": basetypes.Int64Type{},
+		"lldp_stats": basetypes.MapType{
+			ElemType: LldpStatsValue{}.Type(ctx),
+		},
+		"locating":     basetypes.BoolType{},
+		"locked":       basetypes.BoolType{},
+		"mac":          basetypes.StringType{},
+		"map_id":       basetypes.StringType{},
+		"mem_total_kb": basetypes.Int64Type{},
+		"mem_used_kb":  basetypes.Int64Type{},
 		"mesh_downlinks": basetypes.MapType{
 			ElemType: MeshDownlinksValue{}.Type(ctx),
 		},
@@ -9145,11 +9781,19 @@ func (v BleStatValue) String() string {
 func (v BleStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	minorsVal, d := types.ListValue(types.Int64Type, v.Minors.Elements())
+	var minorsVal basetypes.ListValue
+	switch {
+	case v.Minors.IsUnknown():
+		minorsVal = types.ListUnknown(types.Int64Type)
+	case v.Minors.IsNull():
+		minorsVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		minorsVal, d = types.ListValue(types.Int64Type, v.Minors.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"beacon_enabled":          basetypes.BoolType{},
 			"beacon_rate":             basetypes.Int64Type{},
@@ -11356,14 +12000,14 @@ func (v FwupdateValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 	}
 }
 
-var _ basetypes.ObjectTypable = GpsType{}
+var _ basetypes.ObjectTypable = GpsStatType{}
 
-type GpsType struct {
+type GpsStatType struct {
 	basetypes.ObjectType
 }
 
-func (t GpsType) Equal(o attr.Type) bool {
-	other, ok := o.(GpsType)
+func (t GpsStatType) Equal(o attr.Type) bool {
+	other, ok := o.(GpsStatType)
 
 	if !ok {
 		return false
@@ -11372,11 +12016,11 @@ func (t GpsType) Equal(o attr.Type) bool {
 	return t.ObjectType.Equal(other.ObjectType)
 }
 
-func (t GpsType) String() string {
-	return "GpsType"
+func (t GpsStatType) String() string {
+	return "GpsStatType"
 }
 
-func (t GpsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+func (t GpsStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
@@ -11493,7 +12137,7 @@ func (t GpsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) 
 		return nil, diags
 	}
 
-	return GpsValue{
+	return GpsStatValue{
 		Accuracy:  accuracyVal,
 		Altitude:  altitudeVal,
 		Latitude:  latitudeVal,
@@ -11504,19 +12148,19 @@ func (t GpsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) 
 	}, diags
 }
 
-func NewGpsValueNull() GpsValue {
-	return GpsValue{
+func NewGpsStatValueNull() GpsStatValue {
+	return GpsStatValue{
 		state: attr.ValueStateNull,
 	}
 }
 
-func NewGpsValueUnknown() GpsValue {
-	return GpsValue{
+func NewGpsStatValueUnknown() GpsStatValue {
+	return GpsStatValue{
 		state: attr.ValueStateUnknown,
 	}
 }
 
-func NewGpsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (GpsValue, diag.Diagnostics) {
+func NewGpsStatValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (GpsStatValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
@@ -11527,11 +12171,11 @@ func NewGpsValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 
 		if !ok {
 			diags.AddError(
-				"Missing GpsValue Attribute Value",
-				"While creating a GpsValue value, a missing attribute value was detected. "+
-					"A GpsValue must contain values for all attributes, even if null or unknown. "+
+				"Missing GpsStatValue Attribute Value",
+				"While creating a GpsStatValue value, a missing attribute value was detected. "+
+					"A GpsStatValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("GpsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("GpsStatValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -11539,12 +12183,12 @@ func NewGpsValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid GpsValue Attribute Type",
-				"While creating a GpsValue value, an invalid attribute value was detected. "+
-					"A GpsValue must use a matching attribute type for the value. "+
+				"Invalid GpsStatValue Attribute Type",
+				"While creating a GpsStatValue value, an invalid attribute value was detected. "+
+					"A GpsStatValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("GpsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("GpsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("GpsStatValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("GpsStatValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -11554,17 +12198,17 @@ func NewGpsValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 
 		if !ok {
 			diags.AddError(
-				"Extra GpsValue Attribute Value",
-				"While creating a GpsValue value, an extra attribute value was detected. "+
-					"A GpsValue must not contain values beyond the expected attribute types. "+
+				"Extra GpsStatValue Attribute Value",
+				"While creating a GpsStatValue value, an extra attribute value was detected. "+
+					"A GpsStatValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra GpsValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra GpsStatValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewGpsValueUnknown(), diags
+		return NewGpsStatValueUnknown(), diags
 	}
 
 	accuracyAttribute, ok := attributes["accuracy"]
@@ -11574,7 +12218,7 @@ func NewGpsValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 			"Attribute Missing",
 			`accuracy is missing from object`)
 
-		return NewGpsValueUnknown(), diags
+		return NewGpsStatValueUnknown(), diags
 	}
 
 	accuracyVal, ok := accuracyAttribute.(basetypes.NumberValue)
@@ -11592,7 +12236,7 @@ func NewGpsValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 			"Attribute Missing",
 			`altitude is missing from object`)
 
-		return NewGpsValueUnknown(), diags
+		return NewGpsStatValueUnknown(), diags
 	}
 
 	altitudeVal, ok := altitudeAttribute.(basetypes.NumberValue)
@@ -11610,7 +12254,7 @@ func NewGpsValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 			"Attribute Missing",
 			`latitude is missing from object`)
 
-		return NewGpsValueUnknown(), diags
+		return NewGpsStatValueUnknown(), diags
 	}
 
 	latitudeVal, ok := latitudeAttribute.(basetypes.NumberValue)
@@ -11628,7 +12272,7 @@ func NewGpsValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 			"Attribute Missing",
 			`longitude is missing from object`)
 
-		return NewGpsValueUnknown(), diags
+		return NewGpsStatValueUnknown(), diags
 	}
 
 	longitudeVal, ok := longitudeAttribute.(basetypes.NumberValue)
@@ -11646,7 +12290,7 @@ func NewGpsValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 			"Attribute Missing",
 			`src is missing from object`)
 
-		return NewGpsValueUnknown(), diags
+		return NewGpsStatValueUnknown(), diags
 	}
 
 	srcVal, ok := srcAttribute.(basetypes.StringValue)
@@ -11664,7 +12308,7 @@ func NewGpsValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 			"Attribute Missing",
 			`timestamp is missing from object`)
 
-		return NewGpsValueUnknown(), diags
+		return NewGpsStatValueUnknown(), diags
 	}
 
 	timestampVal, ok := timestampAttribute.(basetypes.Float64Value)
@@ -11676,10 +12320,10 @@ func NewGpsValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 	}
 
 	if diags.HasError() {
-		return NewGpsValueUnknown(), diags
+		return NewGpsStatValueUnknown(), diags
 	}
 
-	return GpsValue{
+	return GpsStatValue{
 		Accuracy:  accuracyVal,
 		Altitude:  altitudeVal,
 		Latitude:  latitudeVal,
@@ -11690,8 +12334,8 @@ func NewGpsValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 	}, diags
 }
 
-func NewGpsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) GpsValue {
-	object, diags := NewGpsValue(attributeTypes, attributes)
+func NewGpsStatValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) GpsStatValue {
+	object, diags := NewGpsStatValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -11705,15 +12349,15 @@ func NewGpsValueMust(attributeTypes map[string]attr.Type, attributes map[string]
 				diagnostic.Detail()))
 		}
 
-		panic("NewGpsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewGpsStatValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t GpsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t GpsStatType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewGpsValueNull(), nil
+		return NewGpsStatValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -11721,11 +12365,11 @@ func (t GpsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr
 	}
 
 	if !in.IsKnown() {
-		return NewGpsValueUnknown(), nil
+		return NewGpsStatValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewGpsValueNull(), nil
+		return NewGpsStatValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -11748,16 +12392,16 @@ func (t GpsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr
 		attributes[k] = a
 	}
 
-	return NewGpsValueMust(GpsValue{}.AttributeTypes(ctx), attributes), nil
+	return NewGpsStatValueMust(GpsStatValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t GpsType) ValueType(ctx context.Context) attr.Value {
-	return GpsValue{}
+func (t GpsStatType) ValueType(ctx context.Context) attr.Value {
+	return GpsStatValue{}
 }
 
-var _ basetypes.ObjectValuable = GpsValue{}
+var _ basetypes.ObjectValuable = GpsStatValue{}
 
-type GpsValue struct {
+type GpsStatValue struct {
 	Accuracy  basetypes.NumberValue  `tfsdk:"accuracy"`
 	Altitude  basetypes.NumberValue  `tfsdk:"altitude"`
 	Latitude  basetypes.NumberValue  `tfsdk:"latitude"`
@@ -11767,7 +12411,7 @@ type GpsValue struct {
 	state     attr.ValueState
 }
 
-func (v GpsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+func (v GpsStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
@@ -11848,19 +12492,19 @@ func (v GpsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 	}
 }
 
-func (v GpsValue) IsNull() bool {
+func (v GpsStatValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v GpsValue) IsUnknown() bool {
+func (v GpsStatValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v GpsValue) String() string {
-	return "GpsValue"
+func (v GpsStatValue) String() string {
+	return "GpsStatValue"
 }
 
-func (v GpsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v GpsStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
@@ -11894,8 +12538,8 @@ func (v GpsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, dia
 	return objVal, diags
 }
 
-func (v GpsValue) Equal(o attr.Value) bool {
-	other, ok := o.(GpsValue)
+func (v GpsStatValue) Equal(o attr.Value) bool {
+	other, ok := o.(GpsStatValue)
 
 	if !ok {
 		return false
@@ -11936,15 +12580,15 @@ func (v GpsValue) Equal(o attr.Value) bool {
 	return true
 }
 
-func (v GpsValue) Type(ctx context.Context) attr.Type {
-	return GpsType{
+func (v GpsStatValue) Type(ctx context.Context) attr.Type {
+	return GpsStatType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v GpsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v GpsStatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"accuracy":  basetypes.NumberType{},
 		"altitude":  basetypes.NumberType{},
@@ -13078,11 +13722,19 @@ func (v IpConfigValue) String() string {
 func (v IpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	dnsVal, d := types.ListValue(types.StringType, v.Dns.Elements())
+	var dnsVal basetypes.ListValue
+	switch {
+	case v.Dns.IsUnknown():
+		dnsVal = types.ListUnknown(types.StringType)
+	case v.Dns.IsNull():
+		dnsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		dnsVal, d = types.ListValue(types.StringType, v.Dns.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"dns": basetypes.ListType{
 				ElemType: types.StringType,
@@ -13103,11 +13755,19 @@ func (v IpConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		}), diags
 	}
 
-	dnsSuffixVal, d := types.ListValue(types.StringType, v.DnsSuffix.Elements())
+	var dnsSuffixVal basetypes.ListValue
+	switch {
+	case v.DnsSuffix.IsUnknown():
+		dnsSuffixVal = types.ListUnknown(types.StringType)
+	case v.DnsSuffix.IsNull():
+		dnsSuffixVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		dnsSuffixVal, d = types.ListValue(types.StringType, v.DnsSuffix.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"dns": basetypes.ListType{
 				ElemType: types.StringType,
@@ -13975,11 +14635,19 @@ func (v IpStatValue) String() string {
 func (v IpStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	dnsVal, d := types.ListValue(types.StringType, v.Dns.Elements())
+	var dnsVal basetypes.ListValue
+	switch {
+	case v.Dns.IsUnknown():
+		dnsVal = types.ListUnknown(types.StringType)
+	case v.Dns.IsNull():
+		dnsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		dnsVal, d = types.ListValue(types.StringType, v.Dns.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"dhcp_server": basetypes.StringType{},
 			"dns": basetypes.ListType{
@@ -14000,11 +14668,19 @@ func (v IpStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	dnsSuffixVal, d := types.ListValue(types.StringType, v.DnsSuffix.Elements())
+	var dnsSuffixVal basetypes.ListValue
+	switch {
+	case v.DnsSuffix.IsUnknown():
+		dnsSuffixVal = types.ListUnknown(types.StringType)
+	case v.DnsSuffix.IsNull():
+		dnsSuffixVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		dnsSuffixVal, d = types.ListValue(types.StringType, v.DnsSuffix.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"dhcp_server": basetypes.StringType{},
 			"dns": basetypes.ListType{
@@ -14025,11 +14701,19 @@ func (v IpStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	ipsVal, d := types.MapValue(types.StringType, v.Ips.Elements())
+	var ipsVal basetypes.MapValue
+	switch {
+	case v.Ips.IsUnknown():
+		ipsVal = types.MapUnknown(types.StringType)
+	case v.Ips.IsNull():
+		ipsVal = types.MapNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		ipsVal, d = types.MapValue(types.StringType, v.Ips.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"dhcp_server": basetypes.StringType{},
 			"dns": basetypes.ListType{
@@ -16104,6 +16788,60 @@ func (t LldpStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`power_allocated expected to be basetypes.NumberValue, was: %T`, powerAllocatedAttribute))
 	}
 
+	powerAvailAttribute, ok := attributes["power_avail"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_avail is missing from object`)
+
+		return nil, diags
+	}
+
+	powerAvailVal, ok := powerAvailAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_avail expected to be basetypes.Int64Value, was: %T`, powerAvailAttribute))
+	}
+
+	powerBudgetAttribute, ok := attributes["power_budget"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_budget is missing from object`)
+
+		return nil, diags
+	}
+
+	powerBudgetVal, ok := powerBudgetAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_budget expected to be basetypes.Int64Value, was: %T`, powerBudgetAttribute))
+	}
+
+	powerConstrainedAttribute, ok := attributes["power_constrained"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_constrained is missing from object`)
+
+		return nil, diags
+	}
+
+	powerConstrainedVal, ok := powerConstrainedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_constrained expected to be basetypes.BoolValue, was: %T`, powerConstrainedAttribute))
+	}
+
 	powerDrawAttribute, ok := attributes["power_draw"]
 
 	if !ok {
@@ -16120,6 +16858,42 @@ func (t LldpStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`power_draw expected to be basetypes.NumberValue, was: %T`, powerDrawAttribute))
+	}
+
+	powerNeededAttribute, ok := attributes["power_needed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_needed is missing from object`)
+
+		return nil, diags
+	}
+
+	powerNeededVal, ok := powerNeededAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_needed expected to be basetypes.Int64Value, was: %T`, powerNeededAttribute))
+	}
+
+	powerOpmodeAttribute, ok := attributes["power_opmode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_opmode is missing from object`)
+
+		return nil, diags
+	}
+
+	powerOpmodeVal, ok := powerOpmodeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_opmode expected to be basetypes.StringValue, was: %T`, powerOpmodeAttribute))
 	}
 
 	powerRequestCountAttribute, ok := attributes["power_request_count"]
@@ -16156,6 +16930,42 @@ func (t LldpStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`power_requested expected to be basetypes.NumberValue, was: %T`, powerRequestedAttribute))
+	}
+
+	powerSrcAttribute, ok := attributes["power_src"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_src is missing from object`)
+
+		return nil, diags
+	}
+
+	powerSrcVal, ok := powerSrcAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_src expected to be basetypes.StringValue, was: %T`, powerSrcAttribute))
+	}
+
+	powerSrcsAttribute, ok := attributes["power_srcs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_srcs is missing from object`)
+
+		return nil, diags
+	}
+
+	powerSrcsVal, ok := powerSrcsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_srcs expected to be basetypes.ListValue, was: %T`, powerSrcsAttribute))
 	}
 
 	systemDescAttribute, ok := attributes["system_desc"]
@@ -16206,9 +17016,16 @@ func (t LldpStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		PortDesc:          portDescVal,
 		PortId:            portIdVal,
 		PowerAllocated:    powerAllocatedVal,
+		PowerAvail:        powerAvailVal,
+		PowerBudget:       powerBudgetVal,
+		PowerConstrained:  powerConstrainedVal,
 		PowerDraw:         powerDrawVal,
+		PowerNeeded:       powerNeededVal,
+		PowerOpmode:       powerOpmodeVal,
 		PowerRequestCount: powerRequestCountVal,
 		PowerRequested:    powerRequestedVal,
+		PowerSrc:          powerSrcVal,
+		PowerSrcs:         powerSrcsVal,
 		SystemDesc:        systemDescVal,
 		SystemName:        systemNameVal,
 		state:             attr.ValueStateKnown,
@@ -16404,6 +17221,60 @@ func NewLldpStatValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`power_allocated expected to be basetypes.NumberValue, was: %T`, powerAllocatedAttribute))
 	}
 
+	powerAvailAttribute, ok := attributes["power_avail"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_avail is missing from object`)
+
+		return NewLldpStatValueUnknown(), diags
+	}
+
+	powerAvailVal, ok := powerAvailAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_avail expected to be basetypes.Int64Value, was: %T`, powerAvailAttribute))
+	}
+
+	powerBudgetAttribute, ok := attributes["power_budget"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_budget is missing from object`)
+
+		return NewLldpStatValueUnknown(), diags
+	}
+
+	powerBudgetVal, ok := powerBudgetAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_budget expected to be basetypes.Int64Value, was: %T`, powerBudgetAttribute))
+	}
+
+	powerConstrainedAttribute, ok := attributes["power_constrained"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_constrained is missing from object`)
+
+		return NewLldpStatValueUnknown(), diags
+	}
+
+	powerConstrainedVal, ok := powerConstrainedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_constrained expected to be basetypes.BoolValue, was: %T`, powerConstrainedAttribute))
+	}
+
 	powerDrawAttribute, ok := attributes["power_draw"]
 
 	if !ok {
@@ -16420,6 +17291,42 @@ func NewLldpStatValue(attributeTypes map[string]attr.Type, attributes map[string
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`power_draw expected to be basetypes.NumberValue, was: %T`, powerDrawAttribute))
+	}
+
+	powerNeededAttribute, ok := attributes["power_needed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_needed is missing from object`)
+
+		return NewLldpStatValueUnknown(), diags
+	}
+
+	powerNeededVal, ok := powerNeededAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_needed expected to be basetypes.Int64Value, was: %T`, powerNeededAttribute))
+	}
+
+	powerOpmodeAttribute, ok := attributes["power_opmode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_opmode is missing from object`)
+
+		return NewLldpStatValueUnknown(), diags
+	}
+
+	powerOpmodeVal, ok := powerOpmodeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_opmode expected to be basetypes.StringValue, was: %T`, powerOpmodeAttribute))
 	}
 
 	powerRequestCountAttribute, ok := attributes["power_request_count"]
@@ -16456,6 +17363,42 @@ func NewLldpStatValue(attributeTypes map[string]attr.Type, attributes map[string
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`power_requested expected to be basetypes.NumberValue, was: %T`, powerRequestedAttribute))
+	}
+
+	powerSrcAttribute, ok := attributes["power_src"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_src is missing from object`)
+
+		return NewLldpStatValueUnknown(), diags
+	}
+
+	powerSrcVal, ok := powerSrcAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_src expected to be basetypes.StringValue, was: %T`, powerSrcAttribute))
+	}
+
+	powerSrcsAttribute, ok := attributes["power_srcs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_srcs is missing from object`)
+
+		return NewLldpStatValueUnknown(), diags
+	}
+
+	powerSrcsVal, ok := powerSrcsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_srcs expected to be basetypes.ListValue, was: %T`, powerSrcsAttribute))
 	}
 
 	systemDescAttribute, ok := attributes["system_desc"]
@@ -16506,9 +17449,16 @@ func NewLldpStatValue(attributeTypes map[string]attr.Type, attributes map[string
 		PortDesc:          portDescVal,
 		PortId:            portIdVal,
 		PowerAllocated:    powerAllocatedVal,
+		PowerAvail:        powerAvailVal,
+		PowerBudget:       powerBudgetVal,
+		PowerConstrained:  powerConstrainedVal,
 		PowerDraw:         powerDrawVal,
+		PowerNeeded:       powerNeededVal,
+		PowerOpmode:       powerOpmodeVal,
 		PowerRequestCount: powerRequestCountVal,
 		PowerRequested:    powerRequestedVal,
+		PowerSrc:          powerSrcVal,
+		PowerSrcs:         powerSrcsVal,
 		SystemDesc:        systemDescVal,
 		SystemName:        systemNameVal,
 		state:             attr.ValueStateKnown,
@@ -16590,16 +17540,23 @@ type LldpStatValue struct {
 	PortDesc          basetypes.StringValue `tfsdk:"port_desc"`
 	PortId            basetypes.StringValue `tfsdk:"port_id"`
 	PowerAllocated    basetypes.NumberValue `tfsdk:"power_allocated"`
+	PowerAvail        basetypes.Int64Value  `tfsdk:"power_avail"`
+	PowerBudget       basetypes.Int64Value  `tfsdk:"power_budget"`
+	PowerConstrained  basetypes.BoolValue   `tfsdk:"power_constrained"`
 	PowerDraw         basetypes.NumberValue `tfsdk:"power_draw"`
+	PowerNeeded       basetypes.Int64Value  `tfsdk:"power_needed"`
+	PowerOpmode       basetypes.StringValue `tfsdk:"power_opmode"`
 	PowerRequestCount basetypes.Int64Value  `tfsdk:"power_request_count"`
 	PowerRequested    basetypes.NumberValue `tfsdk:"power_requested"`
+	PowerSrc          basetypes.StringValue `tfsdk:"power_src"`
+	PowerSrcs         basetypes.ListValue   `tfsdk:"power_srcs"`
 	SystemDesc        basetypes.StringValue `tfsdk:"system_desc"`
 	SystemName        basetypes.StringValue `tfsdk:"system_name"`
 	state             attr.ValueState
 }
 
 func (v LldpStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 12)
+	attrTypes := make(map[string]tftypes.Type, 19)
 
 	var val tftypes.Value
 	var err error
@@ -16613,9 +17570,18 @@ func (v LldpStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["port_desc"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["port_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["power_allocated"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["power_avail"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_budget"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_constrained"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["power_draw"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["power_needed"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_opmode"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["power_request_count"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["power_requested"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["power_src"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["power_srcs"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["system_desc"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["system_name"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -16623,7 +17589,7 @@ func (v LldpStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 12)
+		vals := make(map[string]tftypes.Value, 19)
 
 		val, err = v.ChassisId.ToTerraformValue(ctx)
 
@@ -16681,6 +17647,30 @@ func (v LldpStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 		vals["power_allocated"] = val
 
+		val, err = v.PowerAvail.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_avail"] = val
+
+		val, err = v.PowerBudget.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_budget"] = val
+
+		val, err = v.PowerConstrained.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_constrained"] = val
+
 		val, err = v.PowerDraw.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -16688,6 +17678,22 @@ func (v LldpStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["power_draw"] = val
+
+		val, err = v.PowerNeeded.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_needed"] = val
+
+		val, err = v.PowerOpmode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_opmode"] = val
 
 		val, err = v.PowerRequestCount.ToTerraformValue(ctx)
 
@@ -16704,6 +17710,22 @@ func (v LldpStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["power_requested"] = val
+
+		val, err = v.PowerSrc.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_src"] = val
+
+		val, err = v.PowerSrcs.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_srcs"] = val
 
 		val, err = v.SystemDesc.ToTerraformValue(ctx)
 
@@ -16750,11 +17772,19 @@ func (v LldpStatValue) String() string {
 func (v LldpStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	mgmtAddrsVal, d := types.ListValue(types.StringType, v.MgmtAddrs.Elements())
+	var mgmtAddrsVal basetypes.ListValue
+	switch {
+	case v.MgmtAddrs.IsUnknown():
+		mgmtAddrsVal = types.ListUnknown(types.StringType)
+	case v.MgmtAddrs.IsNull():
+		mgmtAddrsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		mgmtAddrsVal, d = types.ListValue(types.StringType, v.MgmtAddrs.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"chassis_id":         basetypes.StringType{},
 			"lldp_med_supported": basetypes.BoolType{},
@@ -16765,11 +17795,60 @@ func (v LldpStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"port_desc":           basetypes.StringType{},
 			"port_id":             basetypes.StringType{},
 			"power_allocated":     basetypes.NumberType{},
+			"power_avail":         basetypes.Int64Type{},
+			"power_budget":        basetypes.Int64Type{},
+			"power_constrained":   basetypes.BoolType{},
 			"power_draw":          basetypes.NumberType{},
+			"power_needed":        basetypes.Int64Type{},
+			"power_opmode":        basetypes.StringType{},
 			"power_request_count": basetypes.Int64Type{},
 			"power_requested":     basetypes.NumberType{},
-			"system_desc":         basetypes.StringType{},
-			"system_name":         basetypes.StringType{},
+			"power_src":           basetypes.StringType{},
+			"power_srcs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"system_desc": basetypes.StringType{},
+			"system_name": basetypes.StringType{},
+		}), diags
+	}
+
+	var powerSrcsVal basetypes.ListValue
+	switch {
+	case v.PowerSrcs.IsUnknown():
+		powerSrcsVal = types.ListUnknown(types.StringType)
+	case v.PowerSrcs.IsNull():
+		powerSrcsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		powerSrcsVal, d = types.ListValue(types.StringType, v.PowerSrcs.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"chassis_id":         basetypes.StringType{},
+			"lldp_med_supported": basetypes.BoolType{},
+			"mgmt_addr":          basetypes.StringType{},
+			"mgmt_addrs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_desc":           basetypes.StringType{},
+			"port_id":             basetypes.StringType{},
+			"power_allocated":     basetypes.NumberType{},
+			"power_avail":         basetypes.Int64Type{},
+			"power_budget":        basetypes.Int64Type{},
+			"power_constrained":   basetypes.BoolType{},
+			"power_draw":          basetypes.NumberType{},
+			"power_needed":        basetypes.Int64Type{},
+			"power_opmode":        basetypes.StringType{},
+			"power_request_count": basetypes.Int64Type{},
+			"power_requested":     basetypes.NumberType{},
+			"power_src":           basetypes.StringType{},
+			"power_srcs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"system_desc": basetypes.StringType{},
+			"system_name": basetypes.StringType{},
 		}), diags
 	}
 
@@ -16783,11 +17862,20 @@ func (v LldpStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		"port_desc":           basetypes.StringType{},
 		"port_id":             basetypes.StringType{},
 		"power_allocated":     basetypes.NumberType{},
+		"power_avail":         basetypes.Int64Type{},
+		"power_budget":        basetypes.Int64Type{},
+		"power_constrained":   basetypes.BoolType{},
 		"power_draw":          basetypes.NumberType{},
+		"power_needed":        basetypes.Int64Type{},
+		"power_opmode":        basetypes.StringType{},
 		"power_request_count": basetypes.Int64Type{},
 		"power_requested":     basetypes.NumberType{},
-		"system_desc":         basetypes.StringType{},
-		"system_name":         basetypes.StringType{},
+		"power_src":           basetypes.StringType{},
+		"power_srcs": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"system_desc": basetypes.StringType{},
+		"system_name": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -16808,9 +17896,16 @@ func (v LldpStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"port_desc":           v.PortDesc,
 			"port_id":             v.PortId,
 			"power_allocated":     v.PowerAllocated,
+			"power_avail":         v.PowerAvail,
+			"power_budget":        v.PowerBudget,
+			"power_constrained":   v.PowerConstrained,
 			"power_draw":          v.PowerDraw,
+			"power_needed":        v.PowerNeeded,
+			"power_opmode":        v.PowerOpmode,
 			"power_request_count": v.PowerRequestCount,
 			"power_requested":     v.PowerRequested,
+			"power_src":           v.PowerSrc,
+			"power_srcs":          powerSrcsVal,
 			"system_desc":         v.SystemDesc,
 			"system_name":         v.SystemName,
 		})
@@ -16861,7 +17956,27 @@ func (v LldpStatValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.PowerAvail.Equal(other.PowerAvail) {
+		return false
+	}
+
+	if !v.PowerBudget.Equal(other.PowerBudget) {
+		return false
+	}
+
+	if !v.PowerConstrained.Equal(other.PowerConstrained) {
+		return false
+	}
+
 	if !v.PowerDraw.Equal(other.PowerDraw) {
+		return false
+	}
+
+	if !v.PowerNeeded.Equal(other.PowerNeeded) {
+		return false
+	}
+
+	if !v.PowerOpmode.Equal(other.PowerOpmode) {
 		return false
 	}
 
@@ -16870,6 +17985,14 @@ func (v LldpStatValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.PowerRequested.Equal(other.PowerRequested) {
+		return false
+	}
+
+	if !v.PowerSrc.Equal(other.PowerSrc) {
+		return false
+	}
+
+	if !v.PowerSrcs.Equal(other.PowerSrcs) {
 		return false
 	}
 
@@ -16903,11 +18026,1426 @@ func (v LldpStatValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"port_desc":           basetypes.StringType{},
 		"port_id":             basetypes.StringType{},
 		"power_allocated":     basetypes.NumberType{},
+		"power_avail":         basetypes.Int64Type{},
+		"power_budget":        basetypes.Int64Type{},
+		"power_constrained":   basetypes.BoolType{},
 		"power_draw":          basetypes.NumberType{},
+		"power_needed":        basetypes.Int64Type{},
+		"power_opmode":        basetypes.StringType{},
 		"power_request_count": basetypes.Int64Type{},
 		"power_requested":     basetypes.NumberType{},
-		"system_desc":         basetypes.StringType{},
-		"system_name":         basetypes.StringType{},
+		"power_src":           basetypes.StringType{},
+		"power_srcs": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"system_desc": basetypes.StringType{},
+		"system_name": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = LldpStatsType{}
+
+type LldpStatsType struct {
+	basetypes.ObjectType
+}
+
+func (t LldpStatsType) Equal(o attr.Type) bool {
+	other, ok := o.(LldpStatsType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t LldpStatsType) String() string {
+	return "LldpStatsType"
+}
+
+func (t LldpStatsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	chassisIdAttribute, ok := attributes["chassis_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`chassis_id is missing from object`)
+
+		return nil, diags
+	}
+
+	chassisIdVal, ok := chassisIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`chassis_id expected to be basetypes.StringValue, was: %T`, chassisIdAttribute))
+	}
+
+	lldpMedSupportedAttribute, ok := attributes["lldp_med_supported"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`lldp_med_supported is missing from object`)
+
+		return nil, diags
+	}
+
+	lldpMedSupportedVal, ok := lldpMedSupportedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`lldp_med_supported expected to be basetypes.BoolValue, was: %T`, lldpMedSupportedAttribute))
+	}
+
+	mgmtAddrAttribute, ok := attributes["mgmt_addr"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mgmt_addr is missing from object`)
+
+		return nil, diags
+	}
+
+	mgmtAddrVal, ok := mgmtAddrAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mgmt_addr expected to be basetypes.StringValue, was: %T`, mgmtAddrAttribute))
+	}
+
+	mgmtAddrsAttribute, ok := attributes["mgmt_addrs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mgmt_addrs is missing from object`)
+
+		return nil, diags
+	}
+
+	mgmtAddrsVal, ok := mgmtAddrsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mgmt_addrs expected to be basetypes.ListValue, was: %T`, mgmtAddrsAttribute))
+	}
+
+	portDescAttribute, ok := attributes["port_desc"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_desc is missing from object`)
+
+		return nil, diags
+	}
+
+	portDescVal, ok := portDescAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_desc expected to be basetypes.StringValue, was: %T`, portDescAttribute))
+	}
+
+	portIdAttribute, ok := attributes["port_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_id is missing from object`)
+
+		return nil, diags
+	}
+
+	portIdVal, ok := portIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_id expected to be basetypes.StringValue, was: %T`, portIdAttribute))
+	}
+
+	powerAllocatedAttribute, ok := attributes["power_allocated"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_allocated is missing from object`)
+
+		return nil, diags
+	}
+
+	powerAllocatedVal, ok := powerAllocatedAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_allocated expected to be basetypes.NumberValue, was: %T`, powerAllocatedAttribute))
+	}
+
+	powerAvailAttribute, ok := attributes["power_avail"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_avail is missing from object`)
+
+		return nil, diags
+	}
+
+	powerAvailVal, ok := powerAvailAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_avail expected to be basetypes.Int64Value, was: %T`, powerAvailAttribute))
+	}
+
+	powerBudgetAttribute, ok := attributes["power_budget"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_budget is missing from object`)
+
+		return nil, diags
+	}
+
+	powerBudgetVal, ok := powerBudgetAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_budget expected to be basetypes.Int64Value, was: %T`, powerBudgetAttribute))
+	}
+
+	powerConstrainedAttribute, ok := attributes["power_constrained"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_constrained is missing from object`)
+
+		return nil, diags
+	}
+
+	powerConstrainedVal, ok := powerConstrainedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_constrained expected to be basetypes.BoolValue, was: %T`, powerConstrainedAttribute))
+	}
+
+	powerDrawAttribute, ok := attributes["power_draw"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_draw is missing from object`)
+
+		return nil, diags
+	}
+
+	powerDrawVal, ok := powerDrawAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_draw expected to be basetypes.NumberValue, was: %T`, powerDrawAttribute))
+	}
+
+	powerNeededAttribute, ok := attributes["power_needed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_needed is missing from object`)
+
+		return nil, diags
+	}
+
+	powerNeededVal, ok := powerNeededAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_needed expected to be basetypes.Int64Value, was: %T`, powerNeededAttribute))
+	}
+
+	powerOpmodeAttribute, ok := attributes["power_opmode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_opmode is missing from object`)
+
+		return nil, diags
+	}
+
+	powerOpmodeVal, ok := powerOpmodeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_opmode expected to be basetypes.StringValue, was: %T`, powerOpmodeAttribute))
+	}
+
+	powerRequestCountAttribute, ok := attributes["power_request_count"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_request_count is missing from object`)
+
+		return nil, diags
+	}
+
+	powerRequestCountVal, ok := powerRequestCountAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_request_count expected to be basetypes.Int64Value, was: %T`, powerRequestCountAttribute))
+	}
+
+	powerRequestedAttribute, ok := attributes["power_requested"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_requested is missing from object`)
+
+		return nil, diags
+	}
+
+	powerRequestedVal, ok := powerRequestedAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_requested expected to be basetypes.NumberValue, was: %T`, powerRequestedAttribute))
+	}
+
+	powerSrcAttribute, ok := attributes["power_src"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_src is missing from object`)
+
+		return nil, diags
+	}
+
+	powerSrcVal, ok := powerSrcAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_src expected to be basetypes.StringValue, was: %T`, powerSrcAttribute))
+	}
+
+	powerSrcsAttribute, ok := attributes["power_srcs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_srcs is missing from object`)
+
+		return nil, diags
+	}
+
+	powerSrcsVal, ok := powerSrcsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_srcs expected to be basetypes.ListValue, was: %T`, powerSrcsAttribute))
+	}
+
+	systemDescAttribute, ok := attributes["system_desc"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`system_desc is missing from object`)
+
+		return nil, diags
+	}
+
+	systemDescVal, ok := systemDescAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`system_desc expected to be basetypes.StringValue, was: %T`, systemDescAttribute))
+	}
+
+	systemNameAttribute, ok := attributes["system_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`system_name is missing from object`)
+
+		return nil, diags
+	}
+
+	systemNameVal, ok := systemNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`system_name expected to be basetypes.StringValue, was: %T`, systemNameAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return LldpStatsValue{
+		ChassisId:         chassisIdVal,
+		LldpMedSupported:  lldpMedSupportedVal,
+		MgmtAddr:          mgmtAddrVal,
+		MgmtAddrs:         mgmtAddrsVal,
+		PortDesc:          portDescVal,
+		PortId:            portIdVal,
+		PowerAllocated:    powerAllocatedVal,
+		PowerAvail:        powerAvailVal,
+		PowerBudget:       powerBudgetVal,
+		PowerConstrained:  powerConstrainedVal,
+		PowerDraw:         powerDrawVal,
+		PowerNeeded:       powerNeededVal,
+		PowerOpmode:       powerOpmodeVal,
+		PowerRequestCount: powerRequestCountVal,
+		PowerRequested:    powerRequestedVal,
+		PowerSrc:          powerSrcVal,
+		PowerSrcs:         powerSrcsVal,
+		SystemDesc:        systemDescVal,
+		SystemName:        systemNameVal,
+		state:             attr.ValueStateKnown,
+	}, diags
+}
+
+func NewLldpStatsValueNull() LldpStatsValue {
+	return LldpStatsValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewLldpStatsValueUnknown() LldpStatsValue {
+	return LldpStatsValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewLldpStatsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (LldpStatsValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing LldpStatsValue Attribute Value",
+				"While creating a LldpStatsValue value, a missing attribute value was detected. "+
+					"A LldpStatsValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("LldpStatsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid LldpStatsValue Attribute Type",
+				"While creating a LldpStatsValue value, an invalid attribute value was detected. "+
+					"A LldpStatsValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("LldpStatsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("LldpStatsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra LldpStatsValue Attribute Value",
+				"While creating a LldpStatsValue value, an extra attribute value was detected. "+
+					"A LldpStatsValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra LldpStatsValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	chassisIdAttribute, ok := attributes["chassis_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`chassis_id is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	chassisIdVal, ok := chassisIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`chassis_id expected to be basetypes.StringValue, was: %T`, chassisIdAttribute))
+	}
+
+	lldpMedSupportedAttribute, ok := attributes["lldp_med_supported"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`lldp_med_supported is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	lldpMedSupportedVal, ok := lldpMedSupportedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`lldp_med_supported expected to be basetypes.BoolValue, was: %T`, lldpMedSupportedAttribute))
+	}
+
+	mgmtAddrAttribute, ok := attributes["mgmt_addr"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mgmt_addr is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	mgmtAddrVal, ok := mgmtAddrAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mgmt_addr expected to be basetypes.StringValue, was: %T`, mgmtAddrAttribute))
+	}
+
+	mgmtAddrsAttribute, ok := attributes["mgmt_addrs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mgmt_addrs is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	mgmtAddrsVal, ok := mgmtAddrsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mgmt_addrs expected to be basetypes.ListValue, was: %T`, mgmtAddrsAttribute))
+	}
+
+	portDescAttribute, ok := attributes["port_desc"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_desc is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	portDescVal, ok := portDescAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_desc expected to be basetypes.StringValue, was: %T`, portDescAttribute))
+	}
+
+	portIdAttribute, ok := attributes["port_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port_id is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	portIdVal, ok := portIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port_id expected to be basetypes.StringValue, was: %T`, portIdAttribute))
+	}
+
+	powerAllocatedAttribute, ok := attributes["power_allocated"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_allocated is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	powerAllocatedVal, ok := powerAllocatedAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_allocated expected to be basetypes.NumberValue, was: %T`, powerAllocatedAttribute))
+	}
+
+	powerAvailAttribute, ok := attributes["power_avail"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_avail is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	powerAvailVal, ok := powerAvailAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_avail expected to be basetypes.Int64Value, was: %T`, powerAvailAttribute))
+	}
+
+	powerBudgetAttribute, ok := attributes["power_budget"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_budget is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	powerBudgetVal, ok := powerBudgetAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_budget expected to be basetypes.Int64Value, was: %T`, powerBudgetAttribute))
+	}
+
+	powerConstrainedAttribute, ok := attributes["power_constrained"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_constrained is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	powerConstrainedVal, ok := powerConstrainedAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_constrained expected to be basetypes.BoolValue, was: %T`, powerConstrainedAttribute))
+	}
+
+	powerDrawAttribute, ok := attributes["power_draw"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_draw is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	powerDrawVal, ok := powerDrawAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_draw expected to be basetypes.NumberValue, was: %T`, powerDrawAttribute))
+	}
+
+	powerNeededAttribute, ok := attributes["power_needed"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_needed is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	powerNeededVal, ok := powerNeededAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_needed expected to be basetypes.Int64Value, was: %T`, powerNeededAttribute))
+	}
+
+	powerOpmodeAttribute, ok := attributes["power_opmode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_opmode is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	powerOpmodeVal, ok := powerOpmodeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_opmode expected to be basetypes.StringValue, was: %T`, powerOpmodeAttribute))
+	}
+
+	powerRequestCountAttribute, ok := attributes["power_request_count"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_request_count is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	powerRequestCountVal, ok := powerRequestCountAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_request_count expected to be basetypes.Int64Value, was: %T`, powerRequestCountAttribute))
+	}
+
+	powerRequestedAttribute, ok := attributes["power_requested"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_requested is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	powerRequestedVal, ok := powerRequestedAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_requested expected to be basetypes.NumberValue, was: %T`, powerRequestedAttribute))
+	}
+
+	powerSrcAttribute, ok := attributes["power_src"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_src is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	powerSrcVal, ok := powerSrcAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_src expected to be basetypes.StringValue, was: %T`, powerSrcAttribute))
+	}
+
+	powerSrcsAttribute, ok := attributes["power_srcs"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`power_srcs is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	powerSrcsVal, ok := powerSrcsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`power_srcs expected to be basetypes.ListValue, was: %T`, powerSrcsAttribute))
+	}
+
+	systemDescAttribute, ok := attributes["system_desc"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`system_desc is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	systemDescVal, ok := systemDescAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`system_desc expected to be basetypes.StringValue, was: %T`, systemDescAttribute))
+	}
+
+	systemNameAttribute, ok := attributes["system_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`system_name is missing from object`)
+
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	systemNameVal, ok := systemNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`system_name expected to be basetypes.StringValue, was: %T`, systemNameAttribute))
+	}
+
+	if diags.HasError() {
+		return NewLldpStatsValueUnknown(), diags
+	}
+
+	return LldpStatsValue{
+		ChassisId:         chassisIdVal,
+		LldpMedSupported:  lldpMedSupportedVal,
+		MgmtAddr:          mgmtAddrVal,
+		MgmtAddrs:         mgmtAddrsVal,
+		PortDesc:          portDescVal,
+		PortId:            portIdVal,
+		PowerAllocated:    powerAllocatedVal,
+		PowerAvail:        powerAvailVal,
+		PowerBudget:       powerBudgetVal,
+		PowerConstrained:  powerConstrainedVal,
+		PowerDraw:         powerDrawVal,
+		PowerNeeded:       powerNeededVal,
+		PowerOpmode:       powerOpmodeVal,
+		PowerRequestCount: powerRequestCountVal,
+		PowerRequested:    powerRequestedVal,
+		PowerSrc:          powerSrcVal,
+		PowerSrcs:         powerSrcsVal,
+		SystemDesc:        systemDescVal,
+		SystemName:        systemNameVal,
+		state:             attr.ValueStateKnown,
+	}, diags
+}
+
+func NewLldpStatsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) LldpStatsValue {
+	object, diags := NewLldpStatsValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewLldpStatsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t LldpStatsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewLldpStatsValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewLldpStatsValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewLldpStatsValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewLldpStatsValueMust(LldpStatsValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t LldpStatsType) ValueType(ctx context.Context) attr.Value {
+	return LldpStatsValue{}
+}
+
+var _ basetypes.ObjectValuable = LldpStatsValue{}
+
+type LldpStatsValue struct {
+	ChassisId         basetypes.StringValue `tfsdk:"chassis_id"`
+	LldpMedSupported  basetypes.BoolValue   `tfsdk:"lldp_med_supported"`
+	MgmtAddr          basetypes.StringValue `tfsdk:"mgmt_addr"`
+	MgmtAddrs         basetypes.ListValue   `tfsdk:"mgmt_addrs"`
+	PortDesc          basetypes.StringValue `tfsdk:"port_desc"`
+	PortId            basetypes.StringValue `tfsdk:"port_id"`
+	PowerAllocated    basetypes.NumberValue `tfsdk:"power_allocated"`
+	PowerAvail        basetypes.Int64Value  `tfsdk:"power_avail"`
+	PowerBudget       basetypes.Int64Value  `tfsdk:"power_budget"`
+	PowerConstrained  basetypes.BoolValue   `tfsdk:"power_constrained"`
+	PowerDraw         basetypes.NumberValue `tfsdk:"power_draw"`
+	PowerNeeded       basetypes.Int64Value  `tfsdk:"power_needed"`
+	PowerOpmode       basetypes.StringValue `tfsdk:"power_opmode"`
+	PowerRequestCount basetypes.Int64Value  `tfsdk:"power_request_count"`
+	PowerRequested    basetypes.NumberValue `tfsdk:"power_requested"`
+	PowerSrc          basetypes.StringValue `tfsdk:"power_src"`
+	PowerSrcs         basetypes.ListValue   `tfsdk:"power_srcs"`
+	SystemDesc        basetypes.StringValue `tfsdk:"system_desc"`
+	SystemName        basetypes.StringValue `tfsdk:"system_name"`
+	state             attr.ValueState
+}
+
+func (v LldpStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 19)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["chassis_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["lldp_med_supported"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["mgmt_addr"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["mgmt_addrs"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["port_desc"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["port_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["power_allocated"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["power_avail"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_budget"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_constrained"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["power_draw"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["power_needed"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_opmode"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["power_request_count"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["power_requested"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["power_src"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["power_srcs"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["system_desc"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["system_name"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 19)
+
+		val, err = v.ChassisId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["chassis_id"] = val
+
+		val, err = v.LldpMedSupported.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["lldp_med_supported"] = val
+
+		val, err = v.MgmtAddr.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mgmt_addr"] = val
+
+		val, err = v.MgmtAddrs.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mgmt_addrs"] = val
+
+		val, err = v.PortDesc.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port_desc"] = val
+
+		val, err = v.PortId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port_id"] = val
+
+		val, err = v.PowerAllocated.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_allocated"] = val
+
+		val, err = v.PowerAvail.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_avail"] = val
+
+		val, err = v.PowerBudget.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_budget"] = val
+
+		val, err = v.PowerConstrained.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_constrained"] = val
+
+		val, err = v.PowerDraw.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_draw"] = val
+
+		val, err = v.PowerNeeded.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_needed"] = val
+
+		val, err = v.PowerOpmode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_opmode"] = val
+
+		val, err = v.PowerRequestCount.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_request_count"] = val
+
+		val, err = v.PowerRequested.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_requested"] = val
+
+		val, err = v.PowerSrc.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_src"] = val
+
+		val, err = v.PowerSrcs.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["power_srcs"] = val
+
+		val, err = v.SystemDesc.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["system_desc"] = val
+
+		val, err = v.SystemName.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["system_name"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v LldpStatsValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v LldpStatsValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v LldpStatsValue) String() string {
+	return "LldpStatsValue"
+}
+
+func (v LldpStatsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var mgmtAddrsVal basetypes.ListValue
+	switch {
+	case v.MgmtAddrs.IsUnknown():
+		mgmtAddrsVal = types.ListUnknown(types.StringType)
+	case v.MgmtAddrs.IsNull():
+		mgmtAddrsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		mgmtAddrsVal, d = types.ListValue(types.StringType, v.MgmtAddrs.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"chassis_id":         basetypes.StringType{},
+			"lldp_med_supported": basetypes.BoolType{},
+			"mgmt_addr":          basetypes.StringType{},
+			"mgmt_addrs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_desc":           basetypes.StringType{},
+			"port_id":             basetypes.StringType{},
+			"power_allocated":     basetypes.NumberType{},
+			"power_avail":         basetypes.Int64Type{},
+			"power_budget":        basetypes.Int64Type{},
+			"power_constrained":   basetypes.BoolType{},
+			"power_draw":          basetypes.NumberType{},
+			"power_needed":        basetypes.Int64Type{},
+			"power_opmode":        basetypes.StringType{},
+			"power_request_count": basetypes.Int64Type{},
+			"power_requested":     basetypes.NumberType{},
+			"power_src":           basetypes.StringType{},
+			"power_srcs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"system_desc": basetypes.StringType{},
+			"system_name": basetypes.StringType{},
+		}), diags
+	}
+
+	var powerSrcsVal basetypes.ListValue
+	switch {
+	case v.PowerSrcs.IsUnknown():
+		powerSrcsVal = types.ListUnknown(types.StringType)
+	case v.PowerSrcs.IsNull():
+		powerSrcsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		powerSrcsVal, d = types.ListValue(types.StringType, v.PowerSrcs.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"chassis_id":         basetypes.StringType{},
+			"lldp_med_supported": basetypes.BoolType{},
+			"mgmt_addr":          basetypes.StringType{},
+			"mgmt_addrs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"port_desc":           basetypes.StringType{},
+			"port_id":             basetypes.StringType{},
+			"power_allocated":     basetypes.NumberType{},
+			"power_avail":         basetypes.Int64Type{},
+			"power_budget":        basetypes.Int64Type{},
+			"power_constrained":   basetypes.BoolType{},
+			"power_draw":          basetypes.NumberType{},
+			"power_needed":        basetypes.Int64Type{},
+			"power_opmode":        basetypes.StringType{},
+			"power_request_count": basetypes.Int64Type{},
+			"power_requested":     basetypes.NumberType{},
+			"power_src":           basetypes.StringType{},
+			"power_srcs": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"system_desc": basetypes.StringType{},
+			"system_name": basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"chassis_id":         basetypes.StringType{},
+		"lldp_med_supported": basetypes.BoolType{},
+		"mgmt_addr":          basetypes.StringType{},
+		"mgmt_addrs": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"port_desc":           basetypes.StringType{},
+		"port_id":             basetypes.StringType{},
+		"power_allocated":     basetypes.NumberType{},
+		"power_avail":         basetypes.Int64Type{},
+		"power_budget":        basetypes.Int64Type{},
+		"power_constrained":   basetypes.BoolType{},
+		"power_draw":          basetypes.NumberType{},
+		"power_needed":        basetypes.Int64Type{},
+		"power_opmode":        basetypes.StringType{},
+		"power_request_count": basetypes.Int64Type{},
+		"power_requested":     basetypes.NumberType{},
+		"power_src":           basetypes.StringType{},
+		"power_srcs": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"system_desc": basetypes.StringType{},
+		"system_name": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"chassis_id":          v.ChassisId,
+			"lldp_med_supported":  v.LldpMedSupported,
+			"mgmt_addr":           v.MgmtAddr,
+			"mgmt_addrs":          mgmtAddrsVal,
+			"port_desc":           v.PortDesc,
+			"port_id":             v.PortId,
+			"power_allocated":     v.PowerAllocated,
+			"power_avail":         v.PowerAvail,
+			"power_budget":        v.PowerBudget,
+			"power_constrained":   v.PowerConstrained,
+			"power_draw":          v.PowerDraw,
+			"power_needed":        v.PowerNeeded,
+			"power_opmode":        v.PowerOpmode,
+			"power_request_count": v.PowerRequestCount,
+			"power_requested":     v.PowerRequested,
+			"power_src":           v.PowerSrc,
+			"power_srcs":          powerSrcsVal,
+			"system_desc":         v.SystemDesc,
+			"system_name":         v.SystemName,
+		})
+
+	return objVal, diags
+}
+
+func (v LldpStatsValue) Equal(o attr.Value) bool {
+	other, ok := o.(LldpStatsValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.ChassisId.Equal(other.ChassisId) {
+		return false
+	}
+
+	if !v.LldpMedSupported.Equal(other.LldpMedSupported) {
+		return false
+	}
+
+	if !v.MgmtAddr.Equal(other.MgmtAddr) {
+		return false
+	}
+
+	if !v.MgmtAddrs.Equal(other.MgmtAddrs) {
+		return false
+	}
+
+	if !v.PortDesc.Equal(other.PortDesc) {
+		return false
+	}
+
+	if !v.PortId.Equal(other.PortId) {
+		return false
+	}
+
+	if !v.PowerAllocated.Equal(other.PowerAllocated) {
+		return false
+	}
+
+	if !v.PowerAvail.Equal(other.PowerAvail) {
+		return false
+	}
+
+	if !v.PowerBudget.Equal(other.PowerBudget) {
+		return false
+	}
+
+	if !v.PowerConstrained.Equal(other.PowerConstrained) {
+		return false
+	}
+
+	if !v.PowerDraw.Equal(other.PowerDraw) {
+		return false
+	}
+
+	if !v.PowerNeeded.Equal(other.PowerNeeded) {
+		return false
+	}
+
+	if !v.PowerOpmode.Equal(other.PowerOpmode) {
+		return false
+	}
+
+	if !v.PowerRequestCount.Equal(other.PowerRequestCount) {
+		return false
+	}
+
+	if !v.PowerRequested.Equal(other.PowerRequested) {
+		return false
+	}
+
+	if !v.PowerSrc.Equal(other.PowerSrc) {
+		return false
+	}
+
+	if !v.PowerSrcs.Equal(other.PowerSrcs) {
+		return false
+	}
+
+	if !v.SystemDesc.Equal(other.SystemDesc) {
+		return false
+	}
+
+	if !v.SystemName.Equal(other.SystemName) {
+		return false
+	}
+
+	return true
+}
+
+func (v LldpStatsValue) Type(ctx context.Context) attr.Type {
+	return LldpStatsType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v LldpStatsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"chassis_id":         basetypes.StringType{},
+		"lldp_med_supported": basetypes.BoolType{},
+		"mgmt_addr":          basetypes.StringType{},
+		"mgmt_addrs": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"port_desc":           basetypes.StringType{},
+		"port_id":             basetypes.StringType{},
+		"power_allocated":     basetypes.NumberType{},
+		"power_avail":         basetypes.Int64Type{},
+		"power_budget":        basetypes.Int64Type{},
+		"power_constrained":   basetypes.BoolType{},
+		"power_draw":          basetypes.NumberType{},
+		"power_needed":        basetypes.Int64Type{},
+		"power_opmode":        basetypes.StringType{},
+		"power_request_count": basetypes.Int64Type{},
+		"power_requested":     basetypes.NumberType{},
+		"power_src":           basetypes.StringType{},
+		"power_srcs": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"system_desc": basetypes.StringType{},
+		"system_name": basetypes.StringType{},
 	}
 }
 

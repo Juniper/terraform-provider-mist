@@ -23,7 +23,14 @@ func lldpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	var portDesc basetypes.StringValue
 	var portId basetypes.StringValue
 	var powerAllocated basetypes.NumberValue
+	var powerAvail basetypes.Int64Value
+	var powerBudget basetypes.Int64Value
+	var powerConstrained basetypes.BoolValue
 	var powerDraw basetypes.NumberValue
+	var powerNeeded basetypes.Int64Value
+	var powerOpmode basetypes.StringValue
+	var powerSrc basetypes.StringValue
+	var powerSrcs = types.ListNull(types.StringType)
 	var powerRequestCount basetypes.Int64Value
 	var powerRequested basetypes.NumberValue
 	var systemDesc basetypes.StringValue
@@ -50,8 +57,29 @@ func lldpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	if d.PowerAllocated.Value() != nil {
 		powerAllocated = types.NumberValue(big.NewFloat(*d.PowerAllocated.Value()))
 	}
+	if d.PowerAvail != nil {
+		powerAvail = types.Int64Value(int64(*d.PowerAvail))
+	}
+	if d.PowerBudget != nil {
+		powerBudget = types.Int64Value(int64(*d.PowerBudget))
+	}
+	if d.PowerConstrained != nil {
+		powerConstrained = types.BoolValue(*d.PowerConstrained)
+	}
 	if d.PowerDraw.Value() != nil {
 		powerDraw = types.NumberValue(big.NewFloat(*d.PowerDraw.Value()))
+	}
+	if d.PowerNeeded != nil {
+		powerNeeded = types.Int64Value(int64(*d.PowerNeeded))
+	}
+	if d.PowerOpmode != nil {
+		powerOpmode = types.StringValue(*d.PowerOpmode)
+	}
+	if d.PowerSrc != nil {
+		powerSrc = types.StringValue(*d.PowerSrc)
+	}
+	if d.PowerSrcs != nil {
+		powerSrcs = mistutils.ListOfStringSdkToTerraform(d.PowerSrcs)
 	}
 	if d.PowerRequestCount.Value() != nil {
 		powerRequestCount = types.Int64Value(int64(*d.PowerRequestCount.Value()))
@@ -74,7 +102,14 @@ func lldpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 		"port_desc":           portDesc,
 		"port_id":             portId,
 		"power_allocated":     powerAllocated,
+		"power_avail":         powerAvail,
+		"power_budget":        powerBudget,
+		"power_constrained":   powerConstrained,
 		"power_draw":          powerDraw,
+		"power_needed":        powerNeeded,
+		"power_opmode":        powerOpmode,
+		"power_src":           powerSrc,
+		"power_srcs":          powerSrcs,
 		"power_request_count": powerRequestCount,
 		"power_requested":     powerRequested,
 		"system_desc":         systemDesc,
