@@ -26,6 +26,7 @@ func SdkToTerraform(ctx context.Context, l *[]models.Webhook, elements *[]attr.V
 
 func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Webhook) OrgWebhooksValue {
 
+	var assetFilterIds = types.ListNull(types.StringType)
 	var createdTime types.Float64
 	var enabled types.Bool
 	var headers = types.MapNull(types.StringType)
@@ -48,6 +49,13 @@ func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var url types.String
 	var verifyCert types.Bool
 
+	if len(d.AssetfilterIds) > 0 {
+		itemList := []attr.Value{}
+		for _, item := range d.AssetfilterIds {
+			itemList = append(itemList, types.StringValue(item.String()))
+		}
+		assetFilterIds, _ = types.ListValue(types.StringType, itemList)
+	}
 	if d.CreatedTime != nil {
 		createdTime = types.Float64Value(*d.CreatedTime)
 	}
@@ -125,6 +133,7 @@ func webhookSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"assetfilter_ids":          assetFilterIds,
 		"created_time":             createdTime,
 		"enabled":                  enabled,
 		"headers":                  headers,

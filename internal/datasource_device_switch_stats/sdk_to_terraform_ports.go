@@ -37,6 +37,7 @@ func portsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []model
 		var poeDisabled basetypes.BoolValue
 		var poeMode basetypes.StringValue
 		var poeOn basetypes.BoolValue
+		var poePriority basetypes.StringValue
 		var portId basetypes.StringValue
 		var portMac basetypes.StringValue
 		var portUsage basetypes.StringValue
@@ -126,6 +127,9 @@ func portsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []model
 		}
 		if d.PoeOn != nil {
 			poeOn = types.BoolValue(*d.PoeOn)
+		}
+		if d.PoePriority != nil {
+			poePriority = types.StringValue(string(*d.PoePriority))
 		}
 
 		portId = types.StringValue(d.PortId)
@@ -221,6 +225,7 @@ func portsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []model
 			"poe_disabled":         poeDisabled,
 			"poe_mode":             poeMode,
 			"poe_on":               poeOn,
+			"poe_priority":         poePriority,
 			"port_id":              portId,
 			"port_mac":             portMac,
 			"port_usage":           portUsage,

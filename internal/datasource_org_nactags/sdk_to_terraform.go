@@ -34,6 +34,7 @@ func nactagSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 	var match types.String
 	var matchAll types.Bool
 	var modifiedTime basetypes.Float64Value
+	var nacPortalId types.String
 	var name types.String
 	var orgId types.String
 	var radiusAttrs = types.ListNull(types.StringType)
@@ -62,6 +63,9 @@ func nactagSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 	}
 	if d.Match != nil {
 		match = types.StringValue(string(*d.Match))
+	}
+	if d.NacportalId != nil {
+		nacPortalId = types.StringValue(d.NacportalId.String())
 	}
 	if d.MatchAll != nil {
 		matchAll = types.BoolValue(*d.MatchAll)
@@ -109,6 +113,7 @@ func nactagSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 		"match":                  match,
 		"match_all":              matchAll,
 		"modified_time":          modifiedTime,
+		"nacportal_id":           nacPortalId,
 		"name":                   name,
 		"org_id":                 orgId,
 		"radius_attrs":           radiusAttrs,

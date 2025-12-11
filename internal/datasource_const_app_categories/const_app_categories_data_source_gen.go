@@ -508,11 +508,19 @@ func (v ConstAppCategoriesValue) ToObjectValue(ctx context.Context) (basetypes.O
 		)
 	}
 
-	includesVal, d := types.ListValue(types.StringType, v.Includes.Elements())
+	var includesVal basetypes.ListValue
+	switch {
+	case v.Includes.IsUnknown():
+		includesVal = types.ListUnknown(types.StringType)
+	case v.Includes.IsNull():
+		includesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		includesVal, d = types.ListValue(types.StringType, v.Includes.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"display": basetypes.StringType{},
 			"filters": basetypes.ObjectType{
@@ -930,11 +938,19 @@ func (v FiltersValue) String() string {
 func (v FiltersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	srxVal, d := types.ListValue(types.StringType, v.Srx.Elements())
+	var srxVal basetypes.ListValue
+	switch {
+	case v.Srx.IsUnknown():
+		srxVal = types.ListUnknown(types.StringType)
+	case v.Srx.IsNull():
+		srxVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		srxVal, d = types.ListValue(types.StringType, v.Srx.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"srx": basetypes.ListType{
 				ElemType: types.StringType,
@@ -945,11 +961,19 @@ func (v FiltersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		}), diags
 	}
 
-	ssrVal, d := types.ListValue(types.StringType, v.Ssr.Elements())
+	var ssrVal basetypes.ListValue
+	switch {
+	case v.Ssr.IsUnknown():
+		ssrVal = types.ListUnknown(types.StringType)
+	case v.Ssr.IsNull():
+		ssrVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		ssrVal, d = types.ListValue(types.StringType, v.Ssr.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"srx": basetypes.ListType{
 				ElemType: types.StringType,

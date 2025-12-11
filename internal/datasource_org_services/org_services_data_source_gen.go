@@ -27,8 +27,8 @@ func OrgServicesDataSourceSchema(ctx context.Context) schema.Schema {
 						"addresses": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Computed:            true,
-							Description:         "If `type`==`custom`, ip subnets (e.g. 10.0.0.0/8)",
-							MarkdownDescription: "If `type`==`custom`, ip subnets (e.g. 10.0.0.0/8)",
+							Description:         "If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)",
+							MarkdownDescription: "If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)",
 						},
 						"app_categories": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -50,13 +50,13 @@ func OrgServicesDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"client_limit_down": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "0 means unlimited",
-							MarkdownDescription: "0 means unlimited",
+							Description:         "0 means unlimited, value from 0 to 107374182",
+							MarkdownDescription: "0 means unlimited, value from 0 to 107374182",
 						},
 						"client_limit_up": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "0 means unlimited",
-							MarkdownDescription: "0 means unlimited",
+							Description:         "0 means unlimited, value from 0 to 107374182",
+							MarkdownDescription: "0 means unlimited, value from 0 to 107374182",
 						},
 						"created_time": schema.Float64Attribute{
 							Computed:            true,
@@ -71,8 +71,8 @@ func OrgServicesDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"failover_policy": schema.StringAttribute{
 							Computed:            true,
-							Description:         "enum: `non_revertable`, `none`, `revertable`",
-							MarkdownDescription: "enum: `non_revertable`, `none`, `revertable`",
+							Description:         "enum: `non_revertible`, `none`, `revertible`",
+							MarkdownDescription: "enum: `non_revertible`, `none`, `revertible`",
 						},
 						"hostnames": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -107,13 +107,13 @@ func OrgServicesDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"service_limit_down": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "0 means unlimited",
-							MarkdownDescription: "0 means unlimited",
+							Description:         "0 means unlimited, value from 0 to 107374182",
+							MarkdownDescription: "0 means unlimited, value from 0 to 107374182",
 						},
 						"service_limit_up": schema.Int64Attribute{
 							Computed:            true,
-							Description:         "0 means unlimited",
-							MarkdownDescription: "0 means unlimited",
+							Description:         "0 means unlimited, value from 0 to 107374182",
+							MarkdownDescription: "0 means unlimited, value from 0 to 107374182",
 						},
 						"sle_enabled": schema.BoolAttribute{
 							Computed:            true,
@@ -1744,11 +1744,19 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		)
 	}
 
-	addressesVal, d := types.ListValue(types.StringType, v.Addresses.Elements())
+	var addressesVal basetypes.ListValue
+	switch {
+	case v.Addresses.IsUnknown():
+		addressesVal = types.ListUnknown(types.StringType)
+	case v.Addresses.IsNull():
+		addressesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		addressesVal, d = types.ListValue(types.StringType, v.Addresses.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"addresses": basetypes.ListType{
 				ElemType: types.StringType,
@@ -1794,11 +1802,19 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		}), diags
 	}
 
-	appCategoriesVal, d := types.ListValue(types.StringType, v.AppCategories.Elements())
+	var appCategoriesVal basetypes.ListValue
+	switch {
+	case v.AppCategories.IsUnknown():
+		appCategoriesVal = types.ListUnknown(types.StringType)
+	case v.AppCategories.IsNull():
+		appCategoriesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		appCategoriesVal, d = types.ListValue(types.StringType, v.AppCategories.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"addresses": basetypes.ListType{
 				ElemType: types.StringType,
@@ -1844,11 +1860,19 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		}), diags
 	}
 
-	appSubcategoriesVal, d := types.ListValue(types.StringType, v.AppSubcategories.Elements())
+	var appSubcategoriesVal basetypes.ListValue
+	switch {
+	case v.AppSubcategories.IsUnknown():
+		appSubcategoriesVal = types.ListUnknown(types.StringType)
+	case v.AppSubcategories.IsNull():
+		appSubcategoriesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		appSubcategoriesVal, d = types.ListValue(types.StringType, v.AppSubcategories.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"addresses": basetypes.ListType{
 				ElemType: types.StringType,
@@ -1894,11 +1918,19 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		}), diags
 	}
 
-	appsVal, d := types.ListValue(types.StringType, v.Apps.Elements())
+	var appsVal basetypes.ListValue
+	switch {
+	case v.Apps.IsUnknown():
+		appsVal = types.ListUnknown(types.StringType)
+	case v.Apps.IsNull():
+		appsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		appsVal, d = types.ListValue(types.StringType, v.Apps.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"addresses": basetypes.ListType{
 				ElemType: types.StringType,
@@ -1944,11 +1976,19 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		}), diags
 	}
 
-	hostnamesVal, d := types.ListValue(types.StringType, v.Hostnames.Elements())
+	var hostnamesVal basetypes.ListValue
+	switch {
+	case v.Hostnames.IsUnknown():
+		hostnamesVal = types.ListUnknown(types.StringType)
+	case v.Hostnames.IsNull():
+		hostnamesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		hostnamesVal, d = types.ListValue(types.StringType, v.Hostnames.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"addresses": basetypes.ListType{
 				ElemType: types.StringType,
@@ -1994,11 +2034,19 @@ func (v OrgServicesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		}), diags
 	}
 
-	urlsVal, d := types.ListValue(types.StringType, v.Urls.Elements())
+	var urlsVal basetypes.ListValue
+	switch {
+	case v.Urls.IsUnknown():
+		urlsVal = types.ListUnknown(types.StringType)
+	case v.Urls.IsNull():
+		urlsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		urlsVal, d = types.ListValue(types.StringType, v.Urls.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"addresses": basetypes.ListType{
 				ElemType: types.StringType,

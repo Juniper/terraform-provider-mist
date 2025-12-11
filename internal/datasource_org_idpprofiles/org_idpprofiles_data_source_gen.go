@@ -1629,11 +1629,19 @@ func (v MatchingValue) String() string {
 func (v MatchingValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	attackNameVal, d := types.ListValue(types.StringType, v.AttackName.Elements())
+	var attackNameVal basetypes.ListValue
+	switch {
+	case v.AttackName.IsUnknown():
+		attackNameVal = types.ListUnknown(types.StringType)
+	case v.AttackName.IsNull():
+		attackNameVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		attackNameVal, d = types.ListValue(types.StringType, v.AttackName.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"attack_name": basetypes.ListType{
 				ElemType: types.StringType,
@@ -1647,11 +1655,19 @@ func (v MatchingValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		}), diags
 	}
 
-	dstSubnetVal, d := types.ListValue(types.StringType, v.DstSubnet.Elements())
+	var dstSubnetVal basetypes.ListValue
+	switch {
+	case v.DstSubnet.IsUnknown():
+		dstSubnetVal = types.ListUnknown(types.StringType)
+	case v.DstSubnet.IsNull():
+		dstSubnetVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		dstSubnetVal, d = types.ListValue(types.StringType, v.DstSubnet.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"attack_name": basetypes.ListType{
 				ElemType: types.StringType,
@@ -1665,11 +1681,19 @@ func (v MatchingValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		}), diags
 	}
 
-	severityVal, d := types.ListValue(types.StringType, v.Severity.Elements())
+	var severityVal basetypes.ListValue
+	switch {
+	case v.Severity.IsUnknown():
+		severityVal = types.ListUnknown(types.StringType)
+	case v.Severity.IsNull():
+		severityVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		severityVal, d = types.ListValue(types.StringType, v.Severity.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"attack_name": basetypes.ListType{
 				ElemType: types.StringType,

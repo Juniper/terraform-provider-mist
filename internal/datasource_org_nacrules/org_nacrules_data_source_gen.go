@@ -34,6 +34,11 @@ func OrgNacrulesDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Enabled or not",
 							MarkdownDescription: "Enabled or not",
 						},
+						"guest_auth_state": schema.StringAttribute{
+							Computed:            true,
+							Description:         "Guest portal authorization state. enum: `authorized`, `unknown`",
+							MarkdownDescription: "Guest portal authorization state. enum: `authorized`, `unknown`",
+						},
 						"id": schema.StringAttribute{
 							Computed:            true,
 							Description:         "Unique ID of the object instance in the Mist Organization",
@@ -134,6 +139,24 @@ func (t OrgNacrulesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
+	guestAuthStateAttribute, ok := attributes["guest_auth_state"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`guest_auth_state is missing from object`)
+
+		return nil, diags
+	}
+
+	guestAuthStateVal, ok := guestAuthStateAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`guest_auth_state expected to be basetypes.StringValue, was: %T`, guestAuthStateAttribute))
+	}
+
 	idAttribute, ok := attributes["id"]
 
 	if !ok {
@@ -229,14 +252,15 @@ func (t OrgNacrulesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 	}
 
 	return OrgNacrulesValue{
-		CreatedTime:  createdTimeVal,
-		Enabled:      enabledVal,
-		Id:           idVal,
-		ModifiedTime: modifiedTimeVal,
-		Name:         nameVal,
-		Order:        orderVal,
-		OrgId:        orgIdVal,
-		state:        attr.ValueStateKnown,
+		CreatedTime:    createdTimeVal,
+		Enabled:        enabledVal,
+		GuestAuthState: guestAuthStateVal,
+		Id:             idVal,
+		ModifiedTime:   modifiedTimeVal,
+		Name:           nameVal,
+		Order:          orderVal,
+		OrgId:          orgIdVal,
+		state:          attr.ValueStateKnown,
 	}, diags
 }
 
@@ -339,6 +363,24 @@ func NewOrgNacrulesValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
+	guestAuthStateAttribute, ok := attributes["guest_auth_state"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`guest_auth_state is missing from object`)
+
+		return NewOrgNacrulesValueUnknown(), diags
+	}
+
+	guestAuthStateVal, ok := guestAuthStateAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`guest_auth_state expected to be basetypes.StringValue, was: %T`, guestAuthStateAttribute))
+	}
+
 	idAttribute, ok := attributes["id"]
 
 	if !ok {
@@ -434,14 +476,15 @@ func NewOrgNacrulesValue(attributeTypes map[string]attr.Type, attributes map[str
 	}
 
 	return OrgNacrulesValue{
-		CreatedTime:  createdTimeVal,
-		Enabled:      enabledVal,
-		Id:           idVal,
-		ModifiedTime: modifiedTimeVal,
-		Name:         nameVal,
-		Order:        orderVal,
-		OrgId:        orgIdVal,
-		state:        attr.ValueStateKnown,
+		CreatedTime:    createdTimeVal,
+		Enabled:        enabledVal,
+		GuestAuthState: guestAuthStateVal,
+		Id:             idVal,
+		ModifiedTime:   modifiedTimeVal,
+		Name:           nameVal,
+		Order:          orderVal,
+		OrgId:          orgIdVal,
+		state:          attr.ValueStateKnown,
 	}, diags
 }
 
@@ -513,24 +556,26 @@ func (t OrgNacrulesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = OrgNacrulesValue{}
 
 type OrgNacrulesValue struct {
-	CreatedTime  basetypes.Float64Value `tfsdk:"created_time"`
-	Enabled      basetypes.BoolValue    `tfsdk:"enabled"`
-	Id           basetypes.StringValue  `tfsdk:"id"`
-	ModifiedTime basetypes.Float64Value `tfsdk:"modified_time"`
-	Name         basetypes.StringValue  `tfsdk:"name"`
-	Order        basetypes.Int64Value   `tfsdk:"order"`
-	OrgId        basetypes.StringValue  `tfsdk:"org_id"`
-	state        attr.ValueState
+	CreatedTime    basetypes.Float64Value `tfsdk:"created_time"`
+	Enabled        basetypes.BoolValue    `tfsdk:"enabled"`
+	GuestAuthState basetypes.StringValue  `tfsdk:"guest_auth_state"`
+	Id             basetypes.StringValue  `tfsdk:"id"`
+	ModifiedTime   basetypes.Float64Value `tfsdk:"modified_time"`
+	Name           basetypes.StringValue  `tfsdk:"name"`
+	Order          basetypes.Int64Value   `tfsdk:"order"`
+	OrgId          basetypes.StringValue  `tfsdk:"org_id"`
+	state          attr.ValueState
 }
 
 func (v OrgNacrulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 7)
+	attrTypes := make(map[string]tftypes.Type, 8)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["guest_auth_state"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
@@ -541,7 +586,7 @@ func (v OrgNacrulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 7)
+		vals := make(map[string]tftypes.Value, 8)
 
 		val, err = v.CreatedTime.ToTerraformValue(ctx)
 
@@ -558,6 +603,14 @@ func (v OrgNacrulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["enabled"] = val
+
+		val, err = v.GuestAuthState.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["guest_auth_state"] = val
 
 		val, err = v.Id.ToTerraformValue(ctx)
 
@@ -629,13 +682,14 @@ func (v OrgNacrulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"created_time":  basetypes.Float64Type{},
-		"enabled":       basetypes.BoolType{},
-		"id":            basetypes.StringType{},
-		"modified_time": basetypes.Float64Type{},
-		"name":          basetypes.StringType{},
-		"order":         basetypes.Int64Type{},
-		"org_id":        basetypes.StringType{},
+		"created_time":     basetypes.Float64Type{},
+		"enabled":          basetypes.BoolType{},
+		"guest_auth_state": basetypes.StringType{},
+		"id":               basetypes.StringType{},
+		"modified_time":    basetypes.Float64Type{},
+		"name":             basetypes.StringType{},
+		"order":            basetypes.Int64Type{},
+		"org_id":           basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -649,13 +703,14 @@ func (v OrgNacrulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"created_time":  v.CreatedTime,
-			"enabled":       v.Enabled,
-			"id":            v.Id,
-			"modified_time": v.ModifiedTime,
-			"name":          v.Name,
-			"order":         v.Order,
-			"org_id":        v.OrgId,
+			"created_time":     v.CreatedTime,
+			"enabled":          v.Enabled,
+			"guest_auth_state": v.GuestAuthState,
+			"id":               v.Id,
+			"modified_time":    v.ModifiedTime,
+			"name":             v.Name,
+			"order":            v.Order,
+			"org_id":           v.OrgId,
 		})
 
 	return objVal, diags
@@ -681,6 +736,10 @@ func (v OrgNacrulesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.GuestAuthState.Equal(other.GuestAuthState) {
 		return false
 	}
 
@@ -717,12 +776,13 @@ func (v OrgNacrulesValue) Type(ctx context.Context) attr.Type {
 
 func (v OrgNacrulesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"created_time":  basetypes.Float64Type{},
-		"enabled":       basetypes.BoolType{},
-		"id":            basetypes.StringType{},
-		"modified_time": basetypes.Float64Type{},
-		"name":          basetypes.StringType{},
-		"order":         basetypes.Int64Type{},
-		"org_id":        basetypes.StringType{},
+		"created_time":     basetypes.Float64Type{},
+		"enabled":          basetypes.BoolType{},
+		"guest_auth_state": basetypes.StringType{},
+		"id":               basetypes.StringType{},
+		"modified_time":    basetypes.Float64Type{},
+		"name":             basetypes.StringType{},
+		"order":            basetypes.Int64Type{},
+		"org_id":           basetypes.StringType{},
 	}
 }

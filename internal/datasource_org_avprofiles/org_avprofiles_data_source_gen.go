@@ -28,8 +28,8 @@ func OrgAvprofilesDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"fallback_action": schema.StringAttribute{
 							Computed:            true,
-							Description:         "enum: `block`, `permit`",
-							MarkdownDescription: "enum: `block`, `permit`",
+							Description:         "enum: `block`, `log-and-permit`, `permit`",
+							MarkdownDescription: "enum: `block`, `log-and-permit`, `permit`",
 						},
 						"id": schema.StringAttribute{
 							Computed:            true,
@@ -792,11 +792,19 @@ func (v OrgAvprofilesValue) String() string {
 func (v OrgAvprofilesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	mimeWhitelistVal, d := types.ListValue(types.StringType, v.MimeWhitelist.Elements())
+	var mimeWhitelistVal basetypes.ListValue
+	switch {
+	case v.MimeWhitelist.IsUnknown():
+		mimeWhitelistVal = types.ListUnknown(types.StringType)
+	case v.MimeWhitelist.IsNull():
+		mimeWhitelistVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		mimeWhitelistVal, d = types.ListValue(types.StringType, v.MimeWhitelist.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"created_time":    basetypes.Float64Type{},
 			"fallback_action": basetypes.StringType{},
@@ -817,11 +825,19 @@ func (v OrgAvprofilesValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		}), diags
 	}
 
-	protocolsVal, d := types.ListValue(types.StringType, v.Protocols.Elements())
+	var protocolsVal basetypes.ListValue
+	switch {
+	case v.Protocols.IsUnknown():
+		protocolsVal = types.ListUnknown(types.StringType)
+	case v.Protocols.IsNull():
+		protocolsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		protocolsVal, d = types.ListValue(types.StringType, v.Protocols.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"created_time":    basetypes.Float64Type{},
 			"fallback_action": basetypes.StringType{},
@@ -842,11 +858,19 @@ func (v OrgAvprofilesValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		}), diags
 	}
 
-	urlWhitelistVal, d := types.ListValue(types.StringType, v.UrlWhitelist.Elements())
+	var urlWhitelistVal basetypes.ListValue
+	switch {
+	case v.UrlWhitelist.IsUnknown():
+		urlWhitelistVal = types.ListUnknown(types.StringType)
+	case v.UrlWhitelist.IsNull():
+		urlWhitelistVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		urlWhitelistVal, d = types.ListValue(types.StringType, v.UrlWhitelist.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"created_time":    basetypes.Float64Type{},
 			"fallback_action": basetypes.StringType{},

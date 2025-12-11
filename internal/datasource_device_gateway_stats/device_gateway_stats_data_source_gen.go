@@ -79,6 +79,19 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							},
 							Computed: true,
 						},
+						"auto_upgrade_stat": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"lastcheck": schema.Int64Attribute{
+									Computed: true,
+								},
+							},
+							CustomType: AutoUpgradeStatType{
+								ObjectType: types.ObjectType{
+									AttrTypes: AutoUpgradeStatValue{}.AttributeTypes(ctx),
+								},
+							},
+							Computed: true,
+						},
 						"bgp_peers": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
@@ -290,6 +303,12 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 						"config_status": schema.StringAttribute{
 							Computed: true,
 						},
+						"config_timestamp": schema.Int64Attribute{
+							Computed: true,
+						},
+						"config_version": schema.Int64Attribute{
+							Computed: true,
+						},
 						"cpu2_stat": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"idle": schema.NumberAttribute{
@@ -312,6 +331,11 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Percentage of CPU time being used by system processes",
 									MarkdownDescription: "Percentage of CPU time being used by system processes",
+								},
+								"usage": schema.NumberAttribute{
+									Computed:            true,
+									Description:         "CPU usage",
+									MarkdownDescription: "CPU usage",
 								},
 								"user": schema.NumberAttribute{
 									Computed:            true,
@@ -349,6 +373,11 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									Description:         "Percentage of CPU time being used by system processes",
 									MarkdownDescription: "Percentage of CPU time being used by system processes",
 								},
+								"usage": schema.NumberAttribute{
+									Computed:            true,
+									Description:         "CPU usage",
+									MarkdownDescription: "CPU usage",
+								},
 								"user": schema.NumberAttribute{
 									Computed:            true,
 									Description:         "Percentage of CPU time being used by user processes",
@@ -368,6 +397,9 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "When the object has been created, in epoch",
 						},
 						"deviceprofile_id": schema.StringAttribute{
+							Computed: true,
+						},
+						"deviceprofile_name": schema.StringAttribute{
 							Computed: true,
 						},
 						"dhcpd2_stat": schema.MapNestedAttribute{
@@ -428,8 +460,8 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 								},
 								"status": schema.StringAttribute{
 									Computed:            true,
-									Description:         "enum: `inprogress`, `failed`, `upgraded`",
-									MarkdownDescription: "enum: `inprogress`, `failed`, `upgraded`",
+									Description:         "enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`",
+									MarkdownDescription: "enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`",
 								},
 								"status_id": schema.Int64Attribute{
 									Computed: true,
@@ -773,6 +805,22 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Device mac",
 							MarkdownDescription: "Device mac",
 						},
+						"mac_table_stats": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"mac_table_count": schema.Int64Attribute{
+									Computed: true,
+								},
+								"max_mac_entries_supported": schema.Int64Attribute{
+									Computed: true,
+								},
+							},
+							CustomType: MacTableStatsType{
+								ObjectType: types.ObjectType{
+									AttrTypes: MacTableStatsValue{}.AttributeTypes(ctx),
+								},
+							},
+							Computed: true,
+						},
 						"map_id": schema.StringAttribute{
 							Computed:            true,
 							Description:         "Serial Number",
@@ -827,6 +875,9 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									"bios_version": schema.StringAttribute{
 										Computed: true,
 									},
+									"boot_partition": schema.StringAttribute{
+										Computed: true,
+									},
 									"cpld_version": schema.StringAttribute{
 										Computed: true,
 									},
@@ -837,6 +888,9 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 													Computed: true,
 												},
 												"name": schema.StringAttribute{
+													Computed: true,
+												},
+												"rpm": schema.Int64Attribute{
 													Computed: true,
 												},
 												"status": schema.StringAttribute{
@@ -865,7 +919,49 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									"mac": schema.StringAttribute{
 										Computed: true,
 									},
+									"memory_stat": schema.SingleNestedAttribute{
+										Attributes: map[string]schema.Attribute{
+											"usage": schema.NumberAttribute{
+												Computed: true,
+											},
+										},
+										CustomType: MemoryStatType{
+											ObjectType: types.ObjectType{
+												AttrTypes: MemoryStatValue{}.AttributeTypes(ctx),
+											},
+										},
+										Computed:            true,
+										Description:         "Memory usage stat (for virtual chassis, memory usage of master RE)",
+										MarkdownDescription: "Memory usage stat (for virtual chassis, memory usage of master RE)",
+									},
 									"model": schema.StringAttribute{
+										Computed: true,
+									},
+									"network_resources": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+											Attributes: map[string]schema.Attribute{
+												"count": schema.Int64Attribute{
+													Computed:            true,
+													Description:         "current usage of the network resource",
+													MarkdownDescription: "current usage of the network resource",
+												},
+												"limit": schema.Int64Attribute{
+													Computed:            true,
+													Description:         "maximum usage of the network resource",
+													MarkdownDescription: "maximum usage of the network resource",
+												},
+												"type": schema.StringAttribute{
+													Computed:            true,
+													Description:         "type of the network resource (e.g. FIB, FLOW, ...)",
+													MarkdownDescription: "type of the network resource (e.g. FIB, FLOW, ...)",
+												},
+											},
+											CustomType: NetworkResourcesType{
+												ObjectType: types.ObjectType{
+													AttrTypes: NetworkResourcesValue{}.AttributeTypes(ctx),
+												},
+											},
+										},
 										Computed: true,
 									},
 									"optics_cpld_version": schema.StringAttribute{
@@ -880,6 +976,9 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 												Computed: true,
 											},
 											"power_draw": schema.NumberAttribute{
+												Computed: true,
+											},
+											"status": schema.StringAttribute{
 												Computed: true,
 											},
 										},
@@ -1009,6 +1108,9 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									"bios_version": schema.StringAttribute{
 										Computed: true,
 									},
+									"boot_partition": schema.StringAttribute{
+										Computed: true,
+									},
 									"cpld_version": schema.StringAttribute{
 										Computed: true,
 									},
@@ -1019,6 +1121,9 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 													Computed: true,
 												},
 												"name": schema.StringAttribute{
+													Computed: true,
+												},
+												"rpm": schema.Int64Attribute{
 													Computed: true,
 												},
 												"status": schema.StringAttribute{
@@ -1047,7 +1152,49 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									"mac": schema.StringAttribute{
 										Computed: true,
 									},
+									"memory_stat": schema.SingleNestedAttribute{
+										Attributes: map[string]schema.Attribute{
+											"usage": schema.NumberAttribute{
+												Computed: true,
+											},
+										},
+										CustomType: MemoryStatType{
+											ObjectType: types.ObjectType{
+												AttrTypes: MemoryStatValue{}.AttributeTypes(ctx),
+											},
+										},
+										Computed:            true,
+										Description:         "Memory usage stat (for virtual chassis, memory usage of master RE)",
+										MarkdownDescription: "Memory usage stat (for virtual chassis, memory usage of master RE)",
+									},
 									"model": schema.StringAttribute{
+										Computed: true,
+									},
+									"network_resources": schema.ListNestedAttribute{
+										NestedObject: schema.NestedAttributeObject{
+											Attributes: map[string]schema.Attribute{
+												"count": schema.Int64Attribute{
+													Computed:            true,
+													Description:         "current usage of the network resource",
+													MarkdownDescription: "current usage of the network resource",
+												},
+												"limit": schema.Int64Attribute{
+													Computed:            true,
+													Description:         "maximum usage of the network resource",
+													MarkdownDescription: "maximum usage of the network resource",
+												},
+												"type": schema.StringAttribute{
+													Computed:            true,
+													Description:         "type of the network resource (e.g. FIB, FLOW, ...)",
+													MarkdownDescription: "type of the network resource (e.g. FIB, FLOW, ...)",
+												},
+											},
+											CustomType: NetworkResourcesType{
+												ObjectType: types.ObjectType{
+													AttrTypes: NetworkResourcesValue{}.AttributeTypes(ctx),
+												},
+											},
+										},
 										Computed: true,
 									},
 									"optics_cpld_version": schema.StringAttribute{
@@ -1062,6 +1209,9 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 												Computed: true,
 											},
 											"power_draw": schema.NumberAttribute{
+												Computed: true,
+											},
+											"status": schema.StringAttribute{
 												Computed: true,
 											},
 										},
@@ -1594,6 +1744,9 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									"spu_pending_session": schema.Int64Attribute{
 										Computed: true,
 									},
+									"spu_uptime": schema.Int64Attribute{
+										Computed: true,
+									},
 									"spu_valid_session": schema.Int64Attribute{
 										Computed: true,
 									},
@@ -1624,6 +1777,9 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 									"spu_pending_session": schema.Int64Attribute{
 										Computed: true,
 									},
+									"spu_uptime": schema.Int64Attribute{
+										Computed: true,
+									},
 									"spu_valid_session": schema.Int64Attribute{
 										Computed: true,
 									},
@@ -1637,6 +1793,12 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 							Computed: true,
 						},
 						"status": schema.StringAttribute{
+							Computed: true,
+						},
+						"tag_id": schema.Int64Attribute{
+							Computed: true,
+						},
+						"tag_uuid": schema.StringAttribute{
 							Computed: true,
 						},
 						"tunnels": schema.ListNestedAttribute{
@@ -1760,16 +1922,30 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 										Description:         "Redundancy status of the associated interface",
 										MarkdownDescription: "Redundancy status of the associated interface",
 									},
+									"jitter": schema.NumberAttribute{
+										Computed:            true,
+										Description:         "Jitter in milliseconds",
+										MarkdownDescription: "Jitter in milliseconds",
+									},
 									"last_seen": schema.Float64Attribute{
 										Computed:            true,
 										Description:         "Last seen timestamp",
 										MarkdownDescription: "Last seen timestamp",
 									},
 									"latency": schema.NumberAttribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Latency in milliseconds",
+										MarkdownDescription: "Latency in milliseconds",
+									},
+									"loss": schema.NumberAttribute{
+										Computed:            true,
+										Description:         "Packet loss in percentage",
+										MarkdownDescription: "Packet loss in percentage",
 									},
 									"mos": schema.NumberAttribute{
-										Computed: true,
+										Computed:            true,
+										Description:         "Mean Opinion Score, a measure of the quality of the VPN link",
+										MarkdownDescription: "Mean Opinion Score, a measure of the quality of the VPN link",
 									},
 									"mtu": schema.Int64Attribute{
 										Computed: true,
@@ -1834,10 +2010,10 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Duration like 7d, 2w",
 				MarkdownDescription: "Duration like 7d, 2w",
 			},
-			"end": schema.Int64Attribute{
+			"end": schema.StringAttribute{
 				Optional:            true,
-				Description:         "End datetime, can be epoch or relative time like -1d, -2h; now if not specified",
-				MarkdownDescription: "End datetime, can be epoch or relative time like -1d, -2h; now if not specified",
+				Description:         "End time (epoch timestamp in seconds, or relative string like \"-1d\", \"-2h\", \"now\")",
+				MarkdownDescription: "End time (epoch timestamp in seconds, or relative string like \"-1d\", \"-2h\", \"now\")",
 			},
 			"mac": schema.StringAttribute{
 				Optional: true,
@@ -1848,10 +2024,10 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 			"site_id": schema.StringAttribute{
 				Optional: true,
 			},
-			"start": schema.Int64Attribute{
+			"start": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified",
-				MarkdownDescription: "Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified",
+				Description:         "Start time (epoch timestamp in seconds, or relative string like \"-1d\", \"-1w\")",
+				MarkdownDescription: "Start time (epoch timestamp in seconds, or relative string like \"-1d\", \"-1w\")",
 			},
 			"status": schema.StringAttribute{
 				Optional:            true,
@@ -1873,11 +2049,11 @@ func DeviceGatewayStatsDataSourceSchema(ctx context.Context) schema.Schema {
 type DeviceGatewayStatsModel struct {
 	DeviceGatewayStats types.Set    `tfsdk:"device_gateway_stats"`
 	Duration           types.String `tfsdk:"duration"`
-	End                types.Int64  `tfsdk:"end"`
+	End                types.String `tfsdk:"end"`
 	Mac                types.String `tfsdk:"mac"`
 	OrgId              types.String `tfsdk:"org_id"`
 	SiteId             types.String `tfsdk:"site_id"`
-	Start              types.Int64  `tfsdk:"start"`
+	Start              types.String `tfsdk:"start"`
 	Status             types.String `tfsdk:"status"`
 }
 
@@ -1940,6 +2116,24 @@ func (t DeviceGatewayStatsType) ValueFromObject(ctx context.Context, in basetype
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`arp_table_stats expected to be basetypes.ObjectValue, was: %T`, arpTableStatsAttribute))
+	}
+
+	autoUpgradeStatAttribute, ok := attributes["auto_upgrade_stat"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auto_upgrade_stat is missing from object`)
+
+		return nil, diags
+	}
+
+	autoUpgradeStatVal, ok := autoUpgradeStatAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auto_upgrade_stat expected to be basetypes.ObjectValue, was: %T`, autoUpgradeStatAttribute))
 	}
 
 	bgpPeersAttribute, ok := attributes["bgp_peers"]
@@ -2050,6 +2244,42 @@ func (t DeviceGatewayStatsType) ValueFromObject(ctx context.Context, in basetype
 			fmt.Sprintf(`config_status expected to be basetypes.StringValue, was: %T`, configStatusAttribute))
 	}
 
+	configTimestampAttribute, ok := attributes["config_timestamp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`config_timestamp is missing from object`)
+
+		return nil, diags
+	}
+
+	configTimestampVal, ok := configTimestampAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`config_timestamp expected to be basetypes.Int64Value, was: %T`, configTimestampAttribute))
+	}
+
+	configVersionAttribute, ok := attributes["config_version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`config_version is missing from object`)
+
+		return nil, diags
+	}
+
+	configVersionVal, ok := configVersionAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`config_version expected to be basetypes.Int64Value, was: %T`, configVersionAttribute))
+	}
+
 	cpu2StatAttribute, ok := attributes["cpu2_stat"]
 
 	if !ok {
@@ -2120,6 +2350,24 @@ func (t DeviceGatewayStatsType) ValueFromObject(ctx context.Context, in basetype
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`deviceprofile_id expected to be basetypes.StringValue, was: %T`, deviceprofileIdAttribute))
+	}
+
+	deviceprofileNameAttribute, ok := attributes["deviceprofile_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`deviceprofile_name is missing from object`)
+
+		return nil, diags
+	}
+
+	deviceprofileNameVal, ok := deviceprofileNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`deviceprofile_name expected to be basetypes.StringValue, was: %T`, deviceprofileNameAttribute))
 	}
 
 	dhcpd2StatAttribute, ok := attributes["dhcpd2_stat"]
@@ -2390,6 +2638,24 @@ func (t DeviceGatewayStatsType) ValueFromObject(ctx context.Context, in basetype
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
+	}
+
+	macTableStatsAttribute, ok := attributes["mac_table_stats"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac_table_stats is missing from object`)
+
+		return nil, diags
+	}
+
+	macTableStatsVal, ok := macTableStatsAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac_table_stats expected to be basetypes.ObjectValue, was: %T`, macTableStatsAttribute))
 	}
 
 	mapIdAttribute, ok := attributes["map_id"]
@@ -2770,6 +3036,42 @@ func (t DeviceGatewayStatsType) ValueFromObject(ctx context.Context, in basetype
 			fmt.Sprintf(`status expected to be basetypes.StringValue, was: %T`, statusAttribute))
 	}
 
+	tagIdAttribute, ok := attributes["tag_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tag_id is missing from object`)
+
+		return nil, diags
+	}
+
+	tagIdVal, ok := tagIdAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tag_id expected to be basetypes.Int64Value, was: %T`, tagIdAttribute))
+	}
+
+	tagUuidAttribute, ok := attributes["tag_uuid"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tag_uuid is missing from object`)
+
+		return nil, diags
+	}
+
+	tagUuidVal, ok := tagUuidAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tag_uuid expected to be basetypes.StringValue, was: %T`, tagUuidAttribute))
+	}
+
 	tunnelsAttribute, ok := attributes["tunnels"]
 
 	if !ok {
@@ -2849,16 +3151,20 @@ func (t DeviceGatewayStatsType) ValueFromObject(ctx context.Context, in basetype
 	return DeviceGatewayStatsValue{
 		ApRedundancy:      apRedundancyVal,
 		ArpTableStats:     arpTableStatsVal,
+		AutoUpgradeStat:   autoUpgradeStatVal,
 		BgpPeers:          bgpPeersVal,
 		CertExpiry:        certExpiryVal,
 		ClusterConfig:     clusterConfigVal,
 		ClusterStat:       clusterStatVal,
 		ConductorName:     conductorNameVal,
 		ConfigStatus:      configStatusVal,
+		ConfigTimestamp:   configTimestampVal,
+		ConfigVersion:     configVersionVal,
 		Cpu2Stat:          cpu2StatVal,
 		CpuStat:           cpuStatVal,
 		CreatedTime:       createdTimeVal,
 		DeviceprofileId:   deviceprofileIdVal,
+		DeviceprofileName: deviceprofileNameVal,
 		Dhcpd2Stat:        dhcpd2StatVal,
 		DhcpdStat:         dhcpdStatVal,
 		ExtIp:             extIpVal,
@@ -2874,6 +3180,7 @@ func (t DeviceGatewayStatsType) ValueFromObject(ctx context.Context, in basetype
 		IsHa:              isHaVal,
 		LastSeen:          lastSeenVal,
 		Mac:               macVal,
+		MacTableStats:     macTableStatsVal,
 		MapId:             mapIdVal,
 		Memory2Stat:       memory2StatVal,
 		MemoryStat:        memoryStatVal,
@@ -2895,6 +3202,8 @@ func (t DeviceGatewayStatsType) ValueFromObject(ctx context.Context, in basetype
 		Spu2Stat:          spu2StatVal,
 		SpuStat:           spuStatVal,
 		Status:            statusVal,
+		TagId:             tagIdVal,
+		TagUuid:           tagUuidVal,
 		Tunnels:           tunnelsVal,
 		Uptime:            uptimeVal,
 		Version:           versionVal,
@@ -3002,6 +3311,24 @@ func NewDeviceGatewayStatsValue(attributeTypes map[string]attr.Type, attributes 
 			fmt.Sprintf(`arp_table_stats expected to be basetypes.ObjectValue, was: %T`, arpTableStatsAttribute))
 	}
 
+	autoUpgradeStatAttribute, ok := attributes["auto_upgrade_stat"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auto_upgrade_stat is missing from object`)
+
+		return NewDeviceGatewayStatsValueUnknown(), diags
+	}
+
+	autoUpgradeStatVal, ok := autoUpgradeStatAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auto_upgrade_stat expected to be basetypes.ObjectValue, was: %T`, autoUpgradeStatAttribute))
+	}
+
 	bgpPeersAttribute, ok := attributes["bgp_peers"]
 
 	if !ok {
@@ -3110,6 +3437,42 @@ func NewDeviceGatewayStatsValue(attributeTypes map[string]attr.Type, attributes 
 			fmt.Sprintf(`config_status expected to be basetypes.StringValue, was: %T`, configStatusAttribute))
 	}
 
+	configTimestampAttribute, ok := attributes["config_timestamp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`config_timestamp is missing from object`)
+
+		return NewDeviceGatewayStatsValueUnknown(), diags
+	}
+
+	configTimestampVal, ok := configTimestampAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`config_timestamp expected to be basetypes.Int64Value, was: %T`, configTimestampAttribute))
+	}
+
+	configVersionAttribute, ok := attributes["config_version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`config_version is missing from object`)
+
+		return NewDeviceGatewayStatsValueUnknown(), diags
+	}
+
+	configVersionVal, ok := configVersionAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`config_version expected to be basetypes.Int64Value, was: %T`, configVersionAttribute))
+	}
+
 	cpu2StatAttribute, ok := attributes["cpu2_stat"]
 
 	if !ok {
@@ -3180,6 +3543,24 @@ func NewDeviceGatewayStatsValue(attributeTypes map[string]attr.Type, attributes 
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`deviceprofile_id expected to be basetypes.StringValue, was: %T`, deviceprofileIdAttribute))
+	}
+
+	deviceprofileNameAttribute, ok := attributes["deviceprofile_name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`deviceprofile_name is missing from object`)
+
+		return NewDeviceGatewayStatsValueUnknown(), diags
+	}
+
+	deviceprofileNameVal, ok := deviceprofileNameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`deviceprofile_name expected to be basetypes.StringValue, was: %T`, deviceprofileNameAttribute))
 	}
 
 	dhcpd2StatAttribute, ok := attributes["dhcpd2_stat"]
@@ -3450,6 +3831,24 @@ func NewDeviceGatewayStatsValue(attributeTypes map[string]attr.Type, attributes 
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
+	}
+
+	macTableStatsAttribute, ok := attributes["mac_table_stats"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac_table_stats is missing from object`)
+
+		return NewDeviceGatewayStatsValueUnknown(), diags
+	}
+
+	macTableStatsVal, ok := macTableStatsAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac_table_stats expected to be basetypes.ObjectValue, was: %T`, macTableStatsAttribute))
 	}
 
 	mapIdAttribute, ok := attributes["map_id"]
@@ -3830,6 +4229,42 @@ func NewDeviceGatewayStatsValue(attributeTypes map[string]attr.Type, attributes 
 			fmt.Sprintf(`status expected to be basetypes.StringValue, was: %T`, statusAttribute))
 	}
 
+	tagIdAttribute, ok := attributes["tag_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tag_id is missing from object`)
+
+		return NewDeviceGatewayStatsValueUnknown(), diags
+	}
+
+	tagIdVal, ok := tagIdAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tag_id expected to be basetypes.Int64Value, was: %T`, tagIdAttribute))
+	}
+
+	tagUuidAttribute, ok := attributes["tag_uuid"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tag_uuid is missing from object`)
+
+		return NewDeviceGatewayStatsValueUnknown(), diags
+	}
+
+	tagUuidVal, ok := tagUuidAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tag_uuid expected to be basetypes.StringValue, was: %T`, tagUuidAttribute))
+	}
+
 	tunnelsAttribute, ok := attributes["tunnels"]
 
 	if !ok {
@@ -3909,16 +4344,20 @@ func NewDeviceGatewayStatsValue(attributeTypes map[string]attr.Type, attributes 
 	return DeviceGatewayStatsValue{
 		ApRedundancy:      apRedundancyVal,
 		ArpTableStats:     arpTableStatsVal,
+		AutoUpgradeStat:   autoUpgradeStatVal,
 		BgpPeers:          bgpPeersVal,
 		CertExpiry:        certExpiryVal,
 		ClusterConfig:     clusterConfigVal,
 		ClusterStat:       clusterStatVal,
 		ConductorName:     conductorNameVal,
 		ConfigStatus:      configStatusVal,
+		ConfigTimestamp:   configTimestampVal,
+		ConfigVersion:     configVersionVal,
 		Cpu2Stat:          cpu2StatVal,
 		CpuStat:           cpuStatVal,
 		CreatedTime:       createdTimeVal,
 		DeviceprofileId:   deviceprofileIdVal,
+		DeviceprofileName: deviceprofileNameVal,
 		Dhcpd2Stat:        dhcpd2StatVal,
 		DhcpdStat:         dhcpdStatVal,
 		ExtIp:             extIpVal,
@@ -3934,6 +4373,7 @@ func NewDeviceGatewayStatsValue(attributeTypes map[string]attr.Type, attributes 
 		IsHa:              isHaVal,
 		LastSeen:          lastSeenVal,
 		Mac:               macVal,
+		MacTableStats:     macTableStatsVal,
 		MapId:             mapIdVal,
 		Memory2Stat:       memory2StatVal,
 		MemoryStat:        memoryStatVal,
@@ -3955,6 +4395,8 @@ func NewDeviceGatewayStatsValue(attributeTypes map[string]attr.Type, attributes 
 		Spu2Stat:          spu2StatVal,
 		SpuStat:           spuStatVal,
 		Status:            statusVal,
+		TagId:             tagIdVal,
+		TagUuid:           tagUuidVal,
 		Tunnels:           tunnelsVal,
 		Uptime:            uptimeVal,
 		Version:           versionVal,
@@ -4033,16 +4475,20 @@ var _ basetypes.ObjectValuable = DeviceGatewayStatsValue{}
 type DeviceGatewayStatsValue struct {
 	ApRedundancy      basetypes.ObjectValue  `tfsdk:"ap_redundancy"`
 	ArpTableStats     basetypes.ObjectValue  `tfsdk:"arp_table_stats"`
+	AutoUpgradeStat   basetypes.ObjectValue  `tfsdk:"auto_upgrade_stat"`
 	BgpPeers          basetypes.ListValue    `tfsdk:"bgp_peers"`
 	CertExpiry        basetypes.Int64Value   `tfsdk:"cert_expiry"`
 	ClusterConfig     basetypes.ObjectValue  `tfsdk:"cluster_config"`
 	ClusterStat       basetypes.ObjectValue  `tfsdk:"cluster_stat"`
 	ConductorName     basetypes.StringValue  `tfsdk:"conductor_name"`
 	ConfigStatus      basetypes.StringValue  `tfsdk:"config_status"`
+	ConfigTimestamp   basetypes.Int64Value   `tfsdk:"config_timestamp"`
+	ConfigVersion     basetypes.Int64Value   `tfsdk:"config_version"`
 	Cpu2Stat          basetypes.ObjectValue  `tfsdk:"cpu2_stat"`
 	CpuStat           basetypes.ObjectValue  `tfsdk:"cpu_stat"`
 	CreatedTime       basetypes.Float64Value `tfsdk:"created_time"`
 	DeviceprofileId   basetypes.StringValue  `tfsdk:"deviceprofile_id"`
+	DeviceprofileName basetypes.StringValue  `tfsdk:"deviceprofile_name"`
 	Dhcpd2Stat        basetypes.MapValue     `tfsdk:"dhcpd2_stat"`
 	DhcpdStat         basetypes.MapValue     `tfsdk:"dhcpd_stat"`
 	ExtIp             basetypes.StringValue  `tfsdk:"ext_ip"`
@@ -4058,6 +4504,7 @@ type DeviceGatewayStatsValue struct {
 	IsHa              basetypes.BoolValue    `tfsdk:"is_ha"`
 	LastSeen          basetypes.Float64Value `tfsdk:"last_seen"`
 	Mac               basetypes.StringValue  `tfsdk:"mac"`
+	MacTableStats     basetypes.ObjectValue  `tfsdk:"mac_table_stats"`
 	MapId             basetypes.StringValue  `tfsdk:"map_id"`
 	Memory2Stat       basetypes.ObjectValue  `tfsdk:"memory2_stat"`
 	MemoryStat        basetypes.ObjectValue  `tfsdk:"memory_stat"`
@@ -4079,6 +4526,8 @@ type DeviceGatewayStatsValue struct {
 	Spu2Stat          basetypes.ListValue    `tfsdk:"spu2_stat"`
 	SpuStat           basetypes.ListValue    `tfsdk:"spu_stat"`
 	Status            basetypes.StringValue  `tfsdk:"status"`
+	TagId             basetypes.Int64Value   `tfsdk:"tag_id"`
+	TagUuid           basetypes.StringValue  `tfsdk:"tag_uuid"`
 	Tunnels           basetypes.ListValue    `tfsdk:"tunnels"`
 	Uptime            basetypes.NumberValue  `tfsdk:"uptime"`
 	Version           basetypes.StringValue  `tfsdk:"version"`
@@ -4087,7 +4536,7 @@ type DeviceGatewayStatsValue struct {
 }
 
 func (v DeviceGatewayStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 52)
+	attrTypes := make(map[string]tftypes.Type, 59)
 
 	var val tftypes.Value
 	var err error
@@ -4097,6 +4546,9 @@ func (v DeviceGatewayStatsValue) ToTerraformValue(ctx context.Context) (tftypes.
 	}.TerraformType(ctx)
 	attrTypes["arp_table_stats"] = basetypes.ObjectType{
 		AttrTypes: ArpTableStatsValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["auto_upgrade_stat"] = basetypes.ObjectType{
+		AttrTypes: AutoUpgradeStatValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["bgp_peers"] = basetypes.ListType{
 		ElemType: BgpPeersValue{}.Type(ctx),
@@ -4110,6 +4562,8 @@ func (v DeviceGatewayStatsValue) ToTerraformValue(ctx context.Context) (tftypes.
 	}.TerraformType(ctx)
 	attrTypes["conductor_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["config_status"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["config_timestamp"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["config_version"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["cpu2_stat"] = basetypes.ObjectType{
 		AttrTypes: CpuStatValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -4118,6 +4572,7 @@ func (v DeviceGatewayStatsValue) ToTerraformValue(ctx context.Context) (tftypes.
 	}.TerraformType(ctx)
 	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["deviceprofile_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["deviceprofile_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["dhcpd2_stat"] = basetypes.MapType{
 		ElemType: DhcpdStatValue{}.Type(ctx),
 	}.TerraformType(ctx)
@@ -4147,6 +4602,9 @@ func (v DeviceGatewayStatsValue) ToTerraformValue(ctx context.Context) (tftypes.
 	attrTypes["is_ha"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["last_seen"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["mac"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["mac_table_stats"] = basetypes.ObjectType{
+		AttrTypes: MacTableStatsValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["map_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["memory2_stat"] = basetypes.ObjectType{
 		AttrTypes: MemoryStatValue{}.AttributeTypes(ctx),
@@ -4190,6 +4648,8 @@ func (v DeviceGatewayStatsValue) ToTerraformValue(ctx context.Context) (tftypes.
 		ElemType: SpuStatValue{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["status"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["tag_id"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["tag_uuid"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["tunnels"] = basetypes.ListType{
 		ElemType: TunnelsValue{}.Type(ctx),
 	}.TerraformType(ctx)
@@ -4203,7 +4663,7 @@ func (v DeviceGatewayStatsValue) ToTerraformValue(ctx context.Context) (tftypes.
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 52)
+		vals := make(map[string]tftypes.Value, 59)
 
 		val, err = v.ApRedundancy.ToTerraformValue(ctx)
 
@@ -4220,6 +4680,14 @@ func (v DeviceGatewayStatsValue) ToTerraformValue(ctx context.Context) (tftypes.
 		}
 
 		vals["arp_table_stats"] = val
+
+		val, err = v.AutoUpgradeStat.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auto_upgrade_stat"] = val
 
 		val, err = v.BgpPeers.ToTerraformValue(ctx)
 
@@ -4269,6 +4737,22 @@ func (v DeviceGatewayStatsValue) ToTerraformValue(ctx context.Context) (tftypes.
 
 		vals["config_status"] = val
 
+		val, err = v.ConfigTimestamp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["config_timestamp"] = val
+
+		val, err = v.ConfigVersion.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["config_version"] = val
+
 		val, err = v.Cpu2Stat.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -4300,6 +4784,14 @@ func (v DeviceGatewayStatsValue) ToTerraformValue(ctx context.Context) (tftypes.
 		}
 
 		vals["deviceprofile_id"] = val
+
+		val, err = v.DeviceprofileName.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["deviceprofile_name"] = val
 
 		val, err = v.Dhcpd2Stat.ToTerraformValue(ctx)
 
@@ -4420,6 +4912,14 @@ func (v DeviceGatewayStatsValue) ToTerraformValue(ctx context.Context) (tftypes.
 		}
 
 		vals["mac"] = val
+
+		val, err = v.MacTableStats.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mac_table_stats"] = val
 
 		val, err = v.MapId.ToTerraformValue(ctx)
 
@@ -4589,6 +5089,22 @@ func (v DeviceGatewayStatsValue) ToTerraformValue(ctx context.Context) (tftypes.
 
 		vals["status"] = val
 
+		val, err = v.TagId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["tag_id"] = val
+
+		val, err = v.TagUuid.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["tag_uuid"] = val
+
 		val, err = v.Tunnels.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -4689,6 +5205,27 @@ func (v DeviceGatewayStatsValue) ToObjectValue(ctx context.Context) (basetypes.O
 		arpTableStats = types.ObjectValueMust(
 			ArpTableStatsValue{}.AttributeTypes(ctx),
 			v.ArpTableStats.Attributes(),
+		)
+	}
+
+	var autoUpgradeStat basetypes.ObjectValue
+
+	if v.AutoUpgradeStat.IsNull() {
+		autoUpgradeStat = types.ObjectNull(
+			AutoUpgradeStatValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.AutoUpgradeStat.IsUnknown() {
+		autoUpgradeStat = types.ObjectUnknown(
+			AutoUpgradeStatValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.AutoUpgradeStat.IsNull() && !v.AutoUpgradeStat.IsUnknown() {
+		autoUpgradeStat = types.ObjectValueMust(
+			AutoUpgradeStatValue{}.AttributeTypes(ctx),
+			v.AutoUpgradeStat.Attributes(),
 		)
 	}
 
@@ -4981,6 +5518,27 @@ func (v DeviceGatewayStatsValue) ToObjectValue(ctx context.Context) (basetypes.O
 		ipStat = types.ObjectValueMust(
 			IpStatValue{}.AttributeTypes(ctx),
 			v.IpStat.Attributes(),
+		)
+	}
+
+	var macTableStats basetypes.ObjectValue
+
+	if v.MacTableStats.IsNull() {
+		macTableStats = types.ObjectNull(
+			MacTableStatsValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.MacTableStats.IsUnknown() {
+		macTableStats = types.ObjectUnknown(
+			MacTableStatsValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.MacTableStats.IsNull() && !v.MacTableStats.IsUnknown() {
+		macTableStats = types.ObjectValueMust(
+			MacTableStatsValue{}.AttributeTypes(ctx),
+			v.MacTableStats.Attributes(),
 		)
 	}
 
@@ -5336,6 +5894,9 @@ func (v DeviceGatewayStatsValue) ToObjectValue(ctx context.Context) (basetypes.O
 		"arp_table_stats": basetypes.ObjectType{
 			AttrTypes: ArpTableStatsValue{}.AttributeTypes(ctx),
 		},
+		"auto_upgrade_stat": basetypes.ObjectType{
+			AttrTypes: AutoUpgradeStatValue{}.AttributeTypes(ctx),
+		},
 		"bgp_peers": basetypes.ListType{
 			ElemType: BgpPeersValue{}.Type(ctx),
 		},
@@ -5346,16 +5907,19 @@ func (v DeviceGatewayStatsValue) ToObjectValue(ctx context.Context) (basetypes.O
 		"cluster_stat": basetypes.ObjectType{
 			AttrTypes: ClusterStatValue{}.AttributeTypes(ctx),
 		},
-		"conductor_name": basetypes.StringType{},
-		"config_status":  basetypes.StringType{},
+		"conductor_name":   basetypes.StringType{},
+		"config_status":    basetypes.StringType{},
+		"config_timestamp": basetypes.Int64Type{},
+		"config_version":   basetypes.Int64Type{},
 		"cpu2_stat": basetypes.ObjectType{
 			AttrTypes: CpuStatValue{}.AttributeTypes(ctx),
 		},
 		"cpu_stat": basetypes.ObjectType{
 			AttrTypes: CpuStatValue{}.AttributeTypes(ctx),
 		},
-		"created_time":     basetypes.Float64Type{},
-		"deviceprofile_id": basetypes.StringType{},
+		"created_time":       basetypes.Float64Type{},
+		"deviceprofile_id":   basetypes.StringType{},
+		"deviceprofile_name": basetypes.StringType{},
 		"dhcpd2_stat": basetypes.MapType{
 			ElemType: DhcpdStatValue{}.Type(ctx),
 		},
@@ -5385,7 +5949,10 @@ func (v DeviceGatewayStatsValue) ToObjectValue(ctx context.Context) (basetypes.O
 		"is_ha":     basetypes.BoolType{},
 		"last_seen": basetypes.Float64Type{},
 		"mac":       basetypes.StringType{},
-		"map_id":    basetypes.StringType{},
+		"mac_table_stats": basetypes.ObjectType{
+			AttrTypes: MacTableStatsValue{}.AttributeTypes(ctx),
+		},
+		"map_id": basetypes.StringType{},
 		"memory2_stat": basetypes.ObjectType{
 			AttrTypes: MemoryStatValue{}.AttributeTypes(ctx),
 		},
@@ -5427,7 +5994,9 @@ func (v DeviceGatewayStatsValue) ToObjectValue(ctx context.Context) (basetypes.O
 		"spu_stat": basetypes.ListType{
 			ElemType: SpuStatValue{}.Type(ctx),
 		},
-		"status": basetypes.StringType{},
+		"status":   basetypes.StringType{},
+		"tag_id":   basetypes.Int64Type{},
+		"tag_uuid": basetypes.StringType{},
 		"tunnels": basetypes.ListType{
 			ElemType: TunnelsValue{}.Type(ctx),
 		},
@@ -5451,16 +6020,20 @@ func (v DeviceGatewayStatsValue) ToObjectValue(ctx context.Context) (basetypes.O
 		map[string]attr.Value{
 			"ap_redundancy":       apRedundancy,
 			"arp_table_stats":     arpTableStats,
+			"auto_upgrade_stat":   autoUpgradeStat,
 			"bgp_peers":           bgpPeers,
 			"cert_expiry":         v.CertExpiry,
 			"cluster_config":      clusterConfig,
 			"cluster_stat":        clusterStat,
 			"conductor_name":      v.ConductorName,
 			"config_status":       v.ConfigStatus,
+			"config_timestamp":    v.ConfigTimestamp,
+			"config_version":      v.ConfigVersion,
 			"cpu2_stat":           cpu2Stat,
 			"cpu_stat":            cpuStat,
 			"created_time":        v.CreatedTime,
 			"deviceprofile_id":    v.DeviceprofileId,
+			"deviceprofile_name":  v.DeviceprofileName,
 			"dhcpd2_stat":         dhcpd2Stat,
 			"dhcpd_stat":          dhcpdStat,
 			"ext_ip":              v.ExtIp,
@@ -5476,6 +6049,7 @@ func (v DeviceGatewayStatsValue) ToObjectValue(ctx context.Context) (basetypes.O
 			"is_ha":               v.IsHa,
 			"last_seen":           v.LastSeen,
 			"mac":                 v.Mac,
+			"mac_table_stats":     macTableStats,
 			"map_id":              v.MapId,
 			"memory2_stat":        memory2Stat,
 			"memory_stat":         memoryStat,
@@ -5497,6 +6071,8 @@ func (v DeviceGatewayStatsValue) ToObjectValue(ctx context.Context) (basetypes.O
 			"spu2_stat":           spu2Stat,
 			"spu_stat":            spuStat,
 			"status":              v.Status,
+			"tag_id":              v.TagId,
+			"tag_uuid":            v.TagUuid,
 			"tunnels":             tunnels,
 			"uptime":              v.Uptime,
 			"version":             v.Version,
@@ -5529,6 +6105,10 @@ func (v DeviceGatewayStatsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.AutoUpgradeStat.Equal(other.AutoUpgradeStat) {
+		return false
+	}
+
 	if !v.BgpPeers.Equal(other.BgpPeers) {
 		return false
 	}
@@ -5553,6 +6133,14 @@ func (v DeviceGatewayStatsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.ConfigTimestamp.Equal(other.ConfigTimestamp) {
+		return false
+	}
+
+	if !v.ConfigVersion.Equal(other.ConfigVersion) {
+		return false
+	}
+
 	if !v.Cpu2Stat.Equal(other.Cpu2Stat) {
 		return false
 	}
@@ -5566,6 +6154,10 @@ func (v DeviceGatewayStatsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.DeviceprofileId.Equal(other.DeviceprofileId) {
+		return false
+	}
+
+	if !v.DeviceprofileName.Equal(other.DeviceprofileName) {
 		return false
 	}
 
@@ -5626,6 +6218,10 @@ func (v DeviceGatewayStatsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Mac.Equal(other.Mac) {
+		return false
+	}
+
+	if !v.MacTableStats.Equal(other.MacTableStats) {
 		return false
 	}
 
@@ -5713,6 +6309,14 @@ func (v DeviceGatewayStatsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.TagId.Equal(other.TagId) {
+		return false
+	}
+
+	if !v.TagUuid.Equal(other.TagUuid) {
+		return false
+	}
+
 	if !v.Tunnels.Equal(other.Tunnels) {
 		return false
 	}
@@ -5748,6 +6352,9 @@ func (v DeviceGatewayStatsValue) AttributeTypes(ctx context.Context) map[string]
 		"arp_table_stats": basetypes.ObjectType{
 			AttrTypes: ArpTableStatsValue{}.AttributeTypes(ctx),
 		},
+		"auto_upgrade_stat": basetypes.ObjectType{
+			AttrTypes: AutoUpgradeStatValue{}.AttributeTypes(ctx),
+		},
 		"bgp_peers": basetypes.ListType{
 			ElemType: BgpPeersValue{}.Type(ctx),
 		},
@@ -5758,16 +6365,19 @@ func (v DeviceGatewayStatsValue) AttributeTypes(ctx context.Context) map[string]
 		"cluster_stat": basetypes.ObjectType{
 			AttrTypes: ClusterStatValue{}.AttributeTypes(ctx),
 		},
-		"conductor_name": basetypes.StringType{},
-		"config_status":  basetypes.StringType{},
+		"conductor_name":   basetypes.StringType{},
+		"config_status":    basetypes.StringType{},
+		"config_timestamp": basetypes.Int64Type{},
+		"config_version":   basetypes.Int64Type{},
 		"cpu2_stat": basetypes.ObjectType{
 			AttrTypes: CpuStatValue{}.AttributeTypes(ctx),
 		},
 		"cpu_stat": basetypes.ObjectType{
 			AttrTypes: CpuStatValue{}.AttributeTypes(ctx),
 		},
-		"created_time":     basetypes.Float64Type{},
-		"deviceprofile_id": basetypes.StringType{},
+		"created_time":       basetypes.Float64Type{},
+		"deviceprofile_id":   basetypes.StringType{},
+		"deviceprofile_name": basetypes.StringType{},
 		"dhcpd2_stat": basetypes.MapType{
 			ElemType: DhcpdStatValue{}.Type(ctx),
 		},
@@ -5797,7 +6407,10 @@ func (v DeviceGatewayStatsValue) AttributeTypes(ctx context.Context) map[string]
 		"is_ha":     basetypes.BoolType{},
 		"last_seen": basetypes.Float64Type{},
 		"mac":       basetypes.StringType{},
-		"map_id":    basetypes.StringType{},
+		"mac_table_stats": basetypes.ObjectType{
+			AttrTypes: MacTableStatsValue{}.AttributeTypes(ctx),
+		},
+		"map_id": basetypes.StringType{},
 		"memory2_stat": basetypes.ObjectType{
 			AttrTypes: MemoryStatValue{}.AttributeTypes(ctx),
 		},
@@ -5839,7 +6452,9 @@ func (v DeviceGatewayStatsValue) AttributeTypes(ctx context.Context) map[string]
 		"spu_stat": basetypes.ListType{
 			ElemType: SpuStatValue{}.Type(ctx),
 		},
-		"status": basetypes.StringType{},
+		"status":   basetypes.StringType{},
+		"tag_id":   basetypes.Int64Type{},
+		"tag_uuid": basetypes.StringType{},
 		"tunnels": basetypes.ListType{
 			ElemType: TunnelsValue{}.Type(ctx),
 		},
@@ -7075,6 +7690,330 @@ func (v ArpTableStatsValue) AttributeTypes(ctx context.Context) map[string]attr.
 	return map[string]attr.Type{
 		"arp_table_count":       basetypes.Int64Type{},
 		"max_entries_supported": basetypes.Int64Type{},
+	}
+}
+
+var _ basetypes.ObjectTypable = AutoUpgradeStatType{}
+
+type AutoUpgradeStatType struct {
+	basetypes.ObjectType
+}
+
+func (t AutoUpgradeStatType) Equal(o attr.Type) bool {
+	other, ok := o.(AutoUpgradeStatType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t AutoUpgradeStatType) String() string {
+	return "AutoUpgradeStatType"
+}
+
+func (t AutoUpgradeStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	lastcheckAttribute, ok := attributes["lastcheck"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`lastcheck is missing from object`)
+
+		return nil, diags
+	}
+
+	lastcheckVal, ok := lastcheckAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`lastcheck expected to be basetypes.Int64Value, was: %T`, lastcheckAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return AutoUpgradeStatValue{
+		Lastcheck: lastcheckVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAutoUpgradeStatValueNull() AutoUpgradeStatValue {
+	return AutoUpgradeStatValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewAutoUpgradeStatValueUnknown() AutoUpgradeStatValue {
+	return AutoUpgradeStatValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewAutoUpgradeStatValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AutoUpgradeStatValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing AutoUpgradeStatValue Attribute Value",
+				"While creating a AutoUpgradeStatValue value, a missing attribute value was detected. "+
+					"A AutoUpgradeStatValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AutoUpgradeStatValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid AutoUpgradeStatValue Attribute Type",
+				"While creating a AutoUpgradeStatValue value, an invalid attribute value was detected. "+
+					"A AutoUpgradeStatValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AutoUpgradeStatValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("AutoUpgradeStatValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra AutoUpgradeStatValue Attribute Value",
+				"While creating a AutoUpgradeStatValue value, an extra attribute value was detected. "+
+					"A AutoUpgradeStatValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra AutoUpgradeStatValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewAutoUpgradeStatValueUnknown(), diags
+	}
+
+	lastcheckAttribute, ok := attributes["lastcheck"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`lastcheck is missing from object`)
+
+		return NewAutoUpgradeStatValueUnknown(), diags
+	}
+
+	lastcheckVal, ok := lastcheckAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`lastcheck expected to be basetypes.Int64Value, was: %T`, lastcheckAttribute))
+	}
+
+	if diags.HasError() {
+		return NewAutoUpgradeStatValueUnknown(), diags
+	}
+
+	return AutoUpgradeStatValue{
+		Lastcheck: lastcheckVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAutoUpgradeStatValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AutoUpgradeStatValue {
+	object, diags := NewAutoUpgradeStatValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewAutoUpgradeStatValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t AutoUpgradeStatType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewAutoUpgradeStatValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewAutoUpgradeStatValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewAutoUpgradeStatValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewAutoUpgradeStatValueMust(AutoUpgradeStatValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t AutoUpgradeStatType) ValueType(ctx context.Context) attr.Value {
+	return AutoUpgradeStatValue{}
+}
+
+var _ basetypes.ObjectValuable = AutoUpgradeStatValue{}
+
+type AutoUpgradeStatValue struct {
+	Lastcheck basetypes.Int64Value `tfsdk:"lastcheck"`
+	state     attr.ValueState
+}
+
+func (v AutoUpgradeStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["lastcheck"] = basetypes.Int64Type{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Lastcheck.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["lastcheck"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v AutoUpgradeStatValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v AutoUpgradeStatValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v AutoUpgradeStatValue) String() string {
+	return "AutoUpgradeStatValue"
+}
+
+func (v AutoUpgradeStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"lastcheck": basetypes.Int64Type{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"lastcheck": v.Lastcheck,
+		})
+
+	return objVal, diags
+}
+
+func (v AutoUpgradeStatValue) Equal(o attr.Value) bool {
+	other, ok := o.(AutoUpgradeStatValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Lastcheck.Equal(other.Lastcheck) {
+		return false
+	}
+
+	return true
+}
+
+func (v AutoUpgradeStatValue) Type(ctx context.Context) attr.Type {
+	return AutoUpgradeStatType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v AutoUpgradeStatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"lastcheck": basetypes.Int64Type{},
 	}
 }
 
@@ -10389,11 +11328,19 @@ func (v FabricLinkInfoValue) String() string {
 func (v FabricLinkInfoValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	interfaceVal, d := types.ListValue(types.StringType, v.Interface.Elements())
+	var interfaceVal basetypes.ListValue
+	switch {
+	case v.Interface.IsUnknown():
+		interfaceVal = types.ListUnknown(types.StringType)
+	case v.Interface.IsNull():
+		interfaceVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		interfaceVal, d = types.ListValue(types.StringType, v.Interface.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"data_plane_notified_status": basetypes.StringType{},
 			"interface": basetypes.ListType{
@@ -11349,6 +12296,24 @@ func (t CpuStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`system expected to be basetypes.NumberValue, was: %T`, systemAttribute))
 	}
 
+	usageAttribute, ok := attributes["usage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`usage is missing from object`)
+
+		return nil, diags
+	}
+
+	usageVal, ok := usageAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`usage expected to be basetypes.NumberValue, was: %T`, usageAttribute))
+	}
+
 	userAttribute, ok := attributes["user"]
 
 	if !ok {
@@ -11376,6 +12341,7 @@ func (t CpuStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		Interrupt: interruptVal,
 		LoadAvg:   loadAvgVal,
 		System:    systemVal,
+		Usage:     usageVal,
 		User:      userVal,
 		state:     attr.ValueStateKnown,
 	}, diags
@@ -11516,6 +12482,24 @@ func NewCpuStatValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`system expected to be basetypes.NumberValue, was: %T`, systemAttribute))
 	}
 
+	usageAttribute, ok := attributes["usage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`usage is missing from object`)
+
+		return NewCpuStatValueUnknown(), diags
+	}
+
+	usageVal, ok := usageAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`usage expected to be basetypes.NumberValue, was: %T`, usageAttribute))
+	}
+
 	userAttribute, ok := attributes["user"]
 
 	if !ok {
@@ -11543,6 +12527,7 @@ func NewCpuStatValue(attributeTypes map[string]attr.Type, attributes map[string]
 		Interrupt: interruptVal,
 		LoadAvg:   loadAvgVal,
 		System:    systemVal,
+		Usage:     usageVal,
 		User:      userVal,
 		state:     attr.ValueStateKnown,
 	}, diags
@@ -11620,12 +12605,13 @@ type CpuStatValue struct {
 	Interrupt basetypes.NumberValue `tfsdk:"interrupt"`
 	LoadAvg   basetypes.ListValue   `tfsdk:"load_avg"`
 	System    basetypes.NumberValue `tfsdk:"system"`
+	Usage     basetypes.NumberValue `tfsdk:"usage"`
 	User      basetypes.NumberValue `tfsdk:"user"`
 	state     attr.ValueState
 }
 
 func (v CpuStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 5)
+	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
 	var err error
@@ -11636,13 +12622,14 @@ func (v CpuStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		ElemType: types.NumberType,
 	}.TerraformType(ctx)
 	attrTypes["system"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["usage"] = basetypes.NumberType{}.TerraformType(ctx)
 	attrTypes["user"] = basetypes.NumberType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 5)
+		vals := make(map[string]tftypes.Value, 6)
 
 		val, err = v.Idle.ToTerraformValue(ctx)
 
@@ -11675,6 +12662,14 @@ func (v CpuStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["system"] = val
+
+		val, err = v.Usage.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["usage"] = val
 
 		val, err = v.User.ToTerraformValue(ctx)
 
@@ -11713,11 +12708,19 @@ func (v CpuStatValue) String() string {
 func (v CpuStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	loadAvgVal, d := types.ListValue(types.NumberType, v.LoadAvg.Elements())
+	var loadAvgVal basetypes.ListValue
+	switch {
+	case v.LoadAvg.IsUnknown():
+		loadAvgVal = types.ListUnknown(types.NumberType)
+	case v.LoadAvg.IsNull():
+		loadAvgVal = types.ListNull(types.NumberType)
+	default:
+		var d diag.Diagnostics
+		loadAvgVal, d = types.ListValue(types.NumberType, v.LoadAvg.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"idle":      basetypes.NumberType{},
 			"interrupt": basetypes.NumberType{},
@@ -11725,6 +12728,7 @@ func (v CpuStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 				ElemType: types.NumberType,
 			},
 			"system": basetypes.NumberType{},
+			"usage":  basetypes.NumberType{},
 			"user":   basetypes.NumberType{},
 		}), diags
 	}
@@ -11736,6 +12740,7 @@ func (v CpuStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			ElemType: types.NumberType,
 		},
 		"system": basetypes.NumberType{},
+		"usage":  basetypes.NumberType{},
 		"user":   basetypes.NumberType{},
 	}
 
@@ -11754,6 +12759,7 @@ func (v CpuStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"interrupt": v.Interrupt,
 			"load_avg":  loadAvgVal,
 			"system":    v.System,
+			"usage":     v.Usage,
 			"user":      v.User,
 		})
 
@@ -11791,6 +12797,10 @@ func (v CpuStatValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Usage.Equal(other.Usage) {
+		return false
+	}
+
 	if !v.User.Equal(other.User) {
 		return false
 	}
@@ -11814,6 +12824,7 @@ func (v CpuStatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 			ElemType: types.NumberType,
 		},
 		"system": basetypes.NumberType{},
+		"usage":  basetypes.NumberType{},
 		"user":   basetypes.NumberType{},
 	}
 }
@@ -13755,11 +14766,19 @@ func (v IfStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		)
 	}
 
-	ipsVal, d := types.ListValue(types.StringType, v.Ips.Elements())
+	var ipsVal basetypes.ListValue
+	switch {
+	case v.Ips.IsUnknown():
+		ipsVal = types.ListUnknown(types.StringType)
+	case v.Ips.IsNull():
+		ipsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		ipsVal, d = types.ListValue(types.StringType, v.Ips.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"address_mode": basetypes.StringType{},
 			"ips": basetypes.ListType{
@@ -13786,11 +14805,19 @@ func (v IfStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	natAddressesVal, d := types.ListValue(types.StringType, v.NatAddresses.Elements())
+	var natAddressesVal basetypes.ListValue
+	switch {
+	case v.NatAddresses.IsUnknown():
+		natAddressesVal = types.ListUnknown(types.StringType)
+	case v.NatAddresses.IsNull():
+		natAddressesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		natAddressesVal, d = types.ListValue(types.StringType, v.NatAddresses.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"address_mode": basetypes.StringType{},
 			"ips": basetypes.ListType{
@@ -15350,11 +16377,19 @@ func (v IpStatValue) String() string {
 func (v IpStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	dnsVal, d := types.ListValue(types.StringType, v.Dns.Elements())
+	var dnsVal basetypes.ListValue
+	switch {
+	case v.Dns.IsUnknown():
+		dnsVal = types.ListUnknown(types.StringType)
+	case v.Dns.IsNull():
+		dnsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		dnsVal, d = types.ListValue(types.StringType, v.Dns.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"dhcp_server": basetypes.StringType{},
 			"dns": basetypes.ListType{
@@ -15375,11 +16410,19 @@ func (v IpStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	dnsSuffixVal, d := types.ListValue(types.StringType, v.DnsSuffix.Elements())
+	var dnsSuffixVal basetypes.ListValue
+	switch {
+	case v.DnsSuffix.IsUnknown():
+		dnsSuffixVal = types.ListUnknown(types.StringType)
+	case v.DnsSuffix.IsNull():
+		dnsSuffixVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		dnsSuffixVal, d = types.ListValue(types.StringType, v.DnsSuffix.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"dhcp_server": basetypes.StringType{},
 			"dns": basetypes.ListType{
@@ -15400,11 +16443,19 @@ func (v IpStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 		}), diags
 	}
 
-	ipsVal, d := types.MapValue(types.StringType, v.Ips.Elements())
+	var ipsVal basetypes.MapValue
+	switch {
+	case v.Ips.IsUnknown():
+		ipsVal = types.MapUnknown(types.StringType)
+	case v.Ips.IsNull():
+		ipsVal = types.MapNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		ipsVal, d = types.MapValue(types.StringType, v.Ips.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"dhcp_server": basetypes.StringType{},
 			"dns": basetypes.ListType{
@@ -15554,6 +16605,385 @@ func (v IpStatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		},
 		"netmask":  basetypes.StringType{},
 		"netmask6": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = MacTableStatsType{}
+
+type MacTableStatsType struct {
+	basetypes.ObjectType
+}
+
+func (t MacTableStatsType) Equal(o attr.Type) bool {
+	other, ok := o.(MacTableStatsType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t MacTableStatsType) String() string {
+	return "MacTableStatsType"
+}
+
+func (t MacTableStatsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	macTableCountAttribute, ok := attributes["mac_table_count"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac_table_count is missing from object`)
+
+		return nil, diags
+	}
+
+	macTableCountVal, ok := macTableCountAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac_table_count expected to be basetypes.Int64Value, was: %T`, macTableCountAttribute))
+	}
+
+	maxMacEntriesSupportedAttribute, ok := attributes["max_mac_entries_supported"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`max_mac_entries_supported is missing from object`)
+
+		return nil, diags
+	}
+
+	maxMacEntriesSupportedVal, ok := maxMacEntriesSupportedAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`max_mac_entries_supported expected to be basetypes.Int64Value, was: %T`, maxMacEntriesSupportedAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return MacTableStatsValue{
+		MacTableCount:          macTableCountVal,
+		MaxMacEntriesSupported: maxMacEntriesSupportedVal,
+		state:                  attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMacTableStatsValueNull() MacTableStatsValue {
+	return MacTableStatsValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewMacTableStatsValueUnknown() MacTableStatsValue {
+	return MacTableStatsValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewMacTableStatsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (MacTableStatsValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing MacTableStatsValue Attribute Value",
+				"While creating a MacTableStatsValue value, a missing attribute value was detected. "+
+					"A MacTableStatsValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MacTableStatsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid MacTableStatsValue Attribute Type",
+				"While creating a MacTableStatsValue value, an invalid attribute value was detected. "+
+					"A MacTableStatsValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MacTableStatsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("MacTableStatsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra MacTableStatsValue Attribute Value",
+				"While creating a MacTableStatsValue value, an extra attribute value was detected. "+
+					"A MacTableStatsValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra MacTableStatsValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewMacTableStatsValueUnknown(), diags
+	}
+
+	macTableCountAttribute, ok := attributes["mac_table_count"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mac_table_count is missing from object`)
+
+		return NewMacTableStatsValueUnknown(), diags
+	}
+
+	macTableCountVal, ok := macTableCountAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mac_table_count expected to be basetypes.Int64Value, was: %T`, macTableCountAttribute))
+	}
+
+	maxMacEntriesSupportedAttribute, ok := attributes["max_mac_entries_supported"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`max_mac_entries_supported is missing from object`)
+
+		return NewMacTableStatsValueUnknown(), diags
+	}
+
+	maxMacEntriesSupportedVal, ok := maxMacEntriesSupportedAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`max_mac_entries_supported expected to be basetypes.Int64Value, was: %T`, maxMacEntriesSupportedAttribute))
+	}
+
+	if diags.HasError() {
+		return NewMacTableStatsValueUnknown(), diags
+	}
+
+	return MacTableStatsValue{
+		MacTableCount:          macTableCountVal,
+		MaxMacEntriesSupported: maxMacEntriesSupportedVal,
+		state:                  attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMacTableStatsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) MacTableStatsValue {
+	object, diags := NewMacTableStatsValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewMacTableStatsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t MacTableStatsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewMacTableStatsValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewMacTableStatsValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewMacTableStatsValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewMacTableStatsValueMust(MacTableStatsValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t MacTableStatsType) ValueType(ctx context.Context) attr.Value {
+	return MacTableStatsValue{}
+}
+
+var _ basetypes.ObjectValuable = MacTableStatsValue{}
+
+type MacTableStatsValue struct {
+	MacTableCount          basetypes.Int64Value `tfsdk:"mac_table_count"`
+	MaxMacEntriesSupported basetypes.Int64Value `tfsdk:"max_mac_entries_supported"`
+	state                  attr.ValueState
+}
+
+func (v MacTableStatsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["mac_table_count"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["max_mac_entries_supported"] = basetypes.Int64Type{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.MacTableCount.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mac_table_count"] = val
+
+		val, err = v.MaxMacEntriesSupported.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["max_mac_entries_supported"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v MacTableStatsValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v MacTableStatsValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v MacTableStatsValue) String() string {
+	return "MacTableStatsValue"
+}
+
+func (v MacTableStatsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"mac_table_count":           basetypes.Int64Type{},
+		"max_mac_entries_supported": basetypes.Int64Type{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"mac_table_count":           v.MacTableCount,
+			"max_mac_entries_supported": v.MaxMacEntriesSupported,
+		})
+
+	return objVal, diags
+}
+
+func (v MacTableStatsValue) Equal(o attr.Value) bool {
+	other, ok := o.(MacTableStatsValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.MacTableCount.Equal(other.MacTableCount) {
+		return false
+	}
+
+	if !v.MaxMacEntriesSupported.Equal(other.MaxMacEntriesSupported) {
+		return false
+	}
+
+	return true
+}
+
+func (v MacTableStatsValue) Type(ctx context.Context) attr.Type {
+	return MacTableStatsType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v MacTableStatsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"mac_table_count":           basetypes.Int64Type{},
+		"max_mac_entries_supported": basetypes.Int64Type{},
 	}
 }
 
@@ -15942,6 +17372,24 @@ func (t ModuleStatType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`bios_version expected to be basetypes.StringValue, was: %T`, biosVersionAttribute))
 	}
 
+	bootPartitionAttribute, ok := attributes["boot_partition"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`boot_partition is missing from object`)
+
+		return nil, diags
+	}
+
+	bootPartitionVal, ok := bootPartitionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`boot_partition expected to be basetypes.StringValue, was: %T`, bootPartitionAttribute))
+	}
+
 	cpldVersionAttribute, ok := attributes["cpld_version"]
 
 	if !ok {
@@ -16050,6 +17498,24 @@ func (t ModuleStatType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
 	}
 
+	memoryStatAttribute, ok := attributes["memory_stat"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`memory_stat is missing from object`)
+
+		return nil, diags
+	}
+
+	memoryStatVal, ok := memoryStatAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`memory_stat expected to be basetypes.ObjectValue, was: %T`, memoryStatAttribute))
+	}
+
 	modelAttribute, ok := attributes["model"]
 
 	if !ok {
@@ -16066,6 +17532,24 @@ func (t ModuleStatType) ValueFromObject(ctx context.Context, in basetypes.Object
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`model expected to be basetypes.StringValue, was: %T`, modelAttribute))
+	}
+
+	networkResourcesAttribute, ok := attributes["network_resources"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`network_resources is missing from object`)
+
+		return nil, diags
+	}
+
+	networkResourcesVal, ok := networkResourcesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`network_resources expected to be basetypes.ListValue, was: %T`, networkResourcesAttribute))
 	}
 
 	opticsCpldVersionAttribute, ok := attributes["optics_cpld_version"]
@@ -16417,13 +17901,16 @@ func (t ModuleStatType) ValueFromObject(ctx context.Context, in basetypes.Object
 	return ModuleStatValue{
 		BackupVersion:     backupVersionVal,
 		BiosVersion:       biosVersionVal,
+		BootPartition:     bootPartitionVal,
 		CpldVersion:       cpldVersionVal,
 		Fans:              fansVal,
 		FpgaVersion:       fpgaVersionVal,
 		LastSeen:          lastSeenVal,
 		Locating:          locatingVal,
 		Mac:               macVal,
+		MemoryStat:        memoryStatVal,
 		Model:             modelVal,
+		NetworkResources:  networkResourcesVal,
 		OpticsCpldVersion: opticsCpldVersionVal,
 		PendingVersion:    pendingVersionVal,
 		Poe:               poeVal,
@@ -16546,6 +18033,24 @@ func NewModuleStatValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`bios_version expected to be basetypes.StringValue, was: %T`, biosVersionAttribute))
 	}
 
+	bootPartitionAttribute, ok := attributes["boot_partition"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`boot_partition is missing from object`)
+
+		return NewModuleStatValueUnknown(), diags
+	}
+
+	bootPartitionVal, ok := bootPartitionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`boot_partition expected to be basetypes.StringValue, was: %T`, bootPartitionAttribute))
+	}
+
 	cpldVersionAttribute, ok := attributes["cpld_version"]
 
 	if !ok {
@@ -16654,6 +18159,24 @@ func NewModuleStatValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`mac expected to be basetypes.StringValue, was: %T`, macAttribute))
 	}
 
+	memoryStatAttribute, ok := attributes["memory_stat"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`memory_stat is missing from object`)
+
+		return NewModuleStatValueUnknown(), diags
+	}
+
+	memoryStatVal, ok := memoryStatAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`memory_stat expected to be basetypes.ObjectValue, was: %T`, memoryStatAttribute))
+	}
+
 	modelAttribute, ok := attributes["model"]
 
 	if !ok {
@@ -16670,6 +18193,24 @@ func NewModuleStatValue(attributeTypes map[string]attr.Type, attributes map[stri
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`model expected to be basetypes.StringValue, was: %T`, modelAttribute))
+	}
+
+	networkResourcesAttribute, ok := attributes["network_resources"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`network_resources is missing from object`)
+
+		return NewModuleStatValueUnknown(), diags
+	}
+
+	networkResourcesVal, ok := networkResourcesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`network_resources expected to be basetypes.ListValue, was: %T`, networkResourcesAttribute))
 	}
 
 	opticsCpldVersionAttribute, ok := attributes["optics_cpld_version"]
@@ -17021,13 +18562,16 @@ func NewModuleStatValue(attributeTypes map[string]attr.Type, attributes map[stri
 	return ModuleStatValue{
 		BackupVersion:     backupVersionVal,
 		BiosVersion:       biosVersionVal,
+		BootPartition:     bootPartitionVal,
 		CpldVersion:       cpldVersionVal,
 		Fans:              fansVal,
 		FpgaVersion:       fpgaVersionVal,
 		LastSeen:          lastSeenVal,
 		Locating:          locatingVal,
 		Mac:               macVal,
+		MemoryStat:        memoryStatVal,
 		Model:             modelVal,
+		NetworkResources:  networkResourcesVal,
 		OpticsCpldVersion: opticsCpldVersionVal,
 		PendingVersion:    pendingVersionVal,
 		Poe:               poeVal,
@@ -17121,13 +18665,16 @@ var _ basetypes.ObjectValuable = ModuleStatValue{}
 type ModuleStatValue struct {
 	BackupVersion     basetypes.StringValue  `tfsdk:"backup_version"`
 	BiosVersion       basetypes.StringValue  `tfsdk:"bios_version"`
+	BootPartition     basetypes.StringValue  `tfsdk:"boot_partition"`
 	CpldVersion       basetypes.StringValue  `tfsdk:"cpld_version"`
 	Fans              basetypes.ListValue    `tfsdk:"fans"`
 	FpgaVersion       basetypes.StringValue  `tfsdk:"fpga_version"`
 	LastSeen          basetypes.Float64Value `tfsdk:"last_seen"`
 	Locating          basetypes.BoolValue    `tfsdk:"locating"`
 	Mac               basetypes.StringValue  `tfsdk:"mac"`
+	MemoryStat        basetypes.ObjectValue  `tfsdk:"memory_stat"`
 	Model             basetypes.StringValue  `tfsdk:"model"`
+	NetworkResources  basetypes.ListValue    `tfsdk:"network_resources"`
 	OpticsCpldVersion basetypes.StringValue  `tfsdk:"optics_cpld_version"`
 	PendingVersion    basetypes.StringValue  `tfsdk:"pending_version"`
 	Poe               basetypes.ObjectValue  `tfsdk:"poe"`
@@ -17151,13 +18698,14 @@ type ModuleStatValue struct {
 }
 
 func (v ModuleStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 28)
+	attrTypes := make(map[string]tftypes.Type, 31)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["backup_version"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["bios_version"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["boot_partition"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["cpld_version"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["fans"] = basetypes.ListType{
 		ElemType: FansValue{}.Type(ctx),
@@ -17166,7 +18714,13 @@ func (v ModuleStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["last_seen"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["locating"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["mac"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["memory_stat"] = basetypes.ObjectType{
+		AttrTypes: MemoryStatValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["model"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["network_resources"] = basetypes.ListType{
+		ElemType: NetworkResourcesValue{}.Type(ctx),
+	}.TerraformType(ctx)
 	attrTypes["optics_cpld_version"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["pending_version"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["poe"] = basetypes.ObjectType{
@@ -17199,7 +18753,7 @@ func (v ModuleStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 28)
+		vals := make(map[string]tftypes.Value, 31)
 
 		val, err = v.BackupVersion.ToTerraformValue(ctx)
 
@@ -17216,6 +18770,14 @@ func (v ModuleStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["bios_version"] = val
+
+		val, err = v.BootPartition.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["boot_partition"] = val
 
 		val, err = v.CpldVersion.ToTerraformValue(ctx)
 
@@ -17265,6 +18827,14 @@ func (v ModuleStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["mac"] = val
 
+		val, err = v.MemoryStat.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["memory_stat"] = val
+
 		val, err = v.Model.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -17272,6 +18842,14 @@ func (v ModuleStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["model"] = val
+
+		val, err = v.NetworkResources.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["network_resources"] = val
 
 		val, err = v.OpticsCpldVersion.ToTerraformValue(ctx)
 
@@ -17483,6 +19061,56 @@ func (v ModuleStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		)
 	}
 
+	var memoryStat basetypes.ObjectValue
+
+	if v.MemoryStat.IsNull() {
+		memoryStat = types.ObjectNull(
+			MemoryStatValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.MemoryStat.IsUnknown() {
+		memoryStat = types.ObjectUnknown(
+			MemoryStatValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.MemoryStat.IsNull() && !v.MemoryStat.IsUnknown() {
+		memoryStat = types.ObjectValueMust(
+			MemoryStatValue{}.AttributeTypes(ctx),
+			v.MemoryStat.Attributes(),
+		)
+	}
+
+	networkResources := types.ListValueMust(
+		NetworkResourcesType{
+			basetypes.ObjectType{
+				AttrTypes: NetworkResourcesValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.NetworkResources.Elements(),
+	)
+
+	if v.NetworkResources.IsNull() {
+		networkResources = types.ListNull(
+			NetworkResourcesType{
+				basetypes.ObjectType{
+					AttrTypes: NetworkResourcesValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.NetworkResources.IsUnknown() {
+		networkResources = types.ListUnknown(
+			NetworkResourcesType{
+				basetypes.ObjectType{
+					AttrTypes: NetworkResourcesValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
 	var poe basetypes.ObjectValue
 
 	if v.Poe.IsNull() {
@@ -17594,15 +19222,22 @@ func (v ModuleStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	attributeTypes := map[string]attr.Type{
 		"backup_version": basetypes.StringType{},
 		"bios_version":   basetypes.StringType{},
+		"boot_partition": basetypes.StringType{},
 		"cpld_version":   basetypes.StringType{},
 		"fans": basetypes.ListType{
 			ElemType: FansValue{}.Type(ctx),
 		},
-		"fpga_version":        basetypes.StringType{},
-		"last_seen":           basetypes.Float64Type{},
-		"locating":            basetypes.BoolType{},
-		"mac":                 basetypes.StringType{},
-		"model":               basetypes.StringType{},
+		"fpga_version": basetypes.StringType{},
+		"last_seen":    basetypes.Float64Type{},
+		"locating":     basetypes.BoolType{},
+		"mac":          basetypes.StringType{},
+		"memory_stat": basetypes.ObjectType{
+			AttrTypes: MemoryStatValue{}.AttributeTypes(ctx),
+		},
+		"model": basetypes.StringType{},
+		"network_resources": basetypes.ListType{
+			ElemType: NetworkResourcesValue{}.Type(ctx),
+		},
 		"optics_cpld_version": basetypes.StringType{},
 		"pending_version":     basetypes.StringType{},
 		"poe": basetypes.ObjectType{
@@ -17645,13 +19280,16 @@ func (v ModuleStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		map[string]attr.Value{
 			"backup_version":      v.BackupVersion,
 			"bios_version":        v.BiosVersion,
+			"boot_partition":      v.BootPartition,
 			"cpld_version":        v.CpldVersion,
 			"fans":                fans,
 			"fpga_version":        v.FpgaVersion,
 			"last_seen":           v.LastSeen,
 			"locating":            v.Locating,
 			"mac":                 v.Mac,
+			"memory_stat":         memoryStat,
 			"model":               v.Model,
+			"network_resources":   networkResources,
 			"optics_cpld_version": v.OpticsCpldVersion,
 			"pending_version":     v.PendingVersion,
 			"poe":                 poe,
@@ -17699,6 +19337,10 @@ func (v ModuleStatValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.BootPartition.Equal(other.BootPartition) {
+		return false
+	}
+
 	if !v.CpldVersion.Equal(other.CpldVersion) {
 		return false
 	}
@@ -17723,7 +19365,15 @@ func (v ModuleStatValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.MemoryStat.Equal(other.MemoryStat) {
+		return false
+	}
+
 	if !v.Model.Equal(other.Model) {
+		return false
+	}
+
+	if !v.NetworkResources.Equal(other.NetworkResources) {
 		return false
 	}
 
@@ -17818,15 +19468,22 @@ func (v ModuleStatValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 	return map[string]attr.Type{
 		"backup_version": basetypes.StringType{},
 		"bios_version":   basetypes.StringType{},
+		"boot_partition": basetypes.StringType{},
 		"cpld_version":   basetypes.StringType{},
 		"fans": basetypes.ListType{
 			ElemType: FansValue{}.Type(ctx),
 		},
-		"fpga_version":        basetypes.StringType{},
-		"last_seen":           basetypes.Float64Type{},
-		"locating":            basetypes.BoolType{},
-		"mac":                 basetypes.StringType{},
-		"model":               basetypes.StringType{},
+		"fpga_version": basetypes.StringType{},
+		"last_seen":    basetypes.Float64Type{},
+		"locating":     basetypes.BoolType{},
+		"mac":          basetypes.StringType{},
+		"memory_stat": basetypes.ObjectType{
+			AttrTypes: MemoryStatValue{}.AttributeTypes(ctx),
+		},
+		"model": basetypes.StringType{},
+		"network_resources": basetypes.ListType{
+			ElemType: NetworkResourcesValue{}.Type(ctx),
+		},
 		"optics_cpld_version": basetypes.StringType{},
 		"pending_version":     basetypes.StringType{},
 		"poe": basetypes.ObjectType{
@@ -17918,6 +19575,24 @@ func (t FansType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue)
 			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
 	}
 
+	rpmAttribute, ok := attributes["rpm"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rpm is missing from object`)
+
+		return nil, diags
+	}
+
+	rpmVal, ok := rpmAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rpm expected to be basetypes.Int64Value, was: %T`, rpmAttribute))
+	}
+
 	statusAttribute, ok := attributes["status"]
 
 	if !ok {
@@ -17943,6 +19618,7 @@ func (t FansType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue)
 	return FansValue{
 		Airflow: airflowVal,
 		Name:    nameVal,
+		Rpm:     rpmVal,
 		Status:  statusVal,
 		state:   attr.ValueStateKnown,
 	}, diags
@@ -18047,6 +19723,24 @@ func NewFansValue(attributeTypes map[string]attr.Type, attributes map[string]att
 			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
 	}
 
+	rpmAttribute, ok := attributes["rpm"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rpm is missing from object`)
+
+		return NewFansValueUnknown(), diags
+	}
+
+	rpmVal, ok := rpmAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rpm expected to be basetypes.Int64Value, was: %T`, rpmAttribute))
+	}
+
 	statusAttribute, ok := attributes["status"]
 
 	if !ok {
@@ -18072,6 +19766,7 @@ func NewFansValue(attributeTypes map[string]attr.Type, attributes map[string]att
 	return FansValue{
 		Airflow: airflowVal,
 		Name:    nameVal,
+		Rpm:     rpmVal,
 		Status:  statusVal,
 		state:   attr.ValueStateKnown,
 	}, diags
@@ -18147,25 +19842,27 @@ var _ basetypes.ObjectValuable = FansValue{}
 type FansValue struct {
 	Airflow basetypes.StringValue `tfsdk:"airflow"`
 	Name    basetypes.StringValue `tfsdk:"name"`
+	Rpm     basetypes.Int64Value  `tfsdk:"rpm"`
 	Status  basetypes.StringValue `tfsdk:"status"`
 	state   attr.ValueState
 }
 
 func (v FansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["airflow"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["rpm"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["status"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.Airflow.ToTerraformValue(ctx)
 
@@ -18182,6 +19879,14 @@ func (v FansValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) 
 		}
 
 		vals["name"] = val
+
+		val, err = v.Rpm.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["rpm"] = val
 
 		val, err = v.Status.ToTerraformValue(ctx)
 
@@ -18223,6 +19928,7 @@ func (v FansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, di
 	attributeTypes := map[string]attr.Type{
 		"airflow": basetypes.StringType{},
 		"name":    basetypes.StringType{},
+		"rpm":     basetypes.Int64Type{},
 		"status":  basetypes.StringType{},
 	}
 
@@ -18239,6 +19945,7 @@ func (v FansValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, di
 		map[string]attr.Value{
 			"airflow": v.Airflow,
 			"name":    v.Name,
+			"rpm":     v.Rpm,
 			"status":  v.Status,
 		})
 
@@ -18268,6 +19975,10 @@ func (v FansValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Rpm.Equal(other.Rpm) {
+		return false
+	}
+
 	if !v.Status.Equal(other.Status) {
 		return false
 	}
@@ -18287,7 +19998,442 @@ func (v FansValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"airflow": basetypes.StringType{},
 		"name":    basetypes.StringType{},
+		"rpm":     basetypes.Int64Type{},
 		"status":  basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = NetworkResourcesType{}
+
+type NetworkResourcesType struct {
+	basetypes.ObjectType
+}
+
+func (t NetworkResourcesType) Equal(o attr.Type) bool {
+	other, ok := o.(NetworkResourcesType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t NetworkResourcesType) String() string {
+	return "NetworkResourcesType"
+}
+
+func (t NetworkResourcesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	countAttribute, ok := attributes["count"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`count is missing from object`)
+
+		return nil, diags
+	}
+
+	countVal, ok := countAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`count expected to be basetypes.Int64Value, was: %T`, countAttribute))
+	}
+
+	limitAttribute, ok := attributes["limit"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`limit is missing from object`)
+
+		return nil, diags
+	}
+
+	limitVal, ok := limitAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`limit expected to be basetypes.Int64Value, was: %T`, limitAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return NetworkResourcesValue{
+		Count:                countVal,
+		Limit:                limitVal,
+		NetworkResourcesType: typeVal,
+		state:                attr.ValueStateKnown,
+	}, diags
+}
+
+func NewNetworkResourcesValueNull() NetworkResourcesValue {
+	return NetworkResourcesValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewNetworkResourcesValueUnknown() NetworkResourcesValue {
+	return NetworkResourcesValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewNetworkResourcesValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (NetworkResourcesValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing NetworkResourcesValue Attribute Value",
+				"While creating a NetworkResourcesValue value, a missing attribute value was detected. "+
+					"A NetworkResourcesValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("NetworkResourcesValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid NetworkResourcesValue Attribute Type",
+				"While creating a NetworkResourcesValue value, an invalid attribute value was detected. "+
+					"A NetworkResourcesValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("NetworkResourcesValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("NetworkResourcesValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra NetworkResourcesValue Attribute Value",
+				"While creating a NetworkResourcesValue value, an extra attribute value was detected. "+
+					"A NetworkResourcesValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra NetworkResourcesValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewNetworkResourcesValueUnknown(), diags
+	}
+
+	countAttribute, ok := attributes["count"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`count is missing from object`)
+
+		return NewNetworkResourcesValueUnknown(), diags
+	}
+
+	countVal, ok := countAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`count expected to be basetypes.Int64Value, was: %T`, countAttribute))
+	}
+
+	limitAttribute, ok := attributes["limit"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`limit is missing from object`)
+
+		return NewNetworkResourcesValueUnknown(), diags
+	}
+
+	limitVal, ok := limitAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`limit expected to be basetypes.Int64Value, was: %T`, limitAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewNetworkResourcesValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	if diags.HasError() {
+		return NewNetworkResourcesValueUnknown(), diags
+	}
+
+	return NetworkResourcesValue{
+		Count:                countVal,
+		Limit:                limitVal,
+		NetworkResourcesType: typeVal,
+		state:                attr.ValueStateKnown,
+	}, diags
+}
+
+func NewNetworkResourcesValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) NetworkResourcesValue {
+	object, diags := NewNetworkResourcesValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewNetworkResourcesValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t NetworkResourcesType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewNetworkResourcesValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewNetworkResourcesValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewNetworkResourcesValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewNetworkResourcesValueMust(NetworkResourcesValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t NetworkResourcesType) ValueType(ctx context.Context) attr.Value {
+	return NetworkResourcesValue{}
+}
+
+var _ basetypes.ObjectValuable = NetworkResourcesValue{}
+
+type NetworkResourcesValue struct {
+	Count                basetypes.Int64Value  `tfsdk:"count"`
+	Limit                basetypes.Int64Value  `tfsdk:"limit"`
+	NetworkResourcesType basetypes.StringValue `tfsdk:"type"`
+	state                attr.ValueState
+}
+
+func (v NetworkResourcesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["count"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["limit"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.Count.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["count"] = val
+
+		val, err = v.Limit.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["limit"] = val
+
+		val, err = v.NetworkResourcesType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v NetworkResourcesValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v NetworkResourcesValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v NetworkResourcesValue) String() string {
+	return "NetworkResourcesValue"
+}
+
+func (v NetworkResourcesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"count": basetypes.Int64Type{},
+		"limit": basetypes.Int64Type{},
+		"type":  basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"count": v.Count,
+			"limit": v.Limit,
+			"type":  v.NetworkResourcesType,
+		})
+
+	return objVal, diags
+}
+
+func (v NetworkResourcesValue) Equal(o attr.Value) bool {
+	other, ok := o.(NetworkResourcesValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Count.Equal(other.Count) {
+		return false
+	}
+
+	if !v.Limit.Equal(other.Limit) {
+		return false
+	}
+
+	if !v.NetworkResourcesType.Equal(other.NetworkResourcesType) {
+		return false
+	}
+
+	return true
+}
+
+func (v NetworkResourcesValue) Type(ctx context.Context) attr.Type {
+	return NetworkResourcesType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v NetworkResourcesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"count": basetypes.Int64Type{},
+		"limit": basetypes.Int64Type{},
+		"type":  basetypes.StringType{},
 	}
 }
 
@@ -18352,6 +20498,24 @@ func (t PoeType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) 
 			fmt.Sprintf(`power_draw expected to be basetypes.NumberValue, was: %T`, powerDrawAttribute))
 	}
 
+	statusAttribute, ok := attributes["status"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`status is missing from object`)
+
+		return nil, diags
+	}
+
+	statusVal, ok := statusAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`status expected to be basetypes.StringValue, was: %T`, statusAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -18359,6 +20523,7 @@ func (t PoeType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) 
 	return PoeValue{
 		MaxPower:  maxPowerVal,
 		PowerDraw: powerDrawVal,
+		Status:    statusVal,
 		state:     attr.ValueStateKnown,
 	}, diags
 }
@@ -18462,6 +20627,24 @@ func NewPoeValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 			fmt.Sprintf(`power_draw expected to be basetypes.NumberValue, was: %T`, powerDrawAttribute))
 	}
 
+	statusAttribute, ok := attributes["status"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`status is missing from object`)
+
+		return NewPoeValueUnknown(), diags
+	}
+
+	statusVal, ok := statusAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`status expected to be basetypes.StringValue, was: %T`, statusAttribute))
+	}
+
 	if diags.HasError() {
 		return NewPoeValueUnknown(), diags
 	}
@@ -18469,6 +20652,7 @@ func NewPoeValue(attributeTypes map[string]attr.Type, attributes map[string]attr
 	return PoeValue{
 		MaxPower:  maxPowerVal,
 		PowerDraw: powerDrawVal,
+		Status:    statusVal,
 		state:     attr.ValueStateKnown,
 	}, diags
 }
@@ -18543,23 +20727,25 @@ var _ basetypes.ObjectValuable = PoeValue{}
 type PoeValue struct {
 	MaxPower  basetypes.NumberValue `tfsdk:"max_power"`
 	PowerDraw basetypes.NumberValue `tfsdk:"power_draw"`
+	Status    basetypes.StringValue `tfsdk:"status"`
 	state     attr.ValueState
 }
 
 func (v PoeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["max_power"] = basetypes.NumberType{}.TerraformType(ctx)
 	attrTypes["power_draw"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["status"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 3)
 
 		val, err = v.MaxPower.ToTerraformValue(ctx)
 
@@ -18576,6 +20762,14 @@ func (v PoeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 		}
 
 		vals["power_draw"] = val
+
+		val, err = v.Status.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["status"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -18609,6 +20803,7 @@ func (v PoeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, dia
 	attributeTypes := map[string]attr.Type{
 		"max_power":  basetypes.NumberType{},
 		"power_draw": basetypes.NumberType{},
+		"status":     basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -18624,6 +20819,7 @@ func (v PoeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, dia
 		map[string]attr.Value{
 			"max_power":  v.MaxPower,
 			"power_draw": v.PowerDraw,
+			"status":     v.Status,
 		})
 
 	return objVal, diags
@@ -18652,6 +20848,10 @@ func (v PoeValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Status.Equal(other.Status) {
+		return false
+	}
+
 	return true
 }
 
@@ -18667,6 +20867,7 @@ func (v PoeValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"max_power":  basetypes.NumberType{},
 		"power_draw": basetypes.NumberType{},
+		"status":     basetypes.StringType{},
 	}
 }
 
@@ -24738,6 +26939,24 @@ func (t SpuStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`spu_pending_session expected to be basetypes.Int64Value, was: %T`, spuPendingSessionAttribute))
 	}
 
+	spuUptimeAttribute, ok := attributes["spu_uptime"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`spu_uptime is missing from object`)
+
+		return nil, diags
+	}
+
+	spuUptimeVal, ok := spuUptimeAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`spu_uptime expected to be basetypes.Int64Value, was: %T`, spuUptimeAttribute))
+	}
+
 	spuValidSessionAttribute, ok := attributes["spu_valid_session"]
 
 	if !ok {
@@ -24766,6 +26985,7 @@ func (t SpuStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		SpuMaxSession:     spuMaxSessionVal,
 		SpuMemory:         spuMemoryVal,
 		SpuPendingSession: spuPendingSessionVal,
+		SpuUptime:         spuUptimeVal,
 		SpuValidSession:   spuValidSessionVal,
 		state:             attr.ValueStateKnown,
 	}, diags
@@ -24924,6 +27144,24 @@ func NewSpuStatValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`spu_pending_session expected to be basetypes.Int64Value, was: %T`, spuPendingSessionAttribute))
 	}
 
+	spuUptimeAttribute, ok := attributes["spu_uptime"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`spu_uptime is missing from object`)
+
+		return NewSpuStatValueUnknown(), diags
+	}
+
+	spuUptimeVal, ok := spuUptimeAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`spu_uptime expected to be basetypes.Int64Value, was: %T`, spuUptimeAttribute))
+	}
+
 	spuValidSessionAttribute, ok := attributes["spu_valid_session"]
 
 	if !ok {
@@ -24952,6 +27190,7 @@ func NewSpuStatValue(attributeTypes map[string]attr.Type, attributes map[string]
 		SpuMaxSession:     spuMaxSessionVal,
 		SpuMemory:         spuMemoryVal,
 		SpuPendingSession: spuPendingSessionVal,
+		SpuUptime:         spuUptimeVal,
 		SpuValidSession:   spuValidSessionVal,
 		state:             attr.ValueStateKnown,
 	}, diags
@@ -25030,12 +27269,13 @@ type SpuStatValue struct {
 	SpuMaxSession     basetypes.Int64Value `tfsdk:"spu_max_session"`
 	SpuMemory         basetypes.Int64Value `tfsdk:"spu_memory"`
 	SpuPendingSession basetypes.Int64Value `tfsdk:"spu_pending_session"`
+	SpuUptime         basetypes.Int64Value `tfsdk:"spu_uptime"`
 	SpuValidSession   basetypes.Int64Value `tfsdk:"spu_valid_session"`
 	state             attr.ValueState
 }
 
 func (v SpuStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 7)
 
 	var val tftypes.Value
 	var err error
@@ -25045,13 +27285,14 @@ func (v SpuStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 	attrTypes["spu_max_session"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["spu_memory"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["spu_pending_session"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["spu_uptime"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["spu_valid_session"] = basetypes.Int64Type{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 7)
 
 		val, err = v.SpuCpu.ToTerraformValue(ctx)
 
@@ -25092,6 +27333,14 @@ func (v SpuStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["spu_pending_session"] = val
+
+		val, err = v.SpuUptime.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["spu_uptime"] = val
 
 		val, err = v.SpuValidSession.ToTerraformValue(ctx)
 
@@ -25136,6 +27385,7 @@ func (v SpuStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		"spu_max_session":     basetypes.Int64Type{},
 		"spu_memory":          basetypes.Int64Type{},
 		"spu_pending_session": basetypes.Int64Type{},
+		"spu_uptime":          basetypes.Int64Type{},
 		"spu_valid_session":   basetypes.Int64Type{},
 	}
 
@@ -25155,6 +27405,7 @@ func (v SpuStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"spu_max_session":     v.SpuMaxSession,
 			"spu_memory":          v.SpuMemory,
 			"spu_pending_session": v.SpuPendingSession,
+			"spu_uptime":          v.SpuUptime,
 			"spu_valid_session":   v.SpuValidSession,
 		})
 
@@ -25196,6 +27447,10 @@ func (v SpuStatValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.SpuUptime.Equal(other.SpuUptime) {
+		return false
+	}
+
 	if !v.SpuValidSession.Equal(other.SpuValidSession) {
 		return false
 	}
@@ -25218,6 +27473,7 @@ func (v SpuStatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"spu_max_session":     basetypes.Int64Type{},
 		"spu_memory":          basetypes.Int64Type{},
 		"spu_pending_session": basetypes.Int64Type{},
+		"spu_uptime":          basetypes.Int64Type{},
 		"spu_valid_session":   basetypes.Int64Type{},
 	}
 }
@@ -26579,6 +28835,24 @@ func (t VpnPeersType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`is_active expected to be basetypes.BoolValue, was: %T`, isActiveAttribute))
 	}
 
+	jitterAttribute, ok := attributes["jitter"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`jitter is missing from object`)
+
+		return nil, diags
+	}
+
+	jitterVal, ok := jitterAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`jitter expected to be basetypes.NumberValue, was: %T`, jitterAttribute))
+	}
+
 	lastSeenAttribute, ok := attributes["last_seen"]
 
 	if !ok {
@@ -26613,6 +28887,24 @@ func (t VpnPeersType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`latency expected to be basetypes.NumberValue, was: %T`, latencyAttribute))
+	}
+
+	lossAttribute, ok := attributes["loss"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`loss is missing from object`)
+
+		return nil, diags
+	}
+
+	lossVal, ok := lossAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`loss expected to be basetypes.NumberValue, was: %T`, lossAttribute))
 	}
 
 	mosAttribute, ok := attributes["mos"]
@@ -26819,8 +29111,10 @@ func (t VpnPeersType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 
 	return VpnPeersValue{
 		IsActive:       isActiveVal,
+		Jitter:         jitterVal,
 		LastSeen:       lastSeenVal,
 		Latency:        latencyVal,
+		Loss:           lossVal,
 		Mos:            mosVal,
 		Mtu:            mtuVal,
 		PeerMac:        peerMacVal,
@@ -26917,6 +29211,24 @@ func NewVpnPeersValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`is_active expected to be basetypes.BoolValue, was: %T`, isActiveAttribute))
 	}
 
+	jitterAttribute, ok := attributes["jitter"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`jitter is missing from object`)
+
+		return NewVpnPeersValueUnknown(), diags
+	}
+
+	jitterVal, ok := jitterAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`jitter expected to be basetypes.NumberValue, was: %T`, jitterAttribute))
+	}
+
 	lastSeenAttribute, ok := attributes["last_seen"]
 
 	if !ok {
@@ -26951,6 +29263,24 @@ func NewVpnPeersValue(attributeTypes map[string]attr.Type, attributes map[string
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`latency expected to be basetypes.NumberValue, was: %T`, latencyAttribute))
+	}
+
+	lossAttribute, ok := attributes["loss"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`loss is missing from object`)
+
+		return NewVpnPeersValueUnknown(), diags
+	}
+
+	lossVal, ok := lossAttribute.(basetypes.NumberValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`loss expected to be basetypes.NumberValue, was: %T`, lossAttribute))
 	}
 
 	mosAttribute, ok := attributes["mos"]
@@ -27157,8 +29487,10 @@ func NewVpnPeersValue(attributeTypes map[string]attr.Type, attributes map[string
 
 	return VpnPeersValue{
 		IsActive:       isActiveVal,
+		Jitter:         jitterVal,
 		LastSeen:       lastSeenVal,
 		Latency:        latencyVal,
+		Loss:           lossVal,
 		Mos:            mosVal,
 		Mtu:            mtuVal,
 		PeerMac:        peerMacVal,
@@ -27243,8 +29575,10 @@ var _ basetypes.ObjectValuable = VpnPeersValue{}
 
 type VpnPeersValue struct {
 	IsActive       basetypes.BoolValue    `tfsdk:"is_active"`
+	Jitter         basetypes.NumberValue  `tfsdk:"jitter"`
 	LastSeen       basetypes.Float64Value `tfsdk:"last_seen"`
 	Latency        basetypes.NumberValue  `tfsdk:"latency"`
+	Loss           basetypes.NumberValue  `tfsdk:"loss"`
 	Mos            basetypes.NumberValue  `tfsdk:"mos"`
 	Mtu            basetypes.Int64Value   `tfsdk:"mtu"`
 	PeerMac        basetypes.StringValue  `tfsdk:"peer_mac"`
@@ -27260,14 +29594,16 @@ type VpnPeersValue struct {
 }
 
 func (v VpnPeersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 14)
+	attrTypes := make(map[string]tftypes.Type, 16)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["is_active"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["jitter"] = basetypes.NumberType{}.TerraformType(ctx)
 	attrTypes["last_seen"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["latency"] = basetypes.NumberType{}.TerraformType(ctx)
+	attrTypes["loss"] = basetypes.NumberType{}.TerraformType(ctx)
 	attrTypes["mos"] = basetypes.NumberType{}.TerraformType(ctx)
 	attrTypes["mtu"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["peer_mac"] = basetypes.StringType{}.TerraformType(ctx)
@@ -27284,7 +29620,7 @@ func (v VpnPeersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 14)
+		vals := make(map[string]tftypes.Value, 16)
 
 		val, err = v.IsActive.ToTerraformValue(ctx)
 
@@ -27293,6 +29629,14 @@ func (v VpnPeersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["is_active"] = val
+
+		val, err = v.Jitter.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["jitter"] = val
 
 		val, err = v.LastSeen.ToTerraformValue(ctx)
 
@@ -27309,6 +29653,14 @@ func (v VpnPeersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["latency"] = val
+
+		val, err = v.Loss.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["loss"] = val
 
 		val, err = v.Mos.ToTerraformValue(ctx)
 
@@ -27429,8 +29781,10 @@ func (v VpnPeersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 
 	attributeTypes := map[string]attr.Type{
 		"is_active":        basetypes.BoolType{},
+		"jitter":           basetypes.NumberType{},
 		"last_seen":        basetypes.Float64Type{},
 		"latency":          basetypes.NumberType{},
+		"loss":             basetypes.NumberType{},
 		"mos":              basetypes.NumberType{},
 		"mtu":              basetypes.Int64Type{},
 		"peer_mac":         basetypes.StringType{},
@@ -27456,8 +29810,10 @@ func (v VpnPeersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		attributeTypes,
 		map[string]attr.Value{
 			"is_active":        v.IsActive,
+			"jitter":           v.Jitter,
 			"last_seen":        v.LastSeen,
 			"latency":          v.Latency,
+			"loss":             v.Loss,
 			"mos":              v.Mos,
 			"mtu":              v.Mtu,
 			"peer_mac":         v.PeerMac,
@@ -27493,11 +29849,19 @@ func (v VpnPeersValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Jitter.Equal(other.Jitter) {
+		return false
+	}
+
 	if !v.LastSeen.Equal(other.LastSeen) {
 		return false
 	}
 
 	if !v.Latency.Equal(other.Latency) {
+		return false
+	}
+
+	if !v.Loss.Equal(other.Loss) {
 		return false
 	}
 
@@ -27559,8 +29923,10 @@ func (v VpnPeersValue) Type(ctx context.Context) attr.Type {
 func (v VpnPeersValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"is_active":        basetypes.BoolType{},
+		"jitter":           basetypes.NumberType{},
 		"last_seen":        basetypes.Float64Type{},
 		"latency":          basetypes.NumberType{},
+		"loss":             basetypes.NumberType{},
 		"mos":              basetypes.NumberType{},
 		"mtu":              basetypes.Int64Type{},
 		"peer_mac":         basetypes.StringType{},

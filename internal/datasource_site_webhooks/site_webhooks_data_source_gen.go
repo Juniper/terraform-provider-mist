@@ -24,6 +24,12 @@ func SiteWebhooksDataSourceSchema(ctx context.Context) schema.Schema {
 			"site_webhooks": schema.SetNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
+						"assetfilter_ids": schema.ListAttribute{
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "Only if `type`==`asset-raw-rssi`. List of ids to associated asset filters. These filters will be applied to messages routed to a filtered-asset-rssi webhook",
+							MarkdownDescription: "Only if `type`==`asset-raw-rssi`. List of ids to associated asset filters. These filters will be applied to messages routed to a filtered-asset-rssi webhook",
+						},
 						"created_time": schema.Float64Attribute{
 							Computed:            true,
 							Description:         "When the object has been created, in epoch",
@@ -178,6 +184,24 @@ func (t SiteWebhooksType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	attributes := in.Attributes()
 
+	assetfilterIdsAttribute, ok := attributes["assetfilter_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`assetfilter_ids is missing from object`)
+
+		return nil, diags
+	}
+
+	assetfilterIdsVal, ok := assetfilterIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`assetfilter_ids expected to be basetypes.ListValue, was: %T`, assetfilterIdsAttribute))
+	}
+
 	createdTimeAttribute, ok := attributes["created_time"]
 
 	if !ok {
@@ -579,6 +603,7 @@ func (t SiteWebhooksType) ValueFromObject(ctx context.Context, in basetypes.Obje
 	}
 
 	return SiteWebhooksValue{
+		AssetfilterIds:        assetfilterIdsVal,
 		CreatedTime:           createdTimeVal,
 		Enabled:               enabledVal,
 		Headers:               headersVal,
@@ -668,6 +693,24 @@ func NewSiteWebhooksValue(attributeTypes map[string]attr.Type, attributes map[st
 		return NewSiteWebhooksValueUnknown(), diags
 	}
 
+	assetfilterIdsAttribute, ok := attributes["assetfilter_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`assetfilter_ids is missing from object`)
+
+		return NewSiteWebhooksValueUnknown(), diags
+	}
+
+	assetfilterIdsVal, ok := assetfilterIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`assetfilter_ids expected to be basetypes.ListValue, was: %T`, assetfilterIdsAttribute))
+	}
+
 	createdTimeAttribute, ok := attributes["created_time"]
 
 	if !ok {
@@ -1069,6 +1112,7 @@ func NewSiteWebhooksValue(attributeTypes map[string]attr.Type, attributes map[st
 	}
 
 	return SiteWebhooksValue{
+		AssetfilterIds:        assetfilterIdsVal,
 		CreatedTime:           createdTimeVal,
 		Enabled:               enabledVal,
 		Headers:               headersVal,
@@ -1163,6 +1207,7 @@ func (t SiteWebhooksType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SiteWebhooksValue{}
 
 type SiteWebhooksValue struct {
+	AssetfilterIds        basetypes.ListValue    `tfsdk:"assetfilter_ids"`
 	CreatedTime           basetypes.Float64Value `tfsdk:"created_time"`
 	Enabled               basetypes.BoolValue    `tfsdk:"enabled"`
 	Headers               basetypes.MapValue     `tfsdk:"headers"`
@@ -1189,11 +1234,14 @@ type SiteWebhooksValue struct {
 }
 
 func (v SiteWebhooksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 22)
+	attrTypes := make(map[string]tftypes.Type, 23)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["assetfilter_ids"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["created_time"] = basetypes.Float64Type{}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["headers"] = basetypes.MapType{
@@ -1227,7 +1275,15 @@ func (v SiteWebhooksValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 22)
+		vals := make(map[string]tftypes.Value, 23)
+
+		val, err = v.AssetfilterIds.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["assetfilter_ids"] = val
 
 		val, err = v.CreatedTime.ToTerraformValue(ctx)
 
@@ -1434,12 +1490,23 @@ func (v SiteWebhooksValue) String() string {
 func (v SiteWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	headersVal, d := types.MapValue(types.StringType, v.Headers.Elements())
+	var assetfilterIdsVal basetypes.ListValue
+	switch {
+	case v.AssetfilterIds.IsUnknown():
+		assetfilterIdsVal = types.ListUnknown(types.StringType)
+	case v.AssetfilterIds.IsNull():
+		assetfilterIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		assetfilterIdsVal, d = types.ListValue(types.StringType, v.AssetfilterIds.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"assetfilter_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"created_time": basetypes.Float64Type{},
 			"enabled":      basetypes.BoolType{},
 			"headers": basetypes.MapType{
@@ -1471,12 +1538,23 @@ func (v SiteWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		}), diags
 	}
 
-	oauth2ScopesVal, d := types.ListValue(types.StringType, v.Oauth2Scopes.Elements())
+	var headersVal basetypes.MapValue
+	switch {
+	case v.Headers.IsUnknown():
+		headersVal = types.MapUnknown(types.StringType)
+	case v.Headers.IsNull():
+		headersVal = types.MapNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		headersVal, d = types.MapValue(types.StringType, v.Headers.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"assetfilter_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"created_time": basetypes.Float64Type{},
 			"enabled":      basetypes.BoolType{},
 			"headers": basetypes.MapType{
@@ -1508,12 +1586,71 @@ func (v SiteWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		}), diags
 	}
 
-	topicsVal, d := types.ListValue(types.StringType, v.Topics.Elements())
+	var oauth2ScopesVal basetypes.ListValue
+	switch {
+	case v.Oauth2Scopes.IsUnknown():
+		oauth2ScopesVal = types.ListUnknown(types.StringType)
+	case v.Oauth2Scopes.IsNull():
+		oauth2ScopesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		oauth2ScopesVal, d = types.ListValue(types.StringType, v.Oauth2Scopes.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"assetfilter_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"created_time": basetypes.Float64Type{},
+			"enabled":      basetypes.BoolType{},
+			"headers": basetypes.MapType{
+				ElemType: types.StringType,
+			},
+			"id":                   basetypes.StringType{},
+			"modified_time":        basetypes.Float64Type{},
+			"name":                 basetypes.StringType{},
+			"oauth2_client_id":     basetypes.StringType{},
+			"oauth2_client_secret": basetypes.StringType{},
+			"oauth2_grant_type":    basetypes.StringType{},
+			"oauth2_password":      basetypes.StringType{},
+			"oauth2_scopes": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"oauth2_token_url":         basetypes.StringType{},
+			"oauth2_username":          basetypes.StringType{},
+			"org_id":                   basetypes.StringType{},
+			"secret":                   basetypes.StringType{},
+			"single_event_per_message": basetypes.BoolType{},
+			"site_id":                  basetypes.StringType{},
+			"splunk_token":             basetypes.StringType{},
+			"topics": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"type":        basetypes.StringType{},
+			"url":         basetypes.StringType{},
+			"verify_cert": basetypes.BoolType{},
+		}), diags
+	}
+
+	var topicsVal basetypes.ListValue
+	switch {
+	case v.Topics.IsUnknown():
+		topicsVal = types.ListUnknown(types.StringType)
+	case v.Topics.IsNull():
+		topicsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		topicsVal, d = types.ListValue(types.StringType, v.Topics.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"assetfilter_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"created_time": basetypes.Float64Type{},
 			"enabled":      basetypes.BoolType{},
 			"headers": basetypes.MapType{
@@ -1546,6 +1683,9 @@ func (v SiteWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	}
 
 	attributeTypes := map[string]attr.Type{
+		"assetfilter_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"created_time": basetypes.Float64Type{},
 		"enabled":      basetypes.BoolType{},
 		"headers": basetypes.MapType{
@@ -1587,6 +1727,7 @@ func (v SiteWebhooksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"assetfilter_ids":          assetfilterIdsVal,
 			"created_time":             v.CreatedTime,
 			"enabled":                  v.Enabled,
 			"headers":                  headersVal,
@@ -1627,6 +1768,10 @@ func (v SiteWebhooksValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.AssetfilterIds.Equal(other.AssetfilterIds) {
+		return false
 	}
 
 	if !v.CreatedTime.Equal(other.CreatedTime) {
@@ -1730,6 +1875,9 @@ func (v SiteWebhooksValue) Type(ctx context.Context) attr.Type {
 
 func (v SiteWebhooksValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"assetfilter_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"created_time": basetypes.Float64Type{},
 		"enabled":      basetypes.BoolType{},
 		"headers": basetypes.MapType{

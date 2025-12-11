@@ -8,7 +8,6 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wlan_portal_image"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
-	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -86,17 +85,10 @@ func (r *orgWlanPortalImageResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	file, err := models.GetFile(plan.File.ValueString())
-	if err != nil {
-		diags.AddError(
-			"Invalid \"file\" value for \"mist_org_wlan_portal_image\" resource",
-			fmt.Sprintf("Could not open file \"%s\": %s", plan.File.ValueString(), err.Error()),
-		)
-		return
-	}
+
 	var json = ""
 
-	data, err := r.client.OrgsWlans().UploadOrgWlanPortalImage(ctx, orgId, wlanId, file, &json)
+	data, err := r.client.OrgsWlans().UploadOrgWlanPortalImage(ctx, orgId, wlanId, plan.File.ValueString(), &json)
 
 	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
 	if apiErr != "" {
@@ -152,17 +144,10 @@ func (r *orgWlanPortalImageResource) Update(ctx context.Context, req resource.Up
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	file, err := models.GetFile(plan.File.ValueString())
-	if err != nil {
-		diags.AddError(
-			"Invalid \"file\" value for \"mist_org_wlan_portal_image\" resource",
-			fmt.Sprintf("Could not open file \"%s\": %s", plan.File.ValueString(), err.Error()),
-		)
-		return
-	}
+
 	var json = ""
 
-	data, err := r.client.OrgsWlans().UploadOrgWlanPortalImage(ctx, orgId, wlanId, file, &json)
+	data, err := r.client.OrgsWlans().UploadOrgWlanPortalImage(ctx, orgId, wlanId, plan.File.ValueString(), &json)
 
 	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
 	if apiErr != "" {

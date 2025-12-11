@@ -38,7 +38,7 @@ func SdkToTerraform(ctx context.Context, data models.WxlanTag) (SiteWxtagModel, 
 		values = mistutils.ListOfStringSdkToTerraform(data.Values)
 	}
 	if data.VlanId != nil {
-		vlanId = types.StringValue(data.VlanId.String())
+		vlanId = mistutils.ContainerAsString(data.VlanId)
 	}
 
 	state.Id = types.StringValue(data.Id.String())

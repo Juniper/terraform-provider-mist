@@ -27,20 +27,23 @@ func SdkToTerraform(ctx context.Context, l *[]models.StatsAp, elements *[]attr.V
 
 func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsAp) DeviceApStatsValue {
 
+	var antennaSelect basetypes.StringValue
 	var autoPlacement = types.ObjectNull(AutoPlacementValue{}.AttributeTypes(ctx))
 	var autoUpgradeStat = types.ObjectNull(AutoUpgradeStatValue{}.AttributeTypes(ctx))
 	var bleStat = types.ObjectNull(BleStatValue{}.AttributeTypes(ctx))
 	var certExpiry basetypes.NumberValue
 	var configReverted basetypes.BoolValue
 	var cpuSystem basetypes.Int64Value
+	var cpuUser basetypes.Int64Value
 	var cpuUtil basetypes.Int64Value
 	var createdTime basetypes.Float64Value
 	var deviceprofileId basetypes.StringValue
 	var envStat = types.ObjectNull(EnvStatValue{}.AttributeTypes(ctx))
 	var eslStat = types.ObjectNull(EslStatValue{}.AttributeTypes(ctx))
+	var expiringCerts = types.MapNull(types.Int64Type)
 	var extIp basetypes.StringValue
 	var fwupdate = types.ObjectNull(FwupdateValue{}.AttributeTypes(ctx))
-	var gpsStats = types.ObjectNull(GpsValue{}.AttributeTypes(ctx))
+	var gpsStats = types.ObjectNull(GpsStatValue{}.AttributeTypes(ctx))
 	var hwRev basetypes.StringValue
 	var id basetypes.StringValue
 	var inactiveWiredVlans = types.ListNull(types.Int64Type)
@@ -53,10 +56,12 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var lastTrouble = types.ObjectNull(LastTroubleValue{}.AttributeTypes(ctx))
 	var led = types.ObjectNull(LedValue{}.AttributeTypes(ctx))
 	var lldpStat = types.ObjectNull(LldpStatValue{}.AttributeTypes(ctx))
+	var lldpStats = types.MapNull(LldpStatValue{}.Type(ctx))
 	var locating basetypes.BoolValue
 	var locked basetypes.BoolValue
 	var mac basetypes.StringValue
 	var mapId basetypes.StringValue
+	var memTotalKb basetypes.Int64Value
 	var memUsedKb basetypes.Int64Value
 	var meshDownlinks = types.MapNull(MeshDownlinksValue{}.Type(ctx))
 	var meshUplink = types.ObjectNull(MeshUplinkValue{}.AttributeTypes(ctx))
@@ -90,6 +95,9 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var x basetypes.Float64Value
 	var y basetypes.Float64Value
 
+	if d.AntennaSelect != nil {
+		antennaSelect = types.StringValue(string(*d.AntennaSelect))
+	}
 	if d.AutoPlacement != nil {
 		autoPlacement = autoPlacementSdkToTerraform(ctx, diags, d.AutoPlacement)
 	}
@@ -108,6 +116,9 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.CpuSystem.Value() != nil {
 		cpuSystem = types.Int64Value(*d.CpuSystem.Value())
 	}
+	if d.CpuUser.Value() != nil {
+		cpuUser = types.Int64Value(int64(*d.CpuUser.Value()))
+	}
 	if d.CpuUtil.Value() != nil {
 		cpuUtil = types.Int64Value(int64(*d.CpuUtil.Value()))
 	}
@@ -122,6 +133,15 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	}
 	if d.EslStat.Value() != nil {
 		eslStat = eslStatsSdkToTerraform(ctx, diags, d.EslStat.Value())
+	}
+	if len(d.ExpiringCerts) > 0 {
+		mapAttrValues := make(map[string]attr.Value)
+		for k, v := range d.ExpiringCerts {
+			mapAttrValues[k] = types.Int64Value(int64(v))
+		}
+		mapAttr, e := types.MapValueFrom(ctx, types.Int64Type, mapAttrValues)
+		diags.Append(e...)
+		expiringCerts = mapAttr
 	}
 	if d.ExtIp.Value() != nil {
 		extIp = types.StringValue(*d.ExtIp.Value())
@@ -168,6 +188,16 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.LldpStat != nil {
 		lldpStat = lldpSdkToTerraform(ctx, diags, d.LldpStat)
 	}
+	if len(d.LldpStats) > 0 {
+
+		mapAttrValues := make(map[string]attr.Value)
+		for k, v := range d.LldpStats {
+			mapAttrValues[k] = lldpSdkToTerraform(ctx, diags, &v)
+		}
+		mapAttr, e := types.MapValueFrom(ctx, LldpStatsValue{}.Type(ctx), mapAttrValues)
+		diags.Append(e...)
+		lldpStats = mapAttr
+	}
 	if d.Locating.Value() != nil {
 		locating = types.BoolValue(*d.Locating.Value())
 	}
@@ -179,6 +209,9 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	}
 	if d.MapId.Value() != nil {
 		mapId = types.StringValue(d.MapId.Value().String())
+	}
+	if d.MemTotalKb.Value() != nil {
+		memTotalKb = types.Int64Value(*d.MemTotalKb.Value())
 	}
 	if d.MemUsedKb.Value() != nil {
 		memUsedKb = types.Int64Value(*d.MemUsedKb.Value())
@@ -278,20 +311,23 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"antenna_select":       antennaSelect,
 		"auto_placement":       autoPlacement,
 		"auto_upgrade_stat":    autoUpgradeStat,
 		"ble_stat":             bleStat,
 		"cert_expiry":          certExpiry,
 		"config_reverted":      configReverted,
 		"cpu_system":           cpuSystem,
+		"cpu_user":             cpuUser,
 		"cpu_util":             cpuUtil,
 		"created_time":         createdTime,
 		"deviceprofile_id":     deviceprofileId,
 		"env_stat":             envStat,
 		"esl_stat":             eslStat,
+		"expiring_certs":       expiringCerts,
 		"ext_ip":               extIp,
 		"fwupdate":             fwupdate,
-		"gps":                  gpsStats,
+		"gps_stat":             gpsStats,
 		"hw_rev":               hwRev,
 		"id":                   id,
 		"inactive_wired_vlans": inactiveWiredVlans,
@@ -304,10 +340,12 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		"last_trouble":         lastTrouble,
 		"led":                  led,
 		"lldp_stat":            lldpStat,
+		"lldp_stats":           lldpStats,
 		"locating":             locating,
 		"locked":               locked,
 		"mac":                  mac,
 		"map_id":               mapId,
+		"mem_total_kb":         memTotalKb,
 		"mem_used_kb":          memUsedKb,
 		"mesh_downlinks":       meshDownlinks,
 		"mesh_uplink":          meshUplink,

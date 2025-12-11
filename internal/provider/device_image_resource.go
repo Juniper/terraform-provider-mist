@@ -8,7 +8,6 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/resource_device_image"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
-	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -92,17 +91,9 @@ func (r *deviceImageResource) Create(ctx context.Context, req resource.CreateReq
 	imageNumber := int(plan.ImageNumber.ValueInt64())
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	file, err := models.GetFile(plan.File.ValueString())
-	if err != nil {
-		diags.AddError(
-			"Invalid \"file\" value for \"mist_device_image\" resource",
-			fmt.Sprintf("Could not open file \"%s\": %s", plan.File.ValueString(), err.Error()),
-		)
-		return
-	}
 	var json = ""
 
-	data, err := r.client.SitesDevices().AddSiteDeviceImage(ctx, siteId, deviceId, imageNumber, file, &json)
+	data, err := r.client.SitesDevices().AddSiteDeviceImage(ctx, siteId, deviceId, imageNumber, plan.File.ValueString(), &json)
 
 	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
 	if apiErr != "" {
@@ -161,17 +152,9 @@ func (r *deviceImageResource) Update(ctx context.Context, req resource.UpdateReq
 	imageNumber := int(plan.ImageNumber.ValueInt64())
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	file, err := models.GetFile(plan.File.ValueString())
-	if err != nil {
-		diags.AddError(
-			"Invalid \"file\" value for \"mist_device_image\" resource",
-			fmt.Sprintf("Could not open file \"%s\": %s", plan.File.ValueString(), err.Error()),
-		)
-		return
-	}
 	var json = ""
 
-	data, err := r.client.SitesDevices().AddSiteDeviceImage(ctx, siteId, deviceId, imageNumber, file, &json)
+	data, err := r.client.SitesDevices().AddSiteDeviceImage(ctx, siteId, deviceId, imageNumber, plan.File.ValueString(), &json)
 
 	apiErr := mistapierror.ProcessApiError(data.StatusCode, data.Body, err)
 	if apiErr != "" {
