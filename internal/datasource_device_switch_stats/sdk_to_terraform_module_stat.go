@@ -20,6 +20,7 @@ func moduleStatCpuSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	var interrupt basetypes.NumberValue
 	var loadAvg = types.ListNull(types.NumberType)
 	var system basetypes.NumberValue
+	var usage basetypes.NumberValue
 	var user basetypes.NumberValue
 
 	if d.Idle.Value() != nil {
@@ -34,6 +35,9 @@ func moduleStatCpuSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	if d.System.Value() != nil {
 		system = types.NumberValue(big.NewFloat(*d.System.Value()))
 	}
+	if d.Usage.Value() != nil {
+		usage = types.NumberValue(big.NewFloat(*d.Usage.Value()))
+	}
 	if d.User.Value() != nil {
 		user = types.NumberValue(big.NewFloat(*d.User.Value()))
 	}
@@ -43,6 +47,7 @@ func moduleStatCpuSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 		"interrupt": interrupt,
 		"load_avg":  loadAvg,
 		"system":    system,
+		"usage":     usage,
 		"user":      user,
 	}
 	data, e := basetypes.NewObjectValue(CpuStatValue{}.AttributeTypes(ctx), dataMapValue)
@@ -98,6 +103,7 @@ func moduleStatFanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l
 	for _, d := range l {
 		var airflow basetypes.StringValue
 		var name basetypes.StringValue
+		var rpm basetypes.Int64Value
 		var status basetypes.StringValue
 
 		if d.Airflow != nil {
@@ -106,6 +112,9 @@ func moduleStatFanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l
 		if d.Name != nil {
 			name = types.StringValue(*d.Name)
 		}
+		if d.Rpm != nil {
+			rpm = types.Int64Value(int64(*d.Rpm))
+		}
 		if d.Status != nil {
 			status = types.StringValue(*d.Status)
 		}
@@ -113,6 +122,7 @@ func moduleStatFanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l
 		dataMapValue := map[string]attr.Value{
 			"airflow": airflow,
 			"name":    name,
+			"rpm":     rpm,
 			"status":  status,
 		}
 		data, e := NewFansValue(FansValue{}.AttributeTypes(ctx), dataMapValue)
@@ -191,6 +201,7 @@ func moduleStatPoeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 
 	var maxPower basetypes.NumberValue
 	var powerDraw basetypes.NumberValue
+	var status basetypes.StringValue
 
 	if d.MaxPower != nil {
 		maxPower = types.NumberValue(big.NewFloat(*d.MaxPower))
@@ -198,10 +209,14 @@ func moduleStatPoeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	if d.PowerDraw != nil {
 		powerDraw = types.NumberValue(big.NewFloat(*d.PowerDraw))
 	}
+	if d.Status != nil {
+		status = types.StringValue(*d.Status)
+	}
 
 	dataMapValue := map[string]attr.Value{
 		"max_power":  maxPower,
 		"power_draw": powerDraw,
+		"status":     status,
 	}
 	data, e := basetypes.NewObjectValue(PoeValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
@@ -307,6 +322,7 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 	for _, d := range l {
 		var backupVersion basetypes.StringValue
 		var biosVersion basetypes.StringValue
+		var bootPartition basetypes.StringValue
 		var cpldVersion basetypes.StringValue
 		var cpuStat = types.ObjectNull(CpuStatValue{}.AttributeTypes(ctx))
 		var errors = types.ListNull(ErrorsValue{}.Type(ctx))
@@ -316,6 +332,7 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		var lastSeen basetypes.Float64Value
 		var locating basetypes.BoolValue
 		var mac basetypes.StringValue
+		var memoryStat = types.ObjectNull(MemoryStatValue{}.AttributeTypes(ctx))
 		var model basetypes.StringValue
 		var opticsCpldVersion basetypes.StringValue
 		var pendingVersion basetypes.StringValue
@@ -345,6 +362,9 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		if d.BiosVersion.Value() != nil {
 			biosVersion = types.StringValue(*d.BiosVersion.Value())
 		}
+		if d.BootPartition != nil {
+			bootPartition = types.StringValue(*d.BootPartition)
+		}
 		if d.CpldVersion.Value() != nil {
 			cpldVersion = types.StringValue(*d.CpldVersion.Value())
 		}
@@ -371,6 +391,9 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		}
 		if d.Mac != nil {
 			mac = types.StringValue(*d.Mac)
+		}
+		if d.MemoryStat != nil {
+			memoryStat = memoryStatSdkToTerraform(ctx, diags, d.MemoryStat)
 		}
 		if d.Model.Value() != nil {
 			model = types.StringValue(*d.Model.Value())
@@ -442,6 +465,7 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		dataMapValue := map[string]attr.Value{
 			"backup_version":      backupVersion,
 			"bios_version":        biosVersion,
+			"boot_partition":      bootPartition,
 			"cpld_version":        cpldVersion,
 			"cpu_stat":            cpuStat,
 			"errors":              errors,
@@ -451,6 +475,7 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 			"last_seen":           lastSeen,
 			"locating":            locating,
 			"mac":                 mac,
+			"memory_stat":         memoryStat,
 			"model":               model,
 			"optics_cpld_version": opticsCpldVersion,
 			"pending_version":     pendingVersion,

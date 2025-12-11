@@ -22,18 +22,22 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"match": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `type`==`match`, Type of NAC Tag. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
-				MarkdownDescription: "if `type`==`match`, Type of NAC Tag. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
+				Description:         "if `type`==`match`, Type of NAC Tag. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
+				MarkdownDescription: "if `type`==`match`, Type of NAC Tag. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
 						"cert_cn",
+						"cert_eku",
 						"cert_issuer",
 						"cert_san",
 						"cert_serial",
 						"cert_sub",
 						"cert_template",
 						"client_mac",
+						"edr_status",
+						"gbp_tag",
+						"hostname",
 						"idp_role",
 						"ingress_vlan",
 						"mdm_status",
@@ -84,18 +88,23 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"match": schema.StringAttribute{
 							Computed:            true,
-							Description:         "if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
-							MarkdownDescription: "if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
+							Description:         "if `type`==`match`. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
+							MarkdownDescription: "if `type`==`match`. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
 						},
 						"match_all": schema.BoolAttribute{
 							Computed:            true,
-							Description:         "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`",
-							MarkdownDescription: "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`",
+							Description:         "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role`, `match`==`usermac_label` and `edr_status`",
+							MarkdownDescription: "This field is applicable only when `type`==`match`\n  * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)\n  * `true`: means all values should be matched (i.e., match-all behavior)\n\n\nCurrently it makes sense to set this field to `true` only if the `match`==`idp_role`, `match`==`usermac_label` and `edr_status`",
 						},
 						"modified_time": schema.Float64Attribute{
 							Computed:            true,
 							Description:         "When the object has been modified for the last time, in epoch",
 							MarkdownDescription: "When the object has been modified for the last time, in epoch",
+						},
+						"nacportal_id": schema.StringAttribute{
+							Computed:            true,
+							Description:         "If `type`==`redirect_nacportal_id`, the ID of the NAC portal to redirect to",
+							MarkdownDescription: "If `type`==`redirect_nacportal_id`, the ID of the NAC portal to redirect to",
 						},
 						"name": schema.StringAttribute{
 							Computed: true,
@@ -127,8 +136,8 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 						},
 						"type": schema.StringAttribute{
 							Computed:            true,
-							Description:         "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`",
-							MarkdownDescription: "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`",
+							Description:         "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `redirect_nacportal_id`, `session_timeout`, `username_attr`, `vlan`",
+							MarkdownDescription: "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `redirect_nacportal_id`, `session_timeout`, `username_attr`, `vlan`",
 						},
 						"username_attr": schema.StringAttribute{
 							Computed:            true,
@@ -168,6 +177,7 @@ func OrgNactagsDataSourceSchema(ctx context.Context) schema.Schema {
 						"radius_attrs",
 						"radius_group",
 						"radius_vendor_attrs",
+						"redirect_nacportal_id",
 						"session_timeout",
 						"username_attr",
 						"vlan",
@@ -354,6 +364,24 @@ func (t OrgNactagsType) ValueFromObject(ctx context.Context, in basetypes.Object
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
+	}
+
+	nacportalIdAttribute, ok := attributes["nacportal_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`nacportal_id is missing from object`)
+
+		return nil, diags
+	}
+
+	nacportalIdVal, ok := nacportalIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`nacportal_id expected to be basetypes.StringValue, was: %T`, nacportalIdAttribute))
 	}
 
 	nameAttribute, ok := attributes["name"]
@@ -549,6 +577,7 @@ func (t OrgNactagsType) ValueFromObject(ctx context.Context, in basetypes.Object
 		Match:                matchVal,
 		MatchAll:             matchAllVal,
 		ModifiedTime:         modifiedTimeVal,
+		NacportalId:          nacportalIdVal,
 		Name:                 nameVal,
 		OrgId:                orgIdVal,
 		RadiusAttrs:          radiusAttrsVal,
@@ -770,6 +799,24 @@ func NewOrgNactagsValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`modified_time expected to be basetypes.Float64Value, was: %T`, modifiedTimeAttribute))
 	}
 
+	nacportalIdAttribute, ok := attributes["nacportal_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`nacportal_id is missing from object`)
+
+		return NewOrgNactagsValueUnknown(), diags
+	}
+
+	nacportalIdVal, ok := nacportalIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`nacportal_id expected to be basetypes.StringValue, was: %T`, nacportalIdAttribute))
+	}
+
 	nameAttribute, ok := attributes["name"]
 
 	if !ok {
@@ -963,6 +1010,7 @@ func NewOrgNactagsValue(attributeTypes map[string]attr.Type, attributes map[stri
 		Match:                matchVal,
 		MatchAll:             matchAllVal,
 		ModifiedTime:         modifiedTimeVal,
+		NacportalId:          nacportalIdVal,
 		Name:                 nameVal,
 		OrgId:                orgIdVal,
 		RadiusAttrs:          radiusAttrsVal,
@@ -1053,6 +1101,7 @@ type OrgNactagsValue struct {
 	Match                basetypes.StringValue  `tfsdk:"match"`
 	MatchAll             basetypes.BoolValue    `tfsdk:"match_all"`
 	ModifiedTime         basetypes.Float64Value `tfsdk:"modified_time"`
+	NacportalId          basetypes.StringValue  `tfsdk:"nacportal_id"`
 	Name                 basetypes.StringValue  `tfsdk:"name"`
 	OrgId                basetypes.StringValue  `tfsdk:"org_id"`
 	RadiusAttrs          basetypes.ListValue    `tfsdk:"radius_attrs"`
@@ -1067,7 +1116,7 @@ type OrgNactagsValue struct {
 }
 
 func (v OrgNactagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 18)
+	attrTypes := make(map[string]tftypes.Type, 19)
 
 	var val tftypes.Value
 	var err error
@@ -1082,6 +1131,7 @@ func (v OrgNactagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["match"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["match_all"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["modified_time"] = basetypes.Float64Type{}.TerraformType(ctx)
+	attrTypes["nacportal_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["org_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["radius_attrs"] = basetypes.ListType{
@@ -1103,7 +1153,7 @@ func (v OrgNactagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 18)
+		vals := make(map[string]tftypes.Value, 19)
 
 		val, err = v.AllowUsermacOverride.ToTerraformValue(ctx)
 
@@ -1168,6 +1218,14 @@ func (v OrgNactagsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["modified_time"] = val
+
+		val, err = v.NacportalId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["nacportal_id"] = val
 
 		val, err = v.Name.ToTerraformValue(ctx)
 
@@ -1278,11 +1336,19 @@ func (v OrgNactagsValue) String() string {
 func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	egressVlanNamesVal, d := types.ListValue(types.StringType, v.EgressVlanNames.Elements())
+	var egressVlanNamesVal basetypes.ListValue
+	switch {
+	case v.EgressVlanNames.IsUnknown():
+		egressVlanNamesVal = types.ListUnknown(types.StringType)
+	case v.EgressVlanNames.IsNull():
+		egressVlanNamesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		egressVlanNamesVal, d = types.ListValue(types.StringType, v.EgressVlanNames.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allow_usermac_override": basetypes.BoolType{},
 			"created_time":           basetypes.Float64Type{},
@@ -1294,6 +1360,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"match":         basetypes.StringType{},
 			"match_all":     basetypes.BoolType{},
 			"modified_time": basetypes.Float64Type{},
+			"nacportal_id":  basetypes.StringType{},
 			"name":          basetypes.StringType{},
 			"org_id":        basetypes.StringType{},
 			"radius_attrs": basetypes.ListType{
@@ -1313,11 +1380,19 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		}), diags
 	}
 
-	radiusAttrsVal, d := types.ListValue(types.StringType, v.RadiusAttrs.Elements())
+	var radiusAttrsVal basetypes.ListValue
+	switch {
+	case v.RadiusAttrs.IsUnknown():
+		radiusAttrsVal = types.ListUnknown(types.StringType)
+	case v.RadiusAttrs.IsNull():
+		radiusAttrsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		radiusAttrsVal, d = types.ListValue(types.StringType, v.RadiusAttrs.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allow_usermac_override": basetypes.BoolType{},
 			"created_time":           basetypes.Float64Type{},
@@ -1329,6 +1404,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"match":         basetypes.StringType{},
 			"match_all":     basetypes.BoolType{},
 			"modified_time": basetypes.Float64Type{},
+			"nacportal_id":  basetypes.StringType{},
 			"name":          basetypes.StringType{},
 			"org_id":        basetypes.StringType{},
 			"radius_attrs": basetypes.ListType{
@@ -1348,11 +1424,19 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		}), diags
 	}
 
-	radiusVendorAttrsVal, d := types.ListValue(types.StringType, v.RadiusVendorAttrs.Elements())
+	var radiusVendorAttrsVal basetypes.ListValue
+	switch {
+	case v.RadiusVendorAttrs.IsUnknown():
+		radiusVendorAttrsVal = types.ListUnknown(types.StringType)
+	case v.RadiusVendorAttrs.IsNull():
+		radiusVendorAttrsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		radiusVendorAttrsVal, d = types.ListValue(types.StringType, v.RadiusVendorAttrs.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allow_usermac_override": basetypes.BoolType{},
 			"created_time":           basetypes.Float64Type{},
@@ -1364,6 +1448,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"match":         basetypes.StringType{},
 			"match_all":     basetypes.BoolType{},
 			"modified_time": basetypes.Float64Type{},
+			"nacportal_id":  basetypes.StringType{},
 			"name":          basetypes.StringType{},
 			"org_id":        basetypes.StringType{},
 			"radius_attrs": basetypes.ListType{
@@ -1383,11 +1468,19 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		}), diags
 	}
 
-	valuesVal, d := types.ListValue(types.StringType, v.Values.Elements())
+	var valuesVal basetypes.ListValue
+	switch {
+	case v.Values.IsUnknown():
+		valuesVal = types.ListUnknown(types.StringType)
+	case v.Values.IsNull():
+		valuesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		valuesVal, d = types.ListValue(types.StringType, v.Values.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"allow_usermac_override": basetypes.BoolType{},
 			"created_time":           basetypes.Float64Type{},
@@ -1399,6 +1492,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"match":         basetypes.StringType{},
 			"match_all":     basetypes.BoolType{},
 			"modified_time": basetypes.Float64Type{},
+			"nacportal_id":  basetypes.StringType{},
 			"name":          basetypes.StringType{},
 			"org_id":        basetypes.StringType{},
 			"radius_attrs": basetypes.ListType{
@@ -1429,6 +1523,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"match":         basetypes.StringType{},
 		"match_all":     basetypes.BoolType{},
 		"modified_time": basetypes.Float64Type{},
+		"nacportal_id":  basetypes.StringType{},
 		"name":          basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
 		"radius_attrs": basetypes.ListType{
@@ -1466,6 +1561,7 @@ func (v OrgNactagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"match":                  v.Match,
 			"match_all":              v.MatchAll,
 			"modified_time":          v.ModifiedTime,
+			"nacportal_id":           v.NacportalId,
 			"name":                   v.Name,
 			"org_id":                 v.OrgId,
 			"radius_attrs":           radiusAttrsVal,
@@ -1525,6 +1621,10 @@ func (v OrgNactagsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.ModifiedTime.Equal(other.ModifiedTime) {
+		return false
+	}
+
+	if !v.NacportalId.Equal(other.NacportalId) {
 		return false
 	}
 
@@ -1591,6 +1691,7 @@ func (v OrgNactagsValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"match":         basetypes.StringType{},
 		"match_all":     basetypes.BoolType{},
 		"modified_time": basetypes.Float64Type{},
+		"nacportal_id":  basetypes.StringType{},
 		"name":          basetypes.StringType{},
 		"org_id":        basetypes.StringType{},
 		"radius_attrs": basetypes.ListType{

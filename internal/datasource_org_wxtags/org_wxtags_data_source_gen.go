@@ -1213,11 +1213,19 @@ func (v OrgWxtagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		)
 	}
 
-	lastIpsVal, d := types.ListValue(types.StringType, v.LastIps.Elements())
+	var lastIpsVal basetypes.ListValue
+	switch {
+	case v.LastIps.IsUnknown():
+		lastIpsVal = types.ListUnknown(types.StringType)
+	case v.LastIps.IsNull():
+		lastIpsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		lastIpsVal, d = types.ListValue(types.StringType, v.LastIps.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"created_time": basetypes.Float64Type{},
 			"id":           basetypes.StringType{},
@@ -1247,11 +1255,19 @@ func (v OrgWxtagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		}), diags
 	}
 
-	servicesVal, d := types.ListValue(types.StringType, v.Services.Elements())
+	var servicesVal basetypes.ListValue
+	switch {
+	case v.Services.IsUnknown():
+		servicesVal = types.ListUnknown(types.StringType)
+	case v.Services.IsNull():
+		servicesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		servicesVal, d = types.ListValue(types.StringType, v.Services.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"created_time": basetypes.Float64Type{},
 			"id":           basetypes.StringType{},
@@ -1281,11 +1297,19 @@ func (v OrgWxtagsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		}), diags
 	}
 
-	valuesVal, d := types.ListValue(types.StringType, v.Values.Elements())
+	var valuesVal basetypes.ListValue
+	switch {
+	case v.Values.IsUnknown():
+		valuesVal = types.ListUnknown(types.StringType)
+	case v.Values.IsNull():
+		valuesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		valuesVal, d = types.ListValue(types.StringType, v.Values.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"created_time": basetypes.Float64Type{},
 			"id":           basetypes.StringType{},
@@ -1865,11 +1889,19 @@ func (v SpecsValue) String() string {
 func (v SpecsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	subnetsVal, d := types.ListValue(types.StringType, v.Subnets.Elements())
+	var subnetsVal basetypes.ListValue
+	switch {
+	case v.Subnets.IsUnknown():
+		subnetsVal = types.ListUnknown(types.StringType)
+	case v.Subnets.IsNull():
+		subnetsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		subnetsVal, d = types.ListValue(types.StringType, v.Subnets.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"port_range": basetypes.StringType{},
 			"protocol":   basetypes.StringType{},

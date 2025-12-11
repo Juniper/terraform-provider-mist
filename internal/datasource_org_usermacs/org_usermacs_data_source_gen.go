@@ -638,11 +638,19 @@ func (v OrgUsermacsValue) String() string {
 func (v OrgUsermacsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	labelsVal, d := types.ListValue(types.StringType, v.Labels.Elements())
+	var labelsVal basetypes.ListValue
+	switch {
+	case v.Labels.IsUnknown():
+		labelsVal = types.ListUnknown(types.StringType)
+	case v.Labels.IsNull():
+		labelsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		labelsVal, d = types.ListValue(types.StringType, v.Labels.Elements())
+		diags.Append(d...)
+	}
 
-	diags.Append(d...)
-
-	if d.HasError() {
+	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
 			"id": basetypes.StringType{},
 			"labels": basetypes.ListType{

@@ -26,16 +26,20 @@ func SdkToTerraform(ctx context.Context, l *[]models.StatsSwitch, elements *[]at
 func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.StatsSwitch) DeviceSwitchStatsValue {
 
 	var apRedundancy = types.ObjectNull(ApRedundancyValue{}.AttributeTypes(ctx))
+	var autoUpgradeStat = types.ObjectNull(AutoUpgradeStatValue{}.AttributeTypes(ctx))
 	var arpTableStats = types.ObjectNull(ArpTableStatsValue{}.AttributeTypes(ctx))
 	var certExpiry basetypes.Int64Value
 	var clients = types.ListNull(ClientsValue{}.Type(ctx))
 	var clientsStats = types.ObjectNull(ClientsStatsValue{}.AttributeTypes(ctx))
 	var configStatus basetypes.StringValue
+	var configTimestamp basetypes.Int64Value
+	var configVersion basetypes.Int64Value
 	var cpuStat = types.ObjectNull(CpuStatValue{}.AttributeTypes(ctx))
 	var createdTime basetypes.Float64Value
 	var deviceprofileId basetypes.StringValue
 	var dhcpdStat = types.MapNull(DhcpdStatValue{}.Type(ctx))
 	var evpntopoId basetypes.StringValue
+	var extIp basetypes.StringValue
 	var fwVersionsOutofsync basetypes.BoolValue
 	var fwupdate = types.ObjectNull(FwupdateValue{}.AttributeTypes(ctx))
 	var hasPcap basetypes.BoolValue
@@ -62,6 +66,8 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	var serviceStat = types.MapNull(ServiceStatValue{}.Type(ctx))
 	var siteId basetypes.StringValue
 	var status basetypes.StringValue
+	var tagId basetypes.Int64Value
+	var tagUuid basetypes.StringValue
 	var uptime basetypes.NumberValue
 	var vcMac basetypes.StringValue
 	var vcSetupInfo = types.ObjectNull(VcSetupInfoValue{}.AttributeTypes(ctx))
@@ -72,6 +78,9 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	}
 	if d.ArpTableStats != nil {
 		arpTableStats = arpTableStatsSdkToTerraform(ctx, diags, d.ArpTableStats)
+	}
+	if d.AutoUpgradeStat != nil {
+		autoUpgradeStat = autoUpgradeStatSdkToTerraform(ctx, diags, d.AutoUpgradeStat)
 	}
 	if d.CertExpiry != nil {
 		certExpiry = types.Int64Value(*d.CertExpiry)
@@ -84,6 +93,12 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	}
 	if d.ConfigStatus != nil {
 		configStatus = types.StringValue(*d.ConfigStatus)
+	}
+	if d.ConfigTimestamp != nil {
+		configTimestamp = types.Int64Value(int64(*d.ConfigTimestamp))
+	}
+	if d.ConfigVersion != nil {
+		configVersion = types.Int64Value(int64(*d.ConfigVersion))
 	}
 	if d.CpuStat != nil {
 		cpuStat = cpuStatsSdkToTerraform(ctx, diags, d.CpuStat)
@@ -99,6 +114,9 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	}
 	if d.EvpntopoId.Value() != nil {
 		evpntopoId = types.StringValue(d.EvpntopoId.Value().String())
+	}
+	if d.ExtIp != nil {
+		extIp = types.StringValue(*d.ExtIp)
 	}
 	if d.FwVersionsOutofsync != nil {
 		fwVersionsOutofsync = types.BoolValue(*d.FwVersionsOutofsync)
@@ -178,6 +196,12 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d.Status != nil {
 		status = types.StringValue(*d.Status)
 	}
+	if d.TagId != nil {
+		tagId = types.Int64Value(int64(*d.TagId))
+	}
+	if d.TagUuid != nil {
+		tagUuid = types.StringValue(d.TagUuid.String())
+	}
 	if d.Uptime.Value() != nil {
 		uptime = types.NumberValue(big.NewFloat(*d.Uptime.Value()))
 	}
@@ -194,15 +218,19 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	dataMapValue := map[string]attr.Value{
 		"ap_redundancy":         apRedundancy,
 		"arp_table_stats":       arpTableStats,
+		"auto_upgrade_stat":     autoUpgradeStat,
 		"cert_expiry":           certExpiry,
 		"clients":               clients,
 		"clients_stats":         clientsStats,
 		"config_status":         configStatus,
+		"config_timestamp":      configTimestamp,
+		"config_version":        configVersion,
 		"cpu_stat":              cpuStat,
 		"created_time":          createdTime,
 		"deviceprofile_id":      deviceprofileId,
 		"dhcpd_stat":            dhcpdStat,
 		"evpntopo_id":           evpntopoId,
+		"ext_ip":                extIp,
 		"fw_versions_outofsync": fwVersionsOutofsync,
 		"fwupdate":              fwupdate,
 		"has_pcap":              hasPcap,
@@ -229,6 +257,8 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		"service_stat":          serviceStat,
 		"site_id":               siteId,
 		"status":                status,
+		"tag_id":                tagId,
+		"tag_uuid":              tagUuid,
 		"uptime":                uptime,
 		"vc_mac":                vcMac,
 		"vc_setup_info":         vcSetupInfo,

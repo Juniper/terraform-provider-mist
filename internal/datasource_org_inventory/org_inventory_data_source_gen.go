@@ -41,6 +41,16 @@ func OrgInventoryDataSourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `type`==`switch` or `type`==`gateway`, whether the switch/gateway is adopted",
 							MarkdownDescription: "Only if `type`==`switch` or `type`==`gateway`, whether the switch/gateway is adopted",
 						},
+						"chassis_mac": schema.StringAttribute{
+							Computed:            true,
+							Description:         "For Virtual Chassis only, the MAC Address of the FPC0",
+							MarkdownDescription: "For Virtual Chassis only, the MAC Address of the FPC0",
+						},
+						"chassis_serial": schema.StringAttribute{
+							Computed:            true,
+							Description:         "For Virtual Chassis only, the Serial Number of the FPC0",
+							MarkdownDescription: "For Virtual Chassis only, the Serial Number of the FPC0",
+						},
 						"claim_code": schema.StringAttribute{
 							Computed:            true,
 							Description:         "Device claim code",
@@ -224,6 +234,42 @@ func (t OrgInventoryType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`adopted expected to be basetypes.BoolValue, was: %T`, adoptedAttribute))
 	}
 
+	chassisMacAttribute, ok := attributes["chassis_mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`chassis_mac is missing from object`)
+
+		return nil, diags
+	}
+
+	chassisMacVal, ok := chassisMacAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`chassis_mac expected to be basetypes.StringValue, was: %T`, chassisMacAttribute))
+	}
+
+	chassisSerialAttribute, ok := attributes["chassis_serial"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`chassis_serial is missing from object`)
+
+		return nil, diags
+	}
+
+	chassisSerialVal, ok := chassisSerialAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`chassis_serial expected to be basetypes.StringValue, was: %T`, chassisSerialAttribute))
+	}
+
 	claimCodeAttribute, ok := attributes["claim_code"]
 
 	if !ok {
@@ -518,6 +564,8 @@ func (t OrgInventoryType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	return OrgInventoryValue{
 		Adopted:          adoptedVal,
+		ChassisMac:       chassisMacVal,
+		ChassisSerial:    chassisSerialVal,
 		ClaimCode:        claimCodeVal,
 		Connected:        connectedVal,
 		DeviceprofileId:  deviceprofileIdVal,
@@ -619,6 +667,42 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`adopted expected to be basetypes.BoolValue, was: %T`, adoptedAttribute))
 	}
 
+	chassisMacAttribute, ok := attributes["chassis_mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`chassis_mac is missing from object`)
+
+		return NewOrgInventoryValueUnknown(), diags
+	}
+
+	chassisMacVal, ok := chassisMacAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`chassis_mac expected to be basetypes.StringValue, was: %T`, chassisMacAttribute))
+	}
+
+	chassisSerialAttribute, ok := attributes["chassis_serial"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`chassis_serial is missing from object`)
+
+		return NewOrgInventoryValueUnknown(), diags
+	}
+
+	chassisSerialVal, ok := chassisSerialAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`chassis_serial expected to be basetypes.StringValue, was: %T`, chassisSerialAttribute))
+	}
+
 	claimCodeAttribute, ok := attributes["claim_code"]
 
 	if !ok {
@@ -913,6 +997,8 @@ func NewOrgInventoryValue(attributeTypes map[string]attr.Type, attributes map[st
 
 	return OrgInventoryValue{
 		Adopted:          adoptedVal,
+		ChassisMac:       chassisMacVal,
+		ChassisSerial:    chassisSerialVal,
 		ClaimCode:        claimCodeVal,
 		Connected:        connectedVal,
 		DeviceprofileId:  deviceprofileIdVal,
@@ -1002,6 +1088,8 @@ var _ basetypes.ObjectValuable = OrgInventoryValue{}
 
 type OrgInventoryValue struct {
 	Adopted          basetypes.BoolValue   `tfsdk:"adopted"`
+	ChassisMac       basetypes.StringValue `tfsdk:"chassis_mac"`
+	ChassisSerial    basetypes.StringValue `tfsdk:"chassis_serial"`
 	ClaimCode        basetypes.StringValue `tfsdk:"claim_code"`
 	Connected        basetypes.BoolValue   `tfsdk:"connected"`
 	DeviceprofileId  basetypes.StringValue `tfsdk:"deviceprofile_id"`
@@ -1022,12 +1110,14 @@ type OrgInventoryValue struct {
 }
 
 func (v OrgInventoryValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 17)
+	attrTypes := make(map[string]tftypes.Type, 19)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["adopted"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["chassis_mac"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["chassis_serial"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["claim_code"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["connected"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["deviceprofile_id"] = basetypes.StringType{}.TerraformType(ctx)
@@ -1049,7 +1139,7 @@ func (v OrgInventoryValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 17)
+		vals := make(map[string]tftypes.Value, 19)
 
 		val, err = v.Adopted.ToTerraformValue(ctx)
 
@@ -1058,6 +1148,22 @@ func (v OrgInventoryValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 		}
 
 		vals["adopted"] = val
+
+		val, err = v.ChassisMac.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["chassis_mac"] = val
+
+		val, err = v.ChassisSerial.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["chassis_serial"] = val
 
 		val, err = v.ClaimCode.ToTerraformValue(ctx)
 
@@ -1218,6 +1324,8 @@ func (v OrgInventoryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 
 	attributeTypes := map[string]attr.Type{
 		"adopted":          basetypes.BoolType{},
+		"chassis_mac":      basetypes.StringType{},
+		"chassis_serial":   basetypes.StringType{},
 		"claim_code":       basetypes.StringType{},
 		"connected":        basetypes.BoolType{},
 		"deviceprofile_id": basetypes.StringType{},
@@ -1248,6 +1356,8 @@ func (v OrgInventoryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		attributeTypes,
 		map[string]attr.Value{
 			"adopted":          v.Adopted,
+			"chassis_mac":      v.ChassisMac,
+			"chassis_serial":   v.ChassisSerial,
 			"claim_code":       v.ClaimCode,
 			"connected":        v.Connected,
 			"deviceprofile_id": v.DeviceprofileId,
@@ -1285,6 +1395,14 @@ func (v OrgInventoryValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Adopted.Equal(other.Adopted) {
+		return false
+	}
+
+	if !v.ChassisMac.Equal(other.ChassisMac) {
+		return false
+	}
+
+	if !v.ChassisSerial.Equal(other.ChassisSerial) {
 		return false
 	}
 
@@ -1366,6 +1484,8 @@ func (v OrgInventoryValue) Type(ctx context.Context) attr.Type {
 func (v OrgInventoryValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"adopted":          basetypes.BoolType{},
+		"chassis_mac":      basetypes.StringType{},
+		"chassis_serial":   basetypes.StringType{},
 		"claim_code":       basetypes.StringType{},
 		"connected":        basetypes.BoolType{},
 		"deviceprofile_id": basetypes.StringType{},

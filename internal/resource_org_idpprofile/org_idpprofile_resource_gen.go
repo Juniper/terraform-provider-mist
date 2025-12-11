@@ -78,14 +78,23 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 								"attack_name": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"dst_subnet": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"severity": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 							},
 							CustomType: MatchingType{

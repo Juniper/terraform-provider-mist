@@ -27,16 +27,20 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 
 	var apRedundancy = types.ObjectNull(ApRedundancyValue{}.AttributeTypes(ctx))
 	var arpTableStats = types.ObjectNull(ArpTableStatsValue{}.AttributeTypes(ctx))
+	var autoUpgradeStat = types.ObjectNull(AutoUpgradeStatValue{}.AttributeTypes(ctx))
 	var bgpPeers = types.ListNull(BgpPeersValue{}.Type(ctx))
 	var certExpiry basetypes.Int64Value
 	var clusterConfig = types.ObjectNull(ClusterConfigValue{}.AttributeTypes(ctx))
 	var clusterStat = types.ObjectNull(ClusterStatValue{}.AttributeTypes(ctx))
 	var conductorName basetypes.StringValue
 	var configStatus basetypes.StringValue
+	var configTimestamp basetypes.Int64Value
+	var configVersion basetypes.Int64Value
 	var cpu2Stat = types.ObjectNull(CpuStatValue{}.AttributeTypes(ctx))
 	var cpuStat = types.ObjectNull(CpuStatValue{}.AttributeTypes(ctx))
 	var createdTime basetypes.Float64Value
 	var deviceprofileId basetypes.StringValue
+	var deviceprofileName basetypes.StringValue
 	var dhcpd2Stat = types.MapNull(DhcpdStatValue{}.Type(ctx))
 	var dhcpdStat = types.MapNull(DhcpdStatValue{}.Type(ctx))
 	var extIp basetypes.StringValue
@@ -52,6 +56,7 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	var isHa basetypes.BoolValue
 	var lastSeen basetypes.Float64Value
 	var mac basetypes.StringValue
+	var macTableStats = types.ObjectNull(MacTableStatsValue{}.AttributeTypes(ctx))
 	var mapId basetypes.StringValue
 	var memory2Stat = types.ObjectNull(MemoryStatValue{}.AttributeTypes(ctx))
 	var memoryStat = types.ObjectNull(MemoryStatValue{}.AttributeTypes(ctx))
@@ -73,6 +78,8 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	var spu2Stat = types.ListNull(SpuStatValue{}.Type(ctx))
 	var spuStat = types.ListNull(SpuStatValue{}.Type(ctx))
 	var status basetypes.StringValue
+	var tagId basetypes.Int64Value
+	var tagUuid basetypes.StringValue
 	var tunnels = types.ListNull(TunnelsValue{}.Type(ctx))
 	var uptime basetypes.NumberValue
 	var version basetypes.StringValue
@@ -83,6 +90,9 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	}
 	if d.ArpTableStats != nil {
 		arpTableStats = arpTableStatsSdkToTerraform(ctx, diags, d.ArpTableStats)
+	}
+	if d.AutoUpgradeStat != nil {
+		autoUpgradeStat = autoUpgradeStatSdkToTerraform(ctx, diags, d.AutoUpgradeStat)
 	}
 	if d.BgpPeers != nil {
 		bgpPeers = bgpPeersSdkToTerraform(ctx, diags, d.BgpPeers)
@@ -102,6 +112,12 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d.ConfigStatus != nil {
 		configStatus = types.StringValue(*d.ConfigStatus)
 	}
+	if d.ConfigTimestamp != nil {
+		configTimestamp = types.Int64Value(int64(*d.ConfigTimestamp))
+	}
+	if d.ConfigVersion != nil {
+		configVersion = types.Int64Value(int64(*d.ConfigVersion))
+	}
 	if d.Cpu2Stat != nil {
 		cpu2Stat = cpuStatsSdkToTerraform(ctx, diags, d.Cpu2Stat)
 	}
@@ -113,6 +129,9 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	}
 	if d.DeviceprofileId.Value() != nil {
 		deviceprofileId = types.StringValue(d.DeviceprofileId.Value().String())
+	}
+	if d.DeviceprofileName != nil {
+		deviceprofileName = types.StringValue(*d.DeviceprofileName)
 	}
 	if len(d.Dhcpd2Stat) > 0 {
 		dhcpd2Stat = dhcpdStatsSdkToTerraform(ctx, diags, d.Dhcpd2Stat)
@@ -159,6 +178,9 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 
 	mac = types.StringValue(d.Mac)
 
+	if d.MacTableStats != nil {
+		macTableStats = macTableStatStatSdkToTerraform(ctx, diags, d.MacTableStats)
+	}
 	if d.MapId.Value() != nil {
 		mapId = types.StringValue(d.MapId.Value().String())
 	}
@@ -222,6 +244,12 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d.Status != nil {
 		status = types.StringValue(*d.Status)
 	}
+	if d.TagId != nil {
+		tagId = types.Int64Value(int64(*d.TagId))
+	}
+	if d.TagUuid != nil {
+		tagUuid = types.StringValue(d.TagUuid.String())
+	}
 	if d.Tunnels != nil {
 		tunnels = tunnelsSdkToTerraform(ctx, diags, d.Tunnels)
 	}
@@ -238,16 +266,20 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	dataMapValue := map[string]attr.Value{
 		"ap_redundancy":       apRedundancy,
 		"arp_table_stats":     arpTableStats,
+		"auto_upgrade_stat":   autoUpgradeStat,
 		"bgp_peers":           bgpPeers,
 		"cert_expiry":         certExpiry,
 		"cluster_config":      clusterConfig,
 		"cluster_stat":        clusterStat,
 		"conductor_name":      conductorName,
 		"config_status":       configStatus,
+		"config_timestamp":    configTimestamp,
+		"config_version":      configVersion,
 		"cpu2_stat":           cpu2Stat,
 		"cpu_stat":            cpuStat,
 		"created_time":        createdTime,
 		"deviceprofile_id":    deviceprofileId,
+		"deviceprofile_name":  deviceprofileName,
 		"dhcpd2_stat":         dhcpd2Stat,
 		"dhcpd_stat":          dhcpdStat,
 		"ext_ip":              extIp,
@@ -263,6 +295,7 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		"is_ha":               isHa,
 		"last_seen":           lastSeen,
 		"mac":                 mac,
+		"mac_table_stats":     macTableStats,
 		"map_id":              mapId,
 		"memory2_stat":        memory2Stat,
 		"memory_stat":         memoryStat,
@@ -284,6 +317,8 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		"spu2_stat":           spu2Stat,
 		"spu_stat":            spuStat,
 		"status":              status,
+		"tag_id":              tagId,
+		"tag_uuid":            tagUuid,
 		"tunnels":             tunnels,
 		"uptime":              uptime,
 		"version":             version,

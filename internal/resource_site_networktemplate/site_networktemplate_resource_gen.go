@@ -155,12 +155,11 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											mistvalidator.AllowedWhenValueIsIn(
 												path.MatchRelative().AtParent().AtName("protocol"),
 												[]attr.Value{
+													types.StringValue("any"),
 													types.StringValue("tcp"),
 													types.StringValue("udp"),
 												},
 											),
-											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("tcp")),
-											mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("protocol"), types.StringValue("udp")),
 											stringvalidator.Any(
 												mistvalidator.ParseInt(0, 65535),
 												mistvalidator.ParseRangeOfInt(0, 65535, true),

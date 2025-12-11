@@ -707,7 +707,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 			"name": schema.StringAttribute{
 				Required: true,
 				Validators: []validator.String{
-					stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName()),
+					stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseNameWithSpaces()),
 				},
 			},
 			"ntp_servers": schema.ListAttribute{

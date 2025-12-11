@@ -29,13 +29,13 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`egress_vlan_names`, list of egress vlans to return",
 				MarkdownDescription: "If `type`==`egress_vlan_names`, list of egress vlans to return",
 				Validators: []validator.List{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("egress_vlan_names")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("egress_vlan_names")),
 				},
 			},
 			"gbp_tag": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("gbp_tag")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("gbp_tag")),
 					stringvalidator.Any(
 						mistvalidator.ParseInt(0, 65535),
 						mistvalidator.ParseVar(),
@@ -52,8 +52,8 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"match": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `type`==`match`. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_health`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
-				MarkdownDescription: "if `type`==`match`. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_health`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
+				Description:         "if `type`==`match`. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
+				MarkdownDescription: "if `type`==`match`. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -65,7 +65,8 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 						"cert_sub",
 						"cert_template",
 						"client_mac",
-						"edr_health",
+						"edr_status",
+						"gbp_tag",
 						"hostname",
 						"idp_role",
 						"ingress_vlan",
@@ -105,7 +106,7 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
 				MarkdownDescription: "If `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
 				Validators: []validator.List{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_attrs")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_attrs")),
 				},
 			},
 			"radius_group": schema.StringAttribute{
@@ -113,7 +114,7 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`radius_group`",
 				MarkdownDescription: "If `type`==`radius_group`",
 				Validators: []validator.String{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_group")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_group")),
 				},
 			},
 			"radius_vendor_attrs": schema.ListAttribute{
@@ -122,7 +123,7 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
 				MarkdownDescription: "If `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
 				Validators: []validator.List{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_vendor_attrs")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_vendor_attrs")),
 				},
 			},
 			"session_timeout": schema.Int64Attribute{
@@ -130,7 +131,7 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`session_timeout, in seconds",
 				MarkdownDescription: "If `type`==`session_timeout, in seconds",
 				Validators: []validator.Int64{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("session_timeout")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("session_timeout")),
 				},
 			},
 			"type": schema.StringAttribute{
@@ -175,7 +176,7 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`match`",
 				MarkdownDescription: "If `type`==`match`",
 				Validators: []validator.List{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
 				},
 			},
 			"vlan": schema.StringAttribute{
@@ -183,7 +184,7 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`vlan`",
 				MarkdownDescription: "If `type`==`vlan`",
 				Validators: []validator.String{
-					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vlan")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vlan")),
 				},
 			},
 		},
