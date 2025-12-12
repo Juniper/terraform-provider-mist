@@ -1,5 +1,5 @@
 
-  name = "comprehensive_ap_profile_3"
+  name = "comprehensive_ap_profile_4"
   aeroscout {
     enabled = true
     host = "aeroscout.example.com"
@@ -23,7 +23,7 @@
     ibeacon_adv_power = -4
     ibeacon_freq_msec = 1000
     ibeacon_major = 123
-    ibeacon_minor = 456
+    ibeacon_minor = 200
     ibeacon_uuid = "550e8400-e29b-41d4-a716-446655440000"
     power = 5
     power_mode = "custom"

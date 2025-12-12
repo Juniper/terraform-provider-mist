@@ -288,7 +288,8 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 			new.VlanId = models.ToPointer(int(plan.VlanId.ValueInt64()))
 		}
 		if !plan.VlanIds.IsNull() && !plan.VlanIds.IsUnknown() {
-			new.VlanIds = mistutils.ListOfIntTerraformToSdk(plan.VlanIds)
+			IdsString := mistutils.ListOfIntTerraformToCommaSeparatedString(plan.VlanIds)
+			new.VlanIds = &IdsString
 		}
 		if plan.WxtunnelId.ValueStringPointer() != nil {
 			wxTunnelId, e := uuid.Parse(plan.WxtunnelId.ValueString())

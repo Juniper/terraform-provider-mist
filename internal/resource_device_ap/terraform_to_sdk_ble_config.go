@@ -101,11 +101,11 @@ func bleConfigTerraformToSdk(d BleConfigValue) *models.BleConfig {
 	}
 
 	if d.IbeaconMajor.ValueInt64Pointer() != nil {
-		data.IbeaconMajor = models.ToPointer(int(d.IbeaconMajor.ValueInt64()))
+		data.IbeaconMajor = models.NewOptional(models.ToPointer(int(d.IbeaconMajor.ValueInt64())))
 	}
 
 	if d.IbeaconMinor.ValueInt64Pointer() != nil {
-		data.IbeaconMinor = models.ToPointer(int(d.IbeaconMinor.ValueInt64()))
+		data.IbeaconMinor = models.NewOptional(models.ToPointer(int(d.IbeaconMinor.ValueInt64())))
 	}
 
 	if d.IbeaconUuid.ValueStringPointer() != nil {

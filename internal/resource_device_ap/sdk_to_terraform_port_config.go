@@ -437,7 +437,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			vlanId = types.Int64Value(int64(*d.VlanId))
 		}
 		if d.VlanIds != nil {
-			vlanIds = mistutils.ListOfIntSdkToTerraform(d.VlanIds)
+			vlanIds = mistutils.ListOfIntFromCommaSeparatedStringSdkToTerraform(*d.VlanIds)
 		}
 		if d.WxtunnelId != nil {
 			wxtunnelId = types.StringValue(d.WxtunnelId.String())
