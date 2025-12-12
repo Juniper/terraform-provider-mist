@@ -85,7 +85,6 @@ func (r *orgWlanPortalImageResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	var json = ""
 
 	data, err := r.client.OrgsWlans().UploadOrgWlanPortalImage(ctx, orgId, wlanId, plan.File.ValueString(), &json)
@@ -144,7 +143,6 @@ func (r *orgWlanPortalImageResource) Update(ctx context.Context, req resource.Up
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	var json = ""
 
 	data, err := r.client.OrgsWlans().UploadOrgWlanPortalImage(ctx, orgId, wlanId, plan.File.ValueString(), &json)
