@@ -2,6 +2,7 @@ package resource_org_mxedge
 
 import (
 	"context"
+	"strconv"
 
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -22,7 +23,7 @@ func tuntermPortConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostic
 	}
 
 	if !d.UpstreamPortVlanId.IsNull() && !d.UpstreamPortVlanId.IsUnknown() {
-		data.UpstreamPortVlanId = models.ToPointer(int(d.UpstreamPortVlanId.ValueInt64()))
+		data.UpstreamPortVlanId = models.ToPointer(models.TuntermPortConfigUpstreamPortVlanIdContainer.FromString(strconv.FormatInt(d.UpstreamPortVlanId.ValueInt64(), 10)))
 	}
 
 	if !d.UpstreamPorts.IsNull() && !d.UpstreamPorts.IsUnknown() {

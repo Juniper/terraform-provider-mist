@@ -33,7 +33,7 @@ func TestOrgMxedgeInventoryModel(t *testing.T) {
 		},
 	}
 
-	fixtures, err := os.ReadFile("fixtures/org_inventory_resource/org_inventory_config.tf")
+	fixtures, err := os.ReadFile("fixtures/org_mxedge_inventory_resource/org_mxedge_inventory_config.tf")
 	if err != nil {
 		fmt.Print(err)
 	}
@@ -58,11 +58,7 @@ func TestOrgMxedgeInventoryModel(t *testing.T) {
 	resourceType := "org_mxedge_inventory"
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			// Skip fixture cases that require real devices with valid MAC addresses
-			if strings.HasPrefix(tName, "fixture_case") {
-				t.Skip("Skipping fixture case as it requires real devices with valid MAC addresses.")
-			}
-
+			// t.Skip("Skipping fixture case as it requires real devices with valid MAC addresses.")
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config
@@ -130,8 +126,7 @@ func (o *OrgMxedgeInventoryModel) testChecks(t testing.TB, rType, tName string) 
 			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("mxedges.%s.id", key))
 			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("mxedges.%s.model", key))
 			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("mxedges.%s.org_id", key))
-			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("mxedges.%s.serial", key))
-			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("mxedges.%s.type", key))
+			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("mxedges.%s.mac", key))
 
 			// Test configurable fields with expected values
 			if device.SiteId != nil {

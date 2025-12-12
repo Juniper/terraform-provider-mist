@@ -25,6 +25,8 @@ returns:
 		the op to apply to the MxEdge (assign/unassign/nothing)
 */
 func processAction(planSiteId *basetypes.StringValue, stateSiteId *basetypes.StringValue) (op string) {
+	fmt.Printf("KDJ Processing action: planSiteId='%s', stateSiteId='%s'\n", planSiteId.ValueString(), stateSiteId.ValueString())
+
 	if stateSiteId.ValueString() == planSiteId.ValueString() {
 		return ""
 	} else if planSiteId.IsNull() || planSiteId.ValueString() == "" {
@@ -60,6 +62,8 @@ func findMxedgeInState(
 	planMxedgeSiteId *basetypes.StringValue,
 	stateMxedge *MxedgesValue,
 ) (op string, mxedgeId string, alreadyClaimed bool) {
+	fmt.Println("KDJ we get here")
+
 	alreadyClaimed = false
 	if stateMxedge != nil && !stateMxedge.IsNull() {
 		// for already claimed MxEdges
@@ -121,8 +125,10 @@ func processPlannedMxedges(
 		stateMxedge := (*stateMxedgesMap)[strings.ToUpper(mxedgeInfo)]
 
 		// mxedgeId will be empty if the MxEdge is not already in the state
+		fmt.Printf("KDJ mxedgeSiteId: %s,  stateMxedge: %+v\n", mxedgeSiteId.ValueString(), stateMxedge)
 		op, mxedgeId, alreadyClaimed = findMxedgeInState(&mxedgeSiteId, stateMxedge)
 		isClaimCode, isUuid := DetectMxedgeInfoType(diags, mxedgeInfo)
+		fmt.Printf("KDJ ClaimCode: %v, UUID: %v\n", isClaimCode, isUuid)
 
 		if !alreadyClaimed && isClaimCode {
 			*claim = append(*claim, mxedgeInfo)

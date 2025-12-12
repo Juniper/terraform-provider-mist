@@ -50,7 +50,7 @@ func DetectMxedgeInfoType(diags *diag.Diagnostics, mxedgeInfo string) (isClaimco
 			true if it's a UUID
 
 	*/
-	reClaimcode1 := `^[0-9]{3}-[0-9]{3}-[0-9]{3}$`
+	reClaimcode1 := `^[a-zA-Z0-9-]{64}$`
 	reClaimcode2 := `^[0-9A-Z]{15}$`
 	reUuid := `^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`
 	if isValid, _ := regexp.MatchString(reClaimcode1, mxedgeInfo); isValid {

@@ -93,6 +93,7 @@ func (r *orgMxedgeInventoryResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	/////////////////////// Sync, required to get missing MxEdge info (ID, Model, Name, ...)
+	fmt.Println("KDJ: Starting MxEdge Inventory Create: org_id " + orgId.String())
 	state = r.refreshInventory(&diags, ctx, &orgId, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -134,6 +135,7 @@ func (r *orgMxedgeInventoryResource) Read(ctx context.Context, _ resource.ReadRe
 		)
 		return
 	}
+	fmt.Println("KDJ: Starting MxEdge Inventory Read: org_id " + orgId.String())
 	state = r.refreshInventory(&diags, ctx, &orgId, &comp)
 	resp.Diagnostics.Append(diags...)
 
@@ -176,6 +178,7 @@ func (r *orgMxedgeInventoryResource) Update(ctx context.Context, req resource.Up
 	}
 
 	/////////////////////// Sync, required to get missing MxEdge info (ID, Model, Name, ...)
+	fmt.Println("KDJ: Starting MxEdge Inventory Update: org_id " + orgId.String())
 	state = r.refreshInventory(&diags, ctx, &orgId, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -217,6 +220,9 @@ func (r *orgMxedgeInventoryResource) updateInventory(
 		diags.Append(e...)
 		return
 	}
+
+	fmt.Println("******************")
+	fmt.Printf("KDJ\nClaim: %v\nUnassign: %v\nAssignClaim: %v\nAssign: %v\n", claim, unassign, assignClaim, assign)
 
 	tflog.Debug(ctx, "updateInventory", map[string]interface{}{
 		"claim":    strings.Join(claim, ", "),
@@ -262,6 +268,8 @@ func (r *orgMxedgeInventoryResource) refreshInventory(
 	var total = 9999
 	var elements []models.Mxedge
 	var forSite *models.MxedgeForSiteEnum
+	forSiteValue := models.MxedgeForSiteEnum_TRUE
+	forSite = &forSiteValue
 
 	tflog.Info(ctx, "Starting MxEdge Inventory Read: org_id "+orgId.String())
 
@@ -280,6 +288,11 @@ func (r *orgMxedgeInventoryResource) refreshInventory(
 				"Unable to get the MxEdge Inventory, unexpected error: "+err.Error(),
 			)
 			return state
+		}
+
+		fmt.Println("KDJ: ListOrgMxEdges\n%")
+		for _, r := range data.Data {
+			fmt.Printf("%+v\n", r)
 		}
 
 		limitString := data.Response.Header.Get("X-Page-Limit")
@@ -320,7 +333,8 @@ func (r *orgMxedgeInventoryResource) claimMxedges(
 
 	// Claim all MxEdges in a single call
 	if len(claim) > 0 {
-		claimResponse, err := r.client.OrgsMxEdges().ClaimOrgMxEdge(ctx, orgId, claim)
+		//claimResponse, err := r.client.OrgsMxEdges().ClaimOrgMxEdge(ctx, orgId, claim)
+		claimResponse, err := r.client.OrgsInventory().AddOrgInventory(ctx, orgId, claim)
 
 		if claimResponse.Response.StatusCode != 200 {
 			apiErr := mistapierror.ProcessApiError(claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
@@ -413,6 +427,8 @@ func (r *orgMxedgeInventoryResource) assignMxedges(
 		}
 
 		assignResponse, err := r.client.OrgsMxEdges().AssignOrgMxEdgeToSite(ctx, orgId, &assignBody)
+
+		fmt.Printf("KDJ Assigned MxEdges to Site %s\n", assignResponse.Response.Body)
 
 		if assignResponse.Response.StatusCode != 200 {
 			apiErr := mistapierror.ProcessApiError(assignResponse.Response.StatusCode, assignResponse.Response.Body, err)

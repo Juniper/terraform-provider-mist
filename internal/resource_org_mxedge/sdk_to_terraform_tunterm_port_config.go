@@ -26,7 +26,10 @@ func tuntermPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		separateUpstreamDownstream = types.BoolValue(*d.SeparateUpstreamDownstream)
 	}
 	if d.UpstreamPortVlanId != nil {
-		upstreamPortVlanId = types.Int64Value(int64(*d.UpstreamPortVlanId))
+		uspvID, ok := d.UpstreamPortVlanId.AsNumber()
+		if ok {
+			upstreamPortVlanId = types.Int64Value(int64(*uspvID))
+		}
 	}
 	if d.UpstreamPorts != nil {
 		upstreamPorts = mistutils.ListOfStringSdkToTerraform(d.UpstreamPorts)
