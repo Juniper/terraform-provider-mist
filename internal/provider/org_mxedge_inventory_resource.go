@@ -69,6 +69,7 @@ func (r *orgMxedgeInventoryResource) Schema(ctx context.Context, _ resource.Sche
 func (r *orgMxedgeInventoryResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Info(ctx, "Starting MxEdge Inventory Create")
 	var plan, state resource_org_mxedge_inventory.OrgMxedgeInventoryModel
+	idToMagic := make(map[string]string)
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -86,7 +87,7 @@ func (r *orgMxedgeInventoryResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	/////////////////////// Update
-	r.updateInventory(&diags, ctx, &orgId, &plan, &state)
+	r.updateInventory(&diags, ctx, &orgId, &plan, &state, idToMagic)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -94,7 +95,7 @@ func (r *orgMxedgeInventoryResource) Create(ctx context.Context, req resource.Cr
 
 	/////////////////////// Sync, required to get missing MxEdge info (ID, Model, Name, ...)
 	fmt.Println("KDJ: Starting MxEdge Inventory Create: org_id " + orgId.String())
-	state = r.refreshInventory(&diags, ctx, &orgId, &plan)
+	state = r.refreshInventory(&diags, ctx, &orgId, &plan, idToMagic)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -109,6 +110,7 @@ func (r *orgMxedgeInventoryResource) Create(ctx context.Context, req resource.Cr
 
 func (r *orgMxedgeInventoryResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state, comp resource_org_mxedge_inventory.OrgMxedgeInventoryModel
+	idToMagic := make(map[string]string)
 
 	diags := resp.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -127,6 +129,12 @@ func (r *orgMxedgeInventoryResource) Read(ctx context.Context, _ resource.ReadRe
 		comp = state
 	}
 
+	fmt.Printf("KDJ: state for Read: %v\n", comp.Mxedges)
+	for key, v := range comp.Mxedges.Elements() {
+		idToMagic[strings.ToUpper(v.(resource_org_mxedge_inventory.MxedgesValue).Id.String())] = key
+	}
+	fmt.Printf("KDJ: idToMagic for Read: %+v\n", idToMagic)
+
 	orgId, err := uuid.Parse(orgIdString)
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -136,7 +144,7 @@ func (r *orgMxedgeInventoryResource) Read(ctx context.Context, _ resource.ReadRe
 		return
 	}
 	fmt.Println("KDJ: Starting MxEdge Inventory Read: org_id " + orgId.String())
-	state = r.refreshInventory(&diags, ctx, &orgId, &comp)
+	state = r.refreshInventory(&diags, ctx, &orgId, &comp, idToMagic)
 	resp.Diagnostics.Append(diags...)
 
 	diags = resp.State.Set(ctx, &state)
@@ -171,7 +179,8 @@ func (r *orgMxedgeInventoryResource) Update(ctx context.Context, req resource.Up
 	}
 
 	/////////////////////// Update
-	r.updateInventory(&diags, ctx, &orgId, &plan, &state)
+	idToMagic := make(map[string]string)
+	r.updateInventory(&diags, ctx, &orgId, &plan, &state, idToMagic)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -179,7 +188,7 @@ func (r *orgMxedgeInventoryResource) Update(ctx context.Context, req resource.Up
 
 	/////////////////////// Sync, required to get missing MxEdge info (ID, Model, Name, ...)
 	fmt.Println("KDJ: Starting MxEdge Inventory Update: org_id " + orgId.String())
-	state = r.refreshInventory(&diags, ctx, &orgId, &plan)
+	state = r.refreshInventory(&diags, ctx, &orgId, &plan, idToMagic)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -213,6 +222,7 @@ func (r *orgMxedgeInventoryResource) updateInventory(
 	orgId *uuid.UUID,
 	plan *resource_org_mxedge_inventory.OrgMxedgeInventoryModel,
 	state *resource_org_mxedge_inventory.OrgMxedgeInventoryModel,
+	idToMagic map[string]string,
 ) {
 
 	claim, unassign, assignClaim, assign, e := resource_org_mxedge_inventory.TerraformToSdk(state, plan)
@@ -232,7 +242,7 @@ func (r *orgMxedgeInventoryResource) updateInventory(
 
 	/////////////////////// CLAIM
 	if len(claim) > 0 {
-		r.claimMxedges(diags, ctx, *orgId, claim)
+		r.claimMxedges(diags, ctx, *orgId, claim, idToMagic)
 		if diags.HasError() {
 			return
 		}
@@ -259,6 +269,7 @@ func (r *orgMxedgeInventoryResource) refreshInventory(
 	ctx context.Context,
 	orgId *uuid.UUID,
 	refInventory *resource_org_mxedge_inventory.OrgMxedgeInventoryModel,
+	idToMagic map[string]string,
 ) (state resource_org_mxedge_inventory.OrgMxedgeInventoryModel) {
 
 	tflog.Info(ctx, "Starting MxEdge Inventory state refresh: org_id "+orgId.String())
@@ -268,8 +279,8 @@ func (r *orgMxedgeInventoryResource) refreshInventory(
 	var total = 9999
 	var elements []models.Mxedge
 	var forSite *models.MxedgeForSiteEnum
-	forSiteValue := models.MxedgeForSiteEnum_TRUE
-	forSite = &forSiteValue
+	forSiteAny := models.MxedgeForSiteEnum_ANY
+	forSite = &forSiteAny
 
 	tflog.Info(ctx, "Starting MxEdge Inventory Read: org_id "+orgId.String())
 
@@ -288,11 +299,6 @@ func (r *orgMxedgeInventoryResource) refreshInventory(
 				"Unable to get the MxEdge Inventory, unexpected error: "+err.Error(),
 			)
 			return state
-		}
-
-		fmt.Println("KDJ: ListOrgMxEdges\n%")
-		for _, r := range data.Data {
-			fmt.Printf("%+v\n", r)
 		}
 
 		limitString := data.Response.Header.Get("X-Page-Limit")
@@ -316,7 +322,7 @@ func (r *orgMxedgeInventoryResource) refreshInventory(
 		elements = append(elements, data.Data...)
 	}
 
-	state, e := resource_org_mxedge_inventory.SdkToTerraform(ctx, orgId.String(), &elements, refInventory)
+	state, e := resource_org_mxedge_inventory.SdkToTerraform(ctx, orgId.String(), &elements, refInventory, idToMagic)
 	diags.Append(e...)
 
 	return state
@@ -327,6 +333,7 @@ func (r *orgMxedgeInventoryResource) claimMxedges(
 	ctx context.Context,
 	orgId uuid.UUID,
 	claim []string,
+	idToMagic map[string]string,
 ) {
 
 	tflog.Info(ctx, "Starting to Claim MxEdges")
@@ -335,6 +342,8 @@ func (r *orgMxedgeInventoryResource) claimMxedges(
 	if len(claim) > 0 {
 		//claimResponse, err := r.client.OrgsMxEdges().ClaimOrgMxEdge(ctx, orgId, claim)
 		claimResponse, err := r.client.OrgsInventory().AddOrgInventory(ctx, orgId, claim)
+
+		fmt.Printf("KDJ: claimResponse.Response.Body: %s\n", claimResponse.Response.Body)
 
 		if claimResponse.Response.StatusCode != 200 {
 			apiErr := mistapierror.ProcessApiError(claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
@@ -350,8 +359,22 @@ func (r *orgMxedgeInventoryResource) claimMxedges(
 				"Unable to claim MxEdges, unexpected error: "+err.Error(),
 			)
 		} else {
+			// Extract ID from response body using the structured response
+			if claimResponse.Data.InventoryAdded != nil {
+				for _, addedItem := range claimResponse.Data.InventoryAdded {
+					if addedItem.Magic != "" && addedItem.Mac != "" {
+						id := "00000000-0000-0000-1000-" + strings.ToUpper(addedItem.Mac)
+						idToMagic[id] = addedItem.Magic
+						fmt.Printf("KDJ: Extracted ID %s for claim code %s\n", id, addedItem.Magic)
+					}
+				}
+			}
+
+			fmt.Printf("KDJ idToMagic after claim: %+v\n", idToMagic)
+
 			tflog.Debug(ctx, "Successfully claimed MxEdges", map[string]interface{}{
-				"claim_codes": claim,
+				"claim_codes":   claim,
+				"extracted_ids": len(idToMagic),
 			})
 		}
 	}

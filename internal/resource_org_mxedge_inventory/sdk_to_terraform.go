@@ -19,6 +19,7 @@ func processMistInventory(
 	data *[]models.Mxedge,
 	mistMxedgesByClaimCode *map[string]*MxedgesValue,
 	mistMxedgesById *map[string]*MxedgesValue,
+	idToMagic map[string]string,
 ) {
 	/*
 		Function to process the MxEdge Inventory list retrieved from Mist. This returns the map with all the MxEdges
@@ -88,6 +89,12 @@ func processMistInventory(
 			var nMagic = strings.ToUpper(newMxedge.Magic.ValueString())
 			var nId = strings.ToUpper(newMxedge.Id.ValueString())
 			(*mistMxedgesById)[nId] = &newMxedge
+			if idToMagic != nil {
+				if _, ok := idToMagic[nId]; ok {
+					fmt.Printf("KDJ Mapping ID %s to Claim Code %s\n", nId, idToMagic[nId])
+					nMagic = strings.ToUpper(idToMagic[nId])
+				}
+			}
 			if nMagic != "" {
 				(*mistMxedgesByClaimCode)[nMagic] = &newMxedge
 			}
@@ -187,11 +194,19 @@ func mapSdkToTerraform(
 	orgId string,
 	data *[]models.Mxedge,
 	refInventory *OrgMxedgeInventoryModel,
+	idToMagic map[string]string,
 ) (state OrgMxedgeInventoryModel, diags diag.Diagnostics) {
 	mistMxedgesByClaimCode := make(map[string]*MxedgesValue)
 	mistMxedgesById := make(map[string]*MxedgesValue)
 
-	processMistInventory(ctx, &diags, data, &mistMxedgesByClaimCode, &mistMxedgesById)
+	processMistInventory(ctx, &diags, data, &mistMxedgesByClaimCode, &mistMxedgesById, idToMagic)
+
+	for k, v := range mistMxedgesByClaimCode {
+		fmt.Printf("KDJ MxEdge by ClaimCode: %s => %+v\n", k, v)
+	}
+	for k, v := range mistMxedgesById {
+		fmt.Printf("KDJ MxEdge by ID: %s => %+v\n", k, v)
+	}
 
 	/*
 		If it's for an Import (no refInventory.OrgId), then generate the inventory with:
@@ -203,9 +218,11 @@ func mapSdkToTerraform(
 		- MapNested Mxedges with the list of MxEdges in the refInventory and in the Mist Inventory
 	*/
 	if refInventory.OrgId.ValueStringPointer() == nil {
+		fmt.Println("KDJ Processing Import...")
 		state.OrgId = types.StringValue(orgId)
 		state.Mxedges = processImport(ctx, &diags, &mistMxedgesById)
 	} else {
+		fmt.Println("KDJ Processing Sync...")
 		state.OrgId = refInventory.OrgId
 		refInventoryMxedgesMap, refPlanMap := GenMxedgeMap(&refInventory.Mxedges)
 		state.Mxedges = processSync(ctx, &diags, &refInventoryMxedgesMap, &refPlanMap, &mistMxedgesByClaimCode, &mistMxedgesById)
@@ -219,7 +236,8 @@ func SdkToTerraform(
 	orgId string,
 	data *[]models.Mxedge,
 	refInventory *OrgMxedgeInventoryModel,
+	idToMagic map[string]string,
 ) (state OrgMxedgeInventoryModel, diags diag.Diagnostics) {
-	state, diags = mapSdkToTerraform(ctx, orgId, data, refInventory)
+	state, diags = mapSdkToTerraform(ctx, orgId, data, refInventory, idToMagic)
 	return state, diags
 }

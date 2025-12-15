@@ -5,9 +5,7 @@ package resource_org_mxedge_inventory
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -18,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -25,6 +24,9 @@ import (
 func OrgMxedgeInventoryResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"mac": schema.StringAttribute{
+				Computed: true,
+			},
 			"mxedges": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -50,7 +52,7 @@ func OrgMxedgeInventoryResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						"claim_code": schema.StringAttribute{
-							Optional:            true,
+							Computed:            true,
 							Description:         "MxEdge claim code",
 							MarkdownDescription: "MxEdge claim code",
 							PlanModifiers: []planmodifier.String{
@@ -113,6 +115,7 @@ func OrgMxedgeInventoryResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgMxedgeInventoryModel struct {
+	Mac     types.String `tfsdk:"mac"`
 	Mxedges types.Map    `tfsdk:"mxedges"`
 	OrgId   types.String `tfsdk:"org_id"`
 }
