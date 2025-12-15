@@ -24,6 +24,25 @@ import (
 func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"auto_upgrade_stat": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"lastcheck": schema.Int64Attribute{
+						Computed: true,
+					},
+				},
+				CustomType: AutoUpgradeStatType{
+					ObjectType: types.ObjectType{
+						AttrTypes: AutoUpgradeStatValue{}.AttributeTypes(ctx),
+					},
+				},
+				Computed: true,
+			},
+			"config_timestamp": schema.Int64Attribute{
+				Computed: true,
+			},
+			"config_version": schema.Int64Attribute{
+				Computed: true,
+			},
 			"device_id": schema.StringAttribute{
 				Required: true,
 			},
@@ -31,6 +50,9 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "current device firmware version",
 				MarkdownDescription: "current device firmware version",
+			},
+			"ext_ip": schema.StringAttribute{
+				Computed: true,
 			},
 			"fwupdate": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -130,6 +152,12 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "if set to `sync_upgrade`==`true`, how long to wait for the upgrade to end before raising an error, in seconds. Default is 1800",
 				Default:             int64default.StaticInt64(1800),
 			},
+			"tag_id": schema.Int64Attribute{
+				Computed: true,
+			},
+			"tag_uuid": schema.StringAttribute{
+				Computed: true,
+			},
 			"target_version": schema.StringAttribute{
 				Required:            true,
 				Description:         "firmware version to deploy to the device. Use the `mist_device_versions` datasource to get the list of available firmware versions",
@@ -145,21 +173,351 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type UpgradeDeviceModel struct {
-	DeviceId                   types.String  `tfsdk:"device_id"`
-	DeviceVersion              types.String  `tfsdk:"device_version"`
-	Fwupdate                   FwupdateValue `tfsdk:"fwupdate"`
-	Reboot                     types.Bool    `tfsdk:"reboot"`
-	RebootAt                   types.Int64   `tfsdk:"reboot_at"`
-	SiteId                     types.String  `tfsdk:"site_id"`
-	Snapshot                   types.Bool    `tfsdk:"snapshot"`
-	StartTime                  types.Int64   `tfsdk:"start_time"`
-	Status                     types.String  `tfsdk:"status"`
-	SyncUpgrade                types.Bool    `tfsdk:"sync_upgrade"`
-	SyncUpgradeRefreshInterval types.Int64   `tfsdk:"sync_upgrade_refresh_interval"`
-	SyncUpgradeStartTimeout    types.Int64   `tfsdk:"sync_upgrade_start_timeout"`
-	SyncUpgradeTimeout         types.Int64   `tfsdk:"sync_upgrade_timeout"`
-	TargetVersion              types.String  `tfsdk:"target_version"`
-	Timestamp                  types.Float64 `tfsdk:"timestamp"`
+	AutoUpgradeStat            AutoUpgradeStatValue `tfsdk:"auto_upgrade_stat"`
+	ConfigTimestamp            types.Int64          `tfsdk:"config_timestamp"`
+	ConfigVersion              types.Int64          `tfsdk:"config_version"`
+	DeviceId                   types.String         `tfsdk:"device_id"`
+	DeviceVersion              types.String         `tfsdk:"device_version"`
+	ExtIp                      types.String         `tfsdk:"ext_ip"`
+	Fwupdate                   FwupdateValue        `tfsdk:"fwupdate"`
+	Reboot                     types.Bool           `tfsdk:"reboot"`
+	RebootAt                   types.Int64          `tfsdk:"reboot_at"`
+	SiteId                     types.String         `tfsdk:"site_id"`
+	Snapshot                   types.Bool           `tfsdk:"snapshot"`
+	StartTime                  types.Int64          `tfsdk:"start_time"`
+	Status                     types.String         `tfsdk:"status"`
+	SyncUpgrade                types.Bool           `tfsdk:"sync_upgrade"`
+	SyncUpgradeRefreshInterval types.Int64          `tfsdk:"sync_upgrade_refresh_interval"`
+	SyncUpgradeStartTimeout    types.Int64          `tfsdk:"sync_upgrade_start_timeout"`
+	SyncUpgradeTimeout         types.Int64          `tfsdk:"sync_upgrade_timeout"`
+	TagId                      types.Int64          `tfsdk:"tag_id"`
+	TagUuid                    types.String         `tfsdk:"tag_uuid"`
+	TargetVersion              types.String         `tfsdk:"target_version"`
+	Timestamp                  types.Float64        `tfsdk:"timestamp"`
+}
+
+var _ basetypes.ObjectTypable = AutoUpgradeStatType{}
+
+type AutoUpgradeStatType struct {
+	basetypes.ObjectType
+}
+
+func (t AutoUpgradeStatType) Equal(o attr.Type) bool {
+	other, ok := o.(AutoUpgradeStatType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t AutoUpgradeStatType) String() string {
+	return "AutoUpgradeStatType"
+}
+
+func (t AutoUpgradeStatType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	lastcheckAttribute, ok := attributes["lastcheck"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`lastcheck is missing from object`)
+
+		return nil, diags
+	}
+
+	lastcheckVal, ok := lastcheckAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`lastcheck expected to be basetypes.Int64Value, was: %T`, lastcheckAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return AutoUpgradeStatValue{
+		Lastcheck: lastcheckVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAutoUpgradeStatValueNull() AutoUpgradeStatValue {
+	return AutoUpgradeStatValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewAutoUpgradeStatValueUnknown() AutoUpgradeStatValue {
+	return AutoUpgradeStatValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewAutoUpgradeStatValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AutoUpgradeStatValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing AutoUpgradeStatValue Attribute Value",
+				"While creating a AutoUpgradeStatValue value, a missing attribute value was detected. "+
+					"A AutoUpgradeStatValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AutoUpgradeStatValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid AutoUpgradeStatValue Attribute Type",
+				"While creating a AutoUpgradeStatValue value, an invalid attribute value was detected. "+
+					"A AutoUpgradeStatValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AutoUpgradeStatValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("AutoUpgradeStatValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra AutoUpgradeStatValue Attribute Value",
+				"While creating a AutoUpgradeStatValue value, an extra attribute value was detected. "+
+					"A AutoUpgradeStatValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra AutoUpgradeStatValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewAutoUpgradeStatValueUnknown(), diags
+	}
+
+	lastcheckAttribute, ok := attributes["lastcheck"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`lastcheck is missing from object`)
+
+		return NewAutoUpgradeStatValueUnknown(), diags
+	}
+
+	lastcheckVal, ok := lastcheckAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`lastcheck expected to be basetypes.Int64Value, was: %T`, lastcheckAttribute))
+	}
+
+	if diags.HasError() {
+		return NewAutoUpgradeStatValueUnknown(), diags
+	}
+
+	return AutoUpgradeStatValue{
+		Lastcheck: lastcheckVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAutoUpgradeStatValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AutoUpgradeStatValue {
+	object, diags := NewAutoUpgradeStatValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewAutoUpgradeStatValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t AutoUpgradeStatType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewAutoUpgradeStatValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewAutoUpgradeStatValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewAutoUpgradeStatValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewAutoUpgradeStatValueMust(AutoUpgradeStatValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t AutoUpgradeStatType) ValueType(ctx context.Context) attr.Value {
+	return AutoUpgradeStatValue{}
+}
+
+var _ basetypes.ObjectValuable = AutoUpgradeStatValue{}
+
+type AutoUpgradeStatValue struct {
+	Lastcheck basetypes.Int64Value `tfsdk:"lastcheck"`
+	state     attr.ValueState
+}
+
+func (v AutoUpgradeStatValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["lastcheck"] = basetypes.Int64Type{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Lastcheck.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["lastcheck"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v AutoUpgradeStatValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v AutoUpgradeStatValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v AutoUpgradeStatValue) String() string {
+	return "AutoUpgradeStatValue"
+}
+
+func (v AutoUpgradeStatValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"lastcheck": basetypes.Int64Type{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"lastcheck": v.Lastcheck,
+		})
+
+	return objVal, diags
+}
+
+func (v AutoUpgradeStatValue) Equal(o attr.Value) bool {
+	other, ok := o.(AutoUpgradeStatValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Lastcheck.Equal(other.Lastcheck) {
+		return false
+	}
+
+	return true
+}
+
+func (v AutoUpgradeStatValue) Type(ctx context.Context) attr.Type {
+	return AutoUpgradeStatType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v AutoUpgradeStatValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"lastcheck": basetypes.Int64Type{},
+	}
 }
 
 var _ basetypes.ObjectTypable = FwupdateType{}

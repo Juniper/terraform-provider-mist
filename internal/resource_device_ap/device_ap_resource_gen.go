@@ -300,7 +300,7 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Required if `power_mode`==`custom`; else use `power_mode` as default",
 						MarkdownDescription: "Required if `power_mode`==`custom`; else use `power_mode` as default",
 						Validators: []validator.Int64{
-							int64validator.Between(2, 7),
+							int64validator.Between(1, 10),
 						},
 					},
 					"power_mode": schema.StringAttribute{
@@ -1299,11 +1299,10 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 								int64validator.Between(1, 4094),
 							},
 						},
-						"vlan_ids": schema.ListAttribute{
-							ElementType:         types.Int64Type,
+						"vlan_ids": schema.StringAttribute{
 							Optional:            true,
-							Description:         "If `forwarding`==`limited`",
-							MarkdownDescription: "If `forwarding`==`limited`",
+							Description:         "If `forwarding`==`limited`, comma separated list of additional vlan ids allowed on this port",
+							MarkdownDescription: "If `forwarding`==`limited`, comma separated list of additional vlan ids allowed on this port",
 						},
 						"wxtunnel_id": schema.StringAttribute{
 							Optional:            true,
@@ -1405,10 +1404,11 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"antenna_select": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Antenna Mode for AP which supports selectable antennas. enum: `external`, `internal`",
-						MarkdownDescription: "Antenna Mode for AP which supports selectable antennas. enum: `external`, `internal`",
+						Description:         "Antenna Mode for AP which supports selectable antennas. enum: `\"\"` (default), `external`, `internal`",
+						MarkdownDescription: "Antenna Mode for AP which supports selectable antennas. enum: `\"\"` (default), `external`, `internal`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
+								"",
 								"",
 								"external",
 								"internal",
@@ -9333,12 +9333,12 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 		return nil, diags
 	}
 
-	vlanIdsVal, ok := vlanIdsAttribute.(basetypes.ListValue)
+	vlanIdsVal, ok := vlanIdsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`vlan_ids expected to be basetypes.ListValue, was: %T`, vlanIdsAttribute))
+			fmt.Sprintf(`vlan_ids expected to be basetypes.StringValue, was: %T`, vlanIdsAttribute))
 	}
 
 	wxtunnelIdAttribute, ok := attributes["wxtunnel_id"]
@@ -9728,12 +9728,12 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 		return NewPortConfigValueUnknown(), diags
 	}
 
-	vlanIdsVal, ok := vlanIdsAttribute.(basetypes.ListValue)
+	vlanIdsVal, ok := vlanIdsAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`vlan_ids expected to be basetypes.ListValue, was: %T`, vlanIdsAttribute))
+			fmt.Sprintf(`vlan_ids expected to be basetypes.StringValue, was: %T`, vlanIdsAttribute))
 	}
 
 	wxtunnelIdAttribute, ok := attributes["wxtunnel_id"]
@@ -9880,7 +9880,7 @@ type PortConfigValue struct {
 	RadiusConfig     basetypes.ObjectValue `tfsdk:"radius_config"`
 	Radsec           basetypes.ObjectValue `tfsdk:"radsec"`
 	VlanId           basetypes.Int64Value  `tfsdk:"vlan_id"`
-	VlanIds          basetypes.ListValue   `tfsdk:"vlan_ids"`
+	VlanIds          basetypes.StringValue `tfsdk:"vlan_ids"`
 	WxtunnelId       basetypes.StringValue `tfsdk:"wxtunnel_id"`
 	WxtunnelRemoteId basetypes.StringValue `tfsdk:"wxtunnel_remote_id"`
 	state            attr.ValueState
@@ -9914,9 +9914,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		AttrTypes: RadsecValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 	attrTypes["vlan_id"] = basetypes.Int64Type{}.TerraformType(ctx)
-	attrTypes["vlan_ids"] = basetypes.ListType{
-		ElemType: types.Int64Type,
-	}.TerraformType(ctx)
+	attrTypes["vlan_ids"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["wxtunnel_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["wxtunnel_remote_id"] = basetypes.StringType{}.TerraformType(ctx)
 
@@ -10175,50 +10173,6 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		)
 	}
 
-	var vlanIdsVal basetypes.ListValue
-	switch {
-	case v.VlanIds.IsUnknown():
-		vlanIdsVal = types.ListUnknown(types.Int64Type)
-	case v.VlanIds.IsNull():
-		vlanIdsVal = types.ListNull(types.Int64Type)
-	default:
-		var d diag.Diagnostics
-		vlanIdsVal, d = types.ListValue(types.Int64Type, v.VlanIds.Elements())
-		diags.Append(d...)
-	}
-
-	if diags.HasError() {
-		return types.ObjectUnknown(map[string]attr.Type{
-			"disabled": basetypes.BoolType{},
-			"dynamic_vlan": basetypes.ObjectType{
-				AttrTypes: DynamicVlanValue{}.AttributeTypes(ctx),
-			},
-			"enable_mac_auth":    basetypes.BoolType{},
-			"forwarding":         basetypes.StringType{},
-			"mac_auth_preferred": basetypes.BoolType{},
-			"mac_auth_protocol":  basetypes.StringType{},
-			"mist_nac": basetypes.ObjectType{
-				AttrTypes: MistNacValue{}.AttributeTypes(ctx),
-			},
-			"mx_tunnel_id":  basetypes.StringType{},
-			"mxtunnel_name": basetypes.StringType{},
-			"port_auth":     basetypes.StringType{},
-			"port_vlan_id":  basetypes.Int64Type{},
-			"radius_config": basetypes.ObjectType{
-				AttrTypes: RadiusConfigValue{}.AttributeTypes(ctx),
-			},
-			"radsec": basetypes.ObjectType{
-				AttrTypes: RadsecValue{}.AttributeTypes(ctx),
-			},
-			"vlan_id": basetypes.Int64Type{},
-			"vlan_ids": basetypes.ListType{
-				ElemType: types.Int64Type,
-			},
-			"wxtunnel_id":        basetypes.StringType{},
-			"wxtunnel_remote_id": basetypes.StringType{},
-		}), diags
-	}
-
 	attributeTypes := map[string]attr.Type{
 		"disabled": basetypes.BoolType{},
 		"dynamic_vlan": basetypes.ObjectType{
@@ -10241,10 +10195,8 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"radsec": basetypes.ObjectType{
 			AttrTypes: RadsecValue{}.AttributeTypes(ctx),
 		},
-		"vlan_id": basetypes.Int64Type{},
-		"vlan_ids": basetypes.ListType{
-			ElemType: types.Int64Type,
-		},
+		"vlan_id":            basetypes.Int64Type{},
+		"vlan_ids":           basetypes.StringType{},
 		"wxtunnel_id":        basetypes.StringType{},
 		"wxtunnel_remote_id": basetypes.StringType{},
 	}
@@ -10274,7 +10226,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"radius_config":      radiusConfig,
 			"radsec":             radsec,
 			"vlan_id":            v.VlanId,
-			"vlan_ids":           vlanIdsVal,
+			"vlan_ids":           v.VlanIds,
 			"wxtunnel_id":        v.WxtunnelId,
 			"wxtunnel_remote_id": v.WxtunnelRemoteId,
 		})
@@ -10399,10 +10351,8 @@ func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"radsec": basetypes.ObjectType{
 			AttrTypes: RadsecValue{}.AttributeTypes(ctx),
 		},
-		"vlan_id": basetypes.Int64Type{},
-		"vlan_ids": basetypes.ListType{
-			ElemType: types.Int64Type,
-		},
+		"vlan_id":            basetypes.Int64Type{},
+		"vlan_ids":           basetypes.StringType{},
 		"wxtunnel_id":        basetypes.StringType{},
 		"wxtunnel_remote_id": basetypes.StringType{},
 	}

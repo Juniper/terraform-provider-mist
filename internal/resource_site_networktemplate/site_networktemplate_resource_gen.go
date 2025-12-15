@@ -2725,6 +2725,12 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												Description:         "Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation",
 												MarkdownDescription: "Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation",
 											},
+											"networks": schema.ListAttribute{
+												ElementType:         types.StringType,
+												Optional:            true,
+												Description:         "List of network names. Required if `usage`==`inet`",
+												MarkdownDescription: "List of network names. Required if `usage`==`inet`",
+											},
 											"no_local_overwrite": schema.BoolAttribute{
 												Optional:            true,
 												Computed:            true,
@@ -33773,6 +33779,24 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`mtu expected to be basetypes.Int64Value, was: %T`, mtuAttribute))
 	}
 
+	networksAttribute, ok := attributes["networks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`networks is missing from object`)
+
+		return nil, diags
+	}
+
+	networksVal, ok := networksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`networks expected to be basetypes.ListValue, was: %T`, networksAttribute))
+	}
+
 	noLocalOverwriteAttribute, ok := attributes["no_local_overwrite"]
 
 	if !ok {
@@ -33879,6 +33903,7 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 		DynamicUsage:     dynamicUsageVal,
 		Esilag:           esilagVal,
 		Mtu:              mtuVal,
+		Networks:         networksVal,
 		NoLocalOverwrite: noLocalOverwriteVal,
 		PoeDisabled:      poeDisabledVal,
 		PortNetwork:      portNetworkVal,
@@ -34149,6 +34174,24 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`mtu expected to be basetypes.Int64Value, was: %T`, mtuAttribute))
 	}
 
+	networksAttribute, ok := attributes["networks"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`networks is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	networksVal, ok := networksAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`networks expected to be basetypes.ListValue, was: %T`, networksAttribute))
+	}
+
 	noLocalOverwriteAttribute, ok := attributes["no_local_overwrite"]
 
 	if !ok {
@@ -34255,6 +34298,7 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 		DynamicUsage:     dynamicUsageVal,
 		Esilag:           esilagVal,
 		Mtu:              mtuVal,
+		Networks:         networksVal,
 		NoLocalOverwrite: noLocalOverwriteVal,
 		PoeDisabled:      poeDisabledVal,
 		PortNetwork:      portNetworkVal,
@@ -34343,6 +34387,7 @@ type PortConfigValue struct {
 	DynamicUsage     basetypes.StringValue `tfsdk:"dynamic_usage"`
 	Esilag           basetypes.BoolValue   `tfsdk:"esilag"`
 	Mtu              basetypes.Int64Value  `tfsdk:"mtu"`
+	Networks         basetypes.ListValue   `tfsdk:"networks"`
 	NoLocalOverwrite basetypes.BoolValue   `tfsdk:"no_local_overwrite"`
 	PoeDisabled      basetypes.BoolValue   `tfsdk:"poe_disabled"`
 	PortNetwork      basetypes.StringValue `tfsdk:"port_network"`
@@ -34352,7 +34397,7 @@ type PortConfigValue struct {
 }
 
 func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 16)
+	attrTypes := make(map[string]tftypes.Type, 17)
 
 	var val tftypes.Value
 	var err error
@@ -34368,6 +34413,9 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["dynamic_usage"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["esilag"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["mtu"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["networks"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["no_local_overwrite"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["poe_disabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["port_network"] = basetypes.StringType{}.TerraformType(ctx)
@@ -34378,7 +34426,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 16)
+		vals := make(map[string]tftypes.Value, 17)
 
 		val, err = v.AeDisableLacp.ToTerraformValue(ctx)
 
@@ -34468,6 +34516,14 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["mtu"] = val
 
+		val, err = v.Networks.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["networks"] = val
+
 		val, err = v.NoLocalOverwrite.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -34537,18 +34593,57 @@ func (v PortConfigValue) String() string {
 func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var networksVal basetypes.ListValue
+	switch {
+	case v.Networks.IsUnknown():
+		networksVal = types.ListUnknown(types.StringType)
+	case v.Networks.IsNull():
+		networksVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		networksVal, d = types.ListValue(types.StringType, v.Networks.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"ae_disable_lacp": basetypes.BoolType{},
+			"ae_idx":          basetypes.Int64Type{},
+			"ae_lacp_slow":    basetypes.BoolType{},
+			"aggregated":      basetypes.BoolType{},
+			"critical":        basetypes.BoolType{},
+			"description":     basetypes.StringType{},
+			"disable_autoneg": basetypes.BoolType{},
+			"duplex":          basetypes.StringType{},
+			"dynamic_usage":   basetypes.StringType{},
+			"esilag":          basetypes.BoolType{},
+			"mtu":             basetypes.Int64Type{},
+			"networks": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"no_local_overwrite": basetypes.BoolType{},
+			"poe_disabled":       basetypes.BoolType{},
+			"port_network":       basetypes.StringType{},
+			"speed":              basetypes.StringType{},
+			"usage":              basetypes.StringType{},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
-		"ae_disable_lacp":    basetypes.BoolType{},
-		"ae_idx":             basetypes.Int64Type{},
-		"ae_lacp_slow":       basetypes.BoolType{},
-		"aggregated":         basetypes.BoolType{},
-		"critical":           basetypes.BoolType{},
-		"description":        basetypes.StringType{},
-		"disable_autoneg":    basetypes.BoolType{},
-		"duplex":             basetypes.StringType{},
-		"dynamic_usage":      basetypes.StringType{},
-		"esilag":             basetypes.BoolType{},
-		"mtu":                basetypes.Int64Type{},
+		"ae_disable_lacp": basetypes.BoolType{},
+		"ae_idx":          basetypes.Int64Type{},
+		"ae_lacp_slow":    basetypes.BoolType{},
+		"aggregated":      basetypes.BoolType{},
+		"critical":        basetypes.BoolType{},
+		"description":     basetypes.StringType{},
+		"disable_autoneg": basetypes.BoolType{},
+		"duplex":          basetypes.StringType{},
+		"dynamic_usage":   basetypes.StringType{},
+		"esilag":          basetypes.BoolType{},
+		"mtu":             basetypes.Int64Type{},
+		"networks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"no_local_overwrite": basetypes.BoolType{},
 		"poe_disabled":       basetypes.BoolType{},
 		"port_network":       basetypes.StringType{},
@@ -34578,6 +34673,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"dynamic_usage":      v.DynamicUsage,
 			"esilag":             v.Esilag,
 			"mtu":                v.Mtu,
+			"networks":           networksVal,
 			"no_local_overwrite": v.NoLocalOverwrite,
 			"poe_disabled":       v.PoeDisabled,
 			"port_network":       v.PortNetwork,
@@ -34647,6 +34743,10 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Networks.Equal(other.Networks) {
+		return false
+	}
+
 	if !v.NoLocalOverwrite.Equal(other.NoLocalOverwrite) {
 		return false
 	}
@@ -34680,17 +34780,20 @@ func (v PortConfigValue) Type(ctx context.Context) attr.Type {
 
 func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"ae_disable_lacp":    basetypes.BoolType{},
-		"ae_idx":             basetypes.Int64Type{},
-		"ae_lacp_slow":       basetypes.BoolType{},
-		"aggregated":         basetypes.BoolType{},
-		"critical":           basetypes.BoolType{},
-		"description":        basetypes.StringType{},
-		"disable_autoneg":    basetypes.BoolType{},
-		"duplex":             basetypes.StringType{},
-		"dynamic_usage":      basetypes.StringType{},
-		"esilag":             basetypes.BoolType{},
-		"mtu":                basetypes.Int64Type{},
+		"ae_disable_lacp": basetypes.BoolType{},
+		"ae_idx":          basetypes.Int64Type{},
+		"ae_lacp_slow":    basetypes.BoolType{},
+		"aggregated":      basetypes.BoolType{},
+		"critical":        basetypes.BoolType{},
+		"description":     basetypes.StringType{},
+		"disable_autoneg": basetypes.BoolType{},
+		"duplex":          basetypes.StringType{},
+		"dynamic_usage":   basetypes.StringType{},
+		"esilag":          basetypes.BoolType{},
+		"mtu":             basetypes.Int64Type{},
+		"networks": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"no_local_overwrite": basetypes.BoolType{},
 		"poe_disabled":       basetypes.BoolType{},
 		"port_network":       basetypes.StringType{},
