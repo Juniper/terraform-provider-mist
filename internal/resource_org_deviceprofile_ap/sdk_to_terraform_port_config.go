@@ -390,7 +390,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var radiusConfig basetypes.ObjectValue
 		var radsec basetypes.ObjectValue
 		var vlanId basetypes.Int64Value
-		var vlanIds = basetypes.NewListNull(types.Int64Type)
+		var vlanIds basetypes.StringValue
 		var wxtunnelId basetypes.StringValue
 		var wxtunnelRemoteId basetypes.StringValue
 
@@ -437,7 +437,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			vlanId = types.Int64Value(int64(*d.VlanId))
 		}
 		if d.VlanIds != nil {
-			vlanIds = mistutils.ListOfIntSdkToTerraform(d.VlanIds)
+			vlanIds = types.StringValue(*d.VlanIds)
 		}
 		if d.WxtunnelId != nil {
 			wxtunnelId = types.StringValue(d.WxtunnelId.String())

@@ -173,7 +173,7 @@
         servers = []
       }
       vlan_id = 100
-      vlan_ids = [100, 200, 300]
+      vlan_ids = "100,200,300"
       wxtunnel_id = "550e8400-e29b-41d4-a716-446655440006"
     }
   }

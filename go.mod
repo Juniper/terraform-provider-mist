@@ -14,7 +14,7 @@ require (
 	github.com/hashicorp/terraform-plugin-log v0.9.0
 	github.com/hashicorp/terraform-plugin-testing v1.13.3
 	github.com/stretchr/testify v1.11.1
-	github.com/tmunzer/mistapi-go v0.4.93
+	github.com/tmunzer/mistapi-go v0.4.95
 	golang.org/x/net v0.43.0
 	gotest.tools v2.2.0+incompatible
 )
