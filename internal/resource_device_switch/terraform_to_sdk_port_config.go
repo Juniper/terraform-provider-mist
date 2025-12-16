@@ -4,6 +4,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
+
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func portConfigTerraformToSdk(d basetypes.MapValue) map[string]models.JunosPortConfig {
@@ -46,6 +48,9 @@ func portConfigTerraformToSdk(d basetypes.MapValue) map[string]models.JunosPortC
 		}
 		if planObj.Mtu.ValueInt64Pointer() != nil {
 			itemObj.Mtu = models.ToPointer(int(planObj.Mtu.ValueInt64()))
+		}
+		if !planObj.Networks.IsNull() && !planObj.Networks.IsUnknown() {
+			itemObj.Networks = mistutils.ListOfStringTerraformToSdk(planObj.Networks)
 		}
 		if planObj.NoLocalOverwrite.ValueBoolPointer() != nil {
 			itemObj.NoLocalOverwrite = models.ToPointer(planObj.NoLocalOverwrite.ValueBool())

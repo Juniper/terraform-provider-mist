@@ -9,6 +9,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
 func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.JunosPortConfig) basetypes.MapValue {
@@ -27,6 +29,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var dynamicUsage basetypes.StringValue
 		var esilag basetypes.BoolValue
 		var mtu basetypes.Int64Value
+		var networks = types.ListNull(types.StringType)
 		var noLocalOverwrite basetypes.BoolValue
 		var poeDisabled basetypes.BoolValue
 		var portNetwork basetypes.StringValue
@@ -66,6 +69,9 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.Mtu != nil {
 			mtu = types.Int64Value(int64(*d.Mtu))
 		}
+		if d.Networks != nil {
+			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
+		}
 		if d.NoLocalOverwrite != nil {
 			noLocalOverwrite = types.BoolValue(*d.NoLocalOverwrite)
 		}
@@ -91,6 +97,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"dynamic_usage":      dynamicUsage,
 			"esilag":             esilag,
 			"mtu":                mtu,
+			"networks":           networks,
 			"no_local_overwrite": noLocalOverwrite,
 			"poe_disabled":       poeDisabled,
 			"port_network":       portNetwork,
