@@ -53,6 +53,9 @@ func switchMatchingRulesPortConfigTerraformToSdk(d basetypes.MapValue) map[strin
 		if planObj.Mtu.ValueInt64Pointer() != nil {
 			itemObj.Mtu = models.ToPointer(int(planObj.Mtu.ValueInt64()))
 		}
+		if !planObj.Networks.IsNull() && !planObj.Networks.IsUnknown() {
+			itemObj.Networks = mistutils.ListOfStringTerraformToSdk(planObj.Networks)
+		}
 		if planObj.NoLocalOverwrite.ValueBoolPointer() != nil {
 			itemObj.NoLocalOverwrite = models.ToPointer(planObj.NoLocalOverwrite.ValueBool())
 		}

@@ -450,22 +450,23 @@ type SiteNetworktemplateOobIpConfigValue struct {
 }
 
 type SiteNetworktemplatePortConfigValue struct {
-	AeDisableLacp    *bool   `cty:"ae_disable_lacp" hcl:"ae_disable_lacp"`
-	AeIdx            *int64  `cty:"ae_idx" hcl:"ae_idx"`
-	AeLacpSlow       *bool   `cty:"ae_lacp_slow" hcl:"ae_lacp_slow"`
-	Aggregated       *bool   `cty:"aggregated" hcl:"aggregated"`
-	Critical         *bool   `cty:"critical" hcl:"critical"`
-	Description      *string `cty:"description" hcl:"description"`
-	DisableAutoneg   *bool   `cty:"disable_autoneg" hcl:"disable_autoneg"`
-	Duplex           *string `cty:"duplex" hcl:"duplex"`
-	DynamicUsage     *string `cty:"dynamic_usage" hcl:"dynamic_usage"`
-	Esilag           *bool   `cty:"esilag" hcl:"esilag"`
-	Mtu              *int64  `cty:"mtu" hcl:"mtu"`
-	NoLocalOverwrite *bool   `cty:"no_local_overwrite" hcl:"no_local_overwrite"`
-	PoeDisabled      *bool   `cty:"poe_disabled" hcl:"poe_disabled"`
-	PortNetwork      *string `cty:"port_network" hcl:"port_network"`
-	Speed            *string `cty:"speed" hcl:"speed"`
-	Usage            string  `cty:"usage" hcl:"usage"`
+	AeDisableLacp    *bool    `cty:"ae_disable_lacp" hcl:"ae_disable_lacp"`
+	AeIdx            *int64   `cty:"ae_idx" hcl:"ae_idx"`
+	AeLacpSlow       *bool    `cty:"ae_lacp_slow" hcl:"ae_lacp_slow"`
+	Aggregated       *bool    `cty:"aggregated" hcl:"aggregated"`
+	Critical         *bool    `cty:"critical" hcl:"critical"`
+	Description      *string  `cty:"description" hcl:"description"`
+	DisableAutoneg   *bool    `cty:"disable_autoneg" hcl:"disable_autoneg"`
+	Duplex           *string  `cty:"duplex" hcl:"duplex"`
+	DynamicUsage     *string  `cty:"dynamic_usage" hcl:"dynamic_usage"`
+	Esilag           *bool    `cty:"esilag" hcl:"esilag"`
+	Mtu              *int64   `cty:"mtu" hcl:"mtu"`
+	Networks         []string `cty:"networks" hcl:"networks"`
+	NoLocalOverwrite *bool    `cty:"no_local_overwrite" hcl:"no_local_overwrite"`
+	PoeDisabled      *bool    `cty:"poe_disabled" hcl:"poe_disabled"`
+	PortNetwork      *string  `cty:"port_network" hcl:"port_network"`
+	Speed            *string  `cty:"speed" hcl:"speed"`
+	Usage            string   `cty:"usage" hcl:"usage"`
 }
 
 type SiteNetworktemplateStpConfigValue struct {
