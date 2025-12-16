@@ -25,6 +25,7 @@ band_5 {
   antenna_mode      = "2x2"
   bandwidth         = 80
   channels          = [36, 40, 44, 48]
+  # channels          = []
   disabled          = true
   power             = 15
   power_max         = 17

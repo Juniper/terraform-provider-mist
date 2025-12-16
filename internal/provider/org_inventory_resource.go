@@ -228,7 +228,10 @@ func (r *orgInventoryResource) Delete(ctx context.Context, _ resource.DeleteRequ
 	unclaimBody.Op = models.InventoryUpdateOperationEnum_DELETE
 	unclaimBody.Macs = macsToUnclaims
 	unclaimResponse, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &unclaimBody)
-	apiErr, _ := mistapierror.ProcessInventoryApiError("unclaim", unclaimResponse.Response.StatusCode, unclaimResponse.Response.Body, err)
+	var apiErr []string
+	if unclaimResponse.Response != nil {
+		apiErr, _ = mistapierror.ProcessInventoryApiError("unclaim", unclaimResponse.Response.StatusCode, unclaimResponse.Response.Body, err)
+	}
 	if len(apiErr) > 0 {
 		for _, errValue := range apiErr {
 			resp.Diagnostics.AddError(
@@ -236,7 +239,12 @@ func (r *orgInventoryResource) Delete(ctx context.Context, _ resource.DeleteRequ
 				errValue,
 			)
 		}
-	} else if unclaimResponse.Response.StatusCode != 404 && err != nil {
+	} else if unclaimResponse.Response != nil && unclaimResponse.Response.StatusCode != 404 && err != nil {
+		resp.Diagnostics.AddError(
+			"Error Unclaiming Devices from the Org Inventory",
+			"Unable to unclaim the devices, unexpected error: "+err.Error(),
+		)
+	} else if unclaimResponse.Response == nil && err != nil {
 		resp.Diagnostics.AddError(
 			"Error Unclaiming Devices from the Org Inventory",
 			"Unable to unclaim the devices, unexpected error: "+err.Error(),
@@ -399,7 +407,10 @@ func (r *orgInventoryResource) claimDevices(
 	tflog.Info(ctx, "Starting to Claim devices")
 	claimResponse, err := r.client.OrgsInventory().AddOrgInventory(ctx, orgId, claim)
 
-	apiErr, _ := mistapierror.ProcessInventoryApiError("claim", claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
+	var apiErr []string
+	if claimResponse.Response != nil {
+		apiErr, _ = mistapierror.ProcessInventoryApiError("claim", claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
+	}
 	if len(apiErr) > 0 {
 		for _, errValue := range apiErr {
 			diags.AddError(
@@ -446,7 +457,10 @@ func (r *orgInventoryResource) unclaimDevices(
 	unclaimBody.Macs = unclaim
 	unclaimResponse, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &unclaimBody)
 
-	apiErr, _ := mistapierror.ProcessInventoryApiError("unclaim", unclaimResponse.Response.StatusCode, unclaimResponse.Response.Body, err)
+	var apiErr []string
+	if unclaimResponse.Response != nil {
+		apiErr, _ = mistapierror.ProcessInventoryApiError("unclaim", unclaimResponse.Response.StatusCode, unclaimResponse.Response.Body, err)
+	}
 	if len(apiErr) > 0 {
 		for _, errValue := range apiErr {
 			diags.AddError(
@@ -480,7 +494,10 @@ func (r *orgInventoryResource) unassignDevices(
 	unassignBody.Macs = unassign
 	unassignResponse, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &unassignBody)
 
-	apiErr, _ := mistapierror.ProcessInventoryApiError("unassign", unassignResponse.Response.StatusCode, unassignResponse.Response.Body, err)
+	var apiErr []string
+	if unassignResponse.Response != nil {
+		apiErr, _ = mistapierror.ProcessInventoryApiError("unassign", unassignResponse.Response.StatusCode, unassignResponse.Response.Body, err)
+	}
 	if len(apiErr) > 0 {
 		for _, errValue := range apiErr {
 			diags.AddError(
@@ -529,7 +546,11 @@ func (r *orgInventoryResource) assignDevices(
 			}
 			assignResponse, err := r.client.OrgsInventory().UpdateOrgInventoryAssignment(ctx, orgId, &body)
 
-			apiErr, vcMemberAssignWarning := mistapierror.ProcessInventoryApiError("assign", assignResponse.Response.StatusCode, assignResponse.Response.Body, err)
+			var apiErr []string
+			var vcMemberAssignWarning bool
+			if assignResponse.Response != nil {
+				apiErr, vcMemberAssignWarning = mistapierror.ProcessInventoryApiError("assign", assignResponse.Response.StatusCode, assignResponse.Response.Body, err)
+			}
 			if len(apiErr) > 0 {
 				for _, errValue := range apiErr {
 					diags.AddError(

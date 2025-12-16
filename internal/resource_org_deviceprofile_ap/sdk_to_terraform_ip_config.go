@@ -14,8 +14,8 @@ import (
 )
 
 func ipConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApIpConfig) IpConfigValue {
-	var dns = mistutils.ListOfStringSdkToTerraformEmpty()
-	var dnsSuffix = mistutils.ListOfStringSdkToTerraformEmpty()
+	var dns basetypes.ListValue = types.ListNull(types.StringType)
+	var dnsSuffix basetypes.ListValue = types.ListNull(types.StringType)
 	var gateway basetypes.StringValue
 	var gateway6 basetypes.StringValue
 	var ip basetypes.StringValue
@@ -27,10 +27,10 @@ func ipConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 	var type6 basetypes.StringValue
 	var vlanId basetypes.Int64Value
 
-	if d.Dns != nil {
+	if len(d.Dns) > 0 {
 		dns = mistutils.ListOfStringSdkToTerraform(d.Dns)
 	}
-	if d.DnsSuffix != nil {
+	if len(d.DnsSuffix) > 0 {
 		dnsSuffix = mistutils.ListOfStringSdkToTerraform(d.DnsSuffix)
 	}
 	if d.Gateway != nil {
