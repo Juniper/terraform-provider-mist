@@ -17,6 +17,9 @@ func switchesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 	dataMap := make(map[string]SwitchesValue)
 	for _, d := range l {
 		var deviceprofileId basetypes.StringValue
+		var downlinkIps = types.ListNull(types.StringType)
+		var downlinks = types.ListNull(types.StringType)
+		var esilaglinks = types.ListNull(types.StringType)
 		var evpnId basetypes.Int64Value
 		var mac basetypes.StringValue
 		var model basetypes.StringValue
@@ -25,9 +28,22 @@ func switchesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 		var role basetypes.StringValue
 		var routerId basetypes.StringValue
 		var siteId basetypes.StringValue
+		var suggestedDownlinks = types.ListNull(types.StringType)
+		var suggestedEsilaglinks = types.ListNull(types.StringType)
+		var suggestedUplinks = types.ListNull(types.StringType)
+		var uplinks = types.ListNull(types.StringType)
 
 		if d.DeviceprofileId != nil {
 			deviceprofileId = types.StringValue(d.DeviceprofileId.String())
+		}
+		if d.DownlinkIps != nil {
+			downlinkIps = mistutils.ListOfStringSdkToTerraform(d.DownlinkIps)
+		}
+		if d.Downlinks != nil {
+			downlinks = mistutils.ListOfStringSdkToTerraform(d.Downlinks)
+		}
+		if d.Esilaglinks != nil {
+			esilaglinks = mistutils.ListOfStringSdkToTerraform(d.Esilaglinks)
 		}
 		if d.EvpnId != nil {
 			evpnId = types.Int64Value(int64(*d.EvpnId))
@@ -53,17 +69,36 @@ func switchesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 		if d.SiteId != nil {
 			siteId = types.StringValue(d.SiteId.String())
 		}
+		if d.SuggestedDownlinks != nil {
+			suggestedDownlinks = mistutils.ListOfStringSdkToTerraform(d.SuggestedDownlinks)
+		}
+		if d.SuggestedEsilaglinks != nil {
+			suggestedEsilaglinks = mistutils.ListOfStringSdkToTerraform(d.SuggestedEsilaglinks)
+		}
+		if d.SuggestedUplinks != nil {
+			suggestedUplinks = mistutils.ListOfStringSdkToTerraform(d.SuggestedUplinks)
+		}
+		if d.Uplinks != nil {
+			uplinks = mistutils.ListOfStringSdkToTerraform(d.Uplinks)
+		}
 
 		dataMapValue := map[string]attr.Value{
-			"deviceprofile_id": deviceprofileId,
-			"evpn_id":          evpnId,
-			"mac":              mac,
-			"model":            model,
-			"pod":              pod,
-			"pods":             pods,
-			"role":             role,
-			"router_id":        routerId,
-			"site_id":          siteId,
+			"deviceprofile_id":      deviceprofileId,
+			"downlink_ips":          downlinkIps,
+			"downlinks":             downlinks,
+			"esilaglinks":           esilaglinks,
+			"evpn_id":               evpnId,
+			"mac":                   mac,
+			"model":                 model,
+			"pod":                   pod,
+			"pods":                  pods,
+			"role":                  role,
+			"router_id":             routerId,
+			"site_id":               siteId,
+			"suggested_downlinks":   suggestedDownlinks,
+			"suggested_esilaglinks": suggestedEsilaglinks,
+			"suggested_uplinks":     suggestedUplinks,
+			"uplinks":               uplinks,
 		}
 		data, e := NewSwitchesValue(SwitchesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)
