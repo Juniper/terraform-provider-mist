@@ -32,6 +32,7 @@ func switchMatchingRulesPortConfigSdkToTerraform(ctx context.Context, diags *dia
 		var dynamicUsage basetypes.StringValue
 		var esilag basetypes.BoolValue
 		var mtu basetypes.Int64Value
+		var networks = types.ListNull(types.StringType)
 		var noLocalOverwrite basetypes.BoolValue
 		var poeDisabled basetypes.BoolValue
 		var portNetwork basetypes.StringValue
@@ -71,6 +72,9 @@ func switchMatchingRulesPortConfigSdkToTerraform(ctx context.Context, diags *dia
 		if d.Mtu != nil {
 			mtu = types.Int64Value(int64(*d.Mtu))
 		}
+		if d.Networks != nil {
+			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
+		}
 		if d.NoLocalOverwrite != nil {
 			noLocalOverwrite = types.BoolValue(*d.NoLocalOverwrite)
 		}
@@ -96,6 +100,7 @@ func switchMatchingRulesPortConfigSdkToTerraform(ctx context.Context, diags *dia
 			"dynamic_usage":      dynamicUsage,
 			"esilag":             esilag,
 			"mtu":                mtu,
+			"networks":           networks,
 			"no_local_overwrite": noLocalOverwrite,
 			"poe_disabled":       poeDisabled,
 			"port_network":       portNetwork,

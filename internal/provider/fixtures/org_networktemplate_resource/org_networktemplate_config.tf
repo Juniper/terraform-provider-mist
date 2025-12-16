@@ -38,6 +38,46 @@
     "set protocols ospf area 0.0.0.0 interface all"
   ]
 
+  bgp_config = {
+    "bgp_config_1" = {
+      type                 = "internal"
+      networks             = ["guest"]
+      bfd_minimum_interval = 100
+      local_as             = "65001"
+      hold_time            = 90
+      auth_key             = "secret1"
+      export_policy        = "routing_policy_1"
+      import_policy        = "routing_policy_1"
+      neighbors = {
+        "10.0.0.1" = {
+          neighbor_as   = "65001"
+          hold_time     = 120
+          import_policy = "routing_policy_1"
+          export_policy = "routing_policy_1"
+        }
+      }
+    }
+    "bgp_config_2" = {
+      type                 = "external"
+      networks             = ["lan", "guest"]
+      bfd_minimum_interval = 200
+      local_as             = "65002"
+      hold_time            = 180
+      auth_key             = "secret2"
+      export_policy        = "routing_policy_2"
+      import_policy        = "routing_policy_2"
+      neighbors = {
+        "192.168.1.1" = {
+          neighbor_as   = "65003"
+          hold_time     = 240
+          import_policy = "routing_policy_2"
+          export_policy = "routing_policy_2"
+          multihop_ttl  = 5
+        }
+      }
+    }
+  }
+
   dhcp_snooping = {
     enabled                 = true
     all_networks           = false
@@ -538,8 +578,9 @@
             speed = "1g"
           }
           "ge-0/0/1" = {
-            usage = "trunk"
-            speed = "10g"
+            usage    = "trunk"
+            speed    = "10g"
+            networks = ["lan", "guest"]
           }
         }
         port_mirroring = {

@@ -37,6 +37,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworktemplateModel) (models.
 		data.AdditionalConfigCmds = mistutils.ListOfStringTerraformToSdk(plan.AdditionalConfigCmds)
 	}
 
+	if plan.BgpConfig.IsNull() || plan.BgpConfig.IsUnknown() {
+		unset["-bgp_config"] = ""
+	} else {
+		data.BgpConfig = bgpConfigTerraformToSdk(plan.BgpConfig)
+	}
+
 	if plan.DnsServers.IsNull() || plan.DnsServers.IsUnknown() {
 		unset["-dns_servers"] = ""
 	} else {
