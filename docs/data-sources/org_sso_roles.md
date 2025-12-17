@@ -52,7 +52,7 @@ Read-Only:
 Read-Only:
 
 - `role` (String) access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`
-- `scope` (String) enum: `org`, `site`, `sitegroup`
+- `scope` (String) enum: `org`, `site`, `sitegroup`, `orgsites`
 - `site_id` (String) If `scope`==`site`
 - `sitegroup_id` (String) If `scope`==`sitegroup`
 - `views` (List of String) Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  

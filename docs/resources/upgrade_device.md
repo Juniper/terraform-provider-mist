@@ -60,10 +60,24 @@ resource "mist_upgrade_device" "switch_upgrade" {
 
 ### Read-Only
 
+- `auto_upgrade_stat` (Attributes) (see [below for nested schema](#nestedatt--auto_upgrade_stat))
+- `config_timestamp` (Number)
+- `config_version` (Number)
 - `device_version` (String) current device firmware version
+- `ext_ip` (String)
 - `fwupdate` (Attributes) (see [below for nested schema](#nestedatt--fwupdate))
 - `status` (String) enum: `error`, `inprogress`, `scheduled`, `starting`, `success`
+- `tag_id` (Number)
+- `tag_uuid` (String)
 - `timestamp` (Number) Epoch (seconds)
+
+<a id="nestedatt--auto_upgrade_stat"></a>
+### Nested Schema for `auto_upgrade_stat`
+
+Read-Only:
+
+- `lastcheck` (Number)
+
 
 <a id="nestedatt--fwupdate"></a>
 ### Nested Schema for `fwupdate`

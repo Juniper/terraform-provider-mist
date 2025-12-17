@@ -55,6 +55,7 @@ Read-Only:
 - `auto_router_id_subnet` (String) Optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored
 - `auto_router_id_subnet6` (String) Optional, this generates router_id automatically, if specified, `router_id_prefix` is ignored
 - `core_as_border` (Boolean) Optional, for ERB or CLOS, you can either use esilag to upstream routers or to also be the virtual-gateway. When `routed_at` != `core`, whether to do virtual-gateway at core as well
+- `enable_inband_ztp` (Boolean) if the mangement traffic goes inbnd, during installation, only the border/core switches are connected to the Internet to allow initial configuration to be pushed down and leave the downstream access switches stay in the Factory Default state enabling inband-ztp allows upstream switches to use LLDP to assign IP and gives Internet to downstream switches in that state
 - `overlay` (Attributes) (see [below for nested schema](#nestedatt--site_evpn_topologies--evpn_options--overlay))
 - `per_vlan_vga_v4_mac` (Boolean) Only for by Core-Distribution architecture when `evpn_options.routed_at`==`core`. By default, JUNOS uses 00-00-5e-00-01-01 as the virtual-gateway-address's v4_mac. If enabled, 00-00-5e-00-0X-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)
 - `per_vlan_vga_v6_mac` (Boolean) Only for by Core-Distribution architecture when `evpn_options.routed_at`==`core`. By default, JUNOS uses 00-00-5e-00-02-01 as the virtual-gateway-address's v6_mac. If enabled, 00-00-5e-00-1X-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)

@@ -315,7 +315,7 @@ Optional:
 Optional:
 
 - `enabled` (Boolean) Whether the policy is enabled
-- `expiry_in_days` (Number) password expiry in days
+- `expiry_in_days` (Number) Password expiry in days. Password Expiry Notice banner will display in the UI 14 days before expiration
 - `min_length` (Number) Required password length
 - `requires_special_char` (Boolean) Whether to require special character
 - `requires_two_factor_auth` (Boolean) Whether to require two-factor auth

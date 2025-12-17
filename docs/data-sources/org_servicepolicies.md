@@ -43,10 +43,10 @@ data "mist_org_servicepolicies" "servicepolicies" {
 
 Read-Only:
 
-- `aamw` (Attributes) For SRX Only (see [below for nested schema](#nestedatt--org_servicepolicies--aamw))
+- `aamw` (Attributes) SRX only (see [below for nested schema](#nestedatt--org_servicepolicies--aamw))
 - `action` (String) enum: `allow`, `deny`
 - `antivirus` (Attributes) For SRX-only (see [below for nested schema](#nestedatt--org_servicepolicies--antivirus))
-- `appqoe` (Attributes) For SRX Only (see [below for nested schema](#nestedatt--org_servicepolicies--appqoe))
+- `appqoe` (Attributes) SRX only (see [below for nested schema](#nestedatt--org_servicepolicies--appqoe))
 - `created_time` (Number) When the object has been created, in epoch
 - `ewf` (Attributes List) (see [below for nested schema](#nestedatt--org_servicepolicies--ewf))
 - `id` (String) Unique ID of the object instance in the Mist Organization
