@@ -221,7 +221,7 @@ Optional:
 
 Required:
 
-- `neighbor_as` (String)
+- `neighbor_as` (String) Autonomous System (AS) number of the BGP neighbor. For internal BGP, this must match `local_as`. For external BGP, this must differ from `local_as`.
 
 Optional:
 

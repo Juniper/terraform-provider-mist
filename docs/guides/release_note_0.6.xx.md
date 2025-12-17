@@ -8,7 +8,7 @@ description: |-
 # Release Notes for v0.6.xx
 
 ## Release Notes for v0.6.2
-**Release Date**: December 18rd, 2025
+**Release Date**: December 18th, 2025
 
 ### Breaking Changes
 
