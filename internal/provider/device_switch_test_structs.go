@@ -4,6 +4,7 @@ type DeviceSwitchModel struct {
 	AclPolicies           []DeviceSwitchAclPoliciesValue                  `hcl:"acl_policies"`
 	AclTags               map[string]DeviceSwitchAclTagsValue             `hcl:"acl_tags"`
 	AdditionalConfigCmds  []string                                        `hcl:"additional_config_cmds"`
+	BgpConfig             map[string]DeviceSwitchBgpConfigValue           `hcl:"bgp_config"`
 	DeviceId              string                                          `hcl:"device_id"`
 	DhcpSnooping          *DeviceSwitchDhcpSnoopingValue                  `hcl:"dhcp_snooping"`
 	DhcpdConfig           *DeviceSwitchDhcpdConfigValue                   `hcl:"dhcpd_config"`
@@ -73,6 +74,26 @@ type DeviceSwitchAclTagsValue struct {
 type DeviceSwitchSpecsValue struct {
 	PortRange *string `cty:"port_range" hcl:"port_range"`
 	Protocol  *string `cty:"protocol" hcl:"protocol"`
+}
+
+type DeviceSwitchBgpConfigValue struct {
+	AuthKey            *string                               `cty:"auth_key" hcl:"auth_key"`
+	BfdMinimumInterval *int64                                `cty:"bfd_minimum_interval" hcl:"bfd_minimum_interval"`
+	ExportPolicy       *string                               `cty:"export_policy" hcl:"export_policy"`
+	HoldTime           *int64                                `cty:"hold_time" hcl:"hold_time"`
+	ImportPolicy       *string                               `cty:"import_policy" hcl:"import_policy"`
+	LocalAs            string                                `cty:"local_as" hcl:"local_as"`
+	Neighbors          map[string]DeviceSwitchNeighborsValue `cty:"neighbors" hcl:"neighbors"`
+	Networks           []string                              `cty:"networks" hcl:"networks"`
+	BgpConfigType      string                                `cty:"type" hcl:"type"`
+}
+
+type DeviceSwitchNeighborsValue struct {
+	ExportPolicy *string `cty:"export_policy" hcl:"export_policy"`
+	HoldTime     *int64  `cty:"hold_time" hcl:"hold_time"`
+	ImportPolicy *string `cty:"import_policy" hcl:"import_policy"`
+	MultihopTtl  *int64  `cty:"multihop_ttl" hcl:"multihop_ttl"`
+	NeighborAs   string  `cty:"neighbor_as" hcl:"neighbor_as"`
 }
 
 type DeviceSwitchDhcpSnoopingValue struct {
@@ -274,22 +295,23 @@ type DeviceSwitchOtherIpConfigsValue struct {
 }
 
 type DeviceSwitchPortConfigValue struct {
-	AeDisableLacp    *bool   `cty:"ae_disable_lacp" hcl:"ae_disable_lacp"`
-	AeIdx            *int64  `cty:"ae_idx" hcl:"ae_idx"`
-	AeLacpSlow       *bool   `cty:"ae_lacp_slow" hcl:"ae_lacp_slow"`
-	Aggregated       *bool   `cty:"aggregated" hcl:"aggregated"`
-	Critical         *bool   `cty:"critical" hcl:"critical"`
-	Description      *string `cty:"description" hcl:"description"`
-	DisableAutoneg   *bool   `cty:"disable_autoneg" hcl:"disable_autoneg"`
-	Duplex           *string `cty:"duplex" hcl:"duplex"`
-	DynamicUsage     *string `cty:"dynamic_usage" hcl:"dynamic_usage"`
-	Esilag           *bool   `cty:"esilag" hcl:"esilag"`
-	Mtu              *int64  `cty:"mtu" hcl:"mtu"`
-	NoLocalOverwrite *bool   `cty:"no_local_overwrite" hcl:"no_local_overwrite"`
-	PoeDisabled      *bool   `cty:"poe_disabled" hcl:"poe_disabled"`
-	PortNetwork      *string `cty:"port_network" hcl:"port_network"`
-	Speed            *string `cty:"speed" hcl:"speed"`
-	Usage            string  `cty:"usage" hcl:"usage"`
+	AeDisableLacp    *bool    `cty:"ae_disable_lacp" hcl:"ae_disable_lacp"`
+	AeIdx            *int64   `cty:"ae_idx" hcl:"ae_idx"`
+	AeLacpSlow       *bool    `cty:"ae_lacp_slow" hcl:"ae_lacp_slow"`
+	Aggregated       *bool    `cty:"aggregated" hcl:"aggregated"`
+	Critical         *bool    `cty:"critical" hcl:"critical"`
+	Description      *string  `cty:"description" hcl:"description"`
+	DisableAutoneg   *bool    `cty:"disable_autoneg" hcl:"disable_autoneg"`
+	Duplex           *string  `cty:"duplex" hcl:"duplex"`
+	DynamicUsage     *string  `cty:"dynamic_usage" hcl:"dynamic_usage"`
+	Esilag           *bool    `cty:"esilag" hcl:"esilag"`
+	Mtu              *int64   `cty:"mtu" hcl:"mtu"`
+	Networks         []string `cty:"networks" hcl:"networks"`
+	NoLocalOverwrite *bool    `cty:"no_local_overwrite" hcl:"no_local_overwrite"`
+	PoeDisabled      *bool    `cty:"poe_disabled" hcl:"poe_disabled"`
+	PortNetwork      *string  `cty:"port_network" hcl:"port_network"`
+	Speed            *string  `cty:"speed" hcl:"speed"`
+	Usage            string   `cty:"usage" hcl:"usage"`
 }
 
 type DeviceSwitchPortConfigOverwriteValue struct {

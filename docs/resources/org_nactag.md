@@ -41,7 +41,7 @@ resource "mist_org_nactag" "tag_one" {
 - `allow_usermac_override` (Boolean) Can be set to true to allow the override by usermac result
 - `egress_vlan_names` (List of String) If `type`==`egress_vlan_names`, list of egress vlans to return
 - `gbp_tag` (String)
-- `match` (String) if `type`==`match`. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_health`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
+- `match` (String) if `type`==`match`. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
 - `match_all` (Boolean) This field is applicable only when `type`==`match`
   * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)
   * `true`: means all values should be matched (i.e., match-all behavior)

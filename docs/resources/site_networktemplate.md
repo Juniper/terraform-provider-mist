@@ -865,6 +865,7 @@ Optional:
 - `dynamic_usage` (String) Enable dynamic usage for this port. Set to `dynamic` to enable.
 - `esilag` (Boolean)
 - `mtu` (Number) Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation
+- `networks` (List of String) List of network names. Required if `usage`==`inet`
 - `no_local_overwrite` (Boolean) Prevent helpdesk to override the port config
 - `poe_disabled` (Boolean)
 - `port_network` (String) Required if `usage`==`vlan_tunnel`. Q-in-Q tunneling using All-in-one bundling. This also enables standard L2PT for interfaces that are not encapsulation tunnel interfaces and uses MAC rewrite operation. [View more information](https://www.juniper.net/documentation/us/en/software/junos/multicast-l2/topics/topic-map/q-in-q.html#id-understanding-qinq-tunneling-and-vlan-translation)

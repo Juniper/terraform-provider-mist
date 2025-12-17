@@ -205,7 +205,6 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.AllowedWhenValueIsIn(
 									path.MatchRelative().AtParent().AtName("protocol"),
 									[]attr.Value{
-										types.StringValue("any"),
 										types.StringValue("tcp"),
 										types.StringValue("udp"),
 									},

@@ -57,7 +57,7 @@ Read-Only:
 Read-Only:
 
 - `bfd_profile` (String) enum: `broadband`, `lte`
-- `bfd_use_tunnel_mode` (Boolean) If `type`==`mesh` and for SSR only, whether toi use tunnel mode
+- `bfd_use_tunnel_mode` (Boolean) If `type`==`mesh` and for SSR only, whether to use tunnel mode
 - `ip` (String) If different from the wan port
 - `peer_paths` (Attributes Map) If `type`==`mesh`, Property key is the Peer Interface name (see [below for nested schema](#nestedatt--org_vpns--paths--peer_paths))
 - `pod` (Number)

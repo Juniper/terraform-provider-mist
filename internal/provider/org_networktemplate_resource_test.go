@@ -133,6 +133,56 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 		}
 	}
 
+	// BgpConfig map
+	if len(o.BgpConfig) > 0 {
+		for key, bgp := range o.BgpConfig {
+			basePath := fmt.Sprintf("bgp_config.%s", key)
+			if bgp.AuthKey != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".auth_key", *bgp.AuthKey)
+			}
+			if bgp.BfdMinimumInterval != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".bfd_minimum_interval", fmt.Sprintf("%d", *bgp.BfdMinimumInterval))
+			}
+			if bgp.ExportPolicy != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".export_policy", *bgp.ExportPolicy)
+			}
+			if bgp.HoldTime != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".hold_time", fmt.Sprintf("%d", *bgp.HoldTime))
+			}
+
+			if bgp.ImportPolicy != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".import_policy", *bgp.ImportPolicy)
+			}
+			checks.append(t, "TestCheckResourceAttr", basePath+".local_as", bgp.LocalAs)
+			if len(bgp.Networks) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".networks.#", fmt.Sprintf("%d", len(bgp.Networks)))
+				for i, network := range bgp.Networks {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.networks.%d", basePath, i), network)
+				}
+			}
+			checks.append(t, "TestCheckResourceAttr", basePath+".type", bgp.BgpConfigType)
+			// BgpConfig neighbors
+			if len(bgp.Neighbors) > 0 {
+				for neighborKey, neighbor := range bgp.Neighbors {
+					neighborPath := fmt.Sprintf("%s.neighbors.%s", basePath, neighborKey)
+					if neighbor.ExportPolicy != nil {
+						checks.append(t, "TestCheckResourceAttr", neighborPath+".export_policy", *neighbor.ExportPolicy)
+					}
+					if neighbor.HoldTime != nil {
+						checks.append(t, "TestCheckResourceAttr", neighborPath+".hold_time", fmt.Sprintf("%d", *neighbor.HoldTime))
+					}
+					if neighbor.ImportPolicy != nil {
+						checks.append(t, "TestCheckResourceAttr", neighborPath+".import_policy", *neighbor.ImportPolicy)
+					}
+					if neighbor.MultihopTtl != nil {
+						checks.append(t, "TestCheckResourceAttr", neighborPath+".multihop_ttl", fmt.Sprintf("%d", *neighbor.MultihopTtl))
+					}
+					checks.append(t, "TestCheckResourceAttr", neighborPath+".neighbor_as", neighbor.NeighborAs)
+				}
+			}
+		}
+	}
+
 	if len(o.DnsServers) > 0 {
 		checks.append(t, "TestCheckResourceAttr", "dns_servers.#", fmt.Sprintf("%d", len(o.DnsServers)))
 		for i, server := range o.DnsServers {
@@ -819,6 +869,22 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 				if rule.StpConfig != nil {
 					if rule.StpConfig.BridgePriority != nil {
 						checks.append(t, "TestCheckResourceAttr", basePath+".stp_config.bridge_priority", *rule.StpConfig.BridgePriority)
+					}
+				}
+				// PortConfig map
+				if len(rule.PortConfig) > 0 {
+					for portKey, portCfg := range rule.PortConfig {
+						portPath := fmt.Sprintf("%s.port_config.%s", basePath, portKey)
+						checks.append(t, "TestCheckResourceAttr", portPath+".usage", portCfg.Usage)
+						if portCfg.Speed != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".speed", string(*portCfg.Speed))
+						}
+						if len(portCfg.Networks) > 0 {
+							checks.append(t, "TestCheckResourceAttr", portPath+".networks.#", fmt.Sprintf("%d", len(portCfg.Networks)))
+							for j, network := range portCfg.Networks {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.networks.%d", portPath, j), network)
+							}
+						}
 					}
 				}
 			}

@@ -126,7 +126,7 @@ type OrgDeviceprofileApPortConfigValue struct {
 	RadiusConfig     *OrgDeviceprofileApRadiusConfigValue `cty:"radius_config" hcl:"radius_config"`
 	Radsec           *OrgDeviceprofileApRadsecValue       `cty:"radsec" hcl:"radsec"`
 	VlanId           *int64                               `cty:"vlan_id" hcl:"vlan_id"`
-	VlanIds          []int64                              `cty:"vlan_ids" hcl:"vlan_ids"`
+	VlanIds          *string                              `cty:"vlan_ids" hcl:"vlan_ids"`
 	WxtunnelId       *string                              `cty:"wxtunnel_id" hcl:"wxtunnel_id"`
 	WxtunnelRemoteId *string                              `cty:"wxtunnel_remote_id" hcl:"wxtunnel_remote_id"`
 }

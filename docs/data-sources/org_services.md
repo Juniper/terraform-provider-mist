@@ -42,19 +42,19 @@ data "mist_org_services" "services" {
 
 Read-Only:
 
-- `addresses` (List of String) If `type`==`custom`, ip subnets (e.g. 10.0.0.0/8)
+- `addresses` (List of String) If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)
 - `app_categories` (List of String) When `type`==`app_categories`, list of application categories are available through [List App Category Definitions]($e/Constants%20Definitions/listAppCategoryDefinitions)
 - `app_subcategories` (List of String) When `type`==`app_categories`, list of application categories are available through [List App Sub Category Definitions]($e/Constants%20Definitions/listAppSubCategoryDefinitions)
 - `apps` (List of String) When `type`==`apps`, list of applications are available through:
   * [List Applications]($e/Constants%20Definitions/listApplications)
   * [List Gateway Applications]($e/Constants%20Definitions/listGatewayApplications)
   * /insight/top_app_by-bytes?wired=true
-- `client_limit_down` (Number) 0 means unlimited
-- `client_limit_up` (Number) 0 means unlimited
+- `client_limit_down` (Number) 0 means unlimited, value from 0 to 107374182
+- `client_limit_up` (Number) 0 means unlimited, value from 0 to 107374182
 - `created_time` (Number) When the object has been created, in epoch
 - `description` (String)
 - `dscp` (String)
-- `failover_policy` (String) enum: `non_revertable`, `none`, `revertable`
+- `failover_policy` (String) enum: `non_revertible`, `none`, `revertible`
 - `hostnames` (List of String) If `type`==`custom`, web filtering
 - `id` (String) Unique ID of the object instance in the Mist Organization
 - `max_jitter` (String)
@@ -63,8 +63,8 @@ Read-Only:
 - `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `name` (String)
 - `org_id` (String)
-- `service_limit_down` (Number) 0 means unlimited
-- `service_limit_up` (Number) 0 means unlimited
+- `service_limit_down` (Number) 0 means unlimited, value from 0 to 107374182
+- `service_limit_up` (Number) 0 means unlimited, value from 0 to 107374182
 - `sle_enabled` (Boolean) Whether to enable measure SLE
 - `specs` (Attributes List) When `type`==`custom`, optional, if it doesn't exist, http and https is assumed (see [below for nested schema](#nestedatt--org_services--specs))
 - `ssr_relaxed_tcp_state_enforcement` (Boolean)

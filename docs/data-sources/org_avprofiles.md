@@ -46,7 +46,7 @@ data "mist_org_avprofiles" "avprofiles" {
 Read-Only:
 
 - `created_time` (Number) When the object has been created, in epoch
-- `fallback_action` (String) enum: `block`, `permit`
+- `fallback_action` (String) enum: `block`, `log-and-permit`, `permit`
 - `id` (String) Unique ID of the object instance in the Mist Organization
 - `max_filesize` (Number) In KB
 - `mime_whitelist` (List of String)

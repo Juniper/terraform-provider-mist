@@ -45,12 +45,12 @@ data "mist_device_switch_stats" "switch_stats" {
 ### Optional
 
 - `duration` (String) Duration like 7d, 2w
-- `end` (Number) End datetime, can be epoch or relative time like -1d, -2h; now if not specified
+- `end` (String) End time (epoch timestamp in seconds, or relative string like "-1d", "-2h", "now")
 - `evpn_unused` (String) If `evpn_unused`==`true`, find EVPN eligible switches which don’t belong to any EVPN Topology yet
 - `evpntopo_id` (String) EVPN Topology ID
 - `mac` (String)
 - `site_id` (String)
-- `start` (Number) Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified
+- `start` (String) Start time (epoch timestamp in seconds, or relative string like "-1d", "-1w")
 - `status` (String) enum: `all`, `connected`, `disconnected`
 
 ### Read-Only
@@ -64,15 +64,19 @@ Read-Only:
 
 - `ap_redundancy` (Attributes) (see [below for nested schema](#nestedatt--device_switch_stats--ap_redundancy))
 - `arp_table_stats` (Attributes) (see [below for nested schema](#nestedatt--device_switch_stats--arp_table_stats))
+- `auto_upgrade_stat` (Attributes) (see [below for nested schema](#nestedatt--device_switch_stats--auto_upgrade_stat))
 - `cert_expiry` (Number)
 - `clients` (Attributes List) (see [below for nested schema](#nestedatt--device_switch_stats--clients))
 - `clients_stats` (Attributes) (see [below for nested schema](#nestedatt--device_switch_stats--clients_stats))
 - `config_status` (String)
+- `config_timestamp` (Number)
+- `config_version` (Number)
 - `cpu_stat` (Attributes) (see [below for nested schema](#nestedatt--device_switch_stats--cpu_stat))
 - `created_time` (Number) When the object has been created, in epoch
 - `deviceprofile_id` (String)
 - `dhcpd_stat` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--device_switch_stats--dhcpd_stat))
 - `evpntopo_id` (String)
+- `ext_ip` (String)
 - `fw_versions_outofsync` (Boolean)
 - `fwupdate` (Attributes) (see [below for nested schema](#nestedatt--device_switch_stats--fwupdate))
 - `has_pcap` (Boolean) Whether the switch supports packet capture
@@ -99,6 +103,8 @@ Read-Only:
 - `service_stat` (Attributes Map) (see [below for nested schema](#nestedatt--device_switch_stats--service_stat))
 - `site_id` (String)
 - `status` (String)
+- `tag_id` (Number)
+- `tag_uuid` (String)
 - `uptime` (Number)
 - `vc_mac` (String)
 - `vc_setup_info` (Attributes) (see [below for nested schema](#nestedatt--device_switch_stats--vc_setup_info))
@@ -130,6 +136,14 @@ Read-Only:
 
 - `arp_table_count` (Number)
 - `max_entries_supported` (Number)
+
+
+<a id="nestedatt--device_switch_stats--auto_upgrade_stat"></a>
+### Nested Schema for `device_switch_stats.auto_upgrade_stat`
+
+Read-Only:
+
+- `lastcheck` (Number)
 
 
 <a id="nestedatt--device_switch_stats--clients"></a>
@@ -169,6 +183,7 @@ Read-Only:
 - `interrupt` (Number) Percentage of CPU time being used by interrupts
 - `load_avg` (List of Number) Load averages for the last 1, 5, and 15 minutes
 - `system` (Number) Percentage of CPU time being used by system processes
+- `usage` (Number) CPU usage
 - `user` (Number) Percentage of CPU time being used by user processes
 
 
@@ -187,7 +202,7 @@ Read-Only:
 Read-Only:
 
 - `progress` (Number)
-- `status` (String) enum: `inprogress`, `failed`, `upgraded`
+- `status` (String) enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`
 - `status_id` (Number)
 - `timestamp` (Number) Epoch (seconds)
 - `will_retry` (Boolean)
@@ -280,6 +295,7 @@ Read-Only:
 
 - `backup_version` (String)
 - `bios_version` (String)
+- `boot_partition` (String)
 - `cpld_version` (String)
 - `cpu_stat` (Attributes) (see [below for nested schema](#nestedatt--device_switch_stats--module_stat--cpu_stat))
 - `errors` (Attributes List) Used to report all error states the device node is running into. An error should always have `type` and `since` fields, and could have some other fields specific to that type. (see [below for nested schema](#nestedatt--device_switch_stats--module_stat--errors))
@@ -289,6 +305,7 @@ Read-Only:
 - `last_seen` (Number) Last seen timestamp
 - `locating` (Boolean)
 - `mac` (String)
+- `memory_stat` (Attributes) Memory usage stat (for virtual chassis, memory usage of master RE) (see [below for nested schema](#nestedatt--device_switch_stats--module_stat--memory_stat))
 - `model` (String)
 - `optics_cpld_version` (String)
 - `pending_version` (String)
@@ -321,6 +338,7 @@ Read-Only:
 - `interrupt` (Number) Percentage of CPU time being used by interrupts
 - `load_avg` (List of Number) Load averages for the last 1, 5, and 15 minutes
 - `system` (Number) Percentage of CPU time being used by system processes
+- `usage` (Number) CPU usage
 - `user` (Number) Percentage of CPU time being used by user processes
 
 
@@ -343,7 +361,16 @@ Read-Only:
 
 - `airflow` (String)
 - `name` (String)
+- `rpm` (Number)
 - `status` (String)
+
+
+<a id="nestedatt--device_switch_stats--module_stat--memory_stat"></a>
+### Nested Schema for `device_switch_stats.module_stat.memory_stat`
+
+Read-Only:
+
+- `usage` (Number)
 
 
 <a id="nestedatt--device_switch_stats--module_stat--pics"></a>
@@ -372,6 +399,7 @@ Read-Only:
 
 - `max_power` (Number)
 - `power_draw` (Number)
+- `status` (String)
 
 
 <a id="nestedatt--device_switch_stats--module_stat--psus"></a>
@@ -431,6 +459,7 @@ Read-Only:
 - `poe_disabled` (Boolean) Is the POE disabled
 - `poe_mode` (String) enum: `802.3af`, `802.3at`, `802.3bt`
 - `poe_on` (Boolean) Is the device attached to POE
+- `poe_priority` (String) PoE priority. enum: `low`, `high`
 - `port_id` (String)
 - `port_mac` (String) Interface MAC address
 - `port_usage` (String) gateway port usage. enum: `lan`

@@ -19,6 +19,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	var aclPolicies = types.ListNull(AclPoliciesValue{}.Type(ctx))
 	var aclTags = types.MapNull(AclTagsValue{}.Type(ctx))
 	var additionalConfigCmds = types.ListNull(types.StringType)
+	var bgpConfig = types.MapNull(BgpConfigValue{}.Type(ctx))
 	var dhcpSnooping = NewDhcpSnoopingValueNull()
 	var dnsServers = types.ListValueMust(types.StringType, []attr.Value{})
 	var dnsSuffix = types.ListValueMust(types.StringType, []attr.Value{})
@@ -50,6 +51,9 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	}
 	if data.AdditionalConfigCmds != nil {
 		additionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
+	}
+	if len(data.BgpConfig) > 0 {
+		bgpConfig = bgpConfigSdkToTerraform(ctx, &diags, data.BgpConfig)
 	}
 	if data.DhcpSnooping != nil {
 		dhcpSnooping = dhcpSnoopingSdkToTerraform(ctx, &diags, data.DhcpSnooping)
@@ -124,6 +128,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	state.AclPolicies = aclPolicies
 	state.AclTags = aclTags
 	state.AdditionalConfigCmds = additionalConfigCmds
+	state.BgpConfig = bgpConfig
 	state.DhcpSnooping = dhcpSnooping
 	state.DnsServers = dnsServers
 	state.DnsSuffix = dnsSuffix

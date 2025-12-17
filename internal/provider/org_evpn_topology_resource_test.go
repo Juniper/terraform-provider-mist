@@ -39,7 +39,7 @@ func TestOrgEvpnTopologyModel(t *testing.T) {
 					config: OrgEvpnTopologyModel{
 						Name:  "test_evpn_topology",
 						OrgId: GetTestOrgId(),
-						Switches: map[string]SwitchesValue{
+						Switches: map[string]OrgEvpnTopologySwitchesValue{
 							"000000000001": { // Placeholder MAC for testing
 								Role: "none",
 							},

@@ -103,11 +103,18 @@ if you want to limit the pods, you can specify pods.
 Read-Only:
 
 - `deviceprofile_id` (String)
+- `downlink_ips` (List of String)
+- `downlinks` (List of String)
+- `esilaglinks` (List of String)
 - `evpn_id` (Number)
 - `mac` (String)
 - `model` (String)
 - `router_id` (String)
 - `site_id` (String)
+- `suggested_downlinks` (List of String)
+- `suggested_esilaglinks` (List of String)
+- `suggested_uplinks` (List of String)
+- `uplinks` (List of String)
 
 
 <a id="nestedatt--evpn_options"></a>

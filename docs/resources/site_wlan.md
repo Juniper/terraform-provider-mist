@@ -52,7 +52,7 @@ resource "mist_site_wlan" "wlan_one" {
 - `allow_ssdp` (Boolean) Only applicable when `limit_bcast`==`true`, which allows SSDP
 - `ap_ids` (List of String) List of device ids
 - `app_limit` (Attributes) Bandwidth limiting for apps (applies to up/down) (see [below for nested schema](#nestedatt--app_limit))
-- `app_qos` (Attributes) APp qos wlan settings (see [below for nested schema](#nestedatt--app_qos))
+- `app_qos` (Attributes) APP qos wlan settings (see [below for nested schema](#nestedatt--app_qos))
 - `apply_to` (String) enum: `aps`, `site`, `wxtags`
 - `arp_filter` (Boolean) Whether to enable smart arp filter
 - `auth` (Attributes) Authentication wlan settings (see [below for nested schema](#nestedatt--auth))

@@ -44,10 +44,10 @@ data "mist_device_ap_stats" "ap_stats" {
 ### Optional
 
 - `duration` (String) Duration like 7d, 2w
-- `end` (Number) End datetime, can be epoch or relative time like -1d, -2h; now if not specified
+- `end` (String) End time (epoch timestamp in seconds, or relative string like "-1d", "-2h", "now")
 - `mac` (String)
 - `site_id` (String)
-- `start` (Number) Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified
+- `start` (String) Start time (epoch timestamp in seconds, or relative string like "-1d", "-1w")
 - `status` (String) enum: `all`, `connected`, `disconnected`
 
 ### Read-Only
@@ -59,20 +59,23 @@ data "mist_device_ap_stats" "ap_stats" {
 
 Read-Only:
 
+- `antenna_select` (String) Antenna Mode for AP which supports selectable antennas. enum: `""` (default), `external`, `internal`
 - `auto_placement` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--auto_placement))
 - `auto_upgrade_stat` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--auto_upgrade_stat))
 - `ble_stat` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--ble_stat))
 - `cert_expiry` (Number)
 - `config_reverted` (Boolean)
 - `cpu_system` (Number)
+- `cpu_user` (Number)
 - `cpu_util` (Number)
 - `created_time` (Number) When the object has been created, in epoch
 - `deviceprofile_id` (String)
 - `env_stat` (Attributes) Device environment, including CPU temperature, Ambient temperature, Humidity, Attitude, Pressure, Accelerometers, Magnetometers and vCore Voltage (see [below for nested schema](#nestedatt--device_ap_stats--env_stat))
 - `esl_stat` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--esl_stat))
+- `expiring_certs` (Map of Number) Map of certificate serial numbers to their expiry timestamps (in epoch) for certificates expiring within 30 days. Property key is the certificate serial number
 - `ext_ip` (String)
 - `fwupdate` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--fwupdate))
-- `gps` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--gps))
+- `gps_stat` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--gps_stat))
 - `hw_rev` (String)
 - `id` (String) Unique ID of the object instance in the Mist Organization
 - `inactive_wired_vlans` (List of Number)
@@ -84,11 +87,13 @@ Read-Only:
 - `last_seen` (Number) Last seen timestamp
 - `last_trouble` (Attributes) Last trouble code of switch (see [below for nested schema](#nestedatt--device_ap_stats--last_trouble))
 - `led` (Attributes) LED AP settings (see [below for nested schema](#nestedatt--device_ap_stats--led))
-- `lldp_stat` (Attributes) LLDP Stat (neighbor information, power negotiations) (see [below for nested schema](#nestedatt--device_ap_stats--lldp_stat))
+- `lldp_stat` (Attributes) LLDP neighbor information and power negotiations. For backward compatibility, when multiple neighbors exist, only information from the first neighbor is displayed. (see [below for nested schema](#nestedatt--device_ap_stats--lldp_stat))
+- `lldp_stats` (Attributes Map) Property key is the port name (e.g. "eth0", "eth1", ...). Map of ethernet ports to their respective LLDP neighbor information and power negotiations. Only present when multiple neighbors exist. (see [below for nested schema](#nestedatt--device_ap_stats--lldp_stats))
 - `locating` (Boolean)
 - `locked` (Boolean) Whether this AP is considered locked (placement / orientation has been vetted)
 - `mac` (String) Device mac
 - `map_id` (String)
+- `mem_total_kb` (Number)
 - `mem_used_kb` (Number)
 - `mesh_downlinks` (Attributes Map) Property key is the mesh downlink id (e.g. `00000000-0000-0000-1000-5c5b35000010`) (see [below for nested schema](#nestedatt--device_ap_stats--mesh_downlinks))
 - `mesh_uplink` (Attributes) (see [below for nested schema](#nestedatt--device_ap_stats--mesh_uplink))
@@ -177,12 +182,12 @@ Read-Only:
 - `eddystone_uid_instance` (String)
 - `eddystone_uid_namespace` (String)
 - `eddystone_url_enabled` (Boolean)
-- `eddystone_url_freq_msec` (Number) Frequency (msec) of data emmit by Eddystone-UID beacon
+- `eddystone_url_freq_msec` (Number) Frequency (msec) of data emit by Eddystone-UID beacon
 - `eddystone_url_url` (String)
 - `ibeacon_enabled` (Boolean)
 - `ibeacon_freq_msec` (Number)
-- `ibeacon_major` (Number)
-- `ibeacon_minor` (Number)
+- `ibeacon_major` (Number) Major number for iBeacon
+- `ibeacon_minor` (Number) Minor number for iBeacon
 - `ibeacon_uuid` (String)
 - `major` (Number)
 - `minors` (List of Number)
@@ -231,14 +236,14 @@ Read-Only:
 Read-Only:
 
 - `progress` (Number)
-- `status` (String) enum: `inprogress`, `failed`, `upgraded`
+- `status` (String) enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`
 - `status_id` (Number)
 - `timestamp` (Number) Epoch (seconds)
 - `will_retry` (Boolean)
 
 
-<a id="nestedatt--device_ap_stats--gps"></a>
-### Nested Schema for `device_ap_stats.gps`
+<a id="nestedatt--device_ap_stats--gps_stat"></a>
+### Nested Schema for `device_ap_stats.gps_stat`
 
 Read-Only:
 
@@ -246,9 +251,7 @@ Read-Only:
 - `altitude` (Number) The elevation of the AP above sea level, measured in meters.
 - `latitude` (Number) The geographic latitude of the AP, measured in degrees.
 - `longitude` (Number) The geographic longitude of the AP, measured in degrees.
-- `src` (String) The origin of the GPS data. enum:
-  * `gps`: from this device’s GPS estimates
-  * `other_ap` from neighboring device GPS estimates
+- `src` (String) The origin of the GPS data. enum: `gps`: from this device GPS estimates, `other_ap` from neighboring device GPS estimates. Note: API responses may return `other_aps` which should be treated as `other_ap`
 - `timestamp` (Number) Epoch (seconds)
 
 
@@ -343,14 +346,47 @@ Read-Only:
 
 - `chassis_id` (String)
 - `lldp_med_supported` (Boolean) Whether it support LLDP-MED
-- `mgmt_addr` (String) Switch’s management address (if advertised), can be IPv4, IPv6, or MAC
-- `mgmt_addrs` (List of String)
-- `port_desc` (String) ge-0/0/4
-- `port_id` (String)
-- `power_allocated` (Number) In mW, provided/allocated by PSE
+- `mgmt_addr` (String) Management IP address of the switch
+- `mgmt_addrs` (List of String) List of management IP addresses (IPv4 and IPv6)
+- `port_desc` (String) Port description, e.g. “2/20”, “Port 2 on Switch0”
+- `port_id` (String) Port identifier
+- `power_allocated` (Number) In mW, power allocated by PSE
+- `power_avail` (Number) In mW, total Power Avail at AP from pwr source
+- `power_budget` (Number) In mW, surplus if positive or deficit if negative
+- `power_constrained` (Boolean) Whether power is insufficient
 - `power_draw` (Number) In mW, total power needed by PD
+- `power_needed` (Number) In mW, total Power needed incl Peripherals
+- `power_opmode` (String) Constrained mode
 - `power_request_count` (Number) Number of negotiations, if it keeps increasing, we don’ t have a stable power
-- `power_requested` (Number) In mW, the current power requested by PD
+- `power_requested` (Number) In mW, power requested by PD
+- `power_src` (String) Single power source (DC Input / PoE 802.3at / PoE 802.3af / PoE 802.3bt / MULTI-PD / LLDP / ? (unknown)).
+- `power_srcs` (List of String) List of management IP addresses (IPv4 and IPv6)
+- `system_desc` (String) Description provided by switch
+- `system_name` (String) Name of the switch
+
+
+<a id="nestedatt--device_ap_stats--lldp_stats"></a>
+### Nested Schema for `device_ap_stats.lldp_stats`
+
+Read-Only:
+
+- `chassis_id` (String)
+- `lldp_med_supported` (Boolean) Whether it support LLDP-MED
+- `mgmt_addr` (String) Management IP address of the switch
+- `mgmt_addrs` (List of String) List of management IP addresses (IPv4 and IPv6)
+- `port_desc` (String) Port description, e.g. “2/20”, “Port 2 on Switch0”
+- `port_id` (String) Port identifier
+- `power_allocated` (Number) In mW, power allocated by PSE
+- `power_avail` (Number) In mW, total Power Avail at AP from pwr source
+- `power_budget` (Number) In mW, surplus if positive or deficit if negative
+- `power_constrained` (Boolean) Whether power is insufficient
+- `power_draw` (Number) In mW, total power needed by PD
+- `power_needed` (Number) In mW, total Power needed incl Peripherals
+- `power_opmode` (String) Constrained mode
+- `power_request_count` (Number) Number of negotiations, if it keeps increasing, we don’ t have a stable power
+- `power_requested` (Number) In mW, power requested by PD
+- `power_src` (String) Single power source (DC Input / PoE 802.3at / PoE 802.3af / PoE 802.3bt / MULTI-PD / LLDP / ? (unknown)).
+- `power_srcs` (List of String) List of management IP addresses (IPv4 and IPv6)
 - `system_desc` (String) Description provided by switch
 - `system_name` (String) Name of the switch
 
@@ -437,7 +473,7 @@ Read-Only:
 
 Read-Only:
 
-- `bandwidth` (Number) channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)
+- `bandwidth` (Number) channel width for the band.enum: `0`(disabled, response only), `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)
 - `channel` (Number) Current channel the radio is running on
 - `dynamic_chaining_enabled` (Boolean) Use dynamic chaining for downlink
 - `mac` (String) Radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)
@@ -464,7 +500,7 @@ Read-Only:
 
 Read-Only:
 
-- `bandwidth` (Number) channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)
+- `bandwidth` (Number) channel width for the band.enum: `0`(disabled, response only), `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)
 - `channel` (Number) Current channel the radio is running on
 - `dynamic_chaining_enabled` (Boolean) Use dynamic chaining for downlink
 - `mac` (String) Radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)
@@ -491,7 +527,7 @@ Read-Only:
 
 Read-Only:
 
-- `bandwidth` (Number) channel width for the band.enum: `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)
+- `bandwidth` (Number) channel width for the band.enum: `0`(disabled, response only), `20`, `40`, `80` (only applicable for band_5 and band_6), `160` (only for band_6)
 - `channel` (Number) Current channel the radio is running on
 - `dynamic_chaining_enabled` (Boolean) Use dynamic chaining for downlink
 - `mac` (String) Radio (base) mac, it can have 16 bssids (e.g. 5c5b350001a0-5c5b350001af)

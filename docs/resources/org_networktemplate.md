@@ -93,6 +93,7 @@ resource "mist_org_networktemplate" "networktemplate_one" {
 - `acl_policies` (Attributes List) (see [below for nested schema](#nestedatt--acl_policies))
 - `acl_tags` (Attributes Map) ACL Tags to identify traffic source or destination. Key name is the tag name (see [below for nested schema](#nestedatt--acl_tags))
 - `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config. **Note**: no check is done
+- `bgp_config` (Attributes Map) (see [below for nested schema](#nestedatt--bgp_config))
 - `dhcp_snooping` (Attributes) (see [below for nested schema](#nestedatt--dhcp_snooping))
 - `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
@@ -194,6 +195,40 @@ Optional:
 
 - `port_range` (String) Matched dst port, "0" means any
 - `protocol` (String) `tcp` / `udp` / `icmp` / `icmp6` / `gre` / `any` / `:protocol_number`, `protocol_number` is between 1-254, default is `any` `protocol_number` is between 1-254
+
+
+
+<a id="nestedatt--bgp_config"></a>
+### Nested Schema for `bgp_config`
+
+Required:
+
+- `local_as` (String)
+- `type` (String) enum: `external`, `internal`
+
+Optional:
+
+- `auth_key` (String)
+- `bfd_minimum_interval` (Number) Minimum interval in milliseconds for BFD hello packets. A neighbor is considered failed when the device stops receiving replies after the specified interval. Value must be between 1 and 255000.
+- `export_policy` (String) Export policy must match one of the policy names defined in the `routing_policies` property.
+- `hold_time` (Number) Hold time is three times the interval at which keepalive messages are sent. It indicates to the peer the length of time that it should consider the sender valid. Must be 0 or a number in the range 3-65535.
+- `import_policy` (String) Import policy must match one of the policy names defined in the `routing_policies` property.
+- `neighbors` (Attributes Map) Property key is the BGP Neighbor IP Address. (see [below for nested schema](#nestedatt--bgp_config--neighbors))
+- `networks` (List of String) List of network names for BGP configuration. When a network is specified, a BGP group will be added to the VRF that network is part of.
+
+<a id="nestedatt--bgp_config--neighbors"></a>
+### Nested Schema for `bgp_config.neighbors`
+
+Required:
+
+- `neighbor_as` (String)
+
+Optional:
+
+- `export_policy` (String) Export policy must match one of the policy names defined in the `routing_policies` property.
+- `hold_time` (Number) Hold time is three times the interval at which keepalive messages are sent. It indicates to the peer the length of time that it should consider the sender valid. Must be 0 or a number in the range 3-65535.
+- `import_policy` (String) Import policy must match one of the policy names defined in the `routing_policies` property.
+- `multihop_ttl` (Number)
 
 
 
@@ -864,6 +899,7 @@ Optional:
 - `dynamic_usage` (String) Enable dynamic usage for this port. Set to `dynamic` to enable.
 - `esilag` (Boolean)
 - `mtu` (Number) Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation
+- `networks` (List of String) List of network names. Required if `usage`==`inet`
 - `no_local_overwrite` (Boolean) Prevent helpdesk to override the port config
 - `poe_disabled` (Boolean)
 - `port_network` (String) Required if `usage`==`vlan_tunnel`. Q-in-Q tunneling using All-in-one bundling. This also enables standard L2PT for interfaces that are not encapsulation tunnel interfaces and uses MAC rewrite operation. [View more information](https://www.juniper.net/documentation/us/en/software/junos/multicast-l2/topics/topic-map/q-in-q.html#id-understanding-qinq-tunneling-and-vlan-translation)

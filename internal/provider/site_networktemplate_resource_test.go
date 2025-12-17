@@ -1132,6 +1132,16 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, rName string)
 				}
 				if len(rule.PortConfig) > 0 {
 					checks.append(t, "TestCheckResourceAttr", prefix+".port_config.%", fmt.Sprintf("%d", len(rule.PortConfig)))
+					for portName, portCfg := range rule.PortConfig {
+						portPrefix := prefix + ".port_config." + portName
+						checks.append(t, "TestCheckResourceAttr", portPrefix+".usage", portCfg.Usage)
+						if len(portCfg.Networks) > 0 {
+							checks.append(t, "TestCheckResourceAttr", portPrefix+".networks.#", fmt.Sprintf("%d", len(portCfg.Networks)))
+							for i, network := range portCfg.Networks {
+								checks.append(t, "TestCheckResourceAttr", portPrefix+fmt.Sprintf(".networks.%d", i), network)
+							}
+						}
+					}
 				}
 				if len(rule.PortMirroring) > 0 {
 					checks.append(t, "TestCheckResourceAttr", prefix+".port_mirroring.%", fmt.Sprintf("%d", len(rule.PortMirroring)))

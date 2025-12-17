@@ -55,6 +55,8 @@ data "mist_org_inventory" "inventory" {
 Read-Only:
 
 - `adopted` (Boolean) Only if `type`==`switch` or `type`==`gateway`, whether the switch/gateway is adopted
+- `chassis_mac` (String) For Virtual Chassis only, the MAC Address of the FPC0
+- `chassis_serial` (String) For Virtual Chassis only, the Serial Number of the FPC0
 - `claim_code` (String) Device claim code
 - `connected` (Boolean) Whether the device is connected
 - `deviceprofile_id` (String) Deviceprofile id if assigned, null if not assigned

@@ -196,6 +196,55 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, rName string) testCh
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("additional_config_cmds.%d", i), cmd)
 		}
 	}
+	// BgpConfig map
+	if len(s.BgpConfig) > 0 {
+		for key, bgp := range s.BgpConfig {
+			basePath := fmt.Sprintf("bgp_config.%s", key)
+			if bgp.AuthKey != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".auth_key", *bgp.AuthKey)
+			}
+			if bgp.BfdMinimumInterval != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".bfd_minimum_interval", fmt.Sprintf("%d", *bgp.BfdMinimumInterval))
+			}
+			if bgp.ExportPolicy != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".export_policy", *bgp.ExportPolicy)
+			}
+			if bgp.HoldTime != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".hold_time", fmt.Sprintf("%d", *bgp.HoldTime))
+			}
+
+			if bgp.ImportPolicy != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".import_policy", *bgp.ImportPolicy)
+			}
+			checks.append(t, "TestCheckResourceAttr", basePath+".local_as", bgp.LocalAs)
+			if len(bgp.Networks) > 0 {
+				checks.append(t, "TestCheckResourceAttr", basePath+".networks.#", fmt.Sprintf("%d", len(bgp.Networks)))
+				for i, network := range bgp.Networks {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.networks.%d", basePath, i), network)
+				}
+			}
+			checks.append(t, "TestCheckResourceAttr", basePath+".type", bgp.BgpConfigType)
+			// BgpConfig neighbors
+			if len(bgp.Neighbors) > 0 {
+				for neighborKey, neighbor := range bgp.Neighbors {
+					neighborPath := fmt.Sprintf("%s.neighbors.%s", basePath, neighborKey)
+					if neighbor.ExportPolicy != nil {
+						checks.append(t, "TestCheckResourceAttr", neighborPath+".export_policy", *neighbor.ExportPolicy)
+					}
+					if neighbor.HoldTime != nil {
+						checks.append(t, "TestCheckResourceAttr", neighborPath+".hold_time", fmt.Sprintf("%d", *neighbor.HoldTime))
+					}
+					if neighbor.ImportPolicy != nil {
+						checks.append(t, "TestCheckResourceAttr", neighborPath+".import_policy", *neighbor.ImportPolicy)
+					}
+					if neighbor.MultihopTtl != nil {
+						checks.append(t, "TestCheckResourceAttr", neighborPath+".multihop_ttl", fmt.Sprintf("%d", *neighbor.MultihopTtl))
+					}
+					checks.append(t, "TestCheckResourceAttr", neighborPath+".neighbor_as", neighbor.NeighborAs)
+				}
+			}
+		}
+	}
 	if s.DhcpSnooping != nil {
 		checks.append(t, "TestCheckResourceAttrSet", "dhcp_snooping")
 		// Check nested attributes of DhcpSnooping
@@ -686,6 +735,12 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, rName string) testCh
 			}
 			if port.Mtu != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.mtu", key), fmt.Sprintf("%d", *port.Mtu))
+			}
+			if len(port.Networks) > 0 {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.networks.#", key), fmt.Sprintf("%d", len(port.Networks)))
+				for i, network := range port.Networks {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.networks.%d", key, i), network)
+				}
 			}
 			if port.PoeDisabled != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.poe_disabled", key), fmt.Sprintf("%t", *port.PoeDisabled))

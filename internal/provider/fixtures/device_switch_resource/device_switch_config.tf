@@ -2,6 +2,45 @@
   device_id = "00000000-0000-0000-1000-5c5b35000032"
   name      = "test-switch-comprehensive"
   additional_config_cmds = ["set system host-name switch1", "set system domain-name example.com"]
+  bgp_config = {
+    "bgp_config_1" = {
+      type                 = "internal"
+      networks             = ["lan", "wan"]
+      bfd_minimum_interval = 150
+      local_as             = "65100"
+      hold_time            = 60
+      auth_key             = "bgpkey1"
+      export_policy        = "export_policy_1"
+      import_policy        = "import_policy_1"
+      neighbors = {
+        "10.1.0.1" = {
+          neighbor_as   = "65100"
+          hold_time     = 90
+          import_policy = "import_policy_1"
+          export_policy = "export_policy_1"
+        }
+      }
+    }
+    "bgp_config_2" = {
+      type                 = "external"
+      networks             = ["wan"]
+      bfd_minimum_interval = 250
+      local_as             = "65200"
+      hold_time            = 150
+      auth_key             = "bgpkey2"
+      export_policy        = "export_policy_2"
+      import_policy        = "import_policy_2"
+      neighbors = {
+        "192.168.100.1" = {
+          neighbor_as   = "65300"
+          hold_time     = 210
+          import_policy = "import_policy_2"
+          export_policy = "export_policy_2"
+          multihop_ttl  = 10
+        }
+      }
+    }
+  }
   acl_policies = [
     {
       name = "policy1"
@@ -117,9 +156,21 @@
     }
   }
   port_config = {
-    "eth0" = "up"
-    "eth1" = "down"
-    "eth2" = "up"
+    "ge-0/0/0" = {
+      usage         = "inet"
+      description   = "Internet port"
+      networks      = ["wan", "internet"]
+      mtu           = 9000
+      speed         = "1g"
+      duplex        = "full"
+    }
+    "ge-0/0/1" = {
+      usage         = "inet"
+      description   = "LAN port"
+      networks      = ["lan"]
+      poe_disabled  = true
+      speed         = "10g"
+    }
   }
   port_usages = {
     "access_port" = {

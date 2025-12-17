@@ -326,7 +326,8 @@ switch_matching = {
           usage = "lan"
         }
         "ge-0/0/24-47" = {
-          usage = "uplink"
+          usage    = "inet"
+          networks = ["lan", "guest"]
         }
       }
       stp_config = {
