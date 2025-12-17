@@ -7,6 +7,32 @@ description: |-
 
 # Release Notes for v0.6.xx
 
+## Release Notes for v0.6.2
+**Release Date**: December 18rd, 2025
+
+### Breaking Changes
+
+- **`mist_device_ap` resource**:
+    - `port_config.vlan_ids`: Changed from `list(number)` to `string` (comma-separated list)
+
+- **`mist_org_deviceprofile_ap` resource**:
+    - `port_config.vlan_ids`: Changed from `list(number)` to `string` (comma-separated list)
+
+### General changes
+
+#### Attributes added
+
+- **`mist_device_switch` resource**:
+    - bgp_config
+    - port_config.networks
+
+- **`mist_org_networktemplate` resource**:
+    - bgp_config
+    - switch_matching.rules.port_config.networks
+
+- **`mist_site_networktemplate` resource**:
+    - switch_matching.rules.port_config.networks
+
 ## Release Notes for v0.6.1
 **Release Date**: December 3rd, 2025
 
