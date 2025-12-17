@@ -277,6 +277,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Hold time is three times the interval at which keepalive messages are sent. It indicates to the peer the length of time that it should consider the sender valid. Must be 0 or a number in the range 3-65535.",
 							MarkdownDescription: "Hold time is three times the interval at which keepalive messages are sent. It indicates to the peer the length of time that it should consider the sender valid. Must be 0 or a number in the range 3-65535.",
+							Validators: []validator.Int64{
+								int64validator.Any(int64validator.OneOf(0), int64validator.Between(3, 65535)),
+							},
 						},
 						"import_policy": schema.StringAttribute{
 							Optional:            true,
@@ -285,6 +288,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"local_as": schema.StringAttribute{
 							Required: true,
+							Validators: []validator.String{
+								stringvalidator.Any(mistvalidator.ParseInt(1, 4294967294), mistvalidator.ParseVar()),
+							},
 						},
 						"neighbors": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -298,6 +304,9 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										Optional:            true,
 										Description:         "Hold time is three times the interval at which keepalive messages are sent. It indicates to the peer the length of time that it should consider the sender valid. Must be 0 or a number in the range 3-65535.",
 										MarkdownDescription: "Hold time is three times the interval at which keepalive messages are sent. It indicates to the peer the length of time that it should consider the sender valid. Must be 0 or a number in the range 3-65535.",
+										Validators: []validator.Int64{
+											int64validator.Any(int64validator.OneOf(0), int64validator.Between(3, 65535)),
+										},
 									},
 									"import_policy": schema.StringAttribute{
 										Optional:            true,
@@ -311,7 +320,22 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									"neighbor_as": schema.StringAttribute{
-										Required: true,
+										Required:            true,
+										Description:         "Autonomous System (AS) number of the BGP neighbor. For internal BGP, this must match `local_as`. For external BGP, this must differ from `local_as`.",
+										MarkdownDescription: "Autonomous System (AS) number of the BGP neighbor. For internal BGP, this must match `local_as`. For external BGP, this must differ from `local_as`.",
+										Validators: []validator.String{
+											stringvalidator.Any(mistvalidator.ParseInt(1, 4294967294), mistvalidator.ParseVar()),
+											mistvalidator.MustMatchWhenValueIs(
+												path.MatchRelative().AtParent().AtParent().AtParent().AtName("type"),
+												types.StringValue("internal"),
+												path.MatchRelative().AtParent().AtParent().AtParent().AtName("local_as"),
+											),
+											mistvalidator.MustDifferWhenValueIs(
+												path.MatchRelative().AtParent().AtParent().AtParent().AtName("type"),
+												types.StringValue("external"),
+												path.MatchRelative().AtParent().AtParent().AtParent().AtName("local_as"),
+											),
+										},
 									},
 								},
 								CustomType: NeighborsType{
@@ -338,11 +362,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "enum: `external`, `internal`",
 							MarkdownDescription: "enum: `external`, `internal`",
 							Validators: []validator.String{
-								stringvalidator.OneOf(
-									"",
-									"external",
-									"internal",
-								),
+								stringvalidator.OneOf("external", "internal"),
 							},
 						},
 					},

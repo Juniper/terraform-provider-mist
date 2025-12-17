@@ -277,6 +277,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Hold time is three times the interval at which keepalive messages are sent. It indicates to the peer the length of time that it should consider the sender valid. Must be 0 or a number in the range 3-65535.",
 							MarkdownDescription: "Hold time is three times the interval at which keepalive messages are sent. It indicates to the peer the length of time that it should consider the sender valid. Must be 0 or a number in the range 3-65535.",
+							Validators: []validator.Int64{
+								int64validator.Any(int64validator.OneOf(0), int64validator.Between(3, 65535)),
+							},
 						},
 						"import_policy": schema.StringAttribute{
 							Optional:            true,
@@ -323,14 +326,14 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 										Validators: []validator.String{
 											stringvalidator.Any(mistvalidator.ParseInt(1, 4294967294), mistvalidator.ParseVar()),
 											mistvalidator.MustMatchWhenValueIs(
-												path.MatchRelative().AtParent().AtParent().AtName("type"),
+												path.MatchRelative().AtParent().AtParent().AtParent().AtName("type"),
 												types.StringValue("internal"),
-												path.MatchRelative().AtParent().AtParent().AtName("local_as"),
+												path.MatchRelative().AtParent().AtParent().AtParent().AtName("local_as"),
 											),
 											mistvalidator.MustDifferWhenValueIs(
-												path.MatchRelative().AtParent().AtParent().AtName("type"),
+												path.MatchRelative().AtParent().AtParent().AtParent().AtName("type"),
 												types.StringValue("external"),
-												path.MatchRelative().AtParent().AtParent().AtName("local_as"),
+												path.MatchRelative().AtParent().AtParent().AtParent().AtName("local_as"),
 											),
 										},
 									},
