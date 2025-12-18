@@ -20,20 +20,20 @@ func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 	var prefix = types.ListNull(types.StringType)
 	var protocol = types.ListNull(types.StringType)
 
-	if d.AsPath != nil {
+	if len(d.AsPath) > 0 {
 		var items []attr.Value
 		for _, item := range d.AsPath {
 			items = append(items, mistutils.ContainerAsString(&item))
 		}
 		asPath, _ = types.ListValue(basetypes.StringType{}, items)
 	}
-	if d.Community != nil {
+	if len(d.Community) > 0 {
 		community = mistutils.ListOfStringSdkToTerraform(d.Community)
 	}
-	if d.Prefix != nil {
+	if len(d.Prefix) > 0 {
 		prefix = mistutils.ListOfStringSdkToTerraform(d.Prefix)
 	}
-	if d.Protocol != nil {
+	if len(d.Protocol) > 0 {
 		var items []attr.Value
 		for _, item := range d.Protocol {
 			items = append(items, types.StringValue(string(item)))
@@ -62,13 +62,13 @@ func routingPolicyTermActionsSdkToTerraform(ctx context.Context, diags *diag.Dia
 	if d.Accept != nil {
 		accept = types.BoolValue(*d.Accept)
 	}
-	if d.Community != nil {
+	if len(d.Community) > 0 {
 		community = mistutils.ListOfStringSdkToTerraform(d.Community)
 	}
 	if d.LocalPreference != nil {
 		localPreference = mistutils.ContainerAsString(d.LocalPreference)
 	}
-	if d.PrependAsPath != nil {
+	if len(d.PrependAsPath) > 0 {
 		prependAsPath = mistutils.ListOfStringSdkToTerraform(d.PrependAsPath)
 	}
 

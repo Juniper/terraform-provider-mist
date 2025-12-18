@@ -40,7 +40,7 @@ func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, d basetypes.Ob
 		plan := NewMatchingValueMust(d.AttributeTypes(ctx), d.Attributes())
 		if !plan.AsPath.IsNull() && !plan.AsPath.IsUnknown() {
 			var items []models.BgpAs
-			for _, item := range plan.Protocol.Elements() {
+			for _, item := range plan.AsPath.Elements() {
 				var sInterface interface{} = item
 				s := sInterface.(basetypes.StringValue)
 				items = append(items, models.BgpAsContainer.FromString(s.ValueString()))
