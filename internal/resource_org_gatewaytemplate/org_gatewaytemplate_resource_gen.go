@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/objectvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -2231,7 +2232,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 			"routing_policies": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"terms": schema.ListNestedAttribute{
+						"terms": schema.SetNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"actions": schema.SingleNestedAttribute{
@@ -2414,8 +2415,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
 							MarkdownDescription: "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
-							Validators: []validator.List{
-								listvalidator.UniqueValues(),
+							Validators: []validator.Set{
+								setvalidator.SizeAtLeast(1),
 							},
 						},
 					},
@@ -27972,12 +27973,12 @@ func (t RoutingPoliciesType) ValueFromObject(ctx context.Context, in basetypes.O
 		return nil, diags
 	}
 
-	termsVal, ok := termsAttribute.(basetypes.ListValue)
+	termsVal, ok := termsAttribute.(basetypes.SetValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`terms expected to be basetypes.ListValue, was: %T`, termsAttribute))
+			fmt.Sprintf(`terms expected to be basetypes.SetValue, was: %T`, termsAttribute))
 	}
 
 	if diags.HasError() {
@@ -28063,12 +28064,12 @@ func NewRoutingPoliciesValue(attributeTypes map[string]attr.Type, attributes map
 		return NewRoutingPoliciesValueUnknown(), diags
 	}
 
-	termsVal, ok := termsAttribute.(basetypes.ListValue)
+	termsVal, ok := termsAttribute.(basetypes.SetValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`terms expected to be basetypes.ListValue, was: %T`, termsAttribute))
+			fmt.Sprintf(`terms expected to be basetypes.SetValue, was: %T`, termsAttribute))
 	}
 
 	if diags.HasError() {
@@ -28149,7 +28150,7 @@ func (t RoutingPoliciesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = RoutingPoliciesValue{}
 
 type RoutingPoliciesValue struct {
-	Terms basetypes.ListValue `tfsdk:"terms"`
+	Terms basetypes.SetValue `tfsdk:"terms"`
 	state attr.ValueState
 }
 
@@ -28159,7 +28160,7 @@ func (v RoutingPoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 	var val tftypes.Value
 	var err error
 
-	attrTypes["terms"] = basetypes.ListType{
+	attrTypes["terms"] = basetypes.SetType{
 		ElemType: TermsValue{}.Type(ctx),
 	}.TerraformType(ctx)
 
@@ -28206,7 +28207,7 @@ func (v RoutingPoliciesValue) String() string {
 func (v RoutingPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	terms := types.ListValueMust(
+	terms := types.SetValueMust(
 		TermsType{
 			basetypes.ObjectType{
 				AttrTypes: TermsValue{}.AttributeTypes(ctx),
@@ -28216,7 +28217,7 @@ func (v RoutingPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 	)
 
 	if v.Terms.IsNull() {
-		terms = types.ListNull(
+		terms = types.SetNull(
 			TermsType{
 				basetypes.ObjectType{
 					AttrTypes: TermsValue{}.AttributeTypes(ctx),
@@ -28226,7 +28227,7 @@ func (v RoutingPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 	}
 
 	if v.Terms.IsUnknown() {
-		terms = types.ListUnknown(
+		terms = types.SetUnknown(
 			TermsType{
 				basetypes.ObjectType{
 					AttrTypes: TermsValue{}.AttributeTypes(ctx),
@@ -28236,7 +28237,7 @@ func (v RoutingPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"terms": basetypes.ListType{
+		"terms": basetypes.SetType{
 			ElemType: TermsValue{}.Type(ctx),
 		},
 	}
@@ -28290,7 +28291,7 @@ func (v RoutingPoliciesValue) Type(ctx context.Context) attr.Type {
 
 func (v RoutingPoliciesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"terms": basetypes.ListType{
+		"terms": basetypes.SetType{
 			ElemType: TermsValue{}.Type(ctx),
 		},
 	}
