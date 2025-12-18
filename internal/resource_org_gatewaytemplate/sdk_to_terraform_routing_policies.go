@@ -13,7 +13,7 @@ import (
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
-func routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatchingRouteExists) basetypes.ObjectValue {
+func routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.GwRoutingPolicyTermMatchingRouteExists) basetypes.ObjectValue {
 	var route basetypes.StringValue
 	var vrfName = types.StringValue("default")
 
@@ -33,7 +33,7 @@ func routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx context.Context, dia
 
 	return data
 }
-func routingPolicyTermMatchingVpnSlaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatchingVpnPathSla) basetypes.ObjectValue {
+func routingPolicyTermMatchingVpnSlaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.GwRoutingPolicyTermMatchingVpnPathSla) basetypes.ObjectValue {
 
 	var maxJitter basetypes.Int64Value
 	var maxLatency basetypes.Int64Value
@@ -60,7 +60,7 @@ func routingPolicyTermMatchingVpnSlaSdkToTerraform(ctx context.Context, diags *d
 	return data
 
 }
-func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatching) basetypes.ObjectValue {
+func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.GwRoutingPolicyTermMatching) basetypes.ObjectValue {
 
 	var asPath = types.ListNull(types.StringType)
 	var community = types.ListNull(types.StringType)
@@ -73,7 +73,11 @@ func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 	var vpnPathSla = types.ObjectNull(VpnPathSlaValue{}.AttributeTypes(ctx))
 
 	if d.AsPath != nil {
-		asPath = mistutils.ListOfStringSdkToTerraform(d.AsPath)
+		var items []attr.Value
+		for _, item := range d.AsPath {
+			items = append(items, mistutils.ContainerAsString(&item))
+		}
+		asPath, _ = types.ListValue(basetypes.StringType{}, items)
 	}
 	if d.Community != nil {
 		community = mistutils.ListOfStringSdkToTerraform(d.Community)
@@ -85,7 +89,11 @@ func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 		prefix = mistutils.ListOfStringSdkToTerraform(d.Prefix)
 	}
 	if d.Protocol != nil {
-		protocol = mistutils.ListOfStringSdkToTerraform(d.Protocol)
+		var items []attr.Value
+		for _, item := range d.Protocol {
+			items = append(items, types.StringValue(string(item)))
+		}
+		protocol, _ = types.ListValue(basetypes.StringType{}, items)
 	}
 	if d.RouteExists != nil {
 		routeExists = routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx, diags, *d.RouteExists)
@@ -116,7 +124,7 @@ func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 
 	return data
 }
-func routingPolicyTermActionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermAction) basetypes.ObjectValue {
+func routingPolicyTermActionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.GwRoutingPolicyTermAction) basetypes.ObjectValue {
 
 	var accept basetypes.BoolValue
 	var addCommunity = types.ListNull(types.StringType)
@@ -150,7 +158,7 @@ func routingPolicyTermActionsSdkToTerraform(ctx context.Context, diags *diag.Dia
 		exportCommunities = mistutils.ListOfStringSdkToTerraform(d.ExportCommunities)
 	}
 	if d.LocalPreference != nil {
-		localPreference = types.StringValue(*d.LocalPreference)
+		localPreference = mistutils.ContainerAsString(d.LocalPreference)
 	}
 	if d.PrependAsPath != nil {
 		prependAsPath = mistutils.ListOfStringSdkToTerraform(d.PrependAsPath)
@@ -173,7 +181,7 @@ func routingPolicyTermActionsSdkToTerraform(ctx context.Context, diags *diag.Dia
 	return data
 }
 
-func routingPolicyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.RoutingPolicyTerm) basetypes.ListValue {
+func routingPolicyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.GwRoutingPolicyTerm) basetypes.ListValue {
 	var dataList []TermsValue
 
 	for _, d := range l {
@@ -202,7 +210,7 @@ func routingPolicyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	return r
 }
 
-func routingPoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.RoutingPolicy) basetypes.MapValue {
+func routingPoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.GwRoutingPolicy) basetypes.MapValue {
 	stateValueMap := make(map[string]attr.Value)
 	for k, d := range m {
 

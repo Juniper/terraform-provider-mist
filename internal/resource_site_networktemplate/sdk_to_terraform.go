@@ -35,6 +35,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	var portUsages = types.MapNull(PortUsagesValue{}.Type(ctx))
 	var radiusConfig = NewRadiusConfigValueNull()
 	var remoteSyslog = NewRemoteSyslogValueNull()
+	var routingPolicies = types.MapNull(RoutingPoliciesValue{}.Type(ctx))
 	var snmpConfig = NewSnmpConfigValueNull()
 	var siteId = types.StringValue(data.SiteId.String())
 	var switchMatching = NewSwitchMatchingValueNull()
@@ -102,6 +103,9 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	if data.RemoteSyslog != nil {
 		remoteSyslog = remoteSyslogSdkToTerraform(ctx, &diags, data.RemoteSyslog)
 	}
+	if data.RoutingPolicies != nil {
+		routingPolicies = routingPoliciesSdkToTerraform(ctx, &diags, data.RoutingPolicies)
+	}
 	if data.SnmpConfig != nil {
 		snmpConfig = snmpConfigSdkToTerraform(ctx, &diags, data.SnmpConfig)
 	}
@@ -136,6 +140,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	state.PortUsages = portUsages
 	state.RadiusConfig = radiusConfig
 	state.RemoteSyslog = remoteSyslog
+	state.RoutingPolicies = routingPolicies
 	state.SnmpConfig = snmpConfig
 	state.SiteId = siteId
 	state.SwitchMatching = switchMatching

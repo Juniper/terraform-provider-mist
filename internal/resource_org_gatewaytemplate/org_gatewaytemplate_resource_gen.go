@@ -2273,14 +2273,14 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"local_preference": schema.StringAttribute{
 												Optional:            true,
-												Description:         "Optional, for an import policy, local_preference can be changed",
-												MarkdownDescription: "Optional, for an import policy, local_preference can be changed",
+												Description:         "Optional, for an import policy, local_preference can be changed, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)",
+												MarkdownDescription: "Optional, for an import policy, local_preference can be changed, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)",
 											},
 											"prepend_as_path": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
-												Description:         "When used as export policy, optional. By default, the local AS will be prepended, to change it",
-												MarkdownDescription: "When used as export policy, optional. By default, the local AS will be prepended, to change it",
+												Description:         "When used as export policy, optional. By default, the local AS will be prepended, to change it. Can be a Variable (e.g. `{{as_path}}`)",
+												MarkdownDescription: "When used as export policy, optional. By default, the local AS will be prepended, to change it. Can be a Variable (e.g. `{{as_path}}`)",
 											},
 										},
 										CustomType: ActionsType{
@@ -2297,8 +2297,16 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 											"as_path": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
-												Description:         "takes regular expression",
-												MarkdownDescription: "takes regular expression",
+												Description:         "BGP AS, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)",
+												MarkdownDescription: "BGP AS, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)",
+												Validators: []validator.List{
+													listvalidator.ValueStringsAre(
+														stringvalidator.Any(
+															mistvalidator.ParseInt(1, 4294967294),
+															mistvalidator.ParseVar(),
+														),
+													),
+												},
 											},
 											"community": schema.ListAttribute{
 												ElementType: types.StringType,
@@ -2320,8 +2328,20 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 											"protocol": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
-												Description:         "`direct`, `bgp`, `osp`, `static`, `aggregate`...",
-												MarkdownDescription: "`direct`, `bgp`, `osp`, `static`, `aggregate`...",
+												Description:         "enum: `aggregate`, `bgp`, `direct`, `ospf`, `static` (SRX Only)",
+												MarkdownDescription: "enum: `aggregate`, `bgp`, `direct`, `ospf`, `static` (SRX Only)",
+												Validators: []validator.List{
+													listvalidator.ValueStringsAre(
+														stringvalidator.OneOf(
+															"",
+															"aggregate",
+															"bgp",
+															"direct",
+															"ospf",
+															"static",
+														),
+													),
+												},
 											},
 											"route_exists": schema.SingleNestedAttribute{
 												Attributes: map[string]schema.Attribute{

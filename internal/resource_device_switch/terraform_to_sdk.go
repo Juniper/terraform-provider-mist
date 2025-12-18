@@ -211,6 +211,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.RouterId = plan.RouterId.ValueStringPointer()
 	}
 
+	if plan.RoutingPolicies.IsNull() || plan.RoutingPolicies.IsUnknown() {
+		unset["-routing_policies"] = ""
+	} else {
+		data.RoutingPolicies = routingPoliciesTerraformToSdk(ctx, plan.RoutingPolicies)
+	}
+
 	if plan.Role.ValueStringPointer() == nil {
 		unset["-role"] = ""
 	} else {
