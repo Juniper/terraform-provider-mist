@@ -1138,6 +1138,66 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, rName string) testCh
 	if s.RouterId != nil {
 		checks.append(t, "TestCheckResourceAttr", "router_id", *s.RouterId)
 	}
+
+	// Check routing_policies if present
+	if len(s.RoutingPolicies) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "routing_policies.%", fmt.Sprintf("%d", len(s.RoutingPolicies)))
+		for k, v := range s.RoutingPolicies {
+			if len(v.Terms) > 0 {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.#", k), fmt.Sprintf("%d", len(v.Terms)))
+				for i, term := range v.Terms {
+					if term.RoutingPolicyTermActions != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.name", k, i), term.Name)
+						if term.RoutingPolicyTermActions.Accept != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.accept", k, i), fmt.Sprintf("%t", *term.RoutingPolicyTermActions.Accept))
+						}
+						if len(term.RoutingPolicyTermActions.Community) > 0 {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.community.#", k, i), fmt.Sprintf("%d", len(term.RoutingPolicyTermActions.Community)))
+							for j, community := range term.RoutingPolicyTermActions.Community {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.community.%d", k, i, j), community)
+							}
+						}
+						if term.RoutingPolicyTermActions.LocalPreference != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.local_preference", k, i), *term.RoutingPolicyTermActions.LocalPreference)
+						}
+						if len(term.RoutingPolicyTermActions.PrependAsPath) > 0 {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.prepend_as_path.#", k, i), fmt.Sprintf("%d", len(term.RoutingPolicyTermActions.PrependAsPath)))
+							for j, prependAsPath := range term.RoutingPolicyTermActions.PrependAsPath {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.prepend_as_path.%d", k, i, j), prependAsPath)
+							}
+						}
+					}
+					if term.Matching != nil {
+						if len(term.Matching.AsPath) > 0 {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.as_path.#", k, i), fmt.Sprintf("%d", len(term.Matching.AsPath)))
+							for j, asPath := range term.Matching.AsPath {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.as_path.%d", k, i, j), asPath)
+							}
+						}
+						if len(term.Matching.Community) > 0 {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.community.#", k, i), fmt.Sprintf("%d", len(term.Matching.Community)))
+							for j, community := range term.Matching.Community {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.community.%d", k, i, j), community)
+							}
+						}
+						if len(term.Matching.Prefix) > 0 {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.prefix.#", k, i), fmt.Sprintf("%d", len(term.Matching.Prefix)))
+							for j, prefix := range term.Matching.Prefix {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.prefix.%d", k, i, j), prefix)
+							}
+						}
+						if len(term.Matching.Protocol) > 0 {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.protocol.#", k, i), fmt.Sprintf("%d", len(term.Matching.Protocol)))
+							for j, protocol := range term.Matching.Protocol {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.protocol.%d", k, i, j), protocol)
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	if s.SnmpConfig != nil {
 		checks.append(t, "TestCheckResourceAttrSet", "snmp_config")
 		// Check nested attributes of SnmpConfig

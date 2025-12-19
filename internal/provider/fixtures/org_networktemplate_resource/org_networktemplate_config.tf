@@ -429,6 +429,124 @@
 
   remove_existing_configs = true
 
+
+  routing_policies = {
+    test_import = {
+      terms = [
+        {
+          matching = {
+            prefix = [
+              "10.1.0.0/24"
+            ],
+            as_path = [
+              "234"
+            ],
+            protocol = [
+              "direct"
+            ],
+            community = [
+              "my_com"
+            ]
+          },
+          actions = {
+            accept = true,
+            community = [
+              "test"
+            ],
+            prepend_as_path = [
+              "1234"
+            ],
+            local_preference = "2345"
+          },
+          name = "test_direct"
+        },
+        {
+          matching = {
+            prefix = [
+              "10.0.0.0/8"
+            ],
+            as_path = [
+              "65000"
+            ],
+            protocol = [
+              "bgp"
+            ],
+            community = [
+              "test"
+            ]
+          },
+          actions = {
+            accept = true,
+            community = [
+              "my_community"
+            ],
+            prepend_as_path = [
+              "432"
+            ],
+            local_preference = "532"
+          },
+          name = "test_bgp"
+        },
+        {
+          matching = {
+            prefix = [
+              "10.2.0.0/24"
+            ],
+            as_path = [
+              "45332"
+            ]
+          },
+          actions = {
+            accept = true
+          },
+          name = "test_none"
+        },
+        {
+          matching = {
+            prefix = [
+              "10.3.0.0/24"
+            ],
+            as_path = [
+              "2314"
+            ],
+            protocol = [
+              "evpn"
+            ]
+          },
+          actions = {
+              accept = true
+          },
+          name = "test_evpn"
+        },
+        {
+          matching = {
+            prefix = [
+              "10.5.0.0/25"
+            ],
+            protocol = [
+              "ospf"
+            ]
+          },
+          actions = {
+            accept = true
+          },
+          name = "test_ospf"
+        },
+        {
+          matching = {
+            protocol = [
+              "static"
+            ]
+          },
+          actions = {
+            accept = true
+          },
+          name = "test_static"
+        }
+      ]
+    }
+  }
+
   snmp_config = {
     enabled      = true
     name         = "test-switch"

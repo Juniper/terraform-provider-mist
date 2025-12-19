@@ -34,6 +34,7 @@ type DeviceSwitchModel struct {
 	RemoteSyslog          *DeviceSwitchRemoteSyslogValue                  `hcl:"remote_syslog"`
 	Role                  *string                                         `hcl:"role"`
 	RouterId              *string                                         `hcl:"router_id"`
+	RoutingPolicies       map[string]DeviceSwitchRoutingPoliciesValue     `hcl:"routing_policies"`
 	SiteId                string                                          `hcl:"site_id"`
 	SnmpConfig            *DeviceSwitchSnmpConfigValue                    `hcl:"snmp_config"`
 	StpConfig             *DeviceSwitchStpConfigValue                     `hcl:"stp_config"`
@@ -480,6 +481,30 @@ type DeviceSwitchUsersValue struct {
 	Contents []DeviceSwitchContentsValue `cty:"contents" hcl:"contents"`
 	Match    *string                     `cty:"match" hcl:"match"`
 	User     *string                     `cty:"user" hcl:"user"`
+}
+
+type DeviceSwitchRoutingPoliciesValue struct {
+	Terms []DeviceSwitchTermsValue `cty:"terms" hcl:"terms"`
+}
+
+type DeviceSwitchTermsValue struct {
+	Matching                 *DeviceSwitchMatchingValue                 `cty:"matching" hcl:"matching"`
+	Name                     string                                     `cty:"name" hcl:"name"`
+	RoutingPolicyTermActions *DeviceSwitchRoutingPolicyTermActionsValue `cty:"actions" hcl:"actions"`
+}
+
+type DeviceSwitchMatchingValue struct {
+	AsPath    []string `cty:"as_path" hcl:"as_path"`
+	Community []string `cty:"community" hcl:"community"`
+	Prefix    []string `cty:"prefix" hcl:"prefix"`
+	Protocol  []string `cty:"protocol" hcl:"protocol"`
+}
+
+type DeviceSwitchRoutingPolicyTermActionsValue struct {
+	Accept          *bool    `cty:"accept" hcl:"accept"`
+	Community       []string `cty:"community" hcl:"community"`
+	LocalPreference *string  `cty:"local_preference" hcl:"local_preference"`
+	PrependAsPath   []string `cty:"prepend_as_path" hcl:"prepend_as_path"`
 }
 
 type DeviceSwitchSnmpConfigValue struct {
