@@ -143,6 +143,7 @@ resource "mist_device_switch" "switch_one" {
 - `remote_syslog` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog))
 - `role` (String)
 - `router_id` (String) Used for OSPF / BGP / EVPN
+- `routing_policies` (Attributes Map) Property key is the routing policy name (see [below for nested schema](#nestedatt--routing_policies))
 - `snmp_config` (Attributes) (see [below for nested schema](#nestedatt--snmp_config))
 - `stp_config` (Attributes) (see [below for nested schema](#nestedatt--stp_config))
 - `switch_mgmt` (Attributes) Switch settings (see [below for nested schema](#nestedatt--switch_mgmt))
@@ -429,7 +430,7 @@ Required:
 Optional:
 
 - `all_networks` (Boolean) Only if `mode`==`trunk` whether to trunk all network/vlans
-- `allow_dhcpd` (Boolean) Controls whether DHCP server traffic is allowed on ports using this configuration if DHCP snooping is enabled. This is a tri-state setting; true: ports become trusted ports allowing DHCP server traffic, false: ports become untrusted blocking DHCP server traffic, undefined: use system defaults (access ports default to untrusted, trunk ports default to trusted).
+- `allow_dhcpd` (Boolean) Controls whether DHCP server traffic is allowed on ports using this configuration if DHCP snooping is enabled. This is a tri-state setting; `true`: ports become trusted ports allowing DHCP server traffic, `false`: ports become untrusted blocking DHCP server traffic, undefined: use system defaults (access ports default to untrusted, trunk ports default to trusted).
 - `allow_multiple_supplicants` (Boolean)
 - `bypass_auth_when_server_down` (Boolean) Only if `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down
 - `bypass_auth_when_server_down_for_unknown_client` (Boolean) Only if `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down
@@ -645,7 +646,7 @@ Optional:
 Optional:
 
 - `all_networks` (Boolean) Only if `mode`==`trunk`. Whether to trunk all network/vlans
-- `allow_dhcpd` (Boolean) Only applies when `mode`!=`dynamic`. Controls whether DHCP server traffic is allowed on ports using this configuration if DHCP snooping is enabled. This is a tri-state setting; true: ports become trusted ports allowing DHCP server traffic, false: ports become untrusted blocking DHCP server traffic, undefined: use system defaults (access ports default to untrusted, trunk ports default to trusted).
+- `allow_dhcpd` (Boolean) Only applies when `mode`!=`dynamic`. Controls whether DHCP server traffic is allowed on ports using this configuration if DHCP snooping is enabled. This is a tri-state setting; `true`: ports become trusted ports allowing DHCP server traffic, `false`: ports become untrusted blocking DHCP server traffic, undefined: use system defaults (access ports default to untrusted, trunk ports default to trusted).
 - `allow_multiple_supplicants` (Boolean) Only if `mode`!=`dynamic`
 - `bypass_auth_when_server_down` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Bypass auth for known clients if set to true when RADIUS server is down
 - `bypass_auth_when_server_down_for_unknown_client` (Boolean) Only if `mode`!=`dynamic` and `port_auth`=`dot1x`. Bypass auth for all (including unknown clients) if set to true when RADIUS server is down
@@ -892,6 +893,49 @@ Optional:
 
 - `facility` (String) enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`
 - `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
+
+
+
+
+<a id="nestedatt--routing_policies"></a>
+### Nested Schema for `routing_policies`
+
+Optional:
+
+- `terms` (Attributes Set) at least criteria/filter must be specified to match the term, all criteria have to be met (see [below for nested schema](#nestedatt--routing_policies--terms))
+
+<a id="nestedatt--routing_policies--terms"></a>
+### Nested Schema for `routing_policies.terms`
+
+Required:
+
+- `name` (String)
+
+Optional:
+
+- `actions` (Attributes) When used as import policy (see [below for nested schema](#nestedatt--routing_policies--terms--actions))
+- `matching` (Attributes) zero or more criteria/filter can be specified to match the term, all criteria have to be met (see [below for nested schema](#nestedatt--routing_policies--terms--matching))
+
+<a id="nestedatt--routing_policies--terms--actions"></a>
+### Nested Schema for `routing_policies.terms.actions`
+
+Optional:
+
+- `accept` (Boolean)
+- `community` (List of String) When used as export policy, optional
+- `local_preference` (String) Optional, for an import policy, local_preference can be changed, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)
+- `prepend_as_path` (List of String) When used as export policy, optional. By default, the local AS will be prepended, to change it. Can be a Variable (e.g. `{{as_path}}`)
+
+
+<a id="nestedatt--routing_policies--terms--matching"></a>
+### Nested Schema for `routing_policies.terms.matching`
+
+Optional:
+
+- `as_path` (List of String) BGP AS, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)
+- `community` (List of String)
+- `prefix` (List of String) zero or more criteria/filter can be specified to match the term, all criteria have to be met
+- `protocol` (List of String) enum: `bgp`, `direct`, `evpn`, `ospf`, `static`
 
 
 
