@@ -53,6 +53,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	var remoteSyslog = NewRemoteSyslogValueNull()
 	var role types.String
 	var routerId types.String
+	var routingPolicies = types.MapNull(RoutingPoliciesValue{}.Type(ctx))
 	var siteId types.String
 	var snmpConfig = NewSnmpConfigValueNull()
 	var stpConfig = NewStpConfigValueNull()
@@ -182,6 +183,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.RouterId != nil {
 		routerId = types.StringValue(*data.RouterId)
 	}
+	if data.RoutingPolicies != nil {
+		routingPolicies = routingPoliciesSdkToTerraform(ctx, &diags, data.RoutingPolicies)
+	}
 	if data.SiteId != nil {
 		siteId = types.StringValue(data.SiteId.String())
 	}
@@ -270,6 +274,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	state.RemoteSyslog = remoteSyslog
 	state.Role = role
 	state.RouterId = routerId
+	state.RoutingPolicies = routingPolicies
 	state.SiteId = siteId
 	state.SnmpConfig = snmpConfig
 	state.StpConfig = stpConfig

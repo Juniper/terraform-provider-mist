@@ -1,31 +1,32 @@
 package provider
 
 type SiteNetworktemplateModel struct {
-	AclPolicies                     []SiteNetworktemplateAclPoliciesValue            `hcl:"acl_policies"`
-	AclTags                         map[string]SiteNetworktemplateAclTagsValue       `hcl:"acl_tags"`
-	AdditionalConfigCmds            []string                                         `hcl:"additional_config_cmds"`
-	AutoUpgradeLinecard             *bool                                            `hcl:"auto_upgrade_linecard"`
-	DefaultPortUsage                *string                                          `hcl:"default_port_usage"`
-	DhcpSnooping                    *SiteNetworktemplateDhcpSnoopingValue            `hcl:"dhcp_snooping"`
-	DisabledSystemDefinedPortUsages []string                                         `hcl:"disabled_system_defined_port_usages"`
-	DnsServers                      []string                                         `hcl:"dns_servers"`
-	DnsSuffix                       []string                                         `hcl:"dns_suffix"`
-	ExtraRoutes                     map[string]SiteNetworktemplateExtraRoutesValue   `hcl:"extra_routes"`
-	ExtraRoutes6                    map[string]SiteNetworktemplateExtraRoutes6Value  `hcl:"extra_routes6"`
-	MistNac                         *SiteNetworktemplateMistNacValue                 `hcl:"mist_nac"`
-	Networks                        map[string]SiteNetworktemplateNetworksValue      `hcl:"networks"`
-	NtpServers                      []string                                         `hcl:"ntp_servers"`
-	OspfAreas                       map[string]SiteNetworktemplateOspfAreasValue     `hcl:"ospf_areas"`
-	PortMirroring                   map[string]SiteNetworktemplatePortMirroringValue `hcl:"port_mirroring"`
-	PortUsages                      map[string]SiteNetworktemplatePortUsagesValue    `hcl:"port_usages"`
-	RadiusConfig                    *SiteNetworktemplateRadiusConfigValue            `hcl:"radius_config"`
-	RemoteSyslog                    *SiteNetworktemplateRemoteSyslogValue            `hcl:"remote_syslog"`
-	SiteId                          string                                           `hcl:"site_id"`
-	SnmpConfig                      *SiteNetworktemplateSnmpConfigValue              `hcl:"snmp_config"`
-	SwitchMatching                  *SiteNetworktemplateSwitchMatchingValue          `hcl:"switch_matching"`
-	SwitchMgmt                      *SiteNetworktemplateSwitchMgmtValue              `hcl:"switch_mgmt"`
-	VrfConfig                       *SiteNetworktemplateVrfConfigValue               `hcl:"vrf_config"`
-	VrfInstances                    map[string]SiteNetworktemplateVrfInstancesValue  `hcl:"vrf_instances"`
+	AclPolicies                     []SiteNetworktemplateAclPoliciesValue              `hcl:"acl_policies"`
+	AclTags                         map[string]SiteNetworktemplateAclTagsValue         `hcl:"acl_tags"`
+	AdditionalConfigCmds            []string                                           `hcl:"additional_config_cmds"`
+	AutoUpgradeLinecard             *bool                                              `hcl:"auto_upgrade_linecard"`
+	DefaultPortUsage                *string                                            `hcl:"default_port_usage"`
+	DhcpSnooping                    *SiteNetworktemplateDhcpSnoopingValue              `hcl:"dhcp_snooping"`
+	DisabledSystemDefinedPortUsages []string                                           `hcl:"disabled_system_defined_port_usages"`
+	DnsServers                      []string                                           `hcl:"dns_servers"`
+	DnsSuffix                       []string                                           `hcl:"dns_suffix"`
+	ExtraRoutes                     map[string]SiteNetworktemplateExtraRoutesValue     `hcl:"extra_routes"`
+	ExtraRoutes6                    map[string]SiteNetworktemplateExtraRoutes6Value    `hcl:"extra_routes6"`
+	MistNac                         *SiteNetworktemplateMistNacValue                   `hcl:"mist_nac"`
+	Networks                        map[string]SiteNetworktemplateNetworksValue        `hcl:"networks"`
+	NtpServers                      []string                                           `hcl:"ntp_servers"`
+	OspfAreas                       map[string]SiteNetworktemplateOspfAreasValue       `hcl:"ospf_areas"`
+	PortMirroring                   map[string]SiteNetworktemplatePortMirroringValue   `hcl:"port_mirroring"`
+	PortUsages                      map[string]SiteNetworktemplatePortUsagesValue      `hcl:"port_usages"`
+	RadiusConfig                    *SiteNetworktemplateRadiusConfigValue              `hcl:"radius_config"`
+	RemoteSyslog                    *SiteNetworktemplateRemoteSyslogValue              `hcl:"remote_syslog"`
+	RoutingPolicies                 map[string]SiteNetworktemplateRoutingPoliciesValue `hcl:"routing_policies"`
+	SiteId                          string                                             `hcl:"site_id"`
+	SnmpConfig                      *SiteNetworktemplateSnmpConfigValue                `hcl:"snmp_config"`
+	SwitchMatching                  *SiteNetworktemplateSwitchMatchingValue            `hcl:"switch_matching"`
+	SwitchMgmt                      *SiteNetworktemplateSwitchMgmtValue                `hcl:"switch_mgmt"`
+	VrfConfig                       *SiteNetworktemplateVrfConfigValue                 `hcl:"vrf_config"`
+	VrfInstances                    map[string]SiteNetworktemplateVrfInstancesValue    `hcl:"vrf_instances"`
 }
 
 type SiteNetworktemplateAclPoliciesValue struct {
@@ -289,6 +290,30 @@ type SiteNetworktemplateUsersValue struct {
 	Contents []SiteNetworktemplateContentsValue `cty:"contents" hcl:"contents"`
 	Match    *string                            `cty:"match" hcl:"match"`
 	User     *string                            `cty:"user" hcl:"user"`
+}
+
+type SiteNetworktemplateRoutingPoliciesValue struct {
+	Terms []SiteNetworktemplateTermsValue `cty:"terms" hcl:"terms"`
+}
+
+type SiteNetworktemplateTermsValue struct {
+	Matching                 *SiteNetworktemplateMatchingValue                 `cty:"matching" hcl:"matching"`
+	Name                     string                                            `cty:"name" hcl:"name"`
+	RoutingPolicyTermActions *SiteNetworktemplateRoutingPolicyTermActionsValue `cty:"actions" hcl:"actions"`
+}
+
+type SiteNetworktemplateMatchingValue struct {
+	AsPath    []string `cty:"as_path" hcl:"as_path"`
+	Community []string `cty:"community" hcl:"community"`
+	Prefix    []string `cty:"prefix" hcl:"prefix"`
+	Protocol  []string `cty:"protocol" hcl:"protocol"`
+}
+
+type SiteNetworktemplateRoutingPolicyTermActionsValue struct {
+	Accept          *bool    `cty:"accept" hcl:"accept"`
+	Community       []string `cty:"community" hcl:"community"`
+	LocalPreference *string  `cty:"local_preference" hcl:"local_preference"`
+	PrependAsPath   []string `cty:"prepend_as_path" hcl:"prepend_as_path"`
 }
 
 type SiteNetworktemplateSnmpConfigValue struct {

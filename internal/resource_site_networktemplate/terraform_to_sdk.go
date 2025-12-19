@@ -132,6 +132,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteNetworktemplateModel) (*model
 		data.RemoteSyslog = remoteSyslogTerraformToSdk(ctx, &diags, plan.RemoteSyslog)
 	}
 
+	if plan.RoutingPolicies.IsNull() || plan.RoutingPolicies.IsUnknown() {
+		unset["-routing_policies"] = ""
+	} else {
+		data.RoutingPolicies = routingPoliciesTerraformToSdk(ctx, plan.RoutingPolicies)
+	}
+
 	if plan.SnmpConfig.IsNull() || plan.SnmpConfig.IsUnknown() {
 		unset["-snmp_config"] = ""
 	} else {

@@ -11,8 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -32,9 +30,6 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "deviceprofile id if assigned, null if not assigned",
 							MarkdownDescription: "deviceprofile id if assigned, null if not assigned",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"hostname": schema.StringAttribute{
 							Computed:            true,
@@ -45,47 +40,29 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "device id",
 							MarkdownDescription: "device id",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"mac": schema.StringAttribute{
 							Computed:            true,
 							Description:         "device MAC address",
 							MarkdownDescription: "device MAC address",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"claim_code": schema.StringAttribute{
 							Computed:            true,
 							Description:         "device claim code",
 							MarkdownDescription: "device claim code",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"model": schema.StringAttribute{
 							Computed:            true,
 							Description:         "device model",
 							MarkdownDescription: "device model",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"org_id": schema.StringAttribute{
 							Computed: true,
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"serial": schema.StringAttribute{
 							Computed:            true,
 							Description:         "device serial",
 							MarkdownDescription: "device serial",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"site_id": schema.StringAttribute{
 							Optional:            true,
@@ -96,9 +73,6 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "enum: `ap`, `gateway`, `switch`",
 							MarkdownDescription: "enum: `ap`, `gateway`, `switch`",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 						"unclaim_when_destroyed": schema.BoolAttribute{
 							Optional:            true,
@@ -111,9 +85,6 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Cluster, MAC Address of the Cluster",
 							MarkdownDescription: "if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Cluster, MAC Address of the Cluster",
-							PlanModifiers: []planmodifier.String{
-								stringplanmodifier.UseStateForUnknown(),
-							},
 						},
 					},
 					CustomType: InventoryType{

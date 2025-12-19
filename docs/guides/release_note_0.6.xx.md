@@ -7,6 +7,25 @@ description: |-
 
 # Release Notes for v0.6.xx
 
+## Release Notes for v0.6.3
+**Release Date**: December 19th, 2025
+
+### Fixes
+* **Routing Policies**: Fixed normalization issues in gateway routing policies for `mist_device_gateway`, `mist_org_deviceprofile_gateway`, and `mist_org_gatewaytemplate` resources to prevent plan/apply mismatches.
+
+### General changes
+
+#### Attributes added
+
+- **`mist_device_switch` resource**:
+    - routing_policies
+
+- **`mist_org_networktemplate` resource**:
+    - routing_policies
+
+- **`mist_site_networktemplate` resource**:
+    - routing_policies
+
 ## Release Notes for v0.6.2
 **Release Date**: December 18th, 2025
 

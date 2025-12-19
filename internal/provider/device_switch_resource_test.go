@@ -1138,6 +1138,70 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, rName string) testCh
 	if s.RouterId != nil {
 		checks.append(t, "TestCheckResourceAttr", "router_id", *s.RouterId)
 	}
+
+	// Check routing_policies if present
+	if len(s.RoutingPolicies) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "routing_policies.%", fmt.Sprintf("%d", len(s.RoutingPolicies)))
+		for k, v := range s.RoutingPolicies {
+			if len(v.Terms) > 0 {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.#", k), fmt.Sprintf("%d", len(v.Terms)))
+				// Check for terms by name using TestCheckTypeSetElemNestedAttrs to handle ordering
+				for _, term := range v.Terms {
+					termChecks := make(map[string]string)
+					termChecks["name"] = term.Name
+
+					if term.RoutingPolicyTermActions != nil {
+						if term.RoutingPolicyTermActions.Accept != nil {
+							termChecks["actions.accept"] = fmt.Sprintf("%t", *term.RoutingPolicyTermActions.Accept)
+						}
+						if term.RoutingPolicyTermActions.LocalPreference != nil {
+							termChecks["actions.local_preference"] = *term.RoutingPolicyTermActions.LocalPreference
+						}
+						if len(term.RoutingPolicyTermActions.Community) > 0 {
+							termChecks["actions.community.#"] = fmt.Sprintf("%d", len(term.RoutingPolicyTermActions.Community))
+							for j, community := range term.RoutingPolicyTermActions.Community {
+								termChecks[fmt.Sprintf("actions.community.%d", j)] = community
+							}
+						}
+						if len(term.RoutingPolicyTermActions.PrependAsPath) > 0 {
+							termChecks["actions.prepend_as_path.#"] = fmt.Sprintf("%d", len(term.RoutingPolicyTermActions.PrependAsPath))
+							for j, prependAsPath := range term.RoutingPolicyTermActions.PrependAsPath {
+								termChecks[fmt.Sprintf("actions.prepend_as_path.%d", j)] = prependAsPath
+							}
+						}
+					}
+					if term.Matching != nil {
+						if len(term.Matching.AsPath) > 0 {
+							termChecks["matching.as_path.#"] = fmt.Sprintf("%d", len(term.Matching.AsPath))
+							for j, asPath := range term.Matching.AsPath {
+								termChecks[fmt.Sprintf("matching.as_path.%d", j)] = asPath
+							}
+						}
+						if len(term.Matching.Community) > 0 {
+							termChecks["matching.community.#"] = fmt.Sprintf("%d", len(term.Matching.Community))
+							for j, community := range term.Matching.Community {
+								termChecks[fmt.Sprintf("matching.community.%d", j)] = community
+							}
+						}
+						if len(term.Matching.Prefix) > 0 {
+							termChecks["matching.prefix.#"] = fmt.Sprintf("%d", len(term.Matching.Prefix))
+							for j, prefix := range term.Matching.Prefix {
+								termChecks[fmt.Sprintf("matching.prefix.%d", j)] = prefix
+							}
+						}
+						if len(term.Matching.Protocol) > 0 {
+							termChecks["matching.protocol.#"] = fmt.Sprintf("%d", len(term.Matching.Protocol))
+							for j, protocol := range term.Matching.Protocol {
+								termChecks[fmt.Sprintf("matching.protocol.%d", j)] = protocol
+							}
+						}
+					}
+					checks.appendSetNestedCheck(t, fmt.Sprintf("routing_policies.%s.terms.*", k), termChecks)
+				}
+			}
+		}
+	}
+
 	if s.SnmpConfig != nil {
 		checks.append(t, "TestCheckResourceAttrSet", "snmp_config")
 		// Check nested attributes of SnmpConfig
