@@ -41,8 +41,7 @@ func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, d basetypes.Ob
 		if !plan.AsPath.IsNull() && !plan.AsPath.IsUnknown() {
 			var items []models.BgpAs
 			for _, item := range plan.AsPath.Elements() {
-				var sInterface interface{} = item
-				s := sInterface.(basetypes.StringValue)
+				s := item.(basetypes.StringValue)
 				items = append(items, models.BgpAsContainer.FromString(s.ValueString()))
 			}
 			data.AsPath = items
@@ -56,8 +55,7 @@ func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, d basetypes.Ob
 		if !plan.Protocol.IsNull() && !plan.Protocol.IsUnknown() {
 			var items []models.SwRoutingPolicyTermMatchingProtocolEnum
 			for _, item := range plan.Protocol.Elements() {
-				var sInterface interface{} = item
-				s := sInterface.(basetypes.StringValue)
+				s := item.(basetypes.StringValue)
 				items = append(items, models.SwRoutingPolicyTermMatchingProtocolEnum(s.ValueString()))
 			}
 			data.Protocol = items
