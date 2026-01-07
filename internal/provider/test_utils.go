@@ -387,7 +387,7 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 			testedCount++
 		}
 
-		if !field.IsTested && !checks.tracker.MapAttributePaths[path] {
+		if !field.IsTested && !checks.tracker.NestedMapAttributePaths[path] {
 			untestedFieldsList = append(untestedFieldsList, path)
 		}
 
@@ -411,7 +411,7 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 		UntestedFields:     len(checks.tracker.SchemaFields) - testedCount,
 		Fields:             fields,
 		UntestedFieldsList: untestedFieldsList,
-		MapAttributePaths:  checks.tracker.MapAttributePaths,
+		MapAttributePaths:  checks.tracker.NestedMapAttributePaths,
 	}
 
 	// Write JSON file

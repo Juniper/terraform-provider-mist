@@ -12,9 +12,9 @@ import (
 
 // FieldCoverageTracker tracks schema fields and their test coverage
 type FieldCoverageTracker struct {
-	ResourceName      string
-	SchemaFields      map[string]*FieldInfo
-	MapAttributePaths map[string]bool
+	ResourceName            string
+	SchemaFields            map[string]*FieldInfo
+	NestedMapAttributePaths map[string]bool
 }
 
 // FieldInfo contains metadata about a schema field
@@ -34,18 +34,10 @@ type FieldInfo struct {
 // NewFieldCoverageTracker creates a new tracker for the given resource
 func NewFieldCoverageTracker(resourceName string) *FieldCoverageTracker {
 	return &FieldCoverageTracker{
-		ResourceName:      resourceName,
-		SchemaFields:      make(map[string]*FieldInfo),
-		MapAttributePaths: make(map[string]bool),
+		ResourceName:            resourceName,
+		SchemaFields:            make(map[string]*FieldInfo),
+		NestedMapAttributePaths: make(map[string]bool),
 	}
-}
-
-// ExtractAllSchemaFields extracts all field paths from a Terraform schema
-// and returns a populated FieldCoverageTracker
-func ExtractAllSchemaFields(resourceName string, schemaAttrs map[string]schema.Attribute) *FieldCoverageTracker {
-	tracker := NewFieldCoverageTracker(resourceName)
-	tracker.extractFields("", false, schemaAttrs)
-	return tracker
 }
 
 // MarkFieldAsTested marks a field as tested, normalizing the field path to remove array indices
@@ -81,7 +73,7 @@ func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
 
 		// Build the parent path to check context
 		path := strings.Join(normalized, ".")
-		if part == "#" || isAllDigits(part) && !t.MapAttributePaths[path] { // Skip array indices (pure numbers or #), but NOT if we're in a map context
+		if part == "#" || (nonAlphabetCharacters(part) && !t.NestedMapAttributePaths[path]) { // Skip array indices. If part contains non-Alphabet characters but is not a map key, skip it.
 			fmt.Printf("Part is an array index, skipping: %s\n", part)
 			continue
 		}
@@ -94,9 +86,9 @@ func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
 			continue
 		}
 
-		// Check if path with {key} exists in schema (for map attributes)
+		// Check if path with {key} exists in schema (for nested map attributes)
 		fmt.Printf("Key path check: %s\n", path)
-		if t.MapAttributePaths[path] {
+		if t.NestedMapAttributePaths[path] {
 			normalized = append(normalized, "{key}")
 			continue
 		}
@@ -109,17 +101,25 @@ func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
 	return strings.Join(normalized, ".")
 }
 
-// isAllDigits checks if a string contains only numeric digits
-func isAllDigits(s string) bool {
+// nonAlphabetCharacters checks if a string contains only numeric digits
+func nonAlphabetCharacters(s string) bool {
 	if len(s) == 0 {
 		return false
 	}
 	for _, ch := range s {
-		if !unicode.IsDigit(ch) {
+		if !unicode.IsDigit(ch) && !unicode.IsPunct(ch) {
 			return false
 		}
 	}
 	return true
+}
+
+// ExtractAllSchemaFields extracts all field paths from a Terraform schema
+// and returns a populated FieldCoverageTracker
+func ExtractAllSchemaFields(resourceName string, schemaAttrs map[string]schema.Attribute) *FieldCoverageTracker {
+	tracker := NewFieldCoverageTracker(resourceName)
+	tracker.extractFields("", false, schemaAttrs)
+	return tracker
 }
 
 // extractFields recursively extracts all fields from schema attributes with metadata
@@ -158,7 +158,7 @@ func (t *FieldCoverageTracker) extractFields(path string, hasKey bool, attribute
 		case schema.MapNestedAttribute:
 			if nestedAttrs := getMapNestedAttributes(v); nestedAttrs != nil {
 				// Map uses {key} notation in path
-				t.MapAttributePaths[currentPath] = true
+				t.NestedMapAttributePaths[currentPath] = true
 				keyPath := currentPath + ".{key}"
 				t.extractFields(keyPath, true, nestedAttrs)
 			}

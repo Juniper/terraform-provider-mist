@@ -20,8 +20,14 @@ func TestNormalizeFieldPath(t *testing.T) {
 			name:      "simple_list_array_index",
 			inputPath: "privileges.0.role",
 			schemaFields: map[string]*FieldInfo{
-				"privileges":      {Path: "privileges", AttrType: "list_nested"},
-				"privileges.role": {Path: "privileges.role", AttrType: "string"},
+				"privileges": {
+					Path:     "privileges",
+					AttrType: "list_nested",
+				},
+				"privileges.role": {
+					Path:     "privileges.role",
+					AttrType: "string",
+				},
 			},
 			mapAttributePaths: map[string]bool{},
 			expected:          "privileges.role",
@@ -190,9 +196,9 @@ func TestNormalizeFieldPath(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tracker := &FieldCoverageTracker{
-				ResourceName:      "test_resource",
-				SchemaFields:      tt.schemaFields,
-				MapAttributePaths: tt.mapAttributePaths,
+				ResourceName:            "test_resource",
+				SchemaFields:            tt.schemaFields,
+				NestedMapAttributePaths: tt.mapAttributePaths,
 			}
 
 			result := tracker.normalizeFieldPath(tt.inputPath)
@@ -215,7 +221,7 @@ func TestMarkFieldAsTested(t *testing.T) {
 			"networks":               {Path: "networks", IsTested: false},
 			"networks.{key}.vlan_id": {Path: "networks.{key}.vlan_id", IsTested: false},
 		},
-		MapAttributePaths: map[string]bool{
+		NestedMapAttributePaths: map[string]bool{
 			"networks": true,
 		},
 	}
@@ -265,7 +271,7 @@ func TestIsAllDigits(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
-			result := isAllDigits(tt.input)
+			result := nonAlphabetCharacters(tt.input)
 			if result != tt.expected {
 				t.Errorf("isAllDigits(%q) = %v, want %v", tt.input, result, tt.expected)
 			}
@@ -345,7 +351,7 @@ func TestExtractAllSchemaFields(t *testing.T) {
 	}
 
 	// Verify MapAttributePaths
-	if !tracker.MapAttributePaths["metadata"] {
+	if !tracker.NestedMapAttributePaths["metadata"] {
 		t.Error("Expected 'metadata' to be marked as map attribute path")
 	}
 
@@ -412,7 +418,7 @@ func TestNormalizeFieldPath_OperatorPrecedenceBug(t *testing.T) {
 			"vlan_ids":                   {Path: "vlan_ids", AttrType: "map_nested"},
 			"vlan_ids.{key}.description": {Path: "vlan_ids.{key}.description", AttrType: "string"},
 		},
-		MapAttributePaths: map[string]bool{
+		NestedMapAttributePaths: map[string]bool{
 			"vlan_ids": true,
 		},
 	}
