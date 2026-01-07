@@ -37,8 +37,14 @@ func TestNormalizeFieldPath(t *testing.T) {
 			name:      "map_with_string_key",
 			inputPath: "networks.guest.vlan_id",
 			schemaFields: map[string]*FieldInfo{
-				"networks":               {Path: "networks", AttrType: "map_nested"},
-				"networks.{key}.vlan_id": {Path: "networks.{key}.vlan_id", AttrType: "int64"},
+				"networks": {
+					Path:     "networks",
+					AttrType: "map_nested",
+				},
+				"networks.{key}.vlan_id": {
+					Path:     "networks.{key}.vlan_id",
+					AttrType: "int64",
+				},
 			},
 			mapAttributePaths: map[string]bool{
 				"networks": true,
@@ -50,8 +56,14 @@ func TestNormalizeFieldPath(t *testing.T) {
 			name:      "map_with_ip_address_key",
 			inputPath: "extra_routes.10.0.0.0/8.via",
 			schemaFields: map[string]*FieldInfo{
-				"extra_routes":           {Path: "extra_routes", AttrType: "map_nested"},
-				"extra_routes.{key}.via": {Path: "extra_routes.{key}.via", AttrType: "string"},
+				"extra_routes": {
+					Path:     "extra_routes",
+					AttrType: "map_nested",
+				},
+				"extra_routes.{key}.via": {
+					Path:     "extra_routes.{key}.via",
+					AttrType: "string",
+				},
 			},
 			mapAttributePaths: map[string]bool{
 				"extra_routes": true,
@@ -63,9 +75,18 @@ func TestNormalizeFieldPath(t *testing.T) {
 			name:      "map_with_numeric_key",
 			inputPath: "switch_mgmt.local_accounts.readonly.password",
 			schemaFields: map[string]*FieldInfo{
-				"switch_mgmt":                               {Path: "switch_mgmt", AttrType: "nested"},
-				"switch_mgmt.local_accounts":                {Path: "switch_mgmt.local_accounts", AttrType: "map_nested"},
-				"switch_mgmt.local_accounts.{key}.password": {Path: "switch_mgmt.local_accounts.{key}.password", AttrType: "string"},
+				"switch_mgmt": {
+					Path:     "switch_mgmt",
+					AttrType: "nested",
+				},
+				"switch_mgmt.local_accounts": {
+					Path:     "switch_mgmt.local_accounts",
+					AttrType: "map_nested",
+				},
+				"switch_mgmt.local_accounts.{key}.password": {
+					Path:     "switch_mgmt.local_accounts.{key}.password",
+					AttrType: "string",
+				},
 			},
 			mapAttributePaths: map[string]bool{
 				"switch_mgmt.local_accounts": true,
@@ -77,7 +98,10 @@ func TestNormalizeFieldPath(t *testing.T) {
 			name:      "hash_symbol_in_list_count",
 			inputPath: "dns_servers.#",
 			schemaFields: map[string]*FieldInfo{
-				"dns_servers": {Path: "dns_servers", AttrType: "list"},
+				"dns_servers": {
+					Path:     "dns_servers",
+					AttrType: "list",
+				},
 			},
 			mapAttributePaths: map[string]bool{},
 			expected:          "dns_servers",
@@ -87,9 +111,18 @@ func TestNormalizeFieldPath(t *testing.T) {
 			name:      "multiple_array_indices",
 			inputPath: "acl_policies.0.actions.1.dst_tag",
 			schemaFields: map[string]*FieldInfo{
-				"acl_policies":                 {Path: "acl_policies", AttrType: "list_nested"},
-				"acl_policies.actions":         {Path: "acl_policies.actions", AttrType: "list_nested"},
-				"acl_policies.actions.dst_tag": {Path: "acl_policies.actions.dst_tag", AttrType: "string"},
+				"acl_policies": {
+					Path:     "acl_policies",
+					AttrType: "list_nested",
+				},
+				"acl_policies.actions": {
+					Path:     "acl_policies.actions",
+					AttrType: "list_nested",
+				},
+				"acl_policies.actions.dst_tag": {
+					Path:     "acl_policies.actions.dst_tag",
+					AttrType: "string",
+				},
 			},
 			mapAttributePaths: map[string]bool{},
 			expected:          "acl_policies.actions.dst_tag",
@@ -99,9 +132,18 @@ func TestNormalizeFieldPath(t *testing.T) {
 			name:      "deeply_nested_map_in_list",
 			inputPath: "ospf_areas.0.ospf_networks.192.168.1.0/24.passive",
 			schemaFields: map[string]*FieldInfo{
-				"ospf_areas":                             {Path: "ospf_areas", AttrType: "list_nested"},
-				"ospf_areas.ospf_networks":               {Path: "ospf_areas.ospf_networks", AttrType: "map_nested"},
-				"ospf_areas.ospf_networks.{key}.passive": {Path: "ospf_areas.ospf_networks.{key}.passive", AttrType: "bool"},
+				"ospf_areas": {
+					Path:     "ospf_areas",
+					AttrType: "list_nested",
+				},
+				"ospf_areas.ospf_networks": {
+					Path:     "ospf_areas.ospf_networks",
+					AttrType: "map_nested",
+				},
+				"ospf_areas.ospf_networks.{key}.passive": {
+					Path:     "ospf_areas.ospf_networks.{key}.passive",
+					AttrType: "bool",
+				},
 			},
 			mapAttributePaths: map[string]bool{
 				"ospf_areas.ospf_networks": true,
@@ -113,8 +155,14 @@ func TestNormalizeFieldPath(t *testing.T) {
 			name:      "pure_numeric_string_in_map",
 			inputPath: "port_usages.100.description",
 			schemaFields: map[string]*FieldInfo{
-				"port_usages":                   {Path: "port_usages", AttrType: "map_nested"},
-				"port_usages.{key}.description": {Path: "port_usages.{key}.description", AttrType: "string"},
+				"port_usages": {
+					Path:     "port_usages",
+					AttrType: "map_nested",
+				},
+				"port_usages.{key}.description": {
+					Path:     "port_usages.{key}.description",
+					AttrType: "string",
+				},
 			},
 			mapAttributePaths: map[string]bool{
 				"port_usages": true,
@@ -126,7 +174,10 @@ func TestNormalizeFieldPath(t *testing.T) {
 			name:      "root_level_field",
 			inputPath: "org_id",
 			schemaFields: map[string]*FieldInfo{
-				"org_id": {Path: "org_id", AttrType: "string"},
+				"org_id": {
+					Path:     "org_id",
+					AttrType: "string",
+				},
 			},
 			mapAttributePaths: map[string]bool{},
 			expected:          "org_id",
@@ -136,8 +187,14 @@ func TestNormalizeFieldPath(t *testing.T) {
 			name:      "nested_object_field",
 			inputPath: "radius_config.acct_interim_interval",
 			schemaFields: map[string]*FieldInfo{
-				"radius_config":                       {Path: "radius_config", AttrType: "nested"},
-				"radius_config.acct_interim_interval": {Path: "radius_config.acct_interim_interval", AttrType: "int64"},
+				"radius_config": {
+					Path:     "radius_config",
+					AttrType: "nested",
+				},
+				"radius_config.acct_interim_interval": {
+					Path:     "radius_config.acct_interim_interval",
+					AttrType: "int64",
+				},
 			},
 			mapAttributePaths: map[string]bool{},
 			expected:          "radius_config.acct_interim_interval",
@@ -147,9 +204,18 @@ func TestNormalizeFieldPath(t *testing.T) {
 			name:      "map_followed_by_list",
 			inputPath: "acl_tags.management.specs.0.protocol",
 			schemaFields: map[string]*FieldInfo{
-				"acl_tags":                      {Path: "acl_tags", AttrType: "map_nested"},
-				"acl_tags.{key}.specs":          {Path: "acl_tags.{key}.specs", AttrType: "list_nested"},
-				"acl_tags.{key}.specs.protocol": {Path: "acl_tags.{key}.specs.protocol", AttrType: "string"},
+				"acl_tags": {
+					Path:     "acl_tags",
+					AttrType: "map_nested",
+				},
+				"acl_tags.{key}.specs": {
+					Path:     "acl_tags.{key}.specs",
+					AttrType: "list_nested",
+				},
+				"acl_tags.{key}.specs.protocol": {
+					Path:     "acl_tags.{key}.specs.protocol",
+					AttrType: "string",
+				},
 			},
 			mapAttributePaths: map[string]bool{
 				"acl_tags": true,
@@ -161,8 +227,14 @@ func TestNormalizeFieldPath(t *testing.T) {
 			name:      "ipv6_address_in_map_key",
 			inputPath: "extra_routes6.2001:db8::/32.via",
 			schemaFields: map[string]*FieldInfo{
-				"extra_routes6":           {Path: "extra_routes6", AttrType: "map_nested"},
-				"extra_routes6.{key}.via": {Path: "extra_routes6.{key}.via", AttrType: "string"},
+				"extra_routes6": {
+					Path:     "extra_routes6",
+					AttrType: "map_nested",
+				},
+				"extra_routes6.{key}.via": {
+					Path:     "extra_routes6.{key}.via",
+					AttrType: "string",
+				},
 			},
 			mapAttributePaths: map[string]bool{
 				"extra_routes6": true,
@@ -174,8 +246,14 @@ func TestNormalizeFieldPath(t *testing.T) {
 			name:      "special_characters_in_map_key",
 			inputPath: "port_mirroring.mirror-to-analyzer.input_port_ids_networks.0",
 			schemaFields: map[string]*FieldInfo{
-				"port_mirroring": {Path: "port_mirroring", AttrType: "map_nested"},
-				"port_mirroring.{key}.input_port_ids_networks": {Path: "port_mirroring.{key}.input_port_ids_networks", AttrType: "list"},
+				"port_mirroring": {
+					Path:     "port_mirroring",
+					AttrType: "map_nested",
+				},
+				"port_mirroring.{key}.input_port_ids_networks": {
+					Path:     "port_mirroring.{key}.input_port_ids_networks",
+					AttrType: "list",
+				},
 			},
 			mapAttributePaths: map[string]bool{
 				"port_mirroring": true,
@@ -215,11 +293,26 @@ func TestMarkFieldAsTested(t *testing.T) {
 	tracker := &FieldCoverageTracker{
 		ResourceName: "test_resource",
 		SchemaFields: map[string]*FieldInfo{
-			"name":                   {Path: "name", IsTested: false},
-			"privileges":             {Path: "privileges", IsTested: false},
-			"privileges.role":        {Path: "privileges.role", IsTested: false},
-			"networks":               {Path: "networks", IsTested: false},
-			"networks.{key}.vlan_id": {Path: "networks.{key}.vlan_id", IsTested: false},
+			"name": {
+				Path:     "name",
+				IsTested: false,
+			},
+			"privileges": {
+				Path:     "privileges",
+				IsTested: false,
+			},
+			"privileges.role": {
+				Path:     "privileges.role",
+				IsTested: false,
+			},
+			"networks": {
+				Path:     "networks",
+				IsTested: false,
+			},
+			"networks.{key}.vlan_id": {
+				Path:     "networks.{key}.vlan_id",
+				IsTested: false,
+			},
 		},
 		NestedMapAttributePaths: map[string]bool{
 			"networks": true,
@@ -252,7 +345,7 @@ func TestMarkFieldAsTested(t *testing.T) {
 	}
 }
 
-func TestIsAllDigits(t *testing.T) {
+func TestNonAlphabetCharacters(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected bool
@@ -405,30 +498,5 @@ func TestGetSemanticType(t *testing.T) {
 				t.Errorf("getSemanticType(%T) = %q, want %q", tt.attr, result, tt.expected)
 			}
 		})
-	}
-}
-
-func TestNormalizeFieldPath_OperatorPrecedenceBug(t *testing.T) {
-	// This test specifically targets the operator precedence issue mentioned in the review
-	// where numeric map keys might be incorrectly treated as array indices
-
-	tracker := &FieldCoverageTracker{
-		ResourceName: "test_resource",
-		SchemaFields: map[string]*FieldInfo{
-			"vlan_ids":                   {Path: "vlan_ids", AttrType: "map_nested"},
-			"vlan_ids.{key}.description": {Path: "vlan_ids.{key}.description", AttrType: "string"},
-		},
-		NestedMapAttributePaths: map[string]bool{
-			"vlan_ids": true,
-		},
-	}
-
-	// Test case: numeric string as map key should be replaced with {key}, not skipped as array index
-	result := tracker.normalizeFieldPath("vlan_ids.100.description")
-	expected := "vlan_ids.{key}.description"
-
-	if result != expected {
-		t.Errorf("Operator precedence bug detected!\nInput:    %q\nExpected: %q\nGot:      %q\nThis indicates that numeric map keys are being treated as array indices",
-			"vlan_ids.100.description", expected, result)
 	}
 }

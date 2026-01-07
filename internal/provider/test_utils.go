@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strings"
 	"testing"
 
@@ -368,13 +369,13 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 	}
 
 	type CoverageReport struct {
-		ResourceName       string          `json:"resource_name"`
-		TotalFields        int             `json:"total_fields"`
-		TestedFields       int             `json:"tested_fields"`
-		UntestedFields     int             `json:"untested_fields"`
-		Fields             []FieldReport   `json:"fields"`
-		UntestedFieldsList []string        `json:"untested_fields_list"`
-		MapAttributePaths  map[string]bool `json:"map_attribute_paths"`
+		ResourceName            string        `json:"resource_name"`
+		TotalFields             int           `json:"total_fields"`
+		TestedFields            int           `json:"tested_fields"`
+		UntestedFields          int           `json:"untested_fields"`
+		Fields                  []FieldReport `json:"fields"`
+		UntestedFieldsList      []string      `json:"untested_fields_list"`
+		NestedMapAttributePaths []string      `json:"nested_map_attribute_paths"`
 	}
 
 	// Build report
@@ -387,7 +388,9 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 			testedCount++
 		}
 
-		if !field.IsTested && !checks.tracker.NestedMapAttributePaths[path] {
+		_, isSingleNested := field.SchemaAttr.(schema.SingleNestedAttribute)
+		_, isMapNested := field.SchemaAttr.(schema.MapNestedAttribute)
+		if !field.Computed && !field.IsTested && !isSingleNested && !isMapNested {
 			untestedFieldsList = append(untestedFieldsList, path)
 		}
 
@@ -404,19 +407,44 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 		})
 	}
 
+	// Sort fields by path
+	sort.Slice(fields, func(i, j int) bool {
+		return fields[i].Path < fields[j].Path
+	})
+
+	// Sort untested fields list
+	sort.Strings(untestedFieldsList)
+
+	// Convert map to sorted slice for consistent JSON output
+	mapPaths := make([]string, 0, len(checks.tracker.NestedMapAttributePaths))
+	for path := range checks.tracker.NestedMapAttributePaths {
+		mapPaths = append(mapPaths, path)
+	}
+	sort.Strings(mapPaths)
+
 	report := CoverageReport{
-		ResourceName:       checks.tracker.ResourceName,
-		TotalFields:        len(checks.tracker.SchemaFields),
-		TestedFields:       testedCount,
-		UntestedFields:     len(checks.tracker.SchemaFields) - testedCount,
-		Fields:             fields,
-		UntestedFieldsList: untestedFieldsList,
-		MapAttributePaths:  checks.tracker.NestedMapAttributePaths,
+		ResourceName:            checks.tracker.ResourceName,
+		TotalFields:             len(checks.tracker.SchemaFields),
+		TestedFields:            testedCount,
+		UntestedFields:          len(checks.tracker.SchemaFields) - testedCount,
+		Fields:                  fields,
+		UntestedFieldsList:      untestedFieldsList,
+		NestedMapAttributePaths: mapPaths,
 	}
 
-	// Write JSON file
-	filename := fmt.Sprintf("%s_report.json", checks.tracker.ResourceName)
+	// Write JSON file to tools/reports directory
+	filename := fmt.Sprintf("../../tools/reports/%s_report.json", checks.tracker.ResourceName)
 	data, err := json.MarshalIndent(report, "", "  ")
+	if err != nil {
+		t.Fatalf("Failed to marshal coverage report: %v", err)
+	}
+
+	if err := os.WriteFile(filename, data, 0644); err != nil {
+		t.Fatalf("Failed to write coverage report %s: %v", filename, err)
+	}
+
+	filename = fmt.Sprintf("../../tools/reports/%s_normalized_fields.json", checks.tracker.ResourceName)
+	data, err = json.MarshalIndent(checks.tracker.NormalisedFields, "", "  ")
 	if err != nil {
 		t.Fatalf("Failed to marshal coverage report: %v", err)
 	}

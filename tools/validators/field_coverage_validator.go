@@ -2,7 +2,6 @@ package validators
 
 import (
 	"fmt"
-	"os"
 	"reflect"
 	"strings"
 	"unicode"
@@ -15,6 +14,7 @@ type FieldCoverageTracker struct {
 	ResourceName            string
 	SchemaFields            map[string]*FieldInfo
 	NestedMapAttributePaths map[string]bool
+	NormalisedFields        []string
 }
 
 // FieldInfo contains metadata about a schema field
@@ -46,14 +46,7 @@ func (t *FieldCoverageTracker) MarkFieldAsTested(fieldPath string) {
 	if field, exists := t.SchemaFields[normalized]; exists {
 		field.IsTested = true
 	}
-
-	// Write normalized field to debug file
-	filename := fmt.Sprintf("%s_normalized_fields.txt", t.ResourceName)
-	f, _ := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if f != nil {
-		fmt.Fprintf(f, "%s\n", normalized)
-		f.Close()
-	}
+	t.NormalisedFields = append(t.NormalisedFields, normalized)
 }
 
 // normalizeFieldPath removes array indices and uses schema knowledge to replace map keys with {key}
