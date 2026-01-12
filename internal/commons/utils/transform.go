@@ -2,7 +2,6 @@ package mist_utils
 
 import (
 	"math/big"
-	"strconv"
 	"strings"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -146,30 +145,6 @@ func ListOfDot11SdkToTerraform(data []models.Dot11BandEnum) basetypes.ListValue 
 func ListOfDot11SdkToTerraformEmpty() basetypes.ListValue {
 	var items []attr.Value
 	var itemsType attr.Type = basetypes.StringType{}
-	list, _ := types.ListValue(itemsType, items)
-	return list
-}
-
-func ListOfIntFromCommaSeparatedStringSdkToTerraform(data string) basetypes.ListValue {
-	var items []attr.Value
-	var itemsType attr.Type = basetypes.Int64Type{}
-	
-	if data == "" {
-		list, _ := types.ListValue(itemsType, items)
-		return list
-	}
-	
-	// Split the comma-separated string and convert to integers
-	parts := strings.Split(data, ",")
-	for _, part := range parts {
-		part = strings.TrimSpace(part)
-		if part != "" {
-			if intVal, err := strconv.Atoi(part); err == nil {
-				items = append(items, types.Int64Value(int64(intVal)))
-			}
-		}
-	}
-	
 	list, _ := types.ListValue(itemsType, items)
 	return list
 }
