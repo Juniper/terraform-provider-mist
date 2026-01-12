@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
 
@@ -94,7 +95,6 @@ func (r *orgMxedgeInventoryResource) Create(ctx context.Context, req resource.Cr
 	}
 
 	/////////////////////// Sync, required to get missing MxEdge info (ID, Model, Name, ...)
-	fmt.Println("KDJ: Starting MxEdge Inventory Create: org_id " + orgId.String())
 	state = r.refreshInventory(&diags, ctx, &orgId, &plan, idToMagic)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -129,11 +129,9 @@ func (r *orgMxedgeInventoryResource) Read(ctx context.Context, _ resource.ReadRe
 		comp = state
 	}
 
-	fmt.Printf("KDJ: state for Read: %v\n", comp.Mxedges)
 	for key, v := range comp.Mxedges.Elements() {
-		idToMagic[strings.ToUpper(v.(resource_org_mxedge_inventory.MxedgesValue).Id.String())] = key
+		idToMagic[strings.ToUpper(v.(resource_org_mxedge_inventory.MxedgesValue).Id.ValueString())] = key
 	}
-	fmt.Printf("KDJ: idToMagic for Read: %+v\n", idToMagic)
 
 	orgId, err := uuid.Parse(orgIdString)
 	if err != nil {
@@ -143,7 +141,6 @@ func (r *orgMxedgeInventoryResource) Read(ctx context.Context, _ resource.ReadRe
 		)
 		return
 	}
-	fmt.Println("KDJ: Starting MxEdge Inventory Read: org_id " + orgId.String())
 	state = r.refreshInventory(&diags, ctx, &orgId, &comp, idToMagic)
 	resp.Diagnostics.Append(diags...)
 
@@ -156,6 +153,7 @@ func (r *orgMxedgeInventoryResource) Read(ctx context.Context, _ resource.ReadRe
 
 func (r *orgMxedgeInventoryResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var state, plan resource_org_mxedge_inventory.OrgMxedgeInventoryModel
+	idToMagic := make(map[string]string)
 	tflog.Info(ctx, "Starting MxEdge Inventory Update")
 
 	diags := resp.State.Get(ctx, &state)
@@ -179,7 +177,6 @@ func (r *orgMxedgeInventoryResource) Update(ctx context.Context, req resource.Up
 	}
 
 	/////////////////////// Update
-	idToMagic := make(map[string]string)
 	r.updateInventory(&diags, ctx, &orgId, &plan, &state, idToMagic)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -187,7 +184,6 @@ func (r *orgMxedgeInventoryResource) Update(ctx context.Context, req resource.Up
 	}
 
 	/////////////////////// Sync, required to get missing MxEdge info (ID, Model, Name, ...)
-	fmt.Println("KDJ: Starting MxEdge Inventory Update: org_id " + orgId.String())
 	state = r.refreshInventory(&diags, ctx, &orgId, &plan, idToMagic)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -211,9 +207,49 @@ func (r *orgMxedgeInventoryResource) Delete(ctx context.Context, _ resource.Dele
 		return
 	}
 
-	// Note: MxEdges are NOT unclaimed when the resource is destroyed
-	// They remain in the organization inventory and are simply unassigned from sites
-	tflog.Info(ctx, "MxEdge Inventory resource destroyed. MxEdges remain in the organization and must be manually unclaimed if desired.")
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"mist_org_mxedge_inventory\" resource",
+			fmt.Sprintf("Unable to parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+		)
+		return
+	}
+
+	// First, unassign all MxEdges that are assigned to sites
+	var assignedMxedgeIds []string
+	var allMxedgeIds []uuid.UUID
+
+	for _, mxedgeValue := range state.Mxedges.Elements() {
+		mxedge := mxedgeValue.(resource_org_mxedge_inventory.MxedgesValue)
+		if !mxedge.Id.IsNull() && !mxedge.Id.IsUnknown() {
+			idStr := mxedge.Id.ValueString()
+			if id, err := uuid.Parse(idStr); err == nil {
+				allMxedgeIds = append(allMxedgeIds, id)
+				// Check if the MxEdge is assigned to a site
+				if !mxedge.SiteId.IsNull() && !mxedge.SiteId.IsUnknown() && mxedge.SiteId.ValueString() != "" {
+					assignedMxedgeIds = append(assignedMxedgeIds, idStr)
+				}
+			}
+		}
+	}
+
+	// Unassign MxEdges from sites first
+	if len(assignedMxedgeIds) > 0 {
+		r.unassignMxedges(&diags, ctx, orgId, assignedMxedgeIds)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	// Then delete all MxEdges
+	if len(allMxedgeIds) > 0 {
+		r.deleteMxedges(&diags, ctx, orgId, allMxedgeIds)
+		resp.Diagnostics.Append(diags...)
+	}
+
+	tflog.Info(ctx, "MxEdge Inventory resource destroyed, MxEdges unassigned and deleted from the organization.")
 }
 
 func (r *orgMxedgeInventoryResource) updateInventory(
@@ -231,8 +267,7 @@ func (r *orgMxedgeInventoryResource) updateInventory(
 		return
 	}
 
-	fmt.Println("******************")
-	fmt.Printf("KDJ\nClaim: %v\nUnassign: %v\nAssignClaim: %v\nAssign: %v\n", claim, unassign, assignClaim, assign)
+	// fmt.Printf("KDJ\nClaim: %v\nUnassign: %v\nAssignClaim: %v\nAssign: %v\n", claim, unassign, assignClaim, assign)
 
 	tflog.Debug(ctx, "updateInventory", map[string]interface{}{
 		"claim":    strings.Join(claim, ", "),
@@ -247,10 +282,15 @@ func (r *orgMxedgeInventoryResource) updateInventory(
 			return
 		}
 		// After claiming, handle assignments for newly claimed MxEdges
-		// We need to convert claim codes to MxEdge IDs for assignment
+		// Convert claim codes to MxEdge IDs for assignment using the idToMagic map
 		for claimCode, siteId := range assignClaim {
-			// Add to assign map - the refresh will resolve claim codes to MxEdge IDs
-			assign[siteId] = append(assign[siteId], claimCode)
+			// Find the MxEdge ID that corresponds to this claim code
+			for mxedgeId, mappedClaimCode := range idToMagic {
+				if strings.EqualFold(mappedClaimCode, claimCode) {
+					assign[siteId] = append(assign[siteId], mxedgeId)
+					break
+				}
+			}
 		}
 		tflog.Debug(ctx, "MxEdges claimed, assignments added to assign map")
 	}
@@ -343,8 +383,6 @@ func (r *orgMxedgeInventoryResource) claimMxedges(
 		//claimResponse, err := r.client.OrgsMxEdges().ClaimOrgMxEdge(ctx, orgId, claim)
 		claimResponse, err := r.client.OrgsInventory().AddOrgInventory(ctx, orgId, claim)
 
-		fmt.Printf("KDJ: claimResponse.Response.Body: %s\n", claimResponse.Response.Body)
-
 		if claimResponse.Response.StatusCode != 200 {
 			apiErr := mistapierror.ProcessApiError(claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
 			if apiErr != "" {
@@ -365,16 +403,45 @@ func (r *orgMxedgeInventoryResource) claimMxedges(
 					if addedItem.Magic != "" && addedItem.Mac != "" {
 						id := "00000000-0000-0000-1000-" + strings.ToUpper(addedItem.Mac)
 						idToMagic[id] = addedItem.Magic
-						fmt.Printf("KDJ: Extracted ID %s for claim code %s\n", id, addedItem.Magic)
 					}
 				}
 			}
 
-			fmt.Printf("KDJ idToMagic after claim: %+v\n", idToMagic)
-
 			tflog.Debug(ctx, "Successfully claimed MxEdges", map[string]interface{}{
 				"claim_codes":   claim,
 				"extracted_ids": len(idToMagic),
+			})
+		}
+	}
+}
+
+func (r *orgMxedgeInventoryResource) deleteMxedges(
+	diags *diag.Diagnostics,
+	ctx context.Context,
+	orgId uuid.UUID,
+	mxedgeIds []uuid.UUID,
+) {
+	tflog.Debug(ctx, "Starting to Delete MxEdges: ", map[string]interface{}{"count": len(mxedgeIds)})
+
+	for _, mxedgeId := range mxedgeIds {
+		httpr, err := r.client.OrgsMxEdges().DeleteOrgMxEdge(ctx, orgId, mxedgeId)
+
+		// Only report errors if status is not 200 (success) and not 404 (already deleted)
+		if httpr.StatusCode != 200 && httpr.StatusCode != 404 {
+			apiErr := mistapierror.ProcessApiError(httpr.StatusCode, httpr.Body, err)
+			if apiErr != "" {
+				diags.AddError(
+					"Error Deleting MxEdge from the Org",
+					fmt.Sprintf("Unable to delete MxEdge %s. %s", mxedgeId.String(), apiErr),
+				)
+			}
+		} else if httpr.StatusCode == 200 {
+			tflog.Debug(ctx, "Successfully deleted MxEdge", map[string]interface{}{
+				"mxedge_id": mxedgeId.String(),
+			})
+		} else if httpr.StatusCode == 404 {
+			tflog.Debug(ctx, "MxEdge already deleted or not found", map[string]interface{}{
+				"mxedge_id": mxedgeId.String(),
 			})
 		}
 	}
@@ -400,6 +467,18 @@ func (r *orgMxedgeInventoryResource) unassignMxedges(
 
 	unassignResponse, err := r.client.OrgsMxEdges().UnassignOrgMxEdgeFromSite(ctx, orgId, &unassignBody)
 
+	// Check if response body indicates "nothing assigned" which is acceptable (not an error)
+	bodyBytes, readErr := io.ReadAll(unassignResponse.Response.Body)
+	if readErr == nil {
+		bodyStr := string(bodyBytes)
+		if strings.Contains(strings.ToLower(bodyStr), "nothing assigned") {
+			tflog.Debug(ctx, "MxEdges already unassigned or not assigned to any site", map[string]interface{}{
+				"mxedge_ids": strings.Join(unassign, ", "),
+			})
+			return
+		}
+	}
+
 	if unassignResponse.Response.StatusCode != 200 {
 		apiErr := mistapierror.ProcessApiError(unassignResponse.Response.StatusCode, unassignResponse.Response.Body, err)
 		if apiErr != "" {
@@ -413,11 +492,11 @@ func (r *orgMxedgeInventoryResource) unassignMxedges(
 			"Error when unassigning MxEdges from Sites",
 			"Unable to unassign the MxEdges, unexpected error: "+err.Error(),
 		)
+	} else {
+		tflog.Debug(ctx, "Response for API Call to unassign MxEdges:", map[string]interface{}{
+			"success": unassignResponse.Data.Success,
+		})
 	}
-
-	tflog.Debug(ctx, "Response for API Call to unassign MxEdges:", map[string]interface{}{
-		"success": unassignResponse.Data.Success,
-	})
 }
 
 func (r *orgMxedgeInventoryResource) assignMxedges(
@@ -450,9 +529,6 @@ func (r *orgMxedgeInventoryResource) assignMxedges(
 		}
 
 		assignResponse, err := r.client.OrgsMxEdges().AssignOrgMxEdgeToSite(ctx, orgId, &assignBody)
-
-		fmt.Printf("KDJ Assigned MxEdges to Site %s\n", assignResponse.Response.Body)
-
 		if assignResponse.Response.StatusCode != 200 {
 			apiErr := mistapierror.ProcessApiError(assignResponse.Response.StatusCode, assignResponse.Response.Body, err)
 			if apiErr != "" {

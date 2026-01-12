@@ -62,6 +62,7 @@ func TestOrgMxedgeInventoryModel(t *testing.T) {
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config
+				createSite := false
 				siteConfig, siteRef := "", ""
 
 				// Check if any mxedge items need site_id and set up site config
@@ -69,6 +70,7 @@ func TestOrgMxedgeInventoryModel(t *testing.T) {
 					for key, mxedgeItem := range config.Mxedges {
 						if mxedgeItem.SiteId != nil {
 							// Set placeholder for site_id in mxedge item
+							createSite = true
 							mxedgeItem.SiteId = stringPtr("{site_id}")
 							config.Mxedges[key] = mxedgeItem
 						}
@@ -78,7 +80,9 @@ func TestOrgMxedgeInventoryModel(t *testing.T) {
 				f := hclwrite.NewEmptyFile()
 				gohcl.EncodeIntoBody(&config, f.Body())
 				combinedConfig := Render(resourceType, tName, string(f.Bytes()))
-				siteConfig, siteRef = GetSiteBaseConfig(GetTestOrgId())
+				if createSite {
+					siteConfig, siteRef = GetSiteBaseConfig(GetTestOrgId())
+				}
 
 				configStr := ""
 				if siteConfig != "" {

@@ -25,17 +25,32 @@ returns:
 		the op to apply to the MxEdge (assign/unassign/nothing)
 */
 func processAction(planSiteId *basetypes.StringValue, stateSiteId *basetypes.StringValue) (op string) {
-	fmt.Printf("KDJ Processing action: planSiteId='%s', stateSiteId='%s'\n", planSiteId.ValueString(), stateSiteId.ValueString())
+	planSiteIdStr := ""
+	if planSiteId != nil && !planSiteId.IsNull() {
+		planSiteIdStr = planSiteId.ValueString()
+	}
 
-	if stateSiteId.ValueString() == planSiteId.ValueString() {
+	stateSiteIdStr := ""
+	if stateSiteId != nil && !stateSiteId.IsNull() {
+		stateSiteIdStr = stateSiteId.ValueString()
+	}
+
+	// If both are the same (including both empty/null), no change needed
+	if stateSiteIdStr == planSiteIdStr {
 		return ""
-	} else if planSiteId.IsNull() || planSiteId.ValueString() == "" {
-		// Planned Site ID is not set > must be unassigned
+	}
+
+	// If plan is null/empty but state has a value, unassign
+	if (planSiteId == nil || planSiteId.IsNull() || planSiteIdStr == "") && stateSiteIdStr != "" {
 		return "unassign"
-	} else {
-		// Planned Site ID is set > must be assigned or reassigned
+	}
+
+	// If plan has a value, assign (or reassign if state was different)
+	if planSiteIdStr != "" {
 		return "assign"
 	}
+
+	return ""
 }
 
 /*
@@ -62,8 +77,6 @@ func findMxedgeInState(
 	planMxedgeSiteId *basetypes.StringValue,
 	stateMxedge *MxedgesValue,
 ) (op string, mxedgeId string, alreadyClaimed bool) {
-	fmt.Println("KDJ we get here")
-
 	alreadyClaimed = false
 	if stateMxedge != nil && !stateMxedge.IsNull() {
 		// for already claimed MxEdges
@@ -125,10 +138,8 @@ func processPlannedMxedges(
 		stateMxedge := (*stateMxedgesMap)[strings.ToUpper(mxedgeInfo)]
 
 		// mxedgeId will be empty if the MxEdge is not already in the state
-		fmt.Printf("KDJ mxedgeSiteId: %s,  stateMxedge: %+v\n", mxedgeSiteId.ValueString(), stateMxedge)
 		op, mxedgeId, alreadyClaimed = findMxedgeInState(&mxedgeSiteId, stateMxedge)
 		isClaimCode, isUuid := DetectMxedgeInfoType(diags, mxedgeInfo)
-		fmt.Printf("KDJ ClaimCode: %v, UUID: %v\n", isClaimCode, isUuid)
 
 		if !alreadyClaimed && isClaimCode {
 			*claim = append(*claim, mxedgeInfo)
@@ -138,6 +149,16 @@ func processPlannedMxedges(
 		} else if alreadyClaimed || isUuid {
 			if isUuid {
 				mxedgeId = mxedgeInfo
+				// When using UUID reference without state, determine action based on plan
+				if op == "" {
+					if mxedgeSiteId.IsNull() || mxedgeSiteId.ValueString() == "" {
+						// Plan has no site_id, device should be unassigned
+						op = "unassign"
+					} else {
+						// Plan has site_id, device should be assigned
+						op = "assign"
+					}
+				}
 			}
 			switch op {
 			case "assign":
