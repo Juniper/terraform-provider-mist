@@ -34,6 +34,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.AdditionalConfigCmds = mistutils.ListOfStringTerraformToSdk(plan.AdditionalConfigCmds)
 	}
 
+	if plan.BgpConfig.IsNull() || plan.BgpConfig.IsUnknown() {
+		unset["-bgp_config"] = ""
+	} else {
+		data.BgpConfig = bgpConfigTerraformToSdk(plan.BgpConfig)
+	}
+
 	if plan.DhcpSnooping.IsNull() || plan.DhcpSnooping.IsUnknown() {
 		unset["-dhcp_snooping"] = ""
 	} else {
@@ -203,6 +209,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		unset["-router_id"] = ""
 	} else {
 		data.RouterId = plan.RouterId.ValueStringPointer()
+	}
+
+	if plan.RoutingPolicies.IsNull() || plan.RoutingPolicies.IsUnknown() {
+		unset["-routing_policies"] = ""
+	} else {
+		data.RoutingPolicies = routingPoliciesTerraformToSdk(ctx, plan.RoutingPolicies)
 	}
 
 	if plan.Role.ValueStringPointer() == nil {

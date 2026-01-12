@@ -2,6 +2,45 @@
   device_id = "00000000-0000-0000-1000-5c5b35000032"
   name      = "test-switch-comprehensive"
   additional_config_cmds = ["set system host-name switch1", "set system domain-name example.com"]
+  bgp_config = {
+    "bgp_config_1" = {
+      type                 = "internal"
+      networks             = ["lan", "wan"]
+      bfd_minimum_interval = 150
+      local_as             = "65100"
+      hold_time            = 60
+      auth_key             = "bgpkey1"
+      export_policy        = "export_policy_1"
+      import_policy        = "import_policy_1"
+      neighbors = {
+        "10.1.0.1" = {
+          neighbor_as   = "65100"
+          hold_time     = 90
+          import_policy = "import_policy_1"
+          export_policy = "export_policy_1"
+        }
+      }
+    }
+    "bgp_config_2" = {
+      type                 = "external"
+      networks             = ["wan"]
+      bfd_minimum_interval = 250
+      local_as             = "65200"
+      hold_time            = 150
+      auth_key             = "bgpkey2"
+      export_policy        = "export_policy_2"
+      import_policy        = "import_policy_2"
+      neighbors = {
+        "192.168.100.1" = {
+          neighbor_as   = "65300"
+          hold_time     = 210
+          import_policy = "import_policy_2"
+          export_policy = "export_policy_2"
+          multihop_ttl  = 10
+        }
+      }
+    }
+  }
   acl_policies = [
     {
       name = "policy1"
@@ -117,9 +156,21 @@
     }
   }
   port_config = {
-    "eth0" = "up"
-    "eth1" = "down"
-    "eth2" = "up"
+    "ge-0/0/0" = {
+      usage         = "inet"
+      description   = "Internet port"
+      networks      = ["wan", "internet"]
+      mtu           = 9000
+      speed         = "1g"
+      duplex        = "full"
+    }
+    "ge-0/0/1" = {
+      usage         = "inet"
+      description   = "LAN port"
+      networks      = ["lan"]
+      poe_disabled  = true
+      speed         = "10g"
+    }
   }
   port_usages = {
     "access_port" = {
@@ -172,6 +223,123 @@
           src   = "vlan"
           equals_any = ["100", "200"]
           usage = "trunk"
+        }
+      ]
+    }
+  }
+
+  routing_policies = {
+    test_import = {
+      terms = [
+        {
+          matching = {
+            prefix = [
+              "10.1.0.0/24"
+            ],
+            as_path = [
+              "234"
+            ],
+            protocol = [
+              "direct"
+            ],
+            community = [
+              "my_com"
+            ]
+          },
+          actions = {
+            accept = true,
+            community = [
+              "test"
+            ],
+            prepend_as_path = [
+              "1234"
+            ],
+            local_preference = "2345"
+          },
+          name = "test_direct"
+        },
+        {
+          matching = {
+            prefix = [
+              "10.0.0.0/8"
+            ],
+            as_path = [
+              "65000"
+            ],
+            protocol = [
+              "bgp"
+            ],
+            community = [
+              "test"
+            ]
+          },
+          actions = {
+            accept = true,
+            community = [
+              "my_community"
+            ],
+            prepend_as_path = [
+              "432"
+            ],
+            local_preference = "532"
+          },
+          name = "test_bgp"
+        },
+        {
+          matching = {
+            prefix = [
+              "10.2.0.0/24"
+            ],
+            as_path = [
+              "45332"
+            ]
+          },
+          actions = {
+            accept = true
+          },
+          name = "test_none"
+        },
+        {
+          matching = {
+            prefix = [
+              "10.3.0.0/24"
+            ],
+            as_path = [
+              "2314"
+            ],
+            protocol = [
+              "evpn"
+            ]
+          },
+          actions = {
+              accept = true
+          },
+          name = "test_evpn"
+        },
+        {
+          matching = {
+            prefix = [
+              "10.5.0.0/25"
+            ],
+            protocol = [
+              "ospf"
+            ]
+          },
+          actions = {
+            accept = true
+          },
+          name = "test_ospf"
+        },
+        {
+          matching = {
+            protocol = [
+              "static"
+            ]
+          },
+          actions = {
+            accept = true
+          },
+          name = "test_static"
         }
       ]
     }

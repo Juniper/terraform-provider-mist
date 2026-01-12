@@ -667,7 +667,7 @@ Optional:
 
 Optional:
 
-- `terms` (Attributes List) zero or more criteria/filter can be specified to match the term, all criteria have to be met (see [below for nested schema](#nestedatt--routing_policies--terms))
+- `terms` (Attributes Set) zero or more criteria/filter can be specified to match the term, all criteria have to be met (see [below for nested schema](#nestedatt--routing_policies--terms))
 
 <a id="nestedatt--routing_policies--terms"></a>
 ### Nested Schema for `routing_policies.terms`
@@ -689,8 +689,8 @@ Optional:
 - `exclude_as_path` (List of String) When used as export policy, optional. To exclude certain AS
 - `exclude_community` (List of String)
 - `export_communities` (List of String) When used as export policy, optional
-- `local_preference` (String) Optional, for an import policy, local_preference can be changed
-- `prepend_as_path` (List of String) When used as export policy, optional. By default, the local AS will be prepended, to change it
+- `local_preference` (String) Optional, for an import policy, local_preference can be changed, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)
+- `prepend_as_path` (List of String) When used as export policy, optional. By default, the local AS will be prepended, to change it. Can be a Variable (e.g. `{{as_path}}`)
 
 
 <a id="nestedatt--routing_policies--terms--matching"></a>
@@ -698,11 +698,11 @@ Optional:
 
 Optional:
 
-- `as_path` (List of String) takes regular expression
+- `as_path` (List of String) BGP AS, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)
 - `community` (List of String)
 - `network` (List of String)
 - `prefix` (List of String) zero or more criteria/filter can be specified to match the term, all criteria have to be met
-- `protocol` (List of String) `direct`, `bgp`, `osp`, `static`, `aggregate`...
+- `protocol` (List of String) enum: `aggregate`, `bgp`, `direct`, `ospf`, `static` (SRX Only)
 - `route_exists` (Attributes) (see [below for nested schema](#nestedatt--routing_policies--terms--matching--route_exists))
 - `vpn_neighbor_mac` (List of String) overlay-facing criteria (used for bgp_config where via=vpn)
 - `vpn_path` (List of String) overlay-facing criteria (used for bgp_config where via=vpn). ordered-

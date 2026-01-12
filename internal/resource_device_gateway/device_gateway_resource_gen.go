@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/objectvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -2330,7 +2331,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 			"routing_policies": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"terms": schema.ListNestedAttribute{
+						"terms": schema.SetNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"actions": schema.SingleNestedAttribute{
@@ -2372,14 +2373,14 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"local_preference": schema.StringAttribute{
 												Optional:            true,
-												Description:         "Optional, for an import policy, local_preference can be changed",
-												MarkdownDescription: "Optional, for an import policy, local_preference can be changed",
+												Description:         "Optional, for an import policy, local_preference can be changed, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)",
+												MarkdownDescription: "Optional, for an import policy, local_preference can be changed, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)",
 											},
 											"prepend_as_path": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
-												Description:         "When used as export policy, optional. By default, the local AS will be prepended, to change it",
-												MarkdownDescription: "When used as export policy, optional. By default, the local AS will be prepended, to change it",
+												Description:         "When used as export policy, optional. By default, the local AS will be prepended, to change it. Can be a Variable (e.g. `{{as_path}}`)",
+												MarkdownDescription: "When used as export policy, optional. By default, the local AS will be prepended, to change it. Can be a Variable (e.g. `{{as_path}}`)",
 											},
 										},
 										CustomType: ActionsType{
@@ -2396,8 +2397,16 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											"as_path": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
-												Description:         "takes regular expression",
-												MarkdownDescription: "takes regular expression",
+												Description:         "BGP AS, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)",
+												MarkdownDescription: "BGP AS, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)",
+												Validators: []validator.List{
+													listvalidator.ValueStringsAre(
+														stringvalidator.Any(
+															mistvalidator.ParseInt(1, 4294967294),
+															mistvalidator.ParseVar(),
+														),
+													),
+												},
 											},
 											"community": schema.ListAttribute{
 												ElementType: types.StringType,
@@ -2419,8 +2428,20 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											"protocol": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
-												Description:         "`direct`, `bgp`, `osp`, `static`, `aggregate`...",
-												MarkdownDescription: "`direct`, `bgp`, `osp`, `static`, `aggregate`...",
+												Description:         "enum: `aggregate`, `bgp`, `direct`, `ospf`, `static` (SRX Only)",
+												MarkdownDescription: "enum: `aggregate`, `bgp`, `direct`, `ospf`, `static` (SRX Only)",
+												Validators: []validator.List{
+													listvalidator.ValueStringsAre(
+														stringvalidator.OneOf(
+															"",
+															"aggregate",
+															"bgp",
+															"direct",
+															"ospf",
+															"static",
+														),
+													),
+												},
 											},
 											"route_exists": schema.SingleNestedAttribute{
 												Attributes: map[string]schema.Attribute{
@@ -2493,8 +2514,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
 							MarkdownDescription: "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
-							Validators: []validator.List{
-								listvalidator.UniqueValues(),
+							Validators: []validator.Set{
+								setvalidator.SizeAtLeast(1),
 							},
 						},
 					},
@@ -29397,12 +29418,12 @@ func (t RoutingPoliciesType) ValueFromObject(ctx context.Context, in basetypes.O
 		return nil, diags
 	}
 
-	termsVal, ok := termsAttribute.(basetypes.ListValue)
+	termsVal, ok := termsAttribute.(basetypes.SetValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`terms expected to be basetypes.ListValue, was: %T`, termsAttribute))
+			fmt.Sprintf(`terms expected to be basetypes.SetValue, was: %T`, termsAttribute))
 	}
 
 	if diags.HasError() {
@@ -29488,12 +29509,12 @@ func NewRoutingPoliciesValue(attributeTypes map[string]attr.Type, attributes map
 		return NewRoutingPoliciesValueUnknown(), diags
 	}
 
-	termsVal, ok := termsAttribute.(basetypes.ListValue)
+	termsVal, ok := termsAttribute.(basetypes.SetValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`terms expected to be basetypes.ListValue, was: %T`, termsAttribute))
+			fmt.Sprintf(`terms expected to be basetypes.SetValue, was: %T`, termsAttribute))
 	}
 
 	if diags.HasError() {
@@ -29574,7 +29595,7 @@ func (t RoutingPoliciesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = RoutingPoliciesValue{}
 
 type RoutingPoliciesValue struct {
-	Terms basetypes.ListValue `tfsdk:"terms"`
+	Terms basetypes.SetValue `tfsdk:"terms"`
 	state attr.ValueState
 }
 
@@ -29584,7 +29605,7 @@ func (v RoutingPoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 	var val tftypes.Value
 	var err error
 
-	attrTypes["terms"] = basetypes.ListType{
+	attrTypes["terms"] = basetypes.SetType{
 		ElemType: TermsValue{}.Type(ctx),
 	}.TerraformType(ctx)
 
@@ -29631,7 +29652,7 @@ func (v RoutingPoliciesValue) String() string {
 func (v RoutingPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	terms := types.ListValueMust(
+	terms := types.SetValueMust(
 		TermsType{
 			basetypes.ObjectType{
 				AttrTypes: TermsValue{}.AttributeTypes(ctx),
@@ -29641,7 +29662,7 @@ func (v RoutingPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 	)
 
 	if v.Terms.IsNull() {
-		terms = types.ListNull(
+		terms = types.SetNull(
 			TermsType{
 				basetypes.ObjectType{
 					AttrTypes: TermsValue{}.AttributeTypes(ctx),
@@ -29651,7 +29672,7 @@ func (v RoutingPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 	}
 
 	if v.Terms.IsUnknown() {
-		terms = types.ListUnknown(
+		terms = types.SetUnknown(
 			TermsType{
 				basetypes.ObjectType{
 					AttrTypes: TermsValue{}.AttributeTypes(ctx),
@@ -29661,7 +29682,7 @@ func (v RoutingPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"terms": basetypes.ListType{
+		"terms": basetypes.SetType{
 			ElemType: TermsValue{}.Type(ctx),
 		},
 	}
@@ -29715,7 +29736,7 @@ func (v RoutingPoliciesValue) Type(ctx context.Context) attr.Type {
 
 func (v RoutingPoliciesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"terms": basetypes.ListType{
+		"terms": basetypes.SetType{
 			ElemType: TermsValue{}.Type(ctx),
 		},
 	}

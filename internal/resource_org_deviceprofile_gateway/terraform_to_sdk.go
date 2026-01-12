@@ -119,7 +119,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileGatewayModel) (mo
 	if plan.RoutingPolicies.IsNull() || plan.RoutingPolicies.IsUnknown() {
 		unset["-routing_policies"] = ""
 	} else {
-		data.RoutingPolicies = routingPoliciesTerraformToSdk(ctx, &diags, plan.RoutingPolicies)
+		data.RoutingPolicies = routingPoliciesTerraformToSdk(ctx, plan.RoutingPolicies)
 	}
 
 	if plan.ServicePolicies.IsNull() || plan.ServicePolicies.IsUnknown() {

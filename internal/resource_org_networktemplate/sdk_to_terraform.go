@@ -19,6 +19,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	var aclPolicies = types.ListNull(AclPoliciesValue{}.Type(ctx))
 	var aclTags = types.MapNull(AclTagsValue{}.Type(ctx))
 	var additionalConfigCmds = types.ListNull(types.StringType)
+	var bgpConfig = types.MapNull(BgpConfigValue{}.Type(ctx))
 	var dhcpSnooping = NewDhcpSnoopingValueNull()
 	var dnsServers = types.ListValueMust(types.StringType, []attr.Value{})
 	var dnsSuffix = types.ListValueMust(types.StringType, []attr.Value{})
@@ -36,6 +37,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	var radiusConfig = NewRadiusConfigValueNull()
 	var remoteSyslog = NewRemoteSyslogValueNull()
 	var removeExistingConfigs = types.BoolNull()
+	var routingPolicies = types.MapNull(RoutingPoliciesValue{}.Type(ctx))
 	var snmpConfig = NewSnmpConfigValueNull()
 	var switchMatching = NewSwitchMatchingValueNull()
 	var switchMgmt = NewSwitchMgmtValueNull()
@@ -50,6 +52,9 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	}
 	if data.AdditionalConfigCmds != nil {
 		additionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
+	}
+	if len(data.BgpConfig) > 0 {
+		bgpConfig = bgpConfigSdkToTerraform(ctx, &diags, data.BgpConfig)
 	}
 	if data.DhcpSnooping != nil {
 		dhcpSnooping = dhcpSnoopingSdkToTerraform(ctx, &diags, data.DhcpSnooping)
@@ -102,6 +107,9 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	if data.RemoveExistingConfigs != nil {
 		removeExistingConfigs = types.BoolValue(*data.RemoveExistingConfigs)
 	}
+	if data.RoutingPolicies != nil {
+		routingPolicies = routingPoliciesSdkToTerraform(ctx, &diags, data.RoutingPolicies)
+	}
 	if data.SnmpConfig != nil {
 		snmpConfig = snmpConfigSdkToTerraform(ctx, &diags, data.SnmpConfig)
 	}
@@ -124,6 +132,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	state.AclPolicies = aclPolicies
 	state.AclTags = aclTags
 	state.AdditionalConfigCmds = additionalConfigCmds
+	state.BgpConfig = bgpConfig
 	state.DhcpSnooping = dhcpSnooping
 	state.DnsServers = dnsServers
 	state.DnsSuffix = dnsSuffix
@@ -138,6 +147,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	state.RadiusConfig = radiusConfig
 	state.RemoteSyslog = remoteSyslog
 	state.RemoveExistingConfigs = removeExistingConfigs
+	state.RoutingPolicies = routingPolicies
 	state.SnmpConfig = snmpConfig
 	state.SwitchMatching = switchMatching
 	state.SwitchMgmt = switchMgmt

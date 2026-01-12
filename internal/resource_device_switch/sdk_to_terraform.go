@@ -19,6 +19,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	var aclPolicies = types.ListNull(AclPoliciesValue{}.Type(ctx))
 	var aclTags = types.MapNull(AclTagsValue{}.Type(ctx))
 	var additionalConfigCmds = types.ListNull(types.StringType)
+	var bgpConfig = types.MapNull(BgpConfigValue{}.Type(ctx))
 	var dhcpSnooping = NewDhcpSnoopingValueNull()
 	var dhcpdConfig = NewDhcpdConfigValueNull()
 	var deviceId types.String
@@ -52,6 +53,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	var remoteSyslog = NewRemoteSyslogValueNull()
 	var role types.String
 	var routerId types.String
+	var routingPolicies = types.MapNull(RoutingPoliciesValue{}.Type(ctx))
 	var siteId types.String
 	var snmpConfig = NewSnmpConfigValueNull()
 	var stpConfig = NewStpConfigValueNull()
@@ -78,6 +80,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	}
 	if data.AdditionalConfigCmds != nil {
 		additionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
+	}
+	if len(data.BgpConfig) > 0 {
+		bgpConfig = bgpConfigSdkToTerraform(ctx, &diags, data.BgpConfig)
 	}
 	if data.DhcpSnooping != nil {
 		dhcpSnooping = dhcpSnoopingSdkToTerraform(ctx, &diags, data.DhcpSnooping)
@@ -178,6 +183,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.RouterId != nil {
 		routerId = types.StringValue(*data.RouterId)
 	}
+	if data.RoutingPolicies != nil {
+		routingPolicies = routingPoliciesSdkToTerraform(ctx, &diags, data.RoutingPolicies)
+	}
 	if data.SiteId != nil {
 		siteId = types.StringValue(data.SiteId.String())
 	}
@@ -232,6 +240,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	state.AclPolicies = aclPolicies
 	state.AclTags = aclTags
 	state.AdditionalConfigCmds = additionalConfigCmds
+	state.BgpConfig = bgpConfig
 	state.DeviceId = deviceId
 	state.DhcpSnooping = dhcpSnooping
 	state.DhcpdConfig = dhcpdConfig
@@ -265,6 +274,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	state.RemoteSyslog = remoteSyslog
 	state.Role = role
 	state.RouterId = routerId
+	state.RoutingPolicies = routingPolicies
 	state.SiteId = siteId
 	state.SnmpConfig = snmpConfig
 	state.StpConfig = stpConfig

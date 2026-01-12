@@ -13,7 +13,7 @@ import (
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
-func routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatchingRouteExists) basetypes.ObjectValue {
+func routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.GwRoutingPolicyTermMatchingRouteExists) basetypes.ObjectValue {
 	var route basetypes.StringValue
 	var vrfName = types.StringValue("default")
 
@@ -33,7 +33,7 @@ func routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx context.Context, dia
 
 	return data
 }
-func routingPolicyTermMatchingVpnSlaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatchingVpnPathSla) basetypes.ObjectValue {
+func routingPolicyTermMatchingVpnSlaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.GwRoutingPolicyTermMatchingVpnPathSla) basetypes.ObjectValue {
 
 	var maxJitter basetypes.Int64Value
 	var maxLatency basetypes.Int64Value
@@ -60,7 +60,7 @@ func routingPolicyTermMatchingVpnSlaSdkToTerraform(ctx context.Context, diags *d
 	return data
 
 }
-func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermMatching) basetypes.ObjectValue {
+func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.GwRoutingPolicyTermMatching) basetypes.ObjectValue {
 
 	var asPath = types.ListNull(types.StringType)
 	var community = types.ListNull(types.StringType)
@@ -72,28 +72,36 @@ func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 	var vpnPath = types.ListNull(types.StringType)
 	var vpnPathSla = types.ObjectNull(VpnPathSlaValue{}.AttributeTypes(ctx))
 
-	if d.AsPath != nil {
-		asPath = mistutils.ListOfStringSdkToTerraform(d.AsPath)
+	if len(d.AsPath) > 0 {
+		var items []attr.Value
+		for _, item := range d.AsPath {
+			items = append(items, mistutils.ContainerAsString(&item))
+		}
+		asPath, _ = types.ListValue(basetypes.StringType{}, items)
 	}
-	if d.Community != nil {
+	if len(d.Community) > 0 {
 		community = mistutils.ListOfStringSdkToTerraform(d.Community)
 	}
-	if d.Network != nil {
+	if len(d.Network) > 0 {
 		network = mistutils.ListOfStringSdkToTerraform(d.Network)
 	}
-	if d.Prefix != nil {
+	if len(d.Prefix) > 0 {
 		prefix = mistutils.ListOfStringSdkToTerraform(d.Prefix)
 	}
-	if d.Protocol != nil {
-		protocol = mistutils.ListOfStringSdkToTerraform(d.Protocol)
+	if len(d.Protocol) > 0 {
+		var items []attr.Value
+		for _, item := range d.Protocol {
+			items = append(items, types.StringValue(string(item)))
+		}
+		protocol, _ = types.ListValue(basetypes.StringType{}, items)
 	}
 	if d.RouteExists != nil {
 		routeExists = routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx, diags, *d.RouteExists)
 	}
-	if d.VpnNeighborMac != nil {
+	if len(d.VpnNeighborMac) > 0 {
 		vpnNeighborMac = mistutils.ListOfStringSdkToTerraform(d.VpnNeighborMac)
 	}
-	if d.VpnPath != nil {
+	if len(d.VpnPath) > 0 {
 		vpnPath = mistutils.ListOfStringSdkToTerraform(d.VpnPath)
 	}
 	if d.VpnPathSla != nil {
@@ -116,7 +124,7 @@ func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 
 	return data
 }
-func routingPolicyTermActionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.RoutingPolicyTermAction) basetypes.ObjectValue {
+func routingPolicyTermActionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.GwRoutingPolicyTermAction) basetypes.ObjectValue {
 
 	var accept basetypes.BoolValue
 	var addCommunity = types.ListNull(types.StringType)
@@ -131,28 +139,28 @@ func routingPolicyTermActionsSdkToTerraform(ctx context.Context, diags *diag.Dia
 	if d.Accept != nil {
 		accept = types.BoolValue(*d.Accept)
 	}
-	if d.AddCommunity != nil {
+	if len(d.AddCommunity) > 0 {
 		addCommunity = mistutils.ListOfStringSdkToTerraform(d.AddCommunity)
 	}
-	if d.AddTargetVrfs != nil {
+	if len(d.AddTargetVrfs) > 0 {
 		addTargetVrfs = mistutils.ListOfStringSdkToTerraform(d.AddTargetVrfs)
 	}
-	if d.Community != nil {
+	if len(d.Community) > 0 {
 		community = mistutils.ListOfStringSdkToTerraform(d.Community)
 	}
-	if d.ExcludeAsPath != nil {
+	if len(d.ExcludeAsPath) > 0 {
 		excludeAsPath = mistutils.ListOfStringSdkToTerraform(d.ExcludeAsPath)
 	}
-	if d.ExcludeCommunity != nil {
+	if len(d.ExcludeCommunity) > 0 {
 		excludeCommunity = mistutils.ListOfStringSdkToTerraform(d.ExcludeCommunity)
 	}
-	if d.ExportCommunities != nil {
+	if len(d.ExportCommunities) > 0 {
 		exportCommunities = mistutils.ListOfStringSdkToTerraform(d.ExportCommunities)
 	}
 	if d.LocalPreference != nil {
-		localPreference = types.StringValue(*d.LocalPreference)
+		localPreference = mistutils.ContainerAsString(d.LocalPreference)
 	}
-	if d.PrependAsPath != nil {
+	if len(d.PrependAsPath) > 0 {
 		prependAsPath = mistutils.ListOfStringSdkToTerraform(d.PrependAsPath)
 	}
 
@@ -173,7 +181,7 @@ func routingPolicyTermActionsSdkToTerraform(ctx context.Context, diags *diag.Dia
 	return data
 }
 
-func routingPolicyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.RoutingPolicyTerm) basetypes.ListValue {
+func routingPolicyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.GwRoutingPolicyTerm) basetypes.SetValue {
 	var dataList []TermsValue
 
 	for _, d := range l {
@@ -197,16 +205,16 @@ func routingPolicyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		dataList = append(dataList, data)
 	}
 	datalistType := TermsValue{}.Type(ctx)
-	r, e := types.ListValueFrom(ctx, datalistType, dataList)
+	r, e := types.SetValueFrom(ctx, datalistType, dataList)
 	diags.Append(e...)
 	return r
 }
 
-func routingPoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.RoutingPolicy) basetypes.MapValue {
+func routingPoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.GwRoutingPolicy) basetypes.MapValue {
 	stateValueMap := make(map[string]attr.Value)
 	for k, d := range m {
 
-		var terms = types.ListNull(TermsValue{}.Type(ctx))
+		var terms = types.SetNull(TermsValue{}.Type(ctx))
 
 		if d.Terms != nil {
 			terms = routingPolicyTermsSdkToTerraform(ctx, diags, d.Terms)

@@ -1,30 +1,32 @@
 package provider
 
 type OrgNetworktemplateModel struct {
-	AclPolicies           []OrgNetworktemplateAclPoliciesValue            `hcl:"acl_policies"`
-	AclTags               map[string]OrgNetworktemplateAclTagsValue       `hcl:"acl_tags"`
-	AdditionalConfigCmds  []string                                        `hcl:"additional_config_cmds"`
-	DhcpSnooping          *OrgNetworktemplateDhcpSnoopingValue            `hcl:"dhcp_snooping"`
-	DnsServers            []string                                        `hcl:"dns_servers"`
-	DnsSuffix             []string                                        `hcl:"dns_suffix"`
-	ExtraRoutes           map[string]OrgNetworktemplateExtraRoutesValue   `hcl:"extra_routes"`
-	ExtraRoutes6          map[string]OrgNetworktemplateExtraRoutes6Value  `hcl:"extra_routes6"`
-	MistNac               *OrgNetworktemplateMistNacValue                 `hcl:"mist_nac"`
-	Name                  string                                          `hcl:"name"`
-	Networks              map[string]OrgNetworktemplateNetworksValue      `hcl:"networks"`
-	NtpServers            []string                                        `hcl:"ntp_servers"`
-	OrgId                 string                                          `hcl:"org_id"`
-	OspfAreas             map[string]OrgNetworktemplateOspfAreasValue     `hcl:"ospf_areas"`
-	PortMirroring         map[string]OrgNetworktemplatePortMirroringValue `hcl:"port_mirroring"`
-	PortUsages            map[string]OrgNetworktemplatePortUsagesValue    `hcl:"port_usages"`
-	RadiusConfig          *OrgNetworktemplateRadiusConfigValue            `hcl:"radius_config"`
-	RemoteSyslog          *OrgNetworktemplateRemoteSyslogValue            `hcl:"remote_syslog"`
-	RemoveExistingConfigs *bool                                           `hcl:"remove_existing_configs"`
-	SnmpConfig            *OrgNetworktemplateSnmpConfigValue              `hcl:"snmp_config"`
-	SwitchMatching        *OrgNetworktemplateSwitchMatchingValue          `hcl:"switch_matching"`
-	SwitchMgmt            *OrgNetworktemplateSwitchMgmtValue              `hcl:"switch_mgmt"`
-	VrfConfig             *OrgNetworktemplateVrfConfigValue               `hcl:"vrf_config"`
-	VrfInstances          map[string]OrgNetworktemplateVrfInstancesValue  `hcl:"vrf_instances"`
+	AclPolicies           []OrgNetworktemplateAclPoliciesValue              `hcl:"acl_policies"`
+	AclTags               map[string]OrgNetworktemplateAclTagsValue         `hcl:"acl_tags"`
+	AdditionalConfigCmds  []string                                          `hcl:"additional_config_cmds"`
+	BgpConfig             map[string]OrgNetworktemplateBgpConfigValue       `hcl:"bgp_config"`
+	DhcpSnooping          *OrgNetworktemplateDhcpSnoopingValue              `hcl:"dhcp_snooping"`
+	DnsServers            []string                                          `hcl:"dns_servers"`
+	DnsSuffix             []string                                          `hcl:"dns_suffix"`
+	ExtraRoutes           map[string]OrgNetworktemplateExtraRoutesValue     `hcl:"extra_routes"`
+	ExtraRoutes6          map[string]OrgNetworktemplateExtraRoutes6Value    `hcl:"extra_routes6"`
+	MistNac               *OrgNetworktemplateMistNacValue                   `hcl:"mist_nac"`
+	Name                  string                                            `hcl:"name"`
+	Networks              map[string]OrgNetworktemplateNetworksValue        `hcl:"networks"`
+	NtpServers            []string                                          `hcl:"ntp_servers"`
+	OrgId                 string                                            `hcl:"org_id"`
+	OspfAreas             map[string]OrgNetworktemplateOspfAreasValue       `hcl:"ospf_areas"`
+	PortMirroring         map[string]OrgNetworktemplatePortMirroringValue   `hcl:"port_mirroring"`
+	PortUsages            map[string]OrgNetworktemplatePortUsagesValue      `hcl:"port_usages"`
+	RadiusConfig          *OrgNetworktemplateRadiusConfigValue              `hcl:"radius_config"`
+	RemoteSyslog          *OrgNetworktemplateRemoteSyslogValue              `hcl:"remote_syslog"`
+	RemoveExistingConfigs *bool                                             `hcl:"remove_existing_configs"`
+	RoutingPolicies       map[string]OrgNetworktemplateRoutingPoliciesValue `hcl:"routing_policies"`
+	SnmpConfig            *OrgNetworktemplateSnmpConfigValue                `hcl:"snmp_config"`
+	SwitchMatching        *OrgNetworktemplateSwitchMatchingValue            `hcl:"switch_matching"`
+	SwitchMgmt            *OrgNetworktemplateSwitchMgmtValue                `hcl:"switch_mgmt"`
+	VrfConfig             *OrgNetworktemplateVrfConfigValue                 `hcl:"vrf_config"`
+	VrfInstances          map[string]OrgNetworktemplateVrfInstancesValue    `hcl:"vrf_instances"`
 }
 
 type OrgNetworktemplateAclPoliciesValue struct {
@@ -53,6 +55,26 @@ type OrgNetworktemplateAclTagsValue struct {
 type OrgNetworktemplateSpecsValue struct {
 	PortRange *string `cty:"port_range" hcl:"port_range"`
 	Protocol  *string `cty:"protocol" hcl:"protocol"`
+}
+
+type OrgNetworktemplateBgpConfigValue struct {
+	AuthKey            *string                                     `cty:"auth_key" hcl:"auth_key"`
+	BfdMinimumInterval *int64                                      `cty:"bfd_minimum_interval" hcl:"bfd_minimum_interval"`
+	ExportPolicy       *string                                     `cty:"export_policy" hcl:"export_policy"`
+	HoldTime           *int64                                      `cty:"hold_time" hcl:"hold_time"`
+	ImportPolicy       *string                                     `cty:"import_policy" hcl:"import_policy"`
+	LocalAs            string                                      `cty:"local_as" hcl:"local_as"`
+	Neighbors          map[string]OrgNetworktemplateNeighborsValue `cty:"neighbors" hcl:"neighbors"`
+	Networks           []string                                    `cty:"networks" hcl:"networks"`
+	BgpConfigType      string                                      `cty:"type" hcl:"type"`
+}
+
+type OrgNetworktemplateNeighborsValue struct {
+	ExportPolicy *string `cty:"export_policy" hcl:"export_policy"`
+	HoldTime     *int64  `cty:"hold_time" hcl:"hold_time"`
+	ImportPolicy *string `cty:"import_policy" hcl:"import_policy"`
+	MultihopTtl  *int64  `cty:"multihop_ttl" hcl:"multihop_ttl"`
+	NeighborAs   string  `cty:"neighbor_as" hcl:"neighbor_as"`
 }
 
 type OrgNetworktemplateDhcpSnoopingValue struct {
@@ -290,6 +312,30 @@ type OrgNetworktemplateUsersValue struct {
 	User     *string                           `cty:"user" hcl:"user"`
 }
 
+type OrgNetworktemplateRoutingPoliciesValue struct {
+	Terms []OrgNetworktemplateTermsValue `cty:"terms" hcl:"terms"`
+}
+
+type OrgNetworktemplateTermsValue struct {
+	Matching                 *OrgNetworktemplateMatchingValue                 `cty:"matching" hcl:"matching"`
+	Name                     string                                           `cty:"name" hcl:"name"`
+	RoutingPolicyTermActions *OrgNetworktemplateRoutingPolicyTermActionsValue `cty:"actions" hcl:"actions"`
+}
+
+type OrgNetworktemplateMatchingValue struct {
+	AsPath    []string `cty:"as_path" hcl:"as_path"`
+	Community []string `cty:"community" hcl:"community"`
+	Prefix    []string `cty:"prefix" hcl:"prefix"`
+	Protocol  []string `cty:"protocol" hcl:"protocol"`
+}
+
+type OrgNetworktemplateRoutingPolicyTermActionsValue struct {
+	Accept          *bool    `cty:"accept" hcl:"accept"`
+	Community       []string `cty:"community" hcl:"community"`
+	LocalPreference *string  `cty:"local_preference" hcl:"local_preference"`
+	PrependAsPath   []string `cty:"prepend_as_path" hcl:"prepend_as_path"`
+}
+
 type OrgNetworktemplateSnmpConfigValue struct {
 	ClientList   []OrgNetworktemplateClientListValue `cty:"client_list" hcl:"client_list"`
 	Contact      *string                             `cty:"contact" hcl:"contact"`
@@ -449,22 +495,23 @@ type OrgNetworktemplateOobIpConfigValue struct {
 }
 
 type OrgNetworktemplatePortConfigValue struct {
-	AeDisableLacp    *bool   `cty:"ae_disable_lacp" hcl:"ae_disable_lacp"`
-	AeIdx            *int64  `cty:"ae_idx" hcl:"ae_idx"`
-	AeLacpSlow       *bool   `cty:"ae_lacp_slow" hcl:"ae_lacp_slow"`
-	Aggregated       *bool   `cty:"aggregated" hcl:"aggregated"`
-	Critical         *bool   `cty:"critical" hcl:"critical"`
-	Description      *string `cty:"description" hcl:"description"`
-	DisableAutoneg   *bool   `cty:"disable_autoneg" hcl:"disable_autoneg"`
-	Duplex           *string `cty:"duplex" hcl:"duplex"`
-	DynamicUsage     *string `cty:"dynamic_usage" hcl:"dynamic_usage"`
-	Esilag           *bool   `cty:"esilag" hcl:"esilag"`
-	Mtu              *int64  `cty:"mtu" hcl:"mtu"`
-	NoLocalOverwrite *bool   `cty:"no_local_overwrite" hcl:"no_local_overwrite"`
-	PoeDisabled      *bool   `cty:"poe_disabled" hcl:"poe_disabled"`
-	PortNetwork      *string `cty:"port_network" hcl:"port_network"`
-	Speed            *string `cty:"speed" hcl:"speed"`
-	Usage            string  `cty:"usage" hcl:"usage"`
+	AeDisableLacp    *bool    `cty:"ae_disable_lacp" hcl:"ae_disable_lacp"`
+	AeIdx            *int64   `cty:"ae_idx" hcl:"ae_idx"`
+	AeLacpSlow       *bool    `cty:"ae_lacp_slow" hcl:"ae_lacp_slow"`
+	Aggregated       *bool    `cty:"aggregated" hcl:"aggregated"`
+	Critical         *bool    `cty:"critical" hcl:"critical"`
+	Description      *string  `cty:"description" hcl:"description"`
+	DisableAutoneg   *bool    `cty:"disable_autoneg" hcl:"disable_autoneg"`
+	Duplex           *string  `cty:"duplex" hcl:"duplex"`
+	DynamicUsage     *string  `cty:"dynamic_usage" hcl:"dynamic_usage"`
+	Esilag           *bool    `cty:"esilag" hcl:"esilag"`
+	Mtu              *int64   `cty:"mtu" hcl:"mtu"`
+	Networks         []string `cty:"networks" hcl:"networks"`
+	NoLocalOverwrite *bool    `cty:"no_local_overwrite" hcl:"no_local_overwrite"`
+	PoeDisabled      *bool    `cty:"poe_disabled" hcl:"poe_disabled"`
+	PortNetwork      *string  `cty:"port_network" hcl:"port_network"`
+	Speed            *string  `cty:"speed" hcl:"speed"`
+	Usage            string   `cty:"usage" hcl:"usage"`
 }
 
 type OrgNetworktemplateStpConfigValue struct {

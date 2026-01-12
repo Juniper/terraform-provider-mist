@@ -74,6 +74,7 @@
       mac_auth_preferred = false
       mac_auth_protocol = "eap-md5"
       port_vlan_id = 100
+      vlan_ids = "10,20,30"
       mx_tunnel_id = "550e8400-e29b-41d4-a716-446655440001"
       wxtunnel_id = "550e8400-e29b-41d4-a716-446655440002"
       dynamic_vlan = {

@@ -72,9 +72,22 @@ func TestUpgradeDeviceModel(t *testing.T) {
 
 func (s *UpgradeDeviceModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+
+	// Required attributes
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")
 	checks.append(t, "TestCheckResourceAttr", "device_id", s.DeviceId)
 	checks.append(t, "TestCheckResourceAttr", "target_version", s.TargetVersion)
+
+	// Computed-only attributes (check presence only)
+	checks.append(t, "TestCheckResourceAttrSet", "auto_upgrade_stat.%")
+	checks.append(t, "TestCheckResourceAttrSet", "config_timestamp")
+	checks.append(t, "TestCheckResourceAttrSet", "config_version")
+	checks.append(t, "TestCheckResourceAttrSet", "device_version")
+	checks.append(t, "TestCheckResourceAttrSet", "ext_ip")
+	checks.append(t, "TestCheckResourceAttrSet", "status")
+	checks.append(t, "TestCheckResourceAttrSet", "tag_id")
+	checks.append(t, "TestCheckResourceAttrSet", "tag_uuid")
+	checks.append(t, "TestCheckResourceAttrSet", "timestamp")
 
 	return checks
 }

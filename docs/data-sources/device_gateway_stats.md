@@ -43,10 +43,10 @@ data "mist_device_gateway_stats" "gateway_stats" {
 ### Optional
 
 - `duration` (String) Duration like 7d, 2w
-- `end` (Number) End datetime, can be epoch or relative time like -1d, -2h; now if not specified
+- `end` (String) End time (epoch timestamp in seconds, or relative string like "-1d", "-2h", "now")
 - `mac` (String)
 - `site_id` (String)
-- `start` (Number) Start datetime, can be epoch or relative time like -1d, -1w; -1d if not specified
+- `start` (String) Start time (epoch timestamp in seconds, or relative string like "-1d", "-1w")
 - `status` (String) enum: `all`, `connected`, `disconnected`
 
 ### Read-Only
@@ -60,16 +60,20 @@ Read-Only:
 
 - `ap_redundancy` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--ap_redundancy))
 - `arp_table_stats` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--arp_table_stats))
+- `auto_upgrade_stat` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--auto_upgrade_stat))
 - `bgp_peers` (Attributes List) Only present when `bgp_peers` in `fields` query parameter. Each port object is same as `GET /api/v1/sites/{site_id}/stats/bgp_peers/search` result object, except that org_id, site_id, mac, model are removed (see [below for nested schema](#nestedatt--device_gateway_stats--bgp_peers))
 - `cert_expiry` (Number)
 - `cluster_config` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--cluster_config))
 - `cluster_stat` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--cluster_stat))
 - `conductor_name` (String)
 - `config_status` (String)
+- `config_timestamp` (Number)
+- `config_version` (Number)
 - `cpu2_stat` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--cpu2_stat))
 - `cpu_stat` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--cpu_stat))
 - `created_time` (Number) When the object has been created, in epoch
 - `deviceprofile_id` (String)
+- `deviceprofile_name` (String)
 - `dhcpd2_stat` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--device_gateway_stats--dhcpd2_stat))
 - `dhcpd_stat` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--device_gateway_stats--dhcpd_stat))
 - `ext_ip` (String) IP address
@@ -85,6 +89,7 @@ Read-Only:
 - `is_ha` (Boolean)
 - `last_seen` (Number) Last seen timestamp
 - `mac` (String) Device mac
+- `mac_table_stats` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--mac_table_stats))
 - `map_id` (String) Serial Number
 - `memory2_stat` (Attributes) Memory usage stat (for virtual chassis, memory usage of master RE) (see [below for nested schema](#nestedatt--device_gateway_stats--memory2_stat))
 - `memory_stat` (Attributes) Memory usage stat (for virtual chassis, memory usage of master RE) (see [below for nested schema](#nestedatt--device_gateway_stats--memory_stat))
@@ -106,6 +111,8 @@ Read-Only:
 - `spu2_stat` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--spu2_stat))
 - `spu_stat` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--spu_stat))
 - `status` (String)
+- `tag_id` (Number)
+- `tag_uuid` (String)
 - `tunnels` (Attributes List) Only present when `tunnels` in `fields` query parameter. Each port object is same as `GET /api/v1/sites/{site_id}/stats/tunnels/search` result object, except that org_id, site_id, mac, model are removed (see [below for nested schema](#nestedatt--device_gateway_stats--tunnels))
 - `uptime` (Number)
 - `version` (String)
@@ -137,6 +144,14 @@ Read-Only:
 
 - `arp_table_count` (Number)
 - `max_entries_supported` (Number)
+
+
+<a id="nestedatt--device_gateway_stats--auto_upgrade_stat"></a>
+### Nested Schema for `device_gateway_stats.auto_upgrade_stat`
+
+Read-Only:
+
+- `lastcheck` (Number)
 
 
 <a id="nestedatt--device_gateway_stats--bgp_peers"></a>
@@ -236,6 +251,7 @@ Read-Only:
 - `interrupt` (Number) Percentage of CPU time being used by interrupts
 - `load_avg` (List of Number) Load averages for the last 1, 5, and 15 minutes
 - `system` (Number) Percentage of CPU time being used by system processes
+- `usage` (Number) CPU usage
 - `user` (Number) Percentage of CPU time being used by user processes
 
 
@@ -248,6 +264,7 @@ Read-Only:
 - `interrupt` (Number) Percentage of CPU time being used by interrupts
 - `load_avg` (List of Number) Load averages for the last 1, 5, and 15 minutes
 - `system` (Number) Percentage of CPU time being used by system processes
+- `usage` (Number) CPU usage
 - `user` (Number) Percentage of CPU time being used by user processes
 
 
@@ -275,7 +292,7 @@ Read-Only:
 Read-Only:
 
 - `progress` (Number)
-- `status` (String) enum: `inprogress`, `failed`, `upgraded`
+- `status` (String) enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`
 - `status_id` (Number)
 - `timestamp` (Number) Epoch (seconds)
 - `will_retry` (Boolean)
@@ -389,6 +406,15 @@ Read-Only:
 - `netmask6` (String)
 
 
+<a id="nestedatt--device_gateway_stats--mac_table_stats"></a>
+### Nested Schema for `device_gateway_stats.mac_table_stats`
+
+Read-Only:
+
+- `mac_table_count` (Number)
+- `max_mac_entries_supported` (Number)
+
+
 <a id="nestedatt--device_gateway_stats--memory2_stat"></a>
 ### Nested Schema for `device_gateway_stats.memory2_stat`
 
@@ -412,13 +438,16 @@ Read-Only:
 
 - `backup_version` (String)
 - `bios_version` (String)
+- `boot_partition` (String)
 - `cpld_version` (String)
 - `fans` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--fans))
 - `fpga_version` (String)
 - `last_seen` (Number) Last seen timestamp
 - `locating` (Boolean)
 - `mac` (String)
+- `memory_stat` (Attributes) Memory usage stat (for virtual chassis, memory usage of master RE) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--memory_stat))
 - `model` (String)
+- `network_resources` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--network_resources))
 - `optics_cpld_version` (String)
 - `pending_version` (String)
 - `poe` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--module2_stat--poe))
@@ -446,7 +475,26 @@ Read-Only:
 
 - `airflow` (String)
 - `name` (String)
+- `rpm` (Number)
 - `status` (String)
+
+
+<a id="nestedatt--device_gateway_stats--module2_stat--memory_stat"></a>
+### Nested Schema for `device_gateway_stats.module2_stat.memory_stat`
+
+Read-Only:
+
+- `usage` (Number)
+
+
+<a id="nestedatt--device_gateway_stats--module2_stat--network_resources"></a>
+### Nested Schema for `device_gateway_stats.module2_stat.network_resources`
+
+Read-Only:
+
+- `count` (Number) current usage of the network resource
+- `limit` (Number) maximum usage of the network resource
+- `type` (String) type of the network resource (e.g. FIB, FLOW, ...)
 
 
 <a id="nestedatt--device_gateway_stats--module2_stat--poe"></a>
@@ -456,6 +504,7 @@ Read-Only:
 
 - `max_power` (Number)
 - `power_draw` (Number)
+- `status` (String)
 
 
 <a id="nestedatt--device_gateway_stats--module2_stat--psus"></a>
@@ -495,13 +544,16 @@ Read-Only:
 
 - `backup_version` (String)
 - `bios_version` (String)
+- `boot_partition` (String)
 - `cpld_version` (String)
 - `fans` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--fans))
 - `fpga_version` (String)
 - `last_seen` (Number) Last seen timestamp
 - `locating` (Boolean)
 - `mac` (String)
+- `memory_stat` (Attributes) Memory usage stat (for virtual chassis, memory usage of master RE) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--memory_stat))
 - `model` (String)
+- `network_resources` (Attributes List) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--network_resources))
 - `optics_cpld_version` (String)
 - `pending_version` (String)
 - `poe` (Attributes) (see [below for nested schema](#nestedatt--device_gateway_stats--module_stat--poe))
@@ -529,7 +581,26 @@ Read-Only:
 
 - `airflow` (String)
 - `name` (String)
+- `rpm` (Number)
 - `status` (String)
+
+
+<a id="nestedatt--device_gateway_stats--module_stat--memory_stat"></a>
+### Nested Schema for `device_gateway_stats.module_stat.memory_stat`
+
+Read-Only:
+
+- `usage` (Number)
+
+
+<a id="nestedatt--device_gateway_stats--module_stat--network_resources"></a>
+### Nested Schema for `device_gateway_stats.module_stat.network_resources`
+
+Read-Only:
+
+- `count` (Number) current usage of the network resource
+- `limit` (Number) maximum usage of the network resource
+- `type` (String) type of the network resource (e.g. FIB, FLOW, ...)
 
 
 <a id="nestedatt--device_gateway_stats--module_stat--poe"></a>
@@ -539,6 +610,7 @@ Read-Only:
 
 - `max_power` (Number)
 - `power_draw` (Number)
+- `status` (String)
 
 
 <a id="nestedatt--device_gateway_stats--module_stat--psus"></a>
@@ -690,6 +762,7 @@ Read-Only:
 - `spu_max_session` (Number)
 - `spu_memory` (Number)
 - `spu_pending_session` (Number)
+- `spu_uptime` (Number)
 - `spu_valid_session` (Number)
 
 
@@ -703,6 +776,7 @@ Read-Only:
 - `spu_max_session` (Number)
 - `spu_memory` (Number)
 - `spu_pending_session` (Number)
+- `spu_uptime` (Number)
 - `spu_valid_session` (Number)
 
 
@@ -738,9 +812,11 @@ Read-Only:
 Read-Only:
 
 - `is_active` (Boolean) Redundancy status of the associated interface
+- `jitter` (Number) Jitter in milliseconds
 - `last_seen` (Number) Last seen timestamp
-- `latency` (Number)
-- `mos` (Number)
+- `latency` (Number) Latency in milliseconds
+- `loss` (Number) Packet loss in percentage
+- `mos` (Number) Mean Opinion Score, a measure of the quality of the VPN link
 - `mtu` (Number)
 - `peer_mac` (String) Peer router mac address
 - `peer_port_id` (String) Peer router device interface

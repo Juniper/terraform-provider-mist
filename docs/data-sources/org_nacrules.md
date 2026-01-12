@@ -39,6 +39,7 @@ Read-Only:
 
 - `created_time` (Number) When the object has been created, in epoch
 - `enabled` (Boolean) Enabled or not
+- `guest_auth_state` (String) Guest portal authorization state. enum: `authorized`, `unknown`
 - `id` (String) Unique ID of the object instance in the Mist Organization
 - `modified_time` (Number) When the object has been modified for the last time, in epoch
 - `name` (String)

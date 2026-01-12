@@ -582,10 +582,8 @@ func (s *DeviceApModel) testChecks(t testing.TB, rType, rName string) testChecks
 			if portCfg.VlanId != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.vlan_id", portPath), fmt.Sprintf("%d", *portCfg.VlanId))
 			}
-			if len(portCfg.VlanIds) > 0 {
-				for i, vlanId := range portCfg.VlanIds {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.vlan_ids.%d", portPath, i), fmt.Sprintf("%d", vlanId))
-				}
+			if portCfg.VlanIds != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.vlan_ids", portPath), *portCfg.VlanIds)
 			}
 			if portCfg.WxtunnelId != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.wxtunnel_id", portPath), *portCfg.WxtunnelId)

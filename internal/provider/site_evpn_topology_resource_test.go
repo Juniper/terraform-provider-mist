@@ -28,7 +28,7 @@ func TestSiteEvpnTopologyModel(t *testing.T) {
 						Name: "Test_EVPN_Topology",
 						// Use a placeholder MAC address for acceptance tests
 						// This won't correspond to a real device but satisfies the schema requirement
-						Switches: map[string]SwitchesValue{
+						Switches: map[string]SiteEvpnTopologySwitchesValue{
 							"000000000001": { // Placeholder MAC for testing
 								Role: "access",
 							},

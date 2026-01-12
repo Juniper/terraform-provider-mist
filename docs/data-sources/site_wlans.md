@@ -41,12 +41,12 @@ Read-Only:
 - `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled
 - `acct_servers` (Attributes List) List of RADIUS accounting servers, optional, order matters where the first one is treated as primary (see [below for nested schema](#nestedatt--site_wlans--acct_servers))
 - `airwatch` (Attributes) Airwatch wlan settings (see [below for nested schema](#nestedatt--site_wlans--airwatch))
-- `allow_ipv6_ndp` (Boolean) Only applicable when limit_bcast==true, which allows or disallows ipv6 Neighbor Discovery packets to go through
-- `allow_mdns` (Boolean) Only applicable when limit_bcast==true, which allows mDNS / Bonjour packets to go through
+- `allow_ipv6_ndp` (Boolean) Only applicable when `limit_bcast`==`true`, which allows or disallows ipv6 Neighbor Discovery packets to go through
+- `allow_mdns` (Boolean) Only applicable when `limit_bcast`==`true`, which allows mDNS / Bonjour packets to go through
 - `allow_ssdp` (Boolean) Only applicable when `limit_bcast`==`true`, which allows SSDP
 - `ap_ids` (List of String) List of device ids
 - `app_limit` (Attributes) Bandwidth limiting for apps (applies to up/down) (see [below for nested schema](#nestedatt--site_wlans--app_limit))
-- `app_qos` (Attributes) APp qos wlan settings (see [below for nested schema](#nestedatt--site_wlans--app_qos))
+- `app_qos` (Attributes) APP qos wlan settings (see [below for nested schema](#nestedatt--site_wlans--app_qos))
 - `apply_to` (String) enum: `aps`, `site`, `wxtags`
 - `arp_filter` (Boolean) Whether to enable smart arp filter
 - `auth` (Attributes) Authentication wlan settings (see [below for nested schema](#nestedatt--site_wlans--auth))
@@ -121,10 +121,10 @@ Read-Only:
 - `portal` (Attributes) Portal wlan settings (see [below for nested schema](#nestedatt--site_wlans--portal))
 - `portal_allowed_hostnames` (List of String) List of hostnames without http(s):// (matched by substring)
 - `portal_allowed_subnets` (List of String) List of CIDRs
-- `portal_api_secret` (String) APi secret (auto-generated) that can be used to sign guest authorization requests
+- `portal_api_secret` (String) API secret (auto-generated) that can be used to sign guest authorization requests, only generated when auth is set to `external`
 - `portal_denied_hostnames` (List of String) List of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames
 - `portal_image` (String) Url of portal background image
-- `portal_sso_url` (String)
+- `portal_sso_url` (String) URL used in the SSO process, auto-generated when auth is set to `sso`
 - `qos` (Attributes) (see [below for nested schema](#nestedatt--site_wlans--qos))
 - `radsec` (Attributes) RadSec settings (see [below for nested schema](#nestedatt--site_wlans--radsec))
 - `rateset` (Attributes Map) Property key is the RF band. enum: `24`, `5`, `6` (see [below for nested schema](#nestedatt--site_wlans--rateset))
@@ -362,6 +362,11 @@ Read-Only:
 
 Read-Only:
 
+- `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled.
+- `auth_servers_retries` (Number) Radius auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. "retries" are set to value of `auth_servers_timeout`. "max-requests" is also set when setting `auth_servers_retries` is set to default value to 3.
+- `auth_servers_timeout` (Number) Radius auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. "quite-period" and "transmit-period" are set to half the value of `auth_servers_timeout`. "supplicant-timeout" is also set when setting `auth_servers_timeout` is set to default value of 10.
+- `coa_enabled` (Boolean) Allows a RADIUS server to dynamically modify the authorization status of a user session.
+- `coa_port` (Number) the communication port used for “Change of Authorization” (CoA) messages
 - `enabled` (Boolean) When enabled:
   * `auth_servers` is ignored
   * `acct_servers` is ignored
@@ -369,6 +374,9 @@ Read-Only:
   * `coa_servers` is ignored
   * `radsec` is ignored
   * `coa_enabled` is assumed
+- `fast_dot1x_timers` (Boolean) If set to true, sets default fast-timers with values calculated from `auth_servers_timeout` and `auth_server_retries`.
+- `network` (String) Which network the mist nac server resides in
+- `source_ip` (String) In case there is a static IP for this network, we can specify it using source ip
 
 
 <a id="nestedatt--site_wlans--portal"></a>
@@ -420,7 +428,7 @@ Read-Only:
 - `passphrase_enabled` (Boolean) Whether password is enabled
 - `passphrase_expire` (Number) Optional if `passphrase_enabled`==`true`. Interval for which guest remains authorized using passphrase auth (in minutes), if not provided, uses `expire`
 - `password` (String, Sensitive) Required if `passphrase_enabled`==`true`.
-- `predefined_sponsors_enabled` (Boolean) Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behaviour is acc to `sponsor_email_domains`
+- `predefined_sponsors_enabled` (Boolean) Whether to show list of sponsor emails mentioned in `sponsors` object as a dropdown. If both `sponsor_notify_all` and `predefined_sponsors_enabled` are false, behavior is acc to `sponsor_email_domains`
 - `predefined_sponsors_hide_email` (Boolean) Whether to hide sponsor’s email from list of sponsors
 - `privacy` (Boolean)
 - `puzzel_password` (String, Sensitive) Required if `sms_provider`==`puzzel`
@@ -429,7 +437,9 @@ Read-Only:
 - `sms_enabled` (Boolean) Whether sms is enabled as a login method
 - `sms_expire` (Number) Optional if `sms_enabled`==`true`. Interval for which guest remains authorized using sms auth (in minutes), if not provided, uses expire`
 - `sms_message_format` (String) Optional if `sms_enabled`==`true`. SMS Message format
-- `sms_provider` (String) Optioanl if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`
+- `sms_provider` (String) Optional if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `smsglobal`, `telstra`, `twilio`
+- `smsglobal_api_key` (String) Required if `sms_provider`==`smsglobal`, Client API Key
+- `smsglobal_api_secret` (String) Required if `sms_provider`==`smsglobal`, Client secret
 - `sponsor_auto_approve` (Boolean) Optional if `sponsor_enabled`==`true`. Whether to automatically approve guest and allow sponsor to revoke guest access, needs predefined_sponsors_enabled enabled and sponsor_notify_all disabled
 - `sponsor_email_domains` (List of String) List of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.
 - `sponsor_enabled` (Boolean) Whether sponsor is enabled
@@ -444,7 +454,7 @@ Read-Only:
 - `sso_default_role` (String) Optional if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched
 - `sso_forced_role` (String) Optional if `wlan_portal_auth`==`sso`
 - `sso_idp_cert` (String) Required if `wlan_portal_auth`==`sso`. IDP Cert (used to verify the signed response)
-- `sso_idp_sign_algo` (String) Optioanl if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`
+- `sso_idp_sign_algo` (String) Optional if `wlan_portal_auth`==`sso`, Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`
 - `sso_idp_sso_url` (String) Required if `wlan_portal_auth`==`sso`, IDP Single-Sign-On URL
 - `sso_issuer` (String) Required if `wlan_portal_auth`==`sso`, IDP issuer URL
 - `sso_nameid_format` (String) Optional if `wlan_portal_auth`==`sso`. enum: `email`, `unspecified`

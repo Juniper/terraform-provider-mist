@@ -34,7 +34,7 @@ data "mist_org_nactags" "nactags" {
 
 ### Optional
 
-- `match` (String) if `type`==`match`, Type of NAC Tag. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
+- `match` (String) if `type`==`match`, Type of NAC Tag. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
 - `name` (String) Name of NAC Tag
 - `type` (String) Type of NAC Tag. enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`
 
@@ -52,14 +52,15 @@ Read-Only:
 - `egress_vlan_names` (List of String) If `type`==`egress_vlan_names`, list of egress vlans to return
 - `gbp_tag` (String)
 - `id` (String) Unique ID of the object instance in the Mist Organization
-- `match` (String) if `type`==`match`. enum: `cert_cn`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
+- `match` (String) if `type`==`match`. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
 - `match_all` (Boolean) This field is applicable only when `type`==`match`
   * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)
   * `true`: means all values should be matched (i.e., match-all behavior)
 
 
-Currently it makes sense to set this field to `true` only if the `match`==`idp_role` or `match`==`usermac_label`
+Currently it makes sense to set this field to `true` only if the `match`==`idp_role`, `match`==`usermac_label` and `edr_status`
 - `modified_time` (Number) When the object has been modified for the last time, in epoch
+- `nacportal_id` (String) If `type`==`redirect_nacportal_id`, the ID of the NAC portal to redirect to
 - `name` (String)
 - `org_id` (String)
 - `radius_attrs` (List of String) If `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field "radius_attrs". 
@@ -70,7 +71,7 @@ Note that it is allowed to have more than one radius_attrs in the result of a gi
 It is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.
 Note that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.
 - `session_timeout` (Number) If `type`==`session_timeout, in seconds
-- `type` (String) enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `session_timeout`, `username_attr`, `vlan`
+- `type` (String) enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `redirect_nacportal_id`, `session_timeout`, `username_attr`, `vlan`
 - `username_attr` (String) enum: `automatic`, `cn`, `dns`, `email`, `upn`
 - `values` (List of String) If `type`==`match`
 - `vlan` (String) If `type`==`vlan`

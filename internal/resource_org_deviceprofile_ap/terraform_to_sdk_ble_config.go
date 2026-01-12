@@ -105,7 +105,7 @@ func bleConfigTerraformToSdk(d BleConfigValue) *models.BleConfig {
 	}
 
 	if d.IbeaconMinor.ValueInt64Pointer() != nil {
-		models.NewOptional(models.ToPointer(int(d.IbeaconMinor.ValueInt64())))
+		data.IbeaconMinor = models.NewOptional(models.ToPointer(int(d.IbeaconMinor.ValueInt64())))
 	}
 
 	if d.IbeaconUuid.ValueStringPointer() != nil {

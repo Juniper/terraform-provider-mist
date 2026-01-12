@@ -39,6 +39,7 @@ data "mist_org_webhooks" "webhooks" {
 
 Read-Only:
 
+- `assetfilter_ids` (List of String) Only if `type`==`asset-raw-rssi`. List of ids to associated asset filters. These filters will be applied to messages routed to a filtered-asset-rssi webhook
 - `created_time` (Number) When the object has been created, in epoch
 - `enabled` (Boolean) Whether webhook is enabled
 - `headers` (Map of String) If `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000

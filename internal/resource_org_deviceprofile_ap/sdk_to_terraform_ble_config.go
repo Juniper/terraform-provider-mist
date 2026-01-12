@@ -109,10 +109,10 @@ func bleConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 	if d.IbeaconFreqMsec != nil {
 		ibeaconFreqMsec = types.Int64Value(int64(*d.IbeaconFreqMsec))
 	}
-	if d.IbeaconMajor.IsValueSet() {
+	if d.IbeaconMajor.Value() != nil {
 		ibeaconMajor = types.Int64Value(int64(*d.IbeaconMajor.Value()))
 	}
-	if d.IbeaconMinor.IsValueSet() {
+	if d.IbeaconMinor.Value() != nil {
 		ibeaconMinor = types.Int64Value(int64(*d.IbeaconMinor.Value()))
 	}
 	if d.IbeaconUuid != nil {

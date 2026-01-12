@@ -250,7 +250,7 @@ Optional:
 - `vlan_id` (Number) Optional to specify the vlan id for a tunnel if forwarding is for `wxtunnel`, `mxtunnel` or `site_mxedge`.
   * if vlan_id is not specified then it will use first one in vlan_ids[] of the mxtunnel.
   * if forwarding == site_mxedge, vlan_ids comes from site_mxedge (`mxtunnels` under site setting)
-- `vlan_ids` (List of Number) If `forwarding`==`limited`
+- `vlan_ids` (String) If `forwarding`==`limited`, comma separated list of additional vlan ids allowed on this port
 - `wxtunnel_id` (String) If `forwarding`==`wxtunnel`, the port is bridged to the vlan of the session
 - `wxtunnel_remote_id` (String) If `forwarding`==`wxtunnel`, the port is bridged to the vlan of the session
 
@@ -383,7 +383,7 @@ Optional:
 - `ant_gain_5` (Number) Antenna gain for 5G - for models with external antenna only
 - `ant_gain_6` (Number) Antenna gain for 6G - for models with external antenna only
 - `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `antenna_select` (String) Antenna Mode for AP which supports selectable antennas. enum: `external`, `internal`
+- `antenna_select` (String) Antenna Mode for AP which supports selectable antennas. enum: `""` (default), `external`, `internal`
 - `band_24` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_24))
 - `band_24_usage` (String) enum: `24`, `5`, `6`, `auto`
 - `band_5` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_5))

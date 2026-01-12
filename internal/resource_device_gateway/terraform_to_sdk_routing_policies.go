@@ -10,8 +10,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func routingPolicyTermActionsTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) *models.RoutingPolicyTermAction {
-	data := models.RoutingPolicyTermAction{}
+func routingPolicyTermActionsTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) *models.GwRoutingPolicyTermAction {
+	data := models.GwRoutingPolicyTermAction{}
 	if d.IsNull() || d.IsUnknown() {
 		return &data
 	} else {
@@ -38,7 +38,7 @@ func routingPolicyTermActionsTerraformToSdk(ctx context.Context, d basetypes.Obj
 			data.ExportCommunities = mistutils.ListOfStringTerraformToSdk(plan.ExportCommunities)
 		}
 		if plan.LocalPreference.ValueStringPointer() != nil {
-			data.LocalPreference = models.ToPointer(plan.LocalPreference.ValueString())
+			data.LocalPreference = models.ToPointer(models.RoutingPolicyLocalPreferenceContainer.FromString(plan.LocalPreference.ValueString()))
 		}
 		if !plan.PrependAsPath.IsNull() && !plan.PrependAsPath.IsUnknown() {
 			data.PrependAsPath = mistutils.ListOfStringTerraformToSdk(plan.PrependAsPath)
@@ -47,8 +47,8 @@ func routingPolicyTermActionsTerraformToSdk(ctx context.Context, d basetypes.Obj
 	}
 }
 
-func routingPolicyTermMatchingRouteExistsTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) *models.RoutingPolicyTermMatchingRouteExists {
-	data := models.RoutingPolicyTermMatchingRouteExists{}
+func routingPolicyTermMatchingRouteExistsTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) *models.GwRoutingPolicyTermMatchingRouteExists {
+	data := models.GwRoutingPolicyTermMatchingRouteExists{}
 	if d.IsNull() || d.IsUnknown() {
 		return &data
 	} else {
@@ -63,8 +63,8 @@ func routingPolicyTermMatchingRouteExistsTerraformToSdk(ctx context.Context, d b
 	}
 }
 
-func routingPolicyTermMatchingVpnPathSlaExistsTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) *models.RoutingPolicyTermMatchingVpnPathSla {
-	data := models.RoutingPolicyTermMatchingVpnPathSla{}
+func routingPolicyTermMatchingVpnPathSlaExistsTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) *models.GwRoutingPolicyTermMatchingVpnPathSla {
+	data := models.GwRoutingPolicyTermMatchingVpnPathSla{}
 	if d.IsNull() || d.IsUnknown() {
 		return &data
 	} else {
@@ -82,14 +82,19 @@ func routingPolicyTermMatchingVpnPathSlaExistsTerraformToSdk(ctx context.Context
 	}
 }
 
-func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) *models.RoutingPolicyTermMatching {
-	data := models.RoutingPolicyTermMatching{}
+func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, d basetypes.ObjectValue) *models.GwRoutingPolicyTermMatching {
+	data := models.GwRoutingPolicyTermMatching{}
 	if d.IsNull() || d.IsUnknown() {
 		return &data
 	} else {
 		plan := NewRoutingPolicyTermMatchingValueMust(d.AttributeTypes(ctx), d.Attributes())
 		if !plan.AsPath.IsNull() && !plan.AsPath.IsUnknown() {
-			data.AsPath = mistutils.ListOfStringTerraformToSdk(plan.AsPath)
+			var items []models.BgpAs
+			for _, item := range plan.AsPath.Elements() {
+				s := item.(basetypes.StringValue)
+				items = append(items, models.BgpAsContainer.FromString(s.ValueString()))
+			}
+			data.AsPath = items
 		}
 		if !plan.Community.IsNull() && !plan.Community.IsUnknown() {
 			data.Community = mistutils.ListOfStringTerraformToSdk(plan.Community)
@@ -101,9 +106,13 @@ func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, d basetypes.Ob
 			data.Prefix = mistutils.ListOfStringTerraformToSdk(plan.Prefix)
 		}
 		if !plan.Protocol.IsNull() && !plan.Protocol.IsUnknown() {
-			data.Protocol = mistutils.ListOfStringTerraformToSdk(plan.Protocol)
+			var items []models.GwRoutingPolicyTermMatchingProtocolEnum
+			for _, item := range plan.Protocol.Elements() {
+				s := item.(basetypes.StringValue)
+				items = append(items, models.GwRoutingPolicyTermMatchingProtocolEnum(s.ValueString()))
+			}
+			data.Protocol = items
 		}
-
 		if !plan.RouteExists.IsNull() && !plan.RouteExists.IsUnknown() {
 			data.RouteExists = routingPolicyTermMatchingRouteExistsTerraformToSdk(ctx, plan.RouteExists)
 		}
@@ -122,12 +131,12 @@ func routingPolicyTermMatchingTerraformToSdk(ctx context.Context, d basetypes.Ob
 	}
 }
 
-func routingPolicyTermTerraformToSdk(ctx context.Context, d basetypes.ListValue) []models.RoutingPolicyTerm {
-	var dataList []models.RoutingPolicyTerm
+func routingPolicyTermTerraformToSdk(ctx context.Context, d basetypes.SetValue) []models.GwRoutingPolicyTerm {
+	var dataList []models.GwRoutingPolicyTerm
 	for _, v := range d.Elements() {
 		var vInterface interface{} = v
 		plan := vInterface.(TermsValue)
-		data := models.RoutingPolicyTerm{}
+		data := models.GwRoutingPolicyTerm{}
 
 		if !plan.Actions.IsNull() && !plan.Actions.IsUnknown() {
 			data.Actions = routingPolicyTermActionsTerraformToSdk(ctx, plan.Actions)
@@ -142,13 +151,13 @@ func routingPolicyTermTerraformToSdk(ctx context.Context, d basetypes.ListValue)
 	return dataList
 }
 
-func routingPoliciesTerraformToSdk(ctx context.Context, d basetypes.MapValue) map[string]models.RoutingPolicy {
-	dataMap := make(map[string]models.RoutingPolicy)
+func routingPoliciesTerraformToSdk(ctx context.Context, d basetypes.MapValue) map[string]models.GwRoutingPolicy {
+	dataMap := make(map[string]models.GwRoutingPolicy)
 	for k, v := range d.Elements() {
 		var vInterface interface{} = v
 		plan := vInterface.(RoutingPoliciesValue)
 
-		data := models.RoutingPolicy{}
+		data := models.GwRoutingPolicy{}
 		if !plan.Terms.IsNull() && !plan.Terms.IsUnknown() {
 			data.Terms = routingPolicyTermTerraformToSdk(ctx, plan.Terms)
 		}
