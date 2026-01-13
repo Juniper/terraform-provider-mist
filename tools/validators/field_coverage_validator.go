@@ -1,3 +1,23 @@
+// Package validators provides utilities for tracking test coverage of Terraform schema fields.
+//
+// The field coverage tracking system helps identify untested schema fields by:
+//  1. Extracting all fields from a resource schema using reflection
+//  2. Intercepting test assertions to mark fields as tested
+//  3. Normalizing field paths to dot notation to handle arrays, maps, and nested structures
+//  4. Generating JSON reports of untested fields
+//
+// Enable tracking by setting the MIST_TRACK_FIELD_COVERAGE environment variable.
+//
+// Example usage:
+//
+//	func TestMyResource(t *testing.T) {
+//	    checks := newTestChecks("mist_my_resource.test")
+//	    TrackFieldCoverage(t, &checks, "my_resource", MyResourceSchema)
+//	    defer FieldCoverageReport(t, &checks)
+//
+//	    // Run tests...
+//	    checks.append(t, "TestCheckResourceAttr", "name", "value")
+//	}
 package validators
 
 import (
@@ -15,6 +35,7 @@ type FieldCoverageTracker struct {
 	NestedMapAttributePaths map[string]bool
 	UnknownFields           []string
 	NormalisedFields        []string
+	ExtractionFailures      []string // Tracks paths where schema extraction failed via reflection
 }
 
 // FieldInfo contains metadata about a schema field
@@ -24,7 +45,7 @@ type FieldInfo struct {
 	Parent     string           // Full parent path ("" for root, "auth.ldap" for nested)
 	Required   bool             // Field is required
 	Optional   bool             // Field is optional
-	Computed   bool             // Field is computed
+	Computed   bool             // Field is computed (auto-populated by provider, intentionally excluded from coverage when Computed-only)
 	AttrType   string           // Semantic type: "string", "bool", "int64", "float64", "list", "map", "nested"
 	SchemaAttr schema.Attribute // The actual schema attribute for future inspection
 	IsTested   bool             // Marked true when test validates this field
@@ -141,20 +162,36 @@ func (t *FieldCoverageTracker) extractFields(path string, attributes map[string]
 		// Handle nested attributes recursively
 		switch v := attr.(type) {
 		case schema.SingleNestedAttribute:
-			if nestedAttrs := getNestedAttributes(v); nestedAttrs != nil {
-				t.extractFields(currentPath, nestedAttrs)
+			nestedAttrs := getNestedAttributes(v)
+			if nestedAttrs == nil {
+				t.ExtractionFailures = append(t.ExtractionFailures, currentPath+" (SingleNestedAttribute)")
+				break
 			}
+			t.extractFields(currentPath, nestedAttrs)
 		case schema.ListNestedAttribute:
-			if nestedAttrs := getListNestedAttributes(v); nestedAttrs != nil {
-				t.extractFields(currentPath, nestedAttrs)
+			nestedAttrs := getListNestedAttributes(v)
+			if nestedAttrs == nil {
+				t.ExtractionFailures = append(t.ExtractionFailures, currentPath+" (ListNestedAttribute)")
+				break
 			}
+			t.extractFields(currentPath, nestedAttrs)
+		case schema.SetNestedAttribute:
+			nestedAttrs := getSetNestedAttributes(v)
+			if nestedAttrs == nil {
+				t.ExtractionFailures = append(t.ExtractionFailures, currentPath+" (SetNestedAttribute)")
+				break
+			}
+			t.extractFields(currentPath, nestedAttrs)
 		case schema.MapNestedAttribute:
-			if nestedAttrs := getMapNestedAttributes(v); nestedAttrs != nil {
-				// Map uses {key} notation in path
-				t.NestedMapAttributePaths[currentPath] = true
-				keyPath := currentPath + ".{key}"
-				t.extractFields(keyPath, nestedAttrs)
+			nestedAttrs := getMapNestedAttributes(v)
+			if nestedAttrs == nil {
+				t.ExtractionFailures = append(t.ExtractionFailures, currentPath+" (MapNestedAttribute)")
+				break
 			}
+			// Map uses {key} notation in path
+			t.NestedMapAttributePaths[currentPath] = true
+			keyPath := currentPath + ".{key}"
+			t.extractFields(keyPath, nestedAttrs)
 		}
 	}
 }
@@ -262,6 +299,31 @@ func getListNestedAttributes(attr schema.ListNestedAttribute) map[string]schema.
 
 // getMapNestedAttributes extracts attributes from a MapNestedAttribute using reflection
 func getMapNestedAttributes(attr schema.MapNestedAttribute) map[string]schema.Attribute {
+	v := reflect.ValueOf(attr)
+	if !v.IsValid() {
+		return nil
+	}
+
+	// Look for NestedObject field first
+	if nestedObjField := v.FieldByName("NestedObject"); nestedObjField.IsValid() && nestedObjField.CanInterface() {
+		nestedObj := nestedObjField.Interface()
+
+		// Get the nested object and look for its Attributes
+		nestedV := reflect.ValueOf(nestedObj)
+		if nestedV.IsValid() && nestedV.Kind() == reflect.Struct {
+			if attributesField := nestedV.FieldByName("Attributes"); attributesField.IsValid() && attributesField.CanInterface() {
+				if attrs, ok := attributesField.Interface().(map[string]schema.Attribute); ok {
+					return attrs
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// getSetNestedAttributes extracts attributes from a SetNestedAttribute using reflection
+func getSetNestedAttributes(attr schema.SetNestedAttribute) map[string]schema.Attribute {
 	v := reflect.ValueOf(attr)
 	if !v.IsValid() {
 		return nil

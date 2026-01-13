@@ -359,11 +359,13 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 	}
 
 	type CoverageReport struct {
-		ResourceName        string   `json:"resource_name"`
-		UntestedFieldsTotal int      `json:"untested_fields"`
-		UntestedFieldsList  []string `json:"untested_fields_list"`
-		UnknownFieldsTotal  int      `json:"unknown_fields"`
-		UnknownFieldsList   []string `json:"unknown_fields_list"`
+		ResourceName                string   `json:"resource_name"`
+		UntestedFieldsCnt           int      `json:"untested_fields_count"`
+		UntestedFields              []string `json:"untested_fields"`
+		UnknownFieldsCnt            int      `json:"unknown_fields_count"`
+		UnknownFields               []string `json:"unknown_fields"`
+		SchemaExtractionFailuresCnt int      `json:"schema_extraction_failures_count"`
+		SchemaExtractionFailures    []string `json:"schema_extraction_failures"`
 	}
 
 	// Build report
@@ -376,11 +378,13 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 
 	sort.Strings(untestedFieldsList)
 	report := CoverageReport{
-		ResourceName:        checks.tracker.ResourceName,
-		UntestedFieldsTotal: len(untestedFieldsList),
-		UntestedFieldsList:  untestedFieldsList,
-		UnknownFieldsTotal:  len(checks.tracker.UnknownFields),
-		UnknownFieldsList:   checks.tracker.UnknownFields,
+		ResourceName:                checks.tracker.ResourceName,
+		UntestedFieldsCnt:           len(untestedFieldsList),
+		UntestedFields:              untestedFieldsList,
+		UnknownFieldsCnt:            len(checks.tracker.UnknownFields),
+		UnknownFields:               checks.tracker.UnknownFields,
+		SchemaExtractionFailuresCnt: len(checks.tracker.ExtractionFailures),
+		SchemaExtractionFailures:    checks.tracker.ExtractionFailures,
 	}
 
 	// Write JSON files to tools/reports directory
