@@ -72,7 +72,7 @@ resource "mist_org_mxedge_inventory" "inventory" {
 resource "mist_org_mxedge_inventory" "inventory" {
   org_id = mist_org.terraform_test.id
   mxedges = {
-    # Set site_id to null or ommit site_id to unassign from site
+    # Set site_id to null or omit site_id to unassign from site
     "00000000-0000-0000-1000-d420b0f003cd" = {
       site_id = null
     }

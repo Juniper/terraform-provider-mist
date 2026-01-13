@@ -29,7 +29,7 @@ func (o ParseUuidValidator) ValidateString(_ context.Context, req validator.Stri
 	if _, err := uuid.Parse(value); err != nil {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(
 			req.Path,
-			"value is not a valid UUID; format is \"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\" (e.g \"550e8400-e29b-41d4-a716-446655440000\")",
+			"value is not a valid UUID; format should be \"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\" (e.g \"550e8400-e29b-41d4-a716-446655440000\")",
 			value,
 		))
 		return

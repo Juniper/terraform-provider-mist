@@ -218,19 +218,18 @@ func (r *orgMxedgeInventoryResource) Delete(ctx context.Context, _ resource.Dele
 
 	// First, unassign all MxEdges that are assigned to sites
 	var assignedMxedgeIds []string
-	var allMxedgeIds []uuid.UUID
+	var allMxedgeIds []string
 
 	for _, mxedgeValue := range state.Mxedges.Elements() {
 		mxedge := mxedgeValue.(resource_org_mxedge_inventory.MxedgesValue)
 		if !mxedge.Id.IsNull() && !mxedge.Id.IsUnknown() {
 			idStr := mxedge.Id.ValueString()
-			if id, err := uuid.Parse(idStr); err == nil {
-				allMxedgeIds = append(allMxedgeIds, id)
-				// Check if the MxEdge is assigned to a site
-				if !mxedge.SiteId.IsNull() && !mxedge.SiteId.IsUnknown() && mxedge.SiteId.ValueString() != "" {
-					assignedMxedgeIds = append(assignedMxedgeIds, idStr)
-				}
+			allMxedgeIds = append(allMxedgeIds, idStr)
+			// Check if the MxEdge is assigned to a site
+			if !mxedge.SiteId.IsNull() && !mxedge.SiteId.IsUnknown() && mxedge.SiteId.ValueString() != "" {
+				assignedMxedgeIds = append(assignedMxedgeIds, idStr)
 			}
+
 		}
 	}
 
@@ -261,7 +260,7 @@ func (r *orgMxedgeInventoryResource) updateInventory(
 	idToMagic map[string]string,
 ) {
 
-	claim, unassign, assignClaim, assign, e := resource_org_mxedge_inventory.TerraformToSdk(state, plan)
+	claim, unclaim, unassign, assignClaim, assign, e := resource_org_mxedge_inventory.TerraformToSdk(state, plan)
 	if e != nil {
 		diags.Append(e...)
 		return
@@ -293,6 +292,10 @@ func (r *orgMxedgeInventoryResource) updateInventory(
 			}
 		}
 		tflog.Debug(ctx, "MxEdges claimed, assignments added to assign map")
+	}
+	///////////////////// UNCLAIM
+	if len(unclaim) > 0 {
+		r.deleteMxedges(diags, ctx, *orgId, unclaim)
 	}
 	/////////////////////// UNASSIGN
 	if len(unassign) > 0 {
@@ -340,6 +343,13 @@ func (r *orgMxedgeInventoryResource) refreshInventory(
 			)
 			return state
 		}
+		if data.Response == nil {
+			diags.AddError(
+				"Error refreshing MxEdge Inventory",
+				"Received nil response from API",
+			)
+			return state
+		}
 
 		limitString := data.Response.Header.Get("X-Page-Limit")
 		if limit, err = strconv.Atoi(limitString); err != nil {
@@ -382,6 +392,20 @@ func (r *orgMxedgeInventoryResource) claimMxedges(
 	if len(claim) > 0 {
 		//claimResponse, err := r.client.OrgsMxEdges().ClaimOrgMxEdge(ctx, orgId, claim)
 		claimResponse, err := r.client.OrgsInventory().AddOrgInventory(ctx, orgId, claim)
+		if err != nil {
+			diags.AddError(
+				"Error Claiming MxEdges to the Org Inventory",
+				"Unable to claim MxEdges, unexpected error: "+err.Error(),
+			)
+			return
+		}
+		if claimResponse.Response == nil {
+			diags.AddError(
+				"Error Claiming MxEdges to the Org Inventory",
+				"Received nil response from API",
+			)
+			return
+		}
 
 		if claimResponse.Response.StatusCode != 200 {
 			apiErr := mistapierror.ProcessApiError(claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
@@ -391,18 +415,41 @@ func (r *orgMxedgeInventoryResource) claimMxedges(
 					fmt.Sprintf("Unable to claim MxEdges %v. %s", claim, apiErr),
 				)
 			}
-		} else if err != nil {
-			diags.AddError(
-				"Error Claiming MxEdges to the Org Inventory",
-				"Unable to claim MxEdges, unexpected error: "+err.Error(),
-			)
 		} else {
 			// Extract ID from response body using the structured response
 			if claimResponse.Data.InventoryAdded != nil {
 				for _, addedItem := range claimResponse.Data.InventoryAdded {
 					if addedItem.Magic != "" && addedItem.Mac != "" {
-						id := "00000000-0000-0000-1000-" + strings.ToUpper(addedItem.Mac)
-						idToMagic[id] = addedItem.Magic
+						// Clean MAC address by removing common separators
+						cleanMac := strings.ReplaceAll(addedItem.Mac, ":", "")
+						cleanMac = strings.ReplaceAll(cleanMac, "-", "")
+						cleanMac = strings.ToLower(cleanMac)
+
+						// Validate MAC is 12 hex characters
+						if len(cleanMac) != 12 {
+							tflog.Warn(ctx, "Invalid MAC address length", map[string]interface{}{
+								"mac":       addedItem.Mac,
+								"clean_mac": cleanMac,
+								"expected":  12,
+								"actual":    len(cleanMac),
+							})
+							continue
+						}
+
+						// Construct UUID: 00000000-0000-0000-1000-{MAC}
+						uuidStr := fmt.Sprintf("00000000-0000-0000-1000-%s", cleanMac)
+
+						// Validate the constructed UUID
+						if _, err := uuid.Parse(uuidStr); err != nil {
+							tflog.Warn(ctx, "Failed to construct valid UUID from MAC", map[string]interface{}{
+								"mac":      addedItem.Mac,
+								"uuid_str": uuidStr,
+								"error":    err.Error(),
+							})
+							continue
+						}
+
+						idToMagic[strings.ToUpper(uuidStr)] = addedItem.Magic
 					}
 				}
 			}
@@ -419,12 +466,35 @@ func (r *orgMxedgeInventoryResource) deleteMxedges(
 	diags *diag.Diagnostics,
 	ctx context.Context,
 	orgId uuid.UUID,
-	mxedgeIds []uuid.UUID,
+	mxedgeIds []string,
 ) {
 	tflog.Debug(ctx, "Starting to Delete MxEdges: ", map[string]interface{}{"count": len(mxedgeIds)})
 
-	for _, mxedgeId := range mxedgeIds {
+	for _, mxedgeIdString := range mxedgeIds {
+		mxedgeId, err := uuid.Parse(mxedgeIdString)
+		if err != nil {
+			diags.AddError(
+				"Invalid MxEdge ID",
+				fmt.Sprintf("Unable to parse the MxEdge ID \"%s\": %s", mxedgeIdString, err.Error()),
+			)
+			continue
+		}
+
 		httpr, err := r.client.OrgsMxEdges().DeleteOrgMxEdge(ctx, orgId, mxedgeId)
+		if err != nil {
+			diags.AddError(
+				"Error Deleting MxEdge from the Org",
+				fmt.Sprintf("Unable to delete MxEdge %s, unexpected error: %s", mxedgeId.String(), err.Error()),
+			)
+			continue
+		}
+		if httpr == nil {
+			diags.AddError(
+				"Error Deleting MxEdge from the Org",
+				fmt.Sprintf("Received nil response when deleting MxEdge %s", mxedgeId.String()),
+			)
+			continue
+		}
 
 		// Only report errors if status is not 200 (success) and not 404 (already deleted)
 		if httpr.StatusCode != 200 && httpr.StatusCode != 404 {
@@ -466,6 +536,20 @@ func (r *orgMxedgeInventoryResource) unassignMxedges(
 	}
 
 	unassignResponse, err := r.client.OrgsMxEdges().UnassignOrgMxEdgeFromSite(ctx, orgId, &unassignBody)
+	if err != nil {
+		diags.AddError(
+			"Error when unassigning MxEdges from Sites",
+			"Unable to unassign the MxEdges, unexpected error: "+err.Error(),
+		)
+		return
+	}
+	if unassignResponse.Response == nil {
+		diags.AddError(
+			"Error when unassigning MxEdges from Sites",
+			"Received nil response from API",
+		)
+		return
+	}
 
 	// Check if response body indicates "nothing assigned" which is acceptable (not an error)
 	bodyBytes, readErr := io.ReadAll(unassignResponse.Response.Body)
@@ -487,11 +571,6 @@ func (r *orgMxedgeInventoryResource) unassignMxedges(
 				apiErr,
 			)
 		}
-	} else if err != nil {
-		diags.AddError(
-			"Error when unassigning MxEdges from Sites",
-			"Unable to unassign the MxEdges, unexpected error: "+err.Error(),
-		)
 	} else {
 		tflog.Debug(ctx, "Response for API Call to unassign MxEdges:", map[string]interface{}{
 			"success": unassignResponse.Data.Success,
@@ -529,6 +608,21 @@ func (r *orgMxedgeInventoryResource) assignMxedges(
 		}
 
 		assignResponse, err := r.client.OrgsMxEdges().AssignOrgMxEdgeToSite(ctx, orgId, &assignBody)
+		if err != nil {
+			diags.AddError(
+				"Error when assigning MxEdges to a Site",
+				"Unable to assign the MxEdges, unexpected error: "+err.Error(),
+			)
+			continue
+		}
+		if assignResponse.Response == nil {
+			diags.AddError(
+				"Error when assigning MxEdges to a Site",
+				"Received nil response from API",
+			)
+			continue
+		}
+
 		if assignResponse.Response.StatusCode != 200 {
 			apiErr := mistapierror.ProcessApiError(assignResponse.Response.StatusCode, assignResponse.Response.Body, err)
 			if apiErr != "" {
@@ -537,11 +631,6 @@ func (r *orgMxedgeInventoryResource) assignMxedges(
 					apiErr,
 				)
 			}
-		} else if err != nil {
-			diags.AddError(
-				"Error when assigning MxEdges to a Site",
-				"Unable to assign the MxEdges, unexpected error: "+err.Error(),
-			)
 		}
 
 		tflog.Debug(ctx, "Response for API Call to assign MxEdges:", map[string]interface{}{
