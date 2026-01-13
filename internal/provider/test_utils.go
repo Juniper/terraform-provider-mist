@@ -383,8 +383,8 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 		UntestedFields:              untestedFieldsList,
 		UnknownFieldsCnt:            len(checks.tracker.UnknownFields),
 		UnknownFields:               checks.tracker.UnknownFields,
-		SchemaExtractionFailuresCnt: len(checks.tracker.ExtractionFailures),
-		SchemaExtractionFailures:    checks.tracker.ExtractionFailures,
+		SchemaExtractionFailuresCnt: len(checks.tracker.SchemaExtractionFailures),
+		SchemaExtractionFailures:    checks.tracker.SchemaExtractionFailures,
 	}
 
 	// Write JSON files to tools/reports directory

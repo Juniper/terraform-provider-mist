@@ -30,12 +30,12 @@ import (
 
 // FieldCoverageTracker tracks schema fields and their test coverage
 type FieldCoverageTracker struct {
-	ResourceName            string
-	SchemaFields            map[string]*FieldInfo
-	NestedMapAttributePaths map[string]bool
-	UnknownFields           []string
-	NormalisedFields        []string
-	ExtractionFailures      []string // Tracks paths where schema extraction failed via reflection
+	ResourceName             string
+	SchemaFields             map[string]*FieldInfo
+	NestedMapAttributePaths  map[string]bool
+	UnknownFields            []string
+	NormalisedFields         []string
+	SchemaExtractionFailures []string // Tracks paths where schema extraction failed via reflection
 }
 
 // FieldInfo contains metadata about a schema field
@@ -164,28 +164,28 @@ func (t *FieldCoverageTracker) extractFields(path string, attributes map[string]
 		case schema.SingleNestedAttribute:
 			nestedAttrs := getNestedAttributes(v)
 			if nestedAttrs == nil {
-				t.ExtractionFailures = append(t.ExtractionFailures, currentPath+" (SingleNestedAttribute)")
+				t.SchemaExtractionFailures = append(t.SchemaExtractionFailures, currentPath+" (SingleNestedAttribute)")
 				break
 			}
 			t.extractFields(currentPath, nestedAttrs)
 		case schema.ListNestedAttribute:
 			nestedAttrs := getListNestedAttributes(v)
 			if nestedAttrs == nil {
-				t.ExtractionFailures = append(t.ExtractionFailures, currentPath+" (ListNestedAttribute)")
+				t.SchemaExtractionFailures = append(t.SchemaExtractionFailures, currentPath+" (ListNestedAttribute)")
 				break
 			}
 			t.extractFields(currentPath, nestedAttrs)
 		case schema.SetNestedAttribute:
 			nestedAttrs := getSetNestedAttributes(v)
 			if nestedAttrs == nil {
-				t.ExtractionFailures = append(t.ExtractionFailures, currentPath+" (SetNestedAttribute)")
+				t.SchemaExtractionFailures = append(t.SchemaExtractionFailures, currentPath+" (SetNestedAttribute)")
 				break
 			}
 			t.extractFields(currentPath, nestedAttrs)
 		case schema.MapNestedAttribute:
 			nestedAttrs := getMapNestedAttributes(v)
 			if nestedAttrs == nil {
-				t.ExtractionFailures = append(t.ExtractionFailures, currentPath+" (MapNestedAttribute)")
+				t.SchemaExtractionFailures = append(t.SchemaExtractionFailures, currentPath+" (MapNestedAttribute)")
 				break
 			}
 			// Map uses {key} notation in path
