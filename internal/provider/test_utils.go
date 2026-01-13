@@ -369,20 +369,27 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 	}
 
 	// Build report
-	untestedFieldsList := make([]string, 0)
+	untestedFields := make([]string, 0)
 	for path, field := range checks.tracker.SchemaFields {
 		if !field.Computed && !field.IsTested && !isContainerType(field.SchemaAttr) {
-			untestedFieldsList = append(untestedFieldsList, path)
+			untestedFields = append(untestedFields, path)
 		}
 	}
 
-	sort.Strings(untestedFieldsList)
+	// Convert unknown fields map to sorted slice
+	unknownFields := make([]string, 0, len(checks.tracker.UnknownFields))
+	for path := range checks.tracker.UnknownFields {
+		unknownFields = append(unknownFields, path)
+	}
+	sort.Strings(unknownFields)
+
+	sort.Strings(untestedFields)
 	report := CoverageReport{
 		ResourceName:                checks.tracker.ResourceName,
-		UntestedFieldsCnt:           len(untestedFieldsList),
-		UntestedFields:              untestedFieldsList,
-		UnknownFieldsCnt:            len(checks.tracker.UnknownFields),
-		UnknownFields:               checks.tracker.UnknownFields,
+		UntestedFieldsCnt:           len(untestedFields),
+		UntestedFields:              untestedFields,
+		UnknownFieldsCnt:            len(unknownFields),
+		UnknownFields:               unknownFields,
 		SchemaExtractionFailuresCnt: len(checks.tracker.SchemaExtractionFailures),
 		SchemaExtractionFailures:    checks.tracker.SchemaExtractionFailures,
 	}

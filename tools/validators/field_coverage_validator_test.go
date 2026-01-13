@@ -286,6 +286,7 @@ func TestNormalizeFieldPath(t *testing.T) {
 				ResourceName:            "test_resource",
 				SchemaFields:            tt.schemaFields,
 				NestedMapAttributePaths: tt.mapAttributePaths,
+				UnknownFields:           make(map[string]bool),
 			}
 
 			result := tracker.normalizeFieldPath(tt.inputPath)
@@ -337,6 +338,7 @@ func TestMarkFieldAsTested(t *testing.T) {
 				NestedMapAttributePaths: map[string]bool{
 					"networks": true,
 				},
+				UnknownFields: make(map[string]bool),
 			}
 
 			tracker.MarkFieldAsTested(tt.testPath)
