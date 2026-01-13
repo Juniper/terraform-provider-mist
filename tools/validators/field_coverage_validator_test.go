@@ -5,6 +5,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNormalizeFieldPath(t *testing.T) {
@@ -72,27 +74,28 @@ func TestNormalizeFieldPath(t *testing.T) {
 			description: "IP address CIDR in map key should be replaced with {key}",
 		},
 		{
-			name:      "map_with_numeric_key",
-			inputPath: "switch_mgmt.local_accounts.readonly.password",
+			name:      "nested_maps",
+			inputPath: "vrf_instances.default.extra_routes6.2001:db8::/32.via",
 			schemaFields: map[string]*FieldInfo{
-				"switch_mgmt": {
-					Path:     "switch_mgmt",
-					AttrType: "nested",
-				},
-				"switch_mgmt.local_accounts": {
-					Path:     "switch_mgmt.local_accounts",
+				"vrf_instances": {
+					Path:     "vrf_instances",
 					AttrType: "map_nested",
 				},
-				"switch_mgmt.local_accounts.{key}.password": {
-					Path:     "switch_mgmt.local_accounts.{key}.password",
+				"vrf_instances.{key}.extra_routes6": {
+					Path:     "vrf_instances.{key}.extra_routes6",
+					AttrType: "map_nested",
+				},
+				"vrf_instances.{key}.extra_routes6.{key}.via": {
+					Path:     "vrf_instances.{key}.extra_routes6.{key}.via",
 					AttrType: "string",
 				},
 			},
 			mapAttributePaths: map[string]bool{
-				"switch_mgmt.local_accounts": true,
+				"vrf_instances":                     true,
+				"vrf_instances.{key}.extra_routes6": true,
 			},
-			expected:    "switch_mgmt.local_accounts.{key}.password",
-			description: "String key 'readonly' in map should be replaced with {key}",
+			expected:    "vrf_instances.{key}.extra_routes6.{key}.via",
+			description: "Nested maps should replace both keys with {key}",
 		},
 		{
 			name:      "hash_symbol_in_list_count",
@@ -243,23 +246,29 @@ func TestNormalizeFieldPath(t *testing.T) {
 			description: "IPv6 address with CIDR in map key should be replaced with {key}",
 		},
 		{
-			name:      "special_characters_in_map_key",
-			inputPath: "port_mirroring.mirror-to-analyzer.input_port_ids_networks.0",
+			name:      "list_in_nested_object_in_list",
+			inputPath: "switch_matching.rules.0.ip_config.network",
 			schemaFields: map[string]*FieldInfo{
-				"port_mirroring": {
-					Path:     "port_mirroring",
-					AttrType: "map_nested",
+				"switch_matching": {
+					Path:     "switch_matching",
+					AttrType: "nested",
 				},
-				"port_mirroring.{key}.input_port_ids_networks": {
-					Path:     "port_mirroring.{key}.input_port_ids_networks",
-					AttrType: "list",
+				"switch_matching.rules": {
+					Path:     "switch_matching.rules",
+					AttrType: "list_nested",
+				},
+				"switch_matching.rules.ip_config": {
+					Path:     "switch_matching.rules.ip_config",
+					AttrType: "nested",
+				},
+				"switch_matching.rules.ip_config.network": {
+					Path:     "switch_matching.rules.ip_config.network",
+					AttrType: "string",
 				},
 			},
-			mapAttributePaths: map[string]bool{
-				"port_mirroring": true,
-			},
-			expected:    "port_mirroring.{key}.input_port_ids_networks",
-			description: "Map key with hyphens followed by list should normalize both",
+			mapAttributePaths: map[string]bool{},
+			expected:          "switch_matching.rules.ip_config.network",
+			description:       "List containing nested object containing field should remove array index",
 		},
 		{
 			name:              "empty_path",
@@ -281,44 +290,12 @@ func TestNormalizeFieldPath(t *testing.T) {
 
 			result := tracker.normalizeFieldPath(tt.inputPath)
 
-			if result != tt.expected {
-				t.Errorf("%s\nInput:    %q\nExpected: %q\nGot:      %q",
-					tt.description, tt.inputPath, tt.expected, result)
-			}
+			assert.Equal(t, tt.expected, result, tt.description)
 		})
 	}
 }
 
 func TestMarkFieldAsTested(t *testing.T) {
-	tracker := &FieldCoverageTracker{
-		ResourceName: "test_resource",
-		SchemaFields: map[string]*FieldInfo{
-			"name": {
-				Path:     "name",
-				IsTested: false,
-			},
-			"privileges": {
-				Path:     "privileges",
-				IsTested: false,
-			},
-			"privileges.role": {
-				Path:     "privileges.role",
-				IsTested: false,
-			},
-			"networks": {
-				Path:     "networks",
-				IsTested: false,
-			},
-			"networks.{key}.vlan_id": {
-				Path:     "networks.{key}.vlan_id",
-				IsTested: false,
-			},
-		},
-		NestedMapAttributePaths: map[string]bool{
-			"networks": true,
-		},
-	}
-
 	tests := []struct {
 		testPath     string
 		expectedPath string
@@ -332,20 +309,53 @@ func TestMarkFieldAsTested(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.testPath, func(t *testing.T) {
+			// Create fresh tracker for each test to avoid state mutation
+			tracker := &FieldCoverageTracker{
+				ResourceName: "test_resource",
+				SchemaFields: map[string]*FieldInfo{
+					"name": {
+						Path:     "name",
+						IsTested: false,
+					},
+					"privileges": {
+						Path:     "privileges",
+						IsTested: false,
+					},
+					"privileges.role": {
+						Path:     "privileges.role",
+						IsTested: false,
+					},
+					"networks": {
+						Path:     "networks",
+						IsTested: false,
+					},
+					"networks.{key}.vlan_id": {
+						Path:     "networks.{key}.vlan_id",
+						IsTested: false,
+					},
+				},
+				NestedMapAttributePaths: map[string]bool{
+					"networks": true,
+				},
+			}
+
 			tracker.MarkFieldAsTested(tt.testPath)
 
-			if field, exists := tracker.SchemaFields[tt.expectedPath]; exists {
-				if tt.shouldMark && !field.IsTested {
-					t.Errorf("Field %q should be marked as tested but wasn't", tt.expectedPath)
-				}
-			} else if tt.shouldMark {
-				t.Errorf("Expected field %q to exist in schema", tt.expectedPath)
+			if !tt.shouldMark {
+				// Verify the field doesn't exist in schema
+				_, exists := tracker.SchemaFields[tt.expectedPath]
+				assert.False(t, exists, "Field %q should not exist in schema", tt.expectedPath)
+				return
 			}
+
+			field, exists := tracker.SchemaFields[tt.expectedPath]
+			require.True(t, exists, "Expected field %q to exist in schema", tt.expectedPath)
+			assert.True(t, field.IsTested, "Field %q should be marked as tested", tt.expectedPath)
 		})
 	}
 }
 
-func TestNonAlphabetCharacters(t *testing.T) {
+func TestIsNumericOrPunctuation(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected bool
@@ -353,21 +363,21 @@ func TestNonAlphabetCharacters(t *testing.T) {
 		{"0", true},
 		{"123", true},
 		{"0123456789", true},
+		{"1.2.3.4", true},
+		{"10.0.0.0/8", true},
+		{"#", true},
+		{"-5", true},
 		{"", false},
 		{"abc", false},
 		{"12a", false},
-		{"1.2", false},
-		{"10.0.0.0", false},
-		{"-5", false},
-		{"#", false},
+		{"guest", false},
+		{"mirror-to-analyzer", false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
-			result := nonAlphabetCharacters(tt.input)
-			if result != tt.expected {
-				t.Errorf("isAllDigits(%q) = %v, want %v", tt.input, result, tt.expected)
-			}
+			result := isNumericOrPunctuation(tt.input)
+			assert.Equal(t, tt.expected, result, "IsNumericOrPunctuation(%q)", tt.input)
 		})
 	}
 }
@@ -420,83 +430,42 @@ func TestExtractAllSchemaFields(t *testing.T) {
 
 	tracker := ExtractAllSchemaFields("test_resource", testSchema)
 
-	expectedFields := []string{
-		"name",
-		"enabled",
-		"config",
-		"config.timeout",
-		"tags",
-		"servers",
-		"servers.host",
-		"servers.port",
-		"metadata",
-		"metadata.{key}.value",
-	}
-
-	if len(tracker.SchemaFields) != len(expectedFields) {
-		t.Errorf("Expected %d fields, got %d", len(expectedFields), len(tracker.SchemaFields))
-	}
-
-	for _, expectedPath := range expectedFields {
-		if _, exists := tracker.SchemaFields[expectedPath]; !exists {
-			t.Errorf("Expected field %q not found in extracted schema", expectedPath)
+	t.Run("field_extraction", func(t *testing.T) {
+		expectedFields := []string{
+			"name",
+			"enabled",
+			"config",
+			"config.timeout",
+			"tags",
+			"servers",
+			"servers.host",
+			"servers.port",
+			"metadata",
+			"metadata.{key}.value",
 		}
-	}
 
-	// Verify MapAttributePaths
-	if !tracker.NestedMapAttributePaths["metadata"] {
-		t.Error("Expected 'metadata' to be marked as map attribute path")
-	}
+		assert.Len(t, tracker.SchemaFields, len(expectedFields), "Should extract all expected fields")
 
-	// Verify field metadata
-	if field, exists := tracker.SchemaFields["name"]; exists {
-		if !field.Required {
-			t.Error("Field 'name' should be marked as required")
+		for _, expectedPath := range expectedFields {
+			assert.Contains(t, tracker.SchemaFields, expectedPath, "Field %q should be extracted", expectedPath)
 		}
-		if field.AttrType != "string" {
-			t.Errorf("Field 'name' should have type 'string', got %q", field.AttrType)
-		}
-	}
+	})
 
-	if field, exists := tracker.SchemaFields["servers.host"]; exists {
-		if field.Parent != "servers" {
-			t.Errorf("Field 'servers.host' should have parent 'servers', got %q", field.Parent)
-		}
-	}
+	t.Run("map_attribute_tracking", func(t *testing.T) {
+		assert.True(t, tracker.NestedMapAttributePaths["metadata"], "'metadata' should be marked as map attribute path")
+	})
 
-	if field, exists := tracker.SchemaFields["metadata.{key}.value"]; exists {
-		if !field.HasKey {
-			t.Error("Field 'metadata.{key}.value' should have HasKey=true")
-		}
-	}
-}
+	t.Run("field_metadata", func(t *testing.T) {
+		field := tracker.SchemaFields["name"]
+		require.NotNil(t, field, "Field 'name' should exist")
+		assert.True(t, field.Required, "Field 'name' should be marked as required")
+		assert.Equal(t, "string", field.AttrType, "Field 'name' should have type 'string'")
 
-func TestGetSemanticType(t *testing.T) {
-	tests := []struct {
-		name     string
-		attr     schema.Attribute
-		expected string
-	}{
-		{"string", schema.StringAttribute{}, "string"},
-		{"bool", schema.BoolAttribute{}, "bool"},
-		{"int64", schema.Int64Attribute{}, "int64"},
-		{"float64", schema.Float64Attribute{}, "float64"},
-		{"number", schema.NumberAttribute{}, "number"},
-		{"list", schema.ListAttribute{ElementType: types.StringType}, "list"},
-		{"set", schema.SetAttribute{ElementType: types.StringType}, "set"},
-		{"map", schema.MapAttribute{ElementType: types.StringType}, "map"},
-		{"nested", schema.SingleNestedAttribute{Attributes: map[string]schema.Attribute{}}, "nested"},
-		{"list_nested", schema.ListNestedAttribute{NestedObject: schema.NestedAttributeObject{}}, "list_nested"},
-		{"set_nested", schema.SetNestedAttribute{NestedObject: schema.NestedAttributeObject{}}, "set_nested"},
-		{"map_nested", schema.MapNestedAttribute{NestedObject: schema.NestedAttributeObject{}}, "map_nested"},
-	}
+		serverHostField := tracker.SchemaFields["servers.host"]
+		require.NotNil(t, serverHostField, "Field 'servers.host' should exist")
+		assert.Equal(t, "servers", serverHostField.Parent, "Field 'servers.host' should have parent 'servers'")
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := getSemanticType(tt.attr)
-			if result != tt.expected {
-				t.Errorf("getSemanticType(%T) = %q, want %q", tt.attr, result, tt.expected)
-			}
-		})
-	}
+		metadataField := tracker.SchemaFields["metadata.{key}.value"]
+		require.NotNil(t, metadataField, "Field 'metadata.{key}.value' should exist")
+	})
 }

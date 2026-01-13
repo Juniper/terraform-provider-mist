@@ -1,7 +1,6 @@
 package validators
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 	"unicode"
@@ -14,6 +13,7 @@ type FieldCoverageTracker struct {
 	ResourceName            string
 	SchemaFields            map[string]*FieldInfo
 	NestedMapAttributePaths map[string]bool
+	UnknownFields           []string
 	NormalisedFields        []string
 }
 
@@ -22,7 +22,6 @@ type FieldInfo struct {
 	Path       string           // Field path in dot notation (e.g., "ldap_server_hosts", "auth.ldap.bind_dn")
 	Field      string           // Field name only (e.g., "bind_dn")
 	Parent     string           // Full parent path ("" for root, "auth.ldap" for nested)
-	HasKey     bool             // Indicates if field has a {key}.
 	Required   bool             // Field is required
 	Optional   bool             // Field is optional
 	Computed   bool             // Field is computed
@@ -43,7 +42,8 @@ func NewFieldCoverageTracker(resourceName string) *FieldCoverageTracker {
 // MarkFieldAsTested marks a field as tested, normalizing the field path to remove array indices
 func (t *FieldCoverageTracker) MarkFieldAsTested(fieldPath string) {
 	normalized := t.normalizeFieldPath(fieldPath)
-	if field, exists := t.SchemaFields[normalized]; exists {
+	field, exists := t.SchemaFields[normalized]
+	if exists {
 		field.IsTested = true
 	}
 	t.NormalisedFields = append(t.NormalisedFields, normalized)
@@ -56,46 +56,47 @@ func (t *FieldCoverageTracker) MarkFieldAsTested(fieldPath string) {
 //   - "extra_routes.10.0.0.0/8.via" -> "extra_routes.{key}.via"
 //   - "networks.guest.vlan_id" -> "networks.{key}.vlan_id"
 func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
-	fmt.Println("Starting normilisation process for field path:", fieldPath)
-
 	parts := strings.Split(fieldPath, ".")
 	normalized := make([]string, 0, len(parts))
 
-	for i, part := range parts {
-		fmt.Printf("Part %d: %s\n", i, part)
+	for i := 0; i < len(parts); i++ {
+		part := parts[i]
+		parentPath := strings.Join(normalized, ".")
 
-		// Build the parent path to check context
-		path := strings.Join(normalized, ".")
-		if part == "#" || (nonAlphabetCharacters(part) && !t.NestedMapAttributePaths[path]) { // Skip array indices. If part contains non-Alphabet characters but is not a map key, skip it.
-			fmt.Printf("Part is an array index, skipping: %s\n", part)
+		// Skip array indices (#, or pure digits/punctuation when not in map context)
+		if part == "#" || (isNumericOrPunctuation(part) && !t.NestedMapAttributePaths[parentPath]) {
 			continue
 		}
 
-		// Check if full path exists in schema
-		pathCheck := strings.Join(append(normalized, part), ".")
-		fmt.Printf("Path check: %s\n", pathCheck)
-		if _, exists := t.SchemaFields[pathCheck]; exists {
+		// Check if this completes a known schema path
+		testPath := parentPath
+		if testPath != "" {
+			testPath += "."
+		}
+		testPath += part
+
+		_, exists := t.SchemaFields[testPath]
+		if exists {
 			normalized = append(normalized, part)
 			continue
 		}
 
-		// Check if path with {key} exists in schema (for nested map attributes)
-		fmt.Printf("Key path check: %s\n", path)
-		if t.NestedMapAttributePaths[path] {
+		// Replace with {key} if parent is a map
+		if t.NestedMapAttributePaths[parentPath] {
 			normalized = append(normalized, "{key}")
 			continue
 		}
 
-		// Default: keep the part as is (could be a new field not in schema)
+		// Unknown field - keep as-is
 		normalized = append(normalized, part)
-		fmt.Printf("ERROR: %s\n", part)
+		t.UnknownFields = append(t.UnknownFields, fieldPath)
 	}
 
 	return strings.Join(normalized, ".")
 }
 
-// nonAlphabetCharacters checks if a string contains only numeric digits
-func nonAlphabetCharacters(s string) bool {
+// isNumericOrPunctuation checks if a string contains only numeric digits and punctuation
+func isNumericOrPunctuation(s string) bool {
 	if len(s) == 0 {
 		return false
 	}
@@ -111,12 +112,12 @@ func nonAlphabetCharacters(s string) bool {
 // and returns a populated FieldCoverageTracker
 func ExtractAllSchemaFields(resourceName string, schemaAttrs map[string]schema.Attribute) *FieldCoverageTracker {
 	tracker := NewFieldCoverageTracker(resourceName)
-	tracker.extractFields("", false, schemaAttrs)
+	tracker.extractFields("", schemaAttrs)
 	return tracker
 }
 
 // extractFields recursively extracts all fields from schema attributes with metadata
-func (t *FieldCoverageTracker) extractFields(path string, hasKey bool, attributes map[string]schema.Attribute) {
+func (t *FieldCoverageTracker) extractFields(path string, attributes map[string]schema.Attribute) {
 	for name, attr := range attributes {
 		currentPath := name
 		if path != "" {
@@ -128,7 +129,6 @@ func (t *FieldCoverageTracker) extractFields(path string, hasKey bool, attribute
 			Path:       currentPath,
 			Field:      name,
 			Parent:     path,
-			HasKey:     hasKey,
 			SchemaAttr: attr,
 		}
 
@@ -142,18 +142,18 @@ func (t *FieldCoverageTracker) extractFields(path string, hasKey bool, attribute
 		switch v := attr.(type) {
 		case schema.SingleNestedAttribute:
 			if nestedAttrs := getNestedAttributes(v); nestedAttrs != nil {
-				t.extractFields(currentPath, false, nestedAttrs)
+				t.extractFields(currentPath, nestedAttrs)
 			}
 		case schema.ListNestedAttribute:
 			if nestedAttrs := getListNestedAttributes(v); nestedAttrs != nil {
-				t.extractFields(currentPath, false, nestedAttrs)
+				t.extractFields(currentPath, nestedAttrs)
 			}
 		case schema.MapNestedAttribute:
 			if nestedAttrs := getMapNestedAttributes(v); nestedAttrs != nil {
 				// Map uses {key} notation in path
 				t.NestedMapAttributePaths[currentPath] = true
 				keyPath := currentPath + ".{key}"
-				t.extractFields(keyPath, true, nestedAttrs)
+				t.extractFields(keyPath, nestedAttrs)
 			}
 		}
 	}
@@ -167,13 +167,16 @@ func extractFieldMetadata(attr schema.Attribute, fieldInfo *FieldInfo) {
 	}
 
 	// Extract Required, Optional, Computed using reflection
-	if requiredField := v.FieldByName("Required"); requiredField.IsValid() && requiredField.Kind() == reflect.Bool {
+	requiredField := v.FieldByName("Required")
+	if requiredField.IsValid() && requiredField.Kind() == reflect.Bool {
 		fieldInfo.Required = requiredField.Bool()
 	}
-	if optionalField := v.FieldByName("Optional"); optionalField.IsValid() && optionalField.Kind() == reflect.Bool {
+	optionalField := v.FieldByName("Optional")
+	if optionalField.IsValid() && optionalField.Kind() == reflect.Bool {
 		fieldInfo.Optional = optionalField.Bool()
 	}
-	if computedField := v.FieldByName("Computed"); computedField.IsValid() && computedField.Kind() == reflect.Bool {
+	computedField := v.FieldByName("Computed")
+	if computedField.IsValid() && computedField.Kind() == reflect.Bool {
 		fieldInfo.Computed = computedField.Bool()
 	}
 
@@ -221,8 +224,10 @@ func getNestedAttributes(attr schema.SingleNestedAttribute) map[string]schema.At
 	}
 
 	// Look for Attributes field directly on the SingleNestedAttribute
-	if field := v.FieldByName("Attributes"); field.IsValid() && field.CanInterface() {
-		if attrs, ok := field.Interface().(map[string]schema.Attribute); ok {
+	field := v.FieldByName("Attributes")
+	if field.IsValid() && field.CanInterface() {
+		attrs, ok := field.Interface().(map[string]schema.Attribute)
+		if ok {
 			return attrs
 		}
 	}

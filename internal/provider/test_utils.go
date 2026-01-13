@@ -230,13 +230,15 @@ func CreateTestPNGFile(t *testing.T) string {
 	}
 
 	// Write PNG data
-	if _, err := tmpFile.Write(pngData); err != nil {
+	_, err = tmpFile.Write(pngData)
+	if err != nil {
 		tmpFile.Close()
 		os.Remove(tmpFile.Name())
 		t.Fatalf("Failed to write PNG data: %v", err)
 	}
 
-	if err := tmpFile.Close(); err != nil {
+	err = tmpFile.Close()
+	if err != nil {
 		os.Remove(tmpFile.Name())
 		t.Fatalf("Failed to close temp file: %v", err)
 	}
@@ -277,10 +279,10 @@ func GetOrgWlanBaseConfig(orgID string) (config string, wlanRef string) {
 	return wlanTemplateConfigStr + "\n\n" + wlanConfigStr, "mist_org_wlan.wlanName.id"
 }
 
-func GetSiteWlanBaseConfig(org_ID string) (config string, siteRef string, wlanRef string) {
+func GetSiteWlanBaseConfig(orgID string) (config string, siteRef string, wlanRef string) {
 	siteConfig := SiteModel{
 		Name:    "TestSite",
-		OrgId:   org_ID,
+		OrgId:   orgID,
 		Address: "TestAddress",
 	}
 
@@ -302,10 +304,10 @@ func GetSiteWlanBaseConfig(org_ID string) (config string, siteRef string, wlanRe
 	return siteConfigStr + "\n\n" + wlanConfigStr, fmt.Sprintf("mist_site.%s.id", siteConfig.Name), "mist_site_wlan.wlanName.id"
 }
 
-func GetSiteBaseConfig(org_ID string) (config string, siteRef string) {
+func GetSiteBaseConfig(orgID string) (config string, siteRef string) {
 	siteConfig := SiteModel{
 		Name:    "TestSite",
-		OrgId:   org_ID,
+		OrgId:   orgID,
 		Address: "TestAddress",
 	}
 
@@ -316,10 +318,10 @@ func GetSiteBaseConfig(org_ID string) (config string, siteRef string) {
 	return siteConfigStr, fmt.Sprintf("mist_site.%s.id", siteConfig.Name)
 }
 
-func GetSitegroupBaseConfig(org_ID string) (config string, sitegroupRef string) {
+func GetSitegroupBaseConfig(orgID string) (config string, sitegroupRef string) {
 	sitegroupConfig := OrgSitegroupModel{
 		Name:  "TestSitegroup",
-		OrgId: org_ID,
+		OrgId: orgID,
 	}
 
 	f := hclwrite.NewEmptyFile()
@@ -356,102 +358,56 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 		return
 	}
 
-	type FieldReport struct {
-		Path     string `json:"path"`
-		Field    string `json:"field"`
-		Parent   string `json:"parent"`
-		HasKey   bool   `json:"has_key"`
-		Required bool   `json:"required"`
-		Optional bool   `json:"optional"`
-		Computed bool   `json:"computed"`
-		Type     string `json:"type"`
-		Tested   bool   `json:"tested"`
-	}
-
 	type CoverageReport struct {
-		ResourceName            string        `json:"resource_name"`
-		TotalFields             int           `json:"total_fields"`
-		TestedFields            int           `json:"tested_fields"`
-		UntestedFields          int           `json:"untested_fields"`
-		Fields                  []FieldReport `json:"fields"`
-		UntestedFieldsList      []string      `json:"untested_fields_list"`
-		NestedMapAttributePaths []string      `json:"nested_map_attribute_paths"`
+		ResourceName        string   `json:"resource_name"`
+		UntestedFieldsTotal int      `json:"untested_fields"`
+		UntestedFieldsList  []string `json:"untested_fields_list"`
+		UnknownFieldsTotal  int      `json:"unknown_fields"`
+		UnknownFieldslist   []string `json:"unknown_fields_list"`
 	}
 
 	// Build report
-	fields := make([]FieldReport, 0, len(checks.tracker.SchemaFields))
 	untestedFieldsList := make([]string, 0)
-	testedCount := 0
-
 	for path, field := range checks.tracker.SchemaFields {
-		if field.IsTested {
-			testedCount++
-		}
-
-		_, isSingleNested := field.SchemaAttr.(schema.SingleNestedAttribute)
-		_, isMapNested := field.SchemaAttr.(schema.MapNestedAttribute)
-		if !field.Computed && !field.IsTested && !isSingleNested && !isMapNested {
+		if !field.Computed && !field.IsTested && !isContainerType(field.SchemaAttr) {
 			untestedFieldsList = append(untestedFieldsList, path)
 		}
-
-		fields = append(fields, FieldReport{
-			Path:     path,
-			Field:    field.Field,
-			Parent:   field.Parent,
-			HasKey:   field.HasKey,
-			Required: field.Required,
-			Optional: field.Optional,
-			Computed: field.Computed,
-			Type:     field.AttrType,
-			Tested:   field.IsTested,
-		})
 	}
 
-	// Sort fields by path
-	sort.Slice(fields, func(i, j int) bool {
-		return fields[i].Path < fields[j].Path
-	})
-
-	// Sort untested fields list
 	sort.Strings(untestedFieldsList)
-
-	// Convert map to sorted slice for consistent JSON output
-	mapPaths := make([]string, 0, len(checks.tracker.NestedMapAttributePaths))
-	for path := range checks.tracker.NestedMapAttributePaths {
-		mapPaths = append(mapPaths, path)
-	}
-	sort.Strings(mapPaths)
-
 	report := CoverageReport{
-		ResourceName:            checks.tracker.ResourceName,
-		TotalFields:             len(checks.tracker.SchemaFields),
-		TestedFields:            testedCount,
-		UntestedFields:          len(checks.tracker.SchemaFields) - testedCount,
-		Fields:                  fields,
-		UntestedFieldsList:      untestedFieldsList,
-		NestedMapAttributePaths: mapPaths,
+		ResourceName:        checks.tracker.ResourceName,
+		UntestedFieldsTotal: len(untestedFieldsList),
+		UntestedFieldsList:  untestedFieldsList,
+		UnknownFieldsTotal:  len(checks.tracker.UnknownFields),
+		UnknownFieldslist:   checks.tracker.UnknownFields,
 	}
 
-	// Write JSON file to tools/reports directory
-	filename := fmt.Sprintf("../../tools/reports/%s_report.json", checks.tracker.ResourceName)
-	data, err := json.MarshalIndent(report, "", "  ")
+	// Write JSON files to tools/reports directory
+	err := writeJSONReport(fmt.Sprintf("../../tools/reports/%s_report.json", checks.tracker.ResourceName), report)
 	if err != nil {
-		t.Fatalf("Failed to marshal coverage report: %v", err)
+		t.Errorf("failed to write field coverage report: %v", err)
 	}
+}
 
-	if err := os.WriteFile(filename, data, 0644); err != nil {
-		t.Fatalf("Failed to write coverage report %s: %v", filename, err)
-	}
+// isContainerType checks if an attribute is a container type
+// Container types cannot be tested by themselves and are thus excluded from test coverage counts
+func isContainerType(attr schema.Attribute) bool {
+	_, isSingleNested := attr.(schema.SingleNestedAttribute)
+	_, isMapNested := attr.(schema.MapNestedAttribute)
+	return isSingleNested || isMapNested
+}
 
-	filename = fmt.Sprintf("../../tools/reports/%s_normalized_fields.json", checks.tracker.ResourceName)
-	data, err = json.MarshalIndent(checks.tracker.NormalisedFields, "", "  ")
+// writeJSONReport writes data as indented JSON to the specified file
+func writeJSONReport(filename string, data interface{}) error {
+	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		t.Fatalf("Failed to marshal coverage report: %v", err)
+		return err
 	}
 
-	if err := os.WriteFile(filename, data, 0644); err != nil {
-		t.Fatalf("Failed to write coverage report %s: %v", filename, err)
+	err = os.WriteFile(filename, jsonData, 0644)
+	if err != nil {
+		return err
 	}
-
-	t.Logf("Field coverage report: %s", filename)
+	return nil
 }
