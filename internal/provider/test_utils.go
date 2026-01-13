@@ -363,7 +363,7 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 		UntestedFieldsTotal int      `json:"untested_fields"`
 		UntestedFieldsList  []string `json:"untested_fields_list"`
 		UnknownFieldsTotal  int      `json:"unknown_fields"`
-		UnknownFieldslist   []string `json:"unknown_fields_list"`
+		UnknownFieldsList   []string `json:"unknown_fields_list"`
 	}
 
 	// Build report
@@ -380,7 +380,7 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 		UntestedFieldsTotal: len(untestedFieldsList),
 		UntestedFieldsList:  untestedFieldsList,
 		UnknownFieldsTotal:  len(checks.tracker.UnknownFields),
-		UnknownFieldslist:   checks.tracker.UnknownFields,
+		UnknownFieldsList:   checks.tracker.UnknownFields,
 	}
 
 	// Write JSON files to tools/reports directory
