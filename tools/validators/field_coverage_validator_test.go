@@ -339,7 +339,7 @@ func TestMarkFieldAsTested(t *testing.T) {
 					"networks": true,
 				},
 				UnknownFields:    make(map[string]bool),
-				NormalizedFields: make(map[string]interface{}),
+				NormalizedFields: make(map[string]any),
 			}
 
 			tracker.MarkFieldAsTested(tt.testPath)
