@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wlan"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -61,9 +62,10 @@ func TestOrgWlanModel(t *testing.T) {
 		}
 	}
 
+	resourceType := "org_wlan"
+	var checks testChecks
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "org_wlan"
 			templateName := "test_template"
 
 			// Create single-step tests with combined config (template + WLAN)
@@ -76,7 +78,7 @@ func TestOrgWlanModel(t *testing.T) {
 				combinedConfig := generateOrgWlanTestConfig(templateName, tName, step.config)
 
 				// Focus checks on the WLAN resource (template is just a prerequisite)
-				checks := step.config.testChecks(t, resourceType, tName)
+				checks = step.config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -97,6 +99,7 @@ func TestOrgWlanModel(t *testing.T) {
 
 		})
 	}
+	FieldCoverageReport(t, &checks)
 }
 
 // generateOrgWlanTestConfig creates a combined configuration with both a WLAN template and a WLAN
@@ -128,6 +131,7 @@ func generateOrgWlanTestConfig(templateName, wlanName string, wlanConfig OrgWlan
 
 func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+	TrackFieldCoverage(t, &checks, "org_wlan", resource_org_wlan.OrgWlanResourceSchema)
 
 	// Always check required fields
 	checks.append(t, "TestCheckResourceAttrSet", "id")

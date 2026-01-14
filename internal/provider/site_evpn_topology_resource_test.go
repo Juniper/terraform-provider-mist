@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/resource_site_evpn_topology"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -39,11 +40,11 @@ func TestSiteEvpnTopologyModel(t *testing.T) {
 		},
 	}
 
+	resourceType := "site_evpn_topology"
+	siteName := "test_site"
+	var checks testChecks
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "site_evpn_topology"
-			siteName := "test_site"
-
 			// Create single-step tests with combined config (site + EVPN topology)
 			// Since site EVPN topologies require a site, we create both in the same config
 			// but focus our checks on the EVPN topology resource being tested
@@ -54,7 +55,7 @@ func TestSiteEvpnTopologyModel(t *testing.T) {
 				combinedConfig := generateSiteEvpnTopologyTestConfig(siteName, tName, step.config)
 
 				// Focus checks on the EVPN topology resource (site is just a prerequisite)
-				checks := step.config.testChecks(t, resourceType, tName)
+				checks = step.config.testChecks(t, resourceType, tName)
 
 				// Basic checks for switches configuration (using placeholder MAC addresses)
 				if len(step.config.Switches) > 0 {
@@ -79,6 +80,7 @@ func TestSiteEvpnTopologyModel(t *testing.T) {
 
 		})
 	}
+	FieldCoverageReport(t, &checks)
 }
 
 // generateSiteEvpnTopologyTestConfig creates a combined configuration with both a site and a site EVPN topology
@@ -111,6 +113,8 @@ func generateSiteEvpnTopologyTestConfig(siteName, evpnTopologyName string, evpnT
 
 func (s *SiteEvpnTopologyModel) testChecks(t testing.TB, rType, tName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+	TrackFieldCoverage(t, &checks, "site_evpn_topology", resource_site_evpn_topology.SiteEvpnTopologyResourceSchema)
+
 	checks.append(t, "TestCheckResourceAttrSet", "id")
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
