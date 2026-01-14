@@ -354,37 +354,41 @@ func TrackFieldCoverage(t testing.TB, checks *testChecks, resourceName string, s
 func FieldCoverageReport(t testing.TB, checks *testChecks) {
 	t.Helper()
 
-	if checks.tracker == nil {
-		return
-	}
-
 	type CoverageReport struct {
-		ResourceName                string   `json:"resource_name"`
-		TestedFieldsCnt             int      `json:"tested_fields_count"`
-		UntestedFieldsCnt           int      `json:"untested_fields_count"`
-		UntestedFields              []string `json:"untested_fields"`
-		UnknownFieldsCnt            int      `json:"unknown_fields_count"`
-		UnknownFields               []string `json:"unknown_fields"`
-		SchemaExtractionFailuresCnt int      `json:"schema_extraction_failures_count"`
-		SchemaExtractionFailures    []string `json:"schema_extraction_failures"`
+		ResourceName                string                     `json:"resource_name"`
+		TestedFieldsCnt             int                        `json:"tested_fields_count"`
+		UntestedFieldsCnt           int                        `json:"untested_fields_count"`
+		UntestedFields              []string                   `json:"untested_fields"`
+		UnknownFieldsCnt            int                        `json:"unknown_fields_count"`
+		UnknownFields               []string                   `json:"unknown_fields"`
+		SchemaExtractionFailuresCnt int                        `json:"schema_extraction_failures_count"`
+		SchemaExtractionFailures    []string                   `json:"schema_extraction_failures"`
+		TestStatus                  *validators.TestStatusInfo `json:"test_status,omitempty"`
 	}
 
-	// Build report
-	untestedFields := make([]string, 0)
-	for path, field := range checks.tracker.SchemaFields {
-		if !field.Computed && !field.IsTested && !isContainerType(field.SchemaAttr) {
-			untestedFields = append(untestedFields, path)
+	var untestedFields []string
+	var unknownFields []string
+	if checks.tracker != nil {
+		// Build report
+		untestedFields = make([]string, 0)
+		for path, field := range checks.tracker.SchemaFields {
+			if !field.Computed && !field.IsTested && !isContainerType(field.SchemaAttr) {
+				untestedFields = append(untestedFields, path)
+			}
 		}
+
+		// Convert unknown fields map to sorted slice
+		unknownFields = make([]string, 0, len(checks.tracker.UnknownFields))
+		for path := range checks.tracker.UnknownFields {
+			unknownFields = append(unknownFields, path)
+		}
+
+		sort.Strings(unknownFields)
+		sort.Strings(untestedFields)
 	}
 
-	// Convert unknown fields map to sorted slice
-	unknownFields := make([]string, 0, len(checks.tracker.UnknownFields))
-	for path := range checks.tracker.UnknownFields {
-		unknownFields = append(unknownFields, path)
-	}
-
-	sort.Strings(unknownFields)
-	sort.Strings(untestedFields)
+	// Capture test execution status from testing.TB
+	testStatus := validators.CaptureTestStatus(t)
 	report := CoverageReport{
 		ResourceName:                checks.tracker.ResourceName,
 		TestedFieldsCnt:             len(checks.tracker.NormalizedFields),
@@ -394,6 +398,7 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 		UnknownFields:               unknownFields,
 		SchemaExtractionFailuresCnt: len(checks.tracker.SchemaExtractionFailures),
 		SchemaExtractionFailures:    checks.tracker.SchemaExtractionFailures,
+		TestStatus:                  testStatus,
 	}
 
 	// Write JSON files to tools/reports directory

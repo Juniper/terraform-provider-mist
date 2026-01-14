@@ -29,6 +29,7 @@ package validators
 import (
 	"reflect"
 	"strings"
+	"testing"
 	"unicode"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -55,6 +56,22 @@ type FieldInfo struct {
 	AttrType   string           // Semantic type: "string", "bool", "int64", "float64", "list", "map", "nested"
 	SchemaAttr schema.Attribute // The actual schema attribute for future inspection
 	IsTested   bool             // Marked true when test validates this field
+}
+
+// TestStatusInfo captures test execution status at report generation time
+type TestStatusInfo struct {
+	TestName string `json:"test_name"`
+	Passed   bool   `json:"passed"`
+	Skipped  bool   `json:"skipped"`
+}
+
+// CaptureTestStatus extracts test status from testing.TB interface
+func CaptureTestStatus(t testing.TB) *TestStatusInfo {
+	return &TestStatusInfo{
+		TestName: t.Name(),
+		Passed:   !t.Failed(),
+		Skipped:  t.Skipped(),
+	}
 }
 
 // NewFieldCoverageTracker creates a new tracker for the given resource
