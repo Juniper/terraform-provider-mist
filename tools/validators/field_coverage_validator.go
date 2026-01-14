@@ -11,12 +11,18 @@
 // Example usage:
 //
 //	func TestMyResource(t *testing.T) {
-//	    checks := newTestChecks("mist_my_resource.test")
-//	    TrackFieldCoverage(t, &checks, "my_resource", MyResourceSchema)
-//	    defer FieldCoverageReport(t, &checks)
 //
 //	    // Run tests...
-//	    checks.append(t, "TestCheckResourceAttr", "name", "value")
+//		// ...
+//
+//		FieldCoverageReport(t, &checks)
+//	}
+//
+//	func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, rName string) testChecks {
+//
+//	    checks := newTestChecks(rType + "." + rName)
+//	   	TrackFieldCoverage(t, &checks, "my_resource", MyResourceSchema)
+//		// ... add test checks ...
 //	}
 package validators
 
@@ -34,7 +40,7 @@ type FieldCoverageTracker struct {
 	SchemaFields             map[string]*FieldInfo
 	NestedMapAttributePaths  map[string]bool
 	UnknownFields            map[string]bool // Deduplicated test paths that don't match schema
-	NormalisedFields         []string
+	NormalizedFields         []string
 	SchemaExtractionFailures []string // Tracks paths where schema extraction failed via reflection
 }
 
@@ -54,10 +60,12 @@ type FieldInfo struct {
 // NewFieldCoverageTracker creates a new tracker for the given resource
 func NewFieldCoverageTracker(resourceName string) *FieldCoverageTracker {
 	return &FieldCoverageTracker{
-		ResourceName:            resourceName,
-		SchemaFields:            make(map[string]*FieldInfo),
-		NestedMapAttributePaths: make(map[string]bool),
-		UnknownFields:           make(map[string]bool),
+		ResourceName:             resourceName,
+		SchemaFields:             make(map[string]*FieldInfo),
+		NestedMapAttributePaths:  make(map[string]bool),
+		UnknownFields:            make(map[string]bool),
+		SchemaExtractionFailures: make([]string, 0),
+		NormalizedFields:         make([]string, 0),
 	}
 }
 
@@ -68,7 +76,7 @@ func (t *FieldCoverageTracker) MarkFieldAsTested(fieldPath string) {
 	if exists {
 		field.IsTested = true
 	}
-	t.NormalisedFields = append(t.NormalisedFields, normalized)
+	t.NormalizedFields = append(t.NormalizedFields, normalized)
 }
 
 // normalizeFieldPath removes array indices and uses schema knowledge to replace map keys with {key}

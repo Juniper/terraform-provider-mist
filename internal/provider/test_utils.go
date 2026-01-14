@@ -338,7 +338,7 @@ func stringPtr(s string) *string {
 
 // TrackFieldCoverage enables field coverage tracking for test checks
 // when the MIST_TRACK_FIELD_COVERAGE environment variable is set.
-// It extracts schema fields and prints tracker state before and after test execution.
+// It extracts schema fields and configures tracking for field coverage reporting.
 func TrackFieldCoverage(t testing.TB, checks *testChecks, resourceName string, schemaFunc func(context.Context) schema.Schema) {
 	if os.Getenv("MIST_TRACK_FIELD_COVERAGE") == "" {
 		return
