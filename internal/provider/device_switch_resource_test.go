@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/resource_device_switch"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -58,11 +59,11 @@ func TestDeviceSwitchModel(t *testing.T) {
 		}
 	}
 
+	resourceType := "device_switch"
+	var checks testChecks
 	for tName, tCase := range testCases {
 		t.Skip("Skipping device_switch tests, as they require a real device.")
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "device_switch"
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
@@ -73,7 +74,7 @@ func TestDeviceSwitchModel(t *testing.T) {
 				f.Body().SetAttributeRaw("site_id", hclwrite.TokensForIdentifier(siteRef))
 				combinedConfig := siteConfig + "\n\n" + Render(resourceType, tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks = config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -93,10 +94,12 @@ func TestDeviceSwitchModel(t *testing.T) {
 			})
 		})
 	}
+	FieldCoverageReport(t, &checks)
 }
 
 func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+	TrackFieldCoverage(t, &checks, "device_switch", resource_device_switch.DeviceSwitchResourceSchema)
 
 	// Required string attributes
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")

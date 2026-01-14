@@ -6,13 +6,14 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/resource_device_ap"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestDeviceAp(t *testing.T) {
+func TestDeviceApModel(t *testing.T) {
 	type testStep struct {
 		config DeviceApModel
 	}
@@ -59,11 +60,11 @@ func TestDeviceAp(t *testing.T) {
 		}
 	}
 
+	resourceType := "device_ap"
+	var checks testChecks
 	for tName, tCase := range testCases {
 		t.Skip("Skipping device_ap tests, as they require a real device.")
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "device_ap"
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
@@ -74,7 +75,7 @@ func TestDeviceAp(t *testing.T) {
 				f.Body().SetAttributeRaw("site_id", hclwrite.TokensForIdentifier(siteRef))
 				combinedConfig := siteConfig + "\n\n" + Render(resourceType, tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks = config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -94,10 +95,12 @@ func TestDeviceAp(t *testing.T) {
 			})
 		})
 	}
+	FieldCoverageReport(t, &checks)
 }
 
 func (s *DeviceApModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+	TrackFieldCoverage(t, &checks, "device_ap", resource_device_ap.DeviceApResourceSchema)
 
 	// Required attributes
 	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)

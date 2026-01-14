@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_deviceprofile_assign"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -31,10 +32,11 @@ func TestOrgDeviceprofileAssignModel(t *testing.T) {
 		},
 	}
 
+	resourceType := "org_deviceprofile_assign"
+	var checks testChecks
 	for tName, tCase := range testCases {
 		t.Skip("Skipping Device Profile Assign tests temporarily")
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "org_deviceprofile_assign"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -46,7 +48,7 @@ func TestOrgDeviceprofileAssignModel(t *testing.T) {
 				f.Body().SetAttributeRaw("deviceprofile_id", hclwrite.TokensForIdentifier(deviceprofileRef))
 				combinedConfig := deviceProfileConfig + "\n\n" + Render(resourceType, tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks = config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -66,6 +68,7 @@ func TestOrgDeviceprofileAssignModel(t *testing.T) {
 			})
 		})
 	}
+	FieldCoverageReport(t, &checks)
 }
 
 func GetOrgDeviceprofileApBaseConfig(org_ID string) (config string, deviceprofileRef string) {
@@ -83,6 +86,8 @@ func GetOrgDeviceprofileApBaseConfig(org_ID string) (config string, deviceprofil
 
 func (s *OrgDeviceprofileAssignModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+	TrackFieldCoverage(t, &checks, "org_deviceprofile_assign", resource_org_deviceprofile_assign.OrgDeviceprofileAssignResourceSchema)
+
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
 	checks.append(t, "TestCheckResourceAttrSet", "deviceprofile_id")
 	checks.append(t, "TestCheckResourceAttr", "macs.#", fmt.Sprintf("%d", len(s.Macs)))

@@ -96,10 +96,9 @@ func TestOrgNetworktemplateModel(t *testing.T) {
 	}
 	FieldCoverageReport(t, &checks)
 }
+
 func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(rType + "." + rName)
-
-	// Track field coverage
 	TrackFieldCoverage(t, &checks, "org_networktemplate", resource_org_networktemplate.OrgNetworktemplateResourceSchema)
 
 	// Check required fields

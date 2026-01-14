@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/resource_device_image"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -34,11 +35,11 @@ func TestDeviceImageModel(t *testing.T) {
 		},
 	}
 
+	resourceType := "device_image"
+	var checks testChecks
 	for tName, tCase := range testCases {
 		t.Skip("Skipping test case: " + tName) // Skip all tests for now
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "device_image"
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
@@ -49,7 +50,7 @@ func TestDeviceImageModel(t *testing.T) {
 				f.Body().SetAttributeRaw("site_id", hclwrite.TokensForIdentifier(siteRef))
 				combinedConfig := siteConfig + "\n\n" + Render(resourceType, tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks = config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -69,10 +70,13 @@ func TestDeviceImageModel(t *testing.T) {
 			})
 		})
 	}
+	FieldCoverageReport(t, &checks)
 }
 
 func (s *DeviceImageModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+	TrackFieldCoverage(t, &checks, "device_image", resource_device_image.DeviceImageResourceSchema)
+
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")
 	checks.append(t, "TestCheckResourceAttr", "file", s.File)
 	checks.append(t, "TestCheckResourceAttrSet", "device_id")

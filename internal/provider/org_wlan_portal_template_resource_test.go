@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wlan_portal_template"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -73,9 +74,10 @@ func TestOrgWlanPortalTemplateModel(t *testing.T) {
 		}
 	}
 
+	resourceType := "org_wlan_portal_template"
+	var checks testChecks
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "org_wlan_portal_template"
 
 			// Create single-step tests with combined config (WLAN template + WLAN + portal template)
 			// Since portal templates require a WLAN, and WLANs require a template,
@@ -91,10 +93,10 @@ func TestOrgWlanPortalTemplateModel(t *testing.T) {
 				gohcl.EncodeIntoBody(&step.config, f.Body())
 				// Add the wlan_id attribute to the body before rendering
 				f.Body().SetAttributeRaw("wlan_id", hclwrite.TokensForIdentifier(wlanRef))
-				combinedConfig = combinedConfig + "\n\n" + Render("org_wlan_portal_template", tName, string(f.Bytes()))
+				combinedConfig = combinedConfig + "\n\n" + Render(resourceType, tName, string(f.Bytes()))
 
 				// Focus checks on the portal template resource (WLAN template and WLAN are prerequisites)
-				checks := step.config.testChecks(t, resourceType, tName)
+				checks = step.config.testChecks(t, resourceType, tName)
 
 				steps[i] = resource.TestStep{
 					Config: combinedConfig,
@@ -113,10 +115,12 @@ func TestOrgWlanPortalTemplateModel(t *testing.T) {
 
 		})
 	}
+	FieldCoverageReport(t, &checks)
 }
 
 func (s *OrgWlanPortalTemplateModel) testChecks(t testing.TB, rType, tName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+	TrackFieldCoverage(t, &checks, "org_wlan_portal_template", resource_org_wlan_portal_template.OrgWlanPortalTemplateResourceSchema)
 
 	// Check fields in struct order
 	// 1. OrgId (required)
@@ -510,7 +514,7 @@ func (s *OrgWlanPortalTemplateModel) testChecks(t testing.TB, rType, tName strin
 	}
 
 	// Check locales map field
-	if s.PortalTemplate.Locales != nil && len(s.PortalTemplate.Locales) > 0 {
+	if len(s.PortalTemplate.Locales) > 0 {
 		checks.append(t, "TestCheckResourceAttrSet", "portal_template.locales.%")
 		for locale, localeValue := range s.PortalTemplate.Locales {
 			// Check all LocalesValue fields for each locale

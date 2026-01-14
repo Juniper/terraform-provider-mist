@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestOrgSsoRole(t *testing.T) {
+func TestOrgSsoRoleModel(t *testing.T) {
 	type testStep struct {
 		config OrgSsoRoleModel
 	}
@@ -130,8 +130,6 @@ func TestOrgSsoRole(t *testing.T) {
 
 func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(rType + "." + rName)
-
-	// Track field coverage
 	TrackFieldCoverage(t, &checks, "org_sso_role", resource_org_sso_role.OrgSsoRoleResourceSchema)
 
 	// Check required fields

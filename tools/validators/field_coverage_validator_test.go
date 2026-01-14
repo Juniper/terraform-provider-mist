@@ -338,7 +338,8 @@ func TestMarkFieldAsTested(t *testing.T) {
 				NestedMapAttributePaths: map[string]bool{
 					"networks": true,
 				},
-				UnknownFields: make(map[string]bool),
+				UnknownFields:    make(map[string]bool),
+				NormalizedFields: make(map[string]interface{}),
 			}
 
 			tracker.MarkFieldAsTested(tt.testPath)

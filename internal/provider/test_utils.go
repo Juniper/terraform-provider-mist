@@ -360,6 +360,7 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 
 	type CoverageReport struct {
 		ResourceName                string   `json:"resource_name"`
+		TestedFieldsCnt             int      `json:"tested_fields_count"`
 		UntestedFieldsCnt           int      `json:"untested_fields_count"`
 		UntestedFields              []string `json:"untested_fields"`
 		UnknownFieldsCnt            int      `json:"unknown_fields_count"`
@@ -381,11 +382,12 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 	for path := range checks.tracker.UnknownFields {
 		unknownFields = append(unknownFields, path)
 	}
-	sort.Strings(unknownFields)
 
+	sort.Strings(unknownFields)
 	sort.Strings(untestedFields)
 	report := CoverageReport{
 		ResourceName:                checks.tracker.ResourceName,
+		TestedFieldsCnt:             len(checks.tracker.NormalizedFields),
 		UntestedFieldsCnt:           len(untestedFields),
 		UntestedFields:              untestedFields,
 		UnknownFieldsCnt:            len(unknownFields),
