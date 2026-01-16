@@ -95,6 +95,11 @@ func (o *testChecks) append(t testing.TB, testCheckFuncName string, testCheckFun
 	}
 }
 
+func (o *testChecks) appendSetNestedCheck(_ testing.TB, attrName string, m map[string]string) {
+	o.checks = append(o.checks, resource.TestCheckTypeSetElemNestedAttrs(o.path, attrName, m))
+	o.logLines.appendf("TestCheckTypeSetElemNestedAttrs(%s, %s, %s)", o.path, attrName, m)
+}
+
 func (o *testChecks) string() string {
 	return o.logLines.string()
 }
