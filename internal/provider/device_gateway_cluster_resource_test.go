@@ -4,19 +4,13 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/resource_device_gateway_cluster"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func (s *DeviceGatewayClusterModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(rType + "." + rName)
-	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
-
-	return checks
-}
-
-func TestDeviceGatewayCluster(t *testing.T) {
+func TestDeviceGatewayClusterModel(t *testing.T) {
 	type testStep struct {
 		config DeviceGatewayClusterModel
 	}
@@ -55,11 +49,11 @@ func TestDeviceGatewayCluster(t *testing.T) {
 		},
 	}
 
+	resourceType := "mist_device_gateway_cluster"
+	var checks testChecks
 	for tName, tCase := range testCases {
 		t.Skip("Skipping by default as test requires two gateway devices.")
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "mist_device_gateway_cluster"
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config
@@ -68,7 +62,7 @@ func TestDeviceGatewayCluster(t *testing.T) {
 				gohcl.EncodeIntoBody(&config, f.Body())
 				configStr := Render(resourceType, tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks = config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -88,4 +82,13 @@ func TestDeviceGatewayCluster(t *testing.T) {
 			})
 		})
 	}
+	FieldCoverageReport(t, &checks)
+}
+
+func (s *DeviceGatewayClusterModel) testChecks(t testing.TB, rType, rName string) testChecks {
+	checks := newTestChecks(rType + "." + rName)
+	TrackFieldCoverage(t, &checks, "device_gateway_cluster", resource_device_gateway_cluster.DeviceGatewayClusterResourceSchema)
+	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
+
+	return checks
 }

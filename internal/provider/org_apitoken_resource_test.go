@@ -6,13 +6,14 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_apitoken"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestOrgApitoken(t *testing.T) {
+func TestOrgApitokenModel(t *testing.T) {
 	type testStep struct {
 		config OrgApitokenModel
 	}
@@ -64,9 +65,10 @@ func TestOrgApitoken(t *testing.T) {
 		}
 	}
 
+	resourceType := "org_apitoken"
+	var checks testChecks
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "org_apitoken"
 			siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
 
 			steps := make([]resource.TestStep, len(tCase.steps))
@@ -82,7 +84,7 @@ func TestOrgApitoken(t *testing.T) {
 					configStr = siteConfig + "\n\n" + strings.ReplaceAll(configStr, "\""+siteRef+"\"", siteRef)
 				}
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks = config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -102,10 +104,13 @@ func TestOrgApitoken(t *testing.T) {
 			})
 		})
 	}
+	FieldCoverageReport(t, &checks)
 }
 
 func (s *OrgApitokenModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+	TrackFieldCoverage(t, &checks, "org_apitoken", resource_org_apitoken.OrgApitokenResourceSchema)
+
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
 	checks.append(t, "TestCheckResourceAttr", "privileges.#", fmt.Sprintf("%d", len(s.Privileges)))

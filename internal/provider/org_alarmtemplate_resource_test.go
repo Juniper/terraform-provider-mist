@@ -6,13 +6,14 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_alarmtemplate"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestOrgAlarmtemplate(t *testing.T) {
+func TestOrgAlarmtemplateModel(t *testing.T) {
 	type testStep struct {
 		config OrgAlarmtemplateModel
 	}
@@ -67,10 +68,10 @@ func TestOrgAlarmtemplate(t *testing.T) {
 		}
 	}
 
+	resourceType := "org_alarmtemplate"
+	var checks testChecks
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "org_alarmtemplate"
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config
@@ -80,7 +81,7 @@ func TestOrgAlarmtemplate(t *testing.T) {
 				gohcl.EncodeIntoBody(&config, f.Body())
 				configStr := Render(resourceType, tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks = config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -100,10 +101,13 @@ func TestOrgAlarmtemplate(t *testing.T) {
 			})
 		})
 	}
+	FieldCoverageReport(t, &checks)
 }
 
 func (s *OrgAlarmtemplateModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+	TrackFieldCoverage(t, &checks, "org_alarmtemplate", resource_org_alarmtemplate.OrgAlarmtemplateResourceSchema)
+
 	// Required parameters
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)

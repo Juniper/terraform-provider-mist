@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_evpn_topology"
+
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -50,10 +52,11 @@ func TestOrgEvpnTopologyModel(t *testing.T) {
 		},
 	}
 
+	resourceType := "org_evpn_topology"
+	var checks testChecks
 	for tName, tCase := range testCases {
 		t.Skip("Skipping EVPN Topology tests temporarily")
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "org_evpn_topology"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -63,7 +66,7 @@ func TestOrgEvpnTopologyModel(t *testing.T) {
 				gohcl.EncodeIntoBody(&config, f.Body())
 				configStr := Render(resourceType, tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks = config.testChecks(t, resourceType, tName)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -83,10 +86,12 @@ func TestOrgEvpnTopologyModel(t *testing.T) {
 			})
 		})
 	}
+	FieldCoverageReport(t, &checks)
 }
 
 func (s *OrgEvpnTopologyModel) testChecks(t testing.TB, rType, rName string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+	TrackFieldCoverage(t, &checks, "org_evpn_topology", resource_org_evpn_topology.OrgEvpnTopologyResourceSchema)
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
 

@@ -1,14 +1,19 @@
 package provider
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/tools/validators"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/stretchr/testify/require"
 	"gotest.tools/assert"
@@ -40,10 +45,21 @@ type testChecks struct {
 	path     string
 	logLines lineNumberer
 	checks   []resource.TestCheckFunc
+	tracker  *validators.FieldCoverageTracker // Optional field coverage tracker
+}
+
+// SetTracker enables field coverage tracking for this test check
+func (o *testChecks) SetTracker(tracker *validators.FieldCoverageTracker) {
+	o.tracker = tracker
 }
 
 func (o *testChecks) append(t testing.TB, testCheckFuncName string, testCheckFuncArgs ...string) {
 	t.Helper()
+
+	// Track field coverage if enabled via environment variable and tracker is set
+	if os.Getenv("MIST_TRACK_FIELD_COVERAGE") != "" && o.tracker != nil && len(testCheckFuncArgs) > 0 {
+		o.tracker.MarkFieldAsTested(testCheckFuncArgs[0])
+	}
 
 	switch testCheckFuncName {
 	case "TestCheckResourceAttrSet":
@@ -219,13 +235,15 @@ func CreateTestPNGFile(t *testing.T) string {
 	}
 
 	// Write PNG data
-	if _, err := tmpFile.Write(pngData); err != nil {
+	_, err = tmpFile.Write(pngData)
+	if err != nil {
 		tmpFile.Close()
 		os.Remove(tmpFile.Name())
 		t.Fatalf("Failed to write PNG data: %v", err)
 	}
 
-	if err := tmpFile.Close(); err != nil {
+	err = tmpFile.Close()
+	if err != nil {
 		os.Remove(tmpFile.Name())
 		t.Fatalf("Failed to close temp file: %v", err)
 	}
@@ -266,10 +284,10 @@ func GetOrgWlanBaseConfig(orgID string) (config string, wlanRef string) {
 	return wlanTemplateConfigStr + "\n\n" + wlanConfigStr, "mist_org_wlan.wlanName.id"
 }
 
-func GetSiteWlanBaseConfig(org_ID string) (config string, siteRef string, wlanRef string) {
+func GetSiteWlanBaseConfig(orgID string) (config string, siteRef string, wlanRef string) {
 	siteConfig := SiteModel{
 		Name:    "TestSite",
-		OrgId:   org_ID,
+		OrgId:   orgID,
 		Address: "TestAddress",
 	}
 
@@ -291,10 +309,10 @@ func GetSiteWlanBaseConfig(org_ID string) (config string, siteRef string, wlanRe
 	return siteConfigStr + "\n\n" + wlanConfigStr, fmt.Sprintf("mist_site.%s.id", siteConfig.Name), "mist_site_wlan.wlanName.id"
 }
 
-func GetSiteBaseConfig(org_ID string) (config string, siteRef string) {
+func GetSiteBaseConfig(orgID string) (config string, siteRef string) {
 	siteConfig := SiteModel{
 		Name:    "TestSite",
-		OrgId:   org_ID,
+		OrgId:   orgID,
 		Address: "TestAddress",
 	}
 
@@ -305,10 +323,10 @@ func GetSiteBaseConfig(org_ID string) (config string, siteRef string) {
 	return siteConfigStr, fmt.Sprintf("mist_site.%s.id", siteConfig.Name)
 }
 
-func GetSitegroupBaseConfig(org_ID string) (config string, sitegroupRef string) {
+func GetSitegroupBaseConfig(orgID string) (config string, sitegroupRef string) {
 	sitegroupConfig := OrgSitegroupModel{
 		Name:  "TestSitegroup",
-		OrgId: org_ID,
+		OrgId: orgID,
 	}
 
 	f := hclwrite.NewEmptyFile()
@@ -321,4 +339,95 @@ func GetSitegroupBaseConfig(org_ID string) (config string, sitegroupRef string) 
 // Helper function for creating string pointers
 func stringPtr(s string) *string {
 	return &s
+}
+
+// TrackFieldCoverage enables field coverage tracking for test checks
+// when the MIST_TRACK_FIELD_COVERAGE environment variable is set.
+// It extracts schema fields and configures tracking for field coverage reporting.
+func TrackFieldCoverage(t testing.TB, checks *testChecks, resourceName string, schemaFunc func(context.Context) schema.Schema) {
+	if os.Getenv("MIST_TRACK_FIELD_COVERAGE") == "" {
+		return
+	}
+
+	ctx := context.Background()
+	schemaObj := schemaFunc(ctx)
+	tracker := validators.ExtractAllSchemaFields(resourceName, schemaObj.Attributes)
+	checks.SetTracker(tracker)
+}
+
+// FieldCoverageReport writes the current state of the FieldCoverageTracker to a JSON file.
+func FieldCoverageReport(t testing.TB, checks *testChecks) {
+	if checks.tracker == nil {
+		return
+	}
+	t.Helper()
+
+	type CoverageReport struct {
+		ResourceName                string   `json:"resource_name"`
+		TestedFieldsCnt             int      `json:"tested_fields_count"`
+		UntestedFieldsCnt           int      `json:"untested_fields_count"`
+		UntestedFields              []string `json:"untested_fields"`
+		UnknownFieldsCnt            int      `json:"unknown_fields_count"`
+		UnknownFields               []string `json:"unknown_fields"`
+		SchemaExtractionFailuresCnt int      `json:"schema_extraction_failures_count"`
+		SchemaExtractionFailures    []string `json:"schema_extraction_failures"`
+	}
+
+	// Build report
+	untestedFields := make([]string, 0)
+	for path, field := range checks.tracker.SchemaFields {
+		if !field.Computed && !field.IsTested && !isContainerType(field.SchemaAttr) {
+			untestedFields = append(untestedFields, path)
+		}
+	}
+
+	// Convert unknown fields map to sorted slice
+	unknownFields := make([]string, 0, len(checks.tracker.UnknownFields))
+	for path := range checks.tracker.UnknownFields {
+		unknownFields = append(unknownFields, path)
+	}
+
+	sort.Strings(unknownFields)
+	sort.Strings(untestedFields)
+
+	// Capture test execution status from testing.TB
+	report := CoverageReport{
+		ResourceName:                checks.tracker.ResourceName,
+		TestedFieldsCnt:             len(checks.tracker.NormalizedFields),
+		UntestedFieldsCnt:           len(untestedFields),
+		UntestedFields:              untestedFields,
+		UnknownFieldsCnt:            len(unknownFields),
+		UnknownFields:               unknownFields,
+		SchemaExtractionFailuresCnt: len(checks.tracker.SchemaExtractionFailures),
+		SchemaExtractionFailures:    checks.tracker.SchemaExtractionFailures,
+	}
+
+	// Write JSON report to stdout
+	err := writeJSONReport(report)
+	if err != nil {
+		t.Errorf("failed to write field coverage report: %v", err)
+	}
+}
+
+// isContainerType checks if an attribute is a container type
+// Container types cannot be tested by themselves and are thus excluded from test coverage counts
+func isContainerType(attr schema.Attribute) bool {
+	_, isSingleNested := attr.(schema.SingleNestedAttribute)
+	_, isMapNested := attr.(schema.MapNestedAttribute)
+	return isSingleNested || isMapNested
+}
+
+// writeJSONReport writes data as indented JSON to stdout
+func writeJSONReport(data interface{}) error {
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	_, err = os.Stdout.Write(jsonData)
+	if err != nil {
+		return err
+	}
+	_, err = os.Stdout.Write([]byte("\n"))
+	return err
 }
