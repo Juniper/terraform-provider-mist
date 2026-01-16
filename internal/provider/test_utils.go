@@ -397,8 +397,8 @@ func FieldCoverageReport(t testing.TB, checks *testChecks) {
 		SchemaExtractionFailures:    checks.tracker.SchemaExtractionFailures,
 	}
 
-	// Write JSON files to tools/reports directory
-	err := writeJSONReport(fmt.Sprintf("../../tools/reports/%s_report.json", checks.tracker.ResourceName), report)
+	// Write JSON report to stdout
+	err := writeJSONReport(report)
 	if err != nil {
 		t.Errorf("failed to write field coverage report: %v", err)
 	}
@@ -412,16 +412,17 @@ func isContainerType(attr schema.Attribute) bool {
 	return isSingleNested || isMapNested
 }
 
-// writeJSONReport writes data as indented JSON to the specified file
-func writeJSONReport(filename string, data interface{}) error {
+// writeJSONReport writes data as indented JSON to stdout
+func writeJSONReport(data interface{}) error {
 	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(filename, jsonData, 0644)
+	_, err = os.Stdout.Write(jsonData)
 	if err != nil {
 		return err
 	}
-	return nil
+	_, err = os.Stdout.Write([]byte("\n"))
+	return err
 }
