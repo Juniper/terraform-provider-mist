@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wxtag"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
@@ -64,7 +65,7 @@ func TestOrgWxtagModel(t *testing.T) {
 	}
 
 	resourceType := "org_wxtag"
-	var checks testChecks
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_wxtag.OrgWxtagResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 			steps := make([]resource.TestStep, len(tCase.steps))
@@ -74,7 +75,7 @@ func TestOrgWxtagModel(t *testing.T) {
 				gohcl.EncodeIntoBody(&step.config, f.Body())
 				configStr := Render("org_wxtag", tName, string(f.Bytes()))
 
-				checks = step.config.testChecks(t, resourceType, tName)
+				checks := step.config.testChecks(t, resourceType, tName, tracker)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -94,12 +95,12 @@ func TestOrgWxtagModel(t *testing.T) {
 			})
 		})
 	}
-	FieldCoverageReport(t, &checks)
+	tracker.FieldCoverageReport(t)
 }
 
-func (s *OrgWxtagModel) testChecks(t testing.TB, rType, tName string) testChecks {
+func (s *OrgWxtagModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	TrackFieldCoverage(t, &checks, "org_wxtag", resource_org_wxtag.OrgWxtagResourceSchema)
+	checks.SetTracker(tracker)
 
 	// Check fields in struct order
 	// 1. Id (computed-only)

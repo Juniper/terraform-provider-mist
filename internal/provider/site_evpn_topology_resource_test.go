@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_evpn_topology"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -42,7 +43,7 @@ func TestSiteEvpnTopologyModel(t *testing.T) {
 
 	resourceType := "site_evpn_topology"
 	siteName := "test_site"
-	var checks testChecks
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_site_evpn_topology.SiteEvpnTopologyResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 			// Create single-step tests with combined config (site + EVPN topology)
@@ -55,7 +56,7 @@ func TestSiteEvpnTopologyModel(t *testing.T) {
 				combinedConfig := generateSiteEvpnTopologyTestConfig(siteName, tName, step.config)
 
 				// Focus checks on the EVPN topology resource (site is just a prerequisite)
-				checks = step.config.testChecks(t, resourceType, tName)
+				checks := step.config.testChecks(t, resourceType, tName, tracker)
 
 				// Basic checks for switches configuration (using placeholder MAC addresses)
 				if len(step.config.Switches) > 0 {
@@ -80,7 +81,7 @@ func TestSiteEvpnTopologyModel(t *testing.T) {
 
 		})
 	}
-	FieldCoverageReport(t, &checks)
+	tracker.FieldCoverageReport(t)
 }
 
 // generateSiteEvpnTopologyTestConfig creates a combined configuration with both a site and a site EVPN topology
@@ -111,9 +112,9 @@ func generateSiteEvpnTopologyTestConfig(siteName, evpnTopologyName string, evpnT
 	return siteConfigStr + "\n\n" + evpnTopologyConfigStr
 }
 
-func (s *SiteEvpnTopologyModel) testChecks(t testing.TB, rType, tName string) testChecks {
+func (s *SiteEvpnTopologyModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	TrackFieldCoverage(t, &checks, "site_evpn_topology", resource_site_evpn_topology.SiteEvpnTopologyResourceSchema)
+	checks.SetTracker(tracker)
 
 	checks.append(t, "TestCheckResourceAttrSet", "id")
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")

@@ -431,7 +431,7 @@ func TestExtractAllSchemaFields(t *testing.T) {
 		},
 	}
 
-	tracker := ExtractAllSchemaFields("test_resource", testSchema)
+	tracker := FieldCoverageTrackerWithSchema("test_resource", testSchema)
 
 	t.Run("field_extraction", func(t *testing.T) {
 		expectedFields := []string{

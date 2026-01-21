@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wxrule"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
@@ -64,7 +65,7 @@ func TestOrgWxruleModel(t *testing.T) {
 	}
 
 	resourceType := "org_wxrule"
-	var checks testChecks
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_wxrule.OrgWxruleResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 			templateName := "test_template"
@@ -79,7 +80,7 @@ func TestOrgWxruleModel(t *testing.T) {
 				combinedConfig := generateOrgWxruleConfig(templateName, tName, step.config)
 
 				// Focus checks on the WX Rule resource (template is just a prerequisite)
-				checks = step.config.testChecks(t, resourceType, tName)
+				checks := step.config.testChecks(t, resourceType, tName, tracker)
 
 				steps[i] = resource.TestStep{
 					Config: combinedConfig,
@@ -98,7 +99,7 @@ func TestOrgWxruleModel(t *testing.T) {
 
 		})
 	}
-	FieldCoverageReport(t, &checks)
+	tracker.FieldCoverageReport(t)
 }
 
 // generateOrgWxruleConfig creates a combined configuration with both a WLAN template and a WX Rule
@@ -128,9 +129,9 @@ func generateOrgWxruleConfig(templateName, wxRuleName string, wxRuleConfig OrgWx
 	return templateConfigStr + "\n\n" + wxRuleConfigStr
 }
 
-func (s *OrgWxruleModel) testChecks(t testing.TB, rType, tName string) testChecks {
+func (s *OrgWxruleModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	TrackFieldCoverage(t, &checks, "org_wxrule", resource_org_wxrule.OrgWxruleResourceSchema)
+	checks.SetTracker(tracker)
 
 	// Check fields in struct order
 	// 1. Action (required)

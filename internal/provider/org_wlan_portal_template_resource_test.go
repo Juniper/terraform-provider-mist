@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wlan_portal_template"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
@@ -75,7 +76,7 @@ func TestOrgWlanPortalTemplateModel(t *testing.T) {
 	}
 
 	resourceType := "org_wlan_portal_template"
-	var checks testChecks
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_wlan_portal_template.OrgWlanPortalTemplateResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 
@@ -96,7 +97,7 @@ func TestOrgWlanPortalTemplateModel(t *testing.T) {
 				combinedConfig = combinedConfig + "\n\n" + Render(resourceType, tName, string(f.Bytes()))
 
 				// Focus checks on the portal template resource (WLAN template and WLAN are prerequisites)
-				checks = step.config.testChecks(t, resourceType, tName)
+				checks := step.config.testChecks(t, resourceType, tName, tracker)
 
 				steps[i] = resource.TestStep{
 					Config: combinedConfig,
@@ -115,12 +116,12 @@ func TestOrgWlanPortalTemplateModel(t *testing.T) {
 
 		})
 	}
-	FieldCoverageReport(t, &checks)
+	tracker.FieldCoverageReport(t)
 }
 
-func (s *OrgWlanPortalTemplateModel) testChecks(t testing.TB, rType, tName string) testChecks {
+func (s *OrgWlanPortalTemplateModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	TrackFieldCoverage(t, &checks, "org_wlan_portal_template", resource_org_wlan_portal_template.OrgWlanPortalTemplateResourceSchema)
+	checks.SetTracker(tracker)
 
 	// Check fields in struct order
 	// 1. OrgId (required)

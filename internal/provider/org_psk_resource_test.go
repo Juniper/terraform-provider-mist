@@ -7,13 +7,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_psk"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestOrgPsk(t *testing.T) {
+func TestOrgPskModel(t *testing.T) {
 	type testStep struct {
 		config OrgPskModel
 	}
@@ -71,6 +73,7 @@ func TestOrgPsk(t *testing.T) {
 	}
 
 	resourceType := "org_psk"
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_psk.OrgPskResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 			steps := make([]resource.TestStep, len(tCase.steps))
@@ -80,7 +83,7 @@ func TestOrgPsk(t *testing.T) {
 				gohcl.EncodeIntoBody(&step.config, f.Body())
 				configStr := Render("org_psk", tName, string(f.Bytes()))
 
-				checks := step.config.testChecks(t, resourceType, tName)
+				checks := step.config.testChecks(t, resourceType, tName, tracker)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -100,10 +103,13 @@ func TestOrgPsk(t *testing.T) {
 			})
 		})
 	}
+
+	tracker.FieldCoverageReport(t)
 }
 
-func (o *OrgPskModel) testChecks(t testing.TB, rType, tName string) testChecks {
+func (o *OrgPskModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+	checks.SetTracker(tracker)
 
 	// Check fields in struct order
 	// 1. Id (computed-only)

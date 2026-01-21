@@ -15,20 +15,24 @@
 //	    // Run tests...
 //		// ...
 //
-//		FieldCoverageReport(t, &checks)
+//		// tracker.FieldCoverageReport(t)
 //	}
 //
-//	func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, rName string) testChecks {
+//	func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 //
-//	    checks := newTestChecks(rType + "." + rName)
+//	    checks := newTestChecks(rType + "." + tName)
 //	   	TrackFieldCoverage(t, &checks, "my_resource", MyResourceSchema)
 //		// ... add test checks ...
 //	}
 package validators
 
 import (
+	"encoding/json"
+	"os"
 	"reflect"
+	"sort"
 	"strings"
+	"testing"
 	"unicode"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -67,6 +71,17 @@ func NewFieldCoverageTracker(resourceName string) *FieldCoverageTracker {
 		UnknownFields:            make(map[string]bool),
 		SchemaExtractionFailures: make([]string, 0),
 	}
+}
+
+// FieldCoverageTrackerWithSchema creates a new tracker and extracts fields from the provided schema attributes
+func FieldCoverageTrackerWithSchema(resourceName string, attributes map[string]schema.Attribute) *FieldCoverageTracker {
+	if os.Getenv("MIST_TRACK_FIELD_COVERAGE") == "" {
+		return nil
+	}
+
+	tracker := NewFieldCoverageTracker(resourceName)
+	tracker.extractFields("", attributes)
+	return tracker
 }
 
 // MarkFieldAsTested marks a field as tested, normalizing the field path to remove array indices
@@ -136,14 +151,6 @@ func isNumericOrPunctuation(s string) bool {
 		}
 	}
 	return true
-}
-
-// ExtractAllSchemaFields extracts all field paths from a Terraform schema
-// and returns a populated FieldCoverageTracker
-func ExtractAllSchemaFields(resourceName string, schemaAttrs map[string]schema.Attribute) *FieldCoverageTracker {
-	tracker := NewFieldCoverageTracker(resourceName)
-	tracker.extractFields("", schemaAttrs)
-	return tracker
 }
 
 // extractFields recursively extracts all fields from schema attributes with metadata
@@ -354,4 +361,81 @@ func getSetNestedAttributes(attr schema.SetNestedAttribute) map[string]schema.At
 	}
 
 	return nil
+}
+
+// isContainerType checks if an attribute is a container type
+// Container types cannot be tested by themselves and are thus excluded from test coverage counts
+func isContainerType(attr schema.Attribute) bool {
+	_, isSingleNested := attr.(schema.SingleNestedAttribute)
+	_, isMapNested := attr.(schema.MapNestedAttribute)
+	return isSingleNested || isMapNested
+}
+
+// FieldCoverageReport writes the current state of the FieldCoverageTracker to a JSON file.
+func (tracker *FieldCoverageTracker) FieldCoverageReport(t testing.TB) {
+	if tracker == nil {
+		return
+	}
+	t.Helper()
+
+	type CoverageReport struct {
+		ResourceName                string   `json:"resource_name"`
+		TestedFieldsCnt             int      `json:"tested_fields_count"`
+		UntestedFieldsCnt           int      `json:"untested_fields_count"`
+		UntestedFields              []string `json:"untested_fields"`
+		UnknownFieldsCnt            int      `json:"unknown_fields_count"`
+		UnknownFields               []string `json:"unknown_fields"`
+		SchemaExtractionFailuresCnt int      `json:"schema_extraction_failures_count"`
+		SchemaExtractionFailures    []string `json:"schema_extraction_failures"`
+	}
+
+	// Build report
+	untestedFields := make([]string, 0)
+	for path, field := range tracker.SchemaFields {
+		if !field.Computed && !field.IsTested && !isContainerType(field.SchemaAttr) {
+			untestedFields = append(untestedFields, path)
+		}
+	}
+
+	// Convert unknown fields map to sorted slice
+	unknownFields := make([]string, 0, len(tracker.UnknownFields))
+	for path := range tracker.UnknownFields {
+		unknownFields = append(unknownFields, path)
+	}
+
+	sort.Strings(unknownFields)
+	sort.Strings(untestedFields)
+
+	// Capture test execution status from testing.TB
+	report := CoverageReport{
+		ResourceName:                tracker.ResourceName,
+		TestedFieldsCnt:             len(tracker.NormalizedFields),
+		UntestedFieldsCnt:           len(untestedFields),
+		UntestedFields:              untestedFields,
+		UnknownFieldsCnt:            len(unknownFields),
+		UnknownFields:               unknownFields,
+		SchemaExtractionFailuresCnt: len(tracker.SchemaExtractionFailures),
+		SchemaExtractionFailures:    tracker.SchemaExtractionFailures,
+	}
+
+	// Write JSON files to tools/reports directory
+	err := writeToJSON(report)
+	if err != nil {
+		t.Errorf("failed to write field coverage report: %v", err)
+	}
+}
+
+// writeToJSON writes data as indented JSON to the specified file
+func writeToJSON(data interface{}) error {
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	_, err = os.Stdout.Write(jsonData)
+	if err != nil {
+		return err
+	}
+	_, err = os.Stdout.Write([]byte("\n"))
+	return err
 }

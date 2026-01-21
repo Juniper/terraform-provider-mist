@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_service"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -62,6 +64,7 @@ func TestOrgServiceModel(t *testing.T) {
 	}
 
 	resourceType := "org_service"
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_service.OrgServiceResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 			steps := make([]resource.TestStep, len(tCase.steps))
@@ -71,7 +74,7 @@ func TestOrgServiceModel(t *testing.T) {
 				gohcl.EncodeIntoBody(&step.config, f.Body())
 				configStr := Render(resourceType, tName, string(f.Bytes()))
 
-				checks := step.config.testChecks(t, resourceType, tName)
+				checks := step.config.testChecks(t, resourceType, tName, tracker)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -94,8 +97,9 @@ func TestOrgServiceModel(t *testing.T) {
 	}
 }
 
-func (s *OrgServiceModel) testChecks(t testing.TB, rType, tName string) testChecks {
+func (s *OrgServiceModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+	checks.SetTracker(tracker)
 
 	// Check fields in struct order
 	// 1. Addresses array

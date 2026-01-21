@@ -43,7 +43,7 @@ func TestDebugEnvVariable_Null(t *testing.T) {
 	}
 }
 
-func TestFromEnv_ApiDebug(t *testing.T) {
+func TestFromEnvApiDebug(t *testing.T) {
 	tests := []struct {
 		name          string
 		envValue      string
@@ -108,8 +108,7 @@ func TestFromEnv_ApiDebug(t *testing.T) {
 	}
 }
 
-func TestIntegration_Configure_Invalid_Configuration(t *testing.T) {
-
+func TestIntegrationConfigureInvalidConfiguration(t *testing.T) {
 	testProvider := New()()
 	schemaResponse := new(provider.SchemaResponse)
 
@@ -149,7 +148,7 @@ func TestIntegration_Configure_Invalid_Configuration(t *testing.T) {
 		assert.Equal(t, diag.Diagnostics{diag.NewErrorDiagnostic("Authentication Error", "ResponseHttp401Error occurred: Unauthorized")}, resp.Diagnostics)
 	}
 }
-func TestIntegration_Configure_API_Token(t *testing.T) {
+func TestIntegrationConfigureAPIToken(t *testing.T) {
 	ValidateEnvVars(t, []string{"TEST_MIST_API_TOKEN"})
 
 	testProvider := New()()
@@ -191,7 +190,7 @@ func TestIntegration_Configure_API_Token(t *testing.T) {
 	assert.Empty(t, resp.ResourceData.(mistapi.ClientInterface).Configuration().CsrfTokenCredentials())
 }
 
-func TestIntegration_Configure_Basic_Auth(t *testing.T) {
+func TestIntegrationConfigureBasicAuth(t *testing.T) {
 	ValidateEnvVars(t, []string{"TEST_MIST_USERNAME", "TEST_MIST_PASSWORD"})
 
 	testProvider := New()()
@@ -233,7 +232,7 @@ func TestIntegration_Configure_Basic_Auth(t *testing.T) {
 	assert.NotEmpty(t, resp.ResourceData.(mistapi.ClientInterface).Configuration().CsrfTokenCredentials())
 }
 
-func TestIntegration_Configure_API_DEBUG(t *testing.T) {
+func TestIntegrationConfigureAPIDebug(t *testing.T) {
 	ValidateEnvVars(t, []string{"TEST_MIST_API_TOKEN"})
 
 	testProvider := New()()

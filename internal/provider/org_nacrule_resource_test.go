@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_nacrule"
-
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -63,7 +63,7 @@ func TestOrgNacruleModel(t *testing.T) {
 	}
 
 	resourceType := "org_nacrule"
-	var checks testChecks
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_nacrule.OrgNacruleResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 
@@ -91,7 +91,7 @@ func TestOrgNacruleModel(t *testing.T) {
 					combinedConfig = siteConfig + "\n\n" + combinedConfig
 				}
 
-				checks = config.testChecks(t, resourceType, tName)
+				checks := config.testChecks(t, resourceType, tName, tracker)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -111,12 +111,12 @@ func TestOrgNacruleModel(t *testing.T) {
 			})
 		})
 	}
-	FieldCoverageReport(t, &checks)
+	tracker.FieldCoverageReport(t)
 }
 
-func (o *OrgNacruleModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
-	TrackFieldCoverage(t, &checks, "org_nacrule", resource_org_nacrule.OrgNacruleResourceSchema)
+func (o *OrgNacruleModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+	checks.SetTracker(tracker)
 
 	// Computed fields
 	checks.append(t, "TestCheckResourceAttrSet", "id")

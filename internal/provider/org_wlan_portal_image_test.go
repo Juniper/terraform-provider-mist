@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_wlan_portal_image"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -39,7 +40,7 @@ func TestOrgWlanPortalImageModel(t *testing.T) {
 	}
 
 	resourceType := "org_wlan_portal_image"
-	var checks testChecks
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_wlan_portal_image.OrgWlanPortalImageResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 			testSteps := make([]resource.TestStep, 0)
@@ -54,7 +55,7 @@ func TestOrgWlanPortalImageModel(t *testing.T) {
 				combinedConfig = combinedConfig + "\n\n" + Render("org_wlan_portal_image", tName, string(f.Bytes()))
 
 				// Step 1: Create the portal image and verify it exists
-				checks = step.config.testChecks(t, resourceType, tName)
+				checks := step.config.testChecks(t, resourceType, tName, tracker)
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
 				// Log config and checks for step 1
@@ -103,12 +104,12 @@ func TestOrgWlanPortalImageModel(t *testing.T) {
 
 		})
 	}
-	FieldCoverageReport(t, &checks)
+	tracker.FieldCoverageReport(t)
 }
 
-func (s *OrgWlanPortalImageModel) testChecks(t testing.TB, rType, tName string) testChecks {
+func (s *OrgWlanPortalImageModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	TrackFieldCoverage(t, &checks, "org_wlan_portal_image", resource_org_wlan_portal_image.OrgWlanPortalImageResourceSchema)
+	checks.SetTracker(tracker)
 
 	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
 	checks.append(t, "TestCheckResourceAttrSet", "wlan_id")

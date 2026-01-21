@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
 	"github.com/Juniper/terraform-provider-mist/internal/resource_site_webhook"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
@@ -65,7 +66,7 @@ func TestSiteWebhookModel(t *testing.T) {
 	}
 
 	resourceType := "site_webhook"
-	var checks testChecks
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_site_webhook.SiteWebhookResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 
@@ -79,7 +80,7 @@ func TestSiteWebhookModel(t *testing.T) {
 				f.Body().SetAttributeRaw("site_id", hclwrite.TokensForIdentifier(siteRef))
 				configStr := siteConfig + "\n\n" + Render(resourceType, tName, string(f.Bytes()))
 
-				checks = config.testChecks(t, resourceType, tName)
+				checks := config.testChecks(t, resourceType, tName, tracker)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -99,12 +100,12 @@ func TestSiteWebhookModel(t *testing.T) {
 			})
 		})
 	}
-	FieldCoverageReport(t, &checks)
+	tracker.FieldCoverageReport(t)
 }
 
-func (s *SiteWebhookModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
-	TrackFieldCoverage(t, &checks, "site_webhook", resource_site_webhook.SiteWebhookResourceSchema)
+func (s *SiteWebhookModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+	checks.SetTracker(tracker)
 
 	// Required attributes
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
