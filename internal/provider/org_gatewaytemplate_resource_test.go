@@ -95,7 +95,9 @@ func TestOrgGatewaytemplateModel(t *testing.T) {
 			})
 		})
 	}
-	tracker.FieldCoverageReport(t)
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
 func (s *OrgGatewaytemplateModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {

@@ -99,7 +99,9 @@ func TestOrgWxruleModel(t *testing.T) {
 
 		})
 	}
-	tracker.FieldCoverageReport(t)
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
 // generateOrgWxruleConfig creates a combined configuration with both a WLAN template and a WX Rule

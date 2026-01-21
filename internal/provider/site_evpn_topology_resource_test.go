@@ -81,7 +81,9 @@ func TestSiteEvpnTopologyModel(t *testing.T) {
 
 		})
 	}
-	tracker.FieldCoverageReport(t)
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
 // generateSiteEvpnTopologyTestConfig creates a combined configuration with both a site and a site EVPN topology

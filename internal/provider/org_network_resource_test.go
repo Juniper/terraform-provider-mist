@@ -95,7 +95,9 @@ func TestOrgNetworkModel(t *testing.T) {
 			})
 		})
 	}
-	tracker.FieldCoverageReport(t)
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
 func (o *OrgNetworkModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {

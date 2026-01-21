@@ -100,7 +100,9 @@ func TestOrgWlanModel(t *testing.T) {
 
 		})
 	}
-	tracker.FieldCoverageReport(t)
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
 // generateOrgWlanTestConfig creates a combined configuration with both a WLAN template and a WLAN

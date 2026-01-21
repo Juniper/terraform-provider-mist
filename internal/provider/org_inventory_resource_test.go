@@ -114,7 +114,9 @@ func TestOrgInventoryModel(t *testing.T) {
 			})
 		})
 	}
-	tracker.FieldCoverageReport(t)
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
 func (o *OrgInventoryModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
