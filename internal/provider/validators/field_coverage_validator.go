@@ -375,9 +375,6 @@ func isContainerType(attr schema.Attribute) bool {
 
 // FieldCoverageReport writes the current state of the FieldCoverageTracker to a JSON file.
 func (tracker *FieldCoverageTracker) FieldCoverageReport(t testing.TB) {
-	if tracker == nil {
-		return
-	}
 	t.Helper()
 
 	type CoverageReport struct {
