@@ -1,31 +1,5 @@
 // Package validators provides utilities for tracking test coverage of Terraform schema fields.
-//
-// The field coverage tracking system helps identify untested schema fields by:
-//  1. Extracting all fields from a resource schema using reflection
-//  2. Intercepting test assertions to mark fields as tested
-//  3. Normalizing field paths to dot notation to handle arrays, maps, and nested structures
-//  4. Generating JSON reports of untested fields
-//
-// Enable tracking by setting the MIST_TRACK_FIELD_COVERAGE environment variable.
-//
-// Example usage:
-//
-//	func TestMyResource(t *testing.T) {
-//
-//	    // Run tests...
-//		// ...
-//
-//		if tracker != nil {
-//			tracker.FieldCoverageReport(t)
-//		}
-//	}
-//
-//	func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-//
-//	    checks := newTestChecks(rType + "." + tName)
-//	   	TrackFieldCoverage(t, &checks, "my_resource", MyResourceSchema)
-//		// ... add test checks ...
-//	}
+// See TESTING_GUIDELINES.md for detailed usage patterns.
 package validators
 
 import (
@@ -40,14 +14,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
 
+const keyFieldPlaceholder = "{key}"
+
 // FieldCoverageTracker tracks schema fields and their test coverage
 type FieldCoverageTracker struct {
 	ResourceName             string
 	SchemaFields             map[string]*FieldInfo
 	NestedMapAttributePaths  map[string]bool
-	UnknownFields            map[string]bool // Deduplicated test paths that don't match schema
-	NormalizedFields         map[string]any  // Unique normalized field paths that were tested
-	SchemaExtractionFailures []string        // Tracks paths where schema extraction failed via reflection
+	UnknownFields            map[string]bool     // Deduplicated test paths that don't match schema
+	NormalizedFields         map[string]struct{} // Unique normalized field paths that were tested
+	SchemaExtractionFailures []string            // Tracks paths where schema extraction failed via reflection
 }
 
 // FieldInfo contains metadata about a schema field
@@ -67,7 +43,7 @@ type FieldInfo struct {
 func NewFieldCoverageTracker(resourceName string) *FieldCoverageTracker {
 	return &FieldCoverageTracker{
 		ResourceName:             resourceName,
-		NormalizedFields:         make(map[string]any),
+		NormalizedFields:         make(map[string]struct{}),
 		SchemaFields:             make(map[string]*FieldInfo),
 		NestedMapAttributePaths:  make(map[string]bool),
 		UnknownFields:            make(map[string]bool),
@@ -77,7 +53,7 @@ func NewFieldCoverageTracker(resourceName string) *FieldCoverageTracker {
 
 // FieldCoverageTrackerWithSchema creates a new tracker and extracts fields from the provided schema attributes
 func FieldCoverageTrackerWithSchema(resourceName string, attributes map[string]schema.Attribute) *FieldCoverageTracker {
-	if os.Getenv("MIST_TRACK_FIELD_COVERAGE") == "" {
+	if os.Getenv("DISABLE_MIST_FIELD_COVERAGE_TRACKER") != "" {
 		return nil
 	}
 
@@ -86,22 +62,18 @@ func FieldCoverageTrackerWithSchema(resourceName string, attributes map[string]s
 	return tracker
 }
 
-// MarkFieldAsTested marks a field as tested, normalizing the field path to remove array indices
+// MarkFieldAsTested normalizes the field path and marks it as tested.
 func (t *FieldCoverageTracker) MarkFieldAsTested(fieldPath string) {
 	normalized := t.normalizeFieldPath(fieldPath)
 	field, exists := t.SchemaFields[normalized]
 	if exists {
 		field.IsTested = true
 	}
-	t.NormalizedFields[normalized] = nil
+	t.NormalizedFields[normalized] = struct{}{}
 }
 
-// normalizeFieldPath removes array indices and uses schema knowledge to replace map keys with {key}
-// Examples:
-//   - "privileges.0.role" -> "privileges.role"
-//   - "switch_mgmt.local_accounts.readonly.password" -> "switch_mgmt.local_accounts.{key}.password"
-//   - "extra_routes.10.0.0.0/8.via" -> "extra_routes.{key}.via"
-//   - "networks.guest.vlan_id" -> "networks.{key}.vlan_id"
+// normalizeFieldPath converts test paths to schema paths, using dot notation.
+// Uses schema knowledge to distinguish between indices, map keys, and field names.
 func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
 	parts := strings.Split(fieldPath, ".")
 	normalized := make([]string, 0, len(parts))
@@ -130,7 +102,7 @@ func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
 
 		// Replace with {key} if parent is a map
 		if t.NestedMapAttributePaths[parentPath] {
-			normalized = append(normalized, "{key}")
+			normalized = append(normalized, keyFieldPlaceholder)
 			continue
 		}
 
@@ -142,7 +114,7 @@ func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
 	return strings.Join(normalized, ".")
 }
 
-// isNumericOrPunctuation checks if a string contains only numeric digits and punctuation
+// isNumericOrPunctuation checks if a string contains only numeric digits and punctuation.
 func isNumericOrPunctuation(s string) bool {
 	if len(s) == 0 {
 		return false
@@ -155,7 +127,7 @@ func isNumericOrPunctuation(s string) bool {
 	return true
 }
 
-// extractFields recursively extracts all fields from schema attributes with metadata
+// extractFields recursively walks the schema tree and extracts field metadata.
 func (t *FieldCoverageTracker) extractFields(path string, attributes map[string]schema.Attribute) {
 	for name, attr := range attributes {
 		currentPath := name
@@ -208,7 +180,7 @@ func (t *FieldCoverageTracker) extractFields(path string, attributes map[string]
 			}
 			// Map uses {key} notation in path
 			t.NestedMapAttributePaths[currentPath] = true
-			keyPath := currentPath + ".{key}"
+			keyPath := currentPath + "." + keyFieldPlaceholder
 			t.extractFields(keyPath, nestedAttrs)
 		}
 	}
@@ -365,15 +337,15 @@ func getSetNestedAttributes(attr schema.SetNestedAttribute) map[string]schema.At
 	return nil
 }
 
-// isContainerType checks if an attribute is a container type
-// Container types cannot be tested by themselves and are thus excluded from test coverage counts
+// isContainerType checks if an attribute is a container type.
+// Container types cannot be tested by themselves and are thus excluded from test coverage counts.
 func isContainerType(attr schema.Attribute) bool {
 	_, isSingleNested := attr.(schema.SingleNestedAttribute)
 	_, isMapNested := attr.(schema.MapNestedAttribute)
 	return isSingleNested || isMapNested
 }
 
-// FieldCoverageReport writes the current state of the FieldCoverageTracker to a JSON file.
+// FieldCoverageReport writes the current state of the FieldCoverageTracker to Stdout.
 func (tracker *FieldCoverageTracker) FieldCoverageReport(t testing.TB) {
 	t.Helper()
 

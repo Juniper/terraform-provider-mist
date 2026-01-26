@@ -53,7 +53,7 @@ func (o *testChecks) append(t testing.TB, testCheckFuncName string, testCheckFun
 	t.Helper()
 
 	// Track field coverage if enabled via environment variable and tracker is set
-	if os.Getenv("MIST_TRACK_FIELD_COVERAGE") != "" && o.tracker != nil && len(testCheckFuncArgs) > 0 {
+	if o.tracker != nil && len(testCheckFuncArgs) > 0 {
 		o.tracker.MarkFieldAsTested(testCheckFuncArgs[0])
 	}
 

@@ -339,7 +339,7 @@ func TestMarkFieldAsTested(t *testing.T) {
 					"networks": true,
 				},
 				UnknownFields:    make(map[string]bool),
-				NormalizedFields: make(map[string]any),
+				NormalizedFields: make(map[string]struct{}),
 			}
 
 			tracker.MarkFieldAsTested(tt.testPath)
@@ -400,6 +400,14 @@ func TestExtractAllSchemaFields(t *testing.T) {
 				"timeout": schema.Int64Attribute{
 					Optional: true,
 				},
+				"deep": schema.SingleNestedAttribute{
+					Optional: true,
+					Attributes: map[string]schema.Attribute{
+						"deep_field": schema.StringAttribute{
+							Required: true,
+						},
+					},
+				},
 			},
 		},
 		"tags": schema.ListAttribute{
@@ -439,6 +447,8 @@ func TestExtractAllSchemaFields(t *testing.T) {
 			"enabled",
 			"config",
 			"config.timeout",
+			"config.deep",
+			"config.deep.deep_field",
 			"tags",
 			"servers",
 			"servers.host",
@@ -470,5 +480,25 @@ func TestExtractAllSchemaFields(t *testing.T) {
 
 		metadataField := tracker.SchemaFields["metadata.{key}.value"]
 		require.NotNil(t, metadataField, "Field 'metadata.{key}.value' should exist")
+	})
+
+	t.Run("parent_tracking", func(t *testing.T) {
+		// Root field has empty parent
+		rootField := tracker.SchemaFields["name"]
+		require.NotNil(t, rootField)
+		assert.Equal(t, "", rootField.Parent)
+		assert.Equal(t, "name", rootField.Field)
+
+		// Single nested field has correct parent
+		nestedField := tracker.SchemaFields["config.timeout"]
+		require.NotNil(t, nestedField)
+		assert.Equal(t, "config", nestedField.Parent)
+		assert.Equal(t, "timeout", nestedField.Field)
+
+		// Deeply nested field has full parent path
+		deepField := tracker.SchemaFields["config.deep.deep_field"]
+		require.NotNil(t, deepField)
+		assert.Equal(t, "config.deep", deepField.Parent)
+		assert.Equal(t, "deep_field", deepField.Field)
 	})
 }
