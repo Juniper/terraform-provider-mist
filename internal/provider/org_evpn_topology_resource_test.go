@@ -12,6 +12,9 @@ import (
 )
 
 func TestOrgEvpnTopologyModel(t *testing.T) {
+	resourceType := "org_evpn_topology"
+	t.Skipf("Skipping %s tests, as they require a real device.", resourceType)
+
 	type testStep struct {
 		config OrgEvpnTopologyModel
 	}
@@ -52,10 +55,8 @@ func TestOrgEvpnTopologyModel(t *testing.T) {
 		},
 	}
 
-	resourceType := "org_evpn_topology"
 	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_evpn_topology.OrgEvpnTopologyResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
-		t.Skip("Skipping EVPN Topology tests temporarily")
 		t.Run(tName, func(t *testing.T) {
 
 			steps := make([]resource.TestStep, len(tCase.steps))

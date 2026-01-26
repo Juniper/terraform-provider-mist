@@ -12,7 +12,8 @@ import (
 )
 
 func TestUpgradeDeviceModel(t *testing.T) {
-	t.Skip("Skipping upgrade_device tests, as they require a real device.")
+	resourceType := "upgrade_device"
+	t.Skipf("Skipping %s tests, as they require a real device.", resourceType)
 
 	type testStep struct {
 		config UpgradeDeviceModel
@@ -35,10 +36,8 @@ func TestUpgradeDeviceModel(t *testing.T) {
 		},
 	}
 
-	resourceType := "upgrade_device"
 	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_upgrade_device.UpgradeDeviceResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
-		t.Skip("Skipping upgrade_device tests, as they require a real device.")
 		t.Run(tName, func(t *testing.T) {
 
 			steps := make([]resource.TestStep, len(tCase.steps))

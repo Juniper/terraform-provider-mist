@@ -15,6 +15,9 @@ import (
 )
 
 func TestDeviceApModel(t *testing.T) {
+	resourceType := "device_ap"
+	t.Skipf("Skipping %s tests, as they require a real device.", resourceType)
+
 	type testStep struct {
 		config DeviceApModel
 	}
@@ -61,10 +64,8 @@ func TestDeviceApModel(t *testing.T) {
 		}
 	}
 
-	resourceType := "device_ap"
 	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_device_ap.DeviceApResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
-		t.Skip("Skipping device_ap tests, as they require a real device.")
 		t.Run(tName, func(t *testing.T) {
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {

@@ -15,6 +15,9 @@ import (
 )
 
 func TestDeviceGatewayModel(t *testing.T) {
+	resourceType := "device_gateway"
+	t.Skipf("Skipping %s tests, as they require a real device.", resourceType)
+
 	type testStep struct {
 		config DeviceGatewayModel
 	}
@@ -61,10 +64,8 @@ func TestDeviceGatewayModel(t *testing.T) {
 		}
 	}
 
-	resourceType := "device_gateway"
 	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_device_gateway.DeviceGatewayResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
-		t.Skip("Skipping device_gateway tests, as they require a real device.")
 		t.Run(tName, func(t *testing.T) {
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {

@@ -12,6 +12,9 @@ import (
 )
 
 func TestOrgDeviceprofileAssignModel(t *testing.T) {
+	resourceType := "org_deviceprofile_assign"
+	t.Skipf("Skipping %s tests, as they require a real device.", resourceType)
+
 	type testStep struct {
 		config OrgDeviceprofileAssignModel
 	}
@@ -33,10 +36,8 @@ func TestOrgDeviceprofileAssignModel(t *testing.T) {
 		},
 	}
 
-	resourceType := "org_deviceprofile_assign"
 	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_deviceprofile_assign.OrgDeviceprofileAssignResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
-		t.Skip("Skipping Device Profile Assign tests temporarily")
 		t.Run(tName, func(t *testing.T) {
 
 			steps := make([]resource.TestStep, len(tCase.steps))

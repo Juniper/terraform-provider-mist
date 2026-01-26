@@ -63,7 +63,7 @@ func TestOrgInventoryModel(t *testing.T) {
 		t.Run(tName, func(t *testing.T) {
 			// Skip fixture cases that require real devices with valid MAC addresses
 			if strings.HasPrefix(tName, "fixture_case") {
-				t.Skip("Skipping fixture case as it requires real devices with valid MAC addresses.")
+				t.Skipf("Skipping %s fixture tests, as they require a real device.", resourceType)
 			}
 
 			steps := make([]resource.TestStep, len(tCase.steps))

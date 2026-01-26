@@ -15,6 +15,9 @@ import (
 )
 
 func TestDeviceSwitchModel(t *testing.T) {
+	resourceType := "device_switch"
+	t.Skipf("Skipping %s tests, as they require a real device.", resourceType)
+
 	type testStep struct {
 		config DeviceSwitchModel
 	}
@@ -60,10 +63,8 @@ func TestDeviceSwitchModel(t *testing.T) {
 		}
 	}
 
-	resourceType := "device_switch"
 	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_device_switch.DeviceSwitchResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
-		t.Skip("Skipping device_switch tests, as they require a real device.")
 		t.Run(tName, func(t *testing.T) {
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {

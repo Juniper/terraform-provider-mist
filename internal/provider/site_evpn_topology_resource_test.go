@@ -13,7 +13,9 @@ import (
 )
 
 func TestSiteEvpnTopologyModel(t *testing.T) {
-	t.Skip("This test is currently skipped because it requires a real device with a valid MAC address.")
+	resourceType := "site_evpn_topology"
+	t.Skipf("Skipping %s tests, as they require a real device.", resourceType)
+
 	type testStep struct {
 		config SiteEvpnTopologyModel
 	}
@@ -41,7 +43,6 @@ func TestSiteEvpnTopologyModel(t *testing.T) {
 		},
 	}
 
-	resourceType := "site_evpn_topology"
 	siteName := "test_site"
 	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_site_evpn_topology.SiteEvpnTopologyResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {

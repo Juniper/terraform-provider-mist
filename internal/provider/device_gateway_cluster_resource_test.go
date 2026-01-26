@@ -12,6 +12,9 @@ import (
 )
 
 func TestDeviceGatewayClusterModel(t *testing.T) {
+	resourceType := "mist_device_gateway_cluster"
+	t.Skipf("Skipping %s tests, as they require real devices.", resourceType)
+
 	type testStep struct {
 		config DeviceGatewayClusterModel
 	}
@@ -50,10 +53,8 @@ func TestDeviceGatewayClusterModel(t *testing.T) {
 		},
 	}
 
-	resourceType := "mist_device_gateway_cluster"
 	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_device_gateway_cluster.DeviceGatewayClusterResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
-		t.Skip("Skipping by default as test requires two gateway devices.")
 		t.Run(tName, func(t *testing.T) {
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
