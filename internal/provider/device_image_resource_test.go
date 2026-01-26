@@ -39,7 +39,7 @@ func TestDeviceImageModel(t *testing.T) {
 	resourceType := "device_image"
 	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_device_image.DeviceImageResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
-		t.Skip("Skipping test case: " + tName) // Skip all tests for now
+		t.Skip("Skipping test case: " + tName) // Skipping device_image tests, as they require a real device.
 		t.Run(tName, func(t *testing.T) {
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
