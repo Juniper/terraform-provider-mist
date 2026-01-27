@@ -336,6 +336,8 @@ func TestMarkFieldAsTested(t *testing.T) {
 		{"name", "name", true},
 		{"privileges.0.role", "privileges.role", true},
 		{"networks.guest.vlan_id", "networks.{key}.vlan_id", true},
+		{"vars.my_var", "vars.{key}", true},
+		{"vars.123", "vars.{key}", true},
 		{"nonexistent.field", "nonexistent.field", false},
 	}
 
@@ -365,6 +367,17 @@ func TestMarkFieldAsTested(t *testing.T) {
 						Path:     "networks.{key}.vlan_id",
 						IsTested: false,
 					},
+					"vars": {
+						Path:     "vars",
+						IsTested: false,
+					},
+					"vars.{key}": {
+						Path:     "vars.{key}",
+						IsTested: false,
+					},
+				},
+				MapNormalizationPaths: map[string]bool{
+					"vars": true,
 				},
 				NestedMapNormalizationPaths: map[string]bool{
 					"networks": true,
@@ -448,6 +461,10 @@ func TestExtractAllSchemaFields(t *testing.T) {
 			Optional:    true,
 			ElementType: types.StringType,
 		},
+		"vars": schema.MapAttribute{
+			Optional:    true,
+			ElementType: types.StringType,
+		},
 		"servers": schema.ListNestedAttribute{
 			Optional: true,
 			NestedObject: schema.NestedAttributeObject{
@@ -503,6 +520,8 @@ func TestExtractAllSchemaFields(t *testing.T) {
 		"config.deep":            {attrType: "nested", parent: "config", required: false, optional: true, computed: false},
 		"config.deep.deep_field": {attrType: "string", parent: "config.deep", required: true, optional: false, computed: false},
 		"tags":                   {attrType: "list", parent: "", required: false, optional: true, computed: false},
+		"vars":                   {attrType: "map", parent: "", required: false, optional: true, computed: false},
+		"vars.{key}":             {attrType: "map_key", parent: "vars", required: false, optional: true, computed: false},
 		"servers":                {attrType: "list_nested", parent: "", required: false, optional: true, computed: false},
 		"servers.host":           {attrType: "string", parent: "servers", required: true, optional: false, computed: false},
 		"servers.port":           {attrType: "int64", parent: "servers", required: false, optional: true, computed: false},
@@ -526,6 +545,7 @@ func TestExtractAllSchemaFields(t *testing.T) {
 	}
 
 	// Verify map attribute tracking
-	assert.True(t, tracker.NestedMapNormalizationPaths["metadata"], "'metadata' should be marked as map attribute path")
+	assert.True(t, tracker.MapNormalizationPaths["vars"], "'vars' should be marked as MapAttribute path")
+	assert.True(t, tracker.NestedMapNormalizationPaths["metadata"], "'metadata' should be marked as MapNestedAttribute path")
 	assert.False(t, tracker.NestedMapNormalizationPaths["servers"], "'servers' should not be marked as map attribute path")
 }

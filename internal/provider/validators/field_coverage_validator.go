@@ -155,6 +155,20 @@ func (t *FieldCoverageTracker) extractFields(path string, attributes map[string]
 		switch v := attr.(type) {
 		case schema.MapAttribute:
 			t.MapNormalizationPaths[currentPath] = true
+			// Create synthetic {key} entry so normalized map paths can be marked as tested
+			keyPath := currentPath + "." + keyFieldPlaceholder
+			syntheticFieldInfo := &FieldInfo{
+				Path:       keyPath,
+				Field:      keyFieldPlaceholder,
+				Parent:     currentPath,
+				Required:   fieldInfo.Required,
+				Optional:   fieldInfo.Optional,
+				Computed:   fieldInfo.Computed,
+				AttrType:   "map_key",
+				SchemaAttr: attr,
+				IsTested:   false,
+			}
+			t.SchemaFields[keyPath] = syntheticFieldInfo
 		case schema.SingleNestedAttribute:
 			nestedAttrs := getNestedAttributes(v)
 			if nestedAttrs == nil {
@@ -359,7 +373,7 @@ func (tracker *FieldCoverageTracker) FieldCoverageReport(t testing.TB) {
 	// Build report
 	untestedFields := make([]string, 0)
 	for path, field := range tracker.SchemaFields {
-		if !field.IsTested && !isComputedOnlyField(field) && !isContainerType(field.SchemaAttr) {
+		if !field.IsTested && !isComputedOnlyField(field) && !isContainerType(field.SchemaAttr) && field.AttrType != "map" {
 			untestedFields = append(untestedFields, path)
 		}
 	}

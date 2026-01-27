@@ -172,4 +172,4 @@ The tracker automatically normalizes test paths:
 | HCL generation errors | Only add HCL tags to fields with CTY tags |
 | Nested object errors | Validate child attributes only (e.g., `applies.org_id` not `applies`) |
 | Field coverage gaps | Use the 4-step verification process above |
-| "Attribute 'field.0.subfield' not found" | Remove `.0` - use direct nested paths (see Nested Attribute Path Structure) |
+| "Attribute 'field.0.subfield' not found" | Remove `.0` - use direct nested paths |
