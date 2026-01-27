@@ -64,7 +64,7 @@ func FieldCoverageTrackerWithSchema(resourceName string, attributes map[string]s
 	return tracker
 }
 
-// MarkFieldAsTested normalizes the field path and marks it as tested.
+// MarkFieldAsTested normalizes the field path and marks it as tested
 func (t *FieldCoverageTracker) MarkFieldAsTested(fieldPath string) {
 	normalized := t.normalizeFieldPath(fieldPath)
 	field, exists := t.SchemaFields[normalized]
@@ -74,8 +74,8 @@ func (t *FieldCoverageTracker) MarkFieldAsTested(fieldPath string) {
 	t.NormalizedFields[normalized] = struct{}{}
 }
 
-// normalizeFieldPath converts test paths to schema paths, using dot notation.
-// Uses schema knowledge to distinguish between indices, map keys, and field names.
+// normalizeFieldPath converts test paths to schema paths, using dot notation
+// Uses schema knowledge to distinguish between indices, map keys, and field names
 func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
 	parts := strings.Split(fieldPath, ".")
 	normalized := make([]string, 0, len(parts))
@@ -116,7 +116,7 @@ func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
 	return strings.Join(normalized, ".")
 }
 
-// isNumericOrPunctuation checks if a string contains only numeric digits and punctuation.
+// isNumericOrPunctuation checks if a string contains only numeric digits and punctuation
 func isNumericOrPunctuation(s string) bool {
 	if len(s) == 0 {
 		return false
@@ -287,11 +287,11 @@ func getListNestedAttributes(attr schema.ListNestedAttribute) map[string]schema.
 		return nil
 	}
 
-	// Look for NestedObject field first
+	// Look for NestedObject field first.
 	if nestedObjField := v.FieldByName("NestedObject"); nestedObjField.IsValid() && nestedObjField.CanInterface() {
 		nestedObj := nestedObjField.Interface()
 
-		// Get the nested object and look for its Attributes
+		// Get the nested object and look for its Attributes.
 		nestedV := reflect.ValueOf(nestedObj)
 		if nestedV.IsValid() && nestedV.Kind() == reflect.Struct {
 			if attributesField := nestedV.FieldByName("Attributes"); attributesField.IsValid() && attributesField.CanInterface() {
@@ -341,7 +341,7 @@ func getSetNestedAttributes(attr schema.SetNestedAttribute) map[string]schema.At
 	if nestedObjField := v.FieldByName("NestedObject"); nestedObjField.IsValid() && nestedObjField.CanInterface() {
 		nestedObj := nestedObjField.Interface()
 
-		// Get the nested object and look for its Attributes
+		// Get the nested object and look for its Attributes.
 		nestedV := reflect.ValueOf(nestedObj)
 		if nestedV.IsValid() && nestedV.Kind() == reflect.Struct {
 			if attributesField := nestedV.FieldByName("Attributes"); attributesField.IsValid() && attributesField.CanInterface() {
@@ -355,7 +355,7 @@ func getSetNestedAttributes(attr schema.SetNestedAttribute) map[string]schema.At
 	return nil
 }
 
-// FieldCoverageReport writes the current state of the FieldCoverageTracker to Stdout.
+// FieldCoverageReport writes the current state of the FieldCoverageTracker to Stdout
 func (tracker *FieldCoverageTracker) FieldCoverageReport(t testing.TB) {
 	t.Helper()
 
@@ -373,7 +373,7 @@ func (tracker *FieldCoverageTracker) FieldCoverageReport(t testing.TB) {
 	// Build report
 	untestedFields := make([]string, 0)
 	for path, field := range tracker.SchemaFields {
-		if !field.IsTested && !isComputedOnlyField(field) && !isContainerType(field.SchemaAttr) && field.AttrType != "map" {
+		if !field.IsTested && isTestableField(field) {
 			untestedFields = append(untestedFields, path)
 		}
 	}
@@ -406,15 +406,31 @@ func (tracker *FieldCoverageTracker) FieldCoverageReport(t testing.TB) {
 	}
 }
 
-// isContainerType checks if an attribute is a container type.
-// Container types cannot be tested by themselves and are thus excluded from test coverage counts.
+// isTestableField determines if a field should be included in test coverage counts
+func isTestableField(field *FieldInfo) bool {
+	// Computed-only fields cannot be set in tests
+	if isComputedOnlyField(field) {
+		return false
+	}
+
+	// Container types are not directly testable
+	// fields with a map_key AttrType are testable
+	if isContainerType(field.SchemaAttr) || field.AttrType == "map" {
+		return false
+	}
+
+	return true
+}
+
+// isContainerType checks if an attribute is a container type
+// Container types cannot be tested by themselves and are thus excluded from test coverage counts
 func isContainerType(attr schema.Attribute) bool {
 	_, isSingleNested := attr.(schema.SingleNestedAttribute)
 	_, isMapNested := attr.(schema.MapNestedAttribute)
 	return isSingleNested || isMapNested
 }
 
-// isComputedOnlyField checks if a field is Computed-only (Computed=true, Optional=false).
+// isComputedOnlyField checks if a field is Computed-only (Computed=true, Optional=false)
 func isComputedOnlyField(field *FieldInfo) bool {
 	return field.Computed && !field.Optional
 }
