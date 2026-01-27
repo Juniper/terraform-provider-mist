@@ -1,5 +1,5 @@
 // Package validators provides utilities for tracking test coverage of Terraform schema fields.
-// See TESTING_GUIDELINES.md for detailed usage patterns.
+// See TESTING_GUIDE.md for detailed usage patterns.
 package validators
 
 import (
@@ -337,14 +337,6 @@ func getSetNestedAttributes(attr schema.SetNestedAttribute) map[string]schema.At
 	return nil
 }
 
-// isContainerType checks if an attribute is a container type.
-// Container types cannot be tested by themselves and are thus excluded from test coverage counts.
-func isContainerType(attr schema.Attribute) bool {
-	_, isSingleNested := attr.(schema.SingleNestedAttribute)
-	_, isMapNested := attr.(schema.MapNestedAttribute)
-	return isSingleNested || isMapNested
-}
-
 // FieldCoverageReport writes the current state of the FieldCoverageTracker to Stdout.
 func (tracker *FieldCoverageTracker) FieldCoverageReport(t testing.TB) {
 	t.Helper()
@@ -363,7 +355,7 @@ func (tracker *FieldCoverageTracker) FieldCoverageReport(t testing.TB) {
 	// Build report
 	untestedFields := make([]string, 0)
 	for path, field := range tracker.SchemaFields {
-		if !field.Computed && !field.IsTested && !isContainerType(field.SchemaAttr) {
+		if !field.IsTested && isComputedOnlyField(field) && !isContainerType(field.SchemaAttr) {
 			untestedFields = append(untestedFields, path)
 		}
 	}
@@ -389,24 +381,34 @@ func (tracker *FieldCoverageTracker) FieldCoverageReport(t testing.TB) {
 		SchemaExtractionFailures:    tracker.SchemaExtractionFailures,
 	}
 
-	// Write JSON files to tools/reports directory
-	err := writeToJSON(report)
+	// Write JSON report to Stdout
+	err := writeToStdout(report)
 	if err != nil {
 		t.Errorf("failed to write field coverage report: %v", err)
 	}
 }
 
-// writeToJSON writes data as indented JSON to the specified file
-func writeToJSON(data interface{}) error {
+// isContainerType checks if an attribute is a container type.
+// Container types cannot be tested by themselves and are thus excluded from test coverage counts.
+func isContainerType(attr schema.Attribute) bool {
+	_, isSingleNested := attr.(schema.SingleNestedAttribute)
+	_, isMapNested := attr.(schema.MapNestedAttribute)
+	return isSingleNested || isMapNested
+}
+
+// isComputedOnlyField checks if a field is Computed-only (Computed=true, Optional=false).
+func isComputedOnlyField(field *FieldInfo) bool {
+	return field.Computed && !field.Optional
+}
+
+// writeToStdout writes a JSON report to Stdout
+func writeToStdout(data interface{}) error {
 	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return err
 	}
 
+	jsonData = append(jsonData, '\n')
 	_, err = os.Stdout.Write(jsonData)
-	if err != nil {
-		return err
-	}
-	_, err = os.Stdout.Write([]byte("\n"))
 	return err
 }
