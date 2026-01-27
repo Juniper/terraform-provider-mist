@@ -372,10 +372,16 @@ func (tracker *FieldCoverageTracker) FieldCoverageReport(t testing.TB) {
 
 	// Build report
 	untestedFields := make([]string, 0)
+	testedFieldsCount := 0
 	for path, field := range tracker.SchemaFields {
-		if !field.IsTested && isTestableField(field) {
-			untestedFields = append(untestedFields, path)
+		if !isTestableField(field) {
+			continue
 		}
+		if field.IsTested {
+			testedFieldsCount++
+			continue
+		}
+		untestedFields = append(untestedFields, path)
 	}
 
 	// Convert unknown fields map to sorted slice
@@ -390,7 +396,7 @@ func (tracker *FieldCoverageTracker) FieldCoverageReport(t testing.TB) {
 	// Capture test execution status from testing.TB
 	report := CoverageReport{
 		ResourceName:                tracker.ResourceName,
-		TestedFieldsCnt:             len(tracker.NormalizedFields),
+		TestedFieldsCnt:             testedFieldsCount,
 		UntestedFieldsCnt:           len(untestedFields),
 		UntestedFields:              untestedFields,
 		UnknownFieldsCnt:            len(unknownFields),

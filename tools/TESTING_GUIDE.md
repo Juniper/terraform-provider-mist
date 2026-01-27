@@ -53,7 +53,7 @@ func TestOrgNetworktemplateModel(t *testing.T) {
 
     for tName, tCase := range testCases {
         t.Run(tName, func(t *testing.T) {
-            checks := model.testChecks(t, resourceType, tName, tracker)
+            checks := tCase.testChecks(t, resourceType, tName, tracker)
             // ... run resource tests ...
         })
     }
@@ -63,7 +63,7 @@ func TestOrgNetworktemplateModel(t *testing.T) {
     }
 }
 
-func (o *OrgNetworkTemplateModel) testChecks(..., tracker *validators.FieldCoverageTracker) testChecks {
+func (o *OrgNetworktemplateModel) testChecks(..., tracker *validators.FieldCoverageTracker) testChecks {
     checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
     checks.SetTracker(tracker)  // Tracker automatically marks fields as tested
     checks.append(t, "TestCheckResourceAttr", "name", o.Name)
