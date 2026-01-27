@@ -44,7 +44,7 @@ The automated field coverage tracker (`internal/provider/validators/field_covera
 **Usage Pattern:**
 
 ```go
-func TestOrgNetworkTemplateModel(t *testing.T) {
+func TestOrgNetworktemplateModel(t *testing.T) {
     resourceType := "org_networktemplate"
     tracker := validators.FieldCoverageTrackerWithSchema(
         resourceType,
@@ -165,8 +165,7 @@ The tracker automatically normalizes test paths:
 ## Quick Troubleshooting
 
 | Issue | Solution |
-|-------|----------|
-
+| ----- | -------- |
 | Missing test cases | Implement both simple_case AND fixture_case patterns |
 | HCL generation errors | Only add HCL tags to fields with CTY tags |
 | Nested object errors | Validate child attributes only (e.g., `applies.org_id` not `applies`) |

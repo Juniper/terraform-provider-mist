@@ -386,8 +386,11 @@ func TestIsNumericOrPunctuation(t *testing.T) {
 }
 
 func TestExtractAllSchemaFields(t *testing.T) {
-	// Create a simple schema for testing
+	// Schema covering all attribute types to test reflection-based extraction
 	testSchema := map[string]schema.Attribute{
+		"id": schema.StringAttribute{
+			Computed: true, // Computed-only field
+		},
 		"name": schema.StringAttribute{
 			Required: true,
 		},
@@ -427,6 +430,16 @@ func TestExtractAllSchemaFields(t *testing.T) {
 				},
 			},
 		},
+		"unique_items": schema.SetNestedAttribute{
+			Optional: true,
+			NestedObject: schema.NestedAttributeObject{
+				Attributes: map[string]schema.Attribute{
+					"item_id": schema.StringAttribute{
+						Required: true,
+					},
+				},
+			},
+		},
 		"metadata": schema.MapNestedAttribute{
 			Optional: true,
 			NestedObject: schema.NestedAttributeObject{
@@ -439,66 +452,49 @@ func TestExtractAllSchemaFields(t *testing.T) {
 		},
 	}
 
-	tracker := FieldCoverageTrackerWithSchema("test_resource", testSchema)
+	// Create tracker directly to bypass env var check
+	tracker := NewFieldCoverageTracker("test_resource")
+	tracker.extractFields("", testSchema)
 
-	t.Run("field_extraction", func(t *testing.T) {
-		expectedFields := []string{
-			"name",
-			"enabled",
-			"config",
-			"config.timeout",
-			"config.deep",
-			"config.deep.deep_field",
-			"tags",
-			"servers",
-			"servers.host",
-			"servers.port",
-			"metadata",
-			"metadata.{key}.value",
-		}
+	// Verify all nested attribute types are extracted
+	expectedFields := map[string]struct {
+		attrType string
+		parent   string
+		required bool
+		optional bool
+		computed bool
+	}{
+		"id":                     {attrType: "string", parent: "", required: false, optional: false, computed: true},
+		"name":                   {attrType: "string", parent: "", required: true, optional: false, computed: false},
+		"enabled":                {attrType: "bool", parent: "", required: false, optional: true, computed: false},
+		"config":                 {attrType: "nested", parent: "", required: false, optional: true, computed: false},
+		"config.timeout":         {attrType: "int64", parent: "config", required: false, optional: true, computed: false},
+		"config.deep":            {attrType: "nested", parent: "config", required: false, optional: true, computed: false},
+		"config.deep.deep_field": {attrType: "string", parent: "config.deep", required: true, optional: false, computed: false},
+		"tags":                   {attrType: "list", parent: "", required: false, optional: true, computed: false},
+		"servers":                {attrType: "list_nested", parent: "", required: false, optional: true, computed: false},
+		"servers.host":           {attrType: "string", parent: "servers", required: true, optional: false, computed: false},
+		"servers.port":           {attrType: "int64", parent: "servers", required: false, optional: true, computed: false},
+		"unique_items":           {attrType: "set_nested", parent: "", required: false, optional: true, computed: false},
+		"unique_items.item_id":   {attrType: "string", parent: "unique_items", required: true, optional: false, computed: false},
+		"metadata":               {attrType: "map_nested", parent: "", required: false, optional: true, computed: false},
+		"metadata.{key}.value":   {attrType: "string", parent: "metadata.{key}", required: true, optional: false, computed: false},
+	}
 
-		assert.Len(t, tracker.SchemaFields, len(expectedFields), "Should extract all expected fields")
+	assert.Len(t, tracker.SchemaFields, len(expectedFields), "Should extract all expected fields")
 
-		for _, expectedPath := range expectedFields {
-			assert.Contains(t, tracker.SchemaFields, expectedPath, "Field %q should be extracted", expectedPath)
-		}
-	})
+	// Verify each field and its metadata
+	for path, expected := range expectedFields {
+		field, exists := tracker.SchemaFields[path]
+		require.True(t, exists, "Field %q should be extracted", path)
+		assert.Equal(t, expected.attrType, field.AttrType, "Field %q should have correct type", path)
+		assert.Equal(t, expected.parent, field.Parent, "Field %q should have correct parent", path)
+		assert.Equal(t, expected.required, field.Required, "Field %q Required flag mismatch", path)
+		assert.Equal(t, expected.optional, field.Optional, "Field %q Optional flag mismatch", path)
+		assert.Equal(t, expected.computed, field.Computed, "Field %q Computed flag mismatch", path)
+	}
 
-	t.Run("map_attribute_tracking", func(t *testing.T) {
-		assert.True(t, tracker.NestedMapAttributePaths["metadata"], "'metadata' should be marked as map attribute path")
-	})
-
-	t.Run("field_metadata", func(t *testing.T) {
-		field := tracker.SchemaFields["name"]
-		require.NotNil(t, field, "Field 'name' should exist")
-		assert.True(t, field.Required, "Field 'name' should be marked as required")
-		assert.Equal(t, "string", field.AttrType, "Field 'name' should have type 'string'")
-
-		serverHostField := tracker.SchemaFields["servers.host"]
-		require.NotNil(t, serverHostField, "Field 'servers.host' should exist")
-		assert.Equal(t, "servers", serverHostField.Parent, "Field 'servers.host' should have parent 'servers'")
-
-		metadataField := tracker.SchemaFields["metadata.{key}.value"]
-		require.NotNil(t, metadataField, "Field 'metadata.{key}.value' should exist")
-	})
-
-	t.Run("parent_tracking", func(t *testing.T) {
-		// Root field has empty parent
-		rootField := tracker.SchemaFields["name"]
-		require.NotNil(t, rootField)
-		assert.Equal(t, "", rootField.Parent)
-		assert.Equal(t, "name", rootField.Field)
-
-		// Single nested field has correct parent
-		nestedField := tracker.SchemaFields["config.timeout"]
-		require.NotNil(t, nestedField)
-		assert.Equal(t, "config", nestedField.Parent)
-		assert.Equal(t, "timeout", nestedField.Field)
-
-		// Deeply nested field has full parent path
-		deepField := tracker.SchemaFields["config.deep.deep_field"]
-		require.NotNil(t, deepField)
-		assert.Equal(t, "config.deep", deepField.Parent)
-		assert.Equal(t, "deep_field", deepField.Field)
-	})
+	// Verify map attribute tracking
+	assert.True(t, tracker.NestedMapAttributePaths["metadata"], "'metadata' should be marked as map attribute path")
+	assert.False(t, tracker.NestedMapAttributePaths["servers"], "'servers' should not be marked as map attribute path")
 }

@@ -97,6 +97,10 @@ func TestOrgWebhookModel(t *testing.T) {
 			})
 		})
 	}
+
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
 func (s *OrgWebhookModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {

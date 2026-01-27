@@ -355,7 +355,7 @@ func (tracker *FieldCoverageTracker) FieldCoverageReport(t testing.TB) {
 	// Build report
 	untestedFields := make([]string, 0)
 	for path, field := range tracker.SchemaFields {
-		if !field.IsTested && isComputedOnlyField(field) && !isContainerType(field.SchemaAttr) {
+		if !field.IsTested && !isComputedOnlyField(field) && !isContainerType(field.SchemaAttr) {
 			untestedFields = append(untestedFields, path)
 		}
 	}
@@ -401,7 +401,7 @@ func isComputedOnlyField(field *FieldInfo) bool {
 	return field.Computed && !field.Optional
 }
 
-// writeToStdout writes a JSON report to Stdout
+// writeToStdout writes indented JSON to Stdout
 func writeToStdout(data interface{}) error {
 	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {

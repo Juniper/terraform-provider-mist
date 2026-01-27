@@ -64,6 +64,10 @@ func TestOrgSitegroup(t *testing.T) {
 			})
 		})
 	}
+
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
 func (o *OrgSitegroupModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
