@@ -75,7 +75,8 @@ func (o *OrgNetworkTemplateModel) testChecks(..., tracker *validators.FieldCover
 **Path Normalization Examples:**
 
 - `privileges.0.role` → `privileges.role` (array index removed)
-- `networks.guest.vlan_id` → `networks.{key}.vlan_id` (map key replaced)
+- `networks.guest.vlan_id` → `networks.{key}.vlan_id` (MapNestedAttribute key replaced)
+- `vars.my_var` → `vars.{key}` (MapAttribute key replaced)
 - `extra_routes.10.0.0.0/8.via` → `extra_routes.{key}.via` (CIDR treated as map key)
 - `dns_servers.#` → `dns_servers` (hash symbol removed)
 - `vrf_instances.default.extra_routes6.2001:db8::/32.via` → `vrf_instances.{key}.extra_routes6.{key}.via` (nested maps)
@@ -88,6 +89,7 @@ Container types cannot be tested directly - only their children:
 - `radius_config.timeout` (Int64Attribute) - testable field
 - `networks` (MapNestedAttribute) - untestable container
 - `networks.{key}.vlan_id` (Int64Attribute) - testable field
+- `vars` (MapAttribute) - testable as `vars.{key}` (keys are dynamic)
 
 ### Step 1: Run Tests and Generate Coverage Report
 

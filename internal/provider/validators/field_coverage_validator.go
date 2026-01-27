@@ -18,12 +18,13 @@ const keyFieldPlaceholder = "{key}"
 
 // FieldCoverageTracker tracks schema fields and their test coverage
 type FieldCoverageTracker struct {
-	ResourceName             string
-	SchemaFields             map[string]*FieldInfo
-	NestedMapAttributePaths  map[string]bool
-	UnknownFields            map[string]bool     // Deduplicated test paths that don't match schema
-	NormalizedFields         map[string]struct{} // Unique normalized field paths that were tested
-	SchemaExtractionFailures []string            // Tracks paths where schema extraction failed via reflection
+	ResourceName                string
+	SchemaFields                map[string]*FieldInfo
+	MapNormalizationPaths       map[string]bool
+	NestedMapNormalizationPaths map[string]bool
+	UnknownFields               map[string]bool     // Deduplicated test paths that don't match schema
+	NormalizedFields            map[string]struct{} // Unique normalized field paths that were tested
+	SchemaExtractionFailures    []string            // Tracks paths where schema extraction failed via reflection
 }
 
 // FieldInfo contains metadata about a schema field
@@ -42,12 +43,13 @@ type FieldInfo struct {
 // NewFieldCoverageTracker creates a new tracker for the given resource
 func NewFieldCoverageTracker(resourceName string) *FieldCoverageTracker {
 	return &FieldCoverageTracker{
-		ResourceName:             resourceName,
-		NormalizedFields:         make(map[string]struct{}),
-		SchemaFields:             make(map[string]*FieldInfo),
-		NestedMapAttributePaths:  make(map[string]bool),
-		UnknownFields:            make(map[string]bool),
-		SchemaExtractionFailures: make([]string, 0),
+		ResourceName:                resourceName,
+		NormalizedFields:            make(map[string]struct{}),
+		SchemaFields:                make(map[string]*FieldInfo),
+		MapNormalizationPaths:       make(map[string]bool),
+		NestedMapNormalizationPaths: make(map[string]bool),
+		UnknownFields:               make(map[string]bool),
+		SchemaExtractionFailures:    make([]string, 0),
 	}
 }
 
@@ -83,7 +85,7 @@ func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
 		parentPath := strings.Join(normalized, ".")
 
 		// Skip array indices (#, or pure digits/punctuation when not in map context)
-		if part == "#" || (isNumericOrPunctuation(part) && !t.NestedMapAttributePaths[parentPath]) {
+		if part == "#" || (isNumericOrPunctuation(part) && !t.MapNormalizationPaths[parentPath] && !t.NestedMapNormalizationPaths[parentPath]) {
 			continue
 		}
 
@@ -101,7 +103,7 @@ func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
 		}
 
 		// Replace with {key} if parent is a map
-		if t.NestedMapAttributePaths[parentPath] {
+		if t.MapNormalizationPaths[parentPath] || t.NestedMapNormalizationPaths[parentPath] {
 			normalized = append(normalized, keyFieldPlaceholder)
 			continue
 		}
@@ -149,8 +151,10 @@ func (t *FieldCoverageTracker) extractFields(path string, attributes map[string]
 		// Store in map using path as key
 		t.SchemaFields[currentPath] = fieldInfo
 
-		// Handle nested attributes recursively
+		// Handle nested attributes recursively and record map normalization paths
 		switch v := attr.(type) {
+		case schema.MapAttribute:
+			t.MapNormalizationPaths[currentPath] = true
 		case schema.SingleNestedAttribute:
 			nestedAttrs := getNestedAttributes(v)
 			if nestedAttrs == nil {
@@ -179,7 +183,7 @@ func (t *FieldCoverageTracker) extractFields(path string, attributes map[string]
 				break
 			}
 			// Map uses {key} notation in path
-			t.NestedMapAttributePaths[currentPath] = true
+			t.NestedMapNormalizationPaths[currentPath] = true
 			keyPath := currentPath + "." + keyFieldPlaceholder
 			t.extractFields(keyPath, nestedAttrs)
 		}

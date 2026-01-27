@@ -246,6 +246,36 @@ func TestNormalizeFieldPath(t *testing.T) {
 			description: "IPv6 address with CIDR in map key should be replaced with {key}",
 		},
 		{
+			name:      "map_attribute_with_string_key",
+			inputPath: "vars.my_var",
+			schemaFields: map[string]*FieldInfo{
+				"vars": {
+					Path:     "vars",
+					AttrType: "map",
+				},
+			},
+			mapAttributePaths: map[string]bool{
+				"vars": true,
+			},
+			expected:    "vars.{key}",
+			description: "schema.MapAttribute with string key should be replaced with {key}",
+		},
+		{
+			name:      "map_attribute_with_numeric_key",
+			inputPath: "env.123",
+			schemaFields: map[string]*FieldInfo{
+				"env": {
+					Path:     "env",
+					AttrType: "map",
+				},
+			},
+			mapAttributePaths: map[string]bool{
+				"env": true,
+			},
+			expected:    "env.{key}",
+			description: "schema.MapAttribute with numeric key should be replaced with {key}",
+		},
+		{
 			name:      "list_in_nested_object_in_list",
 			inputPath: "switch_matching.rules.0.ip_config.network",
 			schemaFields: map[string]*FieldInfo{
@@ -283,10 +313,11 @@ func TestNormalizeFieldPath(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tracker := &FieldCoverageTracker{
-				ResourceName:            "test_resource",
-				SchemaFields:            tt.schemaFields,
-				NestedMapAttributePaths: tt.mapAttributePaths,
-				UnknownFields:           make(map[string]bool),
+				ResourceName:                "test_resource",
+				SchemaFields:                tt.schemaFields,
+				MapNormalizationPaths:       tt.mapAttributePaths,
+				NestedMapNormalizationPaths: tt.mapAttributePaths,
+				UnknownFields:               make(map[string]bool),
 			}
 
 			result := tracker.normalizeFieldPath(tt.inputPath)
@@ -335,7 +366,7 @@ func TestMarkFieldAsTested(t *testing.T) {
 						IsTested: false,
 					},
 				},
-				NestedMapAttributePaths: map[string]bool{
+				NestedMapNormalizationPaths: map[string]bool{
 					"networks": true,
 				},
 				UnknownFields:    make(map[string]bool),
@@ -495,6 +526,6 @@ func TestExtractAllSchemaFields(t *testing.T) {
 	}
 
 	// Verify map attribute tracking
-	assert.True(t, tracker.NestedMapAttributePaths["metadata"], "'metadata' should be marked as map attribute path")
-	assert.False(t, tracker.NestedMapAttributePaths["servers"], "'servers' should not be marked as map attribute path")
+	assert.True(t, tracker.NestedMapNormalizationPaths["metadata"], "'metadata' should be marked as map attribute path")
+	assert.False(t, tracker.NestedMapNormalizationPaths["servers"], "'servers' should not be marked as map attribute path")
 }
