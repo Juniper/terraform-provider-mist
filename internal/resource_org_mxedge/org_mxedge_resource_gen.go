@@ -7,14 +7,15 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -28,7 +29,6 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"for_site": schema.BoolAttribute{
-				Optional: true,
 				Computed: true,
 			},
 			"id": schema.StringAttribute{
@@ -36,12 +36,17 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Unique ID of the object instance in the Mist Organization",
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 			},
-			"magic": schema.StringAttribute{
+			"mac": schema.StringAttribute{
 				Optional: true,
-				Computed: true,
+			},
+			"claim_code": schema.StringAttribute{
+				Optional: true,
 			},
 			"model": schema.StringAttribute{
-				Required: true,
+				Optional: true,
+				Validators: []validator.String{
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("name"), types.StringValue("")),
+				},
 			},
 			"mxagent_registered": schema.BoolAttribute{
 				Optional: true,
@@ -112,7 +117,7 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				Optional: true,
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Optional: true,
 			},
 			"note": schema.StringAttribute{
 				Optional: true,
@@ -209,6 +214,11 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"proxy": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
+					"disabled": schema.BoolAttribute{
+						Optional: true,
+						Computed: true,
+						Default:  booldefault.StaticBool(false),
+					},
 					"url": schema.StringAttribute{
 						Optional: true,
 					},
@@ -230,7 +240,6 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"site_id": schema.StringAttribute{
 				Optional: true,
-				Computed: true,
 			},
 			"tunterm_dhcpd_config": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -486,12 +495,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Whether to separate upstream / downstream ports. default is false where all ports will be used.",
 						Default:             booldefault.StaticBool(false),
 					},
-					"upstream_port_vlan_id": schema.Int64Attribute{
-						Optional:            true,
-						Computed:            true,
-						Description:         "Native VLAN id for upstream ports",
-						MarkdownDescription: "Native VLAN id for upstream ports",
-						Default:             int64default.StaticInt64(1),
+					"upstream_port_vlan_id": schema.StringAttribute{
+						Optional: true,
 					},
 					"upstream_ports": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -560,7 +565,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 type OrgMxedgeModel struct {
 	ForSite                   types.Bool                     `tfsdk:"for_site"`
 	Id                        types.String                   `tfsdk:"id"`
-	Magic                     types.String                   `tfsdk:"magic"`
+	Mac                       types.String                   `tfsdk:"mac"`
+	Magic                     types.String                   `tfsdk:"claim_code"`
 	Model                     types.String                   `tfsdk:"model"`
 	MxagentRegistered         types.Bool                     `tfsdk:"mxagent_registered"`
 	MxclusterId               types.String                   `tfsdk:"mxcluster_id"`
@@ -2120,6 +2126,24 @@ func (t ProxyType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 
 	attributes := in.Attributes()
 
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
 	urlAttribute, ok := attributes["url"]
 
 	if !ok {
@@ -2143,8 +2167,9 @@ func (t ProxyType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 	}
 
 	return ProxyValue{
-		Url:   urlVal,
-		state: attr.ValueStateKnown,
+		Disabled: disabledVal,
+		Url:      urlVal,
+		state:    attr.ValueStateKnown,
 	}, diags
 }
 
@@ -2211,6 +2236,24 @@ func NewProxyValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		return NewProxyValueUnknown(), diags
 	}
 
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return NewProxyValueUnknown(), diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
 	urlAttribute, ok := attributes["url"]
 
 	if !ok {
@@ -2234,8 +2277,9 @@ func NewProxyValue(attributeTypes map[string]attr.Type, attributes map[string]at
 	}
 
 	return ProxyValue{
-		Url:   urlVal,
-		state: attr.ValueStateKnown,
+		Disabled: disabledVal,
+		Url:      urlVal,
+		state:    attr.ValueStateKnown,
 	}, diags
 }
 
@@ -2307,23 +2351,33 @@ func (t ProxyType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = ProxyValue{}
 
 type ProxyValue struct {
-	Url   basetypes.StringValue `tfsdk:"url"`
-	state attr.ValueState
+	Disabled basetypes.BoolValue   `tfsdk:"disabled"`
+	Url      basetypes.StringValue `tfsdk:"url"`
+	state    attr.ValueState
 }
 
 func (v ProxyValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 1)
+	attrTypes := make(map[string]tftypes.Type, 2)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["url"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 1)
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Disabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disabled"] = val
 
 		val, err = v.Url.ToTerraformValue(ctx)
 
@@ -2363,7 +2417,8 @@ func (v ProxyValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"url": basetypes.StringType{},
+		"disabled": basetypes.BoolType{},
+		"url":      basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -2377,7 +2432,8 @@ func (v ProxyValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"url": v.Url,
+			"disabled": v.Disabled,
+			"url":      v.Url,
 		})
 
 	return objVal, diags
@@ -2398,6 +2454,10 @@ func (v ProxyValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.Disabled.Equal(other.Disabled) {
+		return false
+	}
+
 	if !v.Url.Equal(other.Url) {
 		return false
 	}
@@ -2415,7 +2475,8 @@ func (v ProxyValue) Type(ctx context.Context) attr.Type {
 
 func (v ProxyValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"url": basetypes.StringType{},
+		"disabled": basetypes.BoolType{},
+		"url":      basetypes.StringType{},
 	}
 }
 
@@ -6534,12 +6595,12 @@ func (t TuntermPortConfigType) ValueFromObject(ctx context.Context, in basetypes
 		return nil, diags
 	}
 
-	upstreamPortVlanIdVal, ok := upstreamPortVlanIdAttribute.(basetypes.Int64Value)
+	upstreamPortVlanIdVal, ok := upstreamPortVlanIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`upstream_port_vlan_id expected to be basetypes.Int64Value, was: %T`, upstreamPortVlanIdAttribute))
+			fmt.Sprintf(`upstream_port_vlan_id expected to be basetypes.StringValue, was: %T`, upstreamPortVlanIdAttribute))
 	}
 
 	upstreamPortsAttribute, ok := attributes["upstream_ports"]
@@ -6682,12 +6743,12 @@ func NewTuntermPortConfigValue(attributeTypes map[string]attr.Type, attributes m
 		return NewTuntermPortConfigValueUnknown(), diags
 	}
 
-	upstreamPortVlanIdVal, ok := upstreamPortVlanIdAttribute.(basetypes.Int64Value)
+	upstreamPortVlanIdVal, ok := upstreamPortVlanIdAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`upstream_port_vlan_id expected to be basetypes.Int64Value, was: %T`, upstreamPortVlanIdAttribute))
+			fmt.Sprintf(`upstream_port_vlan_id expected to be basetypes.StringValue, was: %T`, upstreamPortVlanIdAttribute))
 	}
 
 	upstreamPortsAttribute, ok := attributes["upstream_ports"]
@@ -6789,10 +6850,10 @@ func (t TuntermPortConfigType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = TuntermPortConfigValue{}
 
 type TuntermPortConfigValue struct {
-	DownstreamPorts            basetypes.ListValue  `tfsdk:"downstream_ports"`
-	SeparateUpstreamDownstream basetypes.BoolValue  `tfsdk:"separate_upstream_downstream"`
-	UpstreamPortVlanId         basetypes.Int64Value `tfsdk:"upstream_port_vlan_id"`
-	UpstreamPorts              basetypes.ListValue  `tfsdk:"upstream_ports"`
+	DownstreamPorts            basetypes.ListValue   `tfsdk:"downstream_ports"`
+	SeparateUpstreamDownstream basetypes.BoolValue   `tfsdk:"separate_upstream_downstream"`
+	UpstreamPortVlanId         basetypes.StringValue `tfsdk:"upstream_port_vlan_id"`
+	UpstreamPorts              basetypes.ListValue   `tfsdk:"upstream_ports"`
 	state                      attr.ValueState
 }
 
@@ -6806,7 +6867,7 @@ func (v TuntermPortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.V
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["separate_upstream_downstream"] = basetypes.BoolType{}.TerraformType(ctx)
-	attrTypes["upstream_port_vlan_id"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["upstream_port_vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["upstream_ports"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -6896,7 +6957,7 @@ func (v TuntermPortConfigValue) ToObjectValue(ctx context.Context) (basetypes.Ob
 				ElemType: types.StringType,
 			},
 			"separate_upstream_downstream": basetypes.BoolType{},
-			"upstream_port_vlan_id":        basetypes.Int64Type{},
+			"upstream_port_vlan_id":        basetypes.StringType{},
 			"upstream_ports": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -6921,7 +6982,7 @@ func (v TuntermPortConfigValue) ToObjectValue(ctx context.Context) (basetypes.Ob
 				ElemType: types.StringType,
 			},
 			"separate_upstream_downstream": basetypes.BoolType{},
-			"upstream_port_vlan_id":        basetypes.Int64Type{},
+			"upstream_port_vlan_id":        basetypes.StringType{},
 			"upstream_ports": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -6933,7 +6994,7 @@ func (v TuntermPortConfigValue) ToObjectValue(ctx context.Context) (basetypes.Ob
 			ElemType: types.StringType,
 		},
 		"separate_upstream_downstream": basetypes.BoolType{},
-		"upstream_port_vlan_id":        basetypes.Int64Type{},
+		"upstream_port_vlan_id":        basetypes.StringType{},
 		"upstream_ports": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -7007,7 +7068,7 @@ func (v TuntermPortConfigValue) AttributeTypes(ctx context.Context) map[string]a
 			ElemType: types.StringType,
 		},
 		"separate_upstream_downstream": basetypes.BoolType{},
-		"upstream_port_vlan_id":        basetypes.Int64Type{},
+		"upstream_port_vlan_id":        basetypes.StringType{},
 		"upstream_ports": basetypes.ListType{
 			ElemType: types.StringType,
 		},
