@@ -92,8 +92,10 @@ func TestOrgServiceModel(t *testing.T) {
 				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 				Steps:                    steps,
 			})
-
 		})
+	}
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
 	}
 }
 

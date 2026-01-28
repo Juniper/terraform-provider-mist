@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestOrgServicepolicy(t *testing.T) {
+func TestOrgServicepolicyModel(t *testing.T) {
 	type testStep struct {
 		config OrgServicepolicyModel
 	}
@@ -94,6 +94,9 @@ func TestOrgServicepolicy(t *testing.T) {
 			})
 
 		})
+	}
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
 	}
 }
 

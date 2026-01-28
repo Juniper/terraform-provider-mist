@@ -62,7 +62,6 @@ func TestSiteSettingModel(t *testing.T) {
 	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_site_setting.SiteSettingResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
