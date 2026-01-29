@@ -216,7 +216,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"blacklist_url": schema.StringAttribute{
 				Computed: true,
-				Default:  stringdefault.StaticString(""),
 			},
 			"ble_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -595,13 +594,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "You can define some URLs that's critical to site operations the latency will be captured and considered for site health",
 				MarkdownDescription: "You can define some URLs that's critical to site operations the latency will be captured and considered for site health",
-			},
-			"default_port_usage": schema.StringAttribute{
-				Optional:            true,
-				Computed:            true,
-				Description:         "Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior",
-				MarkdownDescription: "Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior",
-				Default:             stringdefault.StaticString("default"),
 			},
 			"device_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
@@ -2191,7 +2183,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"whitelist_url": schema.StringAttribute{
 				Computed: true,
-				Default:  stringdefault.StaticString(""),
 			},
 			"wids": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -2429,7 +2420,6 @@ type SiteSettingModel struct {
 	ConfigAutoRevert           types.Bool                 `tfsdk:"config_auto_revert"`
 	ConfigPushPolicy           ConfigPushPolicyValue      `tfsdk:"config_push_policy"`
 	CriticalUrlMonitoring      CriticalUrlMonitoringValue `tfsdk:"critical_url_monitoring"`
-	DefaultPortUsage           types.String               `tfsdk:"default_port_usage"`
 	DeviceUpdownThreshold      types.Int64                `tfsdk:"device_updown_threshold"`
 	EnableUnii4                types.Bool                 `tfsdk:"enable_unii_4"`
 	Engagement                 EngagementValue            `tfsdk:"engagement"`
