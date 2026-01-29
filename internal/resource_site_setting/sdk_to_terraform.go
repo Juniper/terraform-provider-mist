@@ -25,7 +25,6 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var configAutoRevert types.Bool
 	var configPushPolicy = NewConfigPushPolicyValueNull()
 	var criticalUrlMonitoring = NewCriticalUrlMonitoringValueNull()
-	var defaultPortUsage types.String
 	var deviceUpdownThreshold types.Int64
 	var engagement = NewEngagementValueNull()
 	var enableUnii4 types.Bool
@@ -100,12 +99,6 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 
 	if data.CriticalUrlMonitoring != nil {
 		criticalUrlMonitoring = criticalUrlMonitoringSdkToTerraform(ctx, &diags, data.CriticalUrlMonitoring)
-	}
-
-	if data.DefaultPortUsage != nil {
-		defaultPortUsage = types.StringValue(*data.DefaultPortUsage)
-	} else {
-		defaultPortUsage = types.StringNull()
 	}
 
 	if data.DeviceUpdownThreshold.Value() != nil {
@@ -265,7 +258,6 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	state.ConfigAutoRevert = configAutoRevert
 	state.ConfigPushPolicy = configPushPolicy
 	state.CriticalUrlMonitoring = criticalUrlMonitoring
-	state.DefaultPortUsage = defaultPortUsage
 	state.DeviceUpdownThreshold = deviceUpdownThreshold
 	state.EnableUnii4 = enableUnii4
 	state.Engagement = engagement

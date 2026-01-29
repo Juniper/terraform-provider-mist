@@ -67,7 +67,6 @@
     ]
   }
   
-  default_port_usage   = "wan"
   device_updown_threshold = 180
   enable_unii_4          = false
   
