@@ -16,7 +16,6 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/tmunzer/mistapi-go v0.4.98
 	golang.org/x/net v0.47.0
-	gotest.tools v2.2.0+incompatible
 )
 
 require (
@@ -66,7 +65,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/oklog/run v1.2.0 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/posener/complete v1.2.3 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
