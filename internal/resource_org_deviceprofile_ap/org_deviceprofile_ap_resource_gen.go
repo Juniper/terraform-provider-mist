@@ -1278,7 +1278,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
-								"",
 								"external",
 								"internal",
 							),
