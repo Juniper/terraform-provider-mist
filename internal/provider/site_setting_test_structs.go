@@ -10,7 +10,6 @@ type SiteSettingModel struct {
 	ConfigAutoRevert           *bool                                  `hcl:"config_auto_revert"`
 	ConfigPushPolicy           *SiteSettingConfigPushPolicyValue      `hcl:"config_push_policy"`
 	CriticalUrlMonitoring      *SiteSettingCriticalUrlMonitoringValue `hcl:"critical_url_monitoring"`
-	DefaultPortUsage           *string                                `hcl:"default_port_usage"`
 	DeviceUpdownThreshold      *int64                                 `hcl:"device_updown_threshold"`
 	EnableUnii4                *bool                                  `hcl:"enable_unii_4"`
 	Engagement                 *SiteSettingEngagementValue            `hcl:"engagement"`

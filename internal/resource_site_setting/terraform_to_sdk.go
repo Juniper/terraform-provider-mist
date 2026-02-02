@@ -63,12 +63,6 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-critical_url_monitoring"] = ""
 	}
 
-	if plan.DefaultPortUsage.ValueStringPointer() != nil {
-		data.DefaultPortUsage = plan.DefaultPortUsage.ValueStringPointer()
-	} else {
-		unset["-default_port_usage"] = ""
-	}
-
 	if plan.DeviceUpdownThreshold.ValueInt64Pointer() != nil {
 		data.DeviceUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.DeviceUpdownThreshold.ValueInt64())))
 	} else {
