@@ -110,8 +110,7 @@ func TestOrgPskModel(t *testing.T) {
 }
 
 func (o *OrgPskModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Check fields in struct order
 	// 1. Id (computed-only)

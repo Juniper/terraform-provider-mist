@@ -98,8 +98,7 @@ func TestSiteSettingModel(t *testing.T) {
 }
 
 func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")
 

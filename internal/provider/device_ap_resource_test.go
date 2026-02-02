@@ -103,8 +103,7 @@ func TestDeviceApModel(t *testing.T) {
 }
 
 func (s *DeviceApModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Required attributes
 	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)

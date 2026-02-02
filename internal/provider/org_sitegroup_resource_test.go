@@ -71,8 +71,7 @@ func TestOrgSitegroup(t *testing.T) {
 }
 
 func (o *OrgSitegroupModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Check required fields
 	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)

@@ -108,8 +108,7 @@ func TestOrgAlarmtemplateModel(t *testing.T) {
 }
 
 func (s *OrgAlarmtemplateModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Required parameters
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")

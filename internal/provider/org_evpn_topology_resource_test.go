@@ -93,8 +93,8 @@ func TestOrgEvpnTopologyModel(t *testing.T) {
 }
 
 func (s *OrgEvpnTopologyModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
+
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
 

@@ -132,8 +132,7 @@ func generateOrgWxruleConfig(templateName, wxRuleName string, wxRuleConfig OrgWx
 }
 
 func (s *OrgWxruleModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Check fields in struct order
 	// 1. Action (required)

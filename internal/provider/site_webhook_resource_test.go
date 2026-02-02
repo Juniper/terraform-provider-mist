@@ -106,8 +106,7 @@ func TestSiteWebhookModel(t *testing.T) {
 }
 
 func (s *SiteWebhookModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Required attributes
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)

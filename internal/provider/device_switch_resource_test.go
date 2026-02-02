@@ -102,8 +102,7 @@ func TestDeviceSwitchModel(t *testing.T) {
 }
 
 func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Required string attributes
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")

@@ -64,8 +64,7 @@ func TestOrgNetworktemplateModel(t *testing.T) {
 }
 
 func (o *OrgNetworktemplateModel) testChecks(..., tracker *validators.FieldCoverageTracker) testChecks {
-    checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-    checks.SetTracker(tracker)  // Tracker automatically marks fields as tested
+    checks := newTestChecks(PrefixProviderName(rType) + "." + tName, tracker) // Tracker marks fields as tested when it is appended to the checks
     checks.append(t, "TestCheckResourceAttr", "name", o.Name)
     // ... more checks ...
     return checks

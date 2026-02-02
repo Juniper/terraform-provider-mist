@@ -104,8 +104,8 @@ func TestOrgIdpprofileModel(t *testing.T) {
 }
 
 func (s *OrgIdpprofileModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
+
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
 	checks.append(t, "TestCheckResourceAttr", "base_profile", s.BaseProfile)
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)

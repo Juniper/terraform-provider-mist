@@ -106,8 +106,7 @@ func TestSiteWxtagModel(t *testing.T) {
 }
 
 func (s *SiteWxtagModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Always present attributes
 	checks.append(t, "TestCheckResourceAttrSet", "id")

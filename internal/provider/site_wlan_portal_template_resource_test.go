@@ -102,8 +102,7 @@ func TestSiteWlanPortalTemplateModel(t *testing.T) {
 }
 
 func (s *SiteWlanPortalTemplateModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")
 	checks.append(t, "TestCheckResourceAttrSet", "wlan_id")

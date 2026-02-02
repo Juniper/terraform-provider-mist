@@ -33,8 +33,11 @@ resource "%s" "%s" {
 }`, PrefixProviderName(resourceType), resourceName, config)
 }
 
-func newTestChecks(path string) testChecks {
-	return testChecks{path: path}
+func newTestChecks(path string, tracker *validators.FieldCoverageTracker) testChecks {
+	return testChecks{
+		path:    path,
+		tracker: tracker,
+	}
 }
 
 type testChecks struct {
@@ -42,11 +45,6 @@ type testChecks struct {
 	logLines lineNumberer
 	checks   []resource.TestCheckFunc
 	tracker  *validators.FieldCoverageTracker // Optional field coverage tracker
-}
-
-// SetTracker enables field coverage tracking for this test check
-func (o *testChecks) SetTracker(tracker *validators.FieldCoverageTracker) {
-	o.tracker = tracker
 }
 
 func (o *testChecks) append(t testing.TB, testCheckFuncName string, testCheckFuncArgs ...string) {

@@ -77,8 +77,7 @@ func TestDeviceImageModel(t *testing.T) {
 }
 
 func (s *DeviceImageModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")
 	checks.append(t, "TestCheckResourceAttr", "file", s.File)

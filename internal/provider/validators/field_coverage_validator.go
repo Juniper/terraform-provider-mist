@@ -22,22 +22,22 @@ type FieldCoverageTracker struct {
 	SchemaFields                map[string]*FieldInfo
 	MapNormalizationPaths       map[string]bool
 	NestedMapNormalizationPaths map[string]bool
-	UnknownFields               map[string]bool     // Deduplicated test paths that don't match schema
+	UnknownFields               map[string]struct{} // Deduplicated test paths that don't match schema
 	NormalizedFields            map[string]struct{} // Unique normalized field paths that were tested
 	SchemaExtractionFailures    []string            // Tracks paths where schema extraction failed via reflection
 }
 
 // FieldInfo contains metadata about a schema field
 type FieldInfo struct {
-	Path       string           // Field path in dot notation (e.g., "ldap_server_hosts", "auth.ldap.bind_dn")
-	Field      string           // Field name only (e.g., "bind_dn")
-	Parent     string           // Full parent path ("" for root, "auth.ldap" for nested)
-	Required   bool             // Field is required
-	Optional   bool             // Field is optional
-	Computed   bool             // Field is computed (auto-populated by provider, intentionally excluded from coverage when Computed-only)
-	AttrType   string           // Semantic type: "string", "bool", "int64", "float64", "list", "map", "nested"
-	SchemaAttr schema.Attribute // The actual schema attribute for future inspection
-	IsTested   bool             // Marked true when test validates this field
+	Path           string           // Field path in dot notation (e.g., "ldap_server_hosts", "auth.ldap.bind_dn")
+	Field          string           // Field name only (e.g., "bind_dn")
+	Parent         string           // Full parent path ("" for root, "auth.ldap" for nested)
+	SchemaAttr     schema.Attribute // The actual schema attribute for future inspection
+	Required       bool             // Field is required
+	Optional       bool             // Field is optional
+	Computed       bool             // Field is computed (auto-populated by provider, intentionally excluded from coverage when Computed-only)
+	MapContainsKey bool             // Field represents a map with it's map.{key}
+	IsTested       bool             // Marked true when test validates this field
 }
 
 // NewFieldCoverageTracker creates a new tracker for the given resource
@@ -48,7 +48,7 @@ func NewFieldCoverageTracker(resourceName string) *FieldCoverageTracker {
 		SchemaFields:                make(map[string]*FieldInfo),
 		MapNormalizationPaths:       make(map[string]bool),
 		NestedMapNormalizationPaths: make(map[string]bool),
-		UnknownFields:               make(map[string]bool),
+		UnknownFields:               make(map[string]struct{}),
 		SchemaExtractionFailures:    make([]string, 0),
 	}
 }
@@ -64,8 +64,14 @@ func FieldCoverageTrackerWithSchema(resourceName string, attributes map[string]s
 	return tracker
 }
 
-// MarkFieldAsTested normalizes the field path and marks it as tested
+// MarkFieldAsTested normalizes the field path and marks it as tested.
+// - If path matches schema: marks SchemaFields[path].IsTested = true
+// - Always stores in NormalizedFields (for debugging and reporting)
 func (t *FieldCoverageTracker) MarkFieldAsTested(fieldPath string) {
+	if t == nil { // Add nil check
+		return
+	}
+
 	normalized := t.normalizeFieldPath(fieldPath)
 	field, exists := t.SchemaFields[normalized]
 	if exists {
@@ -110,7 +116,7 @@ func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
 
 		// Unknown field - keep as-is
 		normalized = append(normalized, part)
-		t.UnknownFields[fieldPath] = true
+		t.UnknownFields[fieldPath] = struct{}{}
 	}
 
 	return strings.Join(normalized, ".")
@@ -158,15 +164,15 @@ func (t *FieldCoverageTracker) extractFields(path string, attributes map[string]
 			// Create synthetic {key} entry so normalized map paths can be marked as tested
 			keyPath := currentPath + "." + keyFieldPlaceholder
 			syntheticFieldInfo := &FieldInfo{
-				Path:       keyPath,
-				Field:      keyFieldPlaceholder,
-				Parent:     currentPath,
-				Required:   fieldInfo.Required,
-				Optional:   fieldInfo.Optional,
-				Computed:   fieldInfo.Computed,
-				AttrType:   "map_key",
-				SchemaAttr: attr,
-				IsTested:   false,
+				Path:           keyPath,
+				Field:          keyFieldPlaceholder,
+				Parent:         currentPath,
+				SchemaAttr:     attr,
+				Required:       fieldInfo.Required,
+				Optional:       fieldInfo.Optional,
+				Computed:       fieldInfo.Computed,
+				MapContainsKey: true,
+				IsTested:       false,
 			}
 			t.SchemaFields[keyPath] = syntheticFieldInfo
 		case schema.SingleNestedAttribute:
@@ -224,41 +230,6 @@ func extractFieldMetadata(attr schema.Attribute, fieldInfo *FieldInfo) {
 	if computedField.IsValid() && computedField.Kind() == reflect.Bool {
 		fieldInfo.Computed = computedField.Bool()
 	}
-
-	// Determine semantic type from attribute type
-	fieldInfo.AttrType = getSemanticType(attr)
-}
-
-// getSemanticType returns the semantic type string for an attribute
-func getSemanticType(attr schema.Attribute) string {
-	switch attr.(type) {
-	case schema.StringAttribute:
-		return "string"
-	case schema.BoolAttribute:
-		return "bool"
-	case schema.Int64Attribute:
-		return "int64"
-	case schema.Float64Attribute:
-		return "float64"
-	case schema.NumberAttribute:
-		return "number"
-	case schema.ListAttribute:
-		return "list"
-	case schema.SetAttribute:
-		return "set"
-	case schema.MapAttribute:
-		return "map"
-	case schema.SingleNestedAttribute:
-		return "nested"
-	case schema.ListNestedAttribute:
-		return "list_nested"
-	case schema.SetNestedAttribute:
-		return "set_nested"
-	case schema.MapNestedAttribute:
-		return "map_nested"
-	default:
-		return "unknown"
-	}
 }
 
 // getNestedAttributes extracts attributes from a SingleNestedAttribute using reflection
@@ -288,7 +259,8 @@ func getListNestedAttributes(attr schema.ListNestedAttribute) map[string]schema.
 	}
 
 	// Look for NestedObject field first.
-	if nestedObjField := v.FieldByName("NestedObject"); nestedObjField.IsValid() && nestedObjField.CanInterface() {
+	nestedObjField := v.FieldByName("NestedObject")
+	if nestedObjField.IsValid() && nestedObjField.CanInterface() {
 		nestedObj := nestedObjField.Interface()
 
 		// Get the nested object and look for its Attributes.
@@ -313,7 +285,8 @@ func getMapNestedAttributes(attr schema.MapNestedAttribute) map[string]schema.At
 	}
 
 	// Look for NestedObject field first
-	if nestedObjField := v.FieldByName("NestedObject"); nestedObjField.IsValid() && nestedObjField.CanInterface() {
+	nestedObjField := v.FieldByName("NestedObject")
+	if nestedObjField.IsValid() && nestedObjField.CanInterface() {
 		nestedObj := nestedObjField.Interface()
 
 		// Get the nested object and look for its Attributes
@@ -338,7 +311,8 @@ func getSetNestedAttributes(attr schema.SetNestedAttribute) map[string]schema.At
 	}
 
 	// Look for NestedObject field first
-	if nestedObjField := v.FieldByName("NestedObject"); nestedObjField.IsValid() && nestedObjField.CanInterface() {
+	nestedObjField := v.FieldByName("NestedObject")
+	if nestedObjField.IsValid() && nestedObjField.CanInterface() {
 		nestedObj := nestedObjField.Interface()
 
 		// Get the nested object and look for its Attributes.
@@ -415,13 +389,13 @@ func (tracker *FieldCoverageTracker) FieldCoverageReport(t testing.TB) {
 // isTestableField determines if a field should be included in test coverage counts
 func isTestableField(field *FieldInfo) bool {
 	// Computed-only fields cannot be set in tests
-	if isComputedOnlyField(field) {
+	if field.Computed && !field.Optional {
 		return false
 	}
 
 	// Container types are not directly testable
-	// fields with a map_key AttrType are testable
-	if isContainerType(field.SchemaAttr) || field.AttrType == "map" {
+	// Maps that contains a key are not container types themselves
+	if isContainerType(field.SchemaAttr) && !field.MapContainsKey {
 		return false
 	}
 
@@ -433,12 +407,8 @@ func isTestableField(field *FieldInfo) bool {
 func isContainerType(attr schema.Attribute) bool {
 	_, isSingleNested := attr.(schema.SingleNestedAttribute)
 	_, isMapNested := attr.(schema.MapNestedAttribute)
-	return isSingleNested || isMapNested
-}
-
-// isComputedOnlyField checks if a field is Computed-only (Computed=true, Optional=false)
-func isComputedOnlyField(field *FieldInfo) bool {
-	return field.Computed && !field.Optional
+	_, isMap := attr.(schema.MapAttribute)
+	return isSingleNested || isMapNested || isMap
 }
 
 // writeToStdout writes indented JSON to Stdout

@@ -65,7 +65,6 @@ func TestSitePskModel(t *testing.T) {
 	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_site_psk.SitePskResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
@@ -102,8 +101,7 @@ func TestSitePskModel(t *testing.T) {
 }
 
 func (s *SitePskModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
 	checks.append(t, "TestCheckResourceAttr", "passphrase", s.Passphrase)

@@ -106,8 +106,7 @@ func TestOrgNacidpModel(t *testing.T) {
 }
 
 func (o *OrgNacidpModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Computed fields
 	checks.append(t, "TestCheckResourceAttrSet", "id")

@@ -69,7 +69,7 @@ func TestOrgWlanPortalImageModel(t *testing.T) {
 
 				// Step 2: Same config but now also check the WLAN's portal_image field
 				// This gives the API time to propagate the changes
-				wlanPortalImageChecks := newTestChecks("mist_org_wlan.wlanName")
+				wlanPortalImageChecks := newTestChecks("mist_org_wlan.wlanName", tracker)
 				wlanPortalImageChecks.append(t, "TestCheckResourceAttr", "portal_image", "present")
 
 				// Combine both portal image and WLAN checks for the second step
@@ -110,8 +110,7 @@ func TestOrgWlanPortalImageModel(t *testing.T) {
 }
 
 func (s *OrgWlanPortalImageModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
 	checks.append(t, "TestCheckResourceAttrSet", "wlan_id")

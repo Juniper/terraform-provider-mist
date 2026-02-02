@@ -117,8 +117,7 @@ func TestOrgNacruleModel(t *testing.T) {
 }
 
 func (o *OrgNacruleModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
-	checks.SetTracker(tracker)
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Computed fields
 	checks.append(t, "TestCheckResourceAttrSet", "id")
