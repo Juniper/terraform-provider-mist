@@ -22,8 +22,8 @@ type FieldCoverageTracker struct {
 	SchemaFields                map[string]*FieldInfo
 	MapNormalizationPaths       map[string]bool
 	NestedMapNormalizationPaths map[string]bool
-	UnknownFields               map[string]struct{} // Deduplicated test paths that don't match schema
 	NormalizedFields            map[string]struct{} // Unique normalized field paths that were tested
+	UnknownFields               map[string]struct{} // Deduplicated test paths that don't match schema
 	SchemaExtractionFailures    []string            // Tracks paths where schema extraction failed via reflection
 }
 
@@ -44,10 +44,10 @@ type FieldInfo struct {
 func NewFieldCoverageTracker(resourceName string) *FieldCoverageTracker {
 	return &FieldCoverageTracker{
 		ResourceName:                resourceName,
-		NormalizedFields:            make(map[string]struct{}),
 		SchemaFields:                make(map[string]*FieldInfo),
 		MapNormalizationPaths:       make(map[string]bool),
 		NestedMapNormalizationPaths: make(map[string]bool),
+		NormalizedFields:            make(map[string]struct{}),
 		UnknownFields:               make(map[string]struct{}),
 		SchemaExtractionFailures:    make([]string, 0),
 	}
