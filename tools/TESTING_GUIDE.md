@@ -138,17 +138,7 @@ The tracker's JSON output shows:
 4. **Add TestCheckResourceAttr validations** for each field
 5. **Re-run tests** until `untested_fields_count` is zero
 
-**Path Normalization Behavior:**
-
-The tracker automatically normalizes test paths:
-
-- `coa_servers.0.ip` → marks `coa_servers.ip` as tested (array index removed)
-- `auth_servers.#` → marks `auth_servers` as tested (hash removed)
-- `networks.guest.vlan_id` → marks `networks.{key}.vlan_id` as tested (map key replaced)
-- `band_24.ant_gain` → marks `band_24.ant_gain` as tested (direct nested path)
-- `band_24.0.ant_gain` → marks `band_24.ant_gain` as tested (indexed nested path, index removed)
-
-**Note:** `SingleNestedAttribute` paths in this provider typically use direct access (no `.0` index). Check existing tests for patterns.
+**Note:** The tracker automatically normalizes test paths (see "Path Normalization Examples" above). For example, `band_24.0.ant_gain` marks `band_24.ant_gain` as tested since array indices are removed.
 
 ### Step 4: Achieve 100% Coverage
 
@@ -163,12 +153,210 @@ The tracker automatically normalizes test paths:
 - [ ] All other fields: Use `TestCheckResourceAttr` with expected values
 - [ ] Never validate container types - test child attributes only
 
-## Quick Troubleshooting
+## Quick Test Update Guide
 
-| Issue | Solution |
-| ----- | -------- |
-| Missing test cases | Implement both simple_case AND fixture_case patterns |
-| HCL generation errors | Only add HCL tags to fields with CTY tags |
-| Nested object errors | Validate child attributes only (e.g., `applies.org_id` not `applies`) |
-| Field coverage gaps | Use the 4-step verification process above |
-| "Attribute 'field.0.subfield' not found" | Remove `.0` - use direct nested paths |
+### Step 1: Add/Update Test Checks
+
+**When:** After regenerating structs or when validation logic needs changes.
+
+**How:**
+
+1. **Locate the test file:** `internal/provider/<resource_name>_resource_test.go`
+2. **Find the `testChecks()` method**
+3. **Add validation for new/modified fields**
+
+**Example - Adding Check for New Field:**
+
+```go
+// Before
+if s.BleConfig != nil {
+    checks.append(t, "TestCheckResourceAttrSet", "ble_config.%")
+    if s.BleConfig.IbeaconEnabled != nil {
+        checks.append(t, "TestCheckResourceAttr", "ble_config.ibeacon_enabled", fmt.Sprintf("%t", *s.BleConfig.IbeaconEnabled))
+    }
+}
+
+// After - Added ibeacon_major and ibeacon_minor
+if s.BleConfig != nil {
+    checks.append(t, "TestCheckResourceAttrSet", "ble_config.%")
+    if s.BleConfig.IbeaconEnabled != nil {
+        checks.append(t, "TestCheckResourceAttr", "ble_config.ibeacon_enabled", fmt.Sprintf("%t", *s.BleConfig.IbeaconEnabled))
+    }
+    if s.BleConfig.IbeaconMajor != nil {
+        checks.append(t, "TestCheckResourceAttr", "ble_config.ibeacon_major", fmt.Sprintf("%d", *s.BleConfig.IbeaconMajor))
+    }
+    if s.BleConfig.IbeaconMinor != nil {
+        checks.append(t, "TestCheckResourceAttr", "ble_config.ibeacon_minor", fmt.Sprintf("%d", *s.BleConfig.IbeaconMinor))
+    }
+}
+```
+
+**Example - Updating Check for Type Change:**
+
+```go
+// Before (when vlan_ids was list(number))
+if len(portCfg.VlanIds) > 0 {
+    checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.vlan_ids.#", portPrefix), fmt.Sprintf("%d", len(portCfg.VlanIds)))
+    for i, vlanId := range portCfg.VlanIds {
+        checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.vlan_ids.%d", portPrefix, i), fmt.Sprintf("%d", vlanId))
+    }
+}
+
+// After (when vlan_ids is string)
+if portCfg.VlanIds != nil {
+    checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.vlan_ids", portPrefix), *portCfg.VlanIds)
+}
+```
+
+### Step 2: Update Fixture Files
+
+**When:** After adding test checks to validate new/modified fields.
+
+**Location:** `internal/provider/fixtures/<resource_name>/<resource_name>_config.tf`
+
+**Strategy:**
+
+1. **Try adding to the main fixture first** (first configuration before any `␞` delimiter)
+2. **If conflicts occur**, create a separate fixture for that specific case
+
+**Main Fixture Approach (Preferred):**
+
+```hcl
+# Add new fields to the comprehensive fixture
+name = "comprehensive_test"
+ble_config = {
+  ibeacon_enabled = true
+  ibeacon_major   = 100  # Added
+  ibeacon_minor   = 200  # Added
+  ibeacon_uuid    = "f3f51b3e-b3c4-4c3e-b3c4-4c3e4c3e4c3e"
+}
+port_config = {
+  eth0 = {
+    vlan_ids = "10,20,30"  # Updated type
+  }
+}
+```
+
+**Separate Fixture Approach (When Conflicts Arise):**
+
+```hcl
+# Main fixture
+name = "comprehensive_test"
+ble_config = {
+  ibeacon_enabled = true
+}
+␞
+# Separate fixture for conflicting scenario
+name = "ble_only_test"
+ble_config = {
+  ibeacon_enabled = true
+  ibeacon_major   = 100
+  ibeacon_minor   = 200
+  ibeacon_uuid    = "f3f51b3e-b3c4-4c3e-b3c4-4c3e4c3e4c3e"
+}
+␞
+# Another separate fixture
+name = "port_config_test"
+port_config = {
+  eth0 = {
+    vlan_ids = "10,20,30"
+  }
+}
+```
+
+## Best Practices
+
+### 1. Always Use Nil-Checks
+
+Optional fields must be checked for nil before access:
+
+```go
+// Good
+if s.BleConfig != nil {
+    if s.BleConfig.IbeaconMajor != nil {
+        checks.append(t, "TestCheckResourceAttr", "ble_config.ibeacon_major", fmt.Sprintf("%d", *s.BleConfig.IbeaconMajor))
+    }
+}
+
+// Bad - will panic if nil
+checks.append(t, "TestCheckResourceAttr", "ble_config.ibeacon_major", fmt.Sprintf("%d", *s.BleConfig.IbeaconMajor))
+```
+
+### 2. Use Descriptive Fixture Names
+
+```hcl
+# Good - descriptive
+name = "ble_ibeacon_full_config"
+name = "port_config_with_radius"
+
+# Bad - unclear
+name = "test1"
+name = "config"
+```
+
+### 3. Format Checks Appropriately by Type
+
+```go
+// Boolean
+checks.append(t, "TestCheckResourceAttr", "enabled", fmt.Sprintf("%t", *s.Enabled))
+
+// Integer
+checks.append(t, "TestCheckResourceAttr", "port", fmt.Sprintf("%d", *s.Port))
+
+// String
+checks.append(t, "TestCheckResourceAttr", "host", *s.Host)
+```
+
+### 4. Fixture File Organization
+
+```hcl
+# 1. Most comprehensive fixture first
+name = "comprehensive_test"
+# ... all possible fields
+
+␞
+# 2. Specific feature fixtures
+name = "ble_config_only"
+# ... BLE specific
+
+␞
+# 3. Edge case fixtures
+name = "minimal_required_fields"
+# ... only required fields
+```
+
+### 5. Run Tests After Changes
+
+```bash
+# Run specific resource test
+go test -v -run TestOrgDeviceprofileApModel ./internal/provider/
+```
+
+### 6. Validate Against Real API
+
+When possible, test configurations should reflect valid API scenarios:
+
+``` hcl
+# Valid iBeacon config
+ble_config = {
+  ibeacon_enabled = true
+  ibeacon_uuid    = "f3f51b3e-b3c4-4c3e-b3c4-4c3e4c3e4c3e"  # Valid UUID
+  ibeacon_major   = 100    # Valid range: 0-65535
+  ibeacon_minor   = 200    # Valid range: 0-65535
+}
+
+# Invalid config
+ble_config = {
+  ibeacon_enabled = true
+  ibeacon_major   = 70000  # Out of range!
+}
+```
+
+### Reference Implementations
+
+**Good Examples to Follow:**
+
+- **Primary Pattern**: `org_wlantemplate_resource_test.go` - Complete dual test case implementation
+- **Field Coverage**: `org_wlan_portal_template_resource_test.go` - 100% coverage methodology (225 fields)
+- **Nested Objects**: `org_wxtag_resource_test.go` - Complex nested array validation
+- **Test Structs**: `org_wlan_test_structs.go` - Proper HCL tag usage
