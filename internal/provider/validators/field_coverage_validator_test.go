@@ -281,11 +281,10 @@ func TestNormalizeFieldPath(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tracker := &FieldCoverageTracker{
-				ResourceName:                "test_resource",
-				SchemaFields:                tt.schemaFields,
-				MapNormalizationPaths:       tt.mapAttributePaths,
-				NestedMapNormalizationPaths: tt.mapAttributePaths,
-				UnknownFields:               make(map[string]struct{}),
+				ResourceName:          "test_resource",
+				SchemaFields:          tt.schemaFields,
+				MapNormalizationPaths: tt.mapAttributePaths,
+				UnknownFields:         make(map[string]struct{}),
 			}
 
 			result := tracker.normalizeFieldPath(tt.inputPath)
@@ -345,9 +344,7 @@ func TestMarkFieldAsTested(t *testing.T) {
 					},
 				},
 				MapNormalizationPaths: map[string]bool{
-					"vars": true,
-				},
-				NestedMapNormalizationPaths: map[string]bool{
+					"vars":     true,
 					"networks": true,
 				},
 				UnknownFields:    make(map[string]struct{}),
@@ -512,6 +509,6 @@ func TestExtractAllSchemaFields(t *testing.T) {
 
 	// Verify map attribute tracking
 	assert.True(t, tracker.MapNormalizationPaths["vars"], "'vars' should be marked as MapAttribute path")
-	assert.True(t, tracker.NestedMapNormalizationPaths["metadata"], "'metadata' should be marked as MapNestedAttribute path")
-	assert.False(t, tracker.NestedMapNormalizationPaths["servers"], "'servers' should not be marked as map attribute path")
+	assert.True(t, tracker.MapNormalizationPaths["metadata"], "'metadata' should be marked as MapNestedAttribute path")
+	assert.False(t, tracker.MapNormalizationPaths["servers"], "'servers' should not be marked as map attribute path")
 }
