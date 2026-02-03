@@ -142,6 +142,9 @@ func switchMatchingRulesTerraformToSdk(ctx context.Context, diags *diag.Diagnost
 		if !planObj.AdditionalConfigCmds.IsNull() && !planObj.AdditionalConfigCmds.IsUnknown() {
 			itemObj.AdditionalConfigCmds = mistutils.ListOfStringTerraformToSdk(planObj.AdditionalConfigCmds)
 		}
+		if !planObj.DefaultPortUsage.IsNull() && !planObj.DefaultPortUsage.IsUnknown() && planObj.DefaultPortUsage.ValueString() != "default" {
+			itemObj.DefaultPortUsage = models.ToPointer(planObj.DefaultPortUsage.ValueString())
+		}
 		if planObj.Name.ValueStringPointer() != nil {
 			itemObj.Name = models.ToPointer(planObj.Name.ValueString())
 		}

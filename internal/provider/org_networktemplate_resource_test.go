@@ -910,6 +910,9 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, rName string) 
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.additional_config_cmds.%d", basePath, j), cmd)
 					}
 				}
+				if rule.DefaultPortUsage != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".default_port_usage", *rule.DefaultPortUsage)
+				}
 				if rule.IpConfig != nil {
 					if rule.IpConfig.Network != nil {
 						checks.append(t, "TestCheckResourceAttr", basePath+".ip_config.network", *rule.IpConfig.Network)

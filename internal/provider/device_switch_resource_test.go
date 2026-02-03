@@ -245,6 +245,9 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, rName string) testCh
 			}
 		}
 	}
+	if s.DefaultPortUsage != nil {
+		checks.append(t, "TestCheckResourceAttr", "default_port_usage", *s.DefaultPortUsage)
+	}
 	if s.DhcpSnooping != nil {
 		checks.append(t, "TestCheckResourceAttrSet", "dhcp_snooping")
 		// Check nested attributes of DhcpSnooping

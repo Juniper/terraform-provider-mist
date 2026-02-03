@@ -107,9 +107,9 @@ func portsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []model
 		if d.MacLimit != nil {
 			macLimit = types.Int64Value(int64(*d.MacLimit))
 		}
-
-		neighborMac = types.StringValue(d.NeighborMac)
-
+		if d.NeighborMac != nil {
+			neighborMac = types.StringValue(*d.NeighborMac)
+		}
 		if d.NeighborPortDesc != nil {
 			neighborPortDesc = types.StringValue(*d.NeighborPortDesc)
 		}
@@ -133,9 +133,9 @@ func portsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []model
 		}
 
 		portId = types.StringValue(d.PortId)
-
-		portMac = types.StringValue(d.PortMac)
-
+		if d.PortMac != nil {
+			portMac = types.StringValue(*d.PortMac)
+		}
 		if d.PortUsage != nil {
 			portUsage = types.StringValue(string(*d.PortUsage))
 		}

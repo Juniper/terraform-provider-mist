@@ -194,6 +194,7 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 	for _, d := range l {
 
 		var additionalConfigCmds = types.ListNull(types.StringType)
+		var defaultPortUsage basetypes.StringValue
 		var matchModel basetypes.StringValue
 		var matchName basetypes.StringValue
 		var matchNameOffset = types.Int64Value(0)
@@ -227,6 +228,9 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		if len(d.AdditionalConfigCmds) > 0 {
 			additionalConfigCmds = mistutils.ListOfStringSdkToTerraform(d.AdditionalConfigCmds)
 		}
+		if d.DefaultPortUsage != nil {
+			defaultPortUsage = types.StringValue(*d.DefaultPortUsage)
+		}
 		if d.Name != nil {
 			name = types.StringValue(*d.Name)
 		}
@@ -248,6 +252,7 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 
 		dataMapValue := map[string]attr.Value{
 			"additional_config_cmds": additionalConfigCmds,
+			"default_port_usage":     defaultPortUsage,
 			"match_model":            matchModel,
 			"match_name":             matchName,
 			"match_name_offset":      matchNameOffset,

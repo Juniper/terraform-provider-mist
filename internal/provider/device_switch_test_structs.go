@@ -5,6 +5,7 @@ type DeviceSwitchModel struct {
 	AclTags               map[string]DeviceSwitchAclTagsValue             `hcl:"acl_tags"`
 	AdditionalConfigCmds  []string                                        `hcl:"additional_config_cmds"`
 	BgpConfig             map[string]DeviceSwitchBgpConfigValue           `hcl:"bgp_config"`
+	DefaultPortUsage      *string                                         `hcl:"default_port_usage"`
 	DeviceId              string                                          `hcl:"device_id"`
 	DhcpSnooping          *DeviceSwitchDhcpSnoopingValue                  `hcl:"dhcp_snooping"`
 	DhcpdConfig           *DeviceSwitchDhcpdConfigValue                   `hcl:"dhcpd_config"`
