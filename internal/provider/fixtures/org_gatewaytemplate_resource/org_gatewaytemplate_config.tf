@@ -386,7 +386,7 @@
             export_communities = ["65001:400"]
           }
           matching = {
-            as_path     = ["^65001.*"]
+            as_path     = ["65001"]
             community   = ["65001:100"]
             network     = ["192.168.0.0/16"]
             prefix      = ["192.168.1.0/24"]

@@ -6,13 +6,15 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_site_psk"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestSitePsk(t *testing.T) {
+func TestSitePskModel(t *testing.T) {
 	type testStep struct {
 		config SitePskModel
 	}
@@ -59,10 +61,10 @@ func TestSitePsk(t *testing.T) {
 		}
 	}
 
+	resourceType := "site_psk"
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_site_psk.SitePskResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "site_psk"
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
@@ -73,7 +75,7 @@ func TestSitePsk(t *testing.T) {
 				f.Body().SetAttributeRaw("site_id", hclwrite.TokensForIdentifier(siteRef))
 				combinedConfig := siteConfig + "\n\n" + Render(resourceType, tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks := config.testChecks(t, resourceType, tName, tracker)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -93,10 +95,14 @@ func TestSitePsk(t *testing.T) {
 			})
 		})
 	}
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
-func (s *SitePskModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+func (s *SitePskModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
+
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
 	checks.append(t, "TestCheckResourceAttr", "passphrase", s.Passphrase)
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")
