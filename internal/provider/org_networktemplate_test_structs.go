@@ -471,6 +471,7 @@ type OrgNetworktemplateSwitchMatchingValue struct {
 
 type OrgNetworktemplateMatchingRulesValue struct {
 	AdditionalConfigCmds []string                                        `cty:"additional_config_cmds" hcl:"additional_config_cmds"`
+	DefaultPortUsage     *string                                         `cty:"default_port_usage" hcl:"default_port_usage"`
 	IpConfig             *OrgNetworktemplateIpConfigValue                `cty:"ip_config" hcl:"ip_config"`
 	MatchModel           *string                                         `cty:"match_model" hcl:"match_model"`
 	MatchName            *string                                         `cty:"match_name" hcl:"match_name"`

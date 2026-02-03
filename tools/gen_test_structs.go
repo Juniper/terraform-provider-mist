@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	pvdFolder = "/Users/wprins/github.com/Juniper/terraform-provider-mist"
+	pvdFolder = "<path/to/your/terraform-provider-mist>" // Adjust this path accordingly
 )
 
 type attrParameters struct {
@@ -190,7 +190,7 @@ func main() {
 						fullTag = fmt.Sprintf("`cty:\"%s\" hcl:\"%s\"`", varTag, varTag)
 					}
 
-					if strings.Contains(varType, "types.List") {
+					if strings.Contains(varType, "types.List") || strings.Contains(varType, "types.Set") {
 						fmt.Println("Found a list type:", varName)
 						fmt.Println("Element Type:", attrParam.ElemType)
 

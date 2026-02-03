@@ -184,9 +184,6 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, rName string)
 	if s.AutoUpgradeLinecard != nil {
 		checks.append(t, "TestCheckResourceAttr", "auto_upgrade_linecard", fmt.Sprintf("%t", *s.AutoUpgradeLinecard))
 	}
-	if s.DefaultPortUsage != nil {
-		checks.append(t, "TestCheckResourceAttr", "default_port_usage", *s.DefaultPortUsage)
-	}
 	// Check dhcp_snooping if present
 	if s.DhcpSnooping != nil {
 		if s.DhcpSnooping.AllNetworks != nil {
@@ -1158,6 +1155,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, rName string)
 					for j, cmd := range rule.AdditionalConfigCmds {
 						checks.append(t, "TestCheckResourceAttr", prefix+fmt.Sprintf(".additional_config_cmds.%d", j), cmd)
 					}
+				}
+				if rule.DefaultPortUsage != nil {
+					checks.append(t, "TestCheckResourceAttr", prefix+".default_port_usage", *rule.DefaultPortUsage)
 				}
 				if rule.IpConfig != nil {
 					if rule.IpConfig.Network != nil {

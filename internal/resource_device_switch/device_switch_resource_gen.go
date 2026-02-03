@@ -378,6 +378,13 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					mapvalidator.SizeAtLeast(1),
 				},
 			},
+			"default_port_usage": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior",
+				MarkdownDescription: "Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior",
+				Default:             stringdefault.StaticString("default"),
+			},
 			"device_id": schema.StringAttribute{
 				Required: true,
 				PlanModifiers: []planmodifier.String{
@@ -4486,6 +4493,7 @@ type DeviceSwitchModel struct {
 	AclTags               types.Map           `tfsdk:"acl_tags"`
 	AdditionalConfigCmds  types.List          `tfsdk:"additional_config_cmds"`
 	BgpConfig             types.Map           `tfsdk:"bgp_config"`
+	DefaultPortUsage      types.String        `tfsdk:"default_port_usage"`
 	DeviceId              types.String        `tfsdk:"device_id"`
 	DhcpSnooping          DhcpSnoopingValue   `tfsdk:"dhcp_snooping"`
 	DhcpdConfig           DhcpdConfigValue    `tfsdk:"dhcpd_config"`
