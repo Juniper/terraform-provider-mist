@@ -8,11 +8,17 @@ description: |-
 # Release Notes for v0.6.xx
 
 ## Release Notes for v0.6.4
-**Release Date**: Febuary 3rd, 2026
+**Release Date**: February 3rd, 2026
 
 ### Fixes
 
 ### General changes
+
+#### Attribute defaults removed
+
+- **`mist_site_setting` resource**:
+    - blacklist_url
+    - whitelist_url
 
 #### Attributes added
 
