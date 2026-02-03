@@ -264,8 +264,10 @@ func getListNestedAttributes(attr schema.ListNestedAttribute) map[string]schema.
 		// Get the nested object and look for its Attributes.
 		nestedV := reflect.ValueOf(nestedObj)
 		if nestedV.IsValid() && nestedV.Kind() == reflect.Struct {
-			if attributesField := nestedV.FieldByName("Attributes"); attributesField.IsValid() && attributesField.CanInterface() {
-				if attrs, ok := attributesField.Interface().(map[string]schema.Attribute); ok {
+			attributesField := nestedV.FieldByName("Attributes")
+			if attributesField.IsValid() && attributesField.CanInterface() {
+				attrs, ok := attributesField.Interface().(map[string]schema.Attribute)
+				if ok {
 					return attrs
 				}
 			}
@@ -290,8 +292,10 @@ func getMapNestedAttributes(attr schema.MapNestedAttribute) map[string]schema.At
 		// Get the nested object and look for its Attributes
 		nestedV := reflect.ValueOf(nestedObj)
 		if nestedV.IsValid() && nestedV.Kind() == reflect.Struct {
-			if attributesField := nestedV.FieldByName("Attributes"); attributesField.IsValid() && attributesField.CanInterface() {
-				if attrs, ok := attributesField.Interface().(map[string]schema.Attribute); ok {
+			attributesField := nestedV.FieldByName("Attributes")
+			if attributesField.IsValid() && attributesField.CanInterface() {
+				attrs, ok := attributesField.Interface().(map[string]schema.Attribute)
+				if ok {
 					return attrs
 				}
 			}
@@ -316,8 +320,10 @@ func getSetNestedAttributes(attr schema.SetNestedAttribute) map[string]schema.At
 		// Get the nested object and look for its Attributes.
 		nestedV := reflect.ValueOf(nestedObj)
 		if nestedV.IsValid() && nestedV.Kind() == reflect.Struct {
-			if attributesField := nestedV.FieldByName("Attributes"); attributesField.IsValid() && attributesField.CanInterface() {
-				if attrs, ok := attributesField.Interface().(map[string]schema.Attribute); ok {
+			attributesField := nestedV.FieldByName("Attributes")
+			if attributesField.IsValid() && attributesField.CanInterface() {
+				attrs, ok := attributesField.Interface().(map[string]schema.Attribute)
+				if ok {
 					return attrs
 				}
 			}
