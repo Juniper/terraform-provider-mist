@@ -7,6 +7,29 @@ description: |-
 
 # Release Notes for v0.6.xx
 
+## Release Notes for v0.6.4
+**Release Date**: December 19th, 2025
+
+### Fixes
+
+### General changes
+
+#### Attributes added
+
+- **`mist_device_switch` resource**:
+    - default_port_usage
+
+- **`mist_org_networktemplate` resource**:
+    - switch_matching.rules[*].default_port_usage
+
+- **`mist_site_networktemplate` resource**:
+    - switch_matching.rules[*].default_port_usage
+
+#### Attributes removed
+
+- **`mist_site_setting` resource**:
+    - default_port_usage
+
 ## Release Notes for v0.6.3
 **Release Date**: December 19th, 2025
 

@@ -893,6 +893,7 @@ Optional:
 Optional:
 
 - `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config. **Note**: no check is done
+- `default_port_usage` (String) Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior
 - `ip_config` (Attributes) In-Band Management interface configuration (see [below for nested schema](#nestedatt--switch_matching--rules--ip_config))
 - `match_model` (String) string the switch model must start with to use this rule. It is possible to combine with the `match_name` and `match_role` attributes
 - `match_name` (String) string the switch name must start with to use this rule. Use the `match_name_offset` to indicate the first character of the switch name to compare to. It is possible to combine with the `match_model` and `match_role` attributes
