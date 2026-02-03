@@ -7,6 +7,30 @@ description: |-
 
 # Release Notes for v0.6.xx
 
+## Release Notes for v0.6.4
+**Release Date**: February 3rd, 2026
+
+### Fixes
+* **[Issue 177](https://github.com/Juniper/terraform-provider-mist/issues/177):** Removed default values for blacklist_url/whitelist_url to avoid perpetual drift.
+
+### General changes
+
+#### Attributes added
+
+- **`mist_device_switch` resource**:
+    - default_port_usage
+
+- **`mist_org_networktemplate` resource**:
+    - switch_matching.rules[*].default_port_usage
+
+- **`mist_site_networktemplate` resource**:
+    - switch_matching.rules[*].default_port_usage
+
+#### Attributes removed
+
+- **`mist_site_setting` resource**:
+    - default_port_usage
+
 ## Release Notes for v0.6.3
 **Release Date**: December 19th, 2025
 

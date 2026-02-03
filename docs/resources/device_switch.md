@@ -114,6 +114,7 @@ resource "mist_device_switch" "switch_one" {
 - `acl_tags` (Attributes Map) ACL Tags to identify traffic source or destination. Key name is the tag name (see [below for nested schema](#nestedatt--acl_tags))
 - `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config. **Note**: no check is done
 - `bgp_config` (Attributes Map) (see [below for nested schema](#nestedatt--bgp_config))
+- `default_port_usage` (String) Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior
 - `dhcp_snooping` (Attributes) (see [below for nested schema](#nestedatt--dhcp_snooping))
 - `dhcpd_config` (Attributes) (see [below for nested schema](#nestedatt--dhcpd_config))
 - `disable_auto_config` (Boolean) This disables the default behavior of a cloud-ready switch/gateway being managed/configured by Mist. Setting this to `true` means you want to disable the default behavior and do not want the device to be Mist-managed.
