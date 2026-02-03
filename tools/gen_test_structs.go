@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	pvdFolder = "/Users/kdejong/go/src/github.com/terraform-provider-mist"
+	pvdFolder = "<path/to/your/terraform-provider-mist>" // Adjust this path accordingly
 )
 
 type attrParameters struct {
