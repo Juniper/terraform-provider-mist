@@ -11,14 +11,9 @@ description: |-
 **Release Date**: February 3rd, 2026
 
 ### Fixes
+* **[Issue 177](https://github.com/Juniper/terraform-provider-mist/issues/177):** Removed default values for blacklist_url/whitelist_url to avoid perpetual drift.
 
 ### General changes
-
-#### Attribute defaults removed
-
-- **`mist_site_setting` resource**:
-    - blacklist_url
-    - whitelist_url
 
 #### Attributes added
 
