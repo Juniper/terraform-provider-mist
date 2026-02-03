@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -32,18 +33,27 @@ resource "%s" "%s" {
 }`, PrefixProviderName(resourceType), resourceName, config)
 }
 
-func newTestChecks(path string) testChecks {
-	return testChecks{path: path}
+func newTestChecks(path string, tracker *validators.FieldCoverageTracker) testChecks {
+	return testChecks{
+		path:    path,
+		tracker: tracker,
+	}
 }
 
 type testChecks struct {
 	path     string
 	logLines lineNumberer
 	checks   []resource.TestCheckFunc
+	tracker  *validators.FieldCoverageTracker // Optional field coverage tracker
 }
 
 func (o *testChecks) append(t testing.TB, testCheckFuncName string, testCheckFuncArgs ...string) {
 	t.Helper()
+
+	// Track field coverage if enabled via environment variable and tracker is set
+	if o.tracker != nil && len(testCheckFuncArgs) > 0 {
+		o.tracker.MarkFieldAsTested(testCheckFuncArgs[0])
+	}
 
 	switch testCheckFuncName {
 	case "TestCheckResourceAttrSet":
@@ -219,13 +229,15 @@ func CreateTestPNGFile(t *testing.T) string {
 	}
 
 	// Write PNG data
-	if _, err := tmpFile.Write(pngData); err != nil {
+	_, err = tmpFile.Write(pngData)
+	if err != nil {
 		tmpFile.Close()
 		os.Remove(tmpFile.Name())
 		t.Fatalf("Failed to write PNG data: %v", err)
 	}
 
-	if err := tmpFile.Close(); err != nil {
+	err = tmpFile.Close()
+	if err != nil {
 		os.Remove(tmpFile.Name())
 		t.Fatalf("Failed to close temp file: %v", err)
 	}
@@ -266,10 +278,10 @@ func GetOrgWlanBaseConfig(orgID string) (config string, wlanRef string) {
 	return wlanTemplateConfigStr + "\n\n" + wlanConfigStr, "mist_org_wlan.wlanName.id"
 }
 
-func GetSiteWlanBaseConfig(org_ID string) (config string, siteRef string, wlanRef string) {
+func GetSiteWlanBaseConfig(orgID string) (config string, siteRef string, wlanRef string) {
 	siteConfig := SiteModel{
 		Name:    "TestSite",
-		OrgId:   org_ID,
+		OrgId:   orgID,
 		Address: "TestAddress",
 	}
 
@@ -291,10 +303,10 @@ func GetSiteWlanBaseConfig(org_ID string) (config string, siteRef string, wlanRe
 	return siteConfigStr + "\n\n" + wlanConfigStr, fmt.Sprintf("mist_site.%s.id", siteConfig.Name), "mist_site_wlan.wlanName.id"
 }
 
-func GetSiteBaseConfig(org_ID string) (config string, siteRef string) {
+func GetSiteBaseConfig(orgID string) (config string, siteRef string) {
 	siteConfig := SiteModel{
 		Name:    "TestSite",
-		OrgId:   org_ID,
+		OrgId:   orgID,
 		Address: "TestAddress",
 	}
 
@@ -305,10 +317,10 @@ func GetSiteBaseConfig(org_ID string) (config string, siteRef string) {
 	return siteConfigStr, fmt.Sprintf("mist_site.%s.id", siteConfig.Name)
 }
 
-func GetSitegroupBaseConfig(org_ID string) (config string, sitegroupRef string) {
+func GetSitegroupBaseConfig(orgID string) (config string, sitegroupRef string) {
 	sitegroupConfig := OrgSitegroupModel{
 		Name:  "TestSitegroup",
-		OrgId: org_ID,
+		OrgId: orgID,
 	}
 
 	f := hclwrite.NewEmptyFile()

@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_rftemplate"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -61,6 +63,7 @@ func TestOrgRftemplateModel(t *testing.T) {
 	}
 
 	resourceType := "org_rftemplate"
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_rftemplate.OrgRftemplateResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 
@@ -74,7 +77,7 @@ func TestOrgRftemplateModel(t *testing.T) {
 				configStr := Render(resourceType, tName, string(f.Bytes()))
 
 				// Generate checks for the rftemplate resource
-				checks := step.config.testChecks(t, resourceType, tName)
+				checks := step.config.testChecks(t, resourceType, tName, tracker)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -94,10 +97,13 @@ func TestOrgRftemplateModel(t *testing.T) {
 			})
 		})
 	}
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
-func (o *OrgRftemplateModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+func (o *OrgRftemplateModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Always check required fields
 	checks.append(t, "TestCheckResourceAttrSet", "id")

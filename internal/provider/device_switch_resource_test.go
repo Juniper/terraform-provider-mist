@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_device_switch"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -13,6 +15,9 @@ import (
 )
 
 func TestDeviceSwitchModel(t *testing.T) {
+	resourceType := "device_switch"
+	t.Skipf("Skipping %s tests, as they require a real device.", resourceType)
+
 	type testStep struct {
 		config DeviceSwitchModel
 	}
@@ -58,11 +63,9 @@ func TestDeviceSwitchModel(t *testing.T) {
 		}
 	}
 
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_device_switch.DeviceSwitchResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
-		t.Skip("Skipping device_switch tests, as they require a real device.")
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "device_switch"
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				siteConfig, siteRef := GetSiteBaseConfig(GetTestOrgId())
@@ -73,7 +76,7 @@ func TestDeviceSwitchModel(t *testing.T) {
 				f.Body().SetAttributeRaw("site_id", hclwrite.TokensForIdentifier(siteRef))
 				combinedConfig := siteConfig + "\n\n" + Render(resourceType, tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks := config.testChecks(t, resourceType, tName, tracker)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -93,10 +96,13 @@ func TestDeviceSwitchModel(t *testing.T) {
 			})
 		})
 	}
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
-func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Required string attributes
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")

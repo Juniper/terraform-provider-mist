@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_network"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -63,6 +65,7 @@ func TestOrgNetworkModel(t *testing.T) {
 	}
 
 	resourceType := "org_network"
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_network.OrgNetworkResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 			steps := make([]resource.TestStep, len(tCase.steps))
@@ -73,7 +76,7 @@ func TestOrgNetworkModel(t *testing.T) {
 				gohcl.EncodeIntoBody(&config, f.Body())
 				configStr := Render(resourceType, tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, PrefixProviderName(resourceType), tName)
+				checks := config.testChecks(t, resourceType, tName, tracker)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -92,10 +95,13 @@ func TestOrgNetworkModel(t *testing.T) {
 			})
 		})
 	}
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
-func (o *OrgNetworkModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(rType + "." + rName)
+func (o *OrgNetworkModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Check required fields
 	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
