@@ -93,13 +93,14 @@ func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
 			continue
 		}
 
-		// Check if this completes a known schema path
+		// Append current field path part to it's parent path in dot notation for schema lookup
 		testPath := parentPath
 		if testPath != "" {
 			testPath += "."
 		}
 		testPath += part
 
+		// Check if this completes a known schema path
 		_, exists := t.SchemaFields[testPath]
 		if exists {
 			normalized = append(normalized, part)
