@@ -48,7 +48,7 @@ func TestOrgNetworktemplateModel(t *testing.T) {
     resourceType := "org_networktemplate"
     tracker := validators.FieldCoverageTrackerWithSchema(
         resourceType,
-        resource_org_networktemplate.OrgNetworktemplateResourceSchema(context.Background()).Attributes,
+        resource_org_networktemplate.OrgNetworktemplateResourceSchema(t.Context()).Attributes,
     )
 
     for tName, tCase := range testCases {

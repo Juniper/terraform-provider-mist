@@ -35,7 +35,7 @@ type FieldInfo struct {
 	Required       bool             // Field is required
 	Optional       bool             // Field is optional
 	Computed       bool             // Field is computed (auto-populated by provider, intentionally excluded from coverage when Computed-only)
-	MapContainsKey bool             // Field represents a map with it's map.{key}
+	MapContainsKey bool             // Field represents a map with it map.{key}
 	IsTested       bool             // Marked true when test validates this field
 }
 
@@ -93,7 +93,7 @@ func (t *FieldCoverageTracker) normalizeFieldPath(fieldPath string) string {
 			continue
 		}
 
-		// Append current field path part to it's parent path in dot notation for schema lookup
+		// Append current field path part to its parent path in dot notation for schema lookup
 		testPath := parentPath
 		if testPath != "" {
 			testPath += "."
