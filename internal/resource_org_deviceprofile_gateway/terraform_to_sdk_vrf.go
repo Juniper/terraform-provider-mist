@@ -8,26 +8,26 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func vrfConfigTerraformToSdk(d VrfConfigValue) *models.VrfConfig {
-	data := models.VrfConfig{}
-	if d.Enabled.ValueBoolPointer() != nil {
-		data.Enabled = models.ToPointer(d.Enabled.ValueBool())
+func vrfConfigTerraformToSdk(data VrfConfigValue) *models.VrfConfig {
+	var result models.VrfConfig
+	if data.Enabled.ValueBoolPointer() != nil {
+		result.Enabled = models.ToPointer(data.Enabled.ValueBool())
 	}
-	return &data
+	return &result
 }
 
-func vrfInstancesTerraformToSdk(d basetypes.MapValue) map[string]models.GatewayVrfInstance {
-	data := make(map[string]models.GatewayVrfInstance)
-	for itemName, itemValue := range d.Elements() {
-		var itemInterface interface{} = itemValue
-		itemObj := itemInterface.(VrfInstancesValue)
-
-		dataItem := models.GatewayVrfInstance{}
-		if !itemObj.Networks.IsNull() && !itemObj.Networks.IsUnknown() {
-			dataItem.Networks = mistutils.ListOfStringTerraformToSdk(itemObj.Networks)
+func vrfInstancesTerraformToSdk(data basetypes.MapValue) map[string]models.GatewayVrfInstance {
+	result := make(map[string]models.GatewayVrfInstance)
+	for itemName, itemValue := range data.Elements() {
+		item := itemValue.(VrfInstancesValue)
+		if item.Networks.IsNull() || item.Networks.IsUnknown() {
+			continue
 		}
 
-		data[itemName] = dataItem
+		result[itemName] = models.GatewayVrfInstance{
+			Networks: mistutils.ListOfStringTerraformToSdk(item.Networks),
+		}
 	}
-	return data
+
+	return result
 }

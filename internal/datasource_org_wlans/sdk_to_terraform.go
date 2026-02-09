@@ -16,8 +16,8 @@ import (
 
 func SdkToTerraform(ctx context.Context, data *[]models.Wlan, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
-	for _, item := range *data {
-		elem := wlanSdkToTerraform(ctx, &diags, &item)
+	for _, val := range *data {
+		elem := wlanSdkToTerraform(ctx, &diags, &val)
 		*elements = append(*elements, elem)
 	}
 

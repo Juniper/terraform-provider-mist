@@ -8,26 +8,25 @@ import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 )
 
-func vrfConfigTerraformToSdk(d VrfConfigValue) *models.VrfConfig {
-	data := models.VrfConfig{}
-	if d.Enabled.ValueBoolPointer() != nil {
-		data.Enabled = models.ToPointer(d.Enabled.ValueBool())
+func vrfConfigTerraformToSdk(data VrfConfigValue) *models.VrfConfig {
+	var result models.VrfConfig
+	if data.Enabled.ValueBoolPointer() != nil {
+		result.Enabled = models.ToPointer(data.Enabled.ValueBool())
 	}
-	return &data
+	return &result
 }
 
-func vrfInstancesTerraformToSdk(d basetypes.MapValue) map[string]models.GatewayVrfInstance {
-	data := make(map[string]models.GatewayVrfInstance)
-	for itemName, itemValue := range d.Elements() {
-		itemObj := itemValue.(VrfInstancesValue)
+func vrfInstancesTerraformToSdk(data basetypes.MapValue) map[string]models.GatewayVrfInstance {
+	result := make(map[string]models.GatewayVrfInstance)
+	for key, val := range data.Elements() {
+		itemObj := val.(VrfInstancesValue)
 		if itemObj.Networks.IsNull() || itemObj.Networks.IsUnknown() {
 			continue
 		}
 
-		dataItem := models.GatewayVrfInstance{
+		result[key] = models.GatewayVrfInstance{
 			Networks: mistutils.ListOfStringTerraformToSdk(itemObj.Networks),
 		}
-		data[itemName] = dataItem
 	}
-	return data
+	return result
 }

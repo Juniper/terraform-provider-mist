@@ -22,8 +22,8 @@ func dnsServerRewriteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	}
 
 	radiusGroupsValues := make(map[string]attr.Value)
-	for k, v := range data.RadiusGroups {
-		radiusGroupsValues[k] = types.StringValue(v)
+	for key, val := range data.RadiusGroups {
+		radiusGroupsValues[key] = types.StringValue(val)
 	}
 	radiusGroups := types.MapValueMust(types.StringType, radiusGroupsValues)
 

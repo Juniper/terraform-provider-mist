@@ -13,8 +13,8 @@ import (
 
 func appLimitSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.WlanAppLimit) basetypes.ObjectValue {
 	appLimitAttr := make(map[string]attr.Value)
-	for attr, val := range data.Apps {
-		appLimitAttr[attr] = types.Int64Value(int64(val))
+	for key, val := range data.Apps {
+		appLimitAttr[key] = types.Int64Value(int64(val))
 	}
 	apps := types.MapValueMust(types.Int64Type, appLimitAttr)
 
@@ -24,8 +24,8 @@ func appLimitSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *
 	}
 
 	wxtagLimitAttr := make(map[string]attr.Value)
-	for k, v := range data.WxtagIds {
-		wxtagLimitAttr[k] = types.Int64Value(int64(v))
+	for key, val := range data.WxtagIds {
+		wxtagLimitAttr[key] = types.Int64Value(int64(val))
 	}
 	wxtagIds := types.MapValueMust(types.Int64Type, wxtagLimitAttr)
 

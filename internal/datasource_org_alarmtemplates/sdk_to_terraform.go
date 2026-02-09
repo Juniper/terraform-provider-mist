@@ -15,8 +15,8 @@ import (
 
 func SdkToTerraform(ctx context.Context, data *[]models.AlarmTemplate, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
-	for _, d := range *data {
-		elem := alarmTemplateSdkToTerraform(ctx, &diags, &d)
+	for _, val := range *data {
+		elem := alarmTemplateSdkToTerraform(ctx, &diags, &val)
 		*elements = append(*elements, elem)
 	}
 
@@ -102,35 +102,35 @@ func deliverySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *
 
 func rulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data map[string]models.AlarmTemplateRule) basetypes.MapValue {
 	rulesMap := make(map[string]attr.Value)
-	for k, v := range data {
+	for key, val := range data {
 		var delivery = basetypes.NewObjectNull(DeliveryValue{}.AttributeTypes(ctx))
-		if v.Delivery != nil {
+		if val.Delivery != nil {
 			var err diag.Diagnostics
-			delivery, err = deliverySdkToTerraform(ctx, diags, v.Delivery).ToObjectValue(ctx)
+			delivery, err = deliverySdkToTerraform(ctx, diags, val.Delivery).ToObjectValue(ctx)
 			if err != nil {
 				diags.Append(err...)
 			}
 		}
 
 		var enabled types.Bool
-		if v.Enabled != nil {
-			enabled = types.BoolValue(*v.Enabled)
+		if val.Enabled != nil {
+			enabled = types.BoolValue(*val.Enabled)
 		}
 
-		dataMapValue := map[string]attr.Value{
+		dataMap := map[string]attr.Value{
 			"delivery": delivery,
 			"enabled":  enabled,
 		}
-		ruleValue, e := NewRulesValue(RulesValue{}.AttributeTypes(ctx), dataMapValue)
-		diags.Append(e...)
+		result, err := NewRulesValue(RulesValue{}.AttributeTypes(ctx), dataMap)
+		diags.Append(err...)
 
-		rulesMap[k] = ruleValue
+		rulesMap[key] = result
 	}
 
-	r, e := basetypes.NewMapValueFrom(ctx, RulesValue{}.Type(ctx), rulesMap)
-	if e != nil {
-		diags.Append(e...)
+	result, err := basetypes.NewMapValueFrom(ctx, RulesValue{}.Type(ctx), rulesMap)
+	if err != nil {
+		diags.Append(err...)
 	}
 
-	return r
+	return result
 }
