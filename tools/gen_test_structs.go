@@ -47,7 +47,11 @@ func main() {
 	writer := bufio.NewWriter(out)
 	defer writer.Flush()
 
-	writer.WriteString("package provider\n\nimport ()\n\n")
+	_, err = writer.WriteString("package provider\n\nimport ()\n\n")
+	if err != nil {
+		fmt.Println("Error writing string:", err)
+		return
+	}
 
 	isStruct := false
 	nested := false
@@ -265,12 +269,17 @@ func main() {
 					isStruct = false
 				}
 
-				writer.WriteString(line)
+				_, err := writer.WriteString(line)
+				if err != nil {
+					fmt.Println("Error writing string:", err)
+					return
+				}
 			}
 		}
 	}
 
-	if err := scanner.Err(); err != nil {
+	err = scanner.Err()
+	if err != nil {
 		fmt.Printf("Error reading input file: %v\n", err)
 	}
 }

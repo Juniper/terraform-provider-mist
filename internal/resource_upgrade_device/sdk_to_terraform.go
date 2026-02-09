@@ -15,26 +15,27 @@ import (
 )
 
 func SdkToTerraform(upgrade UpgradeDeviceModel, data *models.ResponseDeviceUpgrade) (UpgradeDeviceModel, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
 	var deviceVersion basetypes.StringValue
-	var fwupdate = NewFwupdateValueNull()
-	var status = types.StringValue(string(data.Status))
-	var timestamp = types.Float64Value(data.Timestamp)
-	var syncUpgrade = types.BoolValue(true)
-	var syncUpgradeStartTimeout = types.Int64Value(60)
-	var syncUpgradeRefreshInterval = types.Int64Value(15)
-	var syncUpgradeTimeout = types.Int64Value(1800)
+	fwupdate := NewFwupdateValueNull()
+	status := types.StringValue(string(data.Status))
+	timestamp := types.Float64Value(data.Timestamp)
 
+	syncUpgrade := types.BoolValue(true)
 	if !upgrade.SyncUpgrade.IsNull() && !upgrade.SyncUpgrade.IsUnknown() {
 		syncUpgrade = upgrade.SyncUpgrade
 	}
+
+	syncUpgradeStartTimeout := types.Int64Value(60)
 	if !upgrade.SyncUpgradeStartTimeout.IsNull() && !upgrade.SyncUpgradeStartTimeout.IsUnknown() {
 		syncUpgradeStartTimeout = upgrade.SyncUpgradeStartTimeout
 	}
+
+	syncUpgradeRefreshInterval := types.Int64Value(15)
 	if !upgrade.SyncUpgradeRefreshInterval.IsNull() && !upgrade.SyncUpgradeRefreshInterval.IsUnknown() {
 		syncUpgradeRefreshInterval = upgrade.SyncUpgradeRefreshInterval
 	}
+
+	syncUpgradeTimeout := types.Int64Value(1800)
 	if !upgrade.SyncUpgradeTimeout.IsNull() && !upgrade.SyncUpgradeTimeout.IsUnknown() {
 		syncUpgradeTimeout = upgrade.SyncUpgradeTimeout
 	}
@@ -48,158 +49,186 @@ func SdkToTerraform(upgrade UpgradeDeviceModel, data *models.ResponseDeviceUpgra
 	upgrade.SyncUpgradeRefreshInterval = syncUpgradeRefreshInterval
 	upgrade.SyncUpgradeTimeout = syncUpgradeTimeout
 
+	var diags diag.Diagnostics
 	return upgrade, diags
 }
 
 func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *models.ApiResponse[models.StatsDevice]) (UpgradeDeviceModel, int, diag.Diagnostics) {
-
-	var diags diag.Diagnostics
-
-	var autoUpgradeStat = NewAutoUpgradeStatValueNull()
-	var configTimestamp basetypes.Int64Value
-	var configVersion basetypes.Int64Value
-	var extIp basetypes.StringValue
-	var fwupdate = NewFwupdateValueNull()
-	var deviceVersion basetypes.StringValue
-	var tagId basetypes.Int64Value
-	var tagUuid basetypes.StringValue
-	var uptime = -1
-
 	body, _ := io.ReadAll(data.Response.Body)
 	var objMap map[string]interface{}
-	if err := json.Unmarshal(body, &objMap); err != nil {
+	var diags diag.Diagnostics
+	defaultUptime := -1
+	err := json.Unmarshal(body, &objMap)
+	if err != nil {
 		tflog.Error(ctx, err.Error())
-	} else {
-		if objMap["type"] == "ap" {
-			stats := models.StatsAp{}
-			json.Unmarshal(body, &stats)
-			autoUpgradeStat = autoUpgradeStatSdkToTerraform(ctx, &diags, stats.AutoUpgradeStat)
-			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
-			if stats.Version.Value() != nil {
-				deviceVersion = types.StringValue(*stats.Version.Value())
-			}
-			if stats.Uptime.Value() != nil {
-				uptime = int(*stats.Uptime.Value())
-			}
-		} else if objMap["type"] == "switch" {
-			stats := models.StatsSwitch{}
-			json.Unmarshal(body, &stats)
-			autoUpgradeStat = autoUpgradeStatSdkToTerraform(ctx, &diags, stats.AutoUpgradeStat)
-			if stats.ConfigTimestamp != nil {
-				configTimestamp = types.Int64Value(int64(*stats.ConfigTimestamp))
-			}
-			if stats.ConfigVersion != nil {
-				configVersion = types.Int64Value(int64(*stats.ConfigVersion))
-			}
-			if stats.ExtIp != nil {
-				extIp = types.StringValue(*stats.ExtIp)
-			}
-			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
-			if stats.TagId != nil {
-				tagId = types.Int64Value(int64(*stats.TagId))
-			}
-			if stats.TagUuid != nil {
-				tagUuid = types.StringValue(stats.TagUuid.String())
-			}
-			if stats.Version.Value() != nil {
-				deviceVersion = types.StringValue(*stats.Version.Value())
-			}
-			if stats.Uptime.Value() != nil {
-				uptime = int(*stats.Uptime.Value())
-			}
-		} else if objMap["type"] == "gateway" {
-			stats := models.StatsGateway{}
-			json.Unmarshal(body, &stats)
-			autoUpgradeStat = autoUpgradeStatSdkToTerraform(ctx, &diags, stats.AutoUpgradeStat)
-			if stats.ConfigTimestamp != nil {
-				configTimestamp = types.Int64Value(int64(*stats.ConfigTimestamp))
-			}
-			if stats.ConfigVersion != nil {
-				configVersion = types.Int64Value(int64(*stats.ConfigVersion))
-			}
-			if stats.ExtIp.Value() != nil {
-				extIp = types.StringValue(*stats.ExtIp.Value())
-			}
-			fwupdate = fwUpdateSdtToTerraform(ctx, &diags, stats.Fwupdate)
-			if stats.TagId != nil {
-				tagId = types.Int64Value(int64(*stats.TagId))
-			}
-			if stats.TagUuid != nil {
-				tagUuid = types.StringValue(stats.TagUuid.String())
-			}
-			if stats.Version.Value() != nil {
-				deviceVersion = types.StringValue(*stats.Version.Value())
-			}
-			if stats.Uptime.Value() != nil {
-				uptime = int(*stats.Uptime.Value())
-			}
-		}
+		return upgrade, defaultUptime, diags
 	}
 
-	upgrade.AutoUpgradeStat = autoUpgradeStat
-	upgrade.ConfigTimestamp = configTimestamp
-	upgrade.ConfigVersion = configVersion
-	upgrade.DeviceVersion = deviceVersion
-	upgrade.ExtIp = extIp
-	upgrade.Fwupdate = fwupdate
-	upgrade.Status = fwupdate.Status
-	upgrade.TagId = tagId
-	upgrade.TagUuid = tagUuid
-	return upgrade, uptime, diags
+	deviceType, ok := objMap["type"].(string)
+	if !ok {
+		tflog.Error(ctx, "Device type not found / invalid")
+		return upgrade, defaultUptime, diags
+	}
+
+	switch deviceType {
+	case "ap":
+		var stats models.StatsAp
+		err := json.Unmarshal(body, &stats)
+		if err != nil {
+			tflog.Error(ctx, "Error unmarshaling ap stats", map[string]interface{}{"error": err.Error()})
+			return upgrade, defaultUptime, diags
+		}
+		return processCommonFields(ctx, upgrade, &diags, stats.AutoUpgradeStat, stats.Fwupdate, stats.Version.Value(), stats.Uptime.Value())
+
+	case "switch":
+		var stats models.StatsSwitch
+		err := json.Unmarshal(body, &stats)
+		if err != nil {
+			tflog.Error(ctx, "Error unmarshaling switch stats", map[string]interface{}{"error": err.Error()})
+			return upgrade, defaultUptime, diags
+		}
+
+		if stats.ConfigTimestamp != nil {
+			upgrade.ConfigTimestamp = types.Int64Value(int64(*stats.ConfigTimestamp))
+		}
+
+		if stats.ConfigVersion != nil {
+			upgrade.ConfigVersion = types.Int64Value(int64(*stats.ConfigVersion))
+		}
+
+		if stats.ExtIp != nil {
+			upgrade.ExtIp = types.StringValue(*stats.ExtIp)
+		}
+
+		if stats.TagId != nil {
+			upgrade.TagId = types.Int64Value(int64(*stats.TagId))
+		}
+
+		if stats.TagUuid != nil {
+			upgrade.TagUuid = types.StringValue(stats.TagUuid.String())
+		}
+
+		return processCommonFields(ctx, upgrade, &diags, stats.AutoUpgradeStat, stats.Fwupdate, stats.Version.Value(), stats.Uptime.Value())
+
+	case "gateway":
+		var stats models.StatsGateway
+		err := json.Unmarshal(body, &stats)
+		if err != nil {
+			tflog.Error(ctx, "Error unmarshaling gateway stats", map[string]interface{}{"error": err.Error()})
+			return upgrade, defaultUptime, diags
+		}
+
+		if stats.ConfigTimestamp != nil {
+			upgrade.ConfigTimestamp = types.Int64Value(int64(*stats.ConfigTimestamp))
+		}
+
+		if stats.ConfigVersion != nil {
+			upgrade.ConfigVersion = types.Int64Value(int64(*stats.ConfigVersion))
+		}
+
+		if stats.ExtIp.Value() != nil {
+			upgrade.ExtIp = types.StringValue(*stats.ExtIp.Value())
+		}
+
+		if stats.TagId != nil {
+			upgrade.TagId = types.Int64Value(int64(*stats.TagId))
+		}
+
+		if stats.TagUuid != nil {
+			upgrade.TagUuid = types.StringValue(stats.TagUuid.String())
+		}
+
+		return processCommonFields(ctx, upgrade, &diags, stats.AutoUpgradeStat, stats.Fwupdate, stats.Version.Value(), stats.Uptime.Value())
+
+	default:
+		tflog.Error(ctx, "Unknown device type", map[string]interface{}{"type": deviceType})
+		return upgrade, defaultUptime, diags
+	}
 }
 
-func autoUpgradeStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, autoUpgrade *models.StatsApAutoUpgrade) AutoUpgradeStatValue {
+func processCommonFields(
+	ctx context.Context,
+	upgrade UpgradeDeviceModel,
+	diags *diag.Diagnostics,
+	autoUpgradeStat *models.StatsApAutoUpgrade,
+	fwupdate *models.FwupdateStat,
+	version *string,
+	uptime *float64,
+) (UpgradeDeviceModel, int, diag.Diagnostics) {
+	upgrade.AutoUpgradeStat = autoUpgradeStatSdkToTerraform(ctx, diags, autoUpgradeStat)
+	upgrade.Fwupdate = fwUpdateSdtToTerraform(ctx, diags, fwupdate)
+	upgrade.Status = upgrade.Fwupdate.Status
+
+	if version != nil {
+		upgrade.DeviceVersion = types.StringValue(*version)
+	}
+
+	uptimeInt := -1
+	if uptime != nil {
+		uptimeInt = int(*uptime)
+	}
+
+	return upgrade, uptimeInt, *diags
+}
+
+func autoUpgradeStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.StatsApAutoUpgrade) AutoUpgradeStatValue {
+	if data == nil {
+		return NewAutoUpgradeStatValueNull()
+	}
 
 	var lastcheck basetypes.Int64Value
-
-	if autoUpgrade != nil {
-		if autoUpgrade.Lastcheck.Value() != nil {
-			lastcheck = types.Int64Value(int64(*autoUpgrade.Lastcheck.Value()))
-		}
+	if data.Lastcheck.Value() != nil {
+		lastcheck = types.Int64Value(int64(*data.Lastcheck.Value()))
 	}
 
-	dataMapValue := map[string]attr.Value{
+	dataMap := map[string]attr.Value{
 		"lastcheck": lastcheck,
 	}
-	autoUpgradeStat, e := NewAutoUpgradeStatValue(AutoUpgradeStatValue{}.AttributeTypes(ctx), dataMapValue)
-	diags.Append(e...)
-	return autoUpgradeStat
+	result, err := NewAutoUpgradeStatValue(AutoUpgradeStatValue{}.AttributeTypes(ctx), dataMap)
+	diags.Append(err...)
+
+	return result
 }
 
-func fwUpdateSdtToTerraform(ctx context.Context, diags *diag.Diagnostics, deviceFwUpdate *models.FwupdateStat) FwupdateValue {
-
-	var progress basetypes.Int64Value
-	var status basetypes.StringValue
-	var statusId basetypes.Int64Value
-	var timestamp basetypes.Float64Value
-	var willRetry basetypes.BoolValue
-
-	if deviceFwUpdate != nil {
-		if deviceFwUpdate.Progress.Value() != nil {
-			progress = types.Int64Value(int64(*deviceFwUpdate.Progress.Value()))
-		}
-		if deviceFwUpdate.Status.Value() != nil {
-			status = types.StringValue(string(*deviceFwUpdate.Status.Value()))
-		}
-		if deviceFwUpdate.StatusId.Value() != nil {
-			statusId = types.Int64Value(int64(*deviceFwUpdate.StatusId.Value()))
-		}
-		if deviceFwUpdate.Timestamp != nil {
-			timestamp = types.Float64Value(*deviceFwUpdate.Timestamp)
-		}
-		if deviceFwUpdate.WillRetry.Value() != nil {
-			willRetry = types.BoolValue(*deviceFwUpdate.WillRetry.Value())
-		}
+func fwUpdateSdtToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.FwupdateStat) FwupdateValue {
+	if data == nil {
+		return NewFwupdateValueNull()
 	}
 
-	dataMapValue := map[string]attr.Value{
+	var progress basetypes.Int64Value
+	if data.Progress.Value() != nil {
+		progress = types.Int64Value(int64(*data.Progress.Value()))
+	}
+
+	var status basetypes.StringValue
+	if data.Status.Value() != nil {
+		status = types.StringValue(string(*data.Status.Value()))
+	}
+
+	var statusId basetypes.Int64Value
+	if data.StatusId.Value() != nil {
+		statusId = types.Int64Value(int64(*data.StatusId.Value()))
+	}
+
+	var timestamp basetypes.Float64Value
+	if data.Timestamp != nil {
+		timestamp = types.Float64Value(*data.Timestamp)
+	}
+
+	var willRetry basetypes.BoolValue
+	if data.WillRetry.Value() != nil {
+		willRetry = types.BoolValue(*data.WillRetry.Value())
+	}
+
+	dataMap := map[string]attr.Value{
 		"progress":   progress,
 		"status":     status,
 		"status_id":  statusId,
 		"timestamp":  timestamp,
 		"will_retry": willRetry,
 	}
-	fwupdate, e := NewFwupdateValue(FwupdateValue{}.AttributeTypes(ctx), dataMapValue)
-	diags.Append(e...)
-	return fwupdate
+	result, err := NewFwupdateValue(FwupdateValue{}.AttributeTypes(ctx), dataMap)
+	diags.Append(err...)
+
+	return result
 }

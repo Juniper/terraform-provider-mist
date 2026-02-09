@@ -13,77 +13,69 @@ import (
 )
 
 func SdkToTerraform(ctx context.Context, data models.SsoRoleOrg) (OrgSsoRoleModel, diag.Diagnostics) {
-	var state OrgSsoRoleModel
 	var diags diag.Diagnostics
+	if data.Id == nil || data.OrgId == nil {
+		diags.AddError("Error: SsoRoleOrg ID/OrgID is nil.", "The SSO Role ID/OrgID is nil.")
+		return OrgSsoRoleModel{}, diags
+	}
 
-	var id types.String
-	var name types.String
-	var orgId types.String
-	var privileges = types.ListNull(PrivilegesValue{}.Type(ctx))
-
-	id = types.StringValue(data.Id.String())
-	name = types.StringValue(data.Name)
-	orgId = types.StringValue(data.OrgId.String())
-	privileges = privilegesSdkToTerraform(ctx, &diags, data.Privileges)
-
-	state.Id = id
-	state.Name = name
-	state.OrgId = orgId
-	state.Privileges = privileges
+	state := OrgSsoRoleModel{
+		Id:         types.StringValue(data.Id.String()),
+		Name:       types.StringValue(data.Name),
+		OrgId:      types.StringValue(data.OrgId.String()),
+		Privileges: privilegesSdkToTerraform(ctx, &diags, data.Privileges),
+	}
 
 	return state, diags
 }
 
 func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data []models.PrivilegeOrg) basetypes.ListValue {
+	var privileges []PrivilegesValue
+	for _, val := range data {
+		role := types.StringValue(string(val.Role))
+		scope := types.StringValue(string(val.Scope))
 
-	var dataList []PrivilegesValue
-	for _, v := range data {
-		var role types.String
-		var scope types.String
-		var siteId types.String
-		var sitegroupId types.String
-		var views = mistutils.ListOfStringSdkToTerraformEmpty()
-
-		role = types.StringValue(string(v.Role))
-		scope = types.StringValue(string(v.Scope))
-		if v.SiteId != nil {
-			siteId = types.StringValue(v.SiteId.String())
+		var siteId basetypes.StringValue
+		if val.SiteId != nil {
+			siteId = types.StringValue(val.SiteId.String())
 		}
-		if v.SitegroupId != nil {
-			sitegroupId = types.StringValue(v.SitegroupId.String())
+
+		var sitegroupId basetypes.StringValue
+		if val.SitegroupId != nil {
+			sitegroupId = types.StringValue(val.SitegroupId.String())
 		}
 
 		var viewsArray []attr.Value
-		if v.View != nil && v.Views == nil {
-			viewsArray = append(viewsArray, types.StringValue(string(*v.View)))
-		} else if v.Views != nil {
-			for _, view := range v.Views {
-				viewsArray = append(viewsArray, types.StringValue(string(view)))
-			}
-		}
-		if len(viewsArray) > 0 {
-			tmp, e := types.ListValueFrom(ctx, types.StringType, viewsArray)
-			if e != nil {
-				diags.Append(e...)
-			} else {
-				views = tmp
-			}
+		if val.View != nil {
+			viewsArray = append(viewsArray, types.StringValue(string(*val.View)))
 		}
 
-		dataMapValue := map[string]attr.Value{
+		for _, view := range val.Views {
+			viewsArray = append(viewsArray, types.StringValue(string(view)))
+		}
+
+		views := mistutils.ListOfStringSdkToTerraformEmpty()
+		if len(viewsArray) > 0 {
+			var err diag.Diagnostics
+			views, err = types.ListValueFrom(ctx, types.StringType, viewsArray)
+			diags.Append(err...)
+		}
+
+		dataMap := map[string]attr.Value{
 			"role":         role,
 			"scope":        scope,
 			"site_id":      siteId,
 			"sitegroup_id": sitegroupId,
 			"views":        views,
 		}
-		data, e := NewPrivilegesValue(PrivilegesValue{}.AttributeTypes(ctx), dataMapValue)
-		diags.Append(e...)
+		item, err := NewPrivilegesValue(PrivilegesValue{}.AttributeTypes(ctx), dataMap)
+		diags.Append(err...)
 
-		dataList = append(dataList, data)
+		privileges = append(privileges, item)
 	}
 
-	r, e := types.ListValueFrom(ctx, PrivilegesValue{}.Type(ctx), dataList)
-	diags.Append(e...)
-	return r
+	result, err := types.ListValueFrom(ctx, PrivilegesValue{}.Type(ctx), privileges)
+	diags.Append(err...)
+
+	return result
 }

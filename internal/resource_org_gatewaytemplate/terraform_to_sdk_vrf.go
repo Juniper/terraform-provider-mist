@@ -9,40 +9,27 @@ import (
 )
 
 func vrfConfigTerraformToSdk(d VrfConfigValue) *models.VrfConfig {
-	data := models.VrfConfig{}
-	if d.Enabled.ValueBoolPointer() != nil {
-		data.Enabled = models.ToPointer(d.Enabled.ValueBool())
+	if d.IsNull() || d.Enabled.ValueBoolPointer() == nil {
+		return &models.VrfConfig{}
 	}
-	return &data
+
+	return &models.VrfConfig{
+		Enabled: d.Enabled.ValueBoolPointer(),
+	}
 }
 
-func vrfInstanceExtraRouteTerraformToSdk(d basetypes.MapValue) map[string]models.VrfExtraRoute {
-	data := make(map[string]models.VrfExtraRoute)
-	for itemName, itemValue := range d.Elements() {
-		var itemInterface interface{} = itemValue
-		itemObj := itemInterface.(ExtraRoutesValue)
-
-		dataItem := models.VrfExtraRoute{}
-		if itemObj.Via.ValueStringPointer() != nil {
-			dataItem.Via = models.ToPointer(itemObj.Via.ValueString())
-		}
-		data[itemName] = dataItem
-	}
-	return data
-}
-
-func vrfInstancesTerraformToSdk(d basetypes.MapValue) map[string]models.GatewayVrfInstance {
-	data := make(map[string]models.GatewayVrfInstance)
-	for itemName, itemValue := range d.Elements() {
-		var itemInterface interface{} = itemValue
-		itemObj := itemInterface.(VrfInstancesValue)
-
-		dataItem := models.GatewayVrfInstance{}
-		if !itemObj.Networks.IsNull() && !itemObj.Networks.IsUnknown() {
-			dataItem.Networks = mistutils.ListOfStringTerraformToSdk(itemObj.Networks)
+func vrfInstancesTerraformToSdk(data basetypes.MapValue) map[string]models.GatewayVrfInstance {
+	result := make(map[string]models.GatewayVrfInstance)
+	for itemName, itemValue := range data.Elements() {
+		itemObj := itemValue.(VrfInstancesValue)
+		if itemObj.Networks.IsNull() || itemObj.Networks.IsUnknown() {
+			continue
 		}
 
-		data[itemName] = dataItem
+		item := models.GatewayVrfInstance{
+			Networks: mistutils.ListOfStringTerraformToSdk(itemObj.Networks),
+		}
+		result[itemName] = item
 	}
-	return data
+	return result
 }

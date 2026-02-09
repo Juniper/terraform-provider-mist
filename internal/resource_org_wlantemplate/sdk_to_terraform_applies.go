@@ -1,9 +1,9 @@
 package resource_org_wlantemplate
 
 import (
-	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	"context"
 
-	"golang.org/x/net/context"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -13,29 +13,29 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func appliesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.TemplateApplies) AppliesValue {
-
+func appliesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data models.TemplateApplies) AppliesValue {
 	var orgId basetypes.StringValue
+	if data.OrgId != nil {
+		orgId = types.StringValue(data.OrgId.String())
+	}
+
 	var siteIds = mistutils.ListOfUuidSdkToTerraformEmpty()
+	if data.SiteIds != nil {
+		siteIds = mistutils.ListOfUuidSdkToTerraform(data.SiteIds)
+	}
+
 	var sitegroupIds = mistutils.ListOfUuidSdkToTerraformEmpty()
-
-	if d.OrgId != nil {
-		orgId = types.StringValue(d.OrgId.String())
-	}
-	if d.SiteIds != nil {
-		siteIds = mistutils.ListOfUuidSdkToTerraform(d.SiteIds)
-	}
-	if d.SitegroupIds != nil {
-		sitegroupIds = mistutils.ListOfUuidSdkToTerraform(d.SitegroupIds)
+	if data.SitegroupIds != nil {
+		sitegroupIds = mistutils.ListOfUuidSdkToTerraform(data.SitegroupIds)
 	}
 
-	dataMapValue := map[string]attr.Value{
+	dataMap := map[string]attr.Value{
 		"org_id":        orgId,
 		"site_ids":      siteIds,
 		"sitegroup_ids": sitegroupIds,
 	}
-	data, e := NewAppliesValue(AppliesValue{}.AttributeTypes(ctx), dataMapValue)
-	diags.Append(e...)
+	result, err := NewAppliesValue(AppliesValue{}.AttributeTypes(ctx), dataMap)
+	diags.Append(err...)
 
-	return data
+	return result
 }

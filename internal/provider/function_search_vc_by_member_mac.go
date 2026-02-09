@@ -71,37 +71,39 @@ func (f *SearchVcByMemberMacFunction) Definition(ctx context.Context, _ function
 func (f *SearchVcByMemberMacFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
 	var inventory resource_org_inventory.OrgInventoryModel
 	var mac string
-
 	resp.Error = function.ConcatFuncErrors(resp.Error, req.Arguments.Get(ctx, &inventory, &mac))
 	if resp.Error != nil {
 		return
 	}
 
-	if !inventory.Inventory.IsNull() && !inventory.Inventory.IsUnknown() && len(inventory.Inventory.Elements()) > 0 {
-		for _, v := range inventory.Inventory.Elements() {
-			var vi interface{} = v
-			vcMember := vi.(resource_org_inventory.InventoryValue)
-			if strings.EqualFold(vcMember.Mac.ValueString(), mac) {
-				if vcMember.InventoryType.ValueString() == "switch" {
-					vc, err := f.genVirtualChassisFromInventory(ctx, vcMember)
-					if err != nil {
-						for _, e := range err.Errors() {
-							function.NewFuncError(e.Detail())
-						}
-					}
-					resp.Error = resp.Result.Set(ctx, &vc)
-					return
-				} else {
-					resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("The provided MAC Address \"%s\" does not belong to a switch (%s)", mac, vcMember.InventoryType.ValueString()))
-				}
-			}
-		}
-	} else {
+	if inventory.Inventory.IsNull() || inventory.Inventory.IsUnknown() || len(inventory.Inventory.Elements()) == 0 {
 		resp.Error = function.NewArgumentFuncError(0, "The provided inventory is empty")
+		return
 	}
 
-	resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("Unable to find a device with MAC Address \"%s\" in the provided inventory", mac))
+	for _, v := range inventory.Inventory.Elements() {
+		vcMember := v.(resource_org_inventory.InventoryValue)
+		if !strings.EqualFold(vcMember.Mac.ValueString(), mac) {
+			continue // Skip non-matching devices
+		}
 
+		if vcMember.InventoryType.ValueString() != "switch" {
+			resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("The provided MAC Address \"%s\" does not belong to a switch (%s)", mac, vcMember.InventoryType.ValueString()))
+			return
+		}
+
+		vc, err := f.genVirtualChassisFromInventory(ctx, vcMember)
+		if err != nil {
+			for _, e := range err.Errors() {
+				resp.Error = function.ConcatFuncErrors(resp.Error, function.NewFuncError(e.Detail()))
+			}
+			return
+		}
+
+		resp.Error = resp.Result.Set(ctx, &vc)
+		return
+	}
+	resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("Unable to find a device with MAC Address \"%s\" in the provided inventory", mac))
 }
 
 func (f *SearchVcByMemberMacFunction) genVirtualChassisFromInventory(
@@ -111,36 +113,28 @@ func (f *SearchVcByMemberMacFunction) genVirtualChassisFromInventory(
 	resource_org_inventory.InventoryValue,
 	diag.Diagnostics,
 ) {
-	if !vcMember.VcMac.IsNull() && !vcMember.VcMac.IsUnknown() && vcMember.VcMac.ValueString() != "" {
-		var claimCode basetypes.StringValue
-		var deviceprofileId = vcMember.DeviceprofileId
-		var mac = vcMember.VcMac
-		var model = vcMember.Model
-		var orgId = vcMember.OrgId
-		var serial basetypes.StringValue
-		var siteId = vcMember.SiteId
-		var deviceType = vcMember.InventoryType
-		var vcMac = vcMember.VcMac
-		var hostname = vcMember.Hostname
-		var unclaimWhenDestroyed = vcMember.UnclaimWhenDestroyed
-		var id = types.StringValue(fmt.Sprintf("00000000-0000-0000-1000-%s", vcMember.VcMac.ValueString()))
-
-		dataMapValue := map[string]attr.Value{
-			"deviceprofile_id":       deviceprofileId,
-			"hostname":               hostname,
-			"id":                     id,
-			"mac":                    mac,
-			"claim_code":             claimCode,
-			"model":                  model,
-			"org_id":                 orgId,
-			"serial":                 serial,
-			"site_id":                siteId,
-			"type":                   deviceType,
-			"unclaim_when_destroyed": unclaimWhenDestroyed,
-			"vc_mac":                 vcMac,
-		}
-		vc, err := resource_org_inventory.NewInventoryValue(resource_org_inventory.InventoryValue{}.AttributeTypes(ctx), dataMapValue)
-		return vc, err.Errors()
+	if vcMember.VcMac.IsNull() || vcMember.VcMac.IsUnknown() || vcMember.VcMac.ValueString() == "" {
+		return vcMember, nil
 	}
-	return vcMember, nil
+
+	var claimCode basetypes.StringValue
+	var serial basetypes.StringValue
+	var id = types.StringValue(fmt.Sprintf("00000000-0000-0000-1000-%s", vcMember.VcMac.ValueString()))
+	dataMapValue := map[string]attr.Value{
+		"deviceprofile_id":       vcMember.DeviceprofileId,
+		"hostname":               vcMember.Hostname,
+		"id":                     id,
+		"mac":                    vcMember.VcMac,
+		"claim_code":             claimCode,
+		"model":                  vcMember.Model,
+		"org_id":                 vcMember.OrgId,
+		"serial":                 serial,
+		"site_id":                vcMember.SiteId,
+		"type":                   vcMember.InventoryType,
+		"unclaim_when_destroyed": vcMember.UnclaimWhenDestroyed,
+		"vc_mac":                 vcMember.VcMac,
+	}
+	vc, err := resource_org_inventory.NewInventoryValue(resource_org_inventory.InventoryValue{}.AttributeTypes(ctx), dataMapValue)
+
+	return vc, err.Errors()
 }

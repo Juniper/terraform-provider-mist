@@ -11,69 +11,71 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanAuth) basetypes.ObjectValue {
+func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.WlanAuth) basetypes.ObjectValue {
+	if data == nil {
+		return basetypes.NewObjectNull(AuthValue{}.AttributeTypes(ctx))
+	}
 
 	var anticlogThreshold basetypes.Int64Value
-	var eapReauth basetypes.BoolValue
-	var enableMacAuth basetypes.BoolValue
-	var keyIdx basetypes.Int64Value
-	var keys = types.ListNull(types.StringType)
-	var multiPskOnly basetypes.BoolValue
-	var owe basetypes.StringValue
-	var pairwise = types.ListNull(types.StringType)
-	var privateWlan = types.BoolValue(false)
-	var psk = types.StringValue("")
-	var typeAuth basetypes.StringValue
-	var wepAsSecondaryAuth basetypes.BoolValue
+	if data.AnticlogThreshold != nil {
+		anticlogThreshold = types.Int64Value(int64(*data.AnticlogThreshold))
+	}
 
-	if d != nil && d.AnticlogThreshold != nil {
-		anticlogThreshold = types.Int64Value(int64(*d.AnticlogThreshold))
+	var eapReauth basetypes.BoolValue
+	if data.EapReauth != nil {
+		eapReauth = types.BoolValue(*data.EapReauth)
 	}
-	if d != nil && d.EapReauth != nil {
-		eapReauth = types.BoolValue(*d.EapReauth)
+
+	var enableMacAuth basetypes.BoolValue
+	if data.EnableMacAuth != nil {
+		enableMacAuth = types.BoolValue(*data.EnableMacAuth)
 	}
-	if d != nil && d.EnableMacAuth != nil {
-		enableMacAuth = types.BoolValue(*d.EnableMacAuth)
-	}
-	if d != nil && d.KeyIdx != nil {
-		keyIdx = types.Int64Value(int64(*d.KeyIdx))
+
+	var keyIdx basetypes.Int64Value
+	if data.KeyIdx != nil {
+		keyIdx = types.Int64Value(int64(*data.KeyIdx))
 	}
 
 	var keysList []attr.Value
-	if d != nil && d.Keys != nil {
-		for _, item := range d.Keys {
-			value := item
-			keysList = append(keysList, types.StringValue(value))
+	if data.Keys != nil {
+		for _, item := range data.Keys {
+			keysList = append(keysList, types.StringValue(item))
 		}
 	}
-	keys = types.ListValueMust(basetypes.StringType{}, keysList)
+	keys := types.ListValueMust(basetypes.StringType{}, keysList)
 
-	if d != nil && d.MultiPskOnly != nil {
-		multiPskOnly = types.BoolValue(*d.MultiPskOnly)
+	var multiPskOnly basetypes.BoolValue
+	if data.MultiPskOnly != nil {
+		multiPskOnly = types.BoolValue(*data.MultiPskOnly)
 	}
-	if d != nil && d.Owe != nil {
-		owe = types.StringValue(string(*d.Owe))
+
+	var owe basetypes.StringValue
+	if data.Owe != nil {
+		owe = types.StringValue(string(*data.Owe))
 	}
-	var pairwiseList []attr.Value
-	if d != nil && d.Pairwise != nil {
-		for _, item := range d.Pairwise {
-			value := string(item)
-			pairwiseList = append(pairwiseList, types.StringValue(value))
+
+	var pairwise = types.ListNull(types.StringType)
+	if data.Pairwise != nil {
+		var pairwiseList []attr.Value
+		for _, item := range data.Pairwise {
+			pairwiseList = append(pairwiseList, types.StringValue(string(item)))
 		}
+		pairwise = types.ListValueMust(basetypes.StringType{}, pairwiseList)
 	}
-	pairwise = types.ListValueMust(basetypes.StringType{}, pairwiseList)
 
-	if d != nil && d.PrivateWlan != nil {
-		privateWlan = types.BoolValue(*d.PrivateWlan)
+	var privateWlan = types.BoolValue(false)
+	if data.PrivateWlan != nil {
+		privateWlan = types.BoolValue(*data.PrivateWlan)
 	}
-	if d != nil && d.Psk.Value() != nil {
-		psk = types.StringValue(*d.Psk.Value())
+
+	var psk = types.StringValue("")
+	if data.Psk.Value() != nil {
+		psk = types.StringValue(*data.Psk.Value())
 	}
-	if d != nil {
-		typeAuth = types.StringValue(string(d.Type))
-	}
-	if d != nil && d.WepAsSecondaryAuth != nil {
-		wepAsSecondaryAuth = types.BoolValue(*d.WepAsSecondaryAuth)
+
+	var wepAsSecondaryAuth basetypes.BoolValue
+	if data.WepAsSecondaryAuth != nil {
+		wepAsSecondaryAuth = types.BoolValue(*data.WepAsSecondaryAuth)
 	}
 
 	dataMapValue := map[string]attr.Value{
@@ -87,11 +89,11 @@ func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 		"pairwise":              pairwise,
 		"private_wlan":          privateWlan,
 		"psk":                   psk,
-		"type":                  typeAuth,
+		"type":                  types.StringValue(string(data.Type)),
 		"wep_as_secondary_auth": wepAsSecondaryAuth,
 	}
-	data, e := basetypes.NewObjectValue(AuthValue{}.AttributeTypes(ctx), dataMapValue)
-	diags.Append(e...)
+	result, err := basetypes.NewObjectValue(AuthValue{}.AttributeTypes(ctx), dataMapValue)
+	diags.Append(err...)
 
-	return data
+	return result
 }

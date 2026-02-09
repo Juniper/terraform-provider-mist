@@ -16,32 +16,17 @@ func vrfConfigTerraformToSdk(d VrfConfigValue) *models.VrfConfig {
 	return &data
 }
 
-func vrfInstanceExtraRouteTerraformToSdk(d basetypes.MapValue) map[string]models.VrfExtraRoute {
-	data := make(map[string]models.VrfExtraRoute)
-	for itemName, itemValue := range d.Elements() {
-		var itemInterface interface{} = itemValue
-		itemObj := itemInterface.(ExtraRoutesValue)
-
-		dataItem := models.VrfExtraRoute{}
-		if itemObj.Via.ValueStringPointer() != nil {
-			dataItem.Via = models.ToPointer(itemObj.Via.ValueString())
-		}
-		data[itemName] = dataItem
-	}
-	return data
-}
-
 func vrfInstancesTerraformToSdk(d basetypes.MapValue) map[string]models.GatewayVrfInstance {
 	data := make(map[string]models.GatewayVrfInstance)
 	for itemName, itemValue := range d.Elements() {
-		var itemInterface interface{} = itemValue
-		itemObj := itemInterface.(VrfInstancesValue)
-
-		dataItem := models.GatewayVrfInstance{}
-		if !itemObj.Networks.IsNull() && !itemObj.Networks.IsUnknown() {
-			dataItem.Networks = mistutils.ListOfStringTerraformToSdk(itemObj.Networks)
+		itemObj := itemValue.(VrfInstancesValue)
+		if itemObj.Networks.IsNull() || itemObj.Networks.IsUnknown() {
+			continue
 		}
 
+		dataItem := models.GatewayVrfInstance{
+			Networks: mistutils.ListOfStringTerraformToSdk(itemObj.Networks),
+		}
 		data[itemName] = dataItem
 	}
 	return data

@@ -10,36 +10,36 @@ import (
 )
 
 func SdkToTerraform(ctx context.Context, d *models.IdpProfile) (OrgIdpprofileModel, diag.Diagnostics) {
-	var state OrgIdpprofileModel
 	var diags diag.Diagnostics
+	if d == nil {
+		diags.AddError("Error: nil IdpProfile", "The SDK IdpProfile model is nil.")
+		return OrgIdpprofileModel{}, diags
+	}
 
 	var baseProfile types.String
-	var id types.String
-	var name types.String
-	var orgId types.String
-	var overwrites = types.ListNull(OverwritesValue{}.Type(ctx))
-
 	if d.BaseProfile != nil {
 		baseProfile = types.StringValue(string(*d.BaseProfile))
 	}
+
+	var id types.String
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
+
+	var name types.String
 	if d.Name != nil {
 		name = types.StringValue(*d.Name)
 	}
-	orgId = types.StringValue(d.OrgId.String())
 
-	//if d.Overwrites != nil {
-	overwrites = overwritesSdkToTerraform(ctx, &diags, d.Overwrites)
-	//}
+	orgId := types.StringValue(d.OrgId.String())
+	overwrites := overwritesSdkToTerraform(ctx, &diags, d.Overwrites)
 
-	state.BaseProfile = baseProfile
-	state.Id = id
-	state.Name = name
-	state.OrgId = orgId
-	state.Overwrites = overwrites
-
-	return state, diags
-
+	result := OrgIdpprofileModel{
+		BaseProfile: baseProfile,
+		Id:          id,
+		Name:        name,
+		OrgId:       orgId,
+		Overwrites:  overwrites,
+	}
+	return result, diags
 }
