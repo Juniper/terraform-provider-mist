@@ -90,7 +90,7 @@ func gatewayPortTrafficShapingTerraformToSdk(ctx context.Context, data basetypes
 
 	var result models.GatewayTrafficShaping
 	plan := NewTrafficShapingValueMust(data.AttributeTypes(ctx), data.Attributes())
-	if plan.ClassPercentages.IsNull() && !plan.ClassPercentages.IsUnknown() {
+	if !plan.ClassPercentages.IsNull() && !plan.ClassPercentages.IsUnknown() {
 		result.ClassPercentages = mistutils.ListOfIntTerraformToSdk(plan.ClassPercentages)
 	}
 
@@ -112,11 +112,11 @@ func gatewayIpConfigTerraformToSdk(ctx context.Context, d basetypes.ObjectValue)
 	}
 
 	plan := NewPortIpConfigValueMust(d.AttributeTypes(ctx), d.Attributes())
-	if plan.Dns.IsNull() && !plan.Dns.IsUnknown() {
+	if !plan.Dns.IsNull() && !plan.Dns.IsUnknown() {
 		result.Dns = mistutils.ListOfStringTerraformToSdk(plan.Dns)
 	}
 
-	if plan.DnsSuffix.IsNull() && !plan.DnsSuffix.IsUnknown() {
+	if !plan.DnsSuffix.IsNull() && !plan.DnsSuffix.IsUnknown() {
 		result.DnsSuffix = mistutils.ListOfStringTerraformToSdk(plan.DnsSuffix)
 	}
 
