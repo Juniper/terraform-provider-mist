@@ -267,8 +267,11 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, data
 		}
 
 		if !portConfig.PortIpConfig.IsNull() && !portConfig.PortIpConfig.IsUnknown() {
-			t, _ := portConfig.PortIpConfig.ToObjectValue(ctx)
-			result.IpConfig = gatewayIpConfigTerraformToSdk(ctx, t)
+			item, err := portConfig.PortIpConfig.ToObjectValue(ctx)
+			if err != nil {
+				diags.Append(err...)
+			}
+			result.IpConfig = gatewayIpConfigTerraformToSdk(ctx, item)
 		}
 
 		if portConfig.LteApn.ValueStringPointer() != nil {

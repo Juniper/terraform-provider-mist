@@ -78,7 +78,7 @@ func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, d
 	switch deviceType {
 	case "ap":
 		var stats models.StatsAp
-		err := json.Unmarshal(body, &stats)
+		err = json.Unmarshal(body, &stats)
 		if err != nil {
 			tflog.Error(ctx, "Error unmarshaling ap stats", map[string]interface{}{"error": err.Error()})
 			return upgrade, defaultUptime, diags
@@ -87,7 +87,7 @@ func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, d
 
 	case "switch":
 		var stats models.StatsSwitch
-		err := json.Unmarshal(body, &stats)
+		err = json.Unmarshal(body, &stats)
 		if err != nil {
 			tflog.Error(ctx, "Error unmarshaling switch stats", map[string]interface{}{"error": err.Error()})
 			return upgrade, defaultUptime, diags
@@ -117,7 +117,7 @@ func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, d
 
 	case "gateway":
 		var stats models.StatsGateway
-		err := json.Unmarshal(body, &stats)
+		err = json.Unmarshal(body, &stats)
 		if err != nil {
 			tflog.Error(ctx, "Error unmarshaling gateway stats", map[string]interface{}{"error": err.Error()})
 			return upgrade, defaultUptime, diags
