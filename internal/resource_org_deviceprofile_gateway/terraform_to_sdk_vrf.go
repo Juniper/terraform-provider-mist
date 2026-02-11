@@ -18,13 +18,18 @@ func vrfConfigTerraformToSdk(data VrfConfigValue) *models.VrfConfig {
 
 func vrfInstancesTerraformToSdk(data basetypes.MapValue) map[string]models.GatewayVrfInstance {
 	result := make(map[string]models.GatewayVrfInstance)
-	for itemName, itemValue := range data.Elements() {
-		item := itemValue.(VrfInstancesValue)
-		if item.Networks.IsNull() || item.Networks.IsUnknown() {
+	for key, val := range data.Elements() {
+		item := val.(VrfInstancesValue)
+		if item.Networks.IsUnknown() {
 			continue
 		}
 
-		result[itemName] = models.GatewayVrfInstance{
+		if item.Networks.IsNull() {
+			result[key] = models.GatewayVrfInstance{}
+			continue
+		}
+
+		result[key] = models.GatewayVrfInstance{
 			Networks: mistutils.ListOfStringTerraformToSdk(item.Networks),
 		}
 	}
