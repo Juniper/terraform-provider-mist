@@ -67,28 +67,28 @@ func deliverySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *
 
 func rulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data map[string]models.AlarmTemplateRule) basetypes.MapValue {
 	rules := make(map[string]attr.Value)
-	for key, item := range data {
+	for key, val := range data {
 		var delivery = basetypes.NewObjectNull(DeliveryValue{}.AttributeTypes(ctx))
-		if item.Delivery != nil {
+		if val.Delivery != nil {
 			var err diag.Diagnostics
-			delivery, err = deliverySdkToTerraform(ctx, diags, item.Delivery).ToObjectValue(ctx)
+			delivery, err = deliverySdkToTerraform(ctx, diags, val.Delivery).ToObjectValue(ctx)
 			if err != nil {
 				diags.Append(err...)
 			}
 		}
 
 		var enabled types.Bool
-		if item.Enabled != nil {
-			enabled = types.BoolValue(*item.Enabled)
+		if val.Enabled != nil {
+			enabled = types.BoolValue(*val.Enabled)
 		}
 
 		dataMap := map[string]attr.Value{
 			"delivery": delivery,
 			"enabled":  enabled,
 		}
+
 		item, err := NewRulesValue(RulesValue{}.AttributeTypes(ctx), dataMap)
 		diags.Append(err...)
-
 		rules[key] = item
 	}
 
