@@ -46,12 +46,14 @@ func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data
 		}
 
 		var viewsArray []attr.Value
-		if val.View != nil {
+		if val.View != nil && val.Views == nil {
 			viewsArray = append(viewsArray, types.StringValue(string(*val.View)))
 		}
 
-		for _, view := range val.Views {
-			viewsArray = append(viewsArray, types.StringValue(string(view)))
+		if val.Views != nil {
+			for _, view := range val.Views {
+				viewsArray = append(viewsArray, types.StringValue(string(view)))
+			}
 		}
 
 		views := mistutils.ListOfStringSdkToTerraformEmpty()

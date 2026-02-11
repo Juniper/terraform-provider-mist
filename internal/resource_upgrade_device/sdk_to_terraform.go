@@ -54,11 +54,16 @@ func SdkToTerraform(upgrade UpgradeDeviceModel, data *models.ResponseDeviceUpgra
 }
 
 func DeviceStatSdkToTerraform(ctx context.Context, upgrade UpgradeDeviceModel, data *models.ApiResponse[models.StatsDevice]) (UpgradeDeviceModel, int, diag.Diagnostics) {
-	body, _ := io.ReadAll(data.Response.Body)
-	var objMap map[string]interface{}
 	var diags diag.Diagnostics
 	defaultUptime := -1
-	err := json.Unmarshal(body, &objMap)
+	body, err := io.ReadAll(data.Response.Body)
+	if err != nil {
+		tflog.Error(ctx, "Error reading response body", map[string]interface{}{"error": err.Error()})
+		return upgrade, defaultUptime, diags
+	}
+
+	var objMap map[string]interface{}
+	err = json.Unmarshal(body, &objMap)
 	if err != nil {
 		tflog.Error(ctx, err.Error())
 		return upgrade, defaultUptime, diags

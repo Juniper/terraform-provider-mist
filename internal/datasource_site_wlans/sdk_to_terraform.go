@@ -30,7 +30,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mode
 		return SiteWlansValue{}
 	}
 
-	var acctImmediateUpdate basetypes.BoolValue
+	var acctImmediateUpdate = types.BoolValue(false)
 	if data.AcctImmediateUpdate != nil {
 		acctImmediateUpdate = types.BoolValue(*data.AcctImmediateUpdate)
 	}
