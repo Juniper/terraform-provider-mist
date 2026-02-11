@@ -458,7 +458,10 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mode
 
 	ssid := types.StringValue(data.Ssid)
 
-	templateId := types.StringValue(data.TemplateId.Value().String())
+	var templateId basetypes.StringValue
+	if data.TemplateId.IsValueSet() && data.TemplateId.Value() != nil {
+		templateId = types.StringValue(data.TemplateId.Value().String())
+	}
 
 	var useEapolV1 basetypes.BoolValue
 	if data.UseEapolV1 != nil {
