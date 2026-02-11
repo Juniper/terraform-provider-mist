@@ -33,7 +33,7 @@ func SdkToTerraform(ctx context.Context, data models.AlarmTemplate) (OrgAlarmtem
 
 func deliverySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.Delivery) DeliveryValue {
 	if data == nil {
-		return DeliveryValue{}
+		return NewDeliveryValueNull()
 	}
 
 	var additionalEmails = types.ListValueMust(types.StringType, []attr.Value{})

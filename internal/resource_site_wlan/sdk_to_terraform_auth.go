@@ -13,7 +13,7 @@ import (
 
 func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.WlanAuth) AuthValue {
 	if data == nil {
-		return AuthValue{}
+		return NewAuthValueNull()
 	}
 
 	var anticlogThreshold basetypes.Int64Value

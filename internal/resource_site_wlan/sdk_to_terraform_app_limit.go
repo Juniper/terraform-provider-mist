@@ -13,7 +13,7 @@ import (
 
 func appLimitSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.WlanAppLimit) AppLimitValue {
 	if data == nil {
-		return AppLimitValue{}
+		return NewAppLimitValueNull()
 	}
 
 	appLimitAttr := make(map[string]attr.Value)
