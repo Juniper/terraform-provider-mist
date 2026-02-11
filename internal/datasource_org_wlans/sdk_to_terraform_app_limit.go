@@ -12,6 +12,10 @@ import (
 )
 
 func appLimitSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.WlanAppLimit) basetypes.ObjectValue {
+	if data == nil {
+		return basetypes.NewObjectNull(AppLimitValue{}.AttributeTypes(ctx))
+	}
+
 	appLimitAttr := make(map[string]attr.Value)
 	for key, val := range data.Apps {
 		appLimitAttr[key] = types.Int64Value(int64(val))

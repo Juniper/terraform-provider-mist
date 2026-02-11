@@ -26,7 +26,7 @@ func SdkToTerraform(ctx context.Context, data *[]models.Wlan, elements *[]attr.V
 
 func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.Wlan) OrgWlansValue {
 	if data == nil {
-		return OrgWlansValue{}
+		return NewOrgWlansValueNull()
 	}
 
 	var acctImmediateUpdate = types.BoolValue(false)
@@ -65,7 +65,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mode
 	}
 
 	var apIds = types.ListNull(types.StringType)
-	if data.ApIds.IsValueSet() && data.ApIds.Value() != nil {
+	if data.ApIds.IsValueSet() && data.ApIds.Value() != nil && len(*data.ApIds.Value()) > 0 {
 		apIds = mistutils.ListOfUuidSdkToTerraform(*data.ApIds.Value())
 	}
 

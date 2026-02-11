@@ -269,7 +269,7 @@ func main() {
 					isStruct = false
 				}
 
-				_, err := writer.WriteString(line)
+				_, err = writer.WriteString(line)
 				if err != nil {
 					fmt.Println("Error writing string:", err)
 					return

@@ -27,7 +27,7 @@ func SdkToTerraform(ctx context.Context, l *[]models.Wlan, elements *[]attr.Valu
 
 func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.Wlan) SiteWlansValue {
 	if data == nil {
-		return SiteWlansValue{}
+		return NewSiteWlansValueNull()
 	}
 
 	var acctImmediateUpdate = types.BoolValue(false)

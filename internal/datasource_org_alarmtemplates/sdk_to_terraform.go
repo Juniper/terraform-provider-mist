@@ -25,7 +25,7 @@ func SdkToTerraform(ctx context.Context, data *[]models.AlarmTemplate, elements 
 
 func alarmTemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.AlarmTemplate) OrgAlarmtemplatesValue {
 	if data == nil {
-		return OrgAlarmtemplatesValue{}
+		return NewOrgAlarmtemplatesValueNull()
 	}
 
 	var createdTime basetypes.Float64Value
