@@ -60,8 +60,8 @@ func alarmTemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 		"org_id":        orgId,
 		"rules":         rules,
 	}
-	result, e := NewOrgAlarmtemplatesValue(OrgAlarmtemplatesValue{}.AttributeTypes(ctx), dataMapValue)
-	diags.Append(e...)
+	result, err := NewOrgAlarmtemplatesValue(OrgAlarmtemplatesValue{}.AttributeTypes(ctx), dataMapValue)
+	diags.Append(err...)
 
 	return result
 }
