@@ -11,10 +11,25 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func wanExtraRoutesPortVpnPathTerraformToSdk(d basetypes.MapValue) map[string]models.WanExtraRoutes {
+func wanExtraRoutesPortVpnPathTerraformToSdk(data basetypes.MapValue) map[string]models.WanExtraRoutes {
 	dataMap := make(map[string]models.WanExtraRoutes)
-	for key, val := range d.Elements() {
+	for key, val := range data.Elements() {
 		plan := val.(WanExtraRoutesValue)
+		if plan.Via.ValueStringPointer() == nil {
+			continue
+		}
+
+		dataMap[key] = models.WanExtraRoutes{
+			Via: plan.Via.ValueStringPointer(),
+		}
+	}
+	return dataMap
+}
+
+func wanExtraRoutes6PortVpnPathTerraformToSdk(data basetypes.MapValue) map[string]models.WanExtraRoutes {
+	dataMap := make(map[string]models.WanExtraRoutes)
+	for key, val := range data.Elements() {
+		plan := val.(WanExtraRoutes6Value)
 		if plan.Via.ValueStringPointer() == nil {
 			continue
 		}
@@ -364,7 +379,7 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, data
 		}
 
 		if !plan.WanExtraRoutes6.IsNull() && !plan.WanExtraRoutes6.IsUnknown() {
-			result.WanExtraRoutes6 = wanExtraRoutesPortVpnPathTerraformToSdk(plan.WanExtraRoutes6)
+			result.WanExtraRoutes6 = wanExtraRoutes6PortVpnPathTerraformToSdk(plan.WanExtraRoutes6)
 		}
 
 		if !plan.WanNetworks.IsNull() && !plan.WanNetworks.IsUnknown() {

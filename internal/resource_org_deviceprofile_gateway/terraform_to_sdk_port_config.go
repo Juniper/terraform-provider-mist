@@ -11,16 +11,32 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func wanExtraRoutesPortVpnPathTerraformToSdk(d basetypes.MapValue) map[string]models.WanExtraRoutes {
+func wanExtraRoutesPortVpnPathTerraformToSdk(data basetypes.MapValue) map[string]models.WanExtraRoutes {
 	dataMap := make(map[string]models.WanExtraRoutes)
-	for key, val := range d.Elements() {
+	for key, val := range data.Elements() {
 		plan := val.(WanExtraRoutesValue)
-		data := models.WanExtraRoutes{}
-		if plan.Via.ValueStringPointer() != nil {
-			data.Via = plan.Via.ValueStringPointer()
+		if plan.Via.ValueStringPointer() == nil {
+			continue
 		}
 
-		dataMap[key] = data
+		dataMap[key] = models.WanExtraRoutes{
+			Via: plan.Via.ValueStringPointer(),
+		}
+	}
+	return dataMap
+}
+
+func wanExtraRoutes6PortVpnPathTerraformToSdk(data basetypes.MapValue) map[string]models.WanExtraRoutes {
+	dataMap := make(map[string]models.WanExtraRoutes)
+	for key, val := range data.Elements() {
+		plan := val.(WanExtraRoutes6Value)
+		if plan.Via.ValueStringPointer() == nil {
+			continue
+		}
+
+		dataMap[key] = models.WanExtraRoutes{
+			Via: plan.Via.ValueStringPointer(),
+		}
 	}
 	return dataMap
 }
@@ -197,190 +213,190 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, data
 	dataMap := make(map[string]models.GatewayPortConfig)
 	for key, val := range data.Elements() {
 		var result models.GatewayPortConfig
-		plan := val.(PortConfigValue)
-		if plan.AeDisableLacp.ValueBoolPointer() != nil {
-			result.AeDisableLacp = plan.AeDisableLacp.ValueBoolPointer()
+		portConfig := val.(PortConfigValue)
+		if portConfig.AeDisableLacp.ValueBoolPointer() != nil {
+			result.AeDisableLacp = portConfig.AeDisableLacp.ValueBoolPointer()
 		}
 
-		if plan.AeIdx.ValueStringPointer() != nil {
-			result.AeIdx = models.NewOptional(plan.AeIdx.ValueStringPointer())
+		if portConfig.AeIdx.ValueStringPointer() != nil {
+			result.AeIdx = models.NewOptional(portConfig.AeIdx.ValueStringPointer())
 		}
 
-		if plan.AeLacpForceUp.ValueBoolPointer() != nil {
-			result.AeLacpForceUp = plan.AeLacpForceUp.ValueBoolPointer()
+		if portConfig.AeLacpForceUp.ValueBoolPointer() != nil {
+			result.AeLacpForceUp = portConfig.AeLacpForceUp.ValueBoolPointer()
 		}
 
-		if plan.Aggregated.ValueBoolPointer() != nil {
-			result.Aggregated = plan.Aggregated.ValueBoolPointer()
+		if portConfig.Aggregated.ValueBoolPointer() != nil {
+			result.Aggregated = portConfig.Aggregated.ValueBoolPointer()
 		}
 
-		if plan.Critical.ValueBoolPointer() != nil {
-			result.Critical = plan.Critical.ValueBoolPointer()
+		if portConfig.Critical.ValueBoolPointer() != nil {
+			result.Critical = portConfig.Critical.ValueBoolPointer()
 		}
 
-		if plan.Usage.ValueStringPointer() != nil {
-			result.Usage = models.GatewayPortUsageEnum(plan.Usage.ValueString())
+		if portConfig.Usage.ValueStringPointer() != nil {
+			result.Usage = models.GatewayPortUsageEnum(portConfig.Usage.ValueString())
 		}
 
-		if plan.Description.ValueStringPointer() != nil {
-			result.Description = plan.Description.ValueStringPointer()
+		if portConfig.Description.ValueStringPointer() != nil {
+			result.Description = portConfig.Description.ValueStringPointer()
 		}
 
-		if plan.DisableAutoneg.ValueBoolPointer() != nil {
-			result.DisableAutoneg = plan.DisableAutoneg.ValueBoolPointer()
+		if portConfig.DisableAutoneg.ValueBoolPointer() != nil {
+			result.DisableAutoneg = portConfig.DisableAutoneg.ValueBoolPointer()
 		}
 
-		if plan.Disabled.ValueBoolPointer() != nil {
-			result.Disabled = plan.Disabled.ValueBoolPointer()
+		if portConfig.Disabled.ValueBoolPointer() != nil {
+			result.Disabled = portConfig.Disabled.ValueBoolPointer()
 		}
 
-		if plan.DslType.ValueStringPointer() != nil {
-			result.DslType = models.ToPointer(models.GatewayPortDslTypeEnum(plan.DslType.ValueString()))
+		if portConfig.DslType.ValueStringPointer() != nil {
+			result.DslType = models.ToPointer(models.GatewayPortDslTypeEnum(portConfig.DslType.ValueString()))
 		}
 
-		if plan.DslVci.ValueInt64Pointer() != nil {
-			result.DslVci = models.ToPointer(int(plan.DslVci.ValueInt64()))
+		if portConfig.DslVci.ValueInt64Pointer() != nil {
+			result.DslVci = models.ToPointer(int(portConfig.DslVci.ValueInt64()))
 		}
 
-		if plan.DslVpi.ValueInt64Pointer() != nil {
-			result.DslVpi = models.ToPointer(int(plan.DslVpi.ValueInt64()))
+		if portConfig.DslVpi.ValueInt64Pointer() != nil {
+			result.DslVpi = models.ToPointer(int(portConfig.DslVpi.ValueInt64()))
 		}
 
-		if plan.Duplex.ValueStringPointer() != nil {
-			result.Duplex = models.ToPointer(models.GatewayPortDuplexEnum(plan.Duplex.ValueString()))
+		if portConfig.Duplex.ValueStringPointer() != nil {
+			result.Duplex = models.ToPointer(models.GatewayPortDuplexEnum(portConfig.Duplex.ValueString()))
 		}
 
-		if !plan.PortIpConfig.IsNull() && !plan.PortIpConfig.IsUnknown() {
-			t, _ := plan.PortIpConfig.ToObjectValue(ctx)
+		if !portConfig.PortIpConfig.IsNull() && !portConfig.PortIpConfig.IsUnknown() {
+			t, _ := portConfig.PortIpConfig.ToObjectValue(ctx)
 			result.IpConfig = gatewayIpConfigTerraformToSdk(ctx, t)
 		}
 
-		if plan.LteApn.ValueStringPointer() != nil {
-			result.LteApn = plan.LteApn.ValueStringPointer()
+		if portConfig.LteApn.ValueStringPointer() != nil {
+			result.LteApn = portConfig.LteApn.ValueStringPointer()
 		}
 
-		if plan.LteAuth.ValueStringPointer() != nil {
-			result.LteAuth = models.ToPointer(models.GatewayPortLteAuthEnum(plan.LteAuth.ValueString()))
+		if portConfig.LteAuth.ValueStringPointer() != nil {
+			result.LteAuth = models.ToPointer(models.GatewayPortLteAuthEnum(portConfig.LteAuth.ValueString()))
 		}
 
-		if plan.LteBackup.ValueBoolPointer() != nil {
-			result.LteBackup = plan.LteBackup.ValueBoolPointer()
+		if portConfig.LteBackup.ValueBoolPointer() != nil {
+			result.LteBackup = portConfig.LteBackup.ValueBoolPointer()
 		}
 
-		if plan.LtePassword.ValueStringPointer() != nil {
-			result.LtePassword = plan.LtePassword.ValueStringPointer()
+		if portConfig.LtePassword.ValueStringPointer() != nil {
+			result.LtePassword = portConfig.LtePassword.ValueStringPointer()
 		}
 
-		if plan.LteUsername.ValueStringPointer() != nil {
-			result.LteUsername = plan.LteUsername.ValueStringPointer()
+		if portConfig.LteUsername.ValueStringPointer() != nil {
+			result.LteUsername = portConfig.LteUsername.ValueStringPointer()
 		}
 
-		if plan.Mtu.ValueInt64Pointer() != nil {
-			result.Mtu = models.ToPointer(int(plan.Mtu.ValueInt64()))
+		if portConfig.Mtu.ValueInt64Pointer() != nil {
+			result.Mtu = models.ToPointer(int(portConfig.Mtu.ValueInt64()))
 		}
 
-		if plan.Name.ValueStringPointer() != nil {
-			result.Name = plan.Name.ValueStringPointer()
+		if portConfig.Name.ValueStringPointer() != nil {
+			result.Name = portConfig.Name.ValueStringPointer()
 		}
 
-		if !plan.Networks.IsNull() && !plan.Networks.IsUnknown() {
-			result.Networks = mistutils.ListOfStringTerraformToSdk(plan.Networks)
+		if !portConfig.Networks.IsNull() && !portConfig.Networks.IsUnknown() {
+			result.Networks = mistutils.ListOfStringTerraformToSdk(portConfig.Networks)
 		}
 
-		if plan.OuterVlanId.ValueInt64Pointer() != nil {
-			result.OuterVlanId = models.ToPointer(int(plan.OuterVlanId.ValueInt64()))
+		if portConfig.OuterVlanId.ValueInt64Pointer() != nil {
+			result.OuterVlanId = models.ToPointer(int(portConfig.OuterVlanId.ValueInt64()))
 		}
 
-		if plan.PoeDisabled.ValueBoolPointer() != nil {
-			result.PoeDisabled = plan.PoeDisabled.ValueBoolPointer()
+		if portConfig.PoeDisabled.ValueBoolPointer() != nil {
+			result.PoeDisabled = portConfig.PoeDisabled.ValueBoolPointer()
 		}
 
-		if plan.PortNetwork.ValueStringPointer() != nil {
-			result.PortNetwork = plan.PortNetwork.ValueStringPointer()
+		if portConfig.PortNetwork.ValueStringPointer() != nil {
+			result.PortNetwork = portConfig.PortNetwork.ValueStringPointer()
 		}
 
-		if plan.PreserveDscp.ValueBoolPointer() != nil {
-			result.PreserveDscp = plan.PreserveDscp.ValueBoolPointer()
+		if portConfig.PreserveDscp.ValueBoolPointer() != nil {
+			result.PreserveDscp = portConfig.PreserveDscp.ValueBoolPointer()
 		}
 
-		if plan.Redundant.ValueBoolPointer() != nil {
-			result.Redundant = plan.Redundant.ValueBoolPointer()
+		if portConfig.Redundant.ValueBoolPointer() != nil {
+			result.Redundant = portConfig.Redundant.ValueBoolPointer()
 		}
 
-		if plan.RedundantGroup.ValueInt64Pointer() != nil {
-			result.RedundantGroup = models.ToPointer(int(plan.RedundantGroup.ValueInt64()))
+		if portConfig.RedundantGroup.ValueInt64Pointer() != nil {
+			result.RedundantGroup = models.ToPointer(int(portConfig.RedundantGroup.ValueInt64()))
 		}
 
-		if plan.RethIdx.ValueStringPointer() != nil {
-			result.RethIdx = models.ToPointer(models.GatewayPortConfigRethIdxContainer.FromString(plan.RethIdx.ValueString()))
+		if portConfig.RethIdx.ValueStringPointer() != nil {
+			result.RethIdx = models.ToPointer(models.GatewayPortConfigRethIdxContainer.FromString(portConfig.RethIdx.ValueString()))
 		}
 
-		if plan.RethNode.ValueStringPointer() != nil {
-			result.RethNode = plan.RethNode.ValueStringPointer()
+		if portConfig.RethNode.ValueStringPointer() != nil {
+			result.RethNode = portConfig.RethNode.ValueStringPointer()
 		}
 
-		if plan.Speed.ValueStringPointer() != nil {
-			result.Speed = plan.Speed.ValueStringPointer()
+		if portConfig.Speed.ValueStringPointer() != nil {
+			result.Speed = portConfig.Speed.ValueStringPointer()
 		}
 
-		if plan.SsrNoVirtualMac.ValueBoolPointer() != nil {
-			result.SsrNoVirtualMac = plan.SsrNoVirtualMac.ValueBoolPointer()
+		if portConfig.SsrNoVirtualMac.ValueBoolPointer() != nil {
+			result.SsrNoVirtualMac = portConfig.SsrNoVirtualMac.ValueBoolPointer()
 		}
 
-		if plan.SvrPortRange.ValueStringPointer() != nil {
-			result.SvrPortRange = plan.SvrPortRange.ValueStringPointer()
+		if portConfig.SvrPortRange.ValueStringPointer() != nil {
+			result.SvrPortRange = portConfig.SvrPortRange.ValueStringPointer()
 		}
 
-		if !plan.TrafficShaping.IsNull() && !plan.TrafficShaping.IsUnknown() {
-			result.TrafficShaping = gatewayPortTrafficShapingTerraformToSdk(ctx, plan.TrafficShaping)
+		if !portConfig.TrafficShaping.IsNull() && !portConfig.TrafficShaping.IsUnknown() {
+			result.TrafficShaping = gatewayPortTrafficShapingTerraformToSdk(ctx, portConfig.TrafficShaping)
 		}
 
-		if plan.VlanId.ValueStringPointer() != nil {
-			result.VlanId = models.ToPointer(models.GatewayPortVlanIdWithVariableContainer.FromString(plan.VlanId.ValueString()))
+		if portConfig.VlanId.ValueStringPointer() != nil {
+			result.VlanId = models.ToPointer(models.GatewayPortVlanIdWithVariableContainer.FromString(portConfig.VlanId.ValueString()))
 		}
 
-		if !plan.VpnPaths.IsNull() && !plan.VpnPaths.IsUnknown() {
-			result.VpnPaths = gatewayPortVpnPathTerraformToSdk(ctx, plan.VpnPaths)
+		if !portConfig.VpnPaths.IsNull() && !portConfig.VpnPaths.IsUnknown() {
+			result.VpnPaths = gatewayPortVpnPathTerraformToSdk(ctx, portConfig.VpnPaths)
 		}
 
-		if plan.WanArpPolicer.ValueStringPointer() != nil {
-			result.WanArpPolicer = models.ToPointer(models.GatewayPortWanArpPolicerEnum(plan.WanArpPolicer.ValueString()))
+		if portConfig.WanArpPolicer.ValueStringPointer() != nil {
+			result.WanArpPolicer = models.ToPointer(models.GatewayPortWanArpPolicerEnum(portConfig.WanArpPolicer.ValueString()))
 		}
 
-		if plan.WanDisableSpeedtest.ValueBoolPointer() != nil {
-			result.WanDisableSpeedtest = plan.WanDisableSpeedtest.ValueBoolPointer()
+		if portConfig.WanDisableSpeedtest.ValueBoolPointer() != nil {
+			result.WanDisableSpeedtest = portConfig.WanDisableSpeedtest.ValueBoolPointer()
 		}
 
-		if plan.WanExtIp.ValueStringPointer() != nil {
-			result.WanExtIp = plan.WanExtIp.ValueStringPointer()
+		if portConfig.WanExtIp.ValueStringPointer() != nil {
+			result.WanExtIp = portConfig.WanExtIp.ValueStringPointer()
 		}
 
-		if !plan.WanExtIp6.IsNull() && !plan.WanExtIp6.IsUnknown() {
-			result.WanExtIp6 = plan.WanExtIp6.ValueStringPointer()
+		if !portConfig.WanExtIp6.IsNull() && !portConfig.WanExtIp6.IsUnknown() {
+			result.WanExtIp6 = portConfig.WanExtIp6.ValueStringPointer()
 		}
 
-		if !plan.WanExtraRoutes.IsNull() && !plan.WanExtraRoutes.IsUnknown() {
-			result.WanExtraRoutes = wanExtraRoutesPortVpnPathTerraformToSdk(plan.WanExtraRoutes)
+		if !portConfig.WanExtraRoutes.IsNull() && !portConfig.WanExtraRoutes.IsUnknown() {
+			result.WanExtraRoutes = wanExtraRoutesPortVpnPathTerraformToSdk(portConfig.WanExtraRoutes)
 		}
 
-		if !plan.WanExtraRoutes6.IsNull() && !plan.WanExtraRoutes6.IsUnknown() {
-			result.WanExtraRoutes6 = wanExtraRoutesPortVpnPathTerraformToSdk(plan.WanExtraRoutes6)
+		if !portConfig.WanExtraRoutes6.IsNull() && !portConfig.WanExtraRoutes6.IsUnknown() {
+			result.WanExtraRoutes6 = wanExtraRoutes6PortVpnPathTerraformToSdk(portConfig.WanExtraRoutes6)
 		}
 
-		if !plan.WanNetworks.IsNull() && !plan.WanNetworks.IsUnknown() {
-			result.WanNetworks = mistutils.ListOfStringTerraformToSdk(plan.WanNetworks)
+		if !portConfig.WanNetworks.IsNull() && !portConfig.WanNetworks.IsUnknown() {
+			result.WanNetworks = mistutils.ListOfStringTerraformToSdk(portConfig.WanNetworks)
 		}
 
-		if !plan.WanProbeOverride.IsNull() && !plan.WanProbeOverride.IsUnknown() {
-			result.WanProbeOverride = wanProbeOverridePortVpnPathTerraformToSdk(ctx, diags, plan.WanProbeOverride)
+		if !portConfig.WanProbeOverride.IsNull() && !portConfig.WanProbeOverride.IsUnknown() {
+			result.WanProbeOverride = wanProbeOverridePortVpnPathTerraformToSdk(ctx, diags, portConfig.WanProbeOverride)
 		}
 
-		if !plan.WanSourceNat.IsNull() && !plan.WanSourceNat.IsUnknown() {
-			result.WanSourceNat = portConfigWanSourceNatTerraformToSdk(ctx, plan.WanSourceNat)
+		if !portConfig.WanSourceNat.IsNull() && !portConfig.WanSourceNat.IsUnknown() {
+			result.WanSourceNat = portConfigWanSourceNatTerraformToSdk(ctx, portConfig.WanSourceNat)
 		}
 
-		if plan.WanType.ValueStringPointer() != nil {
-			result.WanType = models.ToPointer(models.GatewayPortWanTypeEnum(plan.WanType.ValueString()))
+		if portConfig.WanType.ValueStringPointer() != nil {
+			result.WanType = models.ToPointer(models.GatewayPortWanTypeEnum(portConfig.WanType.ValueString()))
 		}
 
 		dataMap[key] = result
