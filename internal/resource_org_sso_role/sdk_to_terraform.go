@@ -32,9 +32,6 @@ func SdkToTerraform(ctx context.Context, data models.SsoRoleOrg) (OrgSsoRoleMode
 func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data []models.PrivilegeOrg) basetypes.ListValue {
 	var privileges []PrivilegesValue
 	for _, val := range data {
-		role := types.StringValue(string(val.Role))
-		scope := types.StringValue(string(val.Scope))
-
 		var siteId basetypes.StringValue
 		if val.SiteId != nil {
 			siteId = types.StringValue(val.SiteId.String())
@@ -64,8 +61,8 @@ func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data
 		}
 
 		dataMap := map[string]attr.Value{
-			"role":         role,
-			"scope":        scope,
+			"role":         types.StringValue(string(val.Role)),
+			"scope":        types.StringValue(string(val.Scope)),
 			"site_id":      siteId,
 			"sitegroup_id": sitegroupId,
 			"views":        views,

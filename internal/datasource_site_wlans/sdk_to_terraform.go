@@ -14,12 +14,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l *[]models.Wlan, elements *[]attr.Value) diag.Diagnostics {
+func SdkToTerraform(ctx context.Context, data *[]models.Wlan, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
-
-	for _, d := range *l {
-		elem := wlanSdkToTerraform(ctx, &diags, &d)
-		*elements = append(*elements, elem)
+	for _, val := range *data {
+		item := wlanSdkToTerraform(ctx, &diags, &val)
+		*elements = append(*elements, item)
 	}
 
 	return diags
@@ -462,8 +461,6 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mode
 		sleExcluded = types.BoolValue(*data.SleExcluded)
 	}
 
-	ssid := types.StringValue(data.Ssid)
-
 	var useEapolV1 basetypes.BoolValue
 	if data.UseEapolV1 != nil {
 		useEapolV1 = types.BoolValue(*data.UseEapolV1)
@@ -525,6 +522,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mode
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"ssid":                                   types.StringValue(data.Ssid),
 		"acct_immediate_update":                  acctImmediateUpdate,
 		"acct_interim_interval":                  acctInterimInterval,
 		"acct_servers":                           acctServers,
@@ -605,24 +603,23 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mode
 		"qos":                                    qos,
 		"radsec":                                 radsec,
 		"rateset":                                rateset,
+		"roam_mode":                              roamMode,
+		"schedule":                               schedule,
+		"site_id":                                siteId,
+		"sle_excluded":                           sleExcluded,
+		"use_eapol_v1":                           useEapolV1,
+		"vlan_enabled":                           vlanEnabled,
+		"vlan_id":                                vlanId,
+		"vlan_ids":                               vlanIds,
+		"vlan_pooling":                           vlanPooling,
+		"wlan_limit_down":                        wlanLimitDown,
+		"wlan_limit_down_enabled":                wlanLimitDownEnabled,
+		"wlan_limit_up":                          wlanLimitUp,
+		"wlan_limit_up_enabled":                  wlanLimitUpEnabled,
+		"wxtag_ids":                              wxtagIds,
+		"wxtunnel_id":                            wxtunnelId,
+		"wxtunnel_remote_id":                     wxtunnelRemoteId,
 		"reconnect_clients_when_roaming_mxcluster": reconnectClientsWhenRoamingMxcluster,
-		"roam_mode":               roamMode,
-		"schedule":                schedule,
-		"site_id":                 siteId,
-		"sle_excluded":            sleExcluded,
-		"ssid":                    ssid,
-		"use_eapol_v1":            useEapolV1,
-		"vlan_enabled":            vlanEnabled,
-		"vlan_id":                 vlanId,
-		"vlan_ids":                vlanIds,
-		"vlan_pooling":            vlanPooling,
-		"wlan_limit_down":         wlanLimitDown,
-		"wlan_limit_down_enabled": wlanLimitDownEnabled,
-		"wlan_limit_up":           wlanLimitUp,
-		"wlan_limit_up_enabled":   wlanLimitUpEnabled,
-		"wxtag_ids":               wxtagIds,
-		"wxtunnel_id":             wxtunnelId,
-		"wxtunnel_remote_id":      wxtunnelRemoteId,
 	}
 
 	result, err := NewSiteWlansValue(SiteWlansValue{}.AttributeTypes(ctx), dataMapValue)

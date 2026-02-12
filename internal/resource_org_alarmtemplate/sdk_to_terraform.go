@@ -41,8 +41,6 @@ func deliverySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *
 		additionalEmails = mistutils.ListOfStringSdkToTerraform(data.AdditionalEmails)
 	}
 
-	enabled := types.BoolValue(data.Enabled)
-
 	var toOrgAdmins types.Bool
 	if data.ToOrgAdmins != nil {
 		toOrgAdmins = types.BoolValue(*data.ToOrgAdmins)
@@ -55,7 +53,7 @@ func deliverySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *
 
 	dataMapValue := map[string]attr.Value{
 		"additional_emails": additionalEmails,
-		"enabled":           enabled,
+		"enabled":           types.BoolValue(data.Enabled),
 		"to_org_admins":     toOrgAdmins,
 		"to_site_admins":    toSiteAdmins,
 	}

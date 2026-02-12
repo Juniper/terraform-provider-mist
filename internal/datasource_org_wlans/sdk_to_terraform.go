@@ -17,8 +17,8 @@ import (
 func SdkToTerraform(ctx context.Context, data *[]models.Wlan, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 	for _, val := range *data {
-		elem := wlanSdkToTerraform(ctx, &diags, &val)
-		*elements = append(*elements, elem)
+		item := wlanSdkToTerraform(ctx, &diags, &val)
+		*elements = append(*elements, item)
 	}
 
 	return diags
@@ -456,8 +456,6 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mode
 		sleExcluded = types.BoolValue(*data.SleExcluded)
 	}
 
-	ssid := types.StringValue(data.Ssid)
-
 	var templateId basetypes.StringValue
 	if data.TemplateId.IsValueSet() && data.TemplateId.Value() != nil {
 		templateId = types.StringValue(data.TemplateId.Value().String())
@@ -524,6 +522,7 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mode
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"ssid":                                   types.StringValue(data.Ssid),
 		"acct_immediate_update":                  acctImmediateUpdate,
 		"acct_interim_interval":                  acctInterimInterval,
 		"acct_servers":                           acctServers,
@@ -604,24 +603,23 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mode
 		"qos":                                    qos,
 		"radsec":                                 radsec,
 		"rateset":                                rateset,
+		"roam_mode":                              roamMode,
+		"schedule":                               schedule,
+		"sle_excluded":                           sleExcluded,
+		"template_id":                            templateId,
+		"use_eapol_v1":                           useEapolV1,
+		"vlan_enabled":                           vlanEnabled,
+		"vlan_id":                                vlanId,
+		"vlan_ids":                               vlanIds,
+		"vlan_pooling":                           vlanPooling,
+		"wlan_limit_down":                        wlanLimitDown,
+		"wlan_limit_down_enabled":                wlanLimitDownEnabled,
+		"wlan_limit_up":                          wlanLimitUp,
+		"wlan_limit_up_enabled":                  wlanLimitUpEnabled,
+		"wxtag_ids":                              wxtagIds,
+		"wxtunnel_id":                            wxtunnelId,
+		"wxtunnel_remote_id":                     wxtunnelRemoteId,
 		"reconnect_clients_when_roaming_mxcluster": reconnectClientsWhenRoamingMxcluster,
-		"roam_mode":               roamMode,
-		"schedule":                schedule,
-		"sle_excluded":            sleExcluded,
-		"ssid":                    ssid,
-		"template_id":             templateId,
-		"use_eapol_v1":            useEapolV1,
-		"vlan_enabled":            vlanEnabled,
-		"vlan_id":                 vlanId,
-		"vlan_ids":                vlanIds,
-		"vlan_pooling":            vlanPooling,
-		"wlan_limit_down":         wlanLimitDown,
-		"wlan_limit_down_enabled": wlanLimitDownEnabled,
-		"wlan_limit_up":           wlanLimitUp,
-		"wlan_limit_up_enabled":   wlanLimitUpEnabled,
-		"wxtag_ids":               wxtagIds,
-		"wxtunnel_id":             wxtunnelId,
-		"wxtunnel_remote_id":      wxtunnelRemoteId,
 	}
 	result, err := NewOrgWlansValue(OrgWlansValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(err...)

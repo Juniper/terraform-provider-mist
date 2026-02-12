@@ -15,11 +15,6 @@ import (
 )
 
 func SdkToTerraform(upgrade UpgradeDeviceModel, data *models.ResponseDeviceUpgrade) (UpgradeDeviceModel, diag.Diagnostics) {
-	var deviceVersion basetypes.StringValue
-	fwupdate := NewFwupdateValueNull()
-	status := types.StringValue(string(data.Status))
-	timestamp := types.Float64Value(data.Timestamp)
-
 	syncUpgrade := types.BoolValue(true)
 	if !upgrade.SyncUpgrade.IsNull() && !upgrade.SyncUpgrade.IsUnknown() {
 		syncUpgrade = upgrade.SyncUpgrade
@@ -40,10 +35,10 @@ func SdkToTerraform(upgrade UpgradeDeviceModel, data *models.ResponseDeviceUpgra
 		syncUpgradeTimeout = upgrade.SyncUpgradeTimeout
 	}
 
-	upgrade.DeviceVersion = deviceVersion
-	upgrade.Fwupdate = fwupdate
-	upgrade.Status = status
-	upgrade.Timestamp = timestamp
+	upgrade.DeviceVersion = basetypes.StringValue{}
+	upgrade.Fwupdate = NewFwupdateValueNull()
+	upgrade.Status = types.StringValue(string(data.Status))
+	upgrade.Timestamp = types.Float64Value(data.Timestamp)
 	upgrade.SyncUpgrade = syncUpgrade
 	upgrade.SyncUpgradeStartTimeout = syncUpgradeStartTimeout
 	upgrade.SyncUpgradeRefreshInterval = syncUpgradeRefreshInterval

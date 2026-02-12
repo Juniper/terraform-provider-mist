@@ -19,8 +19,6 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		return SiteSettingModel{}, diags
 	}
 
-	siteId := types.StringValue(data.SiteId.String())
-
 	var analytic = NewAnalyticValueNull()
 	if data.Analytic != nil {
 		analytic = analyticSdkToTerraform(ctx, &diags, data.Analytic)
@@ -252,7 +250,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	state := SiteSettingModel{
-		SiteId:                     siteId,
+		SiteId:                     types.StringValue(data.SiteId.String()),
 		Analytic:                   analytic,
 		ApUpdownThreshold:          apUpdownThreshold,
 		AutoUpgrade:                autoUpgrade,

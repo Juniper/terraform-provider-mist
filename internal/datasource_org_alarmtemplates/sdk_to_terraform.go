@@ -16,8 +16,8 @@ import (
 func SdkToTerraform(ctx context.Context, data *[]models.AlarmTemplate, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
 	for _, val := range *data {
-		elem := alarmTemplateSdkToTerraform(ctx, &diags, &val)
-		*elements = append(*elements, elem)
+		item := alarmTemplateSdkToTerraform(ctx, &diags, &val)
+		*elements = append(*elements, item)
 	}
 
 	return diags
@@ -33,10 +33,6 @@ func alarmTemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 		createdTime = types.Float64Value(*data.CreatedTime)
 	}
 
-	delivery := deliverySdkToTerraform(ctx, diags, &data.Delivery)
-
-	id := types.StringValue(data.Id.String())
-
 	var modifiedTime basetypes.Float64Value
 	if data.ModifiedTime != nil {
 		modifiedTime = types.Float64Value(*data.ModifiedTime)
@@ -47,18 +43,14 @@ func alarmTemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 		name = types.StringValue(*data.Name)
 	}
 
-	orgId := types.StringValue(data.OrgId.String())
-
-	rules := rulesSdkToTerraform(ctx, diags, data.Rules)
-
 	dataMapValue := map[string]attr.Value{
-		"created_time":  createdTime,
-		"delivery":      delivery,
-		"id":            id,
-		"modified_time": modifiedTime,
+		"id":            types.StringValue(data.Id.String()),
+		"org_id":        types.StringValue(data.OrgId.String()),
+		"rules":         rulesSdkToTerraform(ctx, diags, data.Rules),
+		"delivery":      deliverySdkToTerraform(ctx, diags, &data.Delivery),
 		"name":          name,
-		"org_id":        orgId,
-		"rules":         rules,
+		"created_time":  createdTime,
+		"modified_time": modifiedTime,
 	}
 	result, err := NewOrgAlarmtemplatesValue(OrgAlarmtemplatesValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(err...)
@@ -76,8 +68,6 @@ func deliverySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *
 		additionalEmails = mistutils.ListOfStringSdkToTerraform(data.AdditionalEmails)
 	}
 
-	enabled := types.BoolValue(data.Enabled)
-
 	var toOrgAdmins types.Bool
 	if data.ToOrgAdmins != nil {
 		toOrgAdmins = types.BoolValue(*data.ToOrgAdmins)
@@ -89,8 +79,8 @@ func deliverySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"enabled":           types.BoolValue(data.Enabled),
 		"additional_emails": additionalEmails,
-		"enabled":           enabled,
 		"to_org_admins":     toOrgAdmins,
 		"to_site_admins":    toSiteAdmins,
 	}
