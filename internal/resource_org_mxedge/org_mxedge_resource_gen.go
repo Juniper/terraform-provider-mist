@@ -5,8 +5,6 @@ package resource_org_mxedge
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -21,6 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -28,9 +27,6 @@ import (
 func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"for_site": schema.BoolAttribute{
-				Computed: true,
-			},
 			"id": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
@@ -45,11 +41,10 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			"model": schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
-					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("name"), types.StringValue("")),
+					mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("claim_code")),
 				},
 			},
 			"mxagent_registered": schema.BoolAttribute{
-				Optional: true,
 				Computed: true,
 			},
 			"mxcluster_id": schema.StringAttribute{
@@ -118,6 +113,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"name": schema.StringAttribute{
 				Optional: true,
+				Validators: []validator.String{
+					mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("claim_code")),
+				},
 			},
 			"note": schema.StringAttribute{
 				Optional: true,
@@ -126,6 +124,7 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				ElementType: types.StringType,
 				Optional:    true,
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					listvalidator.UniqueValues(),
 				},
 			},
@@ -146,6 +145,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "IPv4 ignored if `type`!=`static`, IPv6 ignored if `type6`!=`static`",
 						MarkdownDescription: "IPv4 ignored if `type`!=`static`, IPv6 ignored if `type6`!=`static`",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"gateway": schema.StringAttribute{
 						Optional:            true,
@@ -234,7 +236,7 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"services": schema.ListAttribute{
 				ElementType:         types.StringType,
-				Optional:            true,
+				Computed:            true,
 				Description:         "List of services to run, tunterm only for now",
 				MarkdownDescription: "List of services to run, tunterm only for now",
 			},
@@ -254,6 +256,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "List of DHCP servers; required if `type`==`relay`",
 							MarkdownDescription: "List of DHCP servers; required if `type`==`relay`",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"type": schema.StringAttribute{
 							Optional:            true,
@@ -352,6 +357,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "List of vlans on which tunterm performs IGMP snooping",
 						MarkdownDescription: "List of vlans on which tunterm performs IGMP snooping",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 				},
 				CustomType: TuntermIgmpSnoopingConfigType{
@@ -406,6 +414,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"tunterm_multicast_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -418,6 +429,7 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 								ElementType: types.StringType,
 								Optional:    true,
 								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
 									listvalidator.UniqueValues(),
 								},
 							},
@@ -438,6 +450,7 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 								ElementType: types.StringType,
 								Optional:    true,
 								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
 									listvalidator.UniqueValues(),
 								},
 							},
@@ -487,6 +500,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "List of ports to be used for downstream (to AP) purpose",
 						MarkdownDescription: "List of ports to be used for downstream (to AP) purpose",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"separate_upstream_downstream": schema.BoolAttribute{
 						Optional:            true,
@@ -503,6 +519,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "List of ports to be used for upstream purpose (to LAN)",
 						MarkdownDescription: "List of ports to be used for upstream purpose (to LAN)",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 				},
 				CustomType: TuntermPortConfigType{
@@ -527,6 +546,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						"vlan_ids": schema.ListAttribute{
 							ElementType: types.StringType,
 							Optional:    true,
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 					},
 					CustomType: TuntermSwitchConfigType{
@@ -545,10 +567,10 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			"versions": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"mxagent": schema.StringAttribute{
-						Optional: true,
+						Computed: true,
 					},
 					"tunterm": schema.StringAttribute{
-						Optional: true,
+						Computed: true,
 					},
 				},
 				CustomType: VersionsType{
@@ -563,7 +585,6 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgMxedgeModel struct {
-	ForSite                   types.Bool                     `tfsdk:"for_site"`
 	Id                        types.String                   `tfsdk:"id"`
 	Mac                       types.String                   `tfsdk:"mac"`
 	Magic                     types.String                   `tfsdk:"claim_code"`
