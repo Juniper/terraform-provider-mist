@@ -20,11 +20,7 @@ func vrfInstancesTerraformToSdk(data basetypes.MapValue) map[string]models.Gatew
 	result := make(map[string]models.GatewayVrfInstance)
 	for key, val := range data.Elements() {
 		item := val.(VrfInstancesValue)
-		if item.Networks.IsUnknown() {
-			continue
-		}
-
-		if item.Networks.IsNull() {
+		if item.Networks.IsNull() || item.Networks.IsUnknown() {
 			result[key] = models.GatewayVrfInstance{}
 			continue
 		}
