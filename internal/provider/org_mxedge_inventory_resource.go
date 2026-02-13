@@ -1,0 +1,654 @@
+package provider
+
+import (
+	"context"
+	"fmt"
+	"io"
+	"strconv"
+	"strings"
+
+	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_mxedge_inventory"
+
+	"github.com/tmunzer/mistapi-go/mistapi"
+
+	"github.com/tmunzer/mistapi-go/mistapi/models"
+
+	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
+	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+)
+
+var (
+	_ resource.Resource                = &orgMxedgeInventoryResource{}
+	_ resource.ResourceWithConfigure   = &orgMxedgeInventoryResource{}
+	_ resource.ResourceWithImportState = &orgMxedgeInventoryResource{}
+)
+
+func NewOrgMxedgeInventory() resource.Resource {
+	return &orgMxedgeInventoryResource{}
+}
+
+type orgMxedgeInventoryResource struct {
+	client mistapi.ClientInterface
+}
+
+func (r *orgMxedgeInventoryResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+	tflog.Info(ctx, "Configuring Mist MxEdge Inventory client")
+	if req.ProviderData == nil {
+		return
+	}
+
+	client, ok := req.ProviderData.(mistapi.ClientInterface)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Unexpected Data Source Configure Type",
+			fmt.Sprintf("Expected *mistapigo.APIClient, got: %T. Please report this issue to the provider developers.", req.ProviderData),
+		)
+		return
+	}
+
+	r.client = client
+}
+
+func (r *orgMxedgeInventoryResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_org_mxedge_inventory"
+}
+
+func (r *orgMxedgeInventoryResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		MarkdownDescription: docCategoryDevices + "This resource manages the Org MxEdge Inventory.\n\n" +
+			"It can be used to claim, assign, unassign, and reassign MxEdges.\n\n" +
+			"->Removing an MxEdge from the `mxedges` map will NOT release it from the organization",
+		Attributes: resource_org_mxedge_inventory.OrgMxedgeInventoryResourceSchema(ctx).Attributes,
+	}
+}
+
+func (r *orgMxedgeInventoryResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	tflog.Info(ctx, "Starting MxEdge Inventory Create")
+	var plan, state resource_org_mxedge_inventory.OrgMxedgeInventoryModel
+	idToMagic := make(map[string]string)
+
+	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"mist_org_mxedge_inventory\" resource",
+			fmt.Sprintf("Unable to parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+		)
+		return
+	}
+
+	/////////////////////// Update
+	r.updateInventory(&diags, ctx, &orgId, &plan, &state, idToMagic)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	/////////////////////// Sync, required to get missing MxEdge info (ID, Model, Name, ...)
+	state = r.refreshInventory(&diags, ctx, &orgId, &plan, idToMagic)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = resp.State.Set(ctx, state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *orgMxedgeInventoryResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
+	var state, comp resource_org_mxedge_inventory.OrgMxedgeInventoryModel
+	idToMagic := make(map[string]string)
+
+	diags := resp.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var orgIdString string
+	// if it's an "Import" process, keep the "comp" var empty and remove the "import." prefix
+	// otherwise, set the comp var with the current state
+	// the comp var is used to only report information about the MxEdges managed by TF
+	if strings.HasPrefix(state.OrgId.ValueString(), "import") {
+		orgIdString = strings.Split(state.OrgId.ValueString(), ".")[1]
+	} else {
+		orgIdString = state.OrgId.ValueString()
+		comp = state
+	}
+
+	for key, v := range comp.Mxedges.Elements() {
+		idToMagic[strings.ToUpper(v.(resource_org_mxedge_inventory.MxedgesValue).Id.ValueString())] = key
+	}
+
+	orgId, err := uuid.Parse(orgIdString)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"mist_org_mxedge_inventory\" resource",
+			fmt.Sprintf("Unable to parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+		)
+		return
+	}
+	state = r.refreshInventory(&diags, ctx, &orgId, &comp, idToMagic)
+	resp.Diagnostics.Append(diags...)
+
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *orgMxedgeInventoryResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var state, plan resource_org_mxedge_inventory.OrgMxedgeInventoryModel
+	idToMagic := make(map[string]string)
+	tflog.Info(ctx, "Starting MxEdge Inventory Update")
+
+	diags := resp.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	diags = req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"mist_org_mxedge_inventory\" resource",
+			fmt.Sprintf("Unable to parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+		)
+		return
+	}
+
+	/////////////////////// Update
+	r.updateInventory(&diags, ctx, &orgId, &plan, &state, idToMagic)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	/////////////////////// Sync, required to get missing MxEdge info (ID, Model, Name, ...)
+	state = r.refreshInventory(&diags, ctx, &orgId, &plan, idToMagic)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	diags = resp.State.Set(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+}
+
+func (r *orgMxedgeInventoryResource) Delete(ctx context.Context, _ resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state resource_org_mxedge_inventory.OrgMxedgeInventoryModel
+	tflog.Info(ctx, "Starting MxEdge Inventory Delete")
+
+	diags := resp.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"org_id\" value for \"mist_org_mxedge_inventory\" resource",
+			fmt.Sprintf("Unable to parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
+		)
+		return
+	}
+
+	// First, unassign all MxEdges that are assigned to sites
+	var assignedMxedgeIds []string
+	var allMxedgeIds []string
+
+	for _, mxedgeValue := range state.Mxedges.Elements() {
+		mxedge := mxedgeValue.(resource_org_mxedge_inventory.MxedgesValue)
+		if !mxedge.Id.IsNull() && !mxedge.Id.IsUnknown() {
+			idStr := mxedge.Id.ValueString()
+			allMxedgeIds = append(allMxedgeIds, idStr)
+			// Check if the MxEdge is assigned to a site
+			if !mxedge.SiteId.IsNull() && !mxedge.SiteId.IsUnknown() && mxedge.SiteId.ValueString() != "" {
+				assignedMxedgeIds = append(assignedMxedgeIds, idStr)
+			}
+
+		}
+	}
+
+	// Unassign MxEdges from sites first
+	if len(assignedMxedgeIds) > 0 {
+		r.unassignMxedges(&diags, ctx, orgId, assignedMxedgeIds)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+	}
+
+	// Then delete all MxEdges
+	if len(allMxedgeIds) > 0 {
+		r.deleteMxedges(&diags, ctx, orgId, allMxedgeIds)
+		resp.Diagnostics.Append(diags...)
+	}
+
+	tflog.Info(ctx, "MxEdge Inventory resource destroyed, MxEdges unassigned and deleted from the organization.")
+}
+
+func (r *orgMxedgeInventoryResource) updateInventory(
+	diags *diag.Diagnostics,
+	ctx context.Context,
+	orgId *uuid.UUID,
+	plan *resource_org_mxedge_inventory.OrgMxedgeInventoryModel,
+	state *resource_org_mxedge_inventory.OrgMxedgeInventoryModel,
+	idToMagic map[string]string,
+) {
+
+	claim, unclaim, unassign, assignClaim, assign, e := resource_org_mxedge_inventory.TerraformToSdk(state, plan)
+	if e != nil {
+		diags.Append(e...)
+		return
+	}
+
+	// fmt.Printf("KDJ\nClaim: %v\nUnassign: %v\nAssignClaim: %v\nAssign: %v\n", claim, unassign, assignClaim, assign)
+
+	tflog.Debug(ctx, "updateInventory", map[string]interface{}{
+		"claim":    strings.Join(claim, ", "),
+		"unassign": strings.Join(unassign, ", "),
+		"assign":   len(assign),
+	})
+
+	/////////////////////// CLAIM
+	if len(claim) > 0 {
+		r.claimMxedges(diags, ctx, *orgId, claim, idToMagic)
+		if diags.HasError() {
+			return
+		}
+		// After claiming, handle assignments for newly claimed MxEdges
+		// Convert claim codes to MxEdge IDs for assignment using the idToMagic map
+		for claimCode, siteId := range assignClaim {
+			// Find the MxEdge ID that corresponds to this claim code
+			for mxedgeId, mappedClaimCode := range idToMagic {
+				if strings.EqualFold(mappedClaimCode, claimCode) {
+					assign[siteId] = append(assign[siteId], mxedgeId)
+					break
+				}
+			}
+		}
+		tflog.Debug(ctx, "MxEdges claimed, assignments added to assign map")
+	}
+	///////////////////// UNCLAIM
+	if len(unclaim) > 0 {
+		r.deleteMxedges(diags, ctx, *orgId, unclaim)
+	}
+	/////////////////////// UNASSIGN
+	if len(unassign) > 0 {
+		r.unassignMxedges(diags, ctx, *orgId, unassign)
+	}
+	/////////////////////// ASSIGN
+	if len(assign) > 0 {
+		r.assignMxedges(diags, ctx, *orgId, assign)
+	}
+}
+
+func (r *orgMxedgeInventoryResource) refreshInventory(
+	diags *diag.Diagnostics,
+	ctx context.Context,
+	orgId *uuid.UUID,
+	refInventory *resource_org_mxedge_inventory.OrgMxedgeInventoryModel,
+	idToMagic map[string]string,
+) (state resource_org_mxedge_inventory.OrgMxedgeInventoryModel) {
+
+	tflog.Info(ctx, "Starting MxEdge Inventory state refresh: org_id "+orgId.String())
+
+	var limit = 1000
+	var page = 0
+	var total = 9999
+	var elements []models.Mxedge
+	var forSite *models.MxedgeForSiteEnum
+	forSiteAny := models.MxedgeForSiteEnum_ANY
+	forSite = &forSiteAny
+
+	tflog.Info(ctx, "Starting MxEdge Inventory Read: org_id "+orgId.String())
+
+	for limit*page < total {
+		page += 1
+		tflog.Debug(ctx, "Pagination Info", map[string]any{
+			"page":  page,
+			"limit": limit,
+			"total": total,
+		})
+
+		data, err := r.client.OrgsMxEdges().ListOrgMxEdges(ctx, *orgId, forSite, &limit, &page)
+		if err != nil {
+			diags.AddError(
+				"Error refreshing MxEdge Inventory",
+				"Unable to get the MxEdge Inventory, unexpected error: "+err.Error(),
+			)
+			return state
+		}
+		if data.Response == nil {
+			diags.AddError(
+				"Error refreshing MxEdge Inventory",
+				"Received nil response from API",
+			)
+			return state
+		}
+
+		limitString := data.Response.Header.Get("X-Page-Limit")
+		if limit, err = strconv.Atoi(limitString); err != nil {
+			diags.AddError(
+				"Error refreshing MxEdge Inventory",
+				"Unable to convert the X-Page-Limit value into int, unexpected error: "+err.Error(),
+			)
+			return state
+		}
+
+		totalString := data.Response.Header.Get("X-Page-Total")
+		if total, err = strconv.Atoi(totalString); err != nil {
+			diags.AddError(
+				"Error refreshing MxEdge Inventory",
+				"Unable to convert the X-Page-Total value into int, unexpected error: "+err.Error(),
+			)
+			return state
+		}
+
+		elements = append(elements, data.Data...)
+	}
+
+	state, e := resource_org_mxedge_inventory.SdkToTerraform(ctx, orgId.String(), &elements, refInventory, idToMagic)
+	diags.Append(e...)
+
+	return state
+}
+
+func (r *orgMxedgeInventoryResource) claimMxedges(
+	diags *diag.Diagnostics,
+	ctx context.Context,
+	orgId uuid.UUID,
+	claim []string,
+	idToMagic map[string]string,
+) {
+
+	tflog.Info(ctx, "Starting to Claim MxEdges")
+
+	// Claim all MxEdges in a single call
+	if len(claim) > 0 {
+		//claimResponse, err := r.client.OrgsMxEdges().ClaimOrgMxEdge(ctx, orgId, claim)
+		claimResponse, err := r.client.OrgsInventory().AddOrgInventory(ctx, orgId, claim)
+		if err != nil {
+			diags.AddError(
+				"Error Claiming MxEdges to the Org Inventory",
+				"Unable to claim MxEdges, unexpected error: "+err.Error(),
+			)
+			return
+		}
+		if claimResponse.Response == nil {
+			diags.AddError(
+				"Error Claiming MxEdges to the Org Inventory",
+				"Received nil response from API",
+			)
+			return
+		}
+
+		if claimResponse.Response.StatusCode != 200 {
+			apiErr := mistapierror.ProcessApiError(claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
+			if apiErr != "" {
+				diags.AddError(
+					"Error Claiming MxEdges to the Org Inventory",
+					fmt.Sprintf("Unable to claim MxEdges %v. %s", claim, apiErr),
+				)
+			}
+		} else {
+			// Extract ID from response body using the structured response
+			if claimResponse.Data.InventoryAdded != nil {
+				for _, addedItem := range claimResponse.Data.InventoryAdded {
+					if addedItem.Magic != "" && addedItem.Mac != "" {
+						// Clean MAC address by removing common separators
+						cleanMac := strings.ReplaceAll(addedItem.Mac, ":", "")
+						cleanMac = strings.ReplaceAll(cleanMac, "-", "")
+						cleanMac = strings.ToLower(cleanMac)
+
+						// Validate MAC is 12 hex characters
+						if len(cleanMac) != 12 {
+							tflog.Warn(ctx, "Invalid MAC address length", map[string]interface{}{
+								"mac":       addedItem.Mac,
+								"clean_mac": cleanMac,
+								"expected":  12,
+								"actual":    len(cleanMac),
+							})
+							continue
+						}
+
+						// Construct UUID: 00000000-0000-0000-1000-{MAC}
+						uuidStr := fmt.Sprintf("00000000-0000-0000-1000-%s", cleanMac)
+
+						// Validate the constructed UUID
+						if _, err := uuid.Parse(uuidStr); err != nil {
+							tflog.Warn(ctx, "Failed to construct valid UUID from MAC", map[string]interface{}{
+								"mac":      addedItem.Mac,
+								"uuid_str": uuidStr,
+								"error":    err.Error(),
+							})
+							continue
+						}
+
+						idToMagic[strings.ToUpper(uuidStr)] = addedItem.Magic
+					}
+				}
+			}
+
+			tflog.Debug(ctx, "Successfully claimed MxEdges", map[string]interface{}{
+				"claim_codes":   claim,
+				"extracted_ids": len(idToMagic),
+			})
+		}
+	}
+}
+
+func (r *orgMxedgeInventoryResource) deleteMxedges(
+	diags *diag.Diagnostics,
+	ctx context.Context,
+	orgId uuid.UUID,
+	mxedgeIds []string,
+) {
+	tflog.Debug(ctx, "Starting to Delete MxEdges: ", map[string]interface{}{"count": len(mxedgeIds)})
+
+	for _, mxedgeIdString := range mxedgeIds {
+		mxedgeId, err := uuid.Parse(mxedgeIdString)
+		if err != nil {
+			diags.AddError(
+				"Invalid MxEdge ID",
+				fmt.Sprintf("Unable to parse the MxEdge ID \"%s\": %s", mxedgeIdString, err.Error()),
+			)
+			continue
+		}
+
+		httpr, err := r.client.OrgsMxEdges().DeleteOrgMxEdge(ctx, orgId, mxedgeId)
+		if err != nil {
+			diags.AddError(
+				"Error Deleting MxEdge from the Org",
+				fmt.Sprintf("Unable to delete MxEdge %s, unexpected error: %s", mxedgeId.String(), err.Error()),
+			)
+			continue
+		}
+		if httpr == nil {
+			diags.AddError(
+				"Error Deleting MxEdge from the Org",
+				fmt.Sprintf("Received nil response when deleting MxEdge %s", mxedgeId.String()),
+			)
+			continue
+		}
+
+		// Only report errors if status is not 200 (success) and not 404 (already deleted)
+		if httpr.StatusCode != 200 && httpr.StatusCode != 404 {
+			apiErr := mistapierror.ProcessApiError(httpr.StatusCode, httpr.Body, err)
+			if apiErr != "" {
+				diags.AddError(
+					"Error Deleting MxEdge from the Org",
+					fmt.Sprintf("Unable to delete MxEdge %s. %s", mxedgeId.String(), apiErr),
+				)
+			}
+		} else if httpr.StatusCode == 200 {
+			tflog.Debug(ctx, "Successfully deleted MxEdge", map[string]interface{}{
+				"mxedge_id": mxedgeId.String(),
+			})
+		} else if httpr.StatusCode == 404 {
+			tflog.Debug(ctx, "MxEdge already deleted or not found", map[string]interface{}{
+				"mxedge_id": mxedgeId.String(),
+			})
+		}
+	}
+}
+
+func (r *orgMxedgeInventoryResource) unassignMxedges(
+	diags *diag.Diagnostics,
+	ctx context.Context,
+	orgId uuid.UUID,
+	unassign []string,
+) {
+	tflog.Debug(ctx, "Starting to Unassign MxEdges: ", map[string]interface{}{"mxedge_ids": strings.Join(unassign, ", ")})
+
+	unassignBody := models.MxedgesUnassign{
+		MxedgeIds: []uuid.UUID{},
+	}
+
+	for _, idStr := range unassign {
+		if id, err := uuid.Parse(idStr); err == nil {
+			unassignBody.MxedgeIds = append(unassignBody.MxedgeIds, id)
+		}
+	}
+
+	unassignResponse, err := r.client.OrgsMxEdges().UnassignOrgMxEdgeFromSite(ctx, orgId, &unassignBody)
+	if err != nil {
+		diags.AddError(
+			"Error when unassigning MxEdges from Sites",
+			"Unable to unassign the MxEdges, unexpected error: "+err.Error(),
+		)
+		return
+	}
+	if unassignResponse.Response == nil {
+		diags.AddError(
+			"Error when unassigning MxEdges from Sites",
+			"Received nil response from API",
+		)
+		return
+	}
+
+	// Check if response body indicates "nothing assigned" which is acceptable (not an error)
+	bodyBytes, readErr := io.ReadAll(unassignResponse.Response.Body)
+	if readErr == nil {
+		bodyStr := string(bodyBytes)
+		if strings.Contains(strings.ToLower(bodyStr), "nothing assigned") {
+			tflog.Debug(ctx, "MxEdges already unassigned or not assigned to any site", map[string]interface{}{
+				"mxedge_ids": strings.Join(unassign, ", "),
+			})
+			return
+		}
+	}
+
+	if unassignResponse.Response.StatusCode != 200 {
+		apiErr := mistapierror.ProcessApiError(unassignResponse.Response.StatusCode, unassignResponse.Response.Body, err)
+		if apiErr != "" {
+			diags.AddError(
+				"Error when unassigning MxEdges from Sites",
+				apiErr,
+			)
+		}
+	} else {
+		tflog.Debug(ctx, "Response for API Call to unassign MxEdges:", map[string]interface{}{
+			"success": unassignResponse.Data.Success,
+		})
+	}
+}
+
+func (r *orgMxedgeInventoryResource) assignMxedges(
+	diags *diag.Diagnostics,
+	ctx context.Context,
+	orgId uuid.UUID,
+	assign map[string][]string,
+) {
+	for siteIdStr, mxedgeIds := range assign {
+		tflog.Debug(ctx, "Starting to Assign MxEdges to site "+siteIdStr+": ", map[string]interface{}{"mxedge_ids": strings.Join(mxedgeIds, ", ")})
+
+		siteId, e := uuid.Parse(siteIdStr)
+		if e != nil && siteIdStr != "" {
+			diags.AddError(
+				"Invalid \"site_id\" value for \"mist_org_mxedge_inventory\" resource",
+				fmt.Sprintf("Unable to parse the UUID \"%s\": %s", siteIdStr, e.Error()),
+			)
+			continue
+		}
+
+		assignBody := models.MxedgesAssign{
+			MxedgeIds: []uuid.UUID{},
+			SiteId:    siteId,
+		}
+
+		for _, idStr := range mxedgeIds {
+			if id, err := uuid.Parse(idStr); err == nil {
+				assignBody.MxedgeIds = append(assignBody.MxedgeIds, id)
+			}
+		}
+
+		assignResponse, err := r.client.OrgsMxEdges().AssignOrgMxEdgeToSite(ctx, orgId, &assignBody)
+		if err != nil {
+			diags.AddError(
+				"Error when assigning MxEdges to a Site",
+				"Unable to assign the MxEdges, unexpected error: "+err.Error(),
+			)
+			continue
+		}
+		if assignResponse.Response == nil {
+			diags.AddError(
+				"Error when assigning MxEdges to a Site",
+				"Received nil response from API",
+			)
+			continue
+		}
+
+		if assignResponse.Response.StatusCode != 200 {
+			apiErr := mistapierror.ProcessApiError(assignResponse.Response.StatusCode, assignResponse.Response.Body, err)
+			if apiErr != "" {
+				diags.AddError(
+					"Error when assigning MxEdges to a Site",
+					apiErr,
+				)
+			}
+		}
+
+		tflog.Debug(ctx, "Response for API Call to assign MxEdges:", map[string]interface{}{
+			"success": assignResponse.Data.Success,
+		})
+	}
+}
+
+func (r *orgMxedgeInventoryResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+
+	_, err := uuid.Parse(req.ID)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid \"id\" value for \"mist_org_mxedge_inventory\" resource",
+			fmt.Sprintf("Unable to parse the UUID \"%s\": %s. Import \"id\" must be a valid Org Id.", req.ID, err.Error()),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("org_id"), "import."+req.ID)...)
+}
