@@ -35,19 +35,38 @@ func main() {
 		fmt.Printf("Error opening input file: %v\n", err)
 		return
 	}
-	defer in.Close()
+	defer func() {
+		err = in.Close()
+		if err != nil {
+			fmt.Printf("Error closing input file: %v\n", err)
+		}
+	}()
 
 	out, err := os.Create(outFile)
 	if err != nil {
 		fmt.Printf("Error creating output file: %v\n", err)
 		return
 	}
-	defer out.Close()
+	defer func() {
+		err = out.Close()
+		if err != nil {
+			fmt.Printf("Error closing output file: %v\n", err)
+		}
+	}()
 
 	writer := bufio.NewWriter(out)
-	defer writer.Flush()
+	defer func() {
+		err = writer.Flush()
+		if err != nil {
+			fmt.Printf("Error flushing output file: %v\n", err)
+		}
+	}()
 
-	writer.WriteString("package provider\n\nimport ()\n\n")
+	_, err = writer.WriteString("package provider\n\nimport ()\n\n")
+	if err != nil {
+		fmt.Println("Error writing string:", err)
+		return
+	}
 
 	isStruct := false
 	nested := false
@@ -265,12 +284,17 @@ func main() {
 					isStruct = false
 				}
 
-				writer.WriteString(line)
+				_, err = writer.WriteString(line)
+				if err != nil {
+					fmt.Println("Error writing string:", err)
+					return
+				}
 			}
 		}
 	}
 
-	if err := scanner.Err(); err != nil {
+	err = scanner.Err()
+	if err != nil {
 		fmt.Printf("Error reading input file: %v\n", err)
 	}
 }

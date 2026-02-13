@@ -43,7 +43,6 @@ func TestOrgDeviceprofileGatewayModel(t *testing.T) {
 
 	str := string(b) // convert content to a 'string'
 	fixtures := strings.Split(str, "␞")
-
 	for i, fixture := range fixtures {
 		var FixtureOrgDeviceprofileGatewayModel OrgDeviceprofileGatewayModel
 		err = hcl.Decode(&FixtureOrgDeviceprofileGatewayModel, fixture)
@@ -52,7 +51,6 @@ func TestOrgDeviceprofileGatewayModel(t *testing.T) {
 		}
 
 		FixtureOrgDeviceprofileGatewayModel.OrgId = GetTestOrgId()
-
 		testCases[fmt.Sprintf("fixture_case_%d", i)] = testCase{
 			steps: []testStep{
 				{
@@ -66,7 +64,6 @@ func TestOrgDeviceprofileGatewayModel(t *testing.T) {
 	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_deviceprofile_gateway.OrgDeviceprofileGatewayResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config
