@@ -216,6 +216,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"blacklist_url": schema.StringAttribute{
 				Computed: true,
+				Default:  stringdefault.StaticString(""),
 			},
 			"ble_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1190,6 +1191,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							"snapshot": schema.BoolAttribute{
 								Optional: true,
 							},
+							"version": schema.StringAttribute{
+								Optional:            true,
+								Description:         "Firmware version to deploy (e.g. 23.4R2-S5.5). Optional, used when custom_versions not specified",
+								MarkdownDescription: "Firmware version to deploy (e.g. 23.4R2-S5.5). Optional, used when custom_versions not specified",
+							},
 						},
 						CustomType: SrxAutoUpgradeType{
 							ObjectType: types.ObjectType{
@@ -1825,6 +1831,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							"enabled": schema.BoolAttribute{
 								Optional: true,
 							},
+							"version": schema.StringAttribute{
+								Optional:            true,
+								Description:         "Firmware version to deploy (e.g. 6.3.0-107.r1). Optional, used when custom_versions not specified",
+								MarkdownDescription: "Firmware version to deploy (e.g. 6.3.0-107.r1). Optional, used when custom_versions not specified",
+							},
 						},
 						CustomType: SsrAutoUpgradeType{
 							ObjectType: types.ObjectType{
@@ -1886,15 +1897,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 									},
 									Default: stringdefault.StaticString("auto"),
 								},
-								"host": schema.StringAttribute{
+								"target": schema.StringAttribute{
 									Optional:            true,
-									Description:         "If `type`==`icmp` or `type`==`tcp`, Host to be used for the custom probe",
-									MarkdownDescription: "If `type`==`icmp` or `type`==`tcp`, Host to be used for the custom probe",
-								},
-								"port": schema.Int64Attribute{
-									Optional:            true,
-									Description:         "If `type`==`tcp`, Port to be used for the custom probe",
-									MarkdownDescription: "If `type`==`tcp`, Port to be used for the custom probe",
+									Description:         "Can be URL (e.g. http://x.com, https://x.com:8080/path/to/resource), IP address, or IP:port combination",
+									MarkdownDescription: "Can be URL (e.g. http://x.com, https://x.com:8080/path/to/resource), IP address, or IP:port combination",
 								},
 								"threshold": schema.Int64Attribute{
 									Optional:            true,
@@ -1904,22 +1910,19 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								"type": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "enum: `curl`, `icmp`, `tcp`",
-									MarkdownDescription: "enum: `curl`, `icmp`, `tcp`",
+									Description:         "enum: `application`, `curl`, `icmp`, `reachability`, `tcp`",
+									MarkdownDescription: "enum: `application`, `curl`, `icmp`, `reachability`, `tcp`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
+											"application",
 											"curl",
 											"icmp",
+											"reachability",
 											"tcp",
 										),
 									},
 									Default: stringdefault.StaticString("icmp"),
-								},
-								"url": schema.StringAttribute{
-									Optional:            true,
-									Description:         "If `type`==`curl`, URL to be used for the custom probe, can be url or IP",
-									MarkdownDescription: "If `type`==`curl`, URL to be used for the custom probe, can be url or IP",
 								},
 							},
 							CustomType: CustomProbesType{
@@ -2095,6 +2098,13 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					),
 				),
 			},
+			"uses_description_from_port_usage": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "by default, we only honor description provided in port_config. This allows fallback to those defined in port_usages",
+				MarkdownDescription: "by default, we only honor description provided in port_config. This allows fallback to those defined in port_usages",
+				Default:             booldefault.StaticBool(false),
+			},
 			"vars": schema.MapAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
@@ -2183,6 +2193,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"whitelist_url": schema.StringAttribute{
 				Computed: true,
+				Default:  stringdefault.StaticString(""),
 			},
 			"wids": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -2410,54 +2421,55 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type SiteSettingModel struct {
-	Analytic                   AnalyticValue              `tfsdk:"analytic"`
-	ApUpdownThreshold          types.Int64                `tfsdk:"ap_updown_threshold"`
-	AutoUpgrade                AutoUpgradeValue           `tfsdk:"auto_upgrade"`
-	AutoUpgradeEsl             AutoUpgradeEslValue        `tfsdk:"auto_upgrade_esl"`
-	BgpNeighborUpdownThreshold types.Int64                `tfsdk:"bgp_neighbor_updown_threshold"`
-	BlacklistUrl               types.String               `tfsdk:"blacklist_url"`
-	BleConfig                  BleConfigValue             `tfsdk:"ble_config"`
-	ConfigAutoRevert           types.Bool                 `tfsdk:"config_auto_revert"`
-	ConfigPushPolicy           ConfigPushPolicyValue      `tfsdk:"config_push_policy"`
-	CriticalUrlMonitoring      CriticalUrlMonitoringValue `tfsdk:"critical_url_monitoring"`
-	DeviceUpdownThreshold      types.Int64                `tfsdk:"device_updown_threshold"`
-	EnableUnii4                types.Bool                 `tfsdk:"enable_unii_4"`
-	Engagement                 EngagementValue            `tfsdk:"engagement"`
-	GatewayMgmt                GatewayMgmtValue           `tfsdk:"gateway_mgmt"`
-	GatewayUpdownThreshold     types.Int64                `tfsdk:"gateway_updown_threshold"`
-	JuniperSrx                 JuniperSrxValue            `tfsdk:"juniper_srx"`
-	Led                        LedValue                   `tfsdk:"led"`
-	Marvis                     MarvisValue                `tfsdk:"marvis"`
-	Occupancy                  OccupancyValue             `tfsdk:"occupancy"`
-	PersistConfigOnDevice      types.Bool                 `tfsdk:"persist_config_on_device"`
-	Proxy                      ProxyValue                 `tfsdk:"proxy"`
-	RemoveExistingConfigs      types.Bool                 `tfsdk:"remove_existing_configs"`
-	ReportGatt                 types.Bool                 `tfsdk:"report_gatt"`
-	Rogue                      RogueValue                 `tfsdk:"rogue"`
-	Rtsa                       RtsaValue                  `tfsdk:"rtsa"`
-	SimpleAlert                SimpleAlertValue           `tfsdk:"simple_alert"`
-	SiteId                     types.String               `tfsdk:"site_id"`
-	Skyatp                     SkyatpValue                `tfsdk:"skyatp"`
-	SleThresholds              SleThresholdsValue         `tfsdk:"sle_thresholds"`
-	SrxApp                     SrxAppValue                `tfsdk:"srx_app"`
-	SshKeys                    types.List                 `tfsdk:"ssh_keys"`
-	Ssr                        SsrValue                   `tfsdk:"ssr"`
-	SwitchUpdownThreshold      types.Int64                `tfsdk:"switch_updown_threshold"`
-	SyntheticTest              SyntheticTestValue         `tfsdk:"synthetic_test"`
-	TrackAnonymousDevices      types.Bool                 `tfsdk:"track_anonymous_devices"`
-	UplinkPortConfig           UplinkPortConfigValue      `tfsdk:"uplink_port_config"`
-	Vars                       types.Map                  `tfsdk:"vars"`
-	Vna                        VnaValue                   `tfsdk:"vna"`
-	VpnPathUpdownThreshold     types.Int64                `tfsdk:"vpn_path_updown_threshold"`
-	VpnPeerUpdownThreshold     types.Int64                `tfsdk:"vpn_peer_updown_threshold"`
-	VsInstance                 types.Map                  `tfsdk:"vs_instance"`
-	WanVna                     WanVnaValue                `tfsdk:"wan_vna"`
-	WatchedStationUrl          types.String               `tfsdk:"watched_station_url"`
-	WhitelistUrl               types.String               `tfsdk:"whitelist_url"`
-	Wids                       WidsValue                  `tfsdk:"wids"`
-	Wifi                       WifiValue                  `tfsdk:"wifi"`
-	WiredVna                   WiredVnaValue              `tfsdk:"wired_vna"`
-	ZoneOccupancyAlert         ZoneOccupancyAlertValue    `tfsdk:"zone_occupancy_alert"`
+	Analytic                     AnalyticValue              `tfsdk:"analytic"`
+	ApUpdownThreshold            types.Int64                `tfsdk:"ap_updown_threshold"`
+	AutoUpgrade                  AutoUpgradeValue           `tfsdk:"auto_upgrade"`
+	AutoUpgradeEsl               AutoUpgradeEslValue        `tfsdk:"auto_upgrade_esl"`
+	BgpNeighborUpdownThreshold   types.Int64                `tfsdk:"bgp_neighbor_updown_threshold"`
+	BlacklistUrl                 types.String               `tfsdk:"blacklist_url"`
+	BleConfig                    BleConfigValue             `tfsdk:"ble_config"`
+	ConfigAutoRevert             types.Bool                 `tfsdk:"config_auto_revert"`
+	ConfigPushPolicy             ConfigPushPolicyValue      `tfsdk:"config_push_policy"`
+	CriticalUrlMonitoring        CriticalUrlMonitoringValue `tfsdk:"critical_url_monitoring"`
+	DeviceUpdownThreshold        types.Int64                `tfsdk:"device_updown_threshold"`
+	EnableUnii4                  types.Bool                 `tfsdk:"enable_unii_4"`
+	Engagement                   EngagementValue            `tfsdk:"engagement"`
+	GatewayMgmt                  GatewayMgmtValue           `tfsdk:"gateway_mgmt"`
+	GatewayUpdownThreshold       types.Int64                `tfsdk:"gateway_updown_threshold"`
+	JuniperSrx                   JuniperSrxValue            `tfsdk:"juniper_srx"`
+	Led                          LedValue                   `tfsdk:"led"`
+	Marvis                       MarvisValue                `tfsdk:"marvis"`
+	Occupancy                    OccupancyValue             `tfsdk:"occupancy"`
+	PersistConfigOnDevice        types.Bool                 `tfsdk:"persist_config_on_device"`
+	Proxy                        ProxyValue                 `tfsdk:"proxy"`
+	RemoveExistingConfigs        types.Bool                 `tfsdk:"remove_existing_configs"`
+	ReportGatt                   types.Bool                 `tfsdk:"report_gatt"`
+	Rogue                        RogueValue                 `tfsdk:"rogue"`
+	Rtsa                         RtsaValue                  `tfsdk:"rtsa"`
+	SimpleAlert                  SimpleAlertValue           `tfsdk:"simple_alert"`
+	SiteId                       types.String               `tfsdk:"site_id"`
+	Skyatp                       SkyatpValue                `tfsdk:"skyatp"`
+	SleThresholds                SleThresholdsValue         `tfsdk:"sle_thresholds"`
+	SrxApp                       SrxAppValue                `tfsdk:"srx_app"`
+	SshKeys                      types.List                 `tfsdk:"ssh_keys"`
+	Ssr                          SsrValue                   `tfsdk:"ssr"`
+	SwitchUpdownThreshold        types.Int64                `tfsdk:"switch_updown_threshold"`
+	SyntheticTest                SyntheticTestValue         `tfsdk:"synthetic_test"`
+	TrackAnonymousDevices        types.Bool                 `tfsdk:"track_anonymous_devices"`
+	UplinkPortConfig             UplinkPortConfigValue      `tfsdk:"uplink_port_config"`
+	UsesDescriptionFromPortUsage types.Bool                 `tfsdk:"uses_description_from_port_usage"`
+	Vars                         types.Map                  `tfsdk:"vars"`
+	Vna                          VnaValue                   `tfsdk:"vna"`
+	VpnPathUpdownThreshold       types.Int64                `tfsdk:"vpn_path_updown_threshold"`
+	VpnPeerUpdownThreshold       types.Int64                `tfsdk:"vpn_peer_updown_threshold"`
+	VsInstance                   types.Map                  `tfsdk:"vs_instance"`
+	WanVna                       WanVnaValue                `tfsdk:"wan_vna"`
+	WatchedStationUrl            types.String               `tfsdk:"watched_station_url"`
+	WhitelistUrl                 types.String               `tfsdk:"whitelist_url"`
+	Wids                         WidsValue                  `tfsdk:"wids"`
+	Wifi                         WifiValue                  `tfsdk:"wifi"`
+	WiredVna                     WiredVnaValue              `tfsdk:"wired_vna"`
+	ZoneOccupancyAlert           ZoneOccupancyAlertValue    `tfsdk:"zone_occupancy_alert"`
 }
 
 var _ basetypes.ObjectTypable = AnalyticType{}
@@ -14886,6 +14898,24 @@ func (t SrxAutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.Ob
 			fmt.Sprintf(`snapshot expected to be basetypes.BoolValue, was: %T`, snapshotAttribute))
 	}
 
+	versionAttribute, ok := attributes["version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`version is missing from object`)
+
+		return nil, diags
+	}
+
+	versionVal, ok := versionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`version expected to be basetypes.StringValue, was: %T`, versionAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -14894,6 +14924,7 @@ func (t SrxAutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		CustomVersions: customVersionsVal,
 		Enabled:        enabledVal,
 		Snapshot:       snapshotVal,
+		Version:        versionVal,
 		state:          attr.ValueStateKnown,
 	}, diags
 }
@@ -15015,6 +15046,24 @@ func NewSrxAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`snapshot expected to be basetypes.BoolValue, was: %T`, snapshotAttribute))
 	}
 
+	versionAttribute, ok := attributes["version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`version is missing from object`)
+
+		return NewSrxAutoUpgradeValueUnknown(), diags
+	}
+
+	versionVal, ok := versionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`version expected to be basetypes.StringValue, was: %T`, versionAttribute))
+	}
+
 	if diags.HasError() {
 		return NewSrxAutoUpgradeValueUnknown(), diags
 	}
@@ -15023,6 +15072,7 @@ func NewSrxAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[
 		CustomVersions: customVersionsVal,
 		Enabled:        enabledVal,
 		Snapshot:       snapshotVal,
+		Version:        versionVal,
 		state:          attr.ValueStateKnown,
 	}, diags
 }
@@ -15095,14 +15145,15 @@ func (t SrxAutoUpgradeType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SrxAutoUpgradeValue{}
 
 type SrxAutoUpgradeValue struct {
-	CustomVersions basetypes.MapValue  `tfsdk:"custom_versions"`
-	Enabled        basetypes.BoolValue `tfsdk:"enabled"`
-	Snapshot       basetypes.BoolValue `tfsdk:"snapshot"`
+	CustomVersions basetypes.MapValue    `tfsdk:"custom_versions"`
+	Enabled        basetypes.BoolValue   `tfsdk:"enabled"`
+	Snapshot       basetypes.BoolValue   `tfsdk:"snapshot"`
+	Version        basetypes.StringValue `tfsdk:"version"`
 	state          attr.ValueState
 }
 
 func (v SrxAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
@@ -15112,12 +15163,13 @@ func (v SrxAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 	}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["snapshot"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["version"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.CustomVersions.ToTerraformValue(ctx)
 
@@ -15142,6 +15194,14 @@ func (v SrxAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		}
 
 		vals["snapshot"] = val
+
+		val, err = v.Version.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["version"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -15191,6 +15251,7 @@ func (v SrxAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 			},
 			"enabled":  basetypes.BoolType{},
 			"snapshot": basetypes.BoolType{},
+			"version":  basetypes.StringType{},
 		}), diags
 	}
 
@@ -15200,6 +15261,7 @@ func (v SrxAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 		},
 		"enabled":  basetypes.BoolType{},
 		"snapshot": basetypes.BoolType{},
+		"version":  basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -15216,6 +15278,7 @@ func (v SrxAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 			"custom_versions": customVersionsVal,
 			"enabled":         v.Enabled,
 			"snapshot":        v.Snapshot,
+			"version":         v.Version,
 		})
 
 	return objVal, diags
@@ -15248,6 +15311,10 @@ func (v SrxAutoUpgradeValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Version.Equal(other.Version) {
+		return false
+	}
+
 	return true
 }
 
@@ -15266,6 +15333,7 @@ func (v SrxAutoUpgradeValue) AttributeTypes(ctx context.Context) map[string]attr
 		},
 		"enabled":  basetypes.BoolType{},
 		"snapshot": basetypes.BoolType{},
+		"version":  basetypes.StringType{},
 	}
 }
 
@@ -22828,6 +22896,24 @@ func (t SsrAutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.Ob
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
+	versionAttribute, ok := attributes["version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`version is missing from object`)
+
+		return nil, diags
+	}
+
+	versionVal, ok := versionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`version expected to be basetypes.StringValue, was: %T`, versionAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -22836,6 +22922,7 @@ func (t SsrAutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		Channel:        channelVal,
 		CustomVersions: customVersionsVal,
 		Enabled:        enabledVal,
+		Version:        versionVal,
 		state:          attr.ValueStateKnown,
 	}, diags
 }
@@ -22957,6 +23044,24 @@ func NewSsrAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
+	versionAttribute, ok := attributes["version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`version is missing from object`)
+
+		return NewSsrAutoUpgradeValueUnknown(), diags
+	}
+
+	versionVal, ok := versionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`version expected to be basetypes.StringValue, was: %T`, versionAttribute))
+	}
+
 	if diags.HasError() {
 		return NewSsrAutoUpgradeValueUnknown(), diags
 	}
@@ -22965,6 +23070,7 @@ func NewSsrAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[
 		Channel:        channelVal,
 		CustomVersions: customVersionsVal,
 		Enabled:        enabledVal,
+		Version:        versionVal,
 		state:          attr.ValueStateKnown,
 	}, diags
 }
@@ -23040,11 +23146,12 @@ type SsrAutoUpgradeValue struct {
 	Channel        basetypes.StringValue `tfsdk:"channel"`
 	CustomVersions basetypes.MapValue    `tfsdk:"custom_versions"`
 	Enabled        basetypes.BoolValue   `tfsdk:"enabled"`
+	Version        basetypes.StringValue `tfsdk:"version"`
 	state          attr.ValueState
 }
 
 func (v SsrAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
@@ -23054,12 +23161,13 @@ func (v SsrAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["version"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.Channel.ToTerraformValue(ctx)
 
@@ -23084,6 +23192,14 @@ func (v SsrAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		}
 
 		vals["enabled"] = val
+
+		val, err = v.Version.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["version"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -23133,6 +23249,7 @@ func (v SsrAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 				ElemType: types.StringType,
 			},
 			"enabled": basetypes.BoolType{},
+			"version": basetypes.StringType{},
 		}), diags
 	}
 
@@ -23142,6 +23259,7 @@ func (v SsrAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 			ElemType: types.StringType,
 		},
 		"enabled": basetypes.BoolType{},
+		"version": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -23158,6 +23276,7 @@ func (v SsrAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 			"channel":         v.Channel,
 			"custom_versions": customVersionsVal,
 			"enabled":         v.Enabled,
+			"version":         v.Version,
 		})
 
 	return objVal, diags
@@ -23190,6 +23309,10 @@ func (v SsrAutoUpgradeValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Version.Equal(other.Version) {
+		return false
+	}
+
 	return true
 }
 
@@ -23208,6 +23331,7 @@ func (v SsrAutoUpgradeValue) AttributeTypes(ctx context.Context) map[string]attr
 			ElemType: types.StringType,
 		},
 		"enabled": basetypes.BoolType{},
+		"version": basetypes.StringType{},
 	}
 }
 
@@ -23985,40 +24109,22 @@ func (t CustomProbesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`aggressiveness expected to be basetypes.StringValue, was: %T`, aggressivenessAttribute))
 	}
 
-	hostAttribute, ok := attributes["host"]
+	targetAttribute, ok := attributes["target"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`host is missing from object`)
+			`target is missing from object`)
 
 		return nil, diags
 	}
 
-	hostVal, ok := hostAttribute.(basetypes.StringValue)
+	targetVal, ok := targetAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`host expected to be basetypes.StringValue, was: %T`, hostAttribute))
-	}
-
-	portAttribute, ok := attributes["port"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`port is missing from object`)
-
-		return nil, diags
-	}
-
-	portVal, ok := portAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`target expected to be basetypes.StringValue, was: %T`, targetAttribute))
 	}
 
 	thresholdAttribute, ok := attributes["threshold"]
@@ -24057,35 +24163,15 @@ func (t CustomProbesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
 	}
 
-	urlAttribute, ok := attributes["url"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`url is missing from object`)
-
-		return nil, diags
-	}
-
-	urlVal, ok := urlAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`url expected to be basetypes.StringValue, was: %T`, urlAttribute))
-	}
-
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return CustomProbesValue{
 		Aggressiveness:   aggressivenessVal,
-		Host:             hostVal,
-		Port:             portVal,
+		Target:           targetVal,
 		Threshold:        thresholdVal,
 		CustomProbesType: typeVal,
-		Url:              urlVal,
 		state:            attr.ValueStateKnown,
 	}, diags
 }
@@ -24171,40 +24257,22 @@ func NewCustomProbesValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`aggressiveness expected to be basetypes.StringValue, was: %T`, aggressivenessAttribute))
 	}
 
-	hostAttribute, ok := attributes["host"]
+	targetAttribute, ok := attributes["target"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`host is missing from object`)
+			`target is missing from object`)
 
 		return NewCustomProbesValueUnknown(), diags
 	}
 
-	hostVal, ok := hostAttribute.(basetypes.StringValue)
+	targetVal, ok := targetAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`host expected to be basetypes.StringValue, was: %T`, hostAttribute))
-	}
-
-	portAttribute, ok := attributes["port"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`port is missing from object`)
-
-		return NewCustomProbesValueUnknown(), diags
-	}
-
-	portVal, ok := portAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`target expected to be basetypes.StringValue, was: %T`, targetAttribute))
 	}
 
 	thresholdAttribute, ok := attributes["threshold"]
@@ -24243,35 +24311,15 @@ func NewCustomProbesValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
 	}
 
-	urlAttribute, ok := attributes["url"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`url is missing from object`)
-
-		return NewCustomProbesValueUnknown(), diags
-	}
-
-	urlVal, ok := urlAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`url expected to be basetypes.StringValue, was: %T`, urlAttribute))
-	}
-
 	if diags.HasError() {
 		return NewCustomProbesValueUnknown(), diags
 	}
 
 	return CustomProbesValue{
 		Aggressiveness:   aggressivenessVal,
-		Host:             hostVal,
-		Port:             portVal,
+		Target:           targetVal,
 		Threshold:        thresholdVal,
 		CustomProbesType: typeVal,
-		Url:              urlVal,
 		state:            attr.ValueStateKnown,
 	}, diags
 }
@@ -24345,32 +24393,28 @@ var _ basetypes.ObjectValuable = CustomProbesValue{}
 
 type CustomProbesValue struct {
 	Aggressiveness   basetypes.StringValue `tfsdk:"aggressiveness"`
-	Host             basetypes.StringValue `tfsdk:"host"`
-	Port             basetypes.Int64Value  `tfsdk:"port"`
+	Target           basetypes.StringValue `tfsdk:"target"`
 	Threshold        basetypes.Int64Value  `tfsdk:"threshold"`
 	CustomProbesType basetypes.StringValue `tfsdk:"type"`
-	Url              basetypes.StringValue `tfsdk:"url"`
 	state            attr.ValueState
 }
 
 func (v CustomProbesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["aggressiveness"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["host"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["target"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["threshold"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["url"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.Aggressiveness.ToTerraformValue(ctx)
 
@@ -24380,21 +24424,13 @@ func (v CustomProbesValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 		vals["aggressiveness"] = val
 
-		val, err = v.Host.ToTerraformValue(ctx)
+		val, err = v.Target.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["host"] = val
-
-		val, err = v.Port.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["port"] = val
+		vals["target"] = val
 
 		val, err = v.Threshold.ToTerraformValue(ctx)
 
@@ -24411,14 +24447,6 @@ func (v CustomProbesValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 		}
 
 		vals["type"] = val
-
-		val, err = v.Url.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["url"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -24451,11 +24479,9 @@ func (v CustomProbesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 
 	attributeTypes := map[string]attr.Type{
 		"aggressiveness": basetypes.StringType{},
-		"host":           basetypes.StringType{},
-		"port":           basetypes.Int64Type{},
+		"target":         basetypes.StringType{},
 		"threshold":      basetypes.Int64Type{},
 		"type":           basetypes.StringType{},
-		"url":            basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -24470,11 +24496,9 @@ func (v CustomProbesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		attributeTypes,
 		map[string]attr.Value{
 			"aggressiveness": v.Aggressiveness,
-			"host":           v.Host,
-			"port":           v.Port,
+			"target":         v.Target,
 			"threshold":      v.Threshold,
 			"type":           v.CustomProbesType,
-			"url":            v.Url,
 		})
 
 	return objVal, diags
@@ -24499,11 +24523,7 @@ func (v CustomProbesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Host.Equal(other.Host) {
-		return false
-	}
-
-	if !v.Port.Equal(other.Port) {
+	if !v.Target.Equal(other.Target) {
 		return false
 	}
 
@@ -24512,10 +24532,6 @@ func (v CustomProbesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.CustomProbesType.Equal(other.CustomProbesType) {
-		return false
-	}
-
-	if !v.Url.Equal(other.Url) {
 		return false
 	}
 
@@ -24533,11 +24549,9 @@ func (v CustomProbesValue) Type(ctx context.Context) attr.Type {
 func (v CustomProbesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"aggressiveness": basetypes.StringType{},
-		"host":           basetypes.StringType{},
-		"port":           basetypes.Int64Type{},
+		"target":         basetypes.StringType{},
 		"threshold":      basetypes.Int64Type{},
 		"type":           basetypes.StringType{},
-		"url":            basetypes.StringType{},
 	}
 }
 

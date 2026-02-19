@@ -1284,14 +1284,20 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 			"managed": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "An adopted switch/gateway will not be managed/configured by Mist by default. Setting this parameter to `true` enables the adopted switch/gateway to be managed/configured by Mist.",
-				MarkdownDescription: "An adopted switch/gateway will not be managed/configured by Mist by default. Setting this parameter to `true` enables the adopted switch/gateway to be managed/configured by Mist.",
+				Description:         "An adopted switch/gateway will not be managed/configured by Mist by default. Setting this parameter to `true` enables the adopted switch/gateway to be managed/configured by Mist. Deprecated in favour of mist_configured, which is more intuitive and can be used for both adopted and claimed devices.",
+				MarkdownDescription: "An adopted switch/gateway will not be managed/configured by Mist by default. Setting this parameter to `true` enables the adopted switch/gateway to be managed/configured by Mist. Deprecated in favour of mist_configured, which is more intuitive and can be used for both adopted and claimed devices.",
+				DeprecationMessage:  "This attribute is deprecated.",
 				Default:             booldefault.StaticBool(false),
 			},
 			"map_id": schema.StringAttribute{
 				Optional:            true,
 				Description:         "Map where the device belongs to",
 				MarkdownDescription: "Map where the device belongs to",
+			},
+			"mist_configured": schema.BoolAttribute{
+				Optional:            true,
+				Description:         "whether the device can be configured by Mist or not. This deprecates `managed` (for adopted device) and `disable_auto_config` for claimed device)",
+				MarkdownDescription: "whether the device can be configured by Mist or not. This deprecates `managed` (for adopted device) and `disable_auto_config` for claimed device)",
 			},
 			"mist_nac": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -2332,6 +2338,11 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						"rules": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
+									"description": schema.StringAttribute{
+										Optional:            true,
+										Description:         "Optional description of the rule",
+										MarkdownDescription: "Optional description of the rule",
+									},
 									"equals": schema.StringAttribute{
 										Optional: true,
 									},
@@ -4510,6 +4521,7 @@ type DeviceSwitchModel struct {
 	Mac                   types.String        `tfsdk:"mac"`
 	Managed               types.Bool          `tfsdk:"managed"`
 	MapId                 types.String        `tfsdk:"map_id"`
+	MistConfigured        types.Bool          `tfsdk:"mist_configured"`
 	MistNac               MistNacValue        `tfsdk:"mist_nac"`
 	Model                 types.String        `tfsdk:"model"`
 	Name                  types.String        `tfsdk:"name"`
@@ -27330,6 +27342,24 @@ func (t RulesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 
 	attributes := in.Attributes()
 
+	descriptionAttribute, ok := attributes["description"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`description is missing from object`)
+
+		return nil, diags
+	}
+
+	descriptionVal, ok := descriptionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`description expected to be basetypes.StringValue, was: %T`, descriptionAttribute))
+	}
+
 	equalsAttribute, ok := attributes["equals"]
 
 	if !ok {
@@ -27425,12 +27455,13 @@ func (t RulesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 	}
 
 	return RulesValue{
-		Equals:     equalsVal,
-		EqualsAny:  equalsAnyVal,
-		Expression: expressionVal,
-		Src:        srcVal,
-		Usage:      usageVal,
-		state:      attr.ValueStateKnown,
+		Description: descriptionVal,
+		Equals:      equalsVal,
+		EqualsAny:   equalsAnyVal,
+		Expression:  expressionVal,
+		Src:         srcVal,
+		Usage:       usageVal,
+		state:       attr.ValueStateKnown,
 	}, diags
 }
 
@@ -27497,6 +27528,24 @@ func NewRulesValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		return NewRulesValueUnknown(), diags
 	}
 
+	descriptionAttribute, ok := attributes["description"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`description is missing from object`)
+
+		return NewRulesValueUnknown(), diags
+	}
+
+	descriptionVal, ok := descriptionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`description expected to be basetypes.StringValue, was: %T`, descriptionAttribute))
+	}
+
 	equalsAttribute, ok := attributes["equals"]
 
 	if !ok {
@@ -27592,12 +27641,13 @@ func NewRulesValue(attributeTypes map[string]attr.Type, attributes map[string]at
 	}
 
 	return RulesValue{
-		Equals:     equalsVal,
-		EqualsAny:  equalsAnyVal,
-		Expression: expressionVal,
-		Src:        srcVal,
-		Usage:      usageVal,
-		state:      attr.ValueStateKnown,
+		Description: descriptionVal,
+		Equals:      equalsVal,
+		EqualsAny:   equalsAnyVal,
+		Expression:  expressionVal,
+		Src:         srcVal,
+		Usage:       usageVal,
+		state:       attr.ValueStateKnown,
 	}, diags
 }
 
@@ -27669,20 +27719,22 @@ func (t RulesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = RulesValue{}
 
 type RulesValue struct {
-	Equals     basetypes.StringValue `tfsdk:"equals"`
-	EqualsAny  basetypes.ListValue   `tfsdk:"equals_any"`
-	Expression basetypes.StringValue `tfsdk:"expression"`
-	Src        basetypes.StringValue `tfsdk:"src"`
-	Usage      basetypes.StringValue `tfsdk:"usage"`
-	state      attr.ValueState
+	Description basetypes.StringValue `tfsdk:"description"`
+	Equals      basetypes.StringValue `tfsdk:"equals"`
+	EqualsAny   basetypes.ListValue   `tfsdk:"equals_any"`
+	Expression  basetypes.StringValue `tfsdk:"expression"`
+	Src         basetypes.StringValue `tfsdk:"src"`
+	Usage       basetypes.StringValue `tfsdk:"usage"`
+	state       attr.ValueState
 }
 
 func (v RulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 5)
+	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["equals"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["equals_any"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -27695,7 +27747,15 @@ func (v RulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 5)
+		vals := make(map[string]tftypes.Value, 6)
+
+		val, err = v.Description.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["description"] = val
 
 		val, err = v.Equals.ToTerraformValue(ctx)
 
@@ -27780,7 +27840,8 @@ func (v RulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"equals": basetypes.StringType{},
+			"description": basetypes.StringType{},
+			"equals":      basetypes.StringType{},
 			"equals_any": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -27791,7 +27852,8 @@ func (v RulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"equals": basetypes.StringType{},
+		"description": basetypes.StringType{},
+		"equals":      basetypes.StringType{},
 		"equals_any": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -27811,11 +27873,12 @@ func (v RulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"equals":     v.Equals,
-			"equals_any": equalsAnyVal,
-			"expression": v.Expression,
-			"src":        v.Src,
-			"usage":      v.Usage,
+			"description": v.Description,
+			"equals":      v.Equals,
+			"equals_any":  equalsAnyVal,
+			"expression":  v.Expression,
+			"src":         v.Src,
+			"usage":       v.Usage,
 		})
 
 	return objVal, diags
@@ -27834,6 +27897,10 @@ func (v RulesValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.Description.Equal(other.Description) {
+		return false
 	}
 
 	if !v.Equals.Equal(other.Equals) {
@@ -27869,7 +27936,8 @@ func (v RulesValue) Type(ctx context.Context) attr.Type {
 
 func (v RulesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"equals": basetypes.StringType{},
+		"description": basetypes.StringType{},
+		"equals":      basetypes.StringType{},
 		"equals_any": basetypes.ListType{
 			ElemType: types.StringType,
 		},
