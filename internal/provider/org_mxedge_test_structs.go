@@ -1,19 +1,17 @@
 package provider
 
 type OrgMxedgeModel struct {
-	ForSite                   *bool                                          `hcl:"for_site"`
-	Magic                     *string                                        `hcl:"magic"`
-	Model                     string                                         `hcl:"model"`
-	MxagentRegistered         *bool                                          `hcl:"mxagent_registered"`
+	Mac                       *string                                        `hcl:"mac"`
+	Magic                     *string                                        `hcl:"claim_code"`
+	Model                     *string                                        `hcl:"model"`
 	MxclusterId               *string                                        `hcl:"mxcluster_id"`
 	MxedgeMgmt                *OrgMxedgeMxedgeMgmtValue                      `hcl:"mxedge_mgmt"`
-	Name                      string                                         `hcl:"name"`
+	Name                      *string                                        `hcl:"name"`
 	Note                      *string                                        `hcl:"note"`
 	NtpServers                []string                                       `hcl:"ntp_servers"`
 	OobIpConfig               *OrgMxedgeOobIpConfigValue                     `hcl:"oob_ip_config"`
 	OrgId                     string                                         `hcl:"org_id"`
 	Proxy                     *OrgMxedgeProxyValue                           `hcl:"proxy"`
-	Services                  []string                                       `hcl:"services"`
 	SiteId                    *string                                        `hcl:"site_id"`
 	TuntermDhcpdConfig        map[string]OrgMxedgeTuntermDhcpdConfigValue    `hcl:"tunterm_dhcpd_config"`
 	TuntermExtraRoutes        map[string]OrgMxedgeTuntermExtraRoutesValue    `hcl:"tunterm_extra_routes"`
@@ -52,7 +50,8 @@ type OrgMxedgeOobIpConfigValue struct {
 }
 
 type OrgMxedgeProxyValue struct {
-	Url *string `cty:"url" hcl:"url"`
+	Disabled *bool   `cty:"disabled" hcl:"disabled"`
+	Url      *string `cty:"url" hcl:"url"`
 }
 
 type OrgMxedgeTuntermDhcpdConfigValue struct {
@@ -111,7 +110,7 @@ type OrgMxedgeTuntermOtherIpConfigsValue struct {
 type OrgMxedgeTuntermPortConfigValue struct {
 	DownstreamPorts            []string `cty:"downstream_ports" hcl:"downstream_ports"`
 	SeparateUpstreamDownstream *bool    `cty:"separate_upstream_downstream" hcl:"separate_upstream_downstream"`
-	UpstreamPortVlanId         *int64   `cty:"upstream_port_vlan_id" hcl:"upstream_port_vlan_id"`
+	UpstreamPortVlanId         *string  `cty:"upstream_port_vlan_id" hcl:"upstream_port_vlan_id"`
 	UpstreamPorts              []string `cty:"upstream_ports" hcl:"upstream_ports"`
 }
 
@@ -121,6 +120,4 @@ type OrgMxedgeTuntermSwitchConfigValue struct {
 }
 
 type OrgMxedgeVersionsValue struct {
-	Mxagent *string `cty:"mxagent" hcl:"mxagent"`
-	Tunterm *string `cty:"tunterm" hcl:"tunterm"`
 }

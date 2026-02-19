@@ -12,15 +12,20 @@ import (
 
 func proxySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Proxy) ProxyValue {
 
+	var disabled types.Bool
 	var url types.String
 
+	if d.Disabled != nil {
+		disabled = types.BoolValue(*d.Disabled)
+	}
 	if d.Url != nil {
 		url = types.StringValue(*d.Url)
 	}
 
 	data_map_attr_type := ProxyValue{}.AttributeTypes(ctx)
 	data_map_value := map[string]attr.Value{
-		"url": url,
+		"disabled": disabled,
+		"url":      url,
 	}
 	data, e := NewProxyValue(data_map_attr_type, data_map_value)
 	diags.Append(e...)

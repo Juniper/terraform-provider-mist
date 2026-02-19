@@ -5,7 +5,9 @@ package resource_org_mxedge
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -19,7 +21,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -33,7 +34,7 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 			},
 			"mac": schema.StringAttribute{
-				Optional: true,
+				Computed: true,
 			},
 			"claim_code": schema.StringAttribute{
 				Optional: true,
@@ -233,6 +234,11 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Proxy Configuration to talk to Mist",
 				MarkdownDescription: "Proxy Configuration to talk to Mist",
+			},
+			"registration_code": schema.StringAttribute{
+				Computed:            true,
+				Description:         "Registration code for the MxEdge",
+				MarkdownDescription: "Registration code for the MxEdge",
 			},
 			"services": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -598,6 +604,7 @@ type OrgMxedgeModel struct {
 	OobIpConfig               OobIpConfigValue               `tfsdk:"oob_ip_config"`
 	OrgId                     types.String                   `tfsdk:"org_id"`
 	Proxy                     ProxyValue                     `tfsdk:"proxy"`
+	RegistrationCode          types.String                   `tfsdk:"registration_code"`
 	Services                  types.List                     `tfsdk:"services"`
 	SiteId                    types.String                   `tfsdk:"site_id"`
 	TuntermDhcpdConfig        types.Map                      `tfsdk:"tunterm_dhcpd_config"`

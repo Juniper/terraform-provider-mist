@@ -26,8 +26,8 @@ func TestOrgMxedgeModel(t *testing.T) {
 			steps: []testStep{
 				{
 					config: OrgMxedgeModel{
-						Name:  "Test Org Mxedge",
-						Model: "VM",
+						Name:  stringPtr("Test Org Mxedge"),
+						Model: stringPtr("VM"),
 						OrgId: GetTestOrgId(),
 					},
 				},
@@ -96,24 +96,24 @@ func (o *OrgMxedgeModel) testChecks(t testing.TB, rType, tName string) testCheck
 
 	// Check required fields
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
-	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
-	checks.append(t, "TestCheckResourceAttr", "model", o.Model)
+
+	// Name and Model are optional when using claim_code
+	if o.Name != nil {
+		checks.append(t, "TestCheckResourceAttr", "name", *o.Name)
+	}
+	if o.Model != nil {
+		checks.append(t, "TestCheckResourceAttr", "model", *o.Model)
+	}
 
 	// Check optional basic fields
 	if o.Note != nil {
 		checks.append(t, "TestCheckResourceAttr", "note", *o.Note)
 	}
 	if o.Magic != nil {
-		checks.append(t, "TestCheckResourceAttr", "magic", *o.Magic)
+		checks.append(t, "TestCheckResourceAttr", "claim_code", *o.Magic)
 	}
 	if o.SiteId != nil {
 		checks.append(t, "TestCheckResourceAttr", "site_id", *o.SiteId)
-	}
-	if o.ForSite != nil {
-		checks.append(t, "TestCheckResourceAttr", "for_site", fmt.Sprintf("%t", *o.ForSite))
-	}
-	if o.MxagentRegistered != nil {
-		checks.append(t, "TestCheckResourceAttr", "mxagent_registered", fmt.Sprintf("%t", *o.MxagentRegistered))
 	}
 	if o.TuntermRegistered != nil {
 		checks.append(t, "TestCheckResourceAttr", "tunterm_registered", fmt.Sprintf("%t", *o.TuntermRegistered))
@@ -127,14 +127,6 @@ func (o *OrgMxedgeModel) testChecks(t testing.TB, rType, tName string) testCheck
 		checks.append(t, "TestCheckResourceAttr", "ntp_servers.#", fmt.Sprintf("%d", len(o.NtpServers)))
 		for i, server := range o.NtpServers {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ntp_servers.%d", i), server)
-		}
-	}
-
-	// Check services
-	if len(o.Services) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "services.#", fmt.Sprintf("%d", len(o.Services)))
-		for i, service := range o.Services {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("services.%d", i), service)
 		}
 	}
 
@@ -201,8 +193,13 @@ func (o *OrgMxedgeModel) testChecks(t testing.TB, rType, tName string) testCheck
 	}
 
 	// Check proxy
-	if o.Proxy != nil && o.Proxy.Url != nil {
-		checks.append(t, "TestCheckResourceAttr", "proxy.url", *o.Proxy.Url)
+	if o.Proxy != nil {
+		if o.Proxy.Url != nil {
+			checks.append(t, "TestCheckResourceAttr", "proxy.url", *o.Proxy.Url)
+		}
+		if o.Proxy.Disabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "proxy.disabled", fmt.Sprintf("%t", *o.Proxy.Disabled))
+		}
 	}
 
 	// Check tunterm_ip_config
@@ -265,7 +262,7 @@ func (o *OrgMxedgeModel) testChecks(t testing.TB, rType, tName string) testCheck
 			checks.append(t, "TestCheckResourceAttr", "tunterm_port_config.separate_upstream_downstream", fmt.Sprintf("%t", *o.TuntermPortConfig.SeparateUpstreamDownstream))
 		}
 		if o.TuntermPortConfig.UpstreamPortVlanId != nil {
-			checks.append(t, "TestCheckResourceAttr", "tunterm_port_config.upstream_port_vlan_id", fmt.Sprintf("%d", *o.TuntermPortConfig.UpstreamPortVlanId))
+			checks.append(t, "TestCheckResourceAttr", "tunterm_port_config.upstream_port_vlan_id", *o.TuntermPortConfig.UpstreamPortVlanId)
 		}
 		if len(o.TuntermPortConfig.UpstreamPorts) > 0 {
 			checks.append(t, "TestCheckResourceAttr", "tunterm_port_config.upstream_ports.#", fmt.Sprintf("%d", len(o.TuntermPortConfig.UpstreamPorts)))
@@ -350,16 +347,6 @@ func (o *OrgMxedgeModel) testChecks(t testing.TB, rType, tName string) testCheck
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunterm_multicast_config.ssdp.vlan_ids.%d", i), vlanId)
 				}
 			}
-		}
-	}
-
-	// Check versions
-	if o.Versions != nil {
-		if o.Versions.Mxagent != nil {
-			checks.append(t, "TestCheckResourceAttr", "versions.mxagent", *o.Versions.Mxagent)
-		}
-		if o.Versions.Tunterm != nil {
-			checks.append(t, "TestCheckResourceAttr", "versions.tunterm", *o.Versions.Tunterm)
 		}
 	}
 

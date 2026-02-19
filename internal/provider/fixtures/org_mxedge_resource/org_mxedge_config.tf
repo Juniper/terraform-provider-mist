@@ -5,10 +5,7 @@
 
   # Optional attributes
   note              = "Test MxEdge for comprehensive attribute testing"
-  for_site          = false
-  mxagent_registered = false
-  tunterm_registered = false
-  mxcluster_id      = "00000000-0000-0000-0000-000000000000"
+  mxcluster_id      = "12000000-0000-0000-0000-000000000345"
 
   # NTP servers configuration
   ntp_servers = [
@@ -46,6 +43,7 @@
 
   # Proxy configuration
   proxy = {
+    disabled = false
     url = "http://proxy.example.com:8080"
   }
 
@@ -94,10 +92,5 @@
       servers = ["10.100.0.5"]
     }
   }
-
-  # Versions
-  versions = {
-    mxagent = "0.1.234"
-    tunterm = "0.2.345"
-  }
-
+␞
+  claim_code = "EKF4DSY7TZMDH9P"

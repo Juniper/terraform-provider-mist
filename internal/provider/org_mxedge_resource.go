@@ -75,12 +75,6 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	mxedge, diags := resource_org_mxedge.TerraformToSdk(ctx, &plan)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	orgId, err := uuid.Parse(plan.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -90,23 +84,143 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	tflog.Info(ctx, "Starting OrgMxedge Create in Org "+plan.OrgId.ValueString())
-	data, err := r.client.OrgsMxEdges().CreateOrgMxEdge(ctx, orgId, mxedge)
+	var mistMxedge models.Mxedge
+	var mxedgeId uuid.UUID
 
-	if data.Response.StatusCode != 200 {
-		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
-		if apiErr != "" {
+	// Check if claim_code is provided - if so, claim the device
+	if !plan.Magic.IsNull() && plan.Magic.ValueString() != "" {
+		tflog.Info(ctx, "Claiming OrgMxedge with claim_code in Org "+plan.OrgId.ValueString())
+		claimCodes := []string{plan.Magic.ValueString()}
+
+		claimResponse, err := r.client.OrgsInventory().AddOrgInventory(ctx, orgId, claimCodes)
+		if err != nil {
 			resp.Diagnostics.AddError(
-				"Error creating \"mist_org_mxedge\" resource",
-				fmt.Sprintf("Unable to create the MxEdge. %s", apiErr),
+				"Error claiming \"mist_org_mxedge\" resource",
+				"Unable to claim the MxEdge: "+err.Error(),
 			)
 			return
 		}
+
+		if claimResponse.Response.StatusCode != 200 {
+			apiErr := mistapierror.ProcessApiError(claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
+			if apiErr != "" {
+				resp.Diagnostics.AddError(
+					"Error claiming \"mist_org_mxedge\" resource",
+					fmt.Sprintf("Unable to claim the MxEdge. %s", apiErr),
+				)
+				return
+			}
+		}
+
+		// Extract the device ID from the claim response
+		if len(claimResponse.Data.InventoryAdded) == 0 {
+			resp.Diagnostics.AddError(
+				"Error claiming \"mist_org_mxedge\" resource",
+				"No devices were added in the claim response",
+			)
+			return
+		}
+
+		addedDevice := claimResponse.Data.InventoryAdded[0]
+		if addedDevice.Mac == "" {
+			resp.Diagnostics.AddError(
+				"Error claiming \"mist_org_mxedge\" resource",
+				"Claimed device has no MAC address",
+			)
+			return
+		}
+
+		// Construct device ID from MAC address: 00000000-0000-0000-1000-{MAC}
+		cleanMac := strings.ReplaceAll(addedDevice.Mac, ":", "")
+		cleanMac = strings.ReplaceAll(cleanMac, "-", "")
+		cleanMac = strings.ToLower(cleanMac)
+
+		if len(cleanMac) != 12 {
+			resp.Diagnostics.AddError(
+				"Error claiming \"mist_org_mxedge\" resource",
+				fmt.Sprintf("Invalid MAC address length: expected 12, got %d", len(cleanMac)),
+			)
+			return
+		}
+
+		uuidStr := fmt.Sprintf("00000000-0000-0000-1000-%s", cleanMac)
+		mxedgeId, err = uuid.Parse(uuidStr)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Error claiming \"mist_org_mxedge\" resource",
+				"Failed to construct device UUID from MAC: "+err.Error(),
+			)
+			return
+		}
+
+		// Now retrieve the claimed device details
+		tflog.Info(ctx, "Retrieving claimed MxEdge details: "+mxedgeId.String())
+		httpr, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
+		if httpr.Response.StatusCode != 200 {
+			apiErr := mistapierror.ProcessApiError(httpr.Response.StatusCode, httpr.Response.Body, err)
+			if apiErr != "" {
+				resp.Diagnostics.AddError(
+					"Error retrieving claimed \"mist_org_mxedge\" resource",
+					fmt.Sprintf("Unable to retrieve the claimed MxEdge. %s", apiErr),
+				)
+				return
+			}
+		}
+
+		body, _ := io.ReadAll(httpr.Response.Body)
+		json.Unmarshal(body, &mistMxedge)
+
+		// If additional fields from plan need to be updated (name, site_id, etc.), do it now
+		if !plan.Name.IsNull() || !plan.SiteId.IsNull() || !plan.MxclusterId.IsNull() {
+			updateMxedge, diags := resource_org_mxedge.TerraformToSdk(ctx, &plan)
+			resp.Diagnostics.Append(diags...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+
+			tflog.Info(ctx, "Updating claimed MxEdge with additional fields")
+			data, err := r.client.OrgsMxEdges().UpdateOrgMxEdge(ctx, orgId, mxedgeId, updateMxedge)
+			if data.Response.StatusCode != 200 {
+				apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+				if apiErr != "" {
+					resp.Diagnostics.AddError(
+						"Error updating claimed \"mist_org_mxedge\" resource",
+						fmt.Sprintf("Unable to update the claimed MxEdge. %s", apiErr),
+					)
+					return
+				}
+			}
+
+			body, _ := io.ReadAll(data.Response.Body)
+			json.Unmarshal(body, &mistMxedge)
+		}
+
+	} else {
+		// Create MxEdge using name and model
+		tflog.Info(ctx, "Creating OrgMxedge with name/model in Org "+plan.OrgId.ValueString())
+
+		mxedge, diags := resource_org_mxedge.TerraformToSdk(ctx, &plan)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+
+		data, err := r.client.OrgsMxEdges().CreateOrgMxEdge(ctx, orgId, mxedge)
+		if data.Response.StatusCode != 200 {
+			apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
+			if apiErr != "" {
+				resp.Diagnostics.AddError(
+					"Error creating \"mist_org_mxedge\" resource",
+					fmt.Sprintf("Unable to create the MxEdge. %s", apiErr),
+				)
+				return
+			}
+		}
+
+		body, _ := io.ReadAll(data.Response.Body)
+		json.Unmarshal(body, &mistMxedge)
 	}
 
-	body, _ := io.ReadAll(data.Response.Body)
-	mistMxedge := models.Mxedge{}
-	json.Unmarshal(body, &mistMxedge)
 	state, diags = resource_org_mxedge.SdkToTerraform(ctx, &mistMxedge)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

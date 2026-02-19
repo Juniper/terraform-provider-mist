@@ -16,12 +16,6 @@ func TerraformToSdk(ctx context.Context, plan *OrgMxedgeModel) (*models.Mxedge, 
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 
-	if !plan.ForSite.IsNull() && !plan.ForSite.IsUnknown() {
-		data.ForSite = plan.ForSite.ValueBoolPointer()
-	} else {
-		unset["-for_site"] = ""
-	}
-
 	if !plan.Magic.IsNull() && !plan.Magic.IsUnknown() {
 		data.Magic = plan.Magic.ValueStringPointer()
 	} else {

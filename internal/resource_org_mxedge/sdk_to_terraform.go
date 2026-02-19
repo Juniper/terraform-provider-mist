@@ -16,9 +16,8 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	var state OrgMxedgeModel
 	var diags diag.Diagnostics
 
-	var forSite types.Bool
 	var id types.String
-	var magic types.String
+	var mac types.String
 	var model types.String
 	var mxagentRegistered types.Bool
 	var mxclusterId types.String
@@ -29,6 +28,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	var oobIpConfig = NewOobIpConfigValueNull()
 	var orgId types.String
 	var proxy = NewProxyValueNull()
+	var registrationCode types.String
 	var services = types.ListNull(types.StringType)
 	var siteId types.String
 	var tuntermDhcpdConfig = types.MapNull(TuntermDhcpdConfigValue{}.Type(ctx))
@@ -51,20 +51,20 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	var tuntermSwitchConfig = types.MapNull(TuntermSwitchConfigValue{}.Type(ctx))
 	var versions = NewVersionsValueNull()
 
-	if data.ForSite != nil {
-		forSite = types.BoolValue(*data.ForSite)
-	}
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
 	}
+	if data.Mac != nil {
+		mac = types.StringValue(*data.Mac)
+	}
 	if data.Magic != nil {
-		magic = types.StringValue(*data.Magic)
+		registrationCode = types.StringValue(*data.Magic)
 	}
 	model = types.StringValue(data.Model)
 	if data.MxagentRegistered != nil {
 		mxagentRegistered = types.BoolValue(*data.MxagentRegistered)
 	}
-	if data.MxclusterId != nil {
+	if data.MxclusterId != nil && data.MxclusterId.String() != "00000000-0000-0000-0000-000000000000" {
 		mxclusterId = types.StringValue(data.MxclusterId.String())
 	}
 	if data.MxedgeMgmt != nil {
@@ -89,7 +89,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	if data.Services != nil {
 		services = mistutils.ListOfStringSdkToTerraform(data.Services)
 	}
-	if data.SiteId != nil {
+	if data.SiteId != nil && data.SiteId.String() != "00000000-0000-0000-0000-000000000000" {
 		siteId = types.StringValue(data.SiteId.String())
 	}
 	if data.TuntermDhcpdConfig != nil {
@@ -126,9 +126,8 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 		versions = versionsSdkToTerraform(ctx, &diags, data.Versions)
 	}
 
-	state.ForSite = forSite
 	state.Id = id
-	state.Magic = magic
+	state.Mac = mac
 	state.Model = model
 	state.MxagentRegistered = mxagentRegistered
 	state.MxclusterId = mxclusterId
@@ -139,6 +138,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	state.OobIpConfig = oobIpConfig
 	state.OrgId = orgId
 	state.Proxy = proxy
+	state.RegistrationCode = registrationCode
 	state.Services = services
 	state.SiteId = siteId
 	state.TuntermDhcpdConfig = tuntermDhcpdConfig

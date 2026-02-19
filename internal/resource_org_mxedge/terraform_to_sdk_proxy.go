@@ -11,6 +11,9 @@ import (
 func proxyTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ProxyValue) *models.Proxy {
 	data := models.Proxy{}
 
+	if !d.Disabled.IsNull() && !d.Disabled.IsUnknown() {
+		data.Disabled = d.Disabled.ValueBoolPointer()
+	}
 	if !d.Url.IsNull() && !d.Url.IsUnknown() {
 		data.Url = d.Url.ValueStringPointer()
 	}
