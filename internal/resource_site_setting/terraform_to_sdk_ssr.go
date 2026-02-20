@@ -57,6 +57,9 @@ func ssrAutoUpgradeTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, 
 			if item.Enabled.ValueBoolPointer() != nil {
 				data.Enabled = models.ToPointer(item.Enabled.ValueBool())
 			}
+			if item.Version.ValueStringPointer() != nil {
+				data.Version = models.ToPointer(item.Version.ValueString())
+			}
 		}
 	}
 	return data

@@ -773,6 +773,9 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 			checks.append(t, "TestCheckResourceAttr", "uplink_port_config.keep_wlans_up_if_down", fmt.Sprintf("%t", *s.UplinkPortConfig.KeepWlansUpIfDown))
 		}
 	}
+	if s.UsesDescriptionFromPortUsage != nil {
+		checks.append(t, "TestCheckResourceAttr", "uses_description_from_port_usage", fmt.Sprintf("%t", *s.UsesDescriptionFromPortUsage))
+	}
 	if len(s.Vars) > 0 {
 		for key, value := range s.Vars {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vars.%s", key), value)

@@ -214,6 +214,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-uplink_port_config"] = ""
 	}
 
+	if plan.UsesDescriptionFromPortUsage.ValueBoolPointer() != nil {
+		data.UsesDescriptionFromPortUsage = plan.UsesDescriptionFromPortUsage.ValueBoolPointer()
+	} else {
+		unset["-uses_description_from_port_usage"] = ""
+	}
+
 	if !plan.Vars.IsNull() && !plan.Vars.IsUnknown() {
 		data.Vars = varsTerraformToSdk(plan.Vars)
 	} else {
