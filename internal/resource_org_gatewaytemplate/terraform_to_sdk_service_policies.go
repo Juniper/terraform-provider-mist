@@ -2,7 +2,6 @@ package resource_org_gatewaytemplate
 
 import (
 	"context"
-	"unsafe"
 
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -126,7 +125,7 @@ func skyatpTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basety
 						sdkObj.Enabled = dnsDga.Enabled.ValueBoolPointer()
 					}
 					if dnsDga.Profile.ValueStringPointer() != nil {
-						sdkObj.Profile = (*models.ServicePolicySkyatpDnsDgaDetectionProfileEnum)(unsafe.Pointer(dnsDga.Profile.ValueStringPointer()))
+						sdkObj.Profile = models.ToPointer(models.ServicePolicySkyatpDnsDgaDetectionProfileEnum(dnsDga.Profile.ValueString()))
 					}
 					data.DnsDgaDetection = &sdkObj
 				}
@@ -141,7 +140,7 @@ func skyatpTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basety
 						sdkObj.Enabled = dnsTunnel.Enabled.ValueBoolPointer()
 					}
 					if dnsTunnel.Profile.ValueStringPointer() != nil {
-						sdkObj.Profile = (*models.ServicePolicySkyatpDnsTunnelDetectionProfileEnum)(unsafe.Pointer(dnsTunnel.Profile.ValueStringPointer()))
+						sdkObj.Profile = models.ToPointer(models.ServicePolicySkyatpDnsTunnelDetectionProfileEnum(dnsTunnel.Profile.ValueString()))
 					}
 					data.DnsTunnelDetection = &sdkObj
 				}
@@ -156,7 +155,7 @@ func skyatpTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basety
 						sdkObj.Enabled = httpInsp.Enabled.ValueBoolPointer()
 					}
 					if httpInsp.Profile.ValueStringPointer() != nil {
-						sdkObj.Profile = (*models.ServicePolicySkyatpHttpInspectionProfileEnum)(unsafe.Pointer(httpInsp.Profile.ValueStringPointer()))
+						sdkObj.Profile = models.ToPointer(models.ServicePolicySkyatpHttpInspectionProfileEnum(httpInsp.Profile.ValueString()))
 					}
 					data.HttpInspection = &sdkObj
 				}
