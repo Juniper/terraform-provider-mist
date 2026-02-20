@@ -366,10 +366,6 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, data
 			result.WanArpPolicer = models.ToPointer(models.GatewayPortWanArpPolicerEnum(portConfig.WanArpPolicer.ValueString()))
 		}
 
-		if portConfig.WanDisableSpeedtest.ValueBoolPointer() != nil {
-			result.WanDisableSpeedtest = portConfig.WanDisableSpeedtest.ValueBoolPointer()
-		}
-
 		if portConfig.WanExtIp.ValueStringPointer() != nil {
 			result.WanExtIp = portConfig.WanExtIp.ValueStringPointer()
 		}
@@ -396,6 +392,10 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, data
 
 		if !portConfig.WanSourceNat.IsNull() && !portConfig.WanSourceNat.IsUnknown() {
 			result.WanSourceNat = portConfigWanSourceNatTerraformToSdk(ctx, portConfig.WanSourceNat)
+		}
+
+		if portConfig.WanSpeedtestMode.ValueStringPointer() != nil {
+			result.WanSpeedtestMode = models.ToPointer(models.GatewayPortConfigWanSpeedtestModeEnum(portConfig.WanSpeedtestMode.ValueString()))
 		}
 
 		if portConfig.WanType.ValueStringPointer() != nil {

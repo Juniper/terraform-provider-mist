@@ -457,6 +457,9 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, tName string, track
 	if s.MapId != nil && *s.MapId != "" {
 		checks.append(t, "TestCheckResourceAttr", "map_id", *s.MapId)
 	}
+	if s.MistConfigured != nil {
+		checks.append(t, "TestCheckResourceAttr", "mist_configured", fmt.Sprintf("%t", *s.MistConfigured))
+	}
 	if s.MspId != nil && *s.MspId != "" {
 		checks.append(t, "TestCheckResourceAttr", "msp_id", *s.MspId)
 	}
@@ -940,8 +943,8 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, tName string, track
 			if v.WanArpPolicer != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_arp_policer", k), *v.WanArpPolicer)
 			}
-			if v.WanDisableSpeedtest != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_disable_speedtest", k), fmt.Sprintf("%t", *v.WanDisableSpeedtest))
+			if v.WanSpeedtestMode != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_speedtest_mode", k), *v.WanSpeedtestMode)
 			}
 			if v.WanExtIp != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_ext_ip", k), *v.WanExtIp)
@@ -1234,16 +1237,33 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, tName string, track
 			}
 			if v.Skyatp != nil {
 				if v.Skyatp.DnsDgaDetection != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_dga_detection", i), *v.Skyatp.DnsDgaDetection)
+					if v.Skyatp.DnsDgaDetection.Enabled != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_dga_detection.enabled", i), fmt.Sprintf("%t", *v.Skyatp.DnsDgaDetection.Enabled))
+					}
+					if v.Skyatp.DnsDgaDetection.Profile != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_dga_detection.profile", i), *v.Skyatp.DnsDgaDetection.Profile)
+					}
 				}
 				if v.Skyatp.DnsTunnelDetection != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_tunnel_detection", i), *v.Skyatp.DnsTunnelDetection)
+					if v.Skyatp.DnsTunnelDetection.Enabled != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_tunnel_detection.enabled", i), fmt.Sprintf("%t", *v.Skyatp.DnsTunnelDetection.Enabled))
+					}
+					if v.Skyatp.DnsTunnelDetection.Profile != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_tunnel_detection.profile", i), *v.Skyatp.DnsTunnelDetection.Profile)
+					}
 				}
 				if v.Skyatp.HttpInspection != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.http_inspection", i), *v.Skyatp.HttpInspection)
+					if v.Skyatp.HttpInspection.Enabled != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.http_inspection.enabled", i), fmt.Sprintf("%t", *v.Skyatp.HttpInspection.Enabled))
+					}
+					if v.Skyatp.HttpInspection.Profile != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.http_inspection.profile", i), *v.Skyatp.HttpInspection.Profile)
+					}
 				}
 				if v.Skyatp.IotDevicePolicy != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.iot_device_policy", i), *v.Skyatp.IotDevicePolicy)
+					if v.Skyatp.IotDevicePolicy.Enabled != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.iot_device_policy.enabled", i), fmt.Sprintf("%t", *v.Skyatp.IotDevicePolicy.Enabled))
+					}
 				}
 			}
 			if v.Syslog != nil {

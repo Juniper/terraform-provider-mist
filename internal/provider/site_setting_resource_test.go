@@ -474,6 +474,9 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 			if s.JuniperSrx.SrxAutoUpgrade.Snapshot != nil {
 				checks.append(t, "TestCheckResourceAttr", "juniper_srx.auto_upgrade.snapshot", fmt.Sprintf("%t", *s.JuniperSrx.SrxAutoUpgrade.Snapshot))
 			}
+			if s.JuniperSrx.SrxAutoUpgrade.Version != nil {
+				checks.append(t, "TestCheckResourceAttr", "juniper_srx.auto_upgrade.version", *s.JuniperSrx.SrxAutoUpgrade.Version)
+			}
 			if len(s.JuniperSrx.SrxAutoUpgrade.CustomVersions) > 0 {
 				checks.append(t, "TestCheckResourceAttr", "juniper_srx.auto_upgrade.custom_versions.%", fmt.Sprintf("%d", len(s.JuniperSrx.SrxAutoUpgrade.CustomVersions)))
 				for key, version := range s.JuniperSrx.SrxAutoUpgrade.CustomVersions {
@@ -674,6 +677,9 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 			if s.Ssr.SsrAutoUpgrade.Channel != nil {
 				checks.append(t, "TestCheckResourceAttr", "ssr.auto_upgrade.channel", *s.Ssr.SsrAutoUpgrade.Channel)
 			}
+			if s.Ssr.SsrAutoUpgrade.Version != nil {
+				checks.append(t, "TestCheckResourceAttr", "ssr.auto_upgrade.version", *s.Ssr.SsrAutoUpgrade.Version)
+			}
 			if len(s.Ssr.SsrAutoUpgrade.CustomVersions) > 0 {
 				checks.append(t, "TestCheckResourceAttr", "ssr.auto_upgrade.custom_versions.%", fmt.Sprintf("%d", len(s.Ssr.SsrAutoUpgrade.CustomVersions)))
 				for key, version := range s.Ssr.SsrAutoUpgrade.CustomVersions {
@@ -697,20 +703,14 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 				if probe.CustomProbesType != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.custom_probes_type", key), *probe.CustomProbesType)
 				}
-				if probe.Host != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.host", key), *probe.Host)
-				}
-				if probe.Port != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.port", key), fmt.Sprintf("%d", *probe.Port))
+				if probe.Target != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.target", key), *probe.Target)
 				}
 				if probe.Threshold != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.threshold", key), fmt.Sprintf("%d", *probe.Threshold))
 				}
 				if probe.Aggressiveness != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.aggressiveness", key), *probe.Aggressiveness)
-				}
-				if probe.Url != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.url", key), *probe.Url)
 				}
 			}
 		}

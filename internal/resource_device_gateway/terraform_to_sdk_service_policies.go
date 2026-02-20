@@ -2,6 +2,7 @@ package resource_device_gateway
 
 import (
 	"context"
+	"unsafe"
 
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -133,17 +134,62 @@ func skyatpTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basety
 		if e != nil {
 			diags.Append(e...)
 		} else {
-			if plan.DnsDgaDetection.ValueStringPointer() != nil {
-				data.DnsDgaDetection = (*models.ServicePolicySkyatpDnsDgaDetectionEnum)(plan.DnsDgaDetection.ValueStringPointer())
+			if !plan.DnsDgaDetection.IsNull() && !plan.DnsDgaDetection.IsUnknown() {
+				dnsDga, e := NewDnsDgaDetectionValue(plan.DnsDgaDetection.AttributeTypes(ctx), plan.DnsDgaDetection.Attributes())
+				if e != nil {
+					diags.Append(e...)
+				} else {
+					sdkObj := models.ServicePolicySkyatpDnsDgaDetection{}
+					if dnsDga.Enabled.ValueBoolPointer() != nil {
+						sdkObj.Enabled = dnsDga.Enabled.ValueBoolPointer()
+					}
+					if dnsDga.Profile.ValueStringPointer() != nil {
+						sdkObj.Profile = (*models.ServicePolicySkyatpDnsDgaDetectionProfileEnum)(unsafe.Pointer(dnsDga.Profile.ValueStringPointer()))
+					}
+					data.DnsDgaDetection = &sdkObj
+				}
 			}
-			if plan.DnsTunnelDetection.ValueStringPointer() != nil {
-				data.DnsTunnelDetection = (*models.ServicePolicySkyatpDnsTunnelDetectionEnum)(plan.DnsTunnelDetection.ValueStringPointer())
+			if !plan.DnsTunnelDetection.IsNull() && !plan.DnsTunnelDetection.IsUnknown() {
+				dnsTunnel, e := NewDnsTunnelDetectionValue(plan.DnsTunnelDetection.AttributeTypes(ctx), plan.DnsTunnelDetection.Attributes())
+				if e != nil {
+					diags.Append(e...)
+				} else {
+					sdkObj := models.ServicePolicySkyatpDnsTunnelDetection{}
+					if dnsTunnel.Enabled.ValueBoolPointer() != nil {
+						sdkObj.Enabled = dnsTunnel.Enabled.ValueBoolPointer()
+					}
+					if dnsTunnel.Profile.ValueStringPointer() != nil {
+						sdkObj.Profile = (*models.ServicePolicySkyatpDnsTunnelDetectionProfileEnum)(unsafe.Pointer(dnsTunnel.Profile.ValueStringPointer()))
+					}
+					data.DnsTunnelDetection = &sdkObj
+				}
 			}
-			if plan.HttpInspection.ValueStringPointer() != nil {
-				data.HttpInspection = (*models.ServicePolicySkyatpHttpInspectionEnum)(plan.HttpInspection.ValueStringPointer())
+			if !plan.HttpInspection.IsNull() && !plan.HttpInspection.IsUnknown() {
+				httpInsp, e := NewHttpInspectionValue(plan.HttpInspection.AttributeTypes(ctx), plan.HttpInspection.Attributes())
+				if e != nil {
+					diags.Append(e...)
+				} else {
+					sdkObj := models.ServicePolicySkyatpHttpInspection{}
+					if httpInsp.Enabled.ValueBoolPointer() != nil {
+						sdkObj.Enabled = httpInsp.Enabled.ValueBoolPointer()
+					}
+					if httpInsp.Profile.ValueStringPointer() != nil {
+						sdkObj.Profile = (*models.ServicePolicySkyatpHttpInspectionProfileEnum)(unsafe.Pointer(httpInsp.Profile.ValueStringPointer()))
+					}
+					data.HttpInspection = &sdkObj
+				}
 			}
-			if plan.IotDevicePolicy.ValueStringPointer() != nil {
-				data.IotDevicePolicy = (*models.ServicePolicySkyatpIotDevicePolicyEnum)(plan.IotDevicePolicy.ValueStringPointer())
+			if !plan.IotDevicePolicy.IsNull() && !plan.IotDevicePolicy.IsUnknown() {
+				iotPolicy, e := NewIotDevicePolicyValue(plan.IotDevicePolicy.AttributeTypes(ctx), plan.IotDevicePolicy.Attributes())
+				if e != nil {
+					diags.Append(e...)
+				} else {
+					sdkObj := models.ServicePolicySkyatpIotDevicePolicy{}
+					if iotPolicy.Enabled.ValueBoolPointer() != nil {
+						sdkObj.Enabled = iotPolicy.Enabled.ValueBoolPointer()
+					}
+					data.IotDevicePolicy = &sdkObj
+				}
 			}
 		}
 	}
