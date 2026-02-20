@@ -145,22 +145,73 @@ func sslProxySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 
 func skyatpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ServicePolicySkyatp) basetypes.ObjectValue {
 
-	var dnsDgaDetection basetypes.StringValue
-	var dnsTunnelDetection basetypes.StringValue
-	var httpInspection basetypes.StringValue
-	var iotDevicePolicy basetypes.StringValue
+	var dnsDgaDetection = types.ObjectNull(DnsDgaDetectionValue{}.AttributeTypes(ctx))
+	var dnsTunnelDetection = types.ObjectNull(DnsTunnelDetectionValue{}.AttributeTypes(ctx))
+	var httpInspection = types.ObjectNull(HttpInspectionValue{}.AttributeTypes(ctx))
+	var iotDevicePolicy = types.ObjectNull(IotDevicePolicyValue{}.AttributeTypes(ctx))
 
 	if d.DnsDgaDetection != nil {
-		dnsDgaDetection = types.StringValue(string(*d.DnsDgaDetection))
+		var enabled basetypes.BoolValue
+		var profile basetypes.StringValue
+
+		if d.DnsDgaDetection.Enabled != nil {
+			enabled = types.BoolValue(*d.DnsDgaDetection.Enabled)
+		}
+		if d.DnsDgaDetection.Profile != nil {
+			profile = types.StringValue(string(*d.DnsDgaDetection.Profile))
+		}
+
+		dnsDgaAttr := map[string]attr.Value{
+			"enabled": enabled,
+			"profile": profile,
+		}
+		dnsDgaDetection, _ = types.ObjectValue(DnsDgaDetectionValue{}.AttributeTypes(ctx), dnsDgaAttr)
 	}
 	if d.DnsTunnelDetection != nil {
-		dnsTunnelDetection = types.StringValue(string(*d.DnsTunnelDetection))
+		var enabled basetypes.BoolValue
+		var profile basetypes.StringValue
+
+		if d.DnsTunnelDetection.Enabled != nil {
+			enabled = types.BoolValue(*d.DnsTunnelDetection.Enabled)
+		}
+		if d.DnsTunnelDetection.Profile != nil {
+			profile = types.StringValue(string(*d.DnsTunnelDetection.Profile))
+		}
+
+		dnsTunnelAttr := map[string]attr.Value{
+			"enabled": enabled,
+			"profile": profile,
+		}
+		dnsTunnelDetection, _ = types.ObjectValue(DnsTunnelDetectionValue{}.AttributeTypes(ctx), dnsTunnelAttr)
 	}
 	if d.HttpInspection != nil {
-		httpInspection = types.StringValue(string(*d.HttpInspection))
+		var enabled basetypes.BoolValue
+		var profile basetypes.StringValue
+
+		if d.HttpInspection.Enabled != nil {
+			enabled = types.BoolValue(*d.HttpInspection.Enabled)
+		}
+		if d.HttpInspection.Profile != nil {
+			profile = types.StringValue(string(*d.HttpInspection.Profile))
+		}
+
+		httpInspAttr := map[string]attr.Value{
+			"enabled": enabled,
+			"profile": profile,
+		}
+		httpInspection, _ = types.ObjectValue(HttpInspectionValue{}.AttributeTypes(ctx), httpInspAttr)
 	}
 	if d.IotDevicePolicy != nil {
-		iotDevicePolicy = types.StringValue(string(*d.IotDevicePolicy))
+		var enabled basetypes.BoolValue
+
+		if d.IotDevicePolicy.Enabled != nil {
+			enabled = types.BoolValue(*d.IotDevicePolicy.Enabled)
+		}
+
+		iotPolicyAttr := map[string]attr.Value{
+			"enabled": enabled,
+		}
+		iotDevicePolicy, _ = types.ObjectValue(IotDevicePolicyValue{}.AttributeTypes(ctx), iotPolicyAttr)
 	}
 
 	rAttrValue := map[string]attr.Value{

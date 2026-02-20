@@ -245,6 +245,20 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, tName string, tracker 
 		if o.MistNac.EuOnly != nil {
 			checks.append(t, "TestCheckResourceAttr", "mist_nac.eu_only", fmt.Sprintf("%t", *o.MistNac.EuOnly))
 		}
+		if o.MistNac.Fingerprinting != nil {
+			if o.MistNac.Fingerprinting.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "mist_nac.fingerprinting.enabled", fmt.Sprintf("%t", *o.MistNac.Fingerprinting.Enabled))
+			}
+			if o.MistNac.Fingerprinting.GenerateCoa != nil {
+				checks.append(t, "TestCheckResourceAttr", "mist_nac.fingerprinting.generate_coa", fmt.Sprintf("%t", *o.MistNac.Fingerprinting.GenerateCoa))
+			}
+			if o.MistNac.Fingerprinting.GenerateWirelessCoa != nil {
+				checks.append(t, "TestCheckResourceAttr", "mist_nac.fingerprinting.generate_wireless_coa", fmt.Sprintf("%t", *o.MistNac.Fingerprinting.GenerateWirelessCoa))
+			}
+			if o.MistNac.Fingerprinting.WirelessCoaType != nil {
+				checks.append(t, "TestCheckResourceAttr", "mist_nac.fingerprinting.wireless_coa_type", *o.MistNac.Fingerprinting.WirelessCoaType)
+			}
+		}
 		if o.MistNac.IdpMachineCertLookupField != nil {
 			checks.append(t, "TestCheckResourceAttr", "mist_nac.idp_machine_cert_lookup_field", *o.MistNac.IdpMachineCertLookupField)
 		}
@@ -285,6 +299,9 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, tName string, tracker 
 		}
 		if o.MistNac.UseSslPort != nil {
 			checks.append(t, "TestCheckResourceAttr", "mist_nac.use_ssl_port", fmt.Sprintf("%t", *o.MistNac.UseSslPort))
+		}
+		if o.MistNac.UsermacExpiry != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.usermac_expiry", fmt.Sprintf("%d", *o.MistNac.UsermacExpiry))
 		}
 	}
 
@@ -352,6 +369,9 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, tName string, tracker 
 			if o.JuniperSrx.SrxAutoUpgrade.Snapshot != nil {
 				checks.append(t, "TestCheckResourceAttr", "juniper_srx.auto_upgrade.snapshot", fmt.Sprintf("%t", *o.JuniperSrx.SrxAutoUpgrade.Snapshot))
 			}
+			if o.JuniperSrx.SrxAutoUpgrade.Version != nil {
+				checks.append(t, "TestCheckResourceAttr", "juniper_srx.auto_upgrade.version", *o.JuniperSrx.SrxAutoUpgrade.Version)
+			}
 			if len(o.JuniperSrx.SrxAutoUpgrade.CustomVersions) > 0 {
 				checks.append(t, "TestCheckResourceAttr", "juniper_srx.auto_upgrade.custom_versions.%", fmt.Sprintf("%d", len(o.JuniperSrx.SrxAutoUpgrade.CustomVersions)))
 				for key, version := range o.JuniperSrx.SrxAutoUpgrade.CustomVersions {
@@ -406,6 +426,9 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, tName string, tracker 
 			if o.Ssr.SsrAutoUpgrade.Channel != nil {
 				checks.append(t, "TestCheckResourceAttr", "ssr.auto_upgrade.channel", *o.Ssr.SsrAutoUpgrade.Channel)
 			}
+			if o.Ssr.SsrAutoUpgrade.Version != nil {
+				checks.append(t, "TestCheckResourceAttr", "ssr.auto_upgrade.version", *o.Ssr.SsrAutoUpgrade.Version)
+			}
 			if len(o.Ssr.SsrAutoUpgrade.CustomVersions) > 0 {
 				checks.append(t, "TestCheckResourceAttr", "ssr.auto_upgrade.custom_versions.%", fmt.Sprintf("%d", len(o.Ssr.SsrAutoUpgrade.CustomVersions)))
 				for key, version := range o.Ssr.SsrAutoUpgrade.CustomVersions {
@@ -452,16 +475,6 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, tName string, tracker 
 		}
 	}
 
-	// Check Pcap nested object
-	if o.Pcap != nil {
-		if o.Pcap.Bucket != nil {
-			checks.append(t, "TestCheckResourceAttr", "pcap.bucket", *o.Pcap.Bucket)
-		}
-		if o.Pcap.MaxPktLen != nil {
-			checks.append(t, "TestCheckResourceAttr", "pcap.max_pkt_len", fmt.Sprintf("%d", *o.Pcap.MaxPktLen))
-		}
-	}
-
 	// Check Security nested object
 	if o.Security != nil {
 		if o.Security.DisableLocalSsh != nil {
@@ -498,20 +511,14 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, tName string, tracker 
 				if probe.Aggressiveness != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.aggressiveness", key), *probe.Aggressiveness)
 				}
-				if probe.Host != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.host", key), *probe.Host)
-				}
-				if probe.Port != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.port", key), fmt.Sprintf("%d", *probe.Port))
+				if probe.Target != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.target", key), *probe.Target)
 				}
 				if probe.Threshold != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.threshold", key), fmt.Sprintf("%d", *probe.Threshold))
 				}
 				if probe.CustomProbesType != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.type", key), *probe.CustomProbesType)
-				}
-				if probe.Url != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.url", key), *probe.Url)
 				}
 			}
 		}

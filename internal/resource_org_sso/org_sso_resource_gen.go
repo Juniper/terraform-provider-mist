@@ -93,6 +93,24 @@ func OrgSsoResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Default: stringdefault.StaticString("email"),
 			},
+			"oauth_provider_domain": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "If `oauth_type`==`okta`, specifies the region-specific OAuth provider domain. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`",
+				MarkdownDescription: "If `oauth_type`==`okta`, specifies the region-specific OAuth provider domain. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`",
+				Validators: []validator.String{
+					stringvalidator.OneOf(
+						"",
+						"okta.com",
+						"oktapreview.com",
+						"okta-emea.com",
+						"okta-gov.com",
+						"okta.mil",
+						"mtls.okta.com",
+					),
+				},
+				Default: stringdefault.StaticString("okta.com"),
+			},
 			"org_id": schema.StringAttribute{
 				Required: true,
 			},
@@ -123,6 +141,7 @@ type OrgSsoModel struct {
 	Issuer               types.String `tfsdk:"issuer"`
 	Name                 types.String `tfsdk:"name"`
 	NameidFormat         types.String `tfsdk:"nameid_format"`
+	OauthProviderDomain  types.String `tfsdk:"oauth_provider_domain"`
 	OrgId                types.String `tfsdk:"org_id"`
 	RoleAttrExtraction   types.String `tfsdk:"role_attr_extraction"`
 	RoleAttrFrom         types.String `tfsdk:"role_attr_from"`

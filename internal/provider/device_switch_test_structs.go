@@ -18,6 +18,7 @@ type DeviceSwitchModel struct {
 	LocalPortConfig       map[string]DeviceSwitchLocalPortConfigValue     `hcl:"local_port_config"`
 	Managed               *bool                                           `hcl:"managed"`
 	MapId                 *string                                         `hcl:"map_id"`
+	MistConfigured        *bool                                           `hcl:"mist_configured"`
 	MistNac               *DeviceSwitchMistNacValue                       `hcl:"mist_nac"`
 	Name                  string                                          `hcl:"name"`
 	Networks              map[string]DeviceSwitchNetworksValue            `hcl:"networks"`
@@ -382,11 +383,12 @@ type DeviceSwitchPortUsagesValue struct {
 }
 
 type DeviceSwitchRulesValue struct {
-	Equals     *string  `cty:"equals" hcl:"equals"`
-	EqualsAny  []string `cty:"equals_any" hcl:"equals_any"`
-	Expression *string  `cty:"expression" hcl:"expression"`
-	Src        string   `cty:"src" hcl:"src"`
-	Usage      *string  `cty:"usage" hcl:"usage"`
+	Description *string  `cty:"description" hcl:"description"`
+	Equals      *string  `cty:"equals" hcl:"equals"`
+	EqualsAny   []string `cty:"equals_any" hcl:"equals_any"`
+	Expression  *string  `cty:"expression" hcl:"expression"`
+	Src         string   `cty:"src" hcl:"src"`
+	Usage       *string  `cty:"usage" hcl:"usage"`
 }
 
 type DeviceSwitchRadiusConfigValue struct {

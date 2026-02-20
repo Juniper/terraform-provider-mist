@@ -540,6 +540,9 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, tName string, tracke
 	if s.MapId != nil {
 		checks.append(t, "TestCheckResourceAttr", "map_id", *s.MapId)
 	}
+	if s.MistConfigured != nil {
+		checks.append(t, "TestCheckResourceAttr", "mist_configured", fmt.Sprintf("%t", *s.MistConfigured))
+	}
 	if s.MistNac != nil {
 		checks.append(t, "TestCheckResourceAttrSet", "mist_nac")
 		// Check nested attributes of MistNac
@@ -750,6 +753,9 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, tName string, tracke
 				for i, network := range port.Networks {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.networks.%d", key, i), network)
 				}
+			}
+			if port.NoLocalOverwrite != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.no_local_overwrite", key), fmt.Sprintf("%t", *port.NoLocalOverwrite))
 			}
 			if port.PoeDisabled != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.poe_disabled", key), fmt.Sprintf("%t", *port.PoeDisabled))

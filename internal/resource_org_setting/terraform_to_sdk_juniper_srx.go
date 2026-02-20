@@ -35,6 +35,9 @@ func juniperSrxAutoUpgradeTerraformToSdk(ctx context.Context, diags *diag.Diagno
 			if item.Snapshot.ValueBoolPointer() != nil {
 				data.Snapshot = models.ToPointer(item.Snapshot.ValueBool())
 			}
+			if item.Version.ValueStringPointer() != nil {
+				data.Version = models.ToPointer(item.Version.ValueString())
+			}
 		}
 	}
 	return data

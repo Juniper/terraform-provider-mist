@@ -269,53 +269,53 @@ type OrgGatewaytemplatePathsValue struct {
 }
 
 type OrgGatewaytemplatePortConfigValue struct {
-	AeDisableLacp       *bool                                             `cty:"ae_disable_lacp" hcl:"ae_disable_lacp"`
-	AeIdx               *string                                           `cty:"ae_idx" hcl:"ae_idx"`
-	AeLacpForceUp       *bool                                             `cty:"ae_lacp_force_up" hcl:"ae_lacp_force_up"`
-	Aggregated          *bool                                             `cty:"aggregated" hcl:"aggregated"`
-	Critical            *bool                                             `cty:"critical" hcl:"critical"`
-	Description         *string                                           `cty:"description" hcl:"description"`
-	DisableAutoneg      *bool                                             `cty:"disable_autoneg" hcl:"disable_autoneg"`
-	Disabled            *bool                                             `cty:"disabled" hcl:"disabled"`
-	DslType             *string                                           `cty:"dsl_type" hcl:"dsl_type"`
-	DslVci              *int64                                            `cty:"dsl_vci" hcl:"dsl_vci"`
-	DslVpi              *int64                                            `cty:"dsl_vpi" hcl:"dsl_vpi"`
-	Duplex              *string                                           `cty:"duplex" hcl:"duplex"`
-	LteApn              *string                                           `cty:"lte_apn" hcl:"lte_apn"`
-	LteAuth             *string                                           `cty:"lte_auth" hcl:"lte_auth"`
-	LteBackup           *bool                                             `cty:"lte_backup" hcl:"lte_backup"`
-	LtePassword         *string                                           `cty:"lte_password" hcl:"lte_password"`
-	LteUsername         *string                                           `cty:"lte_username" hcl:"lte_username"`
-	Mtu                 *int64                                            `cty:"mtu" hcl:"mtu"`
-	Name                *string                                           `cty:"name" hcl:"name"`
-	Networks            []string                                          `cty:"networks" hcl:"networks"`
-	OuterVlanId         *int64                                            `cty:"outer_vlan_id" hcl:"outer_vlan_id"`
-	PoeDisabled         *bool                                             `cty:"poe_disabled" hcl:"poe_disabled"`
-	PortIpConfig        *OrgGatewaytemplatePortIpConfigValue              `cty:"ip_config" hcl:"ip_config"`
-	PortNetwork         *string                                           `cty:"port_network" hcl:"port_network"`
-	PreserveDscp        *bool                                             `cty:"preserve_dscp" hcl:"preserve_dscp"`
-	Redundant           *bool                                             `cty:"redundant" hcl:"redundant"`
-	RedundantGroup      *int64                                            `cty:"redundant_group" hcl:"redundant_group"`
-	RethIdx             *string                                           `cty:"reth_idx" hcl:"reth_idx"`
-	RethNode            *string                                           `cty:"reth_node" hcl:"reth_node"`
-	RethNodes           []string                                          `cty:"reth_nodes" hcl:"reth_nodes"`
-	Speed               *string                                           `cty:"speed" hcl:"speed"`
-	SsrNoVirtualMac     *bool                                             `cty:"ssr_no_virtual_mac" hcl:"ssr_no_virtual_mac"`
-	SvrPortRange        *string                                           `cty:"svr_port_range" hcl:"svr_port_range"`
-	TrafficShaping      *OrgGatewaytemplateTrafficShapingValue            `cty:"traffic_shaping" hcl:"traffic_shaping"`
-	Usage               string                                            `cty:"usage" hcl:"usage"`
-	VlanId              *string                                           `cty:"vlan_id" hcl:"vlan_id"`
-	VpnPaths            map[string]OrgGatewaytemplateVpnPathsValue        `cty:"vpn_paths" hcl:"vpn_paths"`
-	WanArpPolicer       *string                                           `cty:"wan_arp_policer" hcl:"wan_arp_policer"`
-	WanDisableSpeedtest *bool                                             `cty:"wan_disable_speedtest" hcl:"wan_disable_speedtest"`
-	WanExtIp            *string                                           `cty:"wan_ext_ip" hcl:"wan_ext_ip"`
-	WanExtIp6           *string                                           `cty:"wan_ext_ip6" hcl:"wan_ext_ip6"`
-	WanExtraRoutes      map[string]OrgGatewaytemplateWanExtraRoutesValue  `cty:"wan_extra_routes" hcl:"wan_extra_routes"`
-	WanExtraRoutes6     map[string]OrgGatewaytemplateWanExtraRoutes6Value `cty:"wan_extra_routes6" hcl:"wan_extra_routes6"`
-	WanNetworks         []string                                          `cty:"wan_networks" hcl:"wan_networks"`
-	WanProbeOverride    *OrgGatewaytemplateWanProbeOverrideValue          `cty:"wan_probe_override" hcl:"wan_probe_override"`
-	WanSourceNat        *OrgGatewaytemplateWanSourceNatValue              `cty:"wan_source_nat" hcl:"wan_source_nat"`
-	WanType             *string                                           `cty:"wan_type" hcl:"wan_type"`
+	AeDisableLacp    *bool                                             `cty:"ae_disable_lacp" hcl:"ae_disable_lacp"`
+	AeIdx            *string                                           `cty:"ae_idx" hcl:"ae_idx"`
+	AeLacpForceUp    *bool                                             `cty:"ae_lacp_force_up" hcl:"ae_lacp_force_up"`
+	Aggregated       *bool                                             `cty:"aggregated" hcl:"aggregated"`
+	Critical         *bool                                             `cty:"critical" hcl:"critical"`
+	Description      *string                                           `cty:"description" hcl:"description"`
+	DisableAutoneg   *bool                                             `cty:"disable_autoneg" hcl:"disable_autoneg"`
+	Disabled         *bool                                             `cty:"disabled" hcl:"disabled"`
+	DslType          *string                                           `cty:"dsl_type" hcl:"dsl_type"`
+	DslVci           *int64                                            `cty:"dsl_vci" hcl:"dsl_vci"`
+	DslVpi           *int64                                            `cty:"dsl_vpi" hcl:"dsl_vpi"`
+	Duplex           *string                                           `cty:"duplex" hcl:"duplex"`
+	LteApn           *string                                           `cty:"lte_apn" hcl:"lte_apn"`
+	LteAuth          *string                                           `cty:"lte_auth" hcl:"lte_auth"`
+	LteBackup        *bool                                             `cty:"lte_backup" hcl:"lte_backup"`
+	LtePassword      *string                                           `cty:"lte_password" hcl:"lte_password"`
+	LteUsername      *string                                           `cty:"lte_username" hcl:"lte_username"`
+	Mtu              *int64                                            `cty:"mtu" hcl:"mtu"`
+	Name             *string                                           `cty:"name" hcl:"name"`
+	Networks         []string                                          `cty:"networks" hcl:"networks"`
+	OuterVlanId      *int64                                            `cty:"outer_vlan_id" hcl:"outer_vlan_id"`
+	PoeDisabled      *bool                                             `cty:"poe_disabled" hcl:"poe_disabled"`
+	PortIpConfig     *OrgGatewaytemplatePortIpConfigValue              `cty:"ip_config" hcl:"ip_config"`
+	PortNetwork      *string                                           `cty:"port_network" hcl:"port_network"`
+	PreserveDscp     *bool                                             `cty:"preserve_dscp" hcl:"preserve_dscp"`
+	Redundant        *bool                                             `cty:"redundant" hcl:"redundant"`
+	RedundantGroup   *int64                                            `cty:"redundant_group" hcl:"redundant_group"`
+	RethIdx          *string                                           `cty:"reth_idx" hcl:"reth_idx"`
+	RethNode         *string                                           `cty:"reth_node" hcl:"reth_node"`
+	RethNodes        []string                                          `cty:"reth_nodes" hcl:"reth_nodes"`
+	Speed            *string                                           `cty:"speed" hcl:"speed"`
+	SsrNoVirtualMac  *bool                                             `cty:"ssr_no_virtual_mac" hcl:"ssr_no_virtual_mac"`
+	SvrPortRange     *string                                           `cty:"svr_port_range" hcl:"svr_port_range"`
+	TrafficShaping   *OrgGatewaytemplateTrafficShapingValue            `cty:"traffic_shaping" hcl:"traffic_shaping"`
+	Usage            string                                            `cty:"usage" hcl:"usage"`
+	VlanId           *string                                           `cty:"vlan_id" hcl:"vlan_id"`
+	VpnPaths         map[string]OrgGatewaytemplateVpnPathsValue        `cty:"vpn_paths" hcl:"vpn_paths"`
+	WanArpPolicer    *string                                           `cty:"wan_arp_policer" hcl:"wan_arp_policer"`
+	WanExtIp         *string                                           `cty:"wan_ext_ip" hcl:"wan_ext_ip"`
+	WanExtIp6        *string                                           `cty:"wan_ext_ip6" hcl:"wan_ext_ip6"`
+	WanExtraRoutes   map[string]OrgGatewaytemplateWanExtraRoutesValue  `cty:"wan_extra_routes" hcl:"wan_extra_routes"`
+	WanExtraRoutes6  map[string]OrgGatewaytemplateWanExtraRoutes6Value `cty:"wan_extra_routes6" hcl:"wan_extra_routes6"`
+	WanNetworks      []string                                          `cty:"wan_networks" hcl:"wan_networks"`
+	WanProbeOverride *OrgGatewaytemplateWanProbeOverrideValue          `cty:"wan_probe_override" hcl:"wan_probe_override"`
+	WanSourceNat     *OrgGatewaytemplateWanSourceNatValue              `cty:"wan_source_nat" hcl:"wan_source_nat"`
+	WanSpeedtestMode *string                                           `cty:"wan_speedtest_mode" hcl:"wan_speedtest_mode"`
+	WanType          *string                                           `cty:"wan_type" hcl:"wan_type"`
 }
 
 type OrgGatewaytemplatePortIpConfigValue struct {
@@ -455,10 +455,29 @@ type OrgGatewaytemplateIdpValue struct {
 }
 
 type OrgGatewaytemplateSkyatpValue struct {
-	DnsDgaDetection    *string `cty:"dns_dga_detection" hcl:"dns_dga_detection"`
-	DnsTunnelDetection *string `cty:"dns_tunnel_detection" hcl:"dns_tunnel_detection"`
-	HttpInspection     *string `cty:"http_inspection" hcl:"http_inspection"`
-	IotDevicePolicy    *string `cty:"iot_device_policy" hcl:"iot_device_policy"`
+	DnsDgaDetection    *OrgGatewaytemplateDnsDgaDetectionValue    `cty:"dns_dga_detection" hcl:"dns_dga_detection"`
+	DnsTunnelDetection *OrgGatewaytemplateDnsTunnelDetectionValue `cty:"dns_tunnel_detection" hcl:"dns_tunnel_detection"`
+	HttpInspection     *OrgGatewaytemplateHttpInspectionValue     `cty:"http_inspection" hcl:"http_inspection"`
+	IotDevicePolicy    *OrgGatewaytemplateIotDevicePolicyValue    `cty:"iot_device_policy" hcl:"iot_device_policy"`
+}
+
+type OrgGatewaytemplateDnsDgaDetectionValue struct {
+	Enabled *bool   `cty:"enabled" hcl:"enabled"`
+	Profile *string `cty:"profile" hcl:"profile"`
+}
+
+type OrgGatewaytemplateDnsTunnelDetectionValue struct {
+	Enabled *bool   `cty:"enabled" hcl:"enabled"`
+	Profile *string `cty:"profile" hcl:"profile"`
+}
+
+type OrgGatewaytemplateHttpInspectionValue struct {
+	Enabled *bool   `cty:"enabled" hcl:"enabled"`
+	Profile *string `cty:"profile" hcl:"profile"`
+}
+
+type OrgGatewaytemplateIotDevicePolicyValue struct {
+	Enabled *bool `cty:"enabled" hcl:"enabled"`
 }
 
 type OrgGatewaytemplateSslProxyValue struct {

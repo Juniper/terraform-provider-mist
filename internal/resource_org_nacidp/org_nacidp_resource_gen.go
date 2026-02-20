@@ -208,6 +208,24 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Default: stringdefault.StaticString("us"),
 			},
+			"oauth_provider_domain": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "If `oauth_type`==`okta`, specifies the region-specific OAuth provider domain. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`",
+				MarkdownDescription: "If `oauth_type`==`okta`, specifies the region-specific OAuth provider domain. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`",
+				Validators: []validator.String{
+					stringvalidator.OneOf(
+						"",
+						"okta.com",
+						"oktapreview.com",
+						"okta-emea.com",
+						"okta-gov.com",
+						"okta.mil",
+						"mtls.okta.com",
+					),
+				},
+				Default: stringdefault.StaticString("okta.com"),
+			},
 			"oauth_ropc_client_id": schema.StringAttribute{
 				Optional:            true,
 				Description:         "If `idp_type`==`oauth`, ropc = Resource Owner Password Credentials",
@@ -299,6 +317,7 @@ type OrgNacidpModel struct {
 	OauthCcClientSecret     types.String `tfsdk:"oauth_cc_client_secret"`
 	OauthDiscoveryUrl       types.String `tfsdk:"oauth_discovery_url"`
 	OauthPingIdentityRegion types.String `tfsdk:"oauth_ping_identity_region"`
+	OauthProviderDomain     types.String `tfsdk:"oauth_provider_domain"`
 	OauthRopcClientId       types.String `tfsdk:"oauth_ropc_client_id"`
 	OauthRopcClientSecret   types.String `tfsdk:"oauth_ropc_client_secret"`
 	OauthTenantId           types.String `tfsdk:"oauth_tenant_id"`
