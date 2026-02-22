@@ -14,522 +14,515 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l *[]models.Wlan, elements *[]attr.Value) diag.Diagnostics {
+func SdkToTerraform(ctx context.Context, data *[]models.Wlan, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
-
-	for _, d := range *l {
-		elem := wlanSdkToTerraform(ctx, &diags, &d)
-		*elements = append(*elements, elem)
+	for _, val := range *data {
+		item := wlanSdkToTerraform(ctx, &diags, &val)
+		*elements = append(*elements, item)
 	}
 
 	return diags
 }
 
-func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Wlan) SiteWlansValue {
+func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.Wlan) SiteWlansValue {
+	if data == nil {
+		return NewSiteWlansValueNull()
+	}
 
 	var acctImmediateUpdate = types.BoolValue(false)
+	if data.AcctImmediateUpdate != nil {
+		acctImmediateUpdate = types.BoolValue(*data.AcctImmediateUpdate)
+	}
+
 	var acctInterimInterval basetypes.Int64Value
-	var acctServers = types.ListValueMust(AcctServersValue{}.Type(ctx), []attr.Value{})
+	if data.AcctInterimInterval != nil {
+		acctInterimInterval = types.Int64Value(int64(*data.AcctInterimInterval))
+	}
+
+	var acctServers = types.ListValueMust(AcctServersValue{}.Type(ctx), make([]attr.Value, 0))
+	if len(data.AcctServers) > 0 {
+		acctServers = radiusServersAcctSdkToTerraform(ctx, diags, data.AcctServers)
+	}
+
 	var airwatch = types.ObjectNull(AirwatchValue{}.AttributeTypes(ctx))
+	if data.Airwatch != nil {
+		airwatch = airwatchSdkToTerraform(ctx, diags, data.Airwatch)
+	}
+
 	var allowIpv6Ndp = types.BoolValue(true)
+	if data.AllowIpv6Ndp != nil {
+		allowIpv6Ndp = types.BoolValue(*data.AllowIpv6Ndp)
+	}
+
 	var allowMdns = types.BoolValue(false)
+	if data.AllowMdns != nil {
+		allowMdns = types.BoolValue(*data.AllowMdns)
+	}
+
 	var allowSsdp = types.BoolValue(false)
+	if data.AllowSsdp != nil {
+		allowSsdp = types.BoolValue(*data.AllowSsdp)
+	}
+
 	var apIds = types.ListNull(types.StringType)
+	if data.ApIds.IsValueSet() && data.ApIds.Value() != nil && len(*data.ApIds.Value()) > 0 {
+		apIds = mistutils.ListOfUuidSdkToTerraform(*data.ApIds.Value())
+	}
+
 	var appLimit = types.ObjectNull(AppLimitValue{}.AttributeTypes(ctx))
+	if data.AppLimit != nil {
+		appLimit = appLimitSdkToTerraform(ctx, diags, data.AppLimit)
+	}
+
 	var appQos = types.ObjectNull(AppQosValue{}.AttributeTypes(ctx))
+	if data.AppQos != nil {
+		appQos = appQosSdkToTerraform(ctx, diags, *data.AppQos)
+	}
+
 	var applyTo basetypes.StringValue
+	if data.ApplyTo != nil {
+		applyTo = types.StringValue(string(*data.ApplyTo))
+	}
+
 	var arpFilter basetypes.BoolValue
+	if data.ArpFilter != nil {
+		arpFilter = types.BoolValue(*data.ArpFilter)
+	}
+
 	var auth = types.ObjectNull(AuthValue{}.AttributeTypes(ctx))
+	if data.Auth != nil {
+		auth = authSdkToTerraform(ctx, diags, data.Auth)
+	}
+
 	var authServerSelection basetypes.StringValue
-	var authServers = types.ListValueMust(AuthServersValue{}.Type(ctx), []attr.Value{})
+	if data.AuthServerSelection != nil {
+		authServerSelection = types.StringValue(string(*data.AuthServerSelection))
+	}
+
+	var authServers = types.ListValueMust(AuthServersValue{}.Type(ctx), make([]attr.Value, 0))
+	if len(data.AuthServers) > 0 {
+		authServers = radiusServersAuthSdkToTerraform(ctx, diags, data.AuthServers)
+	}
+
 	var authServersNasId basetypes.StringValue
+	if data.AuthServersNasId.IsValueSet() && data.AuthServersNasId.Value() != nil {
+		authServersNasId = types.StringValue(*data.AuthServersNasId.Value())
+	}
+
 	var authServersNasIp basetypes.StringValue
+	if data.AuthServersNasIp.IsValueSet() && data.AuthServersNasIp.Value() != nil {
+		authServersNasIp = types.StringValue(*data.AuthServersNasIp.Value())
+	}
+
 	var authServersRetries basetypes.Int64Value
+	if data.AuthServersRetries != nil {
+		authServersRetries = types.Int64Value(int64(*data.AuthServersRetries))
+	}
+
 	var authServersTimeout basetypes.Int64Value
+	if data.AuthServersTimeout != nil {
+		authServersTimeout = types.Int64Value(int64(*data.AuthServersTimeout))
+	}
+
 	var bandSteer basetypes.BoolValue
+	if data.BandSteer != nil {
+		bandSteer = types.BoolValue(*data.BandSteer)
+	}
+
 	var bandSteerForceBand5 basetypes.BoolValue
+	if data.BandSteerForceBand5 != nil {
+		bandSteerForceBand5 = types.BoolValue(*data.BandSteerForceBand5)
+	}
+
 	var bands = types.ListNull(types.StringType)
+	if data.Bands != nil {
+		bands = bandsSdkToTerraform(ctx, diags, data.Bands)
+	}
+
 	var blockBlacklistClients basetypes.BoolValue
+	if data.BlockBlacklistClients != nil {
+		blockBlacklistClients = types.BoolValue(*data.BlockBlacklistClients)
+	}
+
 	var bonjour = types.ObjectNull(BonjourValue{}.AttributeTypes(ctx))
+	if data.Bonjour != nil {
+		bonjour = bonjourSdkToTerraform(ctx, diags, data.Bonjour)
+	}
+
 	var ciscoCwa = types.ObjectNull(CiscoCwaValue{}.AttributeTypes(ctx))
+	if data.CiscoCwa != nil {
+		ciscoCwa = ciscoCwaSdkToTerraform(ctx, diags, data.CiscoCwa)
+	}
+
 	var clientLimitDown basetypes.StringValue
+	if data.ClientLimitDown != nil {
+		clientLimitDown = mistutils.WlanLimitAsString(data.ClientLimitDown)
+	}
+
 	var clientLimitDownEnabled basetypes.BoolValue
+	if data.ClientLimitDownEnabled != nil {
+		clientLimitDownEnabled = types.BoolValue(*data.ClientLimitDownEnabled)
+	}
+
 	var clientLimitUp basetypes.StringValue
+	if data.ClientLimitUp != nil {
+		clientLimitUp = mistutils.WlanLimitAsString(data.ClientLimitUp)
+	}
+
 	var clientLimitUpEnabled basetypes.BoolValue
+	if data.ClientLimitUpEnabled != nil {
+		clientLimitUpEnabled = types.BoolValue(*data.ClientLimitUpEnabled)
+	}
+
+	var coaServers = types.ListValueMust(CoaServersValue{}.Type(ctx), make([]attr.Value, 0))
+	if len(data.CoaServers) > 0 {
+		coaServers = coaServersSdkToTerraform(ctx, diags, data.CoaServers)
+	}
+
 	var createdTime basetypes.Float64Value
-	var coaServers = types.ListValueMust(CoaServersValue{}.Type(ctx), []attr.Value{})
+	if data.CreatedTime != nil {
+		createdTime = types.Float64Value(*data.CreatedTime)
+	}
+
 	var disable11ax basetypes.BoolValue
+	if data.Disable11ax != nil {
+		disable11ax = types.BoolValue(*data.Disable11ax)
+	}
+
 	var disable11be basetypes.BoolValue
+	if data.Disable11be != nil {
+		disable11be = types.BoolValue(*data.Disable11be)
+	}
+
 	var disableHtVhtRates basetypes.BoolValue
+	if data.DisableHtVhtRates != nil {
+		disableHtVhtRates = types.BoolValue(*data.DisableHtVhtRates)
+	}
+
 	var disableUapsd basetypes.BoolValue
+	if data.DisableUapsd != nil {
+		disableUapsd = types.BoolValue(*data.DisableUapsd)
+	}
+
 	var disableV1RoamNotify basetypes.BoolValue
+	if data.DisableV1RoamNotify != nil {
+		disableV1RoamNotify = types.BoolValue(*data.DisableV1RoamNotify)
+	}
+
 	var disableV2RoamNotify basetypes.BoolValue
+	if data.DisableV2RoamNotify != nil {
+		disableV2RoamNotify = types.BoolValue(*data.DisableV2RoamNotify)
+	}
+
 	var disableWhenGatewayUnreachable basetypes.BoolValue
+	if data.DisableWhenGatewayUnreachable != nil {
+		disableWhenGatewayUnreachable = types.BoolValue(*data.DisableWhenGatewayUnreachable)
+	}
+
 	var disableWhenMxtunnelDown basetypes.BoolValue
+	if data.DisableWhenMxtunnelDown != nil {
+		disableWhenMxtunnelDown = types.BoolValue(*data.DisableWhenMxtunnelDown)
+	}
+
 	var disableWmm basetypes.BoolValue
+	if data.DisableWmm != nil {
+		disableWmm = types.BoolValue(*data.DisableWmm)
+	}
+
 	var dnsServerRewrite = types.ObjectNull(DnsServerRewriteValue{}.AttributeTypes(ctx))
+	if data.DnsServerRewrite.IsValueSet() && data.DnsServerRewrite.Value() != nil {
+		dnsServerRewrite = dnsServerRewriteSdkToTerraform(ctx, diags, data.DnsServerRewrite.Value())
+	}
+
 	var dtim basetypes.Int64Value
+	if data.Dtim != nil {
+		dtim = types.Int64Value(int64(*data.Dtim))
+	}
+
 	var dynamicPsk = types.ObjectNull(DynamicPskValue{}.AttributeTypes(ctx))
+	if data.DynamicPsk.IsValueSet() && data.DynamicPsk.Value() != nil {
+		dynamicPsk = dynamicPskSdkToTerraform(ctx, diags, data.DynamicPsk.Value())
+	}
+
 	var dynamicVlan = types.ObjectNull(DynamicVlanValue{}.AttributeTypes(ctx))
+	if data.DynamicVlan.IsValueSet() && data.DynamicVlan.Value() != nil {
+		dynamicVlan = dynamicVlanSdkToTerraform(ctx, diags, data.DynamicVlan.Value())
+	}
+
 	var enableLocalKeycaching basetypes.BoolValue
+	if data.EnableLocalKeycaching != nil {
+		enableLocalKeycaching = types.BoolValue(*data.EnableLocalKeycaching)
+	}
+
 	var enableWirelessBridging basetypes.BoolValue
+	if data.EnableWirelessBridging != nil {
+		enableWirelessBridging = types.BoolValue(*data.EnableWirelessBridging)
+	}
+
 	var enableWirelessBridgingDhcpTracking basetypes.BoolValue
+	if data.EnableWirelessBridgingDhcpTracking != nil {
+		enableWirelessBridgingDhcpTracking = types.BoolValue(*data.EnableWirelessBridgingDhcpTracking)
+	}
+
 	var enabled basetypes.BoolValue
+	if data.Enabled != nil {
+		enabled = types.BoolValue(*data.Enabled)
+	}
+
 	var fastDot1xTimers basetypes.BoolValue
+	if data.FastDot1xTimers != nil {
+		fastDot1xTimers = types.BoolValue(*data.FastDot1xTimers)
+	}
+
 	var hideSsid basetypes.BoolValue
+	if data.HideSsid != nil {
+		hideSsid = types.BoolValue(*data.HideSsid)
+	}
+
 	var hostnameIe basetypes.BoolValue
+	if data.HostnameIe != nil {
+		hostnameIe = types.BoolValue(*data.HostnameIe)
+	}
+
 	var hotspot20 = types.ObjectNull(Hotspot20Value{}.AttributeTypes(ctx))
+	if data.Hotspot20 != nil {
+		hotspot20 = hotspot20SdkToTerraform(ctx, diags, data.Hotspot20)
+	}
+
 	var id basetypes.StringValue
+	if data.Id != nil {
+		id = types.StringValue(data.Id.String())
+	}
+
 	var injectDhcpOption82 = types.ObjectNull(InjectDhcpOption82Value{}.AttributeTypes(ctx))
+	if data.InjectDhcpOption82 != nil {
+		injectDhcpOption82 = injectDhcpOption82dkToTerraform(ctx, diags, data.InjectDhcpOption82)
+	}
+
 	var interfaceWlan basetypes.StringValue
+	if data.Interface != nil {
+		interfaceWlan = types.StringValue(string(*data.Interface))
+	}
+
 	var isolation basetypes.BoolValue
+	if data.Isolation != nil {
+		isolation = types.BoolValue(*data.Isolation)
+	}
+
 	var l2Isolation basetypes.BoolValue
+	if data.L2Isolation != nil {
+		l2Isolation = types.BoolValue(*data.L2Isolation)
+	}
+
 	var legacyOverds basetypes.BoolValue
+	if data.LegacyOverds != nil {
+		legacyOverds = types.BoolValue(*data.LegacyOverds)
+	}
+
 	var limitBcast basetypes.BoolValue
+	if data.LimitBcast != nil {
+		limitBcast = types.BoolValue(*data.LimitBcast)
+	}
+
 	var limitProbeResponse basetypes.BoolValue
+	if data.LimitProbeResponse != nil {
+		limitProbeResponse = types.BoolValue(*data.LimitProbeResponse)
+	}
+
 	var maxIdletime basetypes.Int64Value
+	if data.MaxIdletime != nil {
+		maxIdletime = types.Int64Value(int64(*data.MaxIdletime))
+	}
+
 	var maxNumClients basetypes.Int64Value
+	if data.MaxNumClients != nil {
+		maxNumClients = types.Int64Value(int64(*data.MaxNumClients))
+	}
+
 	var mistNac = types.ObjectNull(MistNacValue{}.AttributeTypes(ctx))
+	if data.MistNac != nil {
+		mistNac = mistNacSkToTerraform(ctx, diags, data.MistNac)
+	}
+
 	var modifiedTime basetypes.Float64Value
+	if data.ModifiedTime != nil {
+		modifiedTime = types.Float64Value(*data.ModifiedTime)
+	}
+
 	var mspId = types.StringValue("")
+	if data.MspId != nil {
+		mspId = types.StringValue(data.MspId.String())
+	}
+
 	var mxtunnelIds = types.ListNull(types.StringType)
+	if len(data.MxtunnelIds) > 0 {
+		mxtunnelIds = mistutils.ListOfStringSdkToTerraform(data.MxtunnelIds)
+	}
+
 	var mxtunnelName = types.ListNull(types.StringType)
+	if len(data.MxtunnelName) > 0 {
+		mxtunnelName = mistutils.ListOfStringSdkToTerraform(data.MxtunnelName)
+	}
+
 	var noStaticDns basetypes.BoolValue
+	if data.NoStaticDns != nil {
+		noStaticDns = types.BoolValue(*data.NoStaticDns)
+	}
+
 	var noStaticIp basetypes.BoolValue
+	if data.NoStaticIp != nil {
+		noStaticIp = types.BoolValue(*data.NoStaticIp)
+	}
+
 	var orgId basetypes.StringValue
+	if data.OrgId != nil {
+		orgId = types.StringValue(data.OrgId.String())
+	}
+
 	var portal = types.ObjectNull(PortalValue{}.AttributeTypes(ctx))
+	if data.Portal != nil {
+		portal = portalSkToTerraform(ctx, diags, data.Portal)
+	}
+
 	var portalAllowedHostnames = mistutils.ListOfStringSdkToTerraformEmpty()
+	if data.PortalAllowedHostnames != nil {
+		portalAllowedHostnames = mistutils.ListOfStringSdkToTerraform(data.PortalAllowedHostnames)
+	}
+
 	var portalAllowedSubnets = mistutils.ListOfStringSdkToTerraformEmpty()
+	if data.PortalAllowedSubnets != nil {
+		portalAllowedSubnets = mistutils.ListOfStringSdkToTerraform(data.PortalAllowedSubnets)
+	}
+
 	var portalApiSecret = types.StringValue("")
+	if data.PortalApiSecret.IsValueSet() && data.PortalApiSecret.Value() != nil {
+		portalApiSecret = types.StringValue(*data.PortalApiSecret.Value())
+	}
+
 	var portalDeniedHostnames = mistutils.ListOfStringSdkToTerraformEmpty()
+	if data.PortalDeniedHostnames != nil {
+		portalDeniedHostnames = mistutils.ListOfStringSdkToTerraform(data.PortalDeniedHostnames)
+	}
+
 	var portalImage = types.StringValue("not_present")
-	var portalSsoUrl = types.StringValue("")
-	var qos = types.ObjectNull(QosValue{}.AttributeTypes(ctx))
-	var radsec = types.ObjectNull(RadsecValue{}.AttributeTypes(ctx))
-	var rateset = types.MapNull(RatesetValue{}.Type(ctx))
-	var reconnectClientsWhenRoamingMxcluster basetypes.BoolValue
-	var roamMode basetypes.StringValue
-	var schedule = types.ObjectNull(ScheduleValue{}.AttributeTypes(ctx))
-	var siteId = types.StringValue("")
-	var sleExcluded basetypes.BoolValue
-	var ssid basetypes.StringValue
-	var useEapolV1 basetypes.BoolValue
-	var vlanEnabled basetypes.BoolValue
-	var vlanId basetypes.StringValue
-	var vlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
-	var vlanPooling basetypes.BoolValue
-	var wlanLimitDown basetypes.StringValue
-	var wlanLimitDownEnabled basetypes.BoolValue
-	var wlanLimitUp basetypes.StringValue
-	var wlanLimitUpEnabled basetypes.BoolValue
-	var wxtagIds = mistutils.ListOfUuidSdkToTerraformEmpty()
-	var wxtunnelId = types.StringValue("")
-	var wxtunnelRemoteId = types.StringValue("")
-
-	if d.AcctImmediateUpdate != nil {
-		acctImmediateUpdate = types.BoolValue(*d.AcctImmediateUpdate)
-	}
-
-	if d.AcctInterimInterval != nil {
-		acctInterimInterval = types.Int64Value(int64(*d.AcctInterimInterval))
-	}
-
-	if len(d.AcctServers) > 0 {
-		acctServers = radiusServersAcctSdkToTerraform(ctx, diags, d.AcctServers)
-	} else {
-		types.ListValueMust(AcctServersValue{}.Type(ctx), make([]attr.Value, 0))
-	}
-
-	if d.Airwatch != nil {
-		airwatch = airwatchSdkToTerraform(ctx, diags, d.Airwatch)
-	}
-
-	if d.AllowIpv6Ndp != nil {
-		allowIpv6Ndp = types.BoolValue(*d.AllowIpv6Ndp)
-	}
-
-	if d.AllowMdns != nil {
-		allowMdns = types.BoolValue(*d.AllowMdns)
-	}
-
-	if d.AllowSsdp != nil {
-		allowSsdp = types.BoolValue(*d.AllowSsdp)
-	}
-
-	if d.ApIds.Value() != nil && len(*d.ApIds.Value()) > 0 {
-		apIds = mistutils.ListOfUuidSdkToTerraform(*d.ApIds.Value())
-	}
-
-	if d.AppLimit != nil {
-		appLimit = appLimitSdkToTerraform(ctx, diags, d.AppLimit)
-	}
-
-	if d.AppQos != nil {
-		appQos = appQosSdkToTerraform(ctx, diags, *d.AppQos)
-	}
-
-	if d.ApplyTo != nil {
-		applyTo = types.StringValue(string(*d.ApplyTo))
-	}
-
-	if d.ArpFilter != nil {
-		arpFilter = types.BoolValue(*d.ArpFilter)
-	}
-
-	if d.Auth != nil {
-		auth = authSdkToTerraform(ctx, diags, d.Auth)
-	}
-
-	if d.AuthServerSelection != nil {
-		authServerSelection = types.StringValue(string(*d.AuthServerSelection))
-	}
-
-	if len(d.AuthServers) > 0 {
-		authServers = radiusServersAuthSdkToTerraform(ctx, diags, d.AuthServers)
-	} else {
-		authServers = types.ListValueMust(AuthServersValue{}.Type(ctx), make([]attr.Value, 0))
-	}
-
-	if d.AuthServersNasId.IsValueSet() && d.AuthServersNasId.Value() != nil {
-		authServersNasId = types.StringValue(*d.AuthServersNasId.Value())
-	}
-
-	if d.AuthServersNasIp.IsValueSet() && d.AuthServersNasIp.Value() != nil {
-		authServersNasIp = types.StringValue(*d.AuthServersNasIp.Value())
-	}
-
-	if d.AuthServersRetries != nil {
-		authServersRetries = types.Int64Value(int64(*d.AuthServersRetries))
-	}
-
-	if d.AuthServersTimeout != nil {
-		authServersTimeout = types.Int64Value(int64(*d.AuthServersTimeout))
-	}
-
-	if d.BandSteer != nil {
-		bandSteer = types.BoolValue(*d.BandSteer)
-	}
-
-	if d.BandSteerForceBand5 != nil {
-		bandSteerForceBand5 = types.BoolValue(*d.BandSteerForceBand5)
-	}
-
-	if d.Bands != nil {
-		bands = bandsSdkToTerraform(ctx, diags, d.Bands)
-	}
-
-	if d.BlockBlacklistClients != nil {
-		blockBlacklistClients = types.BoolValue(*d.BlockBlacklistClients)
-	}
-
-	if d.Bonjour != nil {
-		bonjour = bonjourSdkToTerraform(ctx, diags, d.Bonjour)
-	}
-
-	if d.CiscoCwa != nil {
-		ciscoCwa = ciscoCwaSdkToTerraform(ctx, diags, d.CiscoCwa)
-	}
-
-	if d.ClientLimitDown != nil {
-		clientLimitDown = mistutils.WlanLimitAsString(d.ClientLimitDown)
-	}
-
-	if d.ClientLimitDownEnabled != nil {
-		clientLimitDownEnabled = types.BoolValue(*d.ClientLimitDownEnabled)
-	}
-
-	if d.ClientLimitUp != nil {
-		clientLimitUp = mistutils.WlanLimitAsString(d.ClientLimitUp)
-	}
-
-	if d.ClientLimitUpEnabled != nil {
-		clientLimitUpEnabled = types.BoolValue(*d.ClientLimitUpEnabled)
-	}
-
-	if len(d.CoaServers) > 0 {
-		coaServers = coaServersSdkToTerraform(ctx, diags, d.CoaServers)
-	} else {
-		coaServers = types.ListValueMust(CoaServersValue{}.Type(ctx), make([]attr.Value, 0))
-	}
-
-	if d.CreatedTime != nil {
-		createdTime = types.Float64Value(*d.CreatedTime)
-	}
-
-	if d.Disable11ax != nil {
-		disable11ax = types.BoolValue(*d.Disable11ax)
-	}
-
-	if d.Disable11be != nil {
-		disable11be = types.BoolValue(*d.Disable11be)
-	}
-
-	if d.DisableHtVhtRates != nil {
-		disableHtVhtRates = types.BoolValue(*d.DisableHtVhtRates)
-	}
-
-	if d.DisableUapsd != nil {
-		disableUapsd = types.BoolValue(*d.DisableUapsd)
-	}
-
-	if d.DisableV1RoamNotify != nil {
-		disableV1RoamNotify = types.BoolValue(*d.DisableV1RoamNotify)
-	}
-
-	if d.DisableV2RoamNotify != nil {
-		disableV2RoamNotify = types.BoolValue(*d.DisableV2RoamNotify)
-	}
-
-	if d.DisableWhenGatewayUnreachable != nil {
-		disableWhenGatewayUnreachable = types.BoolValue(*d.DisableWhenGatewayUnreachable)
-	}
-
-	if d.DisableWhenMxtunnelDown != nil {
-		disableWhenMxtunnelDown = types.BoolValue(*d.DisableWhenMxtunnelDown)
-	}
-
-	if d.DisableWmm != nil {
-		disableWmm = types.BoolValue(*d.DisableWmm)
-	}
-
-	if d.DnsServerRewrite.IsValueSet() && d.DnsServerRewrite.Value() != nil {
-		dnsServerRewrite = dnsServerRewriteSdkToTerraform(ctx, diags, d.DnsServerRewrite.Value())
-	}
-
-	if d.Dtim != nil {
-		dtim = types.Int64Value(int64(*d.Dtim))
-	}
-
-	if d.DynamicPsk.IsValueSet() && d.DynamicPsk.Value() != nil {
-		dynamicPsk = dynamicPskSdkToTerraform(ctx, diags, d.DynamicPsk.Value())
-	}
-
-	if d.DynamicVlan.IsValueSet() && d.DynamicVlan.Value() != nil {
-		dynamicVlan = dynamicVlanSdkToTerraform(ctx, diags, d.DynamicVlan.Value())
-	}
-
-	if d.EnableLocalKeycaching != nil {
-		enableLocalKeycaching = types.BoolValue(*d.EnableLocalKeycaching)
-	}
-
-	if d.EnableWirelessBridging != nil {
-		enableWirelessBridging = types.BoolValue(*d.EnableWirelessBridging)
-	}
-
-	if d.EnableWirelessBridgingDhcpTracking != nil {
-		enableWirelessBridgingDhcpTracking = types.BoolValue(*d.EnableWirelessBridgingDhcpTracking)
-	}
-
-	if d.Enabled != nil {
-		enabled = types.BoolValue(*d.Enabled)
-	}
-
-	if d.FastDot1xTimers != nil {
-		fastDot1xTimers = types.BoolValue(*d.FastDot1xTimers)
-	}
-
-	if d.HideSsid != nil {
-		hideSsid = types.BoolValue(*d.HideSsid)
-	}
-
-	if d.HostnameIe != nil {
-		hostnameIe = types.BoolValue(*d.HostnameIe)
-	}
-
-	if d.Hotspot20 != nil {
-		hotspot20 = hotspot20SdkToTerraform(ctx, diags, d.Hotspot20)
-	}
-
-	if d.Id != nil {
-		id = types.StringValue(d.Id.String())
-	}
-
-	if d.InjectDhcpOption82 != nil {
-		injectDhcpOption82 = injectDhcpOption82dkToTerraform(ctx, diags, d.InjectDhcpOption82)
-	}
-
-	if d.Interface != nil {
-		interfaceWlan = types.StringValue(string(*d.Interface))
-	}
-
-	if d.Isolation != nil {
-		isolation = types.BoolValue(*d.Isolation)
-	}
-
-	if d.L2Isolation != nil {
-		l2Isolation = types.BoolValue(*d.L2Isolation)
-	}
-
-	if d.LegacyOverds != nil {
-		legacyOverds = types.BoolValue(*d.LegacyOverds)
-	}
-
-	if d.LimitBcast != nil {
-		limitBcast = types.BoolValue(*d.LimitBcast)
-	}
-
-	if d.LimitProbeResponse != nil {
-		limitProbeResponse = types.BoolValue(*d.LimitProbeResponse)
-	}
-
-	if d.MaxIdletime != nil {
-		maxIdletime = types.Int64Value(int64(*d.MaxIdletime))
-	}
-
-	if d.MaxNumClients != nil {
-		maxNumClients = types.Int64Value(int64(*d.MaxNumClients))
-	}
-
-	if d.MistNac != nil {
-		mistNac = mistNacSkToTerraform(ctx, diags, d.MistNac)
-	}
-
-	if d.ModifiedTime != nil {
-		modifiedTime = types.Float64Value(*d.ModifiedTime)
-	}
-
-	if d.MspId != nil {
-		mspId = types.StringValue(d.MspId.String())
-	}
-
-	if len(d.MxtunnelIds) > 0 {
-		mxtunnelIds = mistutils.ListOfStringSdkToTerraform(d.MxtunnelIds)
-	}
-
-	if len(d.MxtunnelName) > 0 {
-		mxtunnelName = mistutils.ListOfStringSdkToTerraform(d.MxtunnelName)
-	}
-
-	if d.NoStaticDns != nil {
-		noStaticDns = types.BoolValue(*d.NoStaticDns)
-	}
-
-	if d.NoStaticIp != nil {
-		noStaticIp = types.BoolValue(*d.NoStaticIp)
-	}
-
-	if d.OrgId != nil {
-		orgId = types.StringValue(d.OrgId.String())
-	}
-
-	if d.Portal != nil {
-		portal = portalSkToTerraform(ctx, diags, d.Portal)
-	}
-
-	if d.PortalAllowedHostnames != nil {
-		portalAllowedHostnames = mistutils.ListOfStringSdkToTerraform(d.PortalAllowedHostnames)
-	}
-	if d.PortalAllowedSubnets != nil {
-		portalAllowedSubnets = mistutils.ListOfStringSdkToTerraform(d.PortalAllowedSubnets)
-	}
-
-	if d.PortalApiSecret.IsValueSet() && d.PortalApiSecret.Value() != nil {
-		portalApiSecret = types.StringValue(*d.PortalApiSecret.Value())
-	}
-
-	if d.PortalDeniedHostnames != nil {
-		portalDeniedHostnames = mistutils.ListOfStringSdkToTerraform(d.PortalDeniedHostnames)
-	}
-
-	if d.PortalImage.IsValueSet() && d.PortalImage.Value() != nil {
+	if data.PortalImage.IsValueSet() && data.PortalImage.Value() != nil {
 		portalImage = types.StringValue("present")
 	}
 
-	if d.PortalSsoUrl.IsValueSet() && d.PortalSsoUrl.Value() != nil {
-		portalSsoUrl = types.StringValue(*d.PortalSsoUrl.Value())
+	var portalSsoUrl = types.StringValue("")
+	if data.PortalSsoUrl.IsValueSet() && data.PortalSsoUrl.Value() != nil {
+		portalSsoUrl = types.StringValue(*data.PortalSsoUrl.Value())
 	}
 
-	if d.Qos != nil {
-		qos = qosSkToTerraform(ctx, diags, d.Qos)
+	var qos = types.ObjectNull(QosValue{}.AttributeTypes(ctx))
+	if data.Qos != nil {
+		qos = qosSkToTerraform(ctx, diags, data.Qos)
 	}
 
-	if d.Radsec != nil {
-		radsec = radsecSkToTerraform(ctx, diags, d.Radsec)
+	var radsec = types.ObjectNull(RadsecValue{}.AttributeTypes(ctx))
+	if data.Radsec != nil {
+		radsec = radsecSkToTerraform(ctx, diags, data.Radsec)
 	}
 
-	if d.Rateset != nil {
-		rateset = ratesetSkToTerraform(ctx, diags, d.Rateset)
+	var rateset = types.MapNull(RatesetValue{}.Type(ctx))
+	if data.Rateset != nil {
+		rateset = ratesetSkToTerraform(ctx, diags, data.Rateset)
 	}
 
-	if d.ReconnectClientsWhenRoamingMxcluster != nil {
-		reconnectClientsWhenRoamingMxcluster = types.BoolValue(*d.ReconnectClientsWhenRoamingMxcluster)
+	var reconnectClientsWhenRoamingMxcluster basetypes.BoolValue
+	if data.ReconnectClientsWhenRoamingMxcluster != nil {
+		reconnectClientsWhenRoamingMxcluster = types.BoolValue(*data.ReconnectClientsWhenRoamingMxcluster)
 	}
 
-	if d.RoamMode != nil {
-		if strings.ToUpper(string(*d.RoamMode)) == "11R" {
+	var roamMode basetypes.StringValue
+	if data.RoamMode != nil {
+		switch strings.ToLower(string(*data.RoamMode)) {
+		case "none", "okc":
+			roamMode = types.StringValue(strings.ToUpper(string(*data.RoamMode)))
+		case "11r":
 			roamMode = types.StringValue("11r")
-		} else if strings.ToUpper(string(*d.RoamMode)) == "NONE" {
-			roamMode = types.StringValue("NONE")
-		} else if strings.ToUpper(string(*d.RoamMode)) == "OKC" {
-			roamMode = types.StringValue("OKC")
-		} else {
-			roamMode = types.StringValue(string(*d.RoamMode))
+		default:
+			roamMode = types.StringValue(string(*data.RoamMode))
 		}
 	}
 
-	if d.Schedule != nil {
-		schedule = scheduleSkToTerraform(ctx, diags, d.Schedule)
+	var schedule = types.ObjectNull(ScheduleValue{}.AttributeTypes(ctx))
+	if data.Schedule != nil {
+		schedule = scheduleSkToTerraform(ctx, diags, data.Schedule)
 	}
 
-	if d.SiteId != nil {
-		siteId = types.StringValue(d.SiteId.String())
+	var siteId = types.StringValue("")
+	if data.SiteId != nil {
+		siteId = types.StringValue(data.SiteId.String())
 	}
 
-	if d.SleExcluded != nil {
-		sleExcluded = types.BoolValue(*d.SleExcluded)
+	var sleExcluded basetypes.BoolValue
+	if data.SleExcluded != nil {
+		sleExcluded = types.BoolValue(*data.SleExcluded)
 	}
 
-	ssid = types.StringValue(d.Ssid)
-
-	if d.UseEapolV1 != nil {
-		useEapolV1 = types.BoolValue(*d.UseEapolV1)
+	var useEapolV1 basetypes.BoolValue
+	if data.UseEapolV1 != nil {
+		useEapolV1 = types.BoolValue(*data.UseEapolV1)
 	}
 
-	if d.VlanEnabled != nil {
-		vlanEnabled = types.BoolValue(*d.VlanEnabled)
+	var vlanEnabled basetypes.BoolValue
+	if data.VlanEnabled != nil {
+		vlanEnabled = types.BoolValue(*data.VlanEnabled)
 	}
 
-	if d.VlanId.Value() != nil {
-		vlanId = mistutils.WlanVlanAsString(*d.VlanId.Value())
+	var vlanId basetypes.StringValue
+	if data.VlanId.IsValueSet() && data.VlanId.Value() != nil {
+		vlanId = mistutils.WlanVlanAsString(*data.VlanId.Value())
 	}
 
-	if d.VlanIds != nil {
-		vlanIds = mistutils.WlanVlanIdsAsArrayOfString(diags, d.VlanIds)
+	var vlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
+	if data.VlanIds != nil {
+		vlanIds = mistutils.WlanVlanIdsAsArrayOfString(diags, data.VlanIds)
 	}
 
-	if d.VlanPooling != nil {
-		vlanPooling = types.BoolValue(*d.VlanPooling)
+	var vlanPooling basetypes.BoolValue
+	if data.VlanPooling != nil {
+		vlanPooling = types.BoolValue(*data.VlanPooling)
 	}
 
-	if d.WlanLimitDown != nil {
-		wlanLimitDown = mistutils.WlanLimitAsString(d.WlanLimitDown)
+	var wlanLimitDown basetypes.StringValue
+	if data.WlanLimitDown != nil {
+		wlanLimitDown = mistutils.WlanLimitAsString(data.WlanLimitDown)
 	}
 
-	if d.WlanLimitDownEnabled != nil {
-		wlanLimitDownEnabled = types.BoolValue(*d.WlanLimitDownEnabled)
+	var wlanLimitDownEnabled basetypes.BoolValue
+	if data.WlanLimitDownEnabled != nil {
+		wlanLimitDownEnabled = types.BoolValue(*data.WlanLimitDownEnabled)
 	}
 
-	if d.WlanLimitUp != nil {
-		wlanLimitUp = mistutils.WlanLimitAsString(d.WlanLimitUp)
+	var wlanLimitUp basetypes.StringValue
+	if data.WlanLimitUp != nil {
+		wlanLimitUp = mistutils.WlanLimitAsString(data.WlanLimitUp)
 	}
 
-	if d.WlanLimitUpEnabled != nil {
-		wlanLimitUpEnabled = types.BoolValue(*d.WlanLimitUpEnabled)
+	var wlanLimitUpEnabled basetypes.BoolValue
+	if data.WlanLimitUpEnabled != nil {
+		wlanLimitUpEnabled = types.BoolValue(*data.WlanLimitUpEnabled)
 	}
 
-	if d.WxtagIds.IsValueSet() && d.WxtagIds.Value() != nil {
-		wxtagIds = mistutils.ListOfUuidSdkToTerraform(*d.WxtagIds.Value())
+	var wxtagIds = mistutils.ListOfUuidSdkToTerraformEmpty()
+	if data.WxtagIds.IsValueSet() && data.WxtagIds.Value() != nil {
+		wxtagIds = mistutils.ListOfUuidSdkToTerraform(*data.WxtagIds.Value())
 	}
 
-	if d.WxtunnelId.IsValueSet() && d.WxtunnelId.Value() != nil {
-		wxtunnelId = types.StringValue(*d.WxtunnelId.Value())
+	var wxtunnelId = types.StringValue("")
+	if data.WxtunnelId.IsValueSet() && data.WxtunnelId.Value() != nil {
+		wxtunnelId = types.StringValue(*data.WxtunnelId.Value())
 	}
 
-	if d.WxtunnelRemoteId.IsValueSet() && d.WxtunnelRemoteId.Value() != nil {
-		wxtunnelRemoteId = types.StringValue(*d.WxtunnelRemoteId.Value())
+	var wxtunnelRemoteId = types.StringValue("")
+	if data.WxtunnelRemoteId.IsValueSet() && data.WxtunnelRemoteId.Value() != nil {
+		wxtunnelRemoteId = types.StringValue(*data.WxtunnelRemoteId.Value())
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"ssid":                                   types.StringValue(data.Ssid),
 		"acct_immediate_update":                  acctImmediateUpdate,
 		"acct_interim_interval":                  acctInterimInterval,
 		"acct_servers":                           acctServers,
@@ -610,28 +603,27 @@ func wlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 		"qos":                                    qos,
 		"radsec":                                 radsec,
 		"rateset":                                rateset,
+		"roam_mode":                              roamMode,
+		"schedule":                               schedule,
+		"site_id":                                siteId,
+		"sle_excluded":                           sleExcluded,
+		"use_eapol_v1":                           useEapolV1,
+		"vlan_enabled":                           vlanEnabled,
+		"vlan_id":                                vlanId,
+		"vlan_ids":                               vlanIds,
+		"vlan_pooling":                           vlanPooling,
+		"wlan_limit_down":                        wlanLimitDown,
+		"wlan_limit_down_enabled":                wlanLimitDownEnabled,
+		"wlan_limit_up":                          wlanLimitUp,
+		"wlan_limit_up_enabled":                  wlanLimitUpEnabled,
+		"wxtag_ids":                              wxtagIds,
+		"wxtunnel_id":                            wxtunnelId,
+		"wxtunnel_remote_id":                     wxtunnelRemoteId,
 		"reconnect_clients_when_roaming_mxcluster": reconnectClientsWhenRoamingMxcluster,
-		"roam_mode":               roamMode,
-		"schedule":                schedule,
-		"site_id":                 siteId,
-		"sle_excluded":            sleExcluded,
-		"ssid":                    ssid,
-		"use_eapol_v1":            useEapolV1,
-		"vlan_enabled":            vlanEnabled,
-		"vlan_id":                 vlanId,
-		"vlan_ids":                vlanIds,
-		"vlan_pooling":            vlanPooling,
-		"wlan_limit_down":         wlanLimitDown,
-		"wlan_limit_down_enabled": wlanLimitDownEnabled,
-		"wlan_limit_up":           wlanLimitUp,
-		"wlan_limit_up_enabled":   wlanLimitUpEnabled,
-		"wxtag_ids":               wxtagIds,
-		"wxtunnel_id":             wxtunnelId,
-		"wxtunnel_remote_id":      wxtunnelRemoteId,
 	}
 
-	data, e := NewSiteWlansValue(SiteWlansValue{}.AttributeTypes(ctx), dataMapValue)
-	diags.Append(e...)
+	result, err := NewSiteWlansValue(SiteWlansValue{}.AttributeTypes(ctx), dataMapValue)
+	diags.Append(err...)
 
-	return data
+	return result
 }

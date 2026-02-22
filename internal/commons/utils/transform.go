@@ -114,6 +114,7 @@ func ListOfUuidSdkToTerraform(data []uuid.UUID) basetypes.ListValue {
 	list, _ := types.ListValue(itemsType, items)
 	return list
 }
+
 func ListOfUuidSdkToTerraformEmpty() basetypes.ListValue {
 	var items []attr.Value
 	var itemsType attr.Type = basetypes.StringType{}

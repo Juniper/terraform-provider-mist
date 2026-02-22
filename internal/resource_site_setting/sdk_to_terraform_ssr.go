@@ -43,6 +43,7 @@ func ssrAutoUpgradeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	var channel basetypes.StringValue
 	var customVersions = types.MapNull(types.StringType)
 	var enabled basetypes.BoolValue
+	var version basetypes.StringValue
 
 	if d.Channel != nil {
 		channel = types.StringValue(string(*d.Channel))
@@ -59,11 +60,15 @@ func ssrAutoUpgradeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
+	if d.Version != nil {
+		version = types.StringValue(*d.Version)
+	}
 
 	dataMapValue := map[string]attr.Value{
 		"channel":         channel,
 		"custom_versions": customVersions,
 		"enabled":         enabled,
+		"version":         version,
 	}
 	data, e := NewSsrAutoUpgradeValue(SsrAutoUpgradeValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

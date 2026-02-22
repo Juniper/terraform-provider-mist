@@ -45,6 +45,36 @@ func mistNacIdpsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l [
 	return r
 }
 
+func mistNacFingerprintingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingMistNacFingerprinting) basetypes.ObjectValue {
+	var enabled basetypes.BoolValue
+	var generateCoa basetypes.BoolValue
+	var generateWirelessCoa basetypes.BoolValue
+	var wirelessCoaType basetypes.StringValue
+
+	if d.Enabled != nil {
+		enabled = types.BoolValue(*d.Enabled)
+	}
+	if d.GenerateCoa != nil {
+		generateCoa = types.BoolValue(*d.GenerateCoa)
+	}
+	if d.GenerateWirelessCoa != nil {
+		generateWirelessCoa = types.BoolValue(*d.GenerateWirelessCoa)
+	}
+	if d.WirelessCoaType != nil {
+		wirelessCoaType = types.StringValue(string(*d.WirelessCoaType))
+	}
+
+	dataMapValue := map[string]attr.Value{
+		"enabled":               enabled,
+		"generate_coa":          generateCoa,
+		"generate_wireless_coa": generateWirelessCoa,
+		"wireless_coa_type":     wirelessCoaType,
+	}
+	r, e := basetypes.NewObjectValue(FingerprintingValue{}.AttributeTypes(ctx), dataMapValue)
+	diags.Append(e...)
+	return r
+}
+
 func mistNacServerCertSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingMistNacServerCert) basetypes.ObjectValue {
 	var cert basetypes.StringValue
 	var key basetypes.StringValue
@@ -76,12 +106,14 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var disableRsaeAlgorithms basetypes.BoolValue
 	var eapSslSecurityLevel basetypes.Int64Value
 	var euOnly basetypes.BoolValue
+	var fingerprinting = types.ObjectNull(FingerprintingValue{}.AttributeTypes(ctx))
 	var idps = types.ListNull(IdpsValue{}.Type(ctx))
 	var idpMachineCertLookupField basetypes.StringValue
 	var idpUserCertLookupField basetypes.StringValue
 	var serverCert = types.ObjectNull(ServerCertValue{}.AttributeTypes(ctx))
 	var useIpVersion basetypes.StringValue
 	var useSslPort basetypes.BoolValue
+	var usermacExpiry basetypes.Int64Value
 
 	if d.Cacerts != nil {
 		cacerts = mistutils.ListOfStringSdkToTerraform(d.Cacerts)
@@ -97,6 +129,9 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	}
 	if d.EuOnly != nil {
 		euOnly = types.BoolValue(*d.EuOnly)
+	}
+	if d.Fingerprinting != nil {
+		fingerprinting = mistNacFingerprintingSdkToTerraform(ctx, diags, d.Fingerprinting)
 	}
 	if d.Idps != nil {
 		idps = mistNacIdpsSdkToTerraform(ctx, diags, d.Idps)
@@ -116,6 +151,9 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	if d.UseSslPort != nil {
 		useSslPort = types.BoolValue(*d.UseSslPort)
 	}
+	if d.UsermacExpiry != nil {
+		usermacExpiry = types.Int64Value(int64(*d.UsermacExpiry))
+	}
 
 	dataMapValue := map[string]attr.Value{
 		"cacerts":                       cacerts,
@@ -123,12 +161,14 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		"disable_rsae_algorithms":       disableRsaeAlgorithms,
 		"eap_ssl_security_level":        eapSslSecurityLevel,
 		"eu_only":                       euOnly,
+		"fingerprinting":                fingerprinting,
 		"idps":                          idps,
 		"idp_machine_cert_lookup_field": idpMachineCertLookupField,
 		"idp_user_cert_lookup_field":    idpUserCertLookupField,
 		"server_cert":                   serverCert,
 		"use_ip_version":                useIpVersion,
 		"use_ssl_port":                  useSslPort,
+		"usermac_expiry":                usermacExpiry,
 	}
 	data, e := NewMistNacValue(MistNacValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

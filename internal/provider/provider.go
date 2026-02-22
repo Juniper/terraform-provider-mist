@@ -541,7 +541,6 @@ func (p *mistProvider) Functions(_ context.Context) []func() function.Function {
 		NewSearchInventoryByMacFunction,
 		NewSearchInventoryBySerialFunction,
 		NewSearchVcByMemberClaimcodeFunction,
-		NewSearchVcByMemberMacFunction,
 		NewSearchVcByMemberSerialFunction,
 	}
 }

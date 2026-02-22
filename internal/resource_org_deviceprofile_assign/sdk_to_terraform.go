@@ -69,14 +69,3 @@ func macInSlice(mac string, list []string) bool {
 	}
 	return false
 }
-
-func macInState(mac string, state *basetypes.SetValue) bool {
-	for _, b := range state.Elements() {
-		var sInterface interface{} = b
-		s := sInterface.(basetypes.StringValue)
-		if s.ValueString() == mac {
-			return true
-		}
-	}
-	return false
-}

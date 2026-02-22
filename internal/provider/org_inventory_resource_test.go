@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_inventory"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -56,11 +58,12 @@ func TestOrgInventoryModel(t *testing.T) {
 	}
 
 	resourceType := "org_inventory"
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_inventory.OrgInventoryResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 			// Skip fixture cases that require real devices with valid MAC addresses
 			if strings.HasPrefix(tName, "fixture_case") {
-				t.Skip("Skipping fixture case as it requires real devices with valid MAC addresses.")
+				t.Skipf("Skipping %s fixture tests, as they require a real device.", resourceType)
 			}
 
 			steps := make([]resource.TestStep, len(tCase.steps))
@@ -91,7 +94,7 @@ func TestOrgInventoryModel(t *testing.T) {
 				}
 				combinedConfig = configStr + combinedConfig
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks := config.testChecks(t, resourceType, tName, tracker)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -111,10 +114,13 @@ func TestOrgInventoryModel(t *testing.T) {
 			})
 		})
 	}
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
-func (o *OrgInventoryModel) testChecks(t testing.TB, rType, tName string) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + tName)
+func (o *OrgInventoryModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Check required fields
 	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)

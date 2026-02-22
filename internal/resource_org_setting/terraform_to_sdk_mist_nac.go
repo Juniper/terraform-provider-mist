@@ -40,6 +40,33 @@ func mistNacIdpsTerraformToSdk(diags *diag.Diagnostics, d basetypes.ListValue) [
 	return dataList
 }
 
+func mistNacFingerprintingTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.OrgSettingMistNacFingerprinting {
+	data := models.OrgSettingMistNacFingerprinting{}
+	if !d.IsNull() && !d.IsUnknown() {
+		plan, e := NewFingerprintingValue(d.AttributeTypes(ctx), d.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else {
+			if plan.Enabled.ValueBoolPointer() != nil {
+				data.Enabled = plan.Enabled.ValueBoolPointer()
+			}
+
+			if plan.GenerateCoa.ValueBoolPointer() != nil {
+				data.GenerateCoa = plan.GenerateCoa.ValueBoolPointer()
+			}
+
+			if plan.GenerateWirelessCoa.ValueBoolPointer() != nil {
+				data.GenerateWirelessCoa = plan.GenerateWirelessCoa.ValueBoolPointer()
+			}
+
+			if plan.WirelessCoaType.ValueStringPointer() != nil {
+				data.WirelessCoaType = (*models.OrgSettingMistNacFingerprintingWirelessCoaEnum)(plan.WirelessCoaType.ValueStringPointer())
+			}
+		}
+	}
+	return &data
+}
+
 func mistNacServerCertTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.OrgSettingMistNacServerCert {
 	data := models.OrgSettingMistNacServerCert{}
 	if !d.IsNull() && !d.IsUnknown() {
@@ -86,6 +113,10 @@ func mistNacTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d MistN
 		data.EuOnly = d.EuOnly.ValueBoolPointer()
 	}
 
+	if !d.Fingerprinting.IsNull() && !d.Fingerprinting.IsUnknown() {
+		data.Fingerprinting = mistNacFingerprintingTerraformToSdk(ctx, diags, d.Fingerprinting)
+	}
+
 	if !d.Idps.IsNull() && !d.Idps.IsUnknown() {
 		data.Idps = mistNacIdpsTerraformToSdk(diags, d.Idps)
 	}
@@ -108,6 +139,10 @@ func mistNacTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d MistN
 
 	if d.UseSslPort.ValueBoolPointer() != nil {
 		data.UseSslPort = d.UseSslPort.ValueBoolPointer()
+	}
+
+	if d.UsermacExpiry.ValueInt64Pointer() != nil {
+		data.UsermacExpiry = models.ToPointer(int(d.UsermacExpiry.ValueInt64()))
 	}
 
 	return &data

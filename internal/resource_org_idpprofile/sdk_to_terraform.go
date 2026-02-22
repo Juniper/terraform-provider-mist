@@ -9,37 +9,34 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func SdkToTerraform(ctx context.Context, d *models.IdpProfile) (OrgIdpprofileModel, diag.Diagnostics) {
-	var state OrgIdpprofileModel
+func SdkToTerraform(ctx context.Context, data *models.IdpProfile) (OrgIdpprofileModel, diag.Diagnostics) {
 	var diags diag.Diagnostics
+	if data == nil {
+		diags.AddError("Error: nil IdpProfile", "The SDK IdpProfile model is nil.")
+		return OrgIdpprofileModel{}, diags
+	}
 
 	var baseProfile types.String
+	if data.BaseProfile != nil {
+		baseProfile = types.StringValue(string(*data.BaseProfile))
+	}
+
 	var id types.String
+	if data.Id != nil {
+		id = types.StringValue(data.Id.String())
+	}
+
 	var name types.String
-	var orgId types.String
-	var overwrites = types.ListNull(OverwritesValue{}.Type(ctx))
-
-	if d.BaseProfile != nil {
-		baseProfile = types.StringValue(string(*d.BaseProfile))
+	if data.Name != nil {
+		name = types.StringValue(*data.Name)
 	}
-	if d.Id != nil {
-		id = types.StringValue(d.Id.String())
+
+	result := OrgIdpprofileModel{
+		Id:          id,
+		OrgId:       types.StringValue(data.OrgId.String()),
+		BaseProfile: baseProfile,
+		Overwrites:  overwritesSdkToTerraform(ctx, &diags, data.Overwrites),
+		Name:        name,
 	}
-	if d.Name != nil {
-		name = types.StringValue(*d.Name)
-	}
-	orgId = types.StringValue(d.OrgId.String())
-
-	//if d.Overwrites != nil {
-	overwrites = overwritesSdkToTerraform(ctx, &diags, d.Overwrites)
-	//}
-
-	state.BaseProfile = baseProfile
-	state.Id = id
-	state.Name = name
-	state.OrgId = orgId
-	state.Overwrites = overwrites
-
-	return state, diags
-
+	return result, diags
 }

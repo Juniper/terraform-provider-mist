@@ -11,34 +11,35 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func appLimitSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanAppLimit) basetypes.ObjectValue {
-	var apps = types.MapNull(types.Int64Type)
-	var enabled basetypes.BoolValue
-	var wxtagIds = types.MapNull(types.Int64Type)
+func appLimitSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.WlanAppLimit) basetypes.ObjectValue {
+	if data == nil {
+		return basetypes.NewObjectNull(AppLimitValue{}.AttributeTypes(ctx))
+	}
 
 	appLimitAttr := make(map[string]attr.Value)
-	for k, v := range d.Apps {
-		appLimitAttr[k] = types.Int64Value(int64(v))
+	for key, val := range data.Apps {
+		appLimitAttr[key] = types.Int64Value(int64(val))
 	}
-	apps = types.MapValueMust(types.Int64Type, appLimitAttr)
+	apps := types.MapValueMust(types.Int64Type, appLimitAttr)
 
-	if d.Enabled != nil {
-		enabled = types.BoolValue(*d.Enabled)
+	var enabled basetypes.BoolValue
+	if data.Enabled != nil {
+		enabled = types.BoolValue(*data.Enabled)
 	}
 
 	wxtagLimitAttr := make(map[string]attr.Value)
-	for k, v := range d.WxtagIds {
-		wxtagLimitAttr[k] = types.Int64Value(int64(v))
+	for key, val := range data.WxtagIds {
+		wxtagLimitAttr[key] = types.Int64Value(int64(val))
 	}
-	wxtagIds = types.MapValueMust(types.Int64Type, wxtagLimitAttr)
+	wxtagIds := types.MapValueMust(types.Int64Type, wxtagLimitAttr)
 
 	dataMapValue := map[string]attr.Value{
 		"apps":      apps,
 		"enabled":   enabled,
 		"wxtag_ids": wxtagIds,
 	}
-	data, e := basetypes.NewObjectValue(AppLimitValue{}.AttributeTypes(ctx), dataMapValue)
-	diags.Append(e...)
+	result, err := basetypes.NewObjectValue(AppLimitValue{}.AttributeTypes(ctx), dataMapValue)
+	diags.Append(err...)
 
-	return data
+	return result
 }

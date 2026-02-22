@@ -1194,6 +1194,11 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"rules": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
+									"description": schema.StringAttribute{
+										Optional:            true,
+										Description:         "Optional description of the rule",
+										MarkdownDescription: "Optional description of the rule",
+									},
 									"equals": schema.StringAttribute{
 										Optional: true,
 									},
@@ -2802,6 +2807,13 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
+								},
+								"default_port_usage": schema.StringAttribute{
+									Optional:            true,
+									Computed:            true,
+									Description:         "Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior",
+									MarkdownDescription: "Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior",
+									Default:             stringdefault.StaticString("default"),
 								},
 								"ip_config": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
@@ -15465,6 +15477,24 @@ func (t RulesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 
 	attributes := in.Attributes()
 
+	descriptionAttribute, ok := attributes["description"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`description is missing from object`)
+
+		return nil, diags
+	}
+
+	descriptionVal, ok := descriptionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`description expected to be basetypes.StringValue, was: %T`, descriptionAttribute))
+	}
+
 	equalsAttribute, ok := attributes["equals"]
 
 	if !ok {
@@ -15560,12 +15590,13 @@ func (t RulesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue
 	}
 
 	return RulesValue{
-		Equals:     equalsVal,
-		EqualsAny:  equalsAnyVal,
-		Expression: expressionVal,
-		Src:        srcVal,
-		Usage:      usageVal,
-		state:      attr.ValueStateKnown,
+		Description: descriptionVal,
+		Equals:      equalsVal,
+		EqualsAny:   equalsAnyVal,
+		Expression:  expressionVal,
+		Src:         srcVal,
+		Usage:       usageVal,
+		state:       attr.ValueStateKnown,
 	}, diags
 }
 
@@ -15632,6 +15663,24 @@ func NewRulesValue(attributeTypes map[string]attr.Type, attributes map[string]at
 		return NewRulesValueUnknown(), diags
 	}
 
+	descriptionAttribute, ok := attributes["description"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`description is missing from object`)
+
+		return NewRulesValueUnknown(), diags
+	}
+
+	descriptionVal, ok := descriptionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`description expected to be basetypes.StringValue, was: %T`, descriptionAttribute))
+	}
+
 	equalsAttribute, ok := attributes["equals"]
 
 	if !ok {
@@ -15727,12 +15776,13 @@ func NewRulesValue(attributeTypes map[string]attr.Type, attributes map[string]at
 	}
 
 	return RulesValue{
-		Equals:     equalsVal,
-		EqualsAny:  equalsAnyVal,
-		Expression: expressionVal,
-		Src:        srcVal,
-		Usage:      usageVal,
-		state:      attr.ValueStateKnown,
+		Description: descriptionVal,
+		Equals:      equalsVal,
+		EqualsAny:   equalsAnyVal,
+		Expression:  expressionVal,
+		Src:         srcVal,
+		Usage:       usageVal,
+		state:       attr.ValueStateKnown,
 	}, diags
 }
 
@@ -15804,20 +15854,22 @@ func (t RulesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = RulesValue{}
 
 type RulesValue struct {
-	Equals     basetypes.StringValue `tfsdk:"equals"`
-	EqualsAny  basetypes.ListValue   `tfsdk:"equals_any"`
-	Expression basetypes.StringValue `tfsdk:"expression"`
-	Src        basetypes.StringValue `tfsdk:"src"`
-	Usage      basetypes.StringValue `tfsdk:"usage"`
-	state      attr.ValueState
+	Description basetypes.StringValue `tfsdk:"description"`
+	Equals      basetypes.StringValue `tfsdk:"equals"`
+	EqualsAny   basetypes.ListValue   `tfsdk:"equals_any"`
+	Expression  basetypes.StringValue `tfsdk:"expression"`
+	Src         basetypes.StringValue `tfsdk:"src"`
+	Usage       basetypes.StringValue `tfsdk:"usage"`
+	state       attr.ValueState
 }
 
 func (v RulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 5)
+	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["description"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["equals"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["equals_any"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -15830,7 +15882,15 @@ func (v RulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error)
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 5)
+		vals := make(map[string]tftypes.Value, 6)
+
+		val, err = v.Description.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["description"] = val
 
 		val, err = v.Equals.ToTerraformValue(ctx)
 
@@ -15915,7 +15975,8 @@ func (v RulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"equals": basetypes.StringType{},
+			"description": basetypes.StringType{},
+			"equals":      basetypes.StringType{},
 			"equals_any": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -15926,7 +15987,8 @@ func (v RulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"equals": basetypes.StringType{},
+		"description": basetypes.StringType{},
+		"equals":      basetypes.StringType{},
 		"equals_any": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -15946,11 +16008,12 @@ func (v RulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, d
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"equals":     v.Equals,
-			"equals_any": equalsAnyVal,
-			"expression": v.Expression,
-			"src":        v.Src,
-			"usage":      v.Usage,
+			"description": v.Description,
+			"equals":      v.Equals,
+			"equals_any":  equalsAnyVal,
+			"expression":  v.Expression,
+			"src":         v.Src,
+			"usage":       v.Usage,
 		})
 
 	return objVal, diags
@@ -15969,6 +16032,10 @@ func (v RulesValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.Description.Equal(other.Description) {
+		return false
 	}
 
 	if !v.Equals.Equal(other.Equals) {
@@ -16004,7 +16071,8 @@ func (v RulesValue) Type(ctx context.Context) attr.Type {
 
 func (v RulesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"equals": basetypes.StringType{},
+		"description": basetypes.StringType{},
+		"equals":      basetypes.StringType{},
 		"equals_any": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -35375,6 +35443,24 @@ func (t MatchingRulesType) ValueFromObject(ctx context.Context, in basetypes.Obj
 			fmt.Sprintf(`additional_config_cmds expected to be basetypes.ListValue, was: %T`, additionalConfigCmdsAttribute))
 	}
 
+	defaultPortUsageAttribute, ok := attributes["default_port_usage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`default_port_usage is missing from object`)
+
+		return nil, diags
+	}
+
+	defaultPortUsageVal, ok := defaultPortUsageAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`default_port_usage expected to be basetypes.StringValue, was: %T`, defaultPortUsageAttribute))
+	}
+
 	ipConfigAttribute, ok := attributes["ip_config"]
 
 	if !ok {
@@ -35561,6 +35647,7 @@ func (t MatchingRulesType) ValueFromObject(ctx context.Context, in basetypes.Obj
 
 	return MatchingRulesValue{
 		AdditionalConfigCmds: additionalConfigCmdsVal,
+		DefaultPortUsage:     defaultPortUsageVal,
 		IpConfig:             ipConfigVal,
 		MatchModel:           matchModelVal,
 		MatchName:            matchNameVal,
@@ -35656,6 +35743,24 @@ func NewMatchingRulesValue(attributeTypes map[string]attr.Type, attributes map[s
 			fmt.Sprintf(`additional_config_cmds expected to be basetypes.ListValue, was: %T`, additionalConfigCmdsAttribute))
 	}
 
+	defaultPortUsageAttribute, ok := attributes["default_port_usage"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`default_port_usage is missing from object`)
+
+		return NewMatchingRulesValueUnknown(), diags
+	}
+
+	defaultPortUsageVal, ok := defaultPortUsageAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`default_port_usage expected to be basetypes.StringValue, was: %T`, defaultPortUsageAttribute))
+	}
+
 	ipConfigAttribute, ok := attributes["ip_config"]
 
 	if !ok {
@@ -35842,6 +35947,7 @@ func NewMatchingRulesValue(attributeTypes map[string]attr.Type, attributes map[s
 
 	return MatchingRulesValue{
 		AdditionalConfigCmds: additionalConfigCmdsVal,
+		DefaultPortUsage:     defaultPortUsageVal,
 		IpConfig:             ipConfigVal,
 		MatchModel:           matchModelVal,
 		MatchName:            matchNameVal,
@@ -35925,6 +36031,7 @@ var _ basetypes.ObjectValuable = MatchingRulesValue{}
 
 type MatchingRulesValue struct {
 	AdditionalConfigCmds basetypes.ListValue   `tfsdk:"additional_config_cmds"`
+	DefaultPortUsage     basetypes.StringValue `tfsdk:"default_port_usage"`
 	IpConfig             basetypes.ObjectValue `tfsdk:"ip_config"`
 	MatchModel           basetypes.StringValue `tfsdk:"match_model"`
 	MatchName            basetypes.StringValue `tfsdk:"match_name"`
@@ -35939,7 +36046,7 @@ type MatchingRulesValue struct {
 }
 
 func (v MatchingRulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 11)
+	attrTypes := make(map[string]tftypes.Type, 12)
 
 	var val tftypes.Value
 	var err error
@@ -35947,6 +36054,7 @@ func (v MatchingRulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 	attrTypes["additional_config_cmds"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
+	attrTypes["default_port_usage"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ip_config"] = basetypes.ObjectType{
 		AttrTypes: IpConfigValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -35972,7 +36080,7 @@ func (v MatchingRulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 11)
+		vals := make(map[string]tftypes.Value, 12)
 
 		val, err = v.AdditionalConfigCmds.ToTerraformValue(ctx)
 
@@ -35981,6 +36089,14 @@ func (v MatchingRulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value
 		}
 
 		vals["additional_config_cmds"] = val
+
+		val, err = v.DefaultPortUsage.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["default_port_usage"] = val
 
 		val, err = v.IpConfig.ToTerraformValue(ctx)
 
@@ -36229,6 +36345,7 @@ func (v MatchingRulesValue) ToObjectValue(ctx context.Context) (basetypes.Object
 			"additional_config_cmds": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"default_port_usage": basetypes.StringType{},
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: IpConfigValue{}.AttributeTypes(ctx),
 			},
@@ -36256,6 +36373,7 @@ func (v MatchingRulesValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		"additional_config_cmds": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"default_port_usage": basetypes.StringType{},
 		"ip_config": basetypes.ObjectType{
 			AttrTypes: IpConfigValue{}.AttributeTypes(ctx),
 		},
@@ -36290,6 +36408,7 @@ func (v MatchingRulesValue) ToObjectValue(ctx context.Context) (basetypes.Object
 		attributeTypes,
 		map[string]attr.Value{
 			"additional_config_cmds": additionalConfigCmdsVal,
+			"default_port_usage":     v.DefaultPortUsage,
 			"ip_config":              ipConfig,
 			"match_model":            v.MatchModel,
 			"match_name":             v.MatchName,
@@ -36321,6 +36440,10 @@ func (v MatchingRulesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.AdditionalConfigCmds.Equal(other.AdditionalConfigCmds) {
+		return false
+	}
+
+	if !v.DefaultPortUsage.Equal(other.DefaultPortUsage) {
 		return false
 	}
 
@@ -36380,6 +36503,7 @@ func (v MatchingRulesValue) AttributeTypes(ctx context.Context) map[string]attr.
 		"additional_config_cmds": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"default_port_usage": basetypes.StringType{},
 		"ip_config": basetypes.ObjectType{
 			AttrTypes: IpConfigValue{}.AttributeTypes(ctx),
 		},

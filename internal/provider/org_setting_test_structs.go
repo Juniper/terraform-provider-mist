@@ -23,7 +23,6 @@ type OrgSettingModel struct {
 	OpticPortConfig        map[string]OrgSettingOpticPortConfigValue `hcl:"optic_port_config"`
 	OrgId                  string                                    `hcl:"org_id"`
 	PasswordPolicy         *OrgSettingPasswordPolicyValue            `hcl:"password_policy"`
-	Pcap                   *OrgSettingPcapValue                      `hcl:"pcap"`
 	Security               *OrgSettingSecurityValue                  `hcl:"security"`
 	Ssr                    *OrgSettingSsrValue                       `hcl:"ssr"`
 	Switch                 *OrgSettingSwitchValue                    `hcl:"switch"`
@@ -93,6 +92,7 @@ type OrgSettingSrxAutoUpgradeValue struct {
 	CustomVersions map[string]string `cty:"custom_versions" hcl:"custom_versions"`
 	Enabled        *bool             `cty:"enabled" hcl:"enabled"`
 	Snapshot       *bool             `cty:"snapshot" hcl:"snapshot"`
+	Version        *string           `cty:"version" hcl:"version"`
 }
 
 type OrgSettingJunosShellAccessValue struct {
@@ -125,17 +125,26 @@ type OrgSettingMgmtValue struct {
 }
 
 type OrgSettingMistNacValue struct {
-	Cacerts                   []string                   `cty:"cacerts" hcl:"cacerts"`
-	DefaultIdpId              *string                    `cty:"default_idp_id" hcl:"default_idp_id"`
-	DisableRsaeAlgorithms     *bool                      `cty:"disable_rsae_algorithms" hcl:"disable_rsae_algorithms"`
-	EapSslSecurityLevel       *int64                     `cty:"eap_ssl_security_level" hcl:"eap_ssl_security_level"`
-	EuOnly                    *bool                      `cty:"eu_only" hcl:"eu_only"`
-	IdpMachineCertLookupField *string                    `cty:"idp_machine_cert_lookup_field" hcl:"idp_machine_cert_lookup_field"`
-	IdpUserCertLookupField    *string                    `cty:"idp_user_cert_lookup_field" hcl:"idp_user_cert_lookup_field"`
-	Idps                      []OrgSettingIdpsValue      `cty:"idps" hcl:"idps"`
-	ServerCert                *OrgSettingServerCertValue `cty:"server_cert" hcl:"server_cert"`
-	UseIpVersion              *string                    `cty:"use_ip_version" hcl:"use_ip_version"`
-	UseSslPort                *bool                      `cty:"use_ssl_port" hcl:"use_ssl_port"`
+	Cacerts                   []string                       `cty:"cacerts" hcl:"cacerts"`
+	DefaultIdpId              *string                        `cty:"default_idp_id" hcl:"default_idp_id"`
+	DisableRsaeAlgorithms     *bool                          `cty:"disable_rsae_algorithms" hcl:"disable_rsae_algorithms"`
+	EapSslSecurityLevel       *int64                         `cty:"eap_ssl_security_level" hcl:"eap_ssl_security_level"`
+	EuOnly                    *bool                          `cty:"eu_only" hcl:"eu_only"`
+	Fingerprinting            *OrgSettingFingerprintingValue `cty:"fingerprinting" hcl:"fingerprinting"`
+	IdpMachineCertLookupField *string                        `cty:"idp_machine_cert_lookup_field" hcl:"idp_machine_cert_lookup_field"`
+	IdpUserCertLookupField    *string                        `cty:"idp_user_cert_lookup_field" hcl:"idp_user_cert_lookup_field"`
+	Idps                      []OrgSettingIdpsValue          `cty:"idps" hcl:"idps"`
+	ServerCert                *OrgSettingServerCertValue     `cty:"server_cert" hcl:"server_cert"`
+	UseIpVersion              *string                        `cty:"use_ip_version" hcl:"use_ip_version"`
+	UseSslPort                *bool                          `cty:"use_ssl_port" hcl:"use_ssl_port"`
+	UsermacExpiry             *int64                         `cty:"usermac_expiry" hcl:"usermac_expiry"`
+}
+
+type OrgSettingFingerprintingValue struct {
+	Enabled             *bool   `cty:"enabled" hcl:"enabled"`
+	GenerateCoa         *bool   `cty:"generate_coa" hcl:"generate_coa"`
+	GenerateWirelessCoa *bool   `cty:"generate_wireless_coa" hcl:"generate_wireless_coa"`
+	WirelessCoaType     *string `cty:"wireless_coa_type" hcl:"wireless_coa_type"`
 }
 
 type OrgSettingIdpsValue struct {
@@ -173,8 +182,6 @@ type OrgSettingPasswordPolicyValue struct {
 }
 
 type OrgSettingPcapValue struct {
-	Bucket    *string `cty:"bucket" hcl:"bucket"`
-	MaxPktLen *int64  `cty:"max_pkt_len" hcl:"max_pkt_len"`
 }
 
 type OrgSettingSecurityValue struct {
@@ -200,6 +207,7 @@ type OrgSettingSsrAutoUpgradeValue struct {
 	Channel        *string           `cty:"channel" hcl:"channel"`
 	CustomVersions map[string]string `cty:"custom_versions" hcl:"custom_versions"`
 	Enabled        *bool             `cty:"enabled" hcl:"enabled"`
+	Version        *string           `cty:"version" hcl:"version"`
 }
 
 type OrgSettingSwitchValue struct {
@@ -227,11 +235,9 @@ type OrgSettingSyntheticTestValue struct {
 
 type OrgSettingCustomProbesValue struct {
 	Aggressiveness   *string `cty:"aggressiveness" hcl:"aggressiveness"`
-	Host             *string `cty:"host" hcl:"host"`
-	Port             *int64  `cty:"port" hcl:"port"`
+	Target           *string `cty:"target" hcl:"target"`
 	Threshold        *int64  `cty:"threshold" hcl:"threshold"`
 	CustomProbesType *string `cty:"type" hcl:"type"`
-	Url              *string `cty:"url" hcl:"url"`
 }
 
 type OrgSettingLanNetworksValue struct {

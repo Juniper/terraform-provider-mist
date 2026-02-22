@@ -63,12 +63,6 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-critical_url_monitoring"] = ""
 	}
 
-	if plan.DefaultPortUsage.ValueStringPointer() != nil {
-		data.DefaultPortUsage = plan.DefaultPortUsage.ValueStringPointer()
-	} else {
-		unset["-default_port_usage"] = ""
-	}
-
 	if plan.DeviceUpdownThreshold.ValueInt64Pointer() != nil {
 		data.DeviceUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.DeviceUpdownThreshold.ValueInt64())))
 	} else {
@@ -218,6 +212,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		data.UplinkPortConfig = uplinkPortConfigTerraformToSdk(plan.UplinkPortConfig)
 	} else {
 		unset["-uplink_port_config"] = ""
+	}
+
+	if plan.UsesDescriptionFromPortUsage.ValueBoolPointer() != nil {
+		data.UsesDescriptionFromPortUsage = plan.UsesDescriptionFromPortUsage.ValueBoolPointer()
+	} else {
+		unset["-uses_description_from_port_usage"] = ""
 	}
 
 	if !plan.Vars.IsNull() && !plan.Vars.IsUnknown() {

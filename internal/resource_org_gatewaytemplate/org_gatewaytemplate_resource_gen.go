@@ -2050,11 +2050,6 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("wan_type"), types.StringValue("broadband")),
 							},
 						},
-						"wan_disable_speedtest": schema.BoolAttribute{
-							Optional:            true,
-							Description:         "If `wan_type`==`wan`, disable speedtest",
-							MarkdownDescription: "If `wan_type`==`wan`, disable speedtest",
-						},
 						"wan_ext_ip": schema.StringAttribute{
 							Optional:            true,
 							Description:         "Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP",
@@ -2195,6 +2190,21 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.Object{
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("wan")),
 							},
+						},
+						"wan_speedtest_mode": schema.StringAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "Controls whether Marvis/scheduler can run speedtest on this port. enum: `auto`, `enabled`, `disabled`",
+							MarkdownDescription: "Controls whether Marvis/scheduler can run speedtest on this port. enum: `auto`, `enabled`, `disabled`",
+							Validators: []validator.String{
+								stringvalidator.OneOf(
+									"",
+									"auto",
+									"enabled",
+									"disabled",
+								),
+							},
+							Default: stringdefault.StaticString("auto"),
 						},
 						"wan_type": schema.StringAttribute{
 							Optional:            true,
@@ -2597,66 +2607,95 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"skyatp": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
-								"dns_dga_detection": schema.StringAttribute{
-									Optional:            true,
-									Computed:            true,
-									Description:         "enum: `disabled`, `default`, `standard`, `strict`",
-									MarkdownDescription: "enum: `disabled`, `default`, `standard`, `strict`",
-									Validators: []validator.String{
-										stringvalidator.OneOf(
-											"",
-											"disabled",
-											"default",
-											"standard",
-											"strict",
-										),
+								"dns_dga_detection": schema.SingleNestedAttribute{
+									Attributes: map[string]schema.Attribute{
+										"enabled": schema.BoolAttribute{
+											Optional: true,
+										},
+										"profile": schema.StringAttribute{
+											Optional:            true,
+											Description:         "enum: `default`, `standard`, `strict`",
+											MarkdownDescription: "enum: `default`, `standard`, `strict`",
+											Validators: []validator.String{
+												stringvalidator.OneOf(
+													"",
+													"default",
+													"standard",
+													"strict",
+												),
+											},
+										},
 									},
-									Default: stringdefault.StaticString("disabled"),
+									CustomType: DnsDgaDetectionType{
+										ObjectType: types.ObjectType{
+											AttrTypes: DnsDgaDetectionValue{}.AttributeTypes(ctx),
+										},
+									},
+									Optional: true,
 								},
-								"dns_tunnel_detection": schema.StringAttribute{
-									Optional:            true,
-									Computed:            true,
-									Description:         "enum: `disabled`, `default`, `standard`, `strict`",
-									MarkdownDescription: "enum: `disabled`, `default`, `standard`, `strict`",
-									Validators: []validator.String{
-										stringvalidator.OneOf(
-											"",
-											"disabled",
-											"default",
-											"standard",
-											"strict",
-										),
+								"dns_tunnel_detection": schema.SingleNestedAttribute{
+									Attributes: map[string]schema.Attribute{
+										"enabled": schema.BoolAttribute{
+											Optional: true,
+										},
+										"profile": schema.StringAttribute{
+											Optional:            true,
+											Description:         "enum: `default`, `standard`, `strict`",
+											MarkdownDescription: "enum: `default`, `standard`, `strict`",
+											Validators: []validator.String{
+												stringvalidator.OneOf(
+													"",
+													"default",
+													"standard",
+													"strict",
+												),
+											},
+										},
 									},
-									Default: stringdefault.StaticString("disabled"),
+									CustomType: DnsTunnelDetectionType{
+										ObjectType: types.ObjectType{
+											AttrTypes: DnsTunnelDetectionValue{}.AttributeTypes(ctx),
+										},
+									},
+									Optional: true,
 								},
-								"http_inspection": schema.StringAttribute{
-									Optional:            true,
-									Computed:            true,
-									Description:         "enum: `disabled`, `standard`",
-									MarkdownDescription: "enum: `disabled`, `standard`",
-									Validators: []validator.String{
-										stringvalidator.OneOf(
-											"",
-											"disabled",
-											"standard",
-											"strict",
-										),
+								"http_inspection": schema.SingleNestedAttribute{
+									Attributes: map[string]schema.Attribute{
+										"enabled": schema.BoolAttribute{
+											Optional: true,
+										},
+										"profile": schema.StringAttribute{
+											Optional:            true,
+											Description:         "enum: `standard`, `strict`",
+											MarkdownDescription: "enum: `standard`, `strict`",
+											Validators: []validator.String{
+												stringvalidator.OneOf(
+													"",
+													"standard",
+													"strict",
+												),
+											},
+										},
 									},
-									Default: stringdefault.StaticString("disabled"),
+									CustomType: HttpInspectionType{
+										ObjectType: types.ObjectType{
+											AttrTypes: HttpInspectionValue{}.AttributeTypes(ctx),
+										},
+									},
+									Optional: true,
 								},
-								"iot_device_policy": schema.StringAttribute{
-									Optional:            true,
-									Computed:            true,
-									Description:         "enum: `disabled`, `enabled`",
-									MarkdownDescription: "enum: `disabled`, `enabled`",
-									Validators: []validator.String{
-										stringvalidator.OneOf(
-											"",
-											"disabled",
-											"enabled",
-										),
+								"iot_device_policy": schema.SingleNestedAttribute{
+									Attributes: map[string]schema.Attribute{
+										"enabled": schema.BoolAttribute{
+											Optional: true,
+										},
 									},
-									Default: stringdefault.StaticString("disabled"),
+									CustomType: IotDevicePolicyType{
+										ObjectType: types.ObjectType{
+											AttrTypes: IotDevicePolicyValue{}.AttributeTypes(ctx),
+										},
+									},
+									Optional: true,
 								},
 							},
 							CustomType: SkyatpType{
@@ -21580,24 +21619,6 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`wan_arp_policer expected to be basetypes.StringValue, was: %T`, wanArpPolicerAttribute))
 	}
 
-	wanDisableSpeedtestAttribute, ok := attributes["wan_disable_speedtest"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`wan_disable_speedtest is missing from object`)
-
-		return nil, diags
-	}
-
-	wanDisableSpeedtestVal, ok := wanDisableSpeedtestAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`wan_disable_speedtest expected to be basetypes.BoolValue, was: %T`, wanDisableSpeedtestAttribute))
-	}
-
 	wanExtIpAttribute, ok := attributes["wan_ext_ip"]
 
 	if !ok {
@@ -21724,6 +21745,24 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`wan_source_nat expected to be basetypes.ObjectValue, was: %T`, wanSourceNatAttribute))
 	}
 
+	wanSpeedtestModeAttribute, ok := attributes["wan_speedtest_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`wan_speedtest_mode is missing from object`)
+
+		return nil, diags
+	}
+
+	wanSpeedtestModeVal, ok := wanSpeedtestModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`wan_speedtest_mode expected to be basetypes.StringValue, was: %T`, wanSpeedtestModeAttribute))
+	}
+
 	wanTypeAttribute, ok := attributes["wan_type"]
 
 	if !ok {
@@ -21747,54 +21786,54 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 	}
 
 	return PortConfigValue{
-		AeDisableLacp:       aeDisableLacpVal,
-		AeIdx:               aeIdxVal,
-		AeLacpForceUp:       aeLacpForceUpVal,
-		Aggregated:          aggregatedVal,
-		Critical:            criticalVal,
-		Description:         descriptionVal,
-		DisableAutoneg:      disableAutonegVal,
-		Disabled:            disabledVal,
-		DslType:             dslTypeVal,
-		DslVci:              dslVciVal,
-		DslVpi:              dslVpiVal,
-		Duplex:              duplexVal,
-		LteApn:              lteApnVal,
-		LteAuth:             lteAuthVal,
-		LteBackup:           lteBackupVal,
-		LtePassword:         ltePasswordVal,
-		LteUsername:         lteUsernameVal,
-		Mtu:                 mtuVal,
-		Name:                nameVal,
-		Networks:            networksVal,
-		OuterVlanId:         outerVlanIdVal,
-		PoeDisabled:         poeDisabledVal,
-		PortIpConfig:        portIpConfigVal,
-		PortNetwork:         portNetworkVal,
-		PreserveDscp:        preserveDscpVal,
-		Redundant:           redundantVal,
-		RedundantGroup:      redundantGroupVal,
-		RethIdx:             rethIdxVal,
-		RethNode:            rethNodeVal,
-		RethNodes:           rethNodesVal,
-		Speed:               speedVal,
-		SsrNoVirtualMac:     ssrNoVirtualMacVal,
-		SvrPortRange:        svrPortRangeVal,
-		TrafficShaping:      trafficShapingVal,
-		Usage:               usageVal,
-		VlanId:              vlanIdVal,
-		VpnPaths:            vpnPathsVal,
-		WanArpPolicer:       wanArpPolicerVal,
-		WanDisableSpeedtest: wanDisableSpeedtestVal,
-		WanExtIp:            wanExtIpVal,
-		WanExtIp6:           wanExtIp6Val,
-		WanExtraRoutes:      wanExtraRoutesVal,
-		WanExtraRoutes6:     wanExtraRoutes6Val,
-		WanNetworks:         wanNetworksVal,
-		WanProbeOverride:    wanProbeOverrideVal,
-		WanSourceNat:        wanSourceNatVal,
-		WanType:             wanTypeVal,
-		state:               attr.ValueStateKnown,
+		AeDisableLacp:    aeDisableLacpVal,
+		AeIdx:            aeIdxVal,
+		AeLacpForceUp:    aeLacpForceUpVal,
+		Aggregated:       aggregatedVal,
+		Critical:         criticalVal,
+		Description:      descriptionVal,
+		DisableAutoneg:   disableAutonegVal,
+		Disabled:         disabledVal,
+		DslType:          dslTypeVal,
+		DslVci:           dslVciVal,
+		DslVpi:           dslVpiVal,
+		Duplex:           duplexVal,
+		LteApn:           lteApnVal,
+		LteAuth:          lteAuthVal,
+		LteBackup:        lteBackupVal,
+		LtePassword:      ltePasswordVal,
+		LteUsername:      lteUsernameVal,
+		Mtu:              mtuVal,
+		Name:             nameVal,
+		Networks:         networksVal,
+		OuterVlanId:      outerVlanIdVal,
+		PoeDisabled:      poeDisabledVal,
+		PortIpConfig:     portIpConfigVal,
+		PortNetwork:      portNetworkVal,
+		PreserveDscp:     preserveDscpVal,
+		Redundant:        redundantVal,
+		RedundantGroup:   redundantGroupVal,
+		RethIdx:          rethIdxVal,
+		RethNode:         rethNodeVal,
+		RethNodes:        rethNodesVal,
+		Speed:            speedVal,
+		SsrNoVirtualMac:  ssrNoVirtualMacVal,
+		SvrPortRange:     svrPortRangeVal,
+		TrafficShaping:   trafficShapingVal,
+		Usage:            usageVal,
+		VlanId:           vlanIdVal,
+		VpnPaths:         vpnPathsVal,
+		WanArpPolicer:    wanArpPolicerVal,
+		WanExtIp:         wanExtIpVal,
+		WanExtIp6:        wanExtIp6Val,
+		WanExtraRoutes:   wanExtraRoutesVal,
+		WanExtraRoutes6:  wanExtraRoutes6Val,
+		WanNetworks:      wanNetworksVal,
+		WanProbeOverride: wanProbeOverrideVal,
+		WanSourceNat:     wanSourceNatVal,
+		WanSpeedtestMode: wanSpeedtestModeVal,
+		WanType:          wanTypeVal,
+		state:            attr.ValueStateKnown,
 	}, diags
 }
 
@@ -22545,24 +22584,6 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`wan_arp_policer expected to be basetypes.StringValue, was: %T`, wanArpPolicerAttribute))
 	}
 
-	wanDisableSpeedtestAttribute, ok := attributes["wan_disable_speedtest"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`wan_disable_speedtest is missing from object`)
-
-		return NewPortConfigValueUnknown(), diags
-	}
-
-	wanDisableSpeedtestVal, ok := wanDisableSpeedtestAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`wan_disable_speedtest expected to be basetypes.BoolValue, was: %T`, wanDisableSpeedtestAttribute))
-	}
-
 	wanExtIpAttribute, ok := attributes["wan_ext_ip"]
 
 	if !ok {
@@ -22689,6 +22710,24 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`wan_source_nat expected to be basetypes.ObjectValue, was: %T`, wanSourceNatAttribute))
 	}
 
+	wanSpeedtestModeAttribute, ok := attributes["wan_speedtest_mode"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`wan_speedtest_mode is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	wanSpeedtestModeVal, ok := wanSpeedtestModeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`wan_speedtest_mode expected to be basetypes.StringValue, was: %T`, wanSpeedtestModeAttribute))
+	}
+
 	wanTypeAttribute, ok := attributes["wan_type"]
 
 	if !ok {
@@ -22712,54 +22751,54 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 	}
 
 	return PortConfigValue{
-		AeDisableLacp:       aeDisableLacpVal,
-		AeIdx:               aeIdxVal,
-		AeLacpForceUp:       aeLacpForceUpVal,
-		Aggregated:          aggregatedVal,
-		Critical:            criticalVal,
-		Description:         descriptionVal,
-		DisableAutoneg:      disableAutonegVal,
-		Disabled:            disabledVal,
-		DslType:             dslTypeVal,
-		DslVci:              dslVciVal,
-		DslVpi:              dslVpiVal,
-		Duplex:              duplexVal,
-		LteApn:              lteApnVal,
-		LteAuth:             lteAuthVal,
-		LteBackup:           lteBackupVal,
-		LtePassword:         ltePasswordVal,
-		LteUsername:         lteUsernameVal,
-		Mtu:                 mtuVal,
-		Name:                nameVal,
-		Networks:            networksVal,
-		OuterVlanId:         outerVlanIdVal,
-		PoeDisabled:         poeDisabledVal,
-		PortIpConfig:        portIpConfigVal,
-		PortNetwork:         portNetworkVal,
-		PreserveDscp:        preserveDscpVal,
-		Redundant:           redundantVal,
-		RedundantGroup:      redundantGroupVal,
-		RethIdx:             rethIdxVal,
-		RethNode:            rethNodeVal,
-		RethNodes:           rethNodesVal,
-		Speed:               speedVal,
-		SsrNoVirtualMac:     ssrNoVirtualMacVal,
-		SvrPortRange:        svrPortRangeVal,
-		TrafficShaping:      trafficShapingVal,
-		Usage:               usageVal,
-		VlanId:              vlanIdVal,
-		VpnPaths:            vpnPathsVal,
-		WanArpPolicer:       wanArpPolicerVal,
-		WanDisableSpeedtest: wanDisableSpeedtestVal,
-		WanExtIp:            wanExtIpVal,
-		WanExtIp6:           wanExtIp6Val,
-		WanExtraRoutes:      wanExtraRoutesVal,
-		WanExtraRoutes6:     wanExtraRoutes6Val,
-		WanNetworks:         wanNetworksVal,
-		WanProbeOverride:    wanProbeOverrideVal,
-		WanSourceNat:        wanSourceNatVal,
-		WanType:             wanTypeVal,
-		state:               attr.ValueStateKnown,
+		AeDisableLacp:    aeDisableLacpVal,
+		AeIdx:            aeIdxVal,
+		AeLacpForceUp:    aeLacpForceUpVal,
+		Aggregated:       aggregatedVal,
+		Critical:         criticalVal,
+		Description:      descriptionVal,
+		DisableAutoneg:   disableAutonegVal,
+		Disabled:         disabledVal,
+		DslType:          dslTypeVal,
+		DslVci:           dslVciVal,
+		DslVpi:           dslVpiVal,
+		Duplex:           duplexVal,
+		LteApn:           lteApnVal,
+		LteAuth:          lteAuthVal,
+		LteBackup:        lteBackupVal,
+		LtePassword:      ltePasswordVal,
+		LteUsername:      lteUsernameVal,
+		Mtu:              mtuVal,
+		Name:             nameVal,
+		Networks:         networksVal,
+		OuterVlanId:      outerVlanIdVal,
+		PoeDisabled:      poeDisabledVal,
+		PortIpConfig:     portIpConfigVal,
+		PortNetwork:      portNetworkVal,
+		PreserveDscp:     preserveDscpVal,
+		Redundant:        redundantVal,
+		RedundantGroup:   redundantGroupVal,
+		RethIdx:          rethIdxVal,
+		RethNode:         rethNodeVal,
+		RethNodes:        rethNodesVal,
+		Speed:            speedVal,
+		SsrNoVirtualMac:  ssrNoVirtualMacVal,
+		SvrPortRange:     svrPortRangeVal,
+		TrafficShaping:   trafficShapingVal,
+		Usage:            usageVal,
+		VlanId:           vlanIdVal,
+		VpnPaths:         vpnPathsVal,
+		WanArpPolicer:    wanArpPolicerVal,
+		WanExtIp:         wanExtIpVal,
+		WanExtIp6:        wanExtIp6Val,
+		WanExtraRoutes:   wanExtraRoutesVal,
+		WanExtraRoutes6:  wanExtraRoutes6Val,
+		WanNetworks:      wanNetworksVal,
+		WanProbeOverride: wanProbeOverrideVal,
+		WanSourceNat:     wanSourceNatVal,
+		WanSpeedtestMode: wanSpeedtestModeVal,
+		WanType:          wanTypeVal,
+		state:            attr.ValueStateKnown,
 	}, diags
 }
 
@@ -22831,54 +22870,54 @@ func (t PortConfigType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = PortConfigValue{}
 
 type PortConfigValue struct {
-	AeDisableLacp       basetypes.BoolValue   `tfsdk:"ae_disable_lacp"`
-	AeIdx               basetypes.StringValue `tfsdk:"ae_idx"`
-	AeLacpForceUp       basetypes.BoolValue   `tfsdk:"ae_lacp_force_up"`
-	Aggregated          basetypes.BoolValue   `tfsdk:"aggregated"`
-	Critical            basetypes.BoolValue   `tfsdk:"critical"`
-	Description         basetypes.StringValue `tfsdk:"description"`
-	DisableAutoneg      basetypes.BoolValue   `tfsdk:"disable_autoneg"`
-	Disabled            basetypes.BoolValue   `tfsdk:"disabled"`
-	DslType             basetypes.StringValue `tfsdk:"dsl_type"`
-	DslVci              basetypes.Int64Value  `tfsdk:"dsl_vci"`
-	DslVpi              basetypes.Int64Value  `tfsdk:"dsl_vpi"`
-	Duplex              basetypes.StringValue `tfsdk:"duplex"`
-	LteApn              basetypes.StringValue `tfsdk:"lte_apn"`
-	LteAuth             basetypes.StringValue `tfsdk:"lte_auth"`
-	LteBackup           basetypes.BoolValue   `tfsdk:"lte_backup"`
-	LtePassword         basetypes.StringValue `tfsdk:"lte_password"`
-	LteUsername         basetypes.StringValue `tfsdk:"lte_username"`
-	Mtu                 basetypes.Int64Value  `tfsdk:"mtu"`
-	Name                basetypes.StringValue `tfsdk:"name"`
-	Networks            basetypes.ListValue   `tfsdk:"networks"`
-	OuterVlanId         basetypes.Int64Value  `tfsdk:"outer_vlan_id"`
-	PoeDisabled         basetypes.BoolValue   `tfsdk:"poe_disabled"`
-	PortIpConfig        basetypes.ObjectValue `tfsdk:"ip_config"`
-	PortNetwork         basetypes.StringValue `tfsdk:"port_network"`
-	PreserveDscp        basetypes.BoolValue   `tfsdk:"preserve_dscp"`
-	Redundant           basetypes.BoolValue   `tfsdk:"redundant"`
-	RedundantGroup      basetypes.Int64Value  `tfsdk:"redundant_group"`
-	RethIdx             basetypes.StringValue `tfsdk:"reth_idx"`
-	RethNode            basetypes.StringValue `tfsdk:"reth_node"`
-	RethNodes           basetypes.ListValue   `tfsdk:"reth_nodes"`
-	Speed               basetypes.StringValue `tfsdk:"speed"`
-	SsrNoVirtualMac     basetypes.BoolValue   `tfsdk:"ssr_no_virtual_mac"`
-	SvrPortRange        basetypes.StringValue `tfsdk:"svr_port_range"`
-	TrafficShaping      basetypes.ObjectValue `tfsdk:"traffic_shaping"`
-	Usage               basetypes.StringValue `tfsdk:"usage"`
-	VlanId              basetypes.StringValue `tfsdk:"vlan_id"`
-	VpnPaths            basetypes.MapValue    `tfsdk:"vpn_paths"`
-	WanArpPolicer       basetypes.StringValue `tfsdk:"wan_arp_policer"`
-	WanDisableSpeedtest basetypes.BoolValue   `tfsdk:"wan_disable_speedtest"`
-	WanExtIp            basetypes.StringValue `tfsdk:"wan_ext_ip"`
-	WanExtIp6           basetypes.StringValue `tfsdk:"wan_ext_ip6"`
-	WanExtraRoutes      basetypes.MapValue    `tfsdk:"wan_extra_routes"`
-	WanExtraRoutes6     basetypes.MapValue    `tfsdk:"wan_extra_routes6"`
-	WanNetworks         basetypes.ListValue   `tfsdk:"wan_networks"`
-	WanProbeOverride    basetypes.ObjectValue `tfsdk:"wan_probe_override"`
-	WanSourceNat        basetypes.ObjectValue `tfsdk:"wan_source_nat"`
-	WanType             basetypes.StringValue `tfsdk:"wan_type"`
-	state               attr.ValueState
+	AeDisableLacp    basetypes.BoolValue   `tfsdk:"ae_disable_lacp"`
+	AeIdx            basetypes.StringValue `tfsdk:"ae_idx"`
+	AeLacpForceUp    basetypes.BoolValue   `tfsdk:"ae_lacp_force_up"`
+	Aggregated       basetypes.BoolValue   `tfsdk:"aggregated"`
+	Critical         basetypes.BoolValue   `tfsdk:"critical"`
+	Description      basetypes.StringValue `tfsdk:"description"`
+	DisableAutoneg   basetypes.BoolValue   `tfsdk:"disable_autoneg"`
+	Disabled         basetypes.BoolValue   `tfsdk:"disabled"`
+	DslType          basetypes.StringValue `tfsdk:"dsl_type"`
+	DslVci           basetypes.Int64Value  `tfsdk:"dsl_vci"`
+	DslVpi           basetypes.Int64Value  `tfsdk:"dsl_vpi"`
+	Duplex           basetypes.StringValue `tfsdk:"duplex"`
+	LteApn           basetypes.StringValue `tfsdk:"lte_apn"`
+	LteAuth          basetypes.StringValue `tfsdk:"lte_auth"`
+	LteBackup        basetypes.BoolValue   `tfsdk:"lte_backup"`
+	LtePassword      basetypes.StringValue `tfsdk:"lte_password"`
+	LteUsername      basetypes.StringValue `tfsdk:"lte_username"`
+	Mtu              basetypes.Int64Value  `tfsdk:"mtu"`
+	Name             basetypes.StringValue `tfsdk:"name"`
+	Networks         basetypes.ListValue   `tfsdk:"networks"`
+	OuterVlanId      basetypes.Int64Value  `tfsdk:"outer_vlan_id"`
+	PoeDisabled      basetypes.BoolValue   `tfsdk:"poe_disabled"`
+	PortIpConfig     basetypes.ObjectValue `tfsdk:"ip_config"`
+	PortNetwork      basetypes.StringValue `tfsdk:"port_network"`
+	PreserveDscp     basetypes.BoolValue   `tfsdk:"preserve_dscp"`
+	Redundant        basetypes.BoolValue   `tfsdk:"redundant"`
+	RedundantGroup   basetypes.Int64Value  `tfsdk:"redundant_group"`
+	RethIdx          basetypes.StringValue `tfsdk:"reth_idx"`
+	RethNode         basetypes.StringValue `tfsdk:"reth_node"`
+	RethNodes        basetypes.ListValue   `tfsdk:"reth_nodes"`
+	Speed            basetypes.StringValue `tfsdk:"speed"`
+	SsrNoVirtualMac  basetypes.BoolValue   `tfsdk:"ssr_no_virtual_mac"`
+	SvrPortRange     basetypes.StringValue `tfsdk:"svr_port_range"`
+	TrafficShaping   basetypes.ObjectValue `tfsdk:"traffic_shaping"`
+	Usage            basetypes.StringValue `tfsdk:"usage"`
+	VlanId           basetypes.StringValue `tfsdk:"vlan_id"`
+	VpnPaths         basetypes.MapValue    `tfsdk:"vpn_paths"`
+	WanArpPolicer    basetypes.StringValue `tfsdk:"wan_arp_policer"`
+	WanExtIp         basetypes.StringValue `tfsdk:"wan_ext_ip"`
+	WanExtIp6        basetypes.StringValue `tfsdk:"wan_ext_ip6"`
+	WanExtraRoutes   basetypes.MapValue    `tfsdk:"wan_extra_routes"`
+	WanExtraRoutes6  basetypes.MapValue    `tfsdk:"wan_extra_routes6"`
+	WanNetworks      basetypes.ListValue   `tfsdk:"wan_networks"`
+	WanProbeOverride basetypes.ObjectValue `tfsdk:"wan_probe_override"`
+	WanSourceNat     basetypes.ObjectValue `tfsdk:"wan_source_nat"`
+	WanSpeedtestMode basetypes.StringValue `tfsdk:"wan_speedtest_mode"`
+	WanType          basetypes.StringValue `tfsdk:"wan_type"`
+	state            attr.ValueState
 }
 
 func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
@@ -22935,7 +22974,6 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		ElemType: VpnPathsValue{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["wan_arp_policer"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["wan_disable_speedtest"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["wan_ext_ip"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["wan_ext_ip6"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["wan_extra_routes"] = basetypes.MapType{
@@ -22953,6 +22991,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["wan_source_nat"] = basetypes.ObjectType{
 		AttrTypes: WanSourceNatValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
+	attrTypes["wan_speedtest_mode"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["wan_type"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -23265,14 +23304,6 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["wan_arp_policer"] = val
 
-		val, err = v.WanDisableSpeedtest.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["wan_disable_speedtest"] = val
-
 		val, err = v.WanExtIp.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -23328,6 +23359,14 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["wan_source_nat"] = val
+
+		val, err = v.WanSpeedtestMode.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["wan_speedtest_mode"] = val
 
 		val, err = v.WanType.ToTerraformValue(ctx)
 
@@ -23598,10 +23637,9 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"vpn_paths": basetypes.MapType{
 				ElemType: VpnPathsValue{}.Type(ctx),
 			},
-			"wan_arp_policer":       basetypes.StringType{},
-			"wan_disable_speedtest": basetypes.BoolType{},
-			"wan_ext_ip":            basetypes.StringType{},
-			"wan_ext_ip6":           basetypes.StringType{},
+			"wan_arp_policer": basetypes.StringType{},
+			"wan_ext_ip":      basetypes.StringType{},
+			"wan_ext_ip6":     basetypes.StringType{},
 			"wan_extra_routes": basetypes.MapType{
 				ElemType: WanExtraRoutesValue{}.Type(ctx),
 			},
@@ -23617,7 +23655,8 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"wan_source_nat": basetypes.ObjectType{
 				AttrTypes: WanSourceNatValue{}.AttributeTypes(ctx),
 			},
-			"wan_type": basetypes.StringType{},
+			"wan_speedtest_mode": basetypes.StringType{},
+			"wan_type":           basetypes.StringType{},
 		}), diags
 	}
 
@@ -23682,10 +23721,9 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"vpn_paths": basetypes.MapType{
 				ElemType: VpnPathsValue{}.Type(ctx),
 			},
-			"wan_arp_policer":       basetypes.StringType{},
-			"wan_disable_speedtest": basetypes.BoolType{},
-			"wan_ext_ip":            basetypes.StringType{},
-			"wan_ext_ip6":           basetypes.StringType{},
+			"wan_arp_policer": basetypes.StringType{},
+			"wan_ext_ip":      basetypes.StringType{},
+			"wan_ext_ip6":     basetypes.StringType{},
 			"wan_extra_routes": basetypes.MapType{
 				ElemType: WanExtraRoutesValue{}.Type(ctx),
 			},
@@ -23701,7 +23739,8 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"wan_source_nat": basetypes.ObjectType{
 				AttrTypes: WanSourceNatValue{}.AttributeTypes(ctx),
 			},
-			"wan_type": basetypes.StringType{},
+			"wan_speedtest_mode": basetypes.StringType{},
+			"wan_type":           basetypes.StringType{},
 		}), diags
 	}
 
@@ -23766,10 +23805,9 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"vpn_paths": basetypes.MapType{
 				ElemType: VpnPathsValue{}.Type(ctx),
 			},
-			"wan_arp_policer":       basetypes.StringType{},
-			"wan_disable_speedtest": basetypes.BoolType{},
-			"wan_ext_ip":            basetypes.StringType{},
-			"wan_ext_ip6":           basetypes.StringType{},
+			"wan_arp_policer": basetypes.StringType{},
+			"wan_ext_ip":      basetypes.StringType{},
+			"wan_ext_ip6":     basetypes.StringType{},
 			"wan_extra_routes": basetypes.MapType{
 				ElemType: WanExtraRoutesValue{}.Type(ctx),
 			},
@@ -23785,7 +23823,8 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"wan_source_nat": basetypes.ObjectType{
 				AttrTypes: WanSourceNatValue{}.AttributeTypes(ctx),
 			},
-			"wan_type": basetypes.StringType{},
+			"wan_speedtest_mode": basetypes.StringType{},
+			"wan_type":           basetypes.StringType{},
 		}), diags
 	}
 
@@ -23837,10 +23876,9 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"vpn_paths": basetypes.MapType{
 			ElemType: VpnPathsValue{}.Type(ctx),
 		},
-		"wan_arp_policer":       basetypes.StringType{},
-		"wan_disable_speedtest": basetypes.BoolType{},
-		"wan_ext_ip":            basetypes.StringType{},
-		"wan_ext_ip6":           basetypes.StringType{},
+		"wan_arp_policer": basetypes.StringType{},
+		"wan_ext_ip":      basetypes.StringType{},
+		"wan_ext_ip6":     basetypes.StringType{},
 		"wan_extra_routes": basetypes.MapType{
 			ElemType: WanExtraRoutesValue{}.Type(ctx),
 		},
@@ -23856,7 +23894,8 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"wan_source_nat": basetypes.ObjectType{
 			AttrTypes: WanSourceNatValue{}.AttributeTypes(ctx),
 		},
-		"wan_type": basetypes.StringType{},
+		"wan_speedtest_mode": basetypes.StringType{},
+		"wan_type":           basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -23870,53 +23909,53 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"ae_disable_lacp":       v.AeDisableLacp,
-			"ae_idx":                v.AeIdx,
-			"ae_lacp_force_up":      v.AeLacpForceUp,
-			"aggregated":            v.Aggregated,
-			"critical":              v.Critical,
-			"description":           v.Description,
-			"disable_autoneg":       v.DisableAutoneg,
-			"disabled":              v.Disabled,
-			"dsl_type":              v.DslType,
-			"dsl_vci":               v.DslVci,
-			"dsl_vpi":               v.DslVpi,
-			"duplex":                v.Duplex,
-			"lte_apn":               v.LteApn,
-			"lte_auth":              v.LteAuth,
-			"lte_backup":            v.LteBackup,
-			"lte_password":          v.LtePassword,
-			"lte_username":          v.LteUsername,
-			"mtu":                   v.Mtu,
-			"name":                  v.Name,
-			"networks":              networksVal,
-			"outer_vlan_id":         v.OuterVlanId,
-			"poe_disabled":          v.PoeDisabled,
-			"ip_config":             portIpConfig,
-			"port_network":          v.PortNetwork,
-			"preserve_dscp":         v.PreserveDscp,
-			"redundant":             v.Redundant,
-			"redundant_group":       v.RedundantGroup,
-			"reth_idx":              v.RethIdx,
-			"reth_node":             v.RethNode,
-			"reth_nodes":            rethNodesVal,
-			"speed":                 v.Speed,
-			"ssr_no_virtual_mac":    v.SsrNoVirtualMac,
-			"svr_port_range":        v.SvrPortRange,
-			"traffic_shaping":       trafficShaping,
-			"usage":                 v.Usage,
-			"vlan_id":               v.VlanId,
-			"vpn_paths":             vpnPaths,
-			"wan_arp_policer":       v.WanArpPolicer,
-			"wan_disable_speedtest": v.WanDisableSpeedtest,
-			"wan_ext_ip":            v.WanExtIp,
-			"wan_ext_ip6":           v.WanExtIp6,
-			"wan_extra_routes":      wanExtraRoutes,
-			"wan_extra_routes6":     wanExtraRoutes6,
-			"wan_networks":          wanNetworksVal,
-			"wan_probe_override":    wanProbeOverride,
-			"wan_source_nat":        wanSourceNat,
-			"wan_type":              v.WanType,
+			"ae_disable_lacp":    v.AeDisableLacp,
+			"ae_idx":             v.AeIdx,
+			"ae_lacp_force_up":   v.AeLacpForceUp,
+			"aggregated":         v.Aggregated,
+			"critical":           v.Critical,
+			"description":        v.Description,
+			"disable_autoneg":    v.DisableAutoneg,
+			"disabled":           v.Disabled,
+			"dsl_type":           v.DslType,
+			"dsl_vci":            v.DslVci,
+			"dsl_vpi":            v.DslVpi,
+			"duplex":             v.Duplex,
+			"lte_apn":            v.LteApn,
+			"lte_auth":           v.LteAuth,
+			"lte_backup":         v.LteBackup,
+			"lte_password":       v.LtePassword,
+			"lte_username":       v.LteUsername,
+			"mtu":                v.Mtu,
+			"name":               v.Name,
+			"networks":           networksVal,
+			"outer_vlan_id":      v.OuterVlanId,
+			"poe_disabled":       v.PoeDisabled,
+			"ip_config":          portIpConfig,
+			"port_network":       v.PortNetwork,
+			"preserve_dscp":      v.PreserveDscp,
+			"redundant":          v.Redundant,
+			"redundant_group":    v.RedundantGroup,
+			"reth_idx":           v.RethIdx,
+			"reth_node":          v.RethNode,
+			"reth_nodes":         rethNodesVal,
+			"speed":              v.Speed,
+			"ssr_no_virtual_mac": v.SsrNoVirtualMac,
+			"svr_port_range":     v.SvrPortRange,
+			"traffic_shaping":    trafficShaping,
+			"usage":              v.Usage,
+			"vlan_id":            v.VlanId,
+			"vpn_paths":          vpnPaths,
+			"wan_arp_policer":    v.WanArpPolicer,
+			"wan_ext_ip":         v.WanExtIp,
+			"wan_ext_ip6":        v.WanExtIp6,
+			"wan_extra_routes":   wanExtraRoutes,
+			"wan_extra_routes6":  wanExtraRoutes6,
+			"wan_networks":       wanNetworksVal,
+			"wan_probe_override": wanProbeOverride,
+			"wan_source_nat":     wanSourceNat,
+			"wan_speedtest_mode": v.WanSpeedtestMode,
+			"wan_type":           v.WanType,
 		})
 
 	return objVal, diags
@@ -24089,10 +24128,6 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.WanDisableSpeedtest.Equal(other.WanDisableSpeedtest) {
-		return false
-	}
-
 	if !v.WanExtIp.Equal(other.WanExtIp) {
 		return false
 	}
@@ -24118,6 +24153,10 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.WanSourceNat.Equal(other.WanSourceNat) {
+		return false
+	}
+
+	if !v.WanSpeedtestMode.Equal(other.WanSpeedtestMode) {
 		return false
 	}
 
@@ -24185,10 +24224,9 @@ func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"vpn_paths": basetypes.MapType{
 			ElemType: VpnPathsValue{}.Type(ctx),
 		},
-		"wan_arp_policer":       basetypes.StringType{},
-		"wan_disable_speedtest": basetypes.BoolType{},
-		"wan_ext_ip":            basetypes.StringType{},
-		"wan_ext_ip6":           basetypes.StringType{},
+		"wan_arp_policer": basetypes.StringType{},
+		"wan_ext_ip":      basetypes.StringType{},
+		"wan_ext_ip6":     basetypes.StringType{},
 		"wan_extra_routes": basetypes.MapType{
 			ElemType: WanExtraRoutesValue{}.Type(ctx),
 		},
@@ -24204,7 +24242,8 @@ func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"wan_source_nat": basetypes.ObjectType{
 			AttrTypes: WanSourceNatValue{}.AttributeTypes(ctx),
 		},
-		"wan_type": basetypes.StringType{},
+		"wan_speedtest_mode": basetypes.StringType{},
+		"wan_type":           basetypes.StringType{},
 	}
 }
 
@@ -34914,12 +34953,12 @@ func (t SkyatpType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	dnsDgaDetectionVal, ok := dnsDgaDetectionAttribute.(basetypes.StringValue)
+	dnsDgaDetectionVal, ok := dnsDgaDetectionAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`dns_dga_detection expected to be basetypes.StringValue, was: %T`, dnsDgaDetectionAttribute))
+			fmt.Sprintf(`dns_dga_detection expected to be basetypes.ObjectValue, was: %T`, dnsDgaDetectionAttribute))
 	}
 
 	dnsTunnelDetectionAttribute, ok := attributes["dns_tunnel_detection"]
@@ -34932,12 +34971,12 @@ func (t SkyatpType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	dnsTunnelDetectionVal, ok := dnsTunnelDetectionAttribute.(basetypes.StringValue)
+	dnsTunnelDetectionVal, ok := dnsTunnelDetectionAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`dns_tunnel_detection expected to be basetypes.StringValue, was: %T`, dnsTunnelDetectionAttribute))
+			fmt.Sprintf(`dns_tunnel_detection expected to be basetypes.ObjectValue, was: %T`, dnsTunnelDetectionAttribute))
 	}
 
 	httpInspectionAttribute, ok := attributes["http_inspection"]
@@ -34950,12 +34989,12 @@ func (t SkyatpType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	httpInspectionVal, ok := httpInspectionAttribute.(basetypes.StringValue)
+	httpInspectionVal, ok := httpInspectionAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`http_inspection expected to be basetypes.StringValue, was: %T`, httpInspectionAttribute))
+			fmt.Sprintf(`http_inspection expected to be basetypes.ObjectValue, was: %T`, httpInspectionAttribute))
 	}
 
 	iotDevicePolicyAttribute, ok := attributes["iot_device_policy"]
@@ -34968,12 +35007,12 @@ func (t SkyatpType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	iotDevicePolicyVal, ok := iotDevicePolicyAttribute.(basetypes.StringValue)
+	iotDevicePolicyVal, ok := iotDevicePolicyAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`iot_device_policy expected to be basetypes.StringValue, was: %T`, iotDevicePolicyAttribute))
+			fmt.Sprintf(`iot_device_policy expected to be basetypes.ObjectValue, was: %T`, iotDevicePolicyAttribute))
 	}
 
 	if diags.HasError() {
@@ -35062,12 +35101,12 @@ func NewSkyatpValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewSkyatpValueUnknown(), diags
 	}
 
-	dnsDgaDetectionVal, ok := dnsDgaDetectionAttribute.(basetypes.StringValue)
+	dnsDgaDetectionVal, ok := dnsDgaDetectionAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`dns_dga_detection expected to be basetypes.StringValue, was: %T`, dnsDgaDetectionAttribute))
+			fmt.Sprintf(`dns_dga_detection expected to be basetypes.ObjectValue, was: %T`, dnsDgaDetectionAttribute))
 	}
 
 	dnsTunnelDetectionAttribute, ok := attributes["dns_tunnel_detection"]
@@ -35080,12 +35119,12 @@ func NewSkyatpValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewSkyatpValueUnknown(), diags
 	}
 
-	dnsTunnelDetectionVal, ok := dnsTunnelDetectionAttribute.(basetypes.StringValue)
+	dnsTunnelDetectionVal, ok := dnsTunnelDetectionAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`dns_tunnel_detection expected to be basetypes.StringValue, was: %T`, dnsTunnelDetectionAttribute))
+			fmt.Sprintf(`dns_tunnel_detection expected to be basetypes.ObjectValue, was: %T`, dnsTunnelDetectionAttribute))
 	}
 
 	httpInspectionAttribute, ok := attributes["http_inspection"]
@@ -35098,12 +35137,12 @@ func NewSkyatpValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewSkyatpValueUnknown(), diags
 	}
 
-	httpInspectionVal, ok := httpInspectionAttribute.(basetypes.StringValue)
+	httpInspectionVal, ok := httpInspectionAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`http_inspection expected to be basetypes.StringValue, was: %T`, httpInspectionAttribute))
+			fmt.Sprintf(`http_inspection expected to be basetypes.ObjectValue, was: %T`, httpInspectionAttribute))
 	}
 
 	iotDevicePolicyAttribute, ok := attributes["iot_device_policy"]
@@ -35116,12 +35155,12 @@ func NewSkyatpValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewSkyatpValueUnknown(), diags
 	}
 
-	iotDevicePolicyVal, ok := iotDevicePolicyAttribute.(basetypes.StringValue)
+	iotDevicePolicyVal, ok := iotDevicePolicyAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`iot_device_policy expected to be basetypes.StringValue, was: %T`, iotDevicePolicyAttribute))
+			fmt.Sprintf(`iot_device_policy expected to be basetypes.ObjectValue, was: %T`, iotDevicePolicyAttribute))
 	}
 
 	if diags.HasError() {
@@ -35205,10 +35244,10 @@ func (t SkyatpType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SkyatpValue{}
 
 type SkyatpValue struct {
-	DnsDgaDetection    basetypes.StringValue `tfsdk:"dns_dga_detection"`
-	DnsTunnelDetection basetypes.StringValue `tfsdk:"dns_tunnel_detection"`
-	HttpInspection     basetypes.StringValue `tfsdk:"http_inspection"`
-	IotDevicePolicy    basetypes.StringValue `tfsdk:"iot_device_policy"`
+	DnsDgaDetection    basetypes.ObjectValue `tfsdk:"dns_dga_detection"`
+	DnsTunnelDetection basetypes.ObjectValue `tfsdk:"dns_tunnel_detection"`
+	HttpInspection     basetypes.ObjectValue `tfsdk:"http_inspection"`
+	IotDevicePolicy    basetypes.ObjectValue `tfsdk:"iot_device_policy"`
 	state              attr.ValueState
 }
 
@@ -35218,10 +35257,18 @@ func (v SkyatpValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	var val tftypes.Value
 	var err error
 
-	attrTypes["dns_dga_detection"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["dns_tunnel_detection"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["http_inspection"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["iot_device_policy"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["dns_dga_detection"] = basetypes.ObjectType{
+		AttrTypes: DnsDgaDetectionValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["dns_tunnel_detection"] = basetypes.ObjectType{
+		AttrTypes: DnsTunnelDetectionValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["http_inspection"] = basetypes.ObjectType{
+		AttrTypes: HttpInspectionValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["iot_device_policy"] = basetypes.ObjectType{
+		AttrTypes: IotDevicePolicyValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
@@ -35290,11 +35337,103 @@ func (v SkyatpValue) String() string {
 func (v SkyatpValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var dnsDgaDetection basetypes.ObjectValue
+
+	if v.DnsDgaDetection.IsNull() {
+		dnsDgaDetection = types.ObjectNull(
+			DnsDgaDetectionValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.DnsDgaDetection.IsUnknown() {
+		dnsDgaDetection = types.ObjectUnknown(
+			DnsDgaDetectionValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.DnsDgaDetection.IsNull() && !v.DnsDgaDetection.IsUnknown() {
+		dnsDgaDetection = types.ObjectValueMust(
+			DnsDgaDetectionValue{}.AttributeTypes(ctx),
+			v.DnsDgaDetection.Attributes(),
+		)
+	}
+
+	var dnsTunnelDetection basetypes.ObjectValue
+
+	if v.DnsTunnelDetection.IsNull() {
+		dnsTunnelDetection = types.ObjectNull(
+			DnsTunnelDetectionValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.DnsTunnelDetection.IsUnknown() {
+		dnsTunnelDetection = types.ObjectUnknown(
+			DnsTunnelDetectionValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.DnsTunnelDetection.IsNull() && !v.DnsTunnelDetection.IsUnknown() {
+		dnsTunnelDetection = types.ObjectValueMust(
+			DnsTunnelDetectionValue{}.AttributeTypes(ctx),
+			v.DnsTunnelDetection.Attributes(),
+		)
+	}
+
+	var httpInspection basetypes.ObjectValue
+
+	if v.HttpInspection.IsNull() {
+		httpInspection = types.ObjectNull(
+			HttpInspectionValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.HttpInspection.IsUnknown() {
+		httpInspection = types.ObjectUnknown(
+			HttpInspectionValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.HttpInspection.IsNull() && !v.HttpInspection.IsUnknown() {
+		httpInspection = types.ObjectValueMust(
+			HttpInspectionValue{}.AttributeTypes(ctx),
+			v.HttpInspection.Attributes(),
+		)
+	}
+
+	var iotDevicePolicy basetypes.ObjectValue
+
+	if v.IotDevicePolicy.IsNull() {
+		iotDevicePolicy = types.ObjectNull(
+			IotDevicePolicyValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.IotDevicePolicy.IsUnknown() {
+		iotDevicePolicy = types.ObjectUnknown(
+			IotDevicePolicyValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.IotDevicePolicy.IsNull() && !v.IotDevicePolicy.IsUnknown() {
+		iotDevicePolicy = types.ObjectValueMust(
+			IotDevicePolicyValue{}.AttributeTypes(ctx),
+			v.IotDevicePolicy.Attributes(),
+		)
+	}
+
 	attributeTypes := map[string]attr.Type{
-		"dns_dga_detection":    basetypes.StringType{},
-		"dns_tunnel_detection": basetypes.StringType{},
-		"http_inspection":      basetypes.StringType{},
-		"iot_device_policy":    basetypes.StringType{},
+		"dns_dga_detection": basetypes.ObjectType{
+			AttrTypes: DnsDgaDetectionValue{}.AttributeTypes(ctx),
+		},
+		"dns_tunnel_detection": basetypes.ObjectType{
+			AttrTypes: DnsTunnelDetectionValue{}.AttributeTypes(ctx),
+		},
+		"http_inspection": basetypes.ObjectType{
+			AttrTypes: HttpInspectionValue{}.AttributeTypes(ctx),
+		},
+		"iot_device_policy": basetypes.ObjectType{
+			AttrTypes: IotDevicePolicyValue{}.AttributeTypes(ctx),
+		},
 	}
 
 	if v.IsNull() {
@@ -35308,10 +35447,10 @@ func (v SkyatpValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"dns_dga_detection":    v.DnsDgaDetection,
-			"dns_tunnel_detection": v.DnsTunnelDetection,
-			"http_inspection":      v.HttpInspection,
-			"iot_device_policy":    v.IotDevicePolicy,
+			"dns_dga_detection":    dnsDgaDetection,
+			"dns_tunnel_detection": dnsTunnelDetection,
+			"http_inspection":      httpInspection,
+			"iot_device_policy":    iotDevicePolicy,
 		})
 
 	return objVal, diags
@@ -35361,10 +35500,1479 @@ func (v SkyatpValue) Type(ctx context.Context) attr.Type {
 
 func (v SkyatpValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"dns_dga_detection":    basetypes.StringType{},
-		"dns_tunnel_detection": basetypes.StringType{},
-		"http_inspection":      basetypes.StringType{},
-		"iot_device_policy":    basetypes.StringType{},
+		"dns_dga_detection": basetypes.ObjectType{
+			AttrTypes: DnsDgaDetectionValue{}.AttributeTypes(ctx),
+		},
+		"dns_tunnel_detection": basetypes.ObjectType{
+			AttrTypes: DnsTunnelDetectionValue{}.AttributeTypes(ctx),
+		},
+		"http_inspection": basetypes.ObjectType{
+			AttrTypes: HttpInspectionValue{}.AttributeTypes(ctx),
+		},
+		"iot_device_policy": basetypes.ObjectType{
+			AttrTypes: IotDevicePolicyValue{}.AttributeTypes(ctx),
+		},
+	}
+}
+
+var _ basetypes.ObjectTypable = DnsDgaDetectionType{}
+
+type DnsDgaDetectionType struct {
+	basetypes.ObjectType
+}
+
+func (t DnsDgaDetectionType) Equal(o attr.Type) bool {
+	other, ok := o.(DnsDgaDetectionType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t DnsDgaDetectionType) String() string {
+	return "DnsDgaDetectionType"
+}
+
+func (t DnsDgaDetectionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	profileAttribute, ok := attributes["profile"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`profile is missing from object`)
+
+		return nil, diags
+	}
+
+	profileVal, ok := profileAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`profile expected to be basetypes.StringValue, was: %T`, profileAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return DnsDgaDetectionValue{
+		Enabled: enabledVal,
+		Profile: profileVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewDnsDgaDetectionValueNull() DnsDgaDetectionValue {
+	return DnsDgaDetectionValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewDnsDgaDetectionValueUnknown() DnsDgaDetectionValue {
+	return DnsDgaDetectionValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewDnsDgaDetectionValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (DnsDgaDetectionValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing DnsDgaDetectionValue Attribute Value",
+				"While creating a DnsDgaDetectionValue value, a missing attribute value was detected. "+
+					"A DnsDgaDetectionValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("DnsDgaDetectionValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid DnsDgaDetectionValue Attribute Type",
+				"While creating a DnsDgaDetectionValue value, an invalid attribute value was detected. "+
+					"A DnsDgaDetectionValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("DnsDgaDetectionValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("DnsDgaDetectionValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra DnsDgaDetectionValue Attribute Value",
+				"While creating a DnsDgaDetectionValue value, an extra attribute value was detected. "+
+					"A DnsDgaDetectionValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra DnsDgaDetectionValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewDnsDgaDetectionValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewDnsDgaDetectionValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	profileAttribute, ok := attributes["profile"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`profile is missing from object`)
+
+		return NewDnsDgaDetectionValueUnknown(), diags
+	}
+
+	profileVal, ok := profileAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`profile expected to be basetypes.StringValue, was: %T`, profileAttribute))
+	}
+
+	if diags.HasError() {
+		return NewDnsDgaDetectionValueUnknown(), diags
+	}
+
+	return DnsDgaDetectionValue{
+		Enabled: enabledVal,
+		Profile: profileVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewDnsDgaDetectionValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) DnsDgaDetectionValue {
+	object, diags := NewDnsDgaDetectionValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewDnsDgaDetectionValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t DnsDgaDetectionType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewDnsDgaDetectionValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewDnsDgaDetectionValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewDnsDgaDetectionValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewDnsDgaDetectionValueMust(DnsDgaDetectionValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t DnsDgaDetectionType) ValueType(ctx context.Context) attr.Value {
+	return DnsDgaDetectionValue{}
+}
+
+var _ basetypes.ObjectValuable = DnsDgaDetectionValue{}
+
+type DnsDgaDetectionValue struct {
+	Enabled basetypes.BoolValue   `tfsdk:"enabled"`
+	Profile basetypes.StringValue `tfsdk:"profile"`
+	state   attr.ValueState
+}
+
+func (v DnsDgaDetectionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["profile"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.Profile.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["profile"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v DnsDgaDetectionValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v DnsDgaDetectionValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v DnsDgaDetectionValue) String() string {
+	return "DnsDgaDetectionValue"
+}
+
+func (v DnsDgaDetectionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+		"profile": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+			"profile": v.Profile,
+		})
+
+	return objVal, diags
+}
+
+func (v DnsDgaDetectionValue) Equal(o attr.Value) bool {
+	other, ok := o.(DnsDgaDetectionValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.Profile.Equal(other.Profile) {
+		return false
+	}
+
+	return true
+}
+
+func (v DnsDgaDetectionValue) Type(ctx context.Context) attr.Type {
+	return DnsDgaDetectionType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v DnsDgaDetectionValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+		"profile": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = DnsTunnelDetectionType{}
+
+type DnsTunnelDetectionType struct {
+	basetypes.ObjectType
+}
+
+func (t DnsTunnelDetectionType) Equal(o attr.Type) bool {
+	other, ok := o.(DnsTunnelDetectionType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t DnsTunnelDetectionType) String() string {
+	return "DnsTunnelDetectionType"
+}
+
+func (t DnsTunnelDetectionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	profileAttribute, ok := attributes["profile"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`profile is missing from object`)
+
+		return nil, diags
+	}
+
+	profileVal, ok := profileAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`profile expected to be basetypes.StringValue, was: %T`, profileAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return DnsTunnelDetectionValue{
+		Enabled: enabledVal,
+		Profile: profileVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewDnsTunnelDetectionValueNull() DnsTunnelDetectionValue {
+	return DnsTunnelDetectionValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewDnsTunnelDetectionValueUnknown() DnsTunnelDetectionValue {
+	return DnsTunnelDetectionValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewDnsTunnelDetectionValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (DnsTunnelDetectionValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing DnsTunnelDetectionValue Attribute Value",
+				"While creating a DnsTunnelDetectionValue value, a missing attribute value was detected. "+
+					"A DnsTunnelDetectionValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("DnsTunnelDetectionValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid DnsTunnelDetectionValue Attribute Type",
+				"While creating a DnsTunnelDetectionValue value, an invalid attribute value was detected. "+
+					"A DnsTunnelDetectionValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("DnsTunnelDetectionValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("DnsTunnelDetectionValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra DnsTunnelDetectionValue Attribute Value",
+				"While creating a DnsTunnelDetectionValue value, an extra attribute value was detected. "+
+					"A DnsTunnelDetectionValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra DnsTunnelDetectionValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewDnsTunnelDetectionValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewDnsTunnelDetectionValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	profileAttribute, ok := attributes["profile"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`profile is missing from object`)
+
+		return NewDnsTunnelDetectionValueUnknown(), diags
+	}
+
+	profileVal, ok := profileAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`profile expected to be basetypes.StringValue, was: %T`, profileAttribute))
+	}
+
+	if diags.HasError() {
+		return NewDnsTunnelDetectionValueUnknown(), diags
+	}
+
+	return DnsTunnelDetectionValue{
+		Enabled: enabledVal,
+		Profile: profileVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewDnsTunnelDetectionValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) DnsTunnelDetectionValue {
+	object, diags := NewDnsTunnelDetectionValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewDnsTunnelDetectionValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t DnsTunnelDetectionType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewDnsTunnelDetectionValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewDnsTunnelDetectionValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewDnsTunnelDetectionValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewDnsTunnelDetectionValueMust(DnsTunnelDetectionValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t DnsTunnelDetectionType) ValueType(ctx context.Context) attr.Value {
+	return DnsTunnelDetectionValue{}
+}
+
+var _ basetypes.ObjectValuable = DnsTunnelDetectionValue{}
+
+type DnsTunnelDetectionValue struct {
+	Enabled basetypes.BoolValue   `tfsdk:"enabled"`
+	Profile basetypes.StringValue `tfsdk:"profile"`
+	state   attr.ValueState
+}
+
+func (v DnsTunnelDetectionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["profile"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.Profile.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["profile"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v DnsTunnelDetectionValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v DnsTunnelDetectionValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v DnsTunnelDetectionValue) String() string {
+	return "DnsTunnelDetectionValue"
+}
+
+func (v DnsTunnelDetectionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+		"profile": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+			"profile": v.Profile,
+		})
+
+	return objVal, diags
+}
+
+func (v DnsTunnelDetectionValue) Equal(o attr.Value) bool {
+	other, ok := o.(DnsTunnelDetectionValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.Profile.Equal(other.Profile) {
+		return false
+	}
+
+	return true
+}
+
+func (v DnsTunnelDetectionValue) Type(ctx context.Context) attr.Type {
+	return DnsTunnelDetectionType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v DnsTunnelDetectionValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+		"profile": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = HttpInspectionType{}
+
+type HttpInspectionType struct {
+	basetypes.ObjectType
+}
+
+func (t HttpInspectionType) Equal(o attr.Type) bool {
+	other, ok := o.(HttpInspectionType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t HttpInspectionType) String() string {
+	return "HttpInspectionType"
+}
+
+func (t HttpInspectionType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	profileAttribute, ok := attributes["profile"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`profile is missing from object`)
+
+		return nil, diags
+	}
+
+	profileVal, ok := profileAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`profile expected to be basetypes.StringValue, was: %T`, profileAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return HttpInspectionValue{
+		Enabled: enabledVal,
+		Profile: profileVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewHttpInspectionValueNull() HttpInspectionValue {
+	return HttpInspectionValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewHttpInspectionValueUnknown() HttpInspectionValue {
+	return HttpInspectionValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewHttpInspectionValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (HttpInspectionValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing HttpInspectionValue Attribute Value",
+				"While creating a HttpInspectionValue value, a missing attribute value was detected. "+
+					"A HttpInspectionValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("HttpInspectionValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid HttpInspectionValue Attribute Type",
+				"While creating a HttpInspectionValue value, an invalid attribute value was detected. "+
+					"A HttpInspectionValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("HttpInspectionValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("HttpInspectionValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra HttpInspectionValue Attribute Value",
+				"While creating a HttpInspectionValue value, an extra attribute value was detected. "+
+					"A HttpInspectionValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra HttpInspectionValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewHttpInspectionValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewHttpInspectionValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	profileAttribute, ok := attributes["profile"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`profile is missing from object`)
+
+		return NewHttpInspectionValueUnknown(), diags
+	}
+
+	profileVal, ok := profileAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`profile expected to be basetypes.StringValue, was: %T`, profileAttribute))
+	}
+
+	if diags.HasError() {
+		return NewHttpInspectionValueUnknown(), diags
+	}
+
+	return HttpInspectionValue{
+		Enabled: enabledVal,
+		Profile: profileVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewHttpInspectionValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) HttpInspectionValue {
+	object, diags := NewHttpInspectionValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewHttpInspectionValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t HttpInspectionType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewHttpInspectionValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewHttpInspectionValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewHttpInspectionValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewHttpInspectionValueMust(HttpInspectionValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t HttpInspectionType) ValueType(ctx context.Context) attr.Value {
+	return HttpInspectionValue{}
+}
+
+var _ basetypes.ObjectValuable = HttpInspectionValue{}
+
+type HttpInspectionValue struct {
+	Enabled basetypes.BoolValue   `tfsdk:"enabled"`
+	Profile basetypes.StringValue `tfsdk:"profile"`
+	state   attr.ValueState
+}
+
+func (v HttpInspectionValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["profile"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.Profile.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["profile"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v HttpInspectionValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v HttpInspectionValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v HttpInspectionValue) String() string {
+	return "HttpInspectionValue"
+}
+
+func (v HttpInspectionValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+		"profile": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+			"profile": v.Profile,
+		})
+
+	return objVal, diags
+}
+
+func (v HttpInspectionValue) Equal(o attr.Value) bool {
+	other, ok := o.(HttpInspectionValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.Profile.Equal(other.Profile) {
+		return false
+	}
+
+	return true
+}
+
+func (v HttpInspectionValue) Type(ctx context.Context) attr.Type {
+	return HttpInspectionType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v HttpInspectionValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+		"profile": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = IotDevicePolicyType{}
+
+type IotDevicePolicyType struct {
+	basetypes.ObjectType
+}
+
+func (t IotDevicePolicyType) Equal(o attr.Type) bool {
+	other, ok := o.(IotDevicePolicyType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t IotDevicePolicyType) String() string {
+	return "IotDevicePolicyType"
+}
+
+func (t IotDevicePolicyType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return IotDevicePolicyValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewIotDevicePolicyValueNull() IotDevicePolicyValue {
+	return IotDevicePolicyValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewIotDevicePolicyValueUnknown() IotDevicePolicyValue {
+	return IotDevicePolicyValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewIotDevicePolicyValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (IotDevicePolicyValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing IotDevicePolicyValue Attribute Value",
+				"While creating a IotDevicePolicyValue value, a missing attribute value was detected. "+
+					"A IotDevicePolicyValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("IotDevicePolicyValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid IotDevicePolicyValue Attribute Type",
+				"While creating a IotDevicePolicyValue value, an invalid attribute value was detected. "+
+					"A IotDevicePolicyValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("IotDevicePolicyValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("IotDevicePolicyValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra IotDevicePolicyValue Attribute Value",
+				"While creating a IotDevicePolicyValue value, an extra attribute value was detected. "+
+					"A IotDevicePolicyValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra IotDevicePolicyValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewIotDevicePolicyValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewIotDevicePolicyValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewIotDevicePolicyValueUnknown(), diags
+	}
+
+	return IotDevicePolicyValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewIotDevicePolicyValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) IotDevicePolicyValue {
+	object, diags := NewIotDevicePolicyValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewIotDevicePolicyValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t IotDevicePolicyType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewIotDevicePolicyValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewIotDevicePolicyValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewIotDevicePolicyValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewIotDevicePolicyValueMust(IotDevicePolicyValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t IotDevicePolicyType) ValueType(ctx context.Context) attr.Value {
+	return IotDevicePolicyValue{}
+}
+
+var _ basetypes.ObjectValuable = IotDevicePolicyValue{}
+
+type IotDevicePolicyValue struct {
+	Enabled basetypes.BoolValue `tfsdk:"enabled"`
+	state   attr.ValueState
+}
+
+func (v IotDevicePolicyValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v IotDevicePolicyValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v IotDevicePolicyValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v IotDevicePolicyValue) String() string {
+	return "IotDevicePolicyValue"
+}
+
+func (v IotDevicePolicyValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v IotDevicePolicyValue) Equal(o attr.Value) bool {
+	other, ok := o.(IotDevicePolicyValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v IotDevicePolicyValue) Type(ctx context.Context) attr.Type {
+	return IotDevicePolicyType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v IotDevicePolicyValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
 	}
 }
 

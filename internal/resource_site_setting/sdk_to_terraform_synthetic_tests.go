@@ -38,20 +38,15 @@ func syntheticTestCustomProbesSdkToTerraform(ctx context.Context, diags *diag.Di
 	stateValueMapValue := make(map[string]attr.Value)
 	for k, d := range m {
 		var aggressiveness basetypes.StringValue
-		var host basetypes.StringValue
-		var port basetypes.Int64Value
+		var target basetypes.StringValue
 		var threshold basetypes.Int64Value
 		var probeType basetypes.StringValue
-		var url basetypes.StringValue
 
 		if d.Aggressiveness != nil {
 			aggressiveness = types.StringValue(string(*d.Aggressiveness))
 		}
-		if d.Host != nil {
-			host = types.StringValue(*d.Host)
-		}
-		if d.Port != nil {
-			port = types.Int64Value(int64(*d.Port))
+		if d.Target != nil {
+			target = types.StringValue(*d.Target)
 		}
 		if d.Threshold != nil {
 			threshold = types.Int64Value(int64(*d.Threshold))
@@ -59,17 +54,12 @@ func syntheticTestCustomProbesSdkToTerraform(ctx context.Context, diags *diag.Di
 		if d.Type != nil {
 			probeType = types.StringValue(string(*d.Type))
 		}
-		if d.Url != nil {
-			url = types.StringValue(*d.Url)
-		}
 
 		dataMapValue := map[string]attr.Value{
 			"aggressiveness": aggressiveness,
-			"host":           host,
-			"port":           port,
+			"target":         target,
 			"threshold":      threshold,
 			"type":           probeType,
-			"url":            url,
 		}
 		data, e := NewCustomProbesValue(CustomProbesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)

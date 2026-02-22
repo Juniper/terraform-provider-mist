@@ -292,6 +292,16 @@
         network = "wan"
         type = "static"
       }
+      wan_extra_routes = {
+        "10.0.0.0/8" = {
+          via = "192.168.1.254"
+        }
+      }
+      wan_extra_routes6 = {
+        "2001:db8::/32" = {
+          via = "2001:db8::1"
+        }
+      }
     },
     "ge-0/0/1" = {
       usage = "lan"

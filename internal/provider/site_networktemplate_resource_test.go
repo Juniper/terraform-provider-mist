@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_site_networktemplate"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -56,9 +58,10 @@ func TestSiteNetworktemplateModel(t *testing.T) {
 		}
 	}
 
+	resourceType := "site_networktemplate"
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_site_networktemplate.SiteNetworktemplateResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-			resourceType := "site_networktemplate"
 
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
@@ -70,7 +73,7 @@ func TestSiteNetworktemplateModel(t *testing.T) {
 				f.Body().SetAttributeRaw("site_id", hclwrite.TokensForIdentifier(siteRef))
 				combinedConfig := siteConfig + "\n\n" + Render(resourceType, tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks := config.testChecks(t, resourceType, tName, tracker)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -90,10 +93,14 @@ func TestSiteNetworktemplateModel(t *testing.T) {
 			})
 		})
 	}
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
-func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
+
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")
 
 	// Check acl_policies list if present
@@ -183,9 +190,6 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, rName string)
 	}
 	if s.AutoUpgradeLinecard != nil {
 		checks.append(t, "TestCheckResourceAttr", "auto_upgrade_linecard", fmt.Sprintf("%t", *s.AutoUpgradeLinecard))
-	}
-	if s.DefaultPortUsage != nil {
-		checks.append(t, "TestCheckResourceAttr", "default_port_usage", *s.DefaultPortUsage)
 	}
 	// Check dhcp_snooping if present
 	if s.DhcpSnooping != nil {
@@ -1158,6 +1162,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, rName string)
 					for j, cmd := range rule.AdditionalConfigCmds {
 						checks.append(t, "TestCheckResourceAttr", prefix+fmt.Sprintf(".additional_config_cmds.%d", j), cmd)
 					}
+				}
+				if rule.DefaultPortUsage != nil {
+					checks.append(t, "TestCheckResourceAttr", prefix+".default_port_usage", *rule.DefaultPortUsage)
 				}
 				if rule.IpConfig != nil {
 					if rule.IpConfig.Network != nil {

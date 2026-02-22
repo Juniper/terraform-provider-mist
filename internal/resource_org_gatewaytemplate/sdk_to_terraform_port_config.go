@@ -304,7 +304,6 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var vlanId basetypes.StringValue
 		var vpnPaths = types.MapNull(VpnPathsValue{}.Type(ctx))
 		var wanArpPolicer basetypes.StringValue
-		var wanDisableSpeedtest types.Bool
 		var wanExtIp basetypes.StringValue
 		var wanExtIp6 basetypes.StringValue
 		var wanExtraRoutes = types.MapNull(WanExtraRoutesValue{}.Type(ctx))
@@ -312,6 +311,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var wanNetworks = types.ListNull(types.StringType)
 		var wanProbeOverride = types.ObjectNull(WanProbeOverrideValue{}.AttributeTypes(ctx))
 		var wanSourceNat = types.ObjectNull(WanSourceNatValue{}.AttributeTypes(ctx))
+		var wanSpeedtestMode basetypes.StringValue
 		var wanType basetypes.StringValue
 
 		if v.AeDisableLacp != nil {
@@ -422,9 +422,6 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.WanArpPolicer != nil {
 			wanArpPolicer = types.StringValue(string(*v.WanArpPolicer))
 		}
-		if v.WanDisableSpeedtest != nil {
-			wanDisableSpeedtest = types.BoolValue(*v.WanDisableSpeedtest)
-		}
 		if v.WanExtIp != nil {
 			wanExtIp = types.StringValue(*v.WanExtIp)
 		}
@@ -446,58 +443,61 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.WanSourceNat != nil {
 			wanSourceNat = portConfigWanSourceNatSdkToTerraform(ctx, diags, v.WanSourceNat)
 		}
+		if v.WanSpeedtestMode != nil {
+			wanSpeedtestMode = types.StringValue(string(*v.WanSpeedtestMode))
+		}
 		if v.WanType != nil {
 			wanType = types.StringValue(string(*v.WanType))
 		}
 
 		var portUsageState = map[string]attr.Value{
-			"ae_disable_lacp":       aeDisableLacp,
-			"ae_idx":                aeIdx,
-			"ae_lacp_force_up":      aeLacpForceUp,
-			"aggregated":            aggregated,
-			"critical":              critical,
-			"description":           description,
-			"disable_autoneg":       disableAutoneg,
-			"disabled":              disabled,
-			"dsl_type":              dslType,
-			"dsl_vci":               dslVci,
-			"dsl_vpi":               dslVpi,
-			"duplex":                duplex,
-			"ip_config":             ipConfig,
-			"lte_apn":               lteApn,
-			"lte_auth":              lteAuth,
-			"lte_backup":            lteBackup,
-			"lte_password":          ltePassword,
-			"lte_username":          lteUsername,
-			"mtu":                   mtu,
-			"name":                  name,
-			"networks":              networks,
-			"outer_vlan_id":         outerVlanId,
-			"poe_disabled":          poeDisabled,
-			"port_network":          portNetwork,
-			"preserve_dscp":         preserveDscp,
-			"redundant":             redundant,
-			"redundant_group":       redundantGroup,
-			"reth_idx":              rethIdx,
-			"reth_node":             rethNode,
-			"reth_nodes":            rethNodes,
-			"speed":                 speed,
-			"ssr_no_virtual_mac":    ssrNoVirtualMac,
-			"svr_port_range":        svrPortRange,
-			"traffic_shaping":       trafficShaping,
-			"usage":                 usage,
-			"vlan_id":               vlanId,
-			"vpn_paths":             vpnPaths,
-			"wan_arp_policer":       wanArpPolicer,
-			"wan_disable_speedtest": wanDisableSpeedtest,
-			"wan_ext_ip":            wanExtIp,
-			"wan_ext_ip6":           wanExtIp6,
-			"wan_extra_routes":      wanExtraRoutes,
-			"wan_extra_routes6":     wanExtraRoutes6,
-			"wan_networks":          wanNetworks,
-			"wan_probe_override":    wanProbeOverride,
-			"wan_source_nat":        wanSourceNat,
-			"wan_type":              wanType,
+			"ae_disable_lacp":    aeDisableLacp,
+			"ae_idx":             aeIdx,
+			"ae_lacp_force_up":   aeLacpForceUp,
+			"aggregated":         aggregated,
+			"critical":           critical,
+			"description":        description,
+			"disable_autoneg":    disableAutoneg,
+			"disabled":           disabled,
+			"dsl_type":           dslType,
+			"dsl_vci":            dslVci,
+			"dsl_vpi":            dslVpi,
+			"duplex":             duplex,
+			"ip_config":          ipConfig,
+			"lte_apn":            lteApn,
+			"lte_auth":           lteAuth,
+			"lte_backup":         lteBackup,
+			"lte_password":       ltePassword,
+			"lte_username":       lteUsername,
+			"mtu":                mtu,
+			"name":               name,
+			"networks":           networks,
+			"outer_vlan_id":      outerVlanId,
+			"poe_disabled":       poeDisabled,
+			"port_network":       portNetwork,
+			"preserve_dscp":      preserveDscp,
+			"redundant":          redundant,
+			"redundant_group":    redundantGroup,
+			"reth_idx":           rethIdx,
+			"reth_node":          rethNode,
+			"reth_nodes":         rethNodes,
+			"speed":              speed,
+			"ssr_no_virtual_mac": ssrNoVirtualMac,
+			"svr_port_range":     svrPortRange,
+			"traffic_shaping":    trafficShaping,
+			"usage":              usage,
+			"vlan_id":            vlanId,
+			"vpn_paths":          vpnPaths,
+			"wan_arp_policer":    wanArpPolicer,
+			"wan_ext_ip":         wanExtIp,
+			"wan_ext_ip6":        wanExtIp6,
+			"wan_extra_routes":   wanExtraRoutes,
+			"wan_extra_routes6":  wanExtraRoutes6,
+			"wan_networks":       wanNetworks,
+			"wan_probe_override": wanProbeOverride,
+			"wan_source_nat":     wanSourceNat,
+			"wan_speedtest_mode": wanSpeedtestMode,
+			"wan_type":           wanType,
 		}
 		portUsageObject, e := NewPortConfigValue(PortConfigValue{}.AttributeTypes(ctx), portUsageState)
 		diags.Append(e...)

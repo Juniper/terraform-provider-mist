@@ -97,7 +97,6 @@ resource "mist_site_networktemplate" "networktemplate_one" {
 - `acl_tags` (Attributes Map) ACL Tags to identify traffic source or destination. Key name is the tag name (see [below for nested schema](#nestedatt--acl_tags))
 - `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config. **Note**: no check is done
 - `auto_upgrade_linecard` (Boolean)
-- `default_port_usage` (String) Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior
 - `dhcp_snooping` (Attributes) (see [below for nested schema](#nestedatt--dhcp_snooping))
 - `disabled_system_defined_port_usages` (List of String) If some system-default port usages are not desired - namely, ap / iot / uplink
 - `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
@@ -859,6 +858,7 @@ Optional:
 Optional:
 
 - `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config. **Note**: no check is done
+- `default_port_usage` (String) Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior
 - `ip_config` (Attributes) In-Band Management interface configuration (see [below for nested schema](#nestedatt--switch_matching--rules--ip_config))
 - `match_model` (String) string the switch model must start with to use this rule. It is possible to combine with the `match_name` and `match_role` attributes
 - `match_name` (String) string the switch name must start with to use this rule. Use the `match_name_offset` to indicate the first character of the switch name to compare to. It is possible to combine with the `match_model` and `match_role` attributes

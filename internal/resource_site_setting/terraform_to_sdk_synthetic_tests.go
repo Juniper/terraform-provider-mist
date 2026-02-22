@@ -34,20 +34,14 @@ func syntheticTestCustomProbesTerraformToSdk(m basetypes.MapValue) map[string]mo
 		if plan.Aggressiveness.ValueStringPointer() != nil {
 			data.Aggressiveness = (*models.SynthetictestConfigAggressivenessEnum)(plan.Aggressiveness.ValueStringPointer())
 		}
-		if plan.Host.ValueStringPointer() != nil {
-			data.Host = plan.Host.ValueStringPointer()
-		}
-		if plan.Port.ValueInt64Pointer() != nil {
-			data.Port = models.ToPointer(int(plan.Port.ValueInt64()))
+		if plan.Target.ValueStringPointer() != nil {
+			data.Target = plan.Target.ValueStringPointer()
 		}
 		if plan.Threshold.ValueInt64Pointer() != nil {
 			data.Threshold = models.ToPointer(int(plan.Threshold.ValueInt64()))
 		}
 		if plan.CustomProbesType.ValueStringPointer() != nil {
 			data.Type = (*models.SynthetictestConfigCustomProbeTypeEnum)(plan.CustomProbesType.ValueStringPointer())
-		}
-		if plan.Url.ValueStringPointer() != nil {
-			data.Url = plan.Url.ValueStringPointer()
 		}
 
 		dataMap[n] = data

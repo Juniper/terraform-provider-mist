@@ -13,116 +13,114 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SdkToTerraform(ctx context.Context, l *[]models.AlarmTemplate, elements *[]attr.Value) diag.Diagnostics {
+func SdkToTerraform(ctx context.Context, data *[]models.AlarmTemplate, elements *[]attr.Value) diag.Diagnostics {
 	var diags diag.Diagnostics
-
-	for _, d := range *l {
-		elem := alarmTemplateSdkToTerraform(ctx, &diags, &d)
-		*elements = append(*elements, elem)
+	for _, val := range *data {
+		item := alarmTemplateSdkToTerraform(ctx, &diags, &val)
+		*elements = append(*elements, item)
 	}
 
 	return diags
 }
 
-func alarmTemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.AlarmTemplate) OrgAlarmtemplatesValue {
+func alarmTemplateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.AlarmTemplate) OrgAlarmtemplatesValue {
+	if data == nil {
+		return NewOrgAlarmtemplatesValueNull()
+	}
 
 	var createdTime basetypes.Float64Value
-	var delivery = types.ObjectNull(DeliveryValue{}.AttributeTypes(ctx))
-	var id basetypes.StringValue
-	var modifiedTime basetypes.Float64Value
-	var name basetypes.StringValue
-	var orgId basetypes.StringValue
-	var rules = basetypes.NewMapNull(RulesValue{}.Type(ctx))
+	if data.CreatedTime != nil {
+		createdTime = types.Float64Value(*data.CreatedTime)
+	}
 
-	if d.CreatedTime != nil {
-		createdTime = types.Float64Value(*d.CreatedTime)
+	var modifiedTime basetypes.Float64Value
+	if data.ModifiedTime != nil {
+		modifiedTime = types.Float64Value(*data.ModifiedTime)
 	}
-	delivery = deliverySdkToTerraform(ctx, diags, &d.Delivery)
-	id = types.StringValue(d.Id.String())
-	if d.ModifiedTime != nil {
-		modifiedTime = types.Float64Value(*d.ModifiedTime)
+
+	var name basetypes.StringValue
+	if data.Name != nil {
+		name = types.StringValue(*data.Name)
 	}
-	if d.Name != nil {
-		name = types.StringValue(*d.Name)
-	}
-	orgId = types.StringValue(d.OrgId.String())
-	rules = rulesSdkToTerraform(ctx, diags, d.Rules)
 
 	dataMapValue := map[string]attr.Value{
-		"created_time":  createdTime,
-		"delivery":      delivery,
-		"id":            id,
-		"modified_time": modifiedTime,
+		"id":            types.StringValue(data.Id.String()),
+		"org_id":        types.StringValue(data.OrgId.String()),
+		"rules":         rulesSdkToTerraform(ctx, diags, data.Rules),
+		"delivery":      deliverySdkToTerraform(ctx, diags, &data.Delivery),
 		"name":          name,
-		"org_id":        orgId,
-		"rules":         rules,
+		"created_time":  createdTime,
+		"modified_time": modifiedTime,
 	}
-	data, e := NewOrgAlarmtemplatesValue(OrgAlarmtemplatesValue{}.AttributeTypes(ctx), dataMapValue)
-	diags.Append(e...)
+	result, err := NewOrgAlarmtemplatesValue(OrgAlarmtemplatesValue{}.AttributeTypes(ctx), dataMapValue)
+	diags.Append(err...)
 
-	return data
+	return result
 }
 
 func deliverySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *models.Delivery) basetypes.ObjectValue {
-	var additionalEmails = mistutils.ListOfStringSdkToTerraformEmpty()
-	var enabled types.Bool
-	var toOrgAdmins types.Bool
-	var toSiteAdmins types.Bool
+	if data == nil {
+		return basetypes.NewObjectNull(DeliveryValue{}.AttributeTypes(ctx))
+	}
 
-	if data != nil {
-		if len(data.AdditionalEmails) > 0 {
-			additionalEmails = mistutils.ListOfStringSdkToTerraform(data.AdditionalEmails)
-		}
-		enabled = types.BoolValue(data.Enabled)
-		if data.ToOrgAdmins != nil {
-			toOrgAdmins = types.BoolValue(*data.ToOrgAdmins)
-		}
-		if data.ToSiteAdmins != nil {
-			toSiteAdmins = types.BoolValue(*data.ToSiteAdmins)
-		}
+	var additionalEmails = mistutils.ListOfStringSdkToTerraformEmpty()
+	if len(data.AdditionalEmails) > 0 {
+		additionalEmails = mistutils.ListOfStringSdkToTerraform(data.AdditionalEmails)
+	}
+
+	var toOrgAdmins types.Bool
+	if data.ToOrgAdmins != nil {
+		toOrgAdmins = types.BoolValue(*data.ToOrgAdmins)
+	}
+
+	var toSiteAdmins types.Bool
+	if data.ToSiteAdmins != nil {
+		toSiteAdmins = types.BoolValue(*data.ToSiteAdmins)
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"enabled":           types.BoolValue(data.Enabled),
 		"additional_emails": additionalEmails,
-		"enabled":           enabled,
 		"to_org_admins":     toOrgAdmins,
 		"to_site_admins":    toSiteAdmins,
 	}
-	r, e := basetypes.NewObjectValue(DeliveryValue{}.AttributeTypes(ctx), dataMapValue)
-	diags.Append(e...)
-	return r
+	result, err := basetypes.NewObjectValue(DeliveryValue{}.AttributeTypes(ctx), dataMapValue)
+	diags.Append(err...)
+
+	return result
 }
 
 func rulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data map[string]models.AlarmTemplateRule) basetypes.MapValue {
 	rulesMap := make(map[string]attr.Value)
-	for k, v := range data {
+	for key, val := range data {
 		var delivery = basetypes.NewObjectNull(DeliveryValue{}.AttributeTypes(ctx))
-		var enabled types.Bool
-
-		if v.Delivery != nil {
-			tmp, e := deliverySdkToTerraform(ctx, diags, v.Delivery).ToObjectValue(ctx)
-			if e != nil {
-				diags.Append(e...)
-			} else {
-				delivery = tmp
+		if val.Delivery != nil {
+			var err diag.Diagnostics
+			delivery, err = deliverySdkToTerraform(ctx, diags, val.Delivery).ToObjectValue(ctx)
+			if err != nil {
+				diags.Append(err...)
 			}
 		}
-		if v.Enabled != nil {
-			enabled = types.BoolValue(*v.Enabled)
+
+		var enabled types.Bool
+		if val.Enabled != nil {
+			enabled = types.BoolValue(*val.Enabled)
 		}
 
-		dataMapValue := map[string]attr.Value{
+		dataMap := map[string]attr.Value{
 			"delivery": delivery,
 			"enabled":  enabled,
 		}
-		data, e := NewRulesValue(RulesValue{}.AttributeTypes(ctx), dataMapValue)
-		diags.Append(e...)
+		result, err := NewRulesValue(RulesValue{}.AttributeTypes(ctx), dataMap)
+		diags.Append(err...)
 
-		rulesMap[k] = data
+		rulesMap[key] = result
 	}
-	r, e := basetypes.NewMapValueFrom(ctx, RulesValue{}.Type(ctx), rulesMap)
-	if e != nil {
-		diags.Append(e...)
+
+	result, err := basetypes.NewMapValueFrom(ctx, RulesValue{}.Type(ctx), rulesMap)
+	if err != nil {
+		diags.Append(err...)
 	}
-	return r
+
+	return result
 }

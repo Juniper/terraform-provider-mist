@@ -40,6 +40,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.BgpConfig = bgpConfigTerraformToSdk(plan.BgpConfig)
 	}
 
+	if plan.DefaultPortUsage.IsNull() || plan.DefaultPortUsage.IsUnknown() {
+		unset["-default_port_usage"] = ""
+	} else {
+		data.DefaultPortUsage = plan.DefaultPortUsage.ValueStringPointer()
+	}
+
 	if plan.DhcpSnooping.IsNull() || plan.DhcpSnooping.IsUnknown() {
 		unset["-dhcp_snooping"] = ""
 	} else {

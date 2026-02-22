@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Juniper/terraform-provider-mist/internal/provider/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/resource_org_deviceprofile_gateway"
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/v2/gohcl"
 	"github.com/hashicorp/hcl/v2/hclwrite"
@@ -41,7 +43,6 @@ func TestOrgDeviceprofileGatewayModel(t *testing.T) {
 
 	str := string(b) // convert content to a 'string'
 	fixtures := strings.Split(str, "␞")
-
 	for i, fixture := range fixtures {
 		var FixtureOrgDeviceprofileGatewayModel OrgDeviceprofileGatewayModel
 		err = hcl.Decode(&FixtureOrgDeviceprofileGatewayModel, fixture)
@@ -50,7 +51,6 @@ func TestOrgDeviceprofileGatewayModel(t *testing.T) {
 		}
 
 		FixtureOrgDeviceprofileGatewayModel.OrgId = GetTestOrgId()
-
 		testCases[fmt.Sprintf("fixture_case_%d", i)] = testCase{
 			steps: []testStep{
 				{
@@ -61,9 +61,9 @@ func TestOrgDeviceprofileGatewayModel(t *testing.T) {
 	}
 
 	resourceType := "org_deviceprofile_gateway"
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_deviceprofile_gateway.OrgDeviceprofileGatewayResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
-
 			steps := make([]resource.TestStep, len(tCase.steps))
 			for i, step := range tCase.steps {
 				config := step.config
@@ -72,7 +72,7 @@ func TestOrgDeviceprofileGatewayModel(t *testing.T) {
 				gohcl.EncodeIntoBody(&config, f.Body())
 				configStr := Render(resourceType, tName, string(f.Bytes()))
 
-				checks := config.testChecks(t, resourceType, tName)
+				checks := config.testChecks(t, resourceType, tName, tracker)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -92,10 +92,14 @@ func TestOrgDeviceprofileGatewayModel(t *testing.T) {
 			})
 		})
 	}
+	if tracker != nil {
+		tracker.FieldCoverageReport(t)
+	}
 }
 
-func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, rName string) testChecks {
-	checks := newTestChecks(PrefixProviderName(rType) + "." + rName)
+func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
+	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
+
 	// Required parameters
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
 	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
@@ -848,8 +852,8 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, rName str
 			if portConfig.WanArpPolicer != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_arp_policer", key), *portConfig.WanArpPolicer)
 			}
-			if portConfig.WanDisableSpeedtest != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_disable_speedtest", key), fmt.Sprintf("%t", *portConfig.WanDisableSpeedtest))
+			if portConfig.WanSpeedtestMode != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_speedtest_mode", key), *portConfig.WanSpeedtestMode)
 			}
 			if portConfig.WanExtIp != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_ext_ip", key), *portConfig.WanExtIp)
@@ -1119,16 +1123,33 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, rName str
 			}
 			if servicePolicy.Skyatp != nil {
 				if servicePolicy.Skyatp.DnsDgaDetection != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_dga_detection", i), *servicePolicy.Skyatp.DnsDgaDetection)
+					if servicePolicy.Skyatp.DnsDgaDetection.Enabled != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_dga_detection.enabled", i), fmt.Sprintf("%t", *servicePolicy.Skyatp.DnsDgaDetection.Enabled))
+					}
+					if servicePolicy.Skyatp.DnsDgaDetection.Profile != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_dga_detection.profile", i), *servicePolicy.Skyatp.DnsDgaDetection.Profile)
+					}
 				}
 				if servicePolicy.Skyatp.DnsTunnelDetection != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_tunnel_detection", i), *servicePolicy.Skyatp.DnsTunnelDetection)
+					if servicePolicy.Skyatp.DnsTunnelDetection.Enabled != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_tunnel_detection.enabled", i), fmt.Sprintf("%t", *servicePolicy.Skyatp.DnsTunnelDetection.Enabled))
+					}
+					if servicePolicy.Skyatp.DnsTunnelDetection.Profile != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.dns_tunnel_detection.profile", i), *servicePolicy.Skyatp.DnsTunnelDetection.Profile)
+					}
 				}
 				if servicePolicy.Skyatp.HttpInspection != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.http_inspection", i), *servicePolicy.Skyatp.HttpInspection)
+					if servicePolicy.Skyatp.HttpInspection.Enabled != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.http_inspection.enabled", i), fmt.Sprintf("%t", *servicePolicy.Skyatp.HttpInspection.Enabled))
+					}
+					if servicePolicy.Skyatp.HttpInspection.Profile != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.http_inspection.profile", i), *servicePolicy.Skyatp.HttpInspection.Profile)
+					}
 				}
 				if servicePolicy.Skyatp.IotDevicePolicy != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.iot_device_policy", i), *servicePolicy.Skyatp.IotDevicePolicy)
+					if servicePolicy.Skyatp.IotDevicePolicy.Enabled != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("service_policies.%d.skyatp.iot_device_policy.enabled", i), fmt.Sprintf("%t", *servicePolicy.Skyatp.IotDevicePolicy.Enabled))
+					}
 				}
 			}
 			if servicePolicy.Syslog != nil {

@@ -294,6 +294,11 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							"snapshot": schema.BoolAttribute{
 								Optional: true,
 							},
+							"version": schema.StringAttribute{
+								Optional:            true,
+								Description:         "Firmware version to deploy (e.g. 23.4R2-S5.5). Optional, used when custom_versions not specified",
+								MarkdownDescription: "Firmware version to deploy (e.g. 23.4R2-S5.5). Optional, used when custom_versions not specified",
+							},
 						},
 						CustomType: SrxAutoUpgradeType{
 							ObjectType: types.ObjectType{
@@ -521,6 +526,51 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliance NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled",
 						Default:             booldefault.StaticBool(false),
 					},
+					"fingerprinting": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"enabled": schema.BoolAttribute{
+								Optional:            true,
+								Computed:            true,
+								Description:         "enable/disable writes to NAC DDB fingerprint table",
+								MarkdownDescription: "enable/disable writes to NAC DDB fingerprint table",
+								Default:             booldefault.StaticBool(false),
+							},
+							"generate_coa": schema.BoolAttribute{
+								Optional:            true,
+								Computed:            true,
+								Description:         "enable/disable CoA triggers on fingerprint change for wired clients, always port-bounce",
+								MarkdownDescription: "enable/disable CoA triggers on fingerprint change for wired clients, always port-bounce",
+								Default:             booldefault.StaticBool(false),
+							},
+							"generate_wireless_coa": schema.BoolAttribute{
+								Optional:            true,
+								Computed:            true,
+								Description:         "enable/disable CoA triggers on fingerprint change for wireless clients",
+								MarkdownDescription: "enable/disable CoA triggers on fingerprint change for wireless clients",
+								Default:             booldefault.StaticBool(false),
+							},
+							"wireless_coa_type": schema.StringAttribute{
+								Optional:            true,
+								Description:         "enum: `reauth`, `disconnect`",
+								MarkdownDescription: "enum: `reauth`, `disconnect`",
+								Validators: []validator.String{
+									stringvalidator.OneOf(
+										"",
+										"reauth",
+										"disconnect",
+									),
+								},
+							},
+						},
+						CustomType: FingerprintingType{
+							ObjectType: types.ObjectType{
+								AttrTypes: FingerprintingValue{}.AttributeTypes(ctx),
+							},
+						},
+						Optional:            true,
+						Description:         "Allows customer to enable client fingerprinting for policy enforcement",
+						MarkdownDescription: "Allows customer to enable client fingerprinting for policy enforcement",
+					},
 					"idp_machine_cert_lookup_field": schema.StringAttribute{
 						Optional:            true,
 						Description:         "allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup. enum: `automatic`, `cn`, `dns`",
@@ -629,6 +679,16 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled",
 						MarkdownDescription: "By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled",
+					},
+					"usermac_expiry": schema.Int64Attribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Allow customer to configure an expiry time for usermacs by attaching a Quarantine label to those which have been inactive for the configured period of time (in days). 0 means no expiry",
+						MarkdownDescription: "Allow customer to configure an expiry time for usermacs by attaching a Quarantine label to those which have been inactive for the configured period of time (in days). 0 means no expiry",
+						Validators: []validator.Int64{
+							int64validator.Between(0, 1095),
+						},
+						Default: int64default.StaticInt64(0),
 					},
 				},
 				CustomType: MistNacType{
@@ -886,6 +946,11 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							"enabled": schema.BoolAttribute{
 								Optional: true,
 							},
+							"version": schema.StringAttribute{
+								Optional:            true,
+								Description:         "Firmware version to deploy (e.g. 6.3.0-107.r1). Optional, used when custom_versions not specified",
+								MarkdownDescription: "Firmware version to deploy (e.g. 6.3.0-107.r1). Optional, used when custom_versions not specified",
+							},
 						},
 						CustomType: SsrAutoUpgradeType{
 							ObjectType: types.ObjectType{
@@ -1001,15 +1066,10 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 									},
 									Default: stringdefault.StaticString("auto"),
 								},
-								"host": schema.StringAttribute{
+								"target": schema.StringAttribute{
 									Optional:            true,
-									Description:         "If `type`==`icmp` or `type`==`tcp`, Host to be used for the custom probe",
-									MarkdownDescription: "If `type`==`icmp` or `type`==`tcp`, Host to be used for the custom probe",
-								},
-								"port": schema.Int64Attribute{
-									Optional:            true,
-									Description:         "If `type`==`tcp`, Port to be used for the custom probe",
-									MarkdownDescription: "If `type`==`tcp`, Port to be used for the custom probe",
+									Description:         "Can be URL (e.g. http://x.com, https://x.com:8080/path/to/resource), IP address, or IP:port combination",
+									MarkdownDescription: "Can be URL (e.g. http://x.com, https://x.com:8080/path/to/resource), IP address, or IP:port combination",
 								},
 								"threshold": schema.Int64Attribute{
 									Optional:            true,
@@ -1019,22 +1079,19 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"type": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "enum: `curl`, `icmp`, `tcp`",
-									MarkdownDescription: "enum: `curl`, `icmp`, `tcp`",
+									Description:         "enum: `application`, `curl`, `icmp`, `reachability`, `tcp`",
+									MarkdownDescription: "enum: `application`, `curl`, `icmp`, `reachability`, `tcp`",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
+											"application",
 											"curl",
 											"icmp",
+											"reachability",
 											"tcp",
 										),
 									},
 									Default: stringdefault.StaticString("icmp"),
-								},
-								"url": schema.StringAttribute{
-									Optional:            true,
-									Description:         "If `type`==`curl`, URL to be used for the custom probe, can be url or IP",
-									MarkdownDescription: "If `type`==`curl`, URL to be used for the custom probe, can be url or IP",
 								},
 							},
 							CustomType: CustomProbesType{
@@ -5856,6 +5913,24 @@ func (t SrxAutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.Ob
 			fmt.Sprintf(`snapshot expected to be basetypes.BoolValue, was: %T`, snapshotAttribute))
 	}
 
+	versionAttribute, ok := attributes["version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`version is missing from object`)
+
+		return nil, diags
+	}
+
+	versionVal, ok := versionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`version expected to be basetypes.StringValue, was: %T`, versionAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -5864,6 +5939,7 @@ func (t SrxAutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		CustomVersions: customVersionsVal,
 		Enabled:        enabledVal,
 		Snapshot:       snapshotVal,
+		Version:        versionVal,
 		state:          attr.ValueStateKnown,
 	}, diags
 }
@@ -5985,6 +6061,24 @@ func NewSrxAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`snapshot expected to be basetypes.BoolValue, was: %T`, snapshotAttribute))
 	}
 
+	versionAttribute, ok := attributes["version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`version is missing from object`)
+
+		return NewSrxAutoUpgradeValueUnknown(), diags
+	}
+
+	versionVal, ok := versionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`version expected to be basetypes.StringValue, was: %T`, versionAttribute))
+	}
+
 	if diags.HasError() {
 		return NewSrxAutoUpgradeValueUnknown(), diags
 	}
@@ -5993,6 +6087,7 @@ func NewSrxAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[
 		CustomVersions: customVersionsVal,
 		Enabled:        enabledVal,
 		Snapshot:       snapshotVal,
+		Version:        versionVal,
 		state:          attr.ValueStateKnown,
 	}, diags
 }
@@ -6065,14 +6160,15 @@ func (t SrxAutoUpgradeType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SrxAutoUpgradeValue{}
 
 type SrxAutoUpgradeValue struct {
-	CustomVersions basetypes.MapValue  `tfsdk:"custom_versions"`
-	Enabled        basetypes.BoolValue `tfsdk:"enabled"`
-	Snapshot       basetypes.BoolValue `tfsdk:"snapshot"`
+	CustomVersions basetypes.MapValue    `tfsdk:"custom_versions"`
+	Enabled        basetypes.BoolValue   `tfsdk:"enabled"`
+	Snapshot       basetypes.BoolValue   `tfsdk:"snapshot"`
+	Version        basetypes.StringValue `tfsdk:"version"`
 	state          attr.ValueState
 }
 
 func (v SrxAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
@@ -6082,12 +6178,13 @@ func (v SrxAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 	}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["snapshot"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["version"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.CustomVersions.ToTerraformValue(ctx)
 
@@ -6112,6 +6209,14 @@ func (v SrxAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		}
 
 		vals["snapshot"] = val
+
+		val, err = v.Version.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["version"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -6161,6 +6266,7 @@ func (v SrxAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 			},
 			"enabled":  basetypes.BoolType{},
 			"snapshot": basetypes.BoolType{},
+			"version":  basetypes.StringType{},
 		}), diags
 	}
 
@@ -6170,6 +6276,7 @@ func (v SrxAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 		},
 		"enabled":  basetypes.BoolType{},
 		"snapshot": basetypes.BoolType{},
+		"version":  basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -6186,6 +6293,7 @@ func (v SrxAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 			"custom_versions": customVersionsVal,
 			"enabled":         v.Enabled,
 			"snapshot":        v.Snapshot,
+			"version":         v.Version,
 		})
 
 	return objVal, diags
@@ -6218,6 +6326,10 @@ func (v SrxAutoUpgradeValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Version.Equal(other.Version) {
+		return false
+	}
+
 	return true
 }
 
@@ -6236,6 +6348,7 @@ func (v SrxAutoUpgradeValue) AttributeTypes(ctx context.Context) map[string]attr
 		},
 		"enabled":  basetypes.BoolType{},
 		"snapshot": basetypes.BoolType{},
+		"version":  basetypes.StringType{},
 	}
 }
 
@@ -8420,6 +8533,24 @@ func (t MistNacType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`eu_only expected to be basetypes.BoolValue, was: %T`, euOnlyAttribute))
 	}
 
+	fingerprintingAttribute, ok := attributes["fingerprinting"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`fingerprinting is missing from object`)
+
+		return nil, diags
+	}
+
+	fingerprintingVal, ok := fingerprintingAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`fingerprinting expected to be basetypes.ObjectValue, was: %T`, fingerprintingAttribute))
+	}
+
 	idpMachineCertLookupFieldAttribute, ok := attributes["idp_machine_cert_lookup_field"]
 
 	if !ok {
@@ -8528,6 +8659,24 @@ func (t MistNacType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`use_ssl_port expected to be basetypes.BoolValue, was: %T`, useSslPortAttribute))
 	}
 
+	usermacExpiryAttribute, ok := attributes["usermac_expiry"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`usermac_expiry is missing from object`)
+
+		return nil, diags
+	}
+
+	usermacExpiryVal, ok := usermacExpiryAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`usermac_expiry expected to be basetypes.Int64Value, was: %T`, usermacExpiryAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -8538,12 +8687,14 @@ func (t MistNacType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		DisableRsaeAlgorithms:     disableRsaeAlgorithmsVal,
 		EapSslSecurityLevel:       eapSslSecurityLevelVal,
 		EuOnly:                    euOnlyVal,
+		Fingerprinting:            fingerprintingVal,
 		IdpMachineCertLookupField: idpMachineCertLookupFieldVal,
 		IdpUserCertLookupField:    idpUserCertLookupFieldVal,
 		Idps:                      idpsVal,
 		ServerCert:                serverCertVal,
 		UseIpVersion:              useIpVersionVal,
 		UseSslPort:                useSslPortVal,
+		UsermacExpiry:             usermacExpiryVal,
 		state:                     attr.ValueStateKnown,
 	}, diags
 }
@@ -8701,6 +8852,24 @@ func NewMistNacValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`eu_only expected to be basetypes.BoolValue, was: %T`, euOnlyAttribute))
 	}
 
+	fingerprintingAttribute, ok := attributes["fingerprinting"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`fingerprinting is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	fingerprintingVal, ok := fingerprintingAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`fingerprinting expected to be basetypes.ObjectValue, was: %T`, fingerprintingAttribute))
+	}
+
 	idpMachineCertLookupFieldAttribute, ok := attributes["idp_machine_cert_lookup_field"]
 
 	if !ok {
@@ -8809,6 +8978,24 @@ func NewMistNacValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`use_ssl_port expected to be basetypes.BoolValue, was: %T`, useSslPortAttribute))
 	}
 
+	usermacExpiryAttribute, ok := attributes["usermac_expiry"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`usermac_expiry is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	usermacExpiryVal, ok := usermacExpiryAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`usermac_expiry expected to be basetypes.Int64Value, was: %T`, usermacExpiryAttribute))
+	}
+
 	if diags.HasError() {
 		return NewMistNacValueUnknown(), diags
 	}
@@ -8819,12 +9006,14 @@ func NewMistNacValue(attributeTypes map[string]attr.Type, attributes map[string]
 		DisableRsaeAlgorithms:     disableRsaeAlgorithmsVal,
 		EapSslSecurityLevel:       eapSslSecurityLevelVal,
 		EuOnly:                    euOnlyVal,
+		Fingerprinting:            fingerprintingVal,
 		IdpMachineCertLookupField: idpMachineCertLookupFieldVal,
 		IdpUserCertLookupField:    idpUserCertLookupFieldVal,
 		Idps:                      idpsVal,
 		ServerCert:                serverCertVal,
 		UseIpVersion:              useIpVersionVal,
 		UseSslPort:                useSslPortVal,
+		UsermacExpiry:             usermacExpiryVal,
 		state:                     attr.ValueStateKnown,
 	}, diags
 }
@@ -8902,17 +9091,19 @@ type MistNacValue struct {
 	DisableRsaeAlgorithms     basetypes.BoolValue   `tfsdk:"disable_rsae_algorithms"`
 	EapSslSecurityLevel       basetypes.Int64Value  `tfsdk:"eap_ssl_security_level"`
 	EuOnly                    basetypes.BoolValue   `tfsdk:"eu_only"`
+	Fingerprinting            basetypes.ObjectValue `tfsdk:"fingerprinting"`
 	IdpMachineCertLookupField basetypes.StringValue `tfsdk:"idp_machine_cert_lookup_field"`
 	IdpUserCertLookupField    basetypes.StringValue `tfsdk:"idp_user_cert_lookup_field"`
 	Idps                      basetypes.ListValue   `tfsdk:"idps"`
 	ServerCert                basetypes.ObjectValue `tfsdk:"server_cert"`
 	UseIpVersion              basetypes.StringValue `tfsdk:"use_ip_version"`
 	UseSslPort                basetypes.BoolValue   `tfsdk:"use_ssl_port"`
+	UsermacExpiry             basetypes.Int64Value  `tfsdk:"usermac_expiry"`
 	state                     attr.ValueState
 }
 
 func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 11)
+	attrTypes := make(map[string]tftypes.Type, 13)
 
 	var val tftypes.Value
 	var err error
@@ -8924,6 +9115,9 @@ func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 	attrTypes["disable_rsae_algorithms"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["eap_ssl_security_level"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["eu_only"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["fingerprinting"] = basetypes.ObjectType{
+		AttrTypes: FingerprintingValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["idp_machine_cert_lookup_field"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["idp_user_cert_lookup_field"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["idps"] = basetypes.ListType{
@@ -8934,12 +9128,13 @@ func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 	}.TerraformType(ctx)
 	attrTypes["use_ip_version"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["use_ssl_port"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["usermac_expiry"] = basetypes.Int64Type{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 11)
+		vals := make(map[string]tftypes.Value, 13)
 
 		val, err = v.Cacerts.ToTerraformValue(ctx)
 
@@ -8980,6 +9175,14 @@ func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["eu_only"] = val
+
+		val, err = v.Fingerprinting.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["fingerprinting"] = val
 
 		val, err = v.IdpMachineCertLookupField.ToTerraformValue(ctx)
 
@@ -9029,6 +9232,14 @@ func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 		vals["use_ssl_port"] = val
 
+		val, err = v.UsermacExpiry.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["usermac_expiry"] = val
+
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
@@ -9057,6 +9268,27 @@ func (v MistNacValue) String() string {
 
 func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
+
+	var fingerprinting basetypes.ObjectValue
+
+	if v.Fingerprinting.IsNull() {
+		fingerprinting = types.ObjectNull(
+			FingerprintingValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Fingerprinting.IsUnknown() {
+		fingerprinting = types.ObjectUnknown(
+			FingerprintingValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Fingerprinting.IsNull() && !v.Fingerprinting.IsUnknown() {
+		fingerprinting = types.ObjectValueMust(
+			FingerprintingValue{}.AttributeTypes(ctx),
+			v.Fingerprinting.Attributes(),
+		)
+	}
 
 	idps := types.ListValueMust(
 		IdpsType{
@@ -9125,10 +9357,13 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"cacerts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"default_idp_id":                basetypes.StringType{},
-			"disable_rsae_algorithms":       basetypes.BoolType{},
-			"eap_ssl_security_level":        basetypes.Int64Type{},
-			"eu_only":                       basetypes.BoolType{},
+			"default_idp_id":          basetypes.StringType{},
+			"disable_rsae_algorithms": basetypes.BoolType{},
+			"eap_ssl_security_level":  basetypes.Int64Type{},
+			"eu_only":                 basetypes.BoolType{},
+			"fingerprinting": basetypes.ObjectType{
+				AttrTypes: FingerprintingValue{}.AttributeTypes(ctx),
+			},
 			"idp_machine_cert_lookup_field": basetypes.StringType{},
 			"idp_user_cert_lookup_field":    basetypes.StringType{},
 			"idps": basetypes.ListType{
@@ -9139,6 +9374,7 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			},
 			"use_ip_version": basetypes.StringType{},
 			"use_ssl_port":   basetypes.BoolType{},
+			"usermac_expiry": basetypes.Int64Type{},
 		}), diags
 	}
 
@@ -9146,10 +9382,13 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		"cacerts": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"default_idp_id":                basetypes.StringType{},
-		"disable_rsae_algorithms":       basetypes.BoolType{},
-		"eap_ssl_security_level":        basetypes.Int64Type{},
-		"eu_only":                       basetypes.BoolType{},
+		"default_idp_id":          basetypes.StringType{},
+		"disable_rsae_algorithms": basetypes.BoolType{},
+		"eap_ssl_security_level":  basetypes.Int64Type{},
+		"eu_only":                 basetypes.BoolType{},
+		"fingerprinting": basetypes.ObjectType{
+			AttrTypes: FingerprintingValue{}.AttributeTypes(ctx),
+		},
 		"idp_machine_cert_lookup_field": basetypes.StringType{},
 		"idp_user_cert_lookup_field":    basetypes.StringType{},
 		"idps": basetypes.ListType{
@@ -9160,6 +9399,7 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		},
 		"use_ip_version": basetypes.StringType{},
 		"use_ssl_port":   basetypes.BoolType{},
+		"usermac_expiry": basetypes.Int64Type{},
 	}
 
 	if v.IsNull() {
@@ -9178,12 +9418,14 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"disable_rsae_algorithms":       v.DisableRsaeAlgorithms,
 			"eap_ssl_security_level":        v.EapSslSecurityLevel,
 			"eu_only":                       v.EuOnly,
+			"fingerprinting":                fingerprinting,
 			"idp_machine_cert_lookup_field": v.IdpMachineCertLookupField,
 			"idp_user_cert_lookup_field":    v.IdpUserCertLookupField,
 			"idps":                          idps,
 			"server_cert":                   serverCert,
 			"use_ip_version":                v.UseIpVersion,
 			"use_ssl_port":                  v.UseSslPort,
+			"usermac_expiry":                v.UsermacExpiry,
 		})
 
 	return objVal, diags
@@ -9224,6 +9466,10 @@ func (v MistNacValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Fingerprinting.Equal(other.Fingerprinting) {
+		return false
+	}
+
 	if !v.IdpMachineCertLookupField.Equal(other.IdpMachineCertLookupField) {
 		return false
 	}
@@ -9248,6 +9494,10 @@ func (v MistNacValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.UsermacExpiry.Equal(other.UsermacExpiry) {
+		return false
+	}
+
 	return true
 }
 
@@ -9264,10 +9514,13 @@ func (v MistNacValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"cacerts": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"default_idp_id":                basetypes.StringType{},
-		"disable_rsae_algorithms":       basetypes.BoolType{},
-		"eap_ssl_security_level":        basetypes.Int64Type{},
-		"eu_only":                       basetypes.BoolType{},
+		"default_idp_id":          basetypes.StringType{},
+		"disable_rsae_algorithms": basetypes.BoolType{},
+		"eap_ssl_security_level":  basetypes.Int64Type{},
+		"eu_only":                 basetypes.BoolType{},
+		"fingerprinting": basetypes.ObjectType{
+			AttrTypes: FingerprintingValue{}.AttributeTypes(ctx),
+		},
 		"idp_machine_cert_lookup_field": basetypes.StringType{},
 		"idp_user_cert_lookup_field":    basetypes.StringType{},
 		"idps": basetypes.ListType{
@@ -9278,6 +9531,496 @@ func (v MistNacValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		},
 		"use_ip_version": basetypes.StringType{},
 		"use_ssl_port":   basetypes.BoolType{},
+		"usermac_expiry": basetypes.Int64Type{},
+	}
+}
+
+var _ basetypes.ObjectTypable = FingerprintingType{}
+
+type FingerprintingType struct {
+	basetypes.ObjectType
+}
+
+func (t FingerprintingType) Equal(o attr.Type) bool {
+	other, ok := o.(FingerprintingType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t FingerprintingType) String() string {
+	return "FingerprintingType"
+}
+
+func (t FingerprintingType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	generateCoaAttribute, ok := attributes["generate_coa"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`generate_coa is missing from object`)
+
+		return nil, diags
+	}
+
+	generateCoaVal, ok := generateCoaAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`generate_coa expected to be basetypes.BoolValue, was: %T`, generateCoaAttribute))
+	}
+
+	generateWirelessCoaAttribute, ok := attributes["generate_wireless_coa"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`generate_wireless_coa is missing from object`)
+
+		return nil, diags
+	}
+
+	generateWirelessCoaVal, ok := generateWirelessCoaAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`generate_wireless_coa expected to be basetypes.BoolValue, was: %T`, generateWirelessCoaAttribute))
+	}
+
+	wirelessCoaTypeAttribute, ok := attributes["wireless_coa_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`wireless_coa_type is missing from object`)
+
+		return nil, diags
+	}
+
+	wirelessCoaTypeVal, ok := wirelessCoaTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`wireless_coa_type expected to be basetypes.StringValue, was: %T`, wirelessCoaTypeAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return FingerprintingValue{
+		Enabled:             enabledVal,
+		GenerateCoa:         generateCoaVal,
+		GenerateWirelessCoa: generateWirelessCoaVal,
+		WirelessCoaType:     wirelessCoaTypeVal,
+		state:               attr.ValueStateKnown,
+	}, diags
+}
+
+func NewFingerprintingValueNull() FingerprintingValue {
+	return FingerprintingValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewFingerprintingValueUnknown() FingerprintingValue {
+	return FingerprintingValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewFingerprintingValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (FingerprintingValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing FingerprintingValue Attribute Value",
+				"While creating a FingerprintingValue value, a missing attribute value was detected. "+
+					"A FingerprintingValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("FingerprintingValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid FingerprintingValue Attribute Type",
+				"While creating a FingerprintingValue value, an invalid attribute value was detected. "+
+					"A FingerprintingValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("FingerprintingValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("FingerprintingValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra FingerprintingValue Attribute Value",
+				"While creating a FingerprintingValue value, an extra attribute value was detected. "+
+					"A FingerprintingValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra FingerprintingValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewFingerprintingValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewFingerprintingValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	generateCoaAttribute, ok := attributes["generate_coa"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`generate_coa is missing from object`)
+
+		return NewFingerprintingValueUnknown(), diags
+	}
+
+	generateCoaVal, ok := generateCoaAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`generate_coa expected to be basetypes.BoolValue, was: %T`, generateCoaAttribute))
+	}
+
+	generateWirelessCoaAttribute, ok := attributes["generate_wireless_coa"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`generate_wireless_coa is missing from object`)
+
+		return NewFingerprintingValueUnknown(), diags
+	}
+
+	generateWirelessCoaVal, ok := generateWirelessCoaAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`generate_wireless_coa expected to be basetypes.BoolValue, was: %T`, generateWirelessCoaAttribute))
+	}
+
+	wirelessCoaTypeAttribute, ok := attributes["wireless_coa_type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`wireless_coa_type is missing from object`)
+
+		return NewFingerprintingValueUnknown(), diags
+	}
+
+	wirelessCoaTypeVal, ok := wirelessCoaTypeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`wireless_coa_type expected to be basetypes.StringValue, was: %T`, wirelessCoaTypeAttribute))
+	}
+
+	if diags.HasError() {
+		return NewFingerprintingValueUnknown(), diags
+	}
+
+	return FingerprintingValue{
+		Enabled:             enabledVal,
+		GenerateCoa:         generateCoaVal,
+		GenerateWirelessCoa: generateWirelessCoaVal,
+		WirelessCoaType:     wirelessCoaTypeVal,
+		state:               attr.ValueStateKnown,
+	}, diags
+}
+
+func NewFingerprintingValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) FingerprintingValue {
+	object, diags := NewFingerprintingValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewFingerprintingValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t FingerprintingType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewFingerprintingValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewFingerprintingValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewFingerprintingValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewFingerprintingValueMust(FingerprintingValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t FingerprintingType) ValueType(ctx context.Context) attr.Value {
+	return FingerprintingValue{}
+}
+
+var _ basetypes.ObjectValuable = FingerprintingValue{}
+
+type FingerprintingValue struct {
+	Enabled             basetypes.BoolValue   `tfsdk:"enabled"`
+	GenerateCoa         basetypes.BoolValue   `tfsdk:"generate_coa"`
+	GenerateWirelessCoa basetypes.BoolValue   `tfsdk:"generate_wireless_coa"`
+	WirelessCoaType     basetypes.StringValue `tfsdk:"wireless_coa_type"`
+	state               attr.ValueState
+}
+
+func (v FingerprintingValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 4)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["generate_coa"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["generate_wireless_coa"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["wireless_coa_type"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 4)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.GenerateCoa.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["generate_coa"] = val
+
+		val, err = v.GenerateWirelessCoa.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["generate_wireless_coa"] = val
+
+		val, err = v.WirelessCoaType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["wireless_coa_type"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v FingerprintingValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v FingerprintingValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v FingerprintingValue) String() string {
+	return "FingerprintingValue"
+}
+
+func (v FingerprintingValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled":               basetypes.BoolType{},
+		"generate_coa":          basetypes.BoolType{},
+		"generate_wireless_coa": basetypes.BoolType{},
+		"wireless_coa_type":     basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled":               v.Enabled,
+			"generate_coa":          v.GenerateCoa,
+			"generate_wireless_coa": v.GenerateWirelessCoa,
+			"wireless_coa_type":     v.WirelessCoaType,
+		})
+
+	return objVal, diags
+}
+
+func (v FingerprintingValue) Equal(o attr.Value) bool {
+	other, ok := o.(FingerprintingValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.GenerateCoa.Equal(other.GenerateCoa) {
+		return false
+	}
+
+	if !v.GenerateWirelessCoa.Equal(other.GenerateWirelessCoa) {
+		return false
+	}
+
+	if !v.WirelessCoaType.Equal(other.WirelessCoaType) {
+		return false
+	}
+
+	return true
+}
+
+func (v FingerprintingValue) Type(ctx context.Context) attr.Type {
+	return FingerprintingType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v FingerprintingValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled":               basetypes.BoolType{},
+		"generate_coa":          basetypes.BoolType{},
+		"generate_wireless_coa": basetypes.BoolType{},
+		"wireless_coa_type":     basetypes.StringType{},
 	}
 }
 
@@ -13634,6 +14377,24 @@ func (t SsrAutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.Ob
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
+	versionAttribute, ok := attributes["version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`version is missing from object`)
+
+		return nil, diags
+	}
+
+	versionVal, ok := versionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`version expected to be basetypes.StringValue, was: %T`, versionAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -13642,6 +14403,7 @@ func (t SsrAutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.Ob
 		Channel:        channelVal,
 		CustomVersions: customVersionsVal,
 		Enabled:        enabledVal,
+		Version:        versionVal,
 		state:          attr.ValueStateKnown,
 	}, diags
 }
@@ -13763,6 +14525,24 @@ func NewSsrAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[
 			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
+	versionAttribute, ok := attributes["version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`version is missing from object`)
+
+		return NewSsrAutoUpgradeValueUnknown(), diags
+	}
+
+	versionVal, ok := versionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`version expected to be basetypes.StringValue, was: %T`, versionAttribute))
+	}
+
 	if diags.HasError() {
 		return NewSsrAutoUpgradeValueUnknown(), diags
 	}
@@ -13771,6 +14551,7 @@ func NewSsrAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[
 		Channel:        channelVal,
 		CustomVersions: customVersionsVal,
 		Enabled:        enabledVal,
+		Version:        versionVal,
 		state:          attr.ValueStateKnown,
 	}, diags
 }
@@ -13846,11 +14627,12 @@ type SsrAutoUpgradeValue struct {
 	Channel        basetypes.StringValue `tfsdk:"channel"`
 	CustomVersions basetypes.MapValue    `tfsdk:"custom_versions"`
 	Enabled        basetypes.BoolValue   `tfsdk:"enabled"`
+	Version        basetypes.StringValue `tfsdk:"version"`
 	state          attr.ValueState
 }
 
 func (v SsrAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
@@ -13860,12 +14642,13 @@ func (v SsrAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["version"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.Channel.ToTerraformValue(ctx)
 
@@ -13890,6 +14673,14 @@ func (v SsrAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Valu
 		}
 
 		vals["enabled"] = val
+
+		val, err = v.Version.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["version"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -13939,6 +14730,7 @@ func (v SsrAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 				ElemType: types.StringType,
 			},
 			"enabled": basetypes.BoolType{},
+			"version": basetypes.StringType{},
 		}), diags
 	}
 
@@ -13948,6 +14740,7 @@ func (v SsrAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 			ElemType: types.StringType,
 		},
 		"enabled": basetypes.BoolType{},
+		"version": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -13964,6 +14757,7 @@ func (v SsrAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.Objec
 			"channel":         v.Channel,
 			"custom_versions": customVersionsVal,
 			"enabled":         v.Enabled,
+			"version":         v.Version,
 		})
 
 	return objVal, diags
@@ -13996,6 +14790,10 @@ func (v SsrAutoUpgradeValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Version.Equal(other.Version) {
+		return false
+	}
+
 	return true
 }
 
@@ -14014,6 +14812,7 @@ func (v SsrAutoUpgradeValue) AttributeTypes(ctx context.Context) map[string]attr
 			ElemType: types.StringType,
 		},
 		"enabled": basetypes.BoolType{},
+		"version": basetypes.StringType{},
 	}
 }
 
@@ -15928,40 +16727,22 @@ func (t CustomProbesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`aggressiveness expected to be basetypes.StringValue, was: %T`, aggressivenessAttribute))
 	}
 
-	hostAttribute, ok := attributes["host"]
+	targetAttribute, ok := attributes["target"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`host is missing from object`)
+			`target is missing from object`)
 
 		return nil, diags
 	}
 
-	hostVal, ok := hostAttribute.(basetypes.StringValue)
+	targetVal, ok := targetAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`host expected to be basetypes.StringValue, was: %T`, hostAttribute))
-	}
-
-	portAttribute, ok := attributes["port"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`port is missing from object`)
-
-		return nil, diags
-	}
-
-	portVal, ok := portAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`target expected to be basetypes.StringValue, was: %T`, targetAttribute))
 	}
 
 	thresholdAttribute, ok := attributes["threshold"]
@@ -16000,35 +16781,15 @@ func (t CustomProbesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
 	}
 
-	urlAttribute, ok := attributes["url"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`url is missing from object`)
-
-		return nil, diags
-	}
-
-	urlVal, ok := urlAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`url expected to be basetypes.StringValue, was: %T`, urlAttribute))
-	}
-
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return CustomProbesValue{
 		Aggressiveness:   aggressivenessVal,
-		Host:             hostVal,
-		Port:             portVal,
+		Target:           targetVal,
 		Threshold:        thresholdVal,
 		CustomProbesType: typeVal,
-		Url:              urlVal,
 		state:            attr.ValueStateKnown,
 	}, diags
 }
@@ -16114,40 +16875,22 @@ func NewCustomProbesValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`aggressiveness expected to be basetypes.StringValue, was: %T`, aggressivenessAttribute))
 	}
 
-	hostAttribute, ok := attributes["host"]
+	targetAttribute, ok := attributes["target"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`host is missing from object`)
+			`target is missing from object`)
 
 		return NewCustomProbesValueUnknown(), diags
 	}
 
-	hostVal, ok := hostAttribute.(basetypes.StringValue)
+	targetVal, ok := targetAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`host expected to be basetypes.StringValue, was: %T`, hostAttribute))
-	}
-
-	portAttribute, ok := attributes["port"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`port is missing from object`)
-
-		return NewCustomProbesValueUnknown(), diags
-	}
-
-	portVal, ok := portAttribute.(basetypes.Int64Value)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+			fmt.Sprintf(`target expected to be basetypes.StringValue, was: %T`, targetAttribute))
 	}
 
 	thresholdAttribute, ok := attributes["threshold"]
@@ -16186,35 +16929,15 @@ func NewCustomProbesValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
 	}
 
-	urlAttribute, ok := attributes["url"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`url is missing from object`)
-
-		return NewCustomProbesValueUnknown(), diags
-	}
-
-	urlVal, ok := urlAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`url expected to be basetypes.StringValue, was: %T`, urlAttribute))
-	}
-
 	if diags.HasError() {
 		return NewCustomProbesValueUnknown(), diags
 	}
 
 	return CustomProbesValue{
 		Aggressiveness:   aggressivenessVal,
-		Host:             hostVal,
-		Port:             portVal,
+		Target:           targetVal,
 		Threshold:        thresholdVal,
 		CustomProbesType: typeVal,
-		Url:              urlVal,
 		state:            attr.ValueStateKnown,
 	}, diags
 }
@@ -16288,32 +17011,28 @@ var _ basetypes.ObjectValuable = CustomProbesValue{}
 
 type CustomProbesValue struct {
 	Aggressiveness   basetypes.StringValue `tfsdk:"aggressiveness"`
-	Host             basetypes.StringValue `tfsdk:"host"`
-	Port             basetypes.Int64Value  `tfsdk:"port"`
+	Target           basetypes.StringValue `tfsdk:"target"`
 	Threshold        basetypes.Int64Value  `tfsdk:"threshold"`
 	CustomProbesType basetypes.StringValue `tfsdk:"type"`
-	Url              basetypes.StringValue `tfsdk:"url"`
 	state            attr.ValueState
 }
 
 func (v CustomProbesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["aggressiveness"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["host"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["target"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["threshold"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["url"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.Aggressiveness.ToTerraformValue(ctx)
 
@@ -16323,21 +17042,13 @@ func (v CustomProbesValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 		vals["aggressiveness"] = val
 
-		val, err = v.Host.ToTerraformValue(ctx)
+		val, err = v.Target.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["host"] = val
-
-		val, err = v.Port.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["port"] = val
+		vals["target"] = val
 
 		val, err = v.Threshold.ToTerraformValue(ctx)
 
@@ -16354,14 +17065,6 @@ func (v CustomProbesValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 		}
 
 		vals["type"] = val
-
-		val, err = v.Url.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["url"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -16394,11 +17097,9 @@ func (v CustomProbesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 
 	attributeTypes := map[string]attr.Type{
 		"aggressiveness": basetypes.StringType{},
-		"host":           basetypes.StringType{},
-		"port":           basetypes.Int64Type{},
+		"target":         basetypes.StringType{},
 		"threshold":      basetypes.Int64Type{},
 		"type":           basetypes.StringType{},
-		"url":            basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -16413,11 +17114,9 @@ func (v CustomProbesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		attributeTypes,
 		map[string]attr.Value{
 			"aggressiveness": v.Aggressiveness,
-			"host":           v.Host,
-			"port":           v.Port,
+			"target":         v.Target,
 			"threshold":      v.Threshold,
 			"type":           v.CustomProbesType,
-			"url":            v.Url,
 		})
 
 	return objVal, diags
@@ -16442,11 +17141,7 @@ func (v CustomProbesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.Host.Equal(other.Host) {
-		return false
-	}
-
-	if !v.Port.Equal(other.Port) {
+	if !v.Target.Equal(other.Target) {
 		return false
 	}
 
@@ -16455,10 +17150,6 @@ func (v CustomProbesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.CustomProbesType.Equal(other.CustomProbesType) {
-		return false
-	}
-
-	if !v.Url.Equal(other.Url) {
 		return false
 	}
 
@@ -16476,11 +17167,9 @@ func (v CustomProbesValue) Type(ctx context.Context) attr.Type {
 func (v CustomProbesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"aggressiveness": basetypes.StringType{},
-		"host":           basetypes.StringType{},
-		"port":           basetypes.Int64Type{},
+		"target":         basetypes.StringType{},
 		"threshold":      basetypes.Int64Type{},
 		"type":           basetypes.StringType{},
-		"url":            basetypes.StringType{},
 	}
 }
 
