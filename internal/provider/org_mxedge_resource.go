@@ -163,8 +163,8 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 					"Error retrieving claimed \"mist_org_mxedge\" resource",
 					fmt.Sprintf("Unable to retrieve the claimed MxEdge. %s", apiErr),
 				)
-				return
 			}
+			return
 		}
 
 		body, _ := io.ReadAll(httpr.Response.Body)
@@ -420,8 +420,8 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 						"Error retrieving \"mist_org_mxedge\" after site assignment",
 						fmt.Sprintf("Unable to retrieve the MxEdge. %s", apiErr),
 					)
-					return
 				}
+				return
 			}
 
 			body, _ := io.ReadAll(httpr.Response.Body)
