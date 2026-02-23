@@ -6,7 +6,6 @@
 
   # Optional attributes
   note              = "Test MxEdge for comprehensive attribute testing"
-  mxcluster_id      = "12000000-0000-0000-0000-000000000345"
 
   # NTP servers configuration
   ntp_servers = [
