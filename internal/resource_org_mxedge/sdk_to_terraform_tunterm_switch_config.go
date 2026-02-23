@@ -3,6 +3,8 @@ package resource_org_mxedge
 import (
 	"context"
 
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -17,7 +19,7 @@ func tuntermSwitchConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 	state_value_map := make(map[string]attr.Value)
 
 	for k, v := range d.AdditionalProperties {
-		var portVlanId types.Int64
+		var portVlanId = types.Int64Null()
 		var vlanIds = types.ListNull(types.StringType)
 
 		if v.PortVlanId != nil {
@@ -26,8 +28,7 @@ func tuntermSwitchConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		if v.VlanIds != nil {
 			vlanIds_list := make([]attr.Value, len(v.VlanIds))
 			for i, vlanId := range v.VlanIds {
-				vlanIdStr := vlanId.String()
-				vlanIds_list[i] = types.StringValue(vlanIdStr)
+				vlanIds_list[i] = mistutils.VlanAsString(vlanId)
 			}
 			vlanIds_result, e := types.ListValue(types.StringType, vlanIds_list)
 			diags.Append(e...)

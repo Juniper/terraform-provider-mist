@@ -29,6 +29,7 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
+				Optional:            true,
 				Computed:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
@@ -41,6 +42,7 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"model": schema.StringAttribute{
 				Optional: true,
+				Computed: true,
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("claim_code")),
 				},
@@ -114,6 +116,7 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"name": schema.StringAttribute{
 				Optional: true,
+				Computed: true,
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("claim_code")),
 				},

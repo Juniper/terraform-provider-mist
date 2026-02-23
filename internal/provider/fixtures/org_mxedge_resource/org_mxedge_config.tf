@@ -2,6 +2,7 @@
 
   name    = "test-mxedge"
   model   = "ME-X5"
+  site_id = "{site_id}"
 
   # Optional attributes
   note              = "Test MxEdge for comprehensive attribute testing"
@@ -92,5 +93,29 @@
       servers = ["10.100.0.5"]
     }
   }
-␞
-  claim_code = "EKF4DSY7TZMDH9P"
+
+  # Tunterm IGMP snooping configuration
+  tunterm_igmp_snooping_config = {
+    enabled = true
+    vlan_ids = [100, 200]
+  }
+
+  # Tunterm port configuration
+  tunterm_port_config = {
+    downstream_ports              = ["ge-0/0/2", "ge-0/0/3"]
+    separate_upstream_downstream  = true
+    upstream_port_vlan_id         = "10"
+    upstream_ports                = ["ge-0/0/0", "ge-0/0/1"]
+  }
+
+  # Tunterm switch configuration
+  tunterm_switch_config = {
+    "ge-0/0/0" = {
+      port_vlan_id = 10
+      vlan_ids     = ["100", "200"]
+    }
+    "ge-0/0/1" = {
+      port_vlan_id = 20
+      vlan_ids     = ["100", "200", "300"]
+    }
+  }

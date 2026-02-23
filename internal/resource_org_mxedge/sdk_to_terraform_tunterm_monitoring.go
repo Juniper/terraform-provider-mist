@@ -30,11 +30,11 @@ func tuntermMonitoringSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		innerList := make([]attr.Value, len(innerArray))
 
 		for j, item := range innerArray {
-			var host types.String
-			var port types.Int64
-			var protocol types.String
-			var srcVlanId types.Int64
-			var timeout types.Int64
+			var host = types.StringNull()
+			var port = types.Int64Null()
+			var protocol = types.StringNull()
+			var srcVlanId = types.Int64Null()
+			var timeout = types.Int64Null()
 
 			if item.Host != nil {
 				host = types.StringValue(*item.Host)

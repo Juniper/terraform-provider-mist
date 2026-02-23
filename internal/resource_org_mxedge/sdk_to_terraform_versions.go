@@ -12,8 +12,8 @@ import (
 
 func versionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.MxedgeVersions) VersionsValue {
 
-	var mxagent types.String
-	var tunterm types.String
+	var mxagent = types.StringNull()
+	var tunterm = types.StringNull()
 
 	if d.Mxagent != nil {
 		mxagent = types.StringValue(*d.Mxagent)

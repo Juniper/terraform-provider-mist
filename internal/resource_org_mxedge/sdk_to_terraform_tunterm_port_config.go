@@ -15,8 +15,8 @@ import (
 func tuntermPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.TuntermPortConfig) TuntermPortConfigValue {
 
 	var downstreamPorts = types.ListNull(types.StringType)
-	var separateUpstreamDownstream types.Bool
-	var upstreamPortVlanId types.Int64
+	var separateUpstreamDownstream = types.BoolNull()
+	var upstreamPortVlanId = types.StringNull()
 	var upstreamPorts = types.ListNull(types.StringType)
 
 	if d.DownstreamPorts != nil {
@@ -26,10 +26,7 @@ func tuntermPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		separateUpstreamDownstream = types.BoolValue(*d.SeparateUpstreamDownstream)
 	}
 	if d.UpstreamPortVlanId != nil {
-		uspvID, ok := d.UpstreamPortVlanId.AsNumber()
-		if ok {
-			upstreamPortVlanId = types.Int64Value(int64(*uspvID))
-		}
+		upstreamPortVlanId = mistutils.ContainerAsString(d.UpstreamPortVlanId)
 	}
 	if d.UpstreamPorts != nil {
 		upstreamPorts = mistutils.ListOfStringSdkToTerraform(d.UpstreamPorts)

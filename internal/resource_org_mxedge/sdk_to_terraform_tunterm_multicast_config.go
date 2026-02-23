@@ -43,7 +43,7 @@ func tuntermMulticastConfigSdkToTerraform(ctx context.Context, diags *diag.Diagn
 
 func mdnsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.MxedgeTuntermMulticastMdns) MdnsValue {
 
-	var enabled types.Bool
+	var enabled = types.BoolNull()
 	var vlanIds = types.ListNull(types.StringType)
 
 	if d.Enabled != nil {
@@ -66,7 +66,7 @@ func mdnsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 
 func ssdpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.MxedgeTuntermMulticastSsdp) SsdpValue {
 
-	var enabled types.Bool
+	var enabled = types.BoolNull()
 	var vlanIds = types.ListNull(types.StringType)
 
 	if d.Enabled != nil {

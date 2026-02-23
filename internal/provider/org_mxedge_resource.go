@@ -227,6 +227,12 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
+	// Preserve claim_code from plan if it was used for claiming
+	// The API doesn't return this value, but we need to keep it in state for consistency
+	if !plan.Magic.IsNull() && plan.Magic.ValueString() != "" {
+		state.Magic = plan.Magic
+	}
+
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -279,10 +285,19 @@ func (r *orgMxedgeResource) Read(ctx context.Context, _ resource.ReadRequest, re
 	mistMxedge := models.Mxedge{}
 	json.Unmarshal(body, &mistMxedge)
 
+	// Preserve claim_code from existing state before overwriting
+	existingClaimCode := state.Magic
+
 	state, diags = resource_org_mxedge.SdkToTerraform(ctx, &mistMxedge)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	// Restore claim_code if it was previously set
+	// The API doesn't return this value, but we need to keep it in state for consistency
+	if !existingClaimCode.IsNull() && existingClaimCode.ValueString() != "" {
+		state.Magic = existingClaimCode
 	}
 
 	// Set refreshed state
@@ -350,10 +365,80 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 	body, _ := io.ReadAll(data.Response.Body)
 	mistMxedge := models.Mxedge{}
 	json.Unmarshal(body, &mistMxedge)
+
+	// Preserve claim_code from plan if it was set
+	existingClaimCode := plan.Magic
+
 	state, diags = resource_org_mxedge.SdkToTerraform(ctx, &mistMxedge)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	// Handle site assignment if site_id in plan differs from current state
+	if !plan.SiteId.IsNull() && !plan.SiteId.IsUnknown() {
+		planSiteId := plan.SiteId.ValueString()
+		stateSiteId := ""
+		if !state.SiteId.IsNull() {
+			stateSiteId = state.SiteId.ValueString()
+		}
+
+		if planSiteId != stateSiteId {
+			tflog.Info(ctx, fmt.Sprintf("Assigning MxEdge to site: %s", planSiteId))
+			siteId, err := uuid.Parse(planSiteId)
+			if err != nil {
+				resp.Diagnostics.AddError(
+					"Invalid \"site_id\" value for \"mist_org_mxedge\" resource",
+					fmt.Sprintf("Unable to parse the UUID \"%s\": %s", planSiteId, err.Error()),
+				)
+				return
+			}
+
+			assignBody := models.MxedgesAssign{
+				MxedgeIds: []uuid.UUID{mxedgeId},
+				SiteId:    siteId,
+			}
+
+			assignResponse, err := r.client.OrgsMxEdges().AssignOrgMxEdgeToSite(ctx, orgId, &assignBody)
+			if err != nil || assignResponse.Response.StatusCode != 200 {
+				apiErr := mistapierror.ProcessApiError(assignResponse.Response.StatusCode, assignResponse.Response.Body, err)
+				if apiErr != "" {
+					resp.Diagnostics.AddError(
+						"Error assigning \"mist_org_mxedge\" to site",
+						fmt.Sprintf("Unable to assign the MxEdge to site. %s", apiErr),
+					)
+					return
+				}
+			}
+
+			// Refresh state after assignment
+			httpr, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
+			if httpr.Response.StatusCode != 200 {
+				apiErr := mistapierror.ProcessApiError(httpr.Response.StatusCode, httpr.Response.Body, err)
+				if apiErr != "" {
+					resp.Diagnostics.AddError(
+						"Error retrieving \"mist_org_mxedge\" after site assignment",
+						fmt.Sprintf("Unable to retrieve the MxEdge. %s", apiErr),
+					)
+					return
+				}
+			}
+
+			body, _ := io.ReadAll(httpr.Response.Body)
+			json.Unmarshal(body, &mistMxedge)
+
+			state, diags = resource_org_mxedge.SdkToTerraform(ctx, &mistMxedge)
+			resp.Diagnostics.Append(diags...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+		}
+	}
+
+	// Restore claim_code if it was previously set
+	// The API doesn't return this value, but we need to keep it in state for consistency
+	if !existingClaimCode.IsNull() && existingClaimCode.ValueString() != "" {
+		state.Magic = existingClaimCode
 	}
 
 	diags = resp.State.Set(ctx, state)

@@ -12,7 +12,7 @@ import (
 
 func tuntermIgmpSnoopingConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.MxedgeTuntermIgmpSnoopingConfig) TuntermIgmpSnoopingConfigValue {
 
-	var enabled types.Bool
+	var enabled = types.BoolNull()
 	var querier = types.ObjectNull(QuerierValue{}.AttributeTypes(ctx))
 	var vlanIds = types.ListNull(types.Int64Type)
 
@@ -49,11 +49,11 @@ func tuntermIgmpSnoopingConfigSdkToTerraform(ctx context.Context, diags *diag.Di
 
 func querierSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.MxedgeTuntermIgmpSnoopingQuerier) QuerierValue {
 
-	var maxResponseTime types.Int64
-	var mtu types.Int64
-	var queryInterval types.Int64
-	var robustness types.Int64
-	var version types.Int64
+	var maxResponseTime = types.Int64Null()
+	var mtu = types.Int64Null()
+	var queryInterval = types.Int64Null()
+	var robustness = types.Int64Null()
+	var version = types.Int64Null()
 
 	if d.MaxResponseTime != nil {
 		maxResponseTime = types.Int64Value(int64(*d.MaxResponseTime))

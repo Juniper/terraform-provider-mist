@@ -12,12 +12,12 @@ import (
 
 func mxedgeMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.MxedgeMgmt) MxedgeMgmtValue {
 
-	var configAutoRevert types.Bool
-	var fipsEnabled types.Bool
-	var mistPassword types.String
-	var oobIpType types.String
-	var oobIpType6 types.String
-	var rootPassword types.String
+	var configAutoRevert = types.BoolNull()
+	var fipsEnabled = types.BoolNull()
+	var mistPassword = types.StringNull()
+	var oobIpType = types.StringNull()
+	var oobIpType6 = types.StringNull()
+	var rootPassword = types.StringNull()
 
 	if d.ConfigAutoRevert != nil {
 		configAutoRevert = types.BoolValue(*d.ConfigAutoRevert)

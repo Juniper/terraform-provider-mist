@@ -19,9 +19,9 @@ func tuntermDhcpdConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	state_value_map := make(map[string]attr.Value)
 
 	for k, v := range d.AdditionalProperties {
-		var enabled types.Bool
+		var enabled = types.BoolNull()
 		var servers = types.ListNull(types.StringType)
-		var tuntermDhcpdConfigType types.String
+		var tuntermDhcpdConfigType = types.StringNull()
 
 		if v.Enabled != nil {
 			enabled = types.BoolValue(*v.Enabled)

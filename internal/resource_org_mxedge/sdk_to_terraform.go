@@ -16,21 +16,21 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	var state OrgMxedgeModel
 	var diags diag.Diagnostics
 
-	var id types.String
-	var mac types.String
-	var model types.String
-	var mxagentRegistered types.Bool
-	var mxclusterId types.String
+	var id = types.StringNull()
+	var mac = types.StringNull()
+	var model = types.StringNull()
+	var mxagentRegistered = types.BoolNull()
+	var mxclusterId = types.StringNull()
 	var mxedgeMgmt = NewMxedgeMgmtValueNull()
-	var name types.String
-	var note types.String
+	var name = types.StringNull()
+	var note = types.StringNull()
 	var ntpServers = types.ListNull(types.StringType)
 	var oobIpConfig = NewOobIpConfigValueNull()
-	var orgId types.String
+	var orgId = types.StringNull()
 	var proxy = NewProxyValueNull()
-	var registrationCode types.String
+	var registrationCode = types.StringNull()
 	var services = types.ListNull(types.StringType)
-	var siteId types.String
+	var siteId = types.StringNull()
 	var tuntermDhcpdConfig = types.MapNull(TuntermDhcpdConfigValue{}.Type(ctx))
 	var tuntermExtraRoutes = types.MapNull(TuntermExtraRoutesValue{}.Type(ctx))
 	var tuntermIgmpSnoopingConfig = NewTuntermIgmpSnoopingConfigValueNull()
@@ -47,7 +47,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	var tuntermMulticastConfig = NewTuntermMulticastConfigValueNull()
 	var tuntermOtherIpConfigs = types.MapNull(TuntermOtherIpConfigsValue{}.Type(ctx))
 	var tuntermPortConfig = NewTuntermPortConfigValueNull()
-	var tuntermRegistered types.Bool
+	var tuntermRegistered = types.BoolNull()
 	var tuntermSwitchConfig = types.MapNull(TuntermSwitchConfigValue{}.Type(ctx))
 	var versions = NewVersionsValueNull()
 

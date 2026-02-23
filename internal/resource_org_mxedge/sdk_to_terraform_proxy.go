@@ -12,8 +12,8 @@ import (
 
 func proxySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Proxy) ProxyValue {
 
-	var disabled types.Bool
-	var url types.String
+	var disabled = types.BoolNull()
+	var url = types.StringNull()
 
 	if d.Disabled != nil {
 		disabled = types.BoolValue(*d.Disabled)
