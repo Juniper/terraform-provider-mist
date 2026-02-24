@@ -105,12 +105,14 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 		data.MistConfigured = plan.MistConfigured.ValueBoolPointer()
 		data.Managed = plan.MistConfigured.ValueBoolPointer()
 	} else {
-		// User is using old field - maintain backwards compatibility
-		unset["-mist_configured"] = ""
+		// User is using old field - derive mist_configured from it for forward compatibility
 		if plan.Managed.IsNull() || plan.Managed.IsUnknown() {
 			unset["-managed"] = ""
+			// If managed is not set, don't set or unset mist_configured (leave untouched)
 		} else {
+			// Derive mist_configured from managed
 			data.Managed = plan.Managed.ValueBoolPointer()
+			data.MistConfigured = plan.Managed.ValueBoolPointer()
 		}
 	}
 
