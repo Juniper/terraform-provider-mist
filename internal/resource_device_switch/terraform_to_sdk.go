@@ -58,12 +58,6 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.DhcpdConfig = dhcpdConfigTerraformToSdk(plan.DhcpdConfig)
 	}
 
-	if plan.DisableAutoConfig.IsNull() || plan.DisableAutoConfig.IsUnknown() {
-		unset["-disable_auto_config"] = ""
-	} else {
-		data.DisableAutoConfig = plan.DisableAutoConfig.ValueBoolPointer()
-	}
-
 	if plan.DnsServers.IsNull() || plan.DnsServers.IsUnknown() {
 		unset["-dns_servers"] = ""
 	} else {
@@ -100,10 +94,27 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.LocalPortConfig = LocalPortConfigTerraformToSdk(ctx, &diags, plan.LocalPortConfig)
 	}
 
-	if plan.Managed.IsNull() || plan.Managed.IsUnknown() {
-		unset["-managed"] = ""
+	// Handle backwards compatibility between mist_configured and managed/disable_auto_config
+	// Priority: mist_configured takes precedence when set
+	if !plan.MistConfigured.IsNull() && !plan.MistConfigured.IsUnknown() {
+		// User is using new field - set all related fields from it
+		data.MistConfigured = plan.MistConfigured.ValueBoolPointer()
+		data.Managed = plan.MistConfigured.ValueBoolPointer()
+		disableAutoConfig := !plan.MistConfigured.ValueBool()
+		data.DisableAutoConfig = &disableAutoConfig
 	} else {
-		data.Managed = plan.Managed.ValueBoolPointer()
+		// User is using old fields - maintain backwards compatibility
+		unset["-mist_configured"] = ""
+		if plan.Managed.IsNull() || plan.Managed.IsUnknown() {
+			unset["-managed"] = ""
+		} else {
+			data.Managed = plan.Managed.ValueBoolPointer()
+		}
+		if plan.DisableAutoConfig.IsNull() || plan.DisableAutoConfig.IsUnknown() {
+			unset["-disable_auto_config"] = ""
+		} else {
+			data.DisableAutoConfig = plan.DisableAutoConfig.ValueBoolPointer()
+		}
 	}
 
 	if len(plan.MapId.ValueString()) > 0 {

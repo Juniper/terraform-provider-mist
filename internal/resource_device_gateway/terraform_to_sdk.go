@@ -98,10 +98,20 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 		data.IpConfigs = ipConfigsTerraformToSdk(plan.IpConfigs)
 	}
 
-	if plan.Managed.IsNull() || plan.Managed.IsUnknown() {
-		unset["-managed"] = ""
+	// Handle backwards compatibility between mist_configured and managed
+	// Priority: mist_configured takes precedence when set
+	if !plan.MistConfigured.IsNull() && !plan.MistConfigured.IsUnknown() {
+		// User is using new field - set all related fields from it
+		data.MistConfigured = plan.MistConfigured.ValueBoolPointer()
+		data.Managed = plan.MistConfigured.ValueBoolPointer()
 	} else {
-		data.Managed = plan.Managed.ValueBoolPointer()
+		// User is using old field - maintain backwards compatibility
+		unset["-mist_configured"] = ""
+		if plan.Managed.IsNull() || plan.Managed.IsUnknown() {
+			unset["-managed"] = ""
+		} else {
+			data.Managed = plan.Managed.ValueBoolPointer()
+		}
 	}
 
 	if plan.Networks.IsNull() || plan.Networks.IsUnknown() {

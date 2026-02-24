@@ -31,6 +31,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	var ipConfigs = types.MapNull(IpConfigsValue{}.Type(ctx))
 	var managed types.Bool
 	var mapId types.String
+	var mistConfigured types.Bool
 	var name types.String
 	var networks = types.ListNull(NetworksValue{}.Type(ctx))
 	var notes types.String
@@ -100,8 +101,16 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	if len(data.IpConfigs) > 0 {
 		ipConfigs = ipConfigsSdkToTerraform(ctx, &diags, data.IpConfigs)
 	}
-	if data.Managed != nil {
-		managed = types.BoolValue(*data.Managed)
+	// Handle backwards compatibility between mist_configured and managed
+	// mist_configured takes precedence: when present, use it for both fields
+	if data.MistConfigured != nil {
+		mistConfigured = types.BoolValue(*data.MistConfigured)
+		managed = types.BoolValue(*data.MistConfigured)
+	} else {
+		// Fall back to old field when mist_configured is not present
+		if data.Managed != nil {
+			managed = types.BoolValue(*data.Managed)
+		}
 	}
 	if data.MapId != nil {
 		mapId = types.StringValue(data.MapId.String())
@@ -202,6 +211,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	state.IpConfigs = ipConfigs
 	state.Managed = managed
 	state.MapId = mapId
+	state.MistConfigured = mistConfigured
 	state.Name = name
 	state.Networks = networks
 	state.NtpServers = ntpServers

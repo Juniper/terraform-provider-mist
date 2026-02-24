@@ -5,6 +5,7 @@ package resource_device_gateway
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -822,9 +823,14 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"managed": schema.BoolAttribute{
 				Optional:            true,
+				Computed:            true,
 				Description:         "Whether the device is managed by Mist. Deprecated in favour of mist_configured.",
 				MarkdownDescription: "Whether the device is managed by Mist. Deprecated in favour of mist_configured.",
 				DeprecationMessage:  "This attribute is deprecated.",
+				Default:             booldefault.StaticBool(false),
+				PlanModifiers: []planmodifier.Bool{
+					mistplanmodifiers.UseStateForNullComputedBool(),
+				},
 			},
 			"map_id": schema.StringAttribute{
 				Optional:            true,
@@ -833,8 +839,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"mist_configured": schema.BoolAttribute{
 				Optional:            true,
-				Description:         "whether the device can be configured by Mist or not. This deprecates `managed` (for adopted device) and `disable_auto_config` for claimed device)",
-				MarkdownDescription: "whether the device can be configured by Mist or not. This deprecates `managed` (for adopted device) and `disable_auto_config` for claimed device)",
+				Computed:            true,
+				Description:         "whether the device can be configured by Mist or not. This deprecates `managed` for adopted devices.",
+				MarkdownDescription: "whether the device can be configured by Mist or not. This deprecates `managed` for adopted devices.",
 			},
 			"model": schema.StringAttribute{
 				Computed:            true,
