@@ -826,7 +826,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Whether the device is managed by Mist. Deprecated in favour of mist_configured.",
 				MarkdownDescription: "Whether the device is managed by Mist. Deprecated in favour of mist_configured.",
-				DeprecationMessage:  "This attribute is deprecated.",
+				DeprecationMessage:  "This attribute is being deprecated, please use `mist_configured` instead",
 				PlanModifiers: []planmodifier.Bool{
 					mistplanmodifiers.UseStateForNullComputedBool(),
 				},

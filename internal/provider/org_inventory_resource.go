@@ -523,6 +523,7 @@ func (r *orgInventoryResource) assignDevices(
 				DisableAutoConfig: models.ToPointer(false),
 				Macs:              v,
 				Managed:           models.ToPointer(true),
+				MistConfigured:    models.ToPointer(true),
 				NoReassign:        models.ToPointer(false),
 				Op:                models.InventoryUpdateOperationEnum("assign"),
 				SiteId:            models.ToPointer(siteId),

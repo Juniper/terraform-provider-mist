@@ -721,6 +721,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 			"disable_auto_config": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
+				DeprecationMessage:  "This attribute is being deprecated, please use `mist_configured` instead",
 				Description:         "This disables the default behavior of a cloud-ready switch/gateway being managed/configured by Mist. Setting this to `true` means you want to disable the default behavior and do not want the device to be Mist-managed.",
 				MarkdownDescription: "This disables the default behavior of a cloud-ready switch/gateway being managed/configured by Mist. Setting this to `true` means you want to disable the default behavior and do not want the device to be Mist-managed.",
 				PlanModifiers: []planmodifier.Bool{
@@ -1289,7 +1290,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "An adopted switch/gateway will not be managed/configured by Mist by default. Setting this parameter to `true` enables the adopted switch/gateway to be managed/configured by Mist. Deprecated in favour of mist_configured, which is more intuitive and can be used for both adopted and claimed devices.",
 				MarkdownDescription: "An adopted switch/gateway will not be managed/configured by Mist by default. Setting this parameter to `true` enables the adopted switch/gateway to be managed/configured by Mist. Deprecated in favour of mist_configured, which is more intuitive and can be used for both adopted and claimed devices.",
-				DeprecationMessage:  "This attribute is deprecated.",
+				DeprecationMessage:  "This attribute is being deprecated, please use `mist_configured` instead",
 				PlanModifiers: []planmodifier.Bool{
 					mistplanmodifiers.UseStateForNullComputedBool(),
 				},
