@@ -90,6 +90,17 @@ func (o *testChecks) append(t testing.TB, testCheckFuncName string, testCheckFun
 }
 
 func (o *testChecks) appendSetNestedCheck(_ testing.TB, attrName string, m map[string]string) {
+	// Track field coverage for all fields in the nested map
+	if o.tracker != nil {
+		for fieldPath := range m {
+			// Need to combine attrName prefix with the field path from the map
+			// attrName is like "routing_policies.test_import.terms.*"
+			// fieldPath is like "name", "actions.accept", "matching.prefix.#"
+			// We need to replace the wildcard with the fieldPath
+			fullPath := strings.Replace(attrName, "*", fieldPath, 1)
+			o.tracker.MarkFieldAsTested(fullPath)
+		}
+	}
 	o.checks = append(o.checks, resource.TestCheckTypeSetElemNestedAttrs(o.path, attrName, m))
 	o.logLines.appendf("TestCheckTypeSetElemNestedAttrs(%s, %s, %s)", o.path, attrName, m)
 }

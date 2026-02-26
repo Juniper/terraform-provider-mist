@@ -136,6 +136,19 @@
       }
     }
   }
+  uplink_port_config = {
+    dot1x = true
+    keep_wlans_up_if_down = false
+  }
+  usb_config = {
+    cacert = "-----BEGIN CERTIFICATE-----\nMIIDXTCCAkWgAwIBAgIJAKL0UG+mRKSzMA0GCSqGSIb3DQEBCwUAMEUxCzAJBgNV\n-----END CERTIFICATE-----"
+    channel = 1
+    enabled = true
+    host = "usb.example.com"
+    port = 443
+    type = "imagotag"
+    verify_cert = true
+  }
   radio_config = {
     allow_rrm_disable = true
     ant_gain_24 = 0
@@ -191,4 +204,3 @@
       standard_power       = true
     }
   }
-

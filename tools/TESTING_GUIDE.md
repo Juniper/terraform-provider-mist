@@ -2,10 +2,10 @@
 
 ## Quick Implementation Guide
 
-### 1. Files to Create
+### 1. Files to Create/Verify
 
-- [ ] `{resource}_test_structs.go` - Test struct definitions with HCL tags
-- [ ] `{resource}_resource_test.go` - Main test implementation
+- [ ] `{resource}_test_structs.go` - **Check if exists first**; test struct definitions with HCL tags
+- [ ] `{resource}_resource_test.go` - **Check if exists first**; main test implementation
 - [ ] `fixtures/{resource}_resource/{resource}_config.tf` - Test data
 
 ### 2. Implementation Pattern (Follow org_wlantemplate_resource_test.go)
@@ -26,7 +26,20 @@
 - [ ] Comprehensive field coverage (aim for 100%)
 - [ ] Set boolean fields to `true` for maximum test coverage
 - [ ] Include optional fields with realistic test values
-- [ ] Use `␞` separator for multiple fixtures
+- [ ] Use `␞` separator for multiple fixtures when:
+  - Fields are mutually exclusive or create conflicts
+  - Testing different behavioral scenarios
+  - Single fixture becomes unwieldy (>100 lines)
+- [ ] Prefer single comprehensive fixture when fields can coexist
+
+### 5. Schema Validation Rules
+
+Some schema attributes validate their keys/values. Check resource documentation.
+
+**Map Key Patterns:**
+- NAT rules: IP addresses, IP:Port, CIDRs, ports, or variables
+- Route tables: CIDR notation
+- Multicast groups: Multicast IPs with CIDR
 
 ## Field Coverage Verification
 
@@ -44,51 +57,27 @@ The automated field coverage tracker (`internal/provider/validators/field_covera
 **Usage Pattern:**
 
 ```go
-func TestOrgNetworktemplateModel(t *testing.T) {
-    resourceType := "org_networktemplate"
-    tracker := validators.FieldCoverageTrackerWithSchema(
-        resourceType,
-        resource_org_networktemplate.OrgNetworktemplateResourceSchema(t.Context()).Attributes,
-    )
-
-    for tName, tCase := range testCases {
-        t.Run(tName, func(t *testing.T) {
-            checks := tCase.testChecks(t, resourceType, tName, tracker)
-            // ... run resource tests ...
-        })
-    }
-
-    if tracker != nil {
-        tracker.FieldCoverageReport(t)
-    }
-}
-
-func (o *OrgNetworktemplateModel) testChecks(..., tracker *validators.FieldCoverageTracker) testChecks {
-    checks := newTestChecks(PrefixProviderName(rType) + "." + tName, tracker) // Tracker marks fields as tested when it is appended to the checks
-    checks.append(t, "TestCheckResourceAttr", "name", o.Name)
-    // ... more checks ...
-    return checks
-}
+tracker := validators.FieldCoverageTrackerWithSchema(
+    "org_networktemplate",
+    resource.OrgNetworktemplateResourceSchema(t.Context()).Attributes,
+)
+// Pass tracker to testChecks(), run tests, then call tracker.FieldCoverageReport(t)
 ```
 
-**Path Normalization Examples:**
+**Tracker Notification:**
 
-- `privileges.0.role` → `privileges.role` (array index removed)
-- `networks.guest.vlan_id` → `networks.{key}.vlan_id` (MapNestedAttribute key replaced)
-- `vars.my_var` → `vars.{key}` (MapAttribute key replaced)
-- `extra_routes.10.0.0.0/8.via` → `extra_routes.{key}.via` (CIDR treated as map key)
-- `dns_servers.#` → `dns_servers` (hash symbol removed)
-- `vrf_instances.default.extra_routes6.2001:db8::/32.via` → `vrf_instances.{key}.extra_routes6.{key}.via` (nested maps)
+- `checks.append()` method → Notifies tracker for single field
+- `checks.appendSetNestedCheck()` method → Notifies tracker for nested map fields
+- Built-in `append()` function → Does NOT notify tracker (internal slice operations)
 
-**Container Type Exclusion:**
+**Path Normalization:**
 
-Container types cannot be tested directly - only their children:
+Tracker normalizes test paths to schema paths:
+- Array indices removed: `privileges.0.role` → `privileges.role`
+- Map keys replaced: `networks.guest.vlan_id` → `networks.{key}.vlan_id`
+- Hash symbols removed: `dns_servers.#` → `dns_servers`
 
-- `radius_config` (SingleNestedAttribute) - untestable container
-- `radius_config.timeout` (Int64Attribute) - testable field
-- `networks` (MapNestedAttribute) - untestable container
-- `networks.{key}.vlan_id` (Int64Attribute) - testable field
-- `vars` (MapAttribute) - testable as `vars.{key}` (keys are dynamic)
+**Container exclusions:** Container types (SingleNestedAttribute, MapNestedAttribute) aren't tested directly - only their children.
 
 ### Step 1: Run Tests and Generate Coverage Report
 
@@ -104,41 +93,15 @@ go test -v -run "Test{ResourceName}Model" ./internal/provider/ 2>&1 | tee test_o
 
 ### Step 2: Analyze Coverage Report
 
-The tracker's JSON output shows:
-
-```json
-{
-  "resource_name": "org_networktemplate",
-  "tested_fields_count": 190,
-  "untested_fields_count": 93,
-  "untested_fields": [
-    "auth.anticlog_threshold",
-    "auth.enable_mac_auth",
-    "dynamic_vlan.enabled"
-  ],
-  "unknown_fields_count": 0,
-  "unknown_fields": [],
-  "schema_extraction_failures_count": 0,
-  "schema_extraction_failures": []
-}
-```
-
-**Focus on:**
-
-- `untested_fields`: Schema fields missing test validation
-- `unknown_fields`: Potential typos in test paths (should be zero)
+Focus on `untested_fields` (missing validation) and `unknown_fields` (typos - should be zero).
 
 ### Step 3: Address Untested Fields
 
-**Systematic Addition Process:**
-
-1. **Group missing fields by category** from `untested_fields` list (auth.*, portal.*, etc.)
-2. **Add fields to test struct** with appropriate Go types and HCL tags
-3. **Add fields to fixture data** with realistic test values  
-4. **Add TestCheckResourceAttr validations** for each field
-5. **Re-run tests** until `untested_fields_count` is zero
-
-**Note:** The tracker automatically normalizes test paths (see "Path Normalization Examples" above). For example, `band_24.0.ant_gain` marks `band_24.ant_gain` as tested since array indices are removed.
+1. Group missing fields by category from `untested_fields` list
+2. Add fields to test struct with appropriate Go types and HCL tags
+3. Add fields to fixture data with realistic test values  
+4. Add TestCheckResourceAttr validations for each field
+5. Re-run tests until `untested_fields_count` is zero
 
 ### Step 4: Achieve 100% Coverage
 
@@ -147,124 +110,37 @@ The tracker's JSON output shows:
 - [ ] Verify all test assertions pass
 - [ ] Check for schema extraction failures - should be 0
 
+**Maximum Achievable Coverage:** Some fields may be untestable due to provider bugs. Document these and aim for 99%+ coverage.
+
+**Large Resources (100+ fields):** Work incrementally in small batches (5-15 fields). Test after each batch for easier debugging. Watch for mutually exclusive fields.
+
 ### Field Type Validation Rules
 
-- [ ] Computed-only fields (like `id`): Use `TestCheckResourceAttrSet`
-- [ ] All other fields: Use `TestCheckResourceAttr` with expected values
-- [ ] Never validate container types - test child attributes only
+- **Computed-only fields** (like `id`): Use `TestCheckResourceAttrSet`
+- **All other fields**: Use `TestCheckResourceAttr` with expected values
+- **Container types**: Test child attributes only, not the container itself
 
 ## Quick Test Update Guide
 
-### Step 1: Add/Update Test Checks
+### Scenario 1: Improving Coverage (Most Common)
 
-**When:** After regenerating structs or when validation logic needs changes.
+If `testChecks()` has validation code, just add missing fields to fixture file `fixtures/{resource}_resource/{resource}_config.tf`.
 
-**How:**
+### Scenario 2: New Fields After Schema Changes
 
-1. **Locate the test file:** `internal/provider/<resource_name>_resource_test.go`
-2. **Find the `testChecks()` method**
-3. **Add validation for new/modified fields**
+Find `testChecks()` in `internal/provider/<resource_name>_resource_test.go`, add validation with nil-checks, then add fixture data.
 
-**Example - Adding Check for New Field:**
-
-```go
-// Before
-if s.BleConfig != nil {
-    checks.append(t, "TestCheckResourceAttrSet", "ble_config.%")
-    if s.BleConfig.IbeaconEnabled != nil {
-        checks.append(t, "TestCheckResourceAttr", "ble_config.ibeacon_enabled", fmt.Sprintf("%t", *s.BleConfig.IbeaconEnabled))
-    }
-}
-
-// After - Added ibeacon_major and ibeacon_minor
-if s.BleConfig != nil {
-    checks.append(t, "TestCheckResourceAttrSet", "ble_config.%")
-    if s.BleConfig.IbeaconEnabled != nil {
-        checks.append(t, "TestCheckResourceAttr", "ble_config.ibeacon_enabled", fmt.Sprintf("%t", *s.BleConfig.IbeaconEnabled))
-    }
-    if s.BleConfig.IbeaconMajor != nil {
-        checks.append(t, "TestCheckResourceAttr", "ble_config.ibeacon_major", fmt.Sprintf("%d", *s.BleConfig.IbeaconMajor))
-    }
-    if s.BleConfig.IbeaconMinor != nil {
-        checks.append(t, "TestCheckResourceAttr", "ble_config.ibeacon_minor", fmt.Sprintf("%d", *s.BleConfig.IbeaconMinor))
-    }
-}
-```
-
-**Example - Updating Check for Type Change:**
-
-```go
-// Before (when vlan_ids was list(number))
-if len(portCfg.VlanIds) > 0 {
-    checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.vlan_ids.#", portPrefix), fmt.Sprintf("%d", len(portCfg.VlanIds)))
-    for i, vlanId := range portCfg.VlanIds {
-        checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.vlan_ids.%d", portPrefix, i), fmt.Sprintf("%d", vlanId))
-    }
-}
-
-// After (when vlan_ids is string)
-if portCfg.VlanIds != nil {
-    checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.vlan_ids", portPrefix), *portCfg.VlanIds)
-}
-```
-
-### Step 2: Update Fixture Files
-
-**When:** After adding test checks to validate new/modified fields.
+### Step 3: Update Fixture Files
 
 **Location:** `internal/provider/fixtures/<resource_name>/<resource_name>_config.tf`
 
-**Strategy:**
-
-1. **Try adding to the main fixture first** (first configuration before any `␞` delimiter)
-2. **If conflicts occur**, create a separate fixture for that specific case
-
-**Main Fixture Approach (Preferred):**
-
-```hcl
-# Add new fields to the comprehensive fixture
-name = "comprehensive_test"
-ble_config = {
-  ibeacon_enabled = true
-  ibeacon_major   = 100  # Added
-  ibeacon_minor   = 200  # Added
-  ibeacon_uuid    = "f3f51b3e-b3c4-4c3e-b3c4-4c3e4c3e4c3e"
-}
-port_config = {
-  eth0 = {
-    vlan_ids = "10,20,30"  # Updated type
-  }
-}
-```
-
-**Separate Fixture Approach (When Conflicts Arise):**
-
-```hcl
-# Main fixture
-name = "comprehensive_test"
-ble_config = {
-  ibeacon_enabled = true
-}
-␞
-# Separate fixture for conflicting scenario
-name = "ble_only_test"
-ble_config = {
-  ibeacon_enabled = true
-  ibeacon_major   = 100
-  ibeacon_minor   = 200
-  ibeacon_uuid    = "f3f51b3e-b3c4-4c3e-b3c4-4c3e4c3e4c3e"
-}
-␞
-# Another separate fixture
-name = "port_config_test"
-port_config = {
-  eth0 = {
-    vlan_ids = "10,20,30"
-  }
-}
-```
+**Strategy:** Add to main fixture first. If conflicts occur, create separate fixture with `␞` delimiter.
 
 ## Best Practices
+
+### Coverage Targets
+
+Aim for 100% coverage. If provider bugs block fields, 99%+ is excellent. Below 95% needs work.
 
 ### 1. Always Use Nil-Checks
 
@@ -284,17 +160,13 @@ checks.append(t, "TestCheckResourceAttr", "ble_config.ibeacon_major", fmt.Sprint
 
 ### 2. Use Descriptive Fixture Names
 
-```hcl
-# Good - descriptive
-name = "ble_ibeacon_full_config"
-name = "port_config_with_radius"
+Use descriptive names like `ble_ibeacon_full_config`, not `test1`.
 
-# Bad - unclear
-name = "test1"
-name = "config"
-```
+### 3. Prefer Adding Over Removing
 
-### 3. Format Checks Appropriately by Type
+Add fields to existing fixtures when possible. Only remove for duplicates, invalid data, or removed schema fields.
+
+### 4. Format Checks Appropriately by Type
 
 ```go
 // Boolean
@@ -307,50 +179,56 @@ checks.append(t, "TestCheckResourceAttr", "port", fmt.Sprintf("%d", *s.Port))
 checks.append(t, "TestCheckResourceAttr", "host", *s.Host)
 ```
 
-### 4. Fixture File Organization
+### 5. Fixture Organization
 
-```hcl
-# 1. Most comprehensive fixture first
-name = "comprehensive_test"
-# ... all possible fields
+Place most comprehensive fixture first, then specific features, then edge cases. Separate with `␞`.
 
-␞
-# 2. Specific feature fixtures
-name = "ble_config_only"
-# ... BLE specific
-
-␞
-# 3. Edge case fixtures
-name = "minimal_required_fields"
-# ... only required fields
-```
-
-### 5. Run Tests After Changes
+### 6. Run Tests After Changes
 
 ```bash
 # Run specific resource test
 go test -v -run TestOrgDeviceprofileApModel ./internal/provider/
 ```
 
-### 6. Validate Against Real API
+### 7. Use Valid API Values
 
-When possible, test configurations should reflect valid API scenarios:
+Test configurations should reflect valid API scenarios (correct types, valid ranges, proper formats).
 
-``` hcl
-# Valid iBeacon config
-ble_config = {
-  ibeacon_enabled = true
-  ibeacon_uuid    = "f3f51b3e-b3c4-4c3e-b3c4-4c3e4c3e4c3e"  # Valid UUID
-  ibeacon_major   = 100    # Valid range: 0-65535
-  ibeacon_minor   = 200    # Valid range: 0-65535
-}
+## Troubleshooting
 
-# Invalid config
-ble_config = {
-  ibeacon_enabled = true
-  ibeacon_major   = 70000  # Out of range!
-}
-```
+### Terraform Schema Validation Errors
+
+**Cause:** Fixture data violates schema validation rules.
+
+**Fix:** Check error message for attribute path and validation rule. Verify map keys match expected patterns (IPs, CIDRs, etc.).
+
+### Go Compilation Errors
+
+**Fix:** Verify test struct types match schema. Check HCL/CTY tags. Use pointers for optional fields.
+
+### Unknown Fields
+
+**Symptom:** `unknown_fields_count > 0`
+
+**Fix:** Review `unknown_fields` list for typos in `testChecks()` method.
+
+### Type Formatting Errors
+
+**Cause:** `TestCheckResourceAttr` requires string values.
+
+**Fix:** Use `fmt.Sprintf("%d", *intValue)` for integers, `fmt.Sprintf("%t", *boolValue)` for booleans. Always nil-check pointers first.
+
+### Mutually Exclusive Fields
+
+**Symptom:** Schema validation errors about conflicting fields.
+
+**Solution:** Create separate fixtures with `␞` delimiter for mutually exclusive options.
+
+### Provider Bugs Blocking Coverage
+
+**Symptom:** Field accepts values but returns `null` after apply.
+
+**Solution:** Remove field from fixture, document in test file comment, accept 99.x% coverage.
 
 ### Reference Implementations
 

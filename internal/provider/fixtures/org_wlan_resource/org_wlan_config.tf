@@ -199,6 +199,14 @@
   
   mist_nac = {
     enabled = true
+    acct_interim_interval = 3600
+    auth_servers_retries = 3
+    auth_servers_timeout = 5
+    coa_enabled = true
+    # coa_port = 3799  # PROVIDER BUG: Returns null after apply
+    fast_dot1x_timers = true
+    network = "corporate"
+    source_ip = "192.168.1.1"
   }
   
   portal = {
@@ -246,6 +254,10 @@
     twilio_auth_token = "test-twilio-auth-token"
     twilio_phone_number = "+1234567890"
     twilio_sid = "test-twilio-sid"
+    
+    # SMSGlobal configuration
+    smsglobal_api_key = "test-smsglobal-api-key"
+    smsglobal_api_secret = "test-smsglobal-api-secret"
     
     # Other SMS providers
     clickatell_api_key = "test-clickatell-api-key"

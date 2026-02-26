@@ -17,6 +17,8 @@ headers = {
 oauth2_grant_type = "client_credentials"
 oauth2_client_id = "comprehensive-client-id"
 oauth2_client_secret = "comprehensive-client-secret"
+oauth2_username = "oauth2-test-username"
+oauth2_password = "oauth2-test-password"
 oauth2_token_url = "https://oauth2.example.com/token"
 oauth2_scopes = [
   "webhook:write",
@@ -24,5 +26,7 @@ oauth2_scopes = [
   "webhooks:manage",
   "admin:read"
 ]
+secret = "webhook-secret-key-12345"
+splunk_token = "splunk-hec-token-67890"
 single_event_per_message = true
 verify_cert = false
