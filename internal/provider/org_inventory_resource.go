@@ -396,41 +396,61 @@ func (r *orgInventoryResource) claimDevices(
 	claim []string,
 ) []models.ResponseInventoryInventoryAddedItems {
 
-	tflog.Info(ctx, "Starting to Claim devices")
-	claimResponse, err := r.client.OrgsInventory().AddOrgInventory(ctx, orgId, claim)
+	tflog.Info(ctx, "Starting to Claim devices", map[string]interface{}{"total": len(claim)})
 
-	apiErr, _ := mistapierror.ProcessInventoryApiError("claim", claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
-	if len(apiErr) > 0 {
-		for _, errValue := range apiErr {
+	// Batch claim codes in groups of 50
+	const batchSize = 50
+	var allInventoryAdded []models.ResponseInventoryInventoryAddedItems
+
+	for i := 0; i < len(claim); i += batchSize {
+		end := i + batchSize
+		if end > len(claim) {
+			end = len(claim)
+		}
+		batch := claim[i:end]
+
+		tflog.Debug(ctx, fmt.Sprintf("Claiming batch %d-%d of %d devices", i+1, end, len(claim)))
+
+		claimResponse, err := r.client.OrgsInventory().AddOrgInventory(ctx, orgId, batch)
+
+		apiErr, _ := mistapierror.ProcessInventoryApiError("claim", claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
+		if len(apiErr) > 0 {
+			for _, errValue := range apiErr {
+				diags.AddError(
+					"Error Claiming Devices to the Org Inventory",
+					errValue,
+				)
+			}
+		} else if err != nil {
 			diags.AddError(
 				"Error Claiming Devices to the Org Inventory",
-				errValue,
+				"Unable to claim the devices, unexpected error: "+err.Error(),
 			)
+			return allInventoryAdded
 		}
-	} else if err != nil {
-		diags.AddError(
-			"Error Claiming Devices to the Org Inventory",
-			"Unable to claim the devices, unexpected error: "+err.Error(),
-		)
-		return nil
+
+		logResponseInventory(ctx, fmt.Sprintf("Success response for API Call to claim devices (batch %d-%d):", i+1, end), claimResponse.Data)
+
+		if len(claimResponse.Data.InventoryDuplicated) > 0 {
+			for _, duplicatedDevice := range claimResponse.Data.InventoryDuplicated {
+				diags.AddWarning("Duplicated Device", fmt.Sprintf("Device %s was already claimed (MAC: %s, Serial: %s, Model: %s). It has been imported into the Inventory state.", duplicatedDevice.Magic, duplicatedDevice.Mac, duplicatedDevice.Serial, duplicatedDevice.Model))
+				var tmp models.ResponseInventoryInventoryAddedItems
+				tmp.Mac = duplicatedDevice.Mac
+				tmp.Magic = duplicatedDevice.Magic
+				tmp.Model = duplicatedDevice.Model
+				tmp.Serial = duplicatedDevice.Serial
+				tmp.Type = duplicatedDevice.Type
+				claimResponse.Data.InventoryAdded = append(claimResponse.Data.InventoryAdded, tmp)
+			}
+		}
+		processResponseInventoryError(diags, claimResponse.Data)
+
+		// Collect inventory added from this batch
+		allInventoryAdded = append(allInventoryAdded, claimResponse.Data.InventoryAdded...)
 	}
 
-	logResponseInventory(ctx, "Success response for API Call to claim devices:", claimResponse.Data)
-
-	if len(claimResponse.Data.InventoryDuplicated) > 0 {
-		for _, duplicatedDevice := range claimResponse.Data.InventoryDuplicated {
-			diags.AddWarning("Duplicated Device", fmt.Sprintf("Device %s was already claimed (MAC: %s, Serial: %s, Model: %s). It has been imported into the Inventory state.", duplicatedDevice.Magic, duplicatedDevice.Mac, duplicatedDevice.Serial, duplicatedDevice.Model))
-			var tmp models.ResponseInventoryInventoryAddedItems
-			tmp.Mac = duplicatedDevice.Mac
-			tmp.Magic = duplicatedDevice.Magic
-			tmp.Model = duplicatedDevice.Model
-			tmp.Serial = duplicatedDevice.Serial
-			tmp.Type = duplicatedDevice.Type
-			claimResponse.Data.InventoryAdded = append(claimResponse.Data.InventoryAdded, tmp)
-		}
-	}
-	processResponseInventoryError(diags, claimResponse.Data)
-	return claimResponse.Data.InventoryAdded
+	tflog.Info(ctx, fmt.Sprintf("Successfully claimed %d devices", len(allInventoryAdded)))
+	return allInventoryAdded
 }
 
 func (r *orgInventoryResource) unclaimDevices(
