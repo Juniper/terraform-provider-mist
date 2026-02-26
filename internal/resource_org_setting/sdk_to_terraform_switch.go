@@ -22,8 +22,11 @@ func switchAutoUpgradesSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			rMapValue[k] = types.StringValue(v)
 		}
 		m, e := types.MapValueFrom(ctx, types.StringType, rMapValue)
-		diags.Append(e...)
-		customVersions = m
+		if !e.HasError() {
+			customVersions = m
+		} else {
+			diags.Append(e...)
+		}
 	}
 
 	if d.Enabled != nil {
