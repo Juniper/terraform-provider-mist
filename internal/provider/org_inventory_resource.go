@@ -380,7 +380,10 @@ func logResponseInventory(ctx context.Context, message string, response models.R
 
 func processResponseInventoryError(diags *diag.Diagnostics, response models.ResponseInventory) {
 	for i, claimCode := range response.Error {
-		reason := response.Reason[i]
+		reason := ""
+		if i < len(response.Reason) {
+			reason = response.Reason[i]
+		}
 
 		diags.AddError(
 			"Error Claiming Devices to the Org Inventory",
@@ -412,6 +415,13 @@ func (r *orgInventoryResource) claimDevices(
 		tflog.Debug(ctx, fmt.Sprintf("Claiming batch %d-%d of %d devices", i+1, end, len(claim)))
 
 		claimResponse, err := r.client.OrgsInventory().AddOrgInventory(ctx, orgId, batch)
+		if err != nil {
+			diags.AddError(
+				"Error Claiming Devices to the Org Inventory",
+				"Unable to claim the devices, unexpected error: "+err.Error(),
+			)
+			return allInventoryAdded
+		}
 
 		apiErr, _ := mistapierror.ProcessInventoryApiError("claim", claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
 		if len(apiErr) > 0 {
@@ -421,15 +431,9 @@ func (r *orgInventoryResource) claimDevices(
 					errValue,
 				)
 			}
-		} else if err != nil {
-			diags.AddError(
-				"Error Claiming Devices to the Org Inventory",
-				"Unable to claim the devices, unexpected error: "+err.Error(),
-			)
-			return allInventoryAdded
 		}
 
-		logResponseInventory(ctx, fmt.Sprintf("Success response for API Call to claim devices (batch %d-%d):", i+1, end), claimResponse.Data)
+		logResponseInventory(ctx, fmt.Sprintf("Response for claim devices (batch %d-%d):", i+1, end), claimResponse.Data)
 
 		if len(claimResponse.Data.InventoryDuplicated) > 0 {
 			for _, duplicatedDevice := range claimResponse.Data.InventoryDuplicated {
@@ -445,11 +449,15 @@ func (r *orgInventoryResource) claimDevices(
 		}
 		processResponseInventoryError(diags, claimResponse.Data)
 
-		// Collect inventory added from this batch
+		// Collect inventory added from this batch (even if there were partial failures)
 		allInventoryAdded = append(allInventoryAdded, claimResponse.Data.InventoryAdded...)
 	}
 
-	tflog.Info(ctx, fmt.Sprintf("Successfully claimed %d devices", len(allInventoryAdded)))
+	if diags.HasError() {
+		tflog.Info(ctx, "Claim process completed with errors")
+	} else {
+		tflog.Info(ctx, "Claim process completed successfully")
+	}
 	return allInventoryAdded
 }
 
