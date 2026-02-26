@@ -820,6 +820,30 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string, tracker *va
 		if s.MistNac.Enabled != nil {
 			checks.append(t, "TestCheckResourceAttr", "mist_nac.enabled", fmt.Sprintf("%t", *s.MistNac.Enabled))
 		}
+		if s.MistNac.AcctInterimInterval != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.acct_interim_interval", fmt.Sprintf("%d", *s.MistNac.AcctInterimInterval))
+		}
+		if s.MistNac.AuthServersRetries != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.auth_servers_retries", fmt.Sprintf("%d", *s.MistNac.AuthServersRetries))
+		}
+		if s.MistNac.AuthServersTimeout != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.auth_servers_timeout", fmt.Sprintf("%d", *s.MistNac.AuthServersTimeout))
+		}
+		if s.MistNac.CoaEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.coa_enabled", fmt.Sprintf("%t", *s.MistNac.CoaEnabled))
+		}
+		if s.MistNac.CoaPort != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.coa_port", fmt.Sprintf("%d", *s.MistNac.CoaPort))
+		}
+		if s.MistNac.FastDot1xTimers != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.fast_dot1x_timers", fmt.Sprintf("%t", *s.MistNac.FastDot1xTimers))
+		}
+		if s.MistNac.Network != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.network", *s.MistNac.Network)
+		}
+		if s.MistNac.SourceIp != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.source_ip", *s.MistNac.SourceIp)
+		}
 	}
 
 	// Portal API secret validation - only check when portal.auth is set to "external"

@@ -2,6 +2,10 @@
   url    = "https://example.com/webhook"
   type   = "http-post"
   topics = ["alarms", "device-events"]
+  headers = {
+    "Content-Type"  = "application/json"
+    "X-Custom-Auth" = "Bearer token123"
+  }
 ␞
   name       = "HTTP Post with Secret"
   url        = "https://api.example.com/webhooks/mist"

@@ -33,3 +33,11 @@ specs = [
     subnets = ["172.16.0.0/16"]
   }
 ]
+␞
+name = "wxtag_mac_vlan"
+type = "match"
+match = "wlan_id"
+op = "in"
+values = ["guest-wifi"]
+mac = "5c5b35000001"
+vlan_id = "100"

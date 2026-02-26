@@ -134,6 +134,7 @@ func (s *OrgAlarmtemplateModel) testChecks(t testing.TB, rType, tName string, tr
 			attrPrefix := fmt.Sprintf("rules.%s", key)
 			checks.append(t, "TestCheckResourceAttrSet", attrPrefix+".enabled")
 			if rule.Delivery != nil {
+				checks.append(t, "TestCheckResourceAttr", attrPrefix+".delivery.enabled", fmt.Sprintf("%t", rule.Delivery.Enabled))
 				if len(rule.Delivery.AdditionalEmails) > 0 {
 					checks.append(t, "TestCheckResourceAttr", attrPrefix+".delivery.additional_emails.#", fmt.Sprintf("%d", len(rule.Delivery.AdditionalEmails)))
 				}

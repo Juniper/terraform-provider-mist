@@ -1,0 +1,149 @@
+=== RUN   TestSitePskModel
+=== RUN   TestSitePskModel/simple_case
+    site_psk_resource_test.go:83: 
+        // ------ begin config for test case simple_case step 1 ------
+        
+        resource "mist_site" "TestSite" {
+        address       = "TestAddress"
+        name          = "TestSite"
+        org_id        = "a0c9702c-dbd9-4d58-9049-1148050bc8c5"
+        sitegroup_ids = null
+        
+        }
+        
+        
+        resource "mist_site_psk" "simple_case" {
+        name       = "test-site-psk"
+        passphrase = "test-passphrase"
+        site_id    = mist_site.TestSite.id
+        ssid       = "test-ssid"
+        
+        }// -------- end config for test case simple_case step 1 ------
+        
+    site_psk_resource_test.go:84: 
+        // ------ begin checks for test case simple_case step 1 ------
+        1 TestCheckResourceAttr(mist_site_psk.simple_case, "name", "test-site-psk")
+        2 TestCheckResourceAttr(mist_site_psk.simple_case, "passphrase", "test-passphrase")
+        3 TestCheckResourceAttrSet(mist_site_psk.simple_case, "site_id")
+        4 TestCheckResourceAttr(mist_site_psk.simple_case, "ssid", "test-ssid")
+        // -------- end checks for test case simple_case step 1 ------
+        
+=== RUN   TestSitePskModel/fixture_case_0
+    site_psk_resource_test.go:83: 
+        // ------ begin config for test case fixture_case_0 step 1 ------
+        
+        resource "mist_site" "TestSite" {
+        address       = "TestAddress"
+        name          = "TestSite"
+        org_id        = "a0c9702c-dbd9-4d58-9049-1148050bc8c5"
+        sitegroup_ids = null
+        
+        }
+        
+        
+        resource "mist_site_psk" "fixture_case_0" {
+        email                    = "admin@example.com"
+        expiry_notification_time = 7
+        name                     = "Test Guest PSK"
+        note                     = "Test PSK for guest access"
+        notify_expiry            = true
+        notify_on_create_or_edit = true
+        passphrase               = "SecurePassword123"
+        role                     = "guest"
+        site_id                  = mist_site.TestSite.id
+        ssid                     = "Guest-Network"
+        usage                    = "multi"
+        vlan_id                  = "100"
+        
+        }// -------- end config for test case fixture_case_0 step 1 ------
+        
+    site_psk_resource_test.go:84: 
+        // ------ begin checks for test case fixture_case_0 step 1 ------
+         1 TestCheckResourceAttr(mist_site_psk.fixture_case_0, "name", "Test Guest PSK")
+         2 TestCheckResourceAttr(mist_site_psk.fixture_case_0, "passphrase", "SecurePassword123")
+         3 TestCheckResourceAttrSet(mist_site_psk.fixture_case_0, "site_id")
+         4 TestCheckResourceAttr(mist_site_psk.fixture_case_0, "ssid", "Guest-Network")
+         5 TestCheckResourceAttr(mist_site_psk.fixture_case_0, "email", "admin@example.com")
+         6 TestCheckResourceAttr(mist_site_psk.fixture_case_0, "expiry_notification_time", "7")
+         7 TestCheckResourceAttr(mist_site_psk.fixture_case_0, "note", "Test PSK for guest access")
+         8 TestCheckResourceAttr(mist_site_psk.fixture_case_0, "notify_expiry", "true")
+         9 TestCheckResourceAttr(mist_site_psk.fixture_case_0, "notify_on_create_or_edit", "true")
+        10 TestCheckResourceAttr(mist_site_psk.fixture_case_0, "role", "guest")
+        11 TestCheckResourceAttr(mist_site_psk.fixture_case_0, "usage", "multi")
+        12 TestCheckResourceAttr(mist_site_psk.fixture_case_0, "vlan_id", "100")
+        // -------- end checks for test case fixture_case_0 step 1 ------
+        
+=== RUN   TestSitePskModel/fixture_case_1
+    site_psk_resource_test.go:83: 
+        // ------ begin config for test case fixture_case_1 step 1 ------
+        
+        resource "mist_site" "TestSite" {
+        address       = "TestAddress"
+        name          = "TestSite"
+        org_id        = "a0c9702c-dbd9-4d58-9049-1148050bc8c5"
+        sitegroup_ids = null
+        
+        }
+        
+        
+        resource "mist_site_psk" "fixture_case_1" {
+        email                    = "netadmin@example.com"
+        expiry_notification_time = 14
+        mac                      = "5c5b35000001"
+        name                     = "Test MAC-based PSK"
+        note                     = "PSK bound to specific MAC address"
+        notify_expiry            = false
+        old_passphrase           = "OldPassword123"
+        passphrase               = "MacBasedPassword456"
+        role                     = "admin"
+        site_id                  = mist_site.TestSite.id
+        ssid                     = "Secure-Network"
+        usage                    = "single"
+        
+        }// -------- end config for test case fixture_case_1 step 1 ------
+        
+    site_psk_resource_test.go:84: 
+        // ------ begin checks for test case fixture_case_1 step 1 ------
+         1 TestCheckResourceAttr(mist_site_psk.fixture_case_1, "name", "Test MAC-based PSK")
+         2 TestCheckResourceAttr(mist_site_psk.fixture_case_1, "passphrase", "MacBasedPassword456")
+         3 TestCheckResourceAttrSet(mist_site_psk.fixture_case_1, "site_id")
+         4 TestCheckResourceAttr(mist_site_psk.fixture_case_1, "ssid", "Secure-Network")
+         5 TestCheckResourceAttr(mist_site_psk.fixture_case_1, "email", "netadmin@example.com")
+         6 TestCheckResourceAttr(mist_site_psk.fixture_case_1, "expiry_notification_time", "14")
+         7 TestCheckResourceAttr(mist_site_psk.fixture_case_1, "mac", "5c5b35000001")
+         8 TestCheckResourceAttr(mist_site_psk.fixture_case_1, "note", "PSK bound to specific MAC address")
+         9 TestCheckResourceAttr(mist_site_psk.fixture_case_1, "notify_expiry", "false")
+        10 TestCheckResourceAttr(mist_site_psk.fixture_case_1, "old_passphrase", "OldPassword123")
+        11 TestCheckResourceAttr(mist_site_psk.fixture_case_1, "role", "admin")
+        12 TestCheckResourceAttr(mist_site_psk.fixture_case_1, "usage", "single")
+        // -------- end checks for test case fixture_case_1 step 1 ------
+        
+    site_psk_resource_test.go:92: Step 1/1 error: Error running apply: exit status 1
+        
+        Error: Provider produced inconsistent result after apply
+        
+        When applying changes to mist_site_psk.fixture_case_1, provider
+        "provider[\"registry.terraform.io/hashicorp/mist\"]" produced an unexpected
+        new value: .old_passphrase: inconsistent values for sensitive attribute.
+        
+        This is a bug in the provider, which should be reported in the provider's own
+        issue tracker.
+{
+  "resource_name": "site_psk",
+  "tested_fields_count": 14,
+  "untested_fields_count": 1,
+  "untested_fields": [
+    "expire_time"
+  ],
+  "unknown_fields_count": 0,
+  "unknown_fields": [],
+  "schema_extraction_failures_count": 0,
+  "schema_extraction_failures": []
+}
+--- FAIL: TestSitePskModel (12.05s)
+    --- PASS: TestSitePskModel/simple_case (5.27s)
+    --- PASS: TestSitePskModel/fixture_case_0 (4.13s)
+    --- FAIL: TestSitePskModel/fixture_case_1 (2.66s)
+FAIL
+FAIL	github.com/Juniper/terraform-provider-mist/internal/provider	13.484s
+FAIL
