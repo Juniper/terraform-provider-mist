@@ -36,6 +36,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	var localPortConfig = types.MapNull(LocalPortConfigValue{}.Type(ctx))
 	var managed types.Bool
 	var mapId types.String
+	var mistConfigured types.Bool
 	var mistNac = NewMistNacValueNull()
 	var name types.String
 	var notes types.String
@@ -97,9 +98,6 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.DnsServers != nil {
 		dnsServers = mistutils.ListOfStringSdkToTerraform(data.DnsServers)
 	}
-	if data.DisableAutoConfig != nil {
-		disableAutoConfig = types.BoolValue(*data.DisableAutoConfig)
-	}
 	if data.DnsSuffix != nil {
 		dnsSuffix = mistutils.ListOfStringSdkToTerraform(data.DnsSuffix)
 	}
@@ -127,8 +125,20 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.LocalPortConfig != nil {
 		localPortConfig = localPortConfigSdkToTerraform(ctx, &diags, data.LocalPortConfig)
 	}
-	if data.Managed != nil {
-		managed = types.BoolValue(*data.Managed)
+	// Handle backwards compatibility between mist_configured and managed/disable_auto_config
+	// mist_configured takes precedence: when present, derive all related fields from it
+	if data.MistConfigured != nil {
+		mistConfigured = types.BoolValue(*data.MistConfigured)
+		managed = types.BoolValue(*data.MistConfigured)
+		disableAutoConfig = types.BoolValue(!*data.MistConfigured)
+	} else {
+		// Fall back to old fields when mist_configured is not present
+		if data.Managed != nil {
+			managed = types.BoolValue(*data.Managed)
+		}
+		if data.DisableAutoConfig != nil {
+			disableAutoConfig = types.BoolValue(*data.DisableAutoConfig)
+		}
 	}
 	if data.MapId != nil {
 		mapId = types.StringValue(data.MapId.String())
@@ -261,6 +271,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	state.LocalPortConfig = localPortConfig
 	state.Managed = managed
 	state.MapId = mapId
+	state.MistConfigured = mistConfigured
 	state.MistNac = mistNac
 	state.Name = name
 	state.Notes = notes

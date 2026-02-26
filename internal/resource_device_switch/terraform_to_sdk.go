@@ -58,12 +58,6 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.DhcpdConfig = dhcpdConfigTerraformToSdk(plan.DhcpdConfig)
 	}
 
-	if plan.DisableAutoConfig.IsNull() || plan.DisableAutoConfig.IsUnknown() {
-		unset["-disable_auto_config"] = ""
-	} else {
-		data.DisableAutoConfig = plan.DisableAutoConfig.ValueBoolPointer()
-	}
-
 	if plan.DnsServers.IsNull() || plan.DnsServers.IsUnknown() {
 		unset["-dns_servers"] = ""
 	} else {
@@ -100,10 +94,50 @@ func TerraformToSdk(ctx context.Context, plan *DeviceSwitchModel) (models.MistDe
 		data.LocalPortConfig = LocalPortConfigTerraformToSdk(ctx, &diags, plan.LocalPortConfig)
 	}
 
-	if plan.Managed.IsNull() || plan.Managed.IsUnknown() {
-		unset["-managed"] = ""
+	// Handle backwards compatibility between mist_configured and managed/disable_auto_config
+	// Priority: mist_configured takes precedence when set
+	if !plan.MistConfigured.IsNull() && !plan.MistConfigured.IsUnknown() {
+		// User is using new field - set all related fields from it
+		data.MistConfigured = plan.MistConfigured.ValueBoolPointer()
+		data.Managed = plan.MistConfigured.ValueBoolPointer()
+		disableAutoConfig := !plan.MistConfigured.ValueBool()
+		data.DisableAutoConfig = &disableAutoConfig
 	} else {
-		data.Managed = plan.Managed.ValueBoolPointer()
+		// User is using old fields - derive mist_configured from them for forward compatibility
+		// mist_configured = managed AND NOT disable_auto_config
+		var managedVal, disableAutoConfigVal bool
+		var hasManagedVal, hasDisableAutoConfigVal bool
+
+		if plan.Managed.IsNull() || plan.Managed.IsUnknown() {
+			unset["-managed"] = ""
+		} else {
+			managedVal = plan.Managed.ValueBool()
+			hasManagedVal = true
+			data.Managed = plan.Managed.ValueBoolPointer()
+		}
+
+		if plan.DisableAutoConfig.IsNull() || plan.DisableAutoConfig.IsUnknown() {
+			unset["-disable_auto_config"] = ""
+		} else {
+			disableAutoConfigVal = plan.DisableAutoConfig.ValueBool()
+			hasDisableAutoConfigVal = true
+			data.DisableAutoConfig = plan.DisableAutoConfig.ValueBoolPointer()
+		}
+
+		// Derive mist_configured from old fields if either is set
+		if hasManagedVal || hasDisableAutoConfigVal {
+			// Default to false for unset values
+			if !hasManagedVal {
+				managedVal = false
+			}
+			if !hasDisableAutoConfigVal {
+				disableAutoConfigVal = false
+			}
+			// mist_configured is true when managed=true AND disable_auto_config=false
+			mistConfigured := managedVal && !disableAutoConfigVal
+			data.MistConfigured = &mistConfigured
+		}
+		// If neither old field is set, don't set or unset mist_configured (leave untouched)
 	}
 
 	if len(plan.MapId.ValueString()) > 0 {
