@@ -1,11 +1,13 @@
 # Comprehensive Org WxTag Resource Test Configuration
 # This fixture tests all major fields of the OrgWxtag resource
 
-name   = "Comprehensive_WxTag_Test"
-type   = "match"
-match  = "client_mac"
-op     = "in"
-values = ["aa:bb:cc:dd:ee:ff", "11:22:33:44:55:66", "77:88:99:aa:bb:cc"]
+name      = "Comprehensive_WxTag_Test"
+type      = "match"
+match     = "client_mac"
+op        = "in"
+values    = ["aa:bb:cc:dd:ee:ff", "11:22:33:44:55:66", "77:88:99:aa:bb:cc"]
+mac       = "5c5b35000000"
+vlan_id   = "30"
 specs = [
   {
     protocol   = "tcp"
