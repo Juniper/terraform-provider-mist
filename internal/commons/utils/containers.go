@@ -203,9 +203,8 @@ func NextHopViaAsString(via *models.NextHopVia) basetypes.StringValue {
 	if str, ok := via.AsString(); ok && str != nil {
 		return types.StringValue(*str)
 	} else if arr, ok := via.AsArrayOfString(); ok && arr != nil && len(*arr) > 0 {
-		// If it's an array, join with comma or take the first element
-		// Taking first element as it's the primary next hop
-		return types.StringValue((*arr)[0])
+		// If it's an array, join all elements with commas
+		return types.StringValue(strings.Join(*arr, ","))
 	}
 	return types.StringNull()
 }
