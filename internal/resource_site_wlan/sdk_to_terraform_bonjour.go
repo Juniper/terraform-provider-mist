@@ -53,7 +53,7 @@ func bonjourSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var services = types.MapNull(ServicesValue{}.Type(ctx))
 
 	if d != nil && d.AdditionalVlanIds != nil {
-		additionalVlanIds = mistutils.WlanBonjourAdditionalVlanIdsAsArrayOfString(diags, *d.AdditionalVlanIds)
+		additionalVlanIds = mistutils.WlanBonjourAdditionalVlanIds2AsArrayOfString(diags, *d.AdditionalVlanIds)
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)

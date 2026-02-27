@@ -24,6 +24,7 @@ type SiteNetworktemplateModel struct {
 	SnmpConfig                      *SiteNetworktemplateSnmpConfigValue                `hcl:"snmp_config"`
 	SwitchMatching                  *SiteNetworktemplateSwitchMatchingValue            `hcl:"switch_matching"`
 	SwitchMgmt                      *SiteNetworktemplateSwitchMgmtValue                `hcl:"switch_mgmt"`
+	UsesDescriptionFromPortUsage    *bool                                              `hcl:"uses_description_from_port_usage"`
 	VrfConfig                       *SiteNetworktemplateVrfConfigValue                 `hcl:"vrf_config"`
 	VrfInstances                    map[string]SiteNetworktemplateVrfInstancesValue    `hcl:"vrf_instances"`
 }
@@ -180,11 +181,12 @@ type SiteNetworktemplatePortUsagesValue struct {
 }
 
 type SiteNetworktemplateRulesValue struct {
-	Equals     *string  `cty:"equals" hcl:"equals"`
-	EqualsAny  []string `cty:"equals_any" hcl:"equals_any"`
-	Expression *string  `cty:"expression" hcl:"expression"`
-	Src        string   `cty:"src" hcl:"src"`
-	Usage      *string  `cty:"usage" hcl:"usage"`
+	Description *string  `cty:"description" hcl:"description"`
+	Equals      *string  `cty:"equals" hcl:"equals"`
+	EqualsAny   []string `cty:"equals_any" hcl:"equals_any"`
+	Expression  *string  `cty:"expression" hcl:"expression"`
+	Src         string   `cty:"src" hcl:"src"`
+	Usage       *string  `cty:"usage" hcl:"usage"`
 }
 
 type SiteNetworktemplateStormControlValue struct {

@@ -130,6 +130,7 @@ port_usages = {
     all_networks = false
     rules = [
       {
+        description = "Dynamic access rule for uplink"
         src = "lldp_system_description"
         usage = "uplink_usage"
       }

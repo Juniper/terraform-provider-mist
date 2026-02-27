@@ -85,7 +85,7 @@ func (d *deviceApStatsDataSource) Read(ctx context.Context, req datasource.ReadR
 	var siteId string
 	var status models.DeviceStatusEnum
 	var start string
-	var mType = models.DeviceTypeWithAllEnum_AP
+	var mType = string(models.DeviceTypeEnum_AP)
 
 	if !ds.Duration.IsNull() && !ds.Duration.IsUnknown() {
 		duration = ds.Duration.ValueString()

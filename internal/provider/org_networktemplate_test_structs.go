@@ -201,11 +201,12 @@ type OrgNetworktemplatePortUsagesValue struct {
 }
 
 type OrgNetworktemplateRulesValue struct {
-	Equals     *string  `cty:"equals" hcl:"equals"`
-	EqualsAny  []string `cty:"equals_any" hcl:"equals_any"`
-	Expression *string  `cty:"expression" hcl:"expression"`
-	Src        string   `cty:"src" hcl:"src"`
-	Usage      *string  `cty:"usage" hcl:"usage"`
+	Description *string  `cty:"description" hcl:"description"`
+	Equals      *string  `cty:"equals" hcl:"equals"`
+	EqualsAny   []string `cty:"equals_any" hcl:"equals_any"`
+	Expression  *string  `cty:"expression" hcl:"expression"`
+	Src         string   `cty:"src" hcl:"src"`
+	Usage       *string  `cty:"usage" hcl:"usage"`
 }
 
 type OrgNetworktemplateStormControlValue struct {

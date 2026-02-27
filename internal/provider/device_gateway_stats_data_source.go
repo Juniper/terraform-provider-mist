@@ -85,7 +85,7 @@ func (d *deviceGatewayStatsDataSource) Read(ctx context.Context, req datasource.
 	var siteId string
 	var status models.DeviceStatusEnum
 	var start string
-	var mType = models.DeviceTypeWithAllEnum_GATEWAY
+	var mType = string(models.DeviceTypeEnum_GATEWAY)
 
 	if !ds.Duration.IsNull() && !ds.Duration.IsUnknown() {
 		duration = ds.Duration.ValueString()

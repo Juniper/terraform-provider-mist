@@ -64,15 +64,29 @@ func DscpAsString(vlanId models.Dscp) basetypes.StringValue {
 
 func WlanBonjourAdditionalVlanIdsAsArrayOfString(diags *diag.Diagnostics, vlanIds models.AdditionalVlanIds) basetypes.ListValue {
 	var items []attr.Value
-	if stringIds, stringOk := vlanIds.AsString(); stringOk {
+	if stringIds, stringOk := vlanIds.AsString(); stringOk && stringIds != nil {
 		for _, id := range strings.Split(*stringIds, ",") {
 			if id != "" {
 				items = append(items, types.StringValue(id))
 			}
 		}
-	} else if arrayIds, arrayOk := vlanIds.AsArrayOfVlanIdWithVariable7(); arrayOk {
-		for _, id := range *arrayIds {
-			items = append(items, VlanAsString(id))
+	}
+	if len(items) > 0 {
+		list, e := types.ListValue(basetypes.StringType{}, items)
+		diags.Append(e...)
+		return list
+	} else {
+		return types.ListNull(types.StringType)
+	}
+}
+
+func WlanBonjourAdditionalVlanIds2AsArrayOfString(diags *diag.Diagnostics, vlanIds models.AdditionalVlanIds2) basetypes.ListValue {
+	var items []attr.Value
+	if stringIds, stringOk := vlanIds.AsString(); stringOk && stringIds != nil {
+		for _, id := range strings.Split(*stringIds, ",") {
+			if id != "" {
+				items = append(items, types.StringValue(id))
+			}
 		}
 	}
 	if len(items) > 0 {
@@ -180,4 +194,18 @@ func ServiceMaxLatencyAsString(container *models.ServiceMaxLatency) basetypes.St
 
 func ServiceMaxLossAsString(container *models.ServiceMaxLoss) basetypes.StringValue {
 	return ContainerAsString(container)
+}
+
+func NextHopViaAsString(via *models.NextHopVia) basetypes.StringValue {
+	if via == nil {
+		return types.StringNull()
+	}
+	if str, ok := via.AsString(); ok && str != nil {
+		return types.StringValue(*str)
+	} else if arr, ok := via.AsArrayOfString(); ok && arr != nil && len(*arr) > 0 {
+		// If it's an array, join with comma or take the first element
+		// Taking first element as it's the primary next hop
+		return types.StringValue((*arr)[0])
+	}
+	return types.StringNull()
 }

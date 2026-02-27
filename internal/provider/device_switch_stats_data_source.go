@@ -85,7 +85,7 @@ func (d *deviceSwitchStatsDataSource) Read(ctx context.Context, req datasource.R
 	var siteId string
 	var status models.DeviceStatusEnum
 	var start string
-	var mType = models.DeviceTypeWithAllEnum_ENUMSWITCH
+	var mType = string(models.DeviceTypeEnum_ENUMSWITCH)
 
 	if !ds.Duration.IsNull() && !ds.Duration.IsUnknown() {
 		duration = ds.Duration.ValueString()

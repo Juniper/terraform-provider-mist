@@ -5,7 +5,9 @@ package resource_org_setting
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -20,7 +22,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -29,11 +30,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"allow_mist": schema.BoolAttribute{
-				Optional:            true,
 				Computed:            true,
 				Description:         "whether to allow Mist to look at this org",
 				MarkdownDescription: "whether to allow Mist to look at this org",
-				Default:             booldefault.StaticBool(false),
 			},
 			"ap_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
