@@ -15,6 +15,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var state OrgSettingModel
 	var diags diag.Diagnostics
 
+	var allowMist types.Bool
 	var apUpdownThreshold types.Int64
 	var apiPolicy = NewApiPolicyValueNull()
 	// var blacklist_url types.String
@@ -57,6 +58,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var wiredPma = NewWiredPmaValueNull()
 	var wirelessPma = NewWirelessPmaValueNull()
 
+	if data.AllowMist != nil {
+		allowMist = types.BoolValue(*data.AllowMist)
+	}
 	if data.ApUpdownThreshold.Value() != nil {
 		apUpdownThreshold = types.Int64Value(int64(*data.ApUpdownThreshold.Value()))
 	}
@@ -199,6 +203,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 		}
 	}
 
+	state.AllowMist = allowMist
 	state.ApUpdownThreshold = apUpdownThreshold
 	state.ApiPolicy = apiPolicy
 	// state.BlacklistUrl = blacklist_url
