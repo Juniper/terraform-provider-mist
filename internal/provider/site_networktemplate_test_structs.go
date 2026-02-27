@@ -24,7 +24,6 @@ type SiteNetworktemplateModel struct {
 	SnmpConfig                      *SiteNetworktemplateSnmpConfigValue                `hcl:"snmp_config"`
 	SwitchMatching                  *SiteNetworktemplateSwitchMatchingValue            `hcl:"switch_matching"`
 	SwitchMgmt                      *SiteNetworktemplateSwitchMgmtValue                `hcl:"switch_mgmt"`
-	UsesDescriptionFromPortUsage    *bool                                              `hcl:"uses_description_from_port_usage"`
 	VrfConfig                       *SiteNetworktemplateVrfConfigValue                 `hcl:"vrf_config"`
 	VrfInstances                    map[string]SiteNetworktemplateVrfInstancesValue    `hcl:"vrf_instances"`
 }

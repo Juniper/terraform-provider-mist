@@ -50,6 +50,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var disable11ax types.Bool
 	var disable11be types.Bool
 	var disableHtVhtRates types.Bool
+	var disableMessageAuthenticatorCheck types.Bool
 	var disableUapsd types.Bool
 	var disableV1RoamNotify types.Bool
 	var disableV2RoamNotify types.Bool
@@ -244,6 +245,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 
 	if data.DisableHtVhtRates != nil {
 		disableHtVhtRates = types.BoolValue(*data.DisableHtVhtRates)
+	}
+
+	if data.DisableMessageAuthenticatorCheck != nil {
+		disableMessageAuthenticatorCheck = types.BoolValue(*data.DisableMessageAuthenticatorCheck)
 	}
 
 	if data.DisableUapsd != nil {
@@ -536,6 +541,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	state.Disable11ax = disable11ax
 	state.Disable11be = disable11be
 	state.DisableHtVhtRates = disableHtVhtRates
+	state.DisableMessageAuthenticatorCheck = disableMessageAuthenticatorCheck
 	state.DisableUapsd = disableUapsd
 	state.DisableV1RoamNotify = disableV1RoamNotify
 	state.DisableV2RoamNotify = disableV2RoamNotify
