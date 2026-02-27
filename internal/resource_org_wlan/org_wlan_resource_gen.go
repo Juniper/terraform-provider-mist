@@ -875,11 +875,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "To disable ht or vht rates",
 			},
 			"disable_message_authenticator_check": schema.BoolAttribute{
-				Optional:            true,
 				Computed:            true,
 				Description:         "whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)",
 				MarkdownDescription: "whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)",
-				Default:             booldefault.StaticBool(false),
 			},
 			"disable_uapsd": schema.BoolAttribute{
 				Optional:            true,
