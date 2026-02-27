@@ -26,6 +26,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var deviceUpdownThreshold types.Int64
 	var disablePcap types.Bool
 	var disableRemoteShell types.Bool
+	var gatewayTunnelUpdownThreshold types.Int64
 	var gatewayUpdownThreshold types.Int64
 	var installer = NewInstallerValueNull()
 	var jcloud = NewJcloudValueNull()
@@ -88,6 +89,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	}
 	if data.DisableRemoteShell != nil {
 		disableRemoteShell = types.BoolValue(*data.DisableRemoteShell)
+	}
+	if data.GatewayTunnelUpdownThreshold.Value() != nil {
+		gatewayTunnelUpdownThreshold = types.Int64Value(int64(*data.GatewayTunnelUpdownThreshold.Value()))
 	}
 	if data.GatewayUpdownThreshold.Value() != nil {
 		gatewayUpdownThreshold = types.Int64Value(int64(*data.GatewayUpdownThreshold.Value()))
@@ -206,6 +210,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.DeviceUpdownThreshold = deviceUpdownThreshold
 	state.DisablePcap = disablePcap
 	state.DisableRemoteShell = disableRemoteShell
+	state.GatewayTunnelUpdownThreshold = gatewayTunnelUpdownThreshold
 	state.GatewayUpdownThreshold = gatewayUpdownThreshold
 	state.Installer = installer
 	state.Jcloud = jcloud
