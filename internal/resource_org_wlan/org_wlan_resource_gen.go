@@ -874,6 +874,13 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "To disable ht or vht rates",
 				MarkdownDescription: "To disable ht or vht rates",
 			},
+			"disable_message_authenticator_check": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)",
+				MarkdownDescription: "whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)",
+				Default:             booldefault.StaticBool(false),
+			},
 			"disable_uapsd": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
@@ -2638,6 +2645,7 @@ type OrgWlanModel struct {
 	Disable11ax                          types.Bool              `tfsdk:"disable_11ax"`
 	Disable11be                          types.Bool              `tfsdk:"disable_11be"`
 	DisableHtVhtRates                    types.Bool              `tfsdk:"disable_ht_vht_rates"`
+	DisableMessageAuthenticatorCheck     types.Bool              `tfsdk:"disable_message_authenticator_check"`
 	DisableUapsd                         types.Bool              `tfsdk:"disable_uapsd"`
 	DisableV1RoamNotify                  types.Bool              `tfsdk:"disable_v1_roam_notify"`
 	DisableV2RoamNotify                  types.Bool              `tfsdk:"disable_v2_roam_notify"`

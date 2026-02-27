@@ -28,6 +28,13 @@ import (
 func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"allow_mist": schema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				Description:         "whether to allow Mist to look at this org",
+				MarkdownDescription: "whether to allow Mist to look at this org",
+				Default:             booldefault.StaticBool(false),
+			},
 			"ap_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
 				Description:         "Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.",
@@ -163,6 +170,14 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Whether to disable remote shell access for an entire org",
 				MarkdownDescription: "Whether to disable remote shell access for an entire org",
+			},
+			"gateway_tunnel_updown_threshold": schema.Int64Attribute{
+				Optional:            true,
+				Description:         "enable threshold-based gateway tunnel (secure edge tunnels) up-down delivery.",
+				MarkdownDescription: "enable threshold-based gateway tunnel (secure edge tunnels) up-down delivery.",
+				Validators: []validator.Int64{
+					int64validator.AtLeast(0),
+				},
 			},
 			"gateway_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
@@ -1315,43 +1330,45 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgSettingModel struct {
-	ApUpdownThreshold      types.Int64           `tfsdk:"ap_updown_threshold"`
-	ApiPolicy              ApiPolicyValue        `tfsdk:"api_policy"`
-	Cacerts                types.List            `tfsdk:"cacerts"`
-	Celona                 CelonaValue           `tfsdk:"celona"`
-	Cloudshark             CloudsharkValue       `tfsdk:"cloudshark"`
-	Cradlepoint            CradlepointValue      `tfsdk:"cradlepoint"`
-	DeviceCert             DeviceCertValue       `tfsdk:"device_cert"`
-	DeviceUpdownThreshold  types.Int64           `tfsdk:"device_updown_threshold"`
-	DisablePcap            types.Bool            `tfsdk:"disable_pcap"`
-	DisableRemoteShell     types.Bool            `tfsdk:"disable_remote_shell"`
-	GatewayUpdownThreshold types.Int64           `tfsdk:"gateway_updown_threshold"`
-	Installer              InstallerValue        `tfsdk:"installer"`
-	Jcloud                 JcloudValue           `tfsdk:"jcloud"`
-	JcloudRa               JcloudRaValue         `tfsdk:"jcloud_ra"`
-	Juniper                JuniperValue          `tfsdk:"juniper"`
-	JuniperSrx             JuniperSrxValue       `tfsdk:"juniper_srx"`
-	JunosShellAccess       JunosShellAccessValue `tfsdk:"junos_shell_access"`
-	Marvis                 MarvisValue           `tfsdk:"marvis"`
-	Mgmt                   MgmtValue             `tfsdk:"mgmt"`
-	MistNac                MistNacValue          `tfsdk:"mist_nac"`
-	MxedgeMgmt             MxedgeMgmtValue       `tfsdk:"mxedge_mgmt"`
-	OpticPortConfig        types.Map             `tfsdk:"optic_port_config"`
-	OrgId                  types.String          `tfsdk:"org_id"`
-	PasswordPolicy         PasswordPolicyValue   `tfsdk:"password_policy"`
-	Pcap                   PcapValue             `tfsdk:"pcap"`
-	Security               SecurityValue         `tfsdk:"security"`
-	Ssr                    SsrValue              `tfsdk:"ssr"`
-	Switch                 SwitchValue           `tfsdk:"switch"`
-	SwitchMgmt             SwitchMgmtValue       `tfsdk:"switch_mgmt"`
-	SwitchUpdownThreshold  types.Int64           `tfsdk:"switch_updown_threshold"`
-	SyntheticTest          SyntheticTestValue    `tfsdk:"synthetic_test"`
-	UiIdleTimeout          types.Int64           `tfsdk:"ui_idle_timeout"`
-	UiNoTracking           types.Bool            `tfsdk:"ui_no_tracking"`
-	VpnOptions             VpnOptionsValue       `tfsdk:"vpn_options"`
-	WanPma                 WanPmaValue           `tfsdk:"wan_pma"`
-	WiredPma               WiredPmaValue         `tfsdk:"wired_pma"`
-	WirelessPma            WirelessPmaValue      `tfsdk:"wireless_pma"`
+	AllowMist                    types.Bool            `tfsdk:"allow_mist"`
+	ApUpdownThreshold            types.Int64           `tfsdk:"ap_updown_threshold"`
+	ApiPolicy                    ApiPolicyValue        `tfsdk:"api_policy"`
+	Cacerts                      types.List            `tfsdk:"cacerts"`
+	Celona                       CelonaValue           `tfsdk:"celona"`
+	Cloudshark                   CloudsharkValue       `tfsdk:"cloudshark"`
+	Cradlepoint                  CradlepointValue      `tfsdk:"cradlepoint"`
+	DeviceCert                   DeviceCertValue       `tfsdk:"device_cert"`
+	DeviceUpdownThreshold        types.Int64           `tfsdk:"device_updown_threshold"`
+	DisablePcap                  types.Bool            `tfsdk:"disable_pcap"`
+	DisableRemoteShell           types.Bool            `tfsdk:"disable_remote_shell"`
+	GatewayTunnelUpdownThreshold types.Int64           `tfsdk:"gateway_tunnel_updown_threshold"`
+	GatewayUpdownThreshold       types.Int64           `tfsdk:"gateway_updown_threshold"`
+	Installer                    InstallerValue        `tfsdk:"installer"`
+	Jcloud                       JcloudValue           `tfsdk:"jcloud"`
+	JcloudRa                     JcloudRaValue         `tfsdk:"jcloud_ra"`
+	Juniper                      JuniperValue          `tfsdk:"juniper"`
+	JuniperSrx                   JuniperSrxValue       `tfsdk:"juniper_srx"`
+	JunosShellAccess             JunosShellAccessValue `tfsdk:"junos_shell_access"`
+	Marvis                       MarvisValue           `tfsdk:"marvis"`
+	Mgmt                         MgmtValue             `tfsdk:"mgmt"`
+	MistNac                      MistNacValue          `tfsdk:"mist_nac"`
+	MxedgeMgmt                   MxedgeMgmtValue       `tfsdk:"mxedge_mgmt"`
+	OpticPortConfig              types.Map             `tfsdk:"optic_port_config"`
+	OrgId                        types.String          `tfsdk:"org_id"`
+	PasswordPolicy               PasswordPolicyValue   `tfsdk:"password_policy"`
+	Pcap                         PcapValue             `tfsdk:"pcap"`
+	Security                     SecurityValue         `tfsdk:"security"`
+	Ssr                          SsrValue              `tfsdk:"ssr"`
+	Switch                       SwitchValue           `tfsdk:"switch"`
+	SwitchMgmt                   SwitchMgmtValue       `tfsdk:"switch_mgmt"`
+	SwitchUpdownThreshold        types.Int64           `tfsdk:"switch_updown_threshold"`
+	SyntheticTest                SyntheticTestValue    `tfsdk:"synthetic_test"`
+	UiIdleTimeout                types.Int64           `tfsdk:"ui_idle_timeout"`
+	UiNoTracking                 types.Bool            `tfsdk:"ui_no_tracking"`
+	VpnOptions                   VpnOptionsValue       `tfsdk:"vpn_options"`
+	WanPma                       WanPmaValue           `tfsdk:"wan_pma"`
+	WiredPma                     WiredPmaValue         `tfsdk:"wired_pma"`
+	WirelessPma                  WirelessPmaValue      `tfsdk:"wireless_pma"`
 }
 
 var _ basetypes.ObjectTypable = ApiPolicyType{}
