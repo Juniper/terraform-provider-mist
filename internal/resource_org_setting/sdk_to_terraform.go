@@ -15,6 +15,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var state OrgSettingModel
 	var diags diag.Diagnostics
 
+	var allowMist types.Bool
 	var apUpdownThreshold types.Int64
 	var apiPolicy = NewApiPolicyValueNull()
 	// var blacklist_url types.String
@@ -26,6 +27,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var deviceUpdownThreshold types.Int64
 	var disablePcap types.Bool
 	var disableRemoteShell types.Bool
+	var gatewayTunnelUpdownThreshold types.Int64
 	var gatewayUpdownThreshold types.Int64
 	var installer = NewInstallerValueNull()
 	var jcloud = NewJcloudValueNull()
@@ -56,6 +58,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var wiredPma = NewWiredPmaValueNull()
 	var wirelessPma = NewWirelessPmaValueNull()
 
+	if data.AllowMist != nil {
+		allowMist = types.BoolValue(*data.AllowMist)
+	}
 	if data.ApUpdownThreshold.Value() != nil {
 		apUpdownThreshold = types.Int64Value(int64(*data.ApUpdownThreshold.Value()))
 	}
@@ -88,6 +93,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	}
 	if data.DisableRemoteShell != nil {
 		disableRemoteShell = types.BoolValue(*data.DisableRemoteShell)
+	}
+	if data.GatewayTunnelUpdownThreshold.Value() != nil {
+		gatewayTunnelUpdownThreshold = types.Int64Value(int64(*data.GatewayTunnelUpdownThreshold.Value()))
 	}
 	if data.GatewayUpdownThreshold.Value() != nil {
 		gatewayUpdownThreshold = types.Int64Value(int64(*data.GatewayUpdownThreshold.Value()))
@@ -195,6 +203,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 		}
 	}
 
+	state.AllowMist = allowMist
 	state.ApUpdownThreshold = apUpdownThreshold
 	state.ApiPolicy = apiPolicy
 	// state.BlacklistUrl = blacklist_url
@@ -206,6 +215,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.DeviceUpdownThreshold = deviceUpdownThreshold
 	state.DisablePcap = disablePcap
 	state.DisableRemoteShell = disableRemoteShell
+	state.GatewayTunnelUpdownThreshold = gatewayTunnelUpdownThreshold
 	state.GatewayUpdownThreshold = gatewayUpdownThreshold
 	state.Installer = installer
 	state.Jcloud = jcloud

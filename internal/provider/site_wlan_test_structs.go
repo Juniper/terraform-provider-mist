@@ -34,6 +34,7 @@ type SiteWlanModel struct {
 	Disable11ax                          *bool                            `hcl:"disable_11ax"`
 	Disable11be                          *bool                            `hcl:"disable_11be"`
 	DisableHtVhtRates                    *bool                            `hcl:"disable_ht_vht_rates"`
+	DisableMessageAuthenticatorCheck     *bool                            `hcl:"disable_message_authenticator_check"`
 	DisableUapsd                         *bool                            `hcl:"disable_uapsd"`
 	DisableV1RoamNotify                  *bool                            `hcl:"disable_v1_roam_notify"`
 	DisableV2RoamNotify                  *bool                            `hcl:"disable_v2_roam_notify"`

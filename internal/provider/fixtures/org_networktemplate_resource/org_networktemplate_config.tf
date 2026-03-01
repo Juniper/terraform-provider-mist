@@ -319,6 +319,7 @@
       all_networks           = false
       rules = [
         {
+          description = "Dynamic access rule for admin users"
           equals = "admin"
           equals_any = ["user1", "user2"]
           expression = "{user.role == admin}"

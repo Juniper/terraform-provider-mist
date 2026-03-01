@@ -1,9 +1,10 @@
 
-  ap_updown_threshold      = 30
-  device_updown_threshold  = 45
-  gateway_updown_threshold = 60
-  switch_updown_threshold  = 75
-  ui_idle_timeout          = 120
+  ap_updown_threshold              = 30
+  device_updown_threshold          = 45
+  gateway_tunnel_updown_threshold  = 50
+  gateway_updown_threshold         = 60
+  switch_updown_threshold          = 75
+  ui_idle_timeout                  = 120
   ui_no_tracking           = true
   disable_pcap             = false
   disable_remote_shell     = false

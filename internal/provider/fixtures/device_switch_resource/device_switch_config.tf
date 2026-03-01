@@ -190,6 +190,7 @@
       stp_required     = true
       rules = [
         {
+          description = "MAC-based access rule"
           src   = "mac"
           equals = "aa:bb:cc:dd:ee:ff"
           usage = "access"
@@ -220,6 +221,7 @@
       stp_required     = false
       rules = [
         {
+          description = "VLAN-based trunk rule"
           src   = "vlan"
           equals_any = ["100", "200"]
           usage = "trunk"

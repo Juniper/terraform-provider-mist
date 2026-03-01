@@ -57,12 +57,16 @@ func portUsageStormControlSdkToTerraform(ctx context.Context, diags *diag.Diagno
 func portUsageRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SwitchPortUsageDynamicRule) basetypes.ListValue {
 	var valueList []attr.Value
 	for _, d := range l {
+		var description basetypes.StringValue
 		var equals basetypes.StringValue
 		var equalsAny = types.ListNull(types.StringType)
 		var expression basetypes.StringValue
 		var src = types.StringValue(string(d.Src))
 		var usage basetypes.StringValue
 
+		if d.Description != nil {
+			description = types.StringValue(*d.Description)
+		}
 		if d.Equals != nil {
 			equals = types.StringValue(*d.Equals)
 		}
@@ -77,11 +81,12 @@ func portUsageRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		}
 
 		dataMapValue := map[string]attr.Value{
-			"equals":     equals,
-			"equals_any": equalsAny,
-			"expression": expression,
-			"src":        src,
-			"usage":      usage,
+			"description": description,
+			"equals":      equals,
+			"equals_any":  equalsAny,
+			"expression":  expression,
+			"src":         src,
+			"usage":       usage,
 		}
 		data, e := NewRulesValue(RulesValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)

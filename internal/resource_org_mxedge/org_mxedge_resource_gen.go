@@ -28,7 +28,7 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed:            true,
+				Optional:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 			},
@@ -42,6 +42,7 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				Optional: true,
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("claim_code")),
+					mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("id")),
 				},
 			},
 			"mxagent_registered": schema.BoolAttribute{
@@ -247,6 +248,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"site_id": schema.StringAttribute{
 				Optional: true,
+				Validators: []validator.String{
+					mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("mxcluster_id")),
+				},
 			},
 			"tunterm_dhcpd_config": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{

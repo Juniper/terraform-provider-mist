@@ -47,6 +47,9 @@ func portUsageRulesTerraformToSdk(d basetypes.ListValue) []models.SwitchPortUsag
 		var vInterface interface{} = v
 		vPlan := vInterface.(RulesValue)
 		rule := models.SwitchPortUsageDynamicRule{}
+		if vPlan.Description.ValueStringPointer() != nil {
+			rule.Description = models.ToPointer(vPlan.Description.ValueString())
+		}
 		if vPlan.Equals.ValueStringPointer() != nil {
 			rule.Equals = models.ToPointer(vPlan.Equals.ValueString())
 		}

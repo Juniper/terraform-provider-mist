@@ -3,6 +3,7 @@ package resource_site_networktemplate
 import (
 	"context"
 
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -66,7 +67,7 @@ func extraRoutesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m m
 			preference = types.Int64Value(int64(*d.Preference.Value()))
 		}
 		if d.Via != nil {
-			via = types.StringValue(*d.Via)
+			via = mistutils.NextHopViaAsString(d.Via)
 		}
 
 		dataMapValue := map[string]attr.Value{
