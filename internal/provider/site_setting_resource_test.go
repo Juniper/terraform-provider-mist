@@ -642,6 +642,20 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 			checks.append(t, "TestCheckResourceAttr", "skyatp.send_ip_mac_mapping", fmt.Sprintf("%t", *s.Skyatp.SendIpMacMapping))
 		}
 	}
+	if s.SleThresholds != nil {
+		if s.SleThresholds.Capacity != nil {
+			checks.append(t, "TestCheckResourceAttr", "sle_thresholds.capacity", fmt.Sprintf("%d", *s.SleThresholds.Capacity))
+		}
+		if s.SleThresholds.Coverage != nil {
+			checks.append(t, "TestCheckResourceAttr", "sle_thresholds.coverage", fmt.Sprintf("%d", *s.SleThresholds.Coverage))
+		}
+		if s.SleThresholds.Throughput != nil {
+			checks.append(t, "TestCheckResourceAttr", "sle_thresholds.throughput", fmt.Sprintf("%d", *s.SleThresholds.Throughput))
+		}
+		if s.SleThresholds.Timetoconnect != nil {
+			checks.append(t, "TestCheckResourceAttr", "sle_thresholds.timetoconnect", fmt.Sprintf("%d", *s.SleThresholds.Timetoconnect))
+		}
+	}
 	if s.SrxApp != nil && s.SrxApp.Enabled != nil {
 		checks.append(t, "TestCheckResourceAttr", "srx_app.enabled", fmt.Sprintf("%t", *s.SrxApp.Enabled))
 	}
@@ -701,7 +715,7 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 		if len(s.SyntheticTest.CustomProbes) > 0 {
 			for key, probe := range s.SyntheticTest.CustomProbes {
 				if probe.CustomProbesType != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.custom_probes_type", key), *probe.CustomProbesType)
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.type", key), *probe.CustomProbesType)
 				}
 				if probe.Target != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("synthetic_test.custom_probes.%s.target", key), *probe.Target)
