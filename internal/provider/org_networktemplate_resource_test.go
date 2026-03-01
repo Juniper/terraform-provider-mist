@@ -958,6 +958,81 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, tName string, 
 								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.networks.%d", portPath, j), network)
 							}
 						}
+						if portCfg.AeDisableLacp != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".ae_disable_lacp", fmt.Sprintf("%t", *portCfg.AeDisableLacp))
+						}
+						if portCfg.AeIdx != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".ae_idx", fmt.Sprintf("%d", *portCfg.AeIdx))
+						}
+						if portCfg.AeLacpSlow != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".ae_lacp_slow", fmt.Sprintf("%t", *portCfg.AeLacpSlow))
+						}
+						if portCfg.Aggregated != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".aggregated", fmt.Sprintf("%t", *portCfg.Aggregated))
+						}
+						if portCfg.Critical != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".critical", fmt.Sprintf("%t", *portCfg.Critical))
+						}
+						if portCfg.Description != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".description", *portCfg.Description)
+						}
+						if portCfg.DisableAutoneg != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".disable_autoneg", fmt.Sprintf("%t", *portCfg.DisableAutoneg))
+						}
+						if portCfg.Duplex != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".duplex", *portCfg.Duplex)
+						}
+						if portCfg.DynamicUsage != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".dynamic_usage", *portCfg.DynamicUsage)
+						}
+						if portCfg.Esilag != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".esilag", fmt.Sprintf("%t", *portCfg.Esilag))
+						}
+						if portCfg.Mtu != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".mtu", fmt.Sprintf("%d", *portCfg.Mtu))
+						}
+						if portCfg.NoLocalOverwrite != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".no_local_overwrite", fmt.Sprintf("%t", *portCfg.NoLocalOverwrite))
+						}
+						if portCfg.PoeDisabled != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".poe_disabled", fmt.Sprintf("%t", *portCfg.PoeDisabled))
+						}
+						if portCfg.PortNetwork != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".port_network", *portCfg.PortNetwork)
+						}
+					}
+				}
+				// PortMirroring map
+				if len(rule.PortMirroring) > 0 {
+					for mirrorKey, mirror := range rule.PortMirroring {
+						mirrorPath := fmt.Sprintf("%s.port_mirroring.%s", basePath, mirrorKey)
+						if len(mirror.InputNetworksIngress) > 0 {
+							checks.append(t, "TestCheckResourceAttr", mirrorPath+".input_networks_ingress.#", fmt.Sprintf("%d", len(mirror.InputNetworksIngress)))
+							for j, network := range mirror.InputNetworksIngress {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.input_networks_ingress.%d", mirrorPath, j), network)
+							}
+						}
+						if len(mirror.InputPortIdsEgress) > 0 {
+							checks.append(t, "TestCheckResourceAttr", mirrorPath+".input_port_ids_egress.#", fmt.Sprintf("%d", len(mirror.InputPortIdsEgress)))
+							for j, port := range mirror.InputPortIdsEgress {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.input_port_ids_egress.%d", mirrorPath, j), port)
+							}
+						}
+						if len(mirror.InputPortIdsIngress) > 0 {
+							checks.append(t, "TestCheckResourceAttr", mirrorPath+".input_port_ids_ingress.#", fmt.Sprintf("%d", len(mirror.InputPortIdsIngress)))
+							for j, port := range mirror.InputPortIdsIngress {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.input_port_ids_ingress.%d", mirrorPath, j), port)
+							}
+						}
+						if mirror.OutputIpAddress != nil {
+							checks.append(t, "TestCheckResourceAttr", mirrorPath+".output_ip_address", *mirror.OutputIpAddress)
+						}
+						if mirror.OutputNetwork != nil {
+							checks.append(t, "TestCheckResourceAttr", mirrorPath+".output_network", *mirror.OutputNetwork)
+						}
+						if mirror.OutputPortId != nil {
+							checks.append(t, "TestCheckResourceAttr", mirrorPath+".output_port_id", *mirror.OutputPortId)
+						}
 					}
 				}
 			}
@@ -1466,6 +1541,9 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, tName string, 
 			if usage.InterSwitchLink != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".inter_switch_link", fmt.Sprintf("%t", *usage.InterSwitchLink))
 			}
+			if usage.InterIsolationNetworkLink != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".inter_isolation_network_link", fmt.Sprintf("%t", *usage.InterIsolationNetworkLink))
+			}
 			if usage.MacAuthOnly != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".mac_auth_only", fmt.Sprintf("%t", *usage.MacAuthOnly))
 			}
@@ -1510,6 +1588,9 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, tName string, 
 			}
 			if usage.ResetDefaultWhen != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".reset_default_when", *usage.ResetDefaultWhen)
+			}
+			if usage.CommunityVlanId != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".community_vlan_id", fmt.Sprintf("%d", *usage.CommunityVlanId))
 			}
 			if len(usage.Rules) > 0 {
 				checks.append(t, "TestCheckResourceAttr", basePath+".rules.#", fmt.Sprintf("%d", len(usage.Rules)))
@@ -1604,6 +1685,13 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, tName string, 
 				for i, network := range instance.Networks {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("%s.networks.%d", basePath, i), network)
 				}
+			}
+
+			if instance.EvpnAutoLoopbackSubnet != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".evpn_auto_loopback_subnet", *instance.EvpnAutoLoopbackSubnet)
+			}
+			if instance.EvpnAutoLoopbackSubnet6 != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".evpn_auto_loopback_subnet6", *instance.EvpnAutoLoopbackSubnet6)
 			}
 
 			if len(instance.VrfExtraRoutes) > 0 {

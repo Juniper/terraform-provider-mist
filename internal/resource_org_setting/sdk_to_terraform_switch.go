@@ -17,16 +17,15 @@ func switchAutoUpgradesSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	var snapshot basetypes.BoolValue
 
 	if d.CustomVersions != nil {
-		var items []attr.Value
-		var itemsType attr.Type = basetypes.StringType{}
+		rMapValue := make(map[string]attr.Value)
 		for k, v := range d.CustomVersions {
-			items = append(items, types.StringValue(k+":"+v))
+			rMapValue[k] = types.StringValue(v)
 		}
-		tmp, e := types.MapValueFrom(ctx, itemsType, items)
-		if e != nil {
-			diags.Append(e...)
+		m, e := types.MapValueFrom(ctx, types.StringType, rMapValue)
+		if !e.HasError() {
+			customVersions = m
 		} else {
-			customVersions = tmp
+			diags.Append(e...)
 		}
 	}
 

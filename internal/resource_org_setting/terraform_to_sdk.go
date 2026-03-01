@@ -68,6 +68,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-disable_remote_shell"] = ""
 	}
 
+	if plan.GatewayTunnelUpdownThreshold.ValueInt64Pointer() != nil {
+		data.GatewayTunnelUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.GatewayTunnelUpdownThreshold.ValueInt64())))
+	} else {
+		unset["-gateway_tunnel_updown_threshold"] = ""
+	}
+
 	if plan.GatewayUpdownThreshold.ValueInt64Pointer() != nil {
 		data.GatewayUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.GatewayUpdownThreshold.ValueInt64())))
 	} else {

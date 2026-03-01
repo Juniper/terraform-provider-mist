@@ -1,9 +1,11 @@
 
-  ap_updown_threshold      = 30
-  device_updown_threshold  = 45
-  gateway_updown_threshold = 60
-  switch_updown_threshold  = 75
-  ui_idle_timeout          = 120
+  ap_updown_threshold              = 30
+  device_updown_threshold          = 45
+  gateway_tunnel_updown_threshold  = 50
+  gateway_updown_threshold         = 60
+  switch_updown_threshold          = 75
+  ui_idle_timeout                  = 120
+  ui_no_tracking           = true
   disable_pcap             = false
   disable_remote_shell     = false
 
@@ -30,6 +32,17 @@
   jcloud_ra {
     org_apitoken_name = "jcloud_ra_org_token_name_example"
     org_id            = "jcloud_ra_org_id_example"
+  }
+
+  juniper_srx {
+    auto_upgrade {
+      enabled         = true
+      snapshot        = true
+      custom_versions = {
+        "EX4300" = "21.4R3.15"
+        "SRX300" = "21.2R3.10"
+      }
+    }
   }
 
   junos_shell_access {
@@ -60,6 +73,7 @@
   }
 
   mist_nac {
+    default_idp_id               = "550e8400-e29b-41d4-a716-446655440006"
     disable_rsae_algorithms      = false
     eap_ssl_security_level       = 2
     eu_only                      = false
@@ -112,10 +126,31 @@
     ap_affinity_threshold = 15
   }
 
+  switch {
+    auto_upgrade {
+      enabled         = true
+      snapshot        = true
+      custom_versions = {
+        "EX2300" = "21.4R3.15"
+        "EX4400" = "22.1R1.10"
+      }
+    }
+  }
+
   ssr {
+    conductor_hosts = ["conductor1.example.com", "conductor2.example.com"]
+    disable_stats   = false
     proxy {
       disabled = true
       url      = "http://proxy.example.com:8080"
+    }
+    auto_upgrade {
+      enabled         = true
+      channel         = "stable"
+      custom_versions = {
+        "SSR120" = "6.2.3"
+        "SSR130" = "6.2.5"
+      }
     }
   }
 
@@ -164,8 +199,9 @@
   }
 
   vpn_options {
-    as_base   = 65000
-    st_subnet = "10.224.0.0/12"
+    as_base     = 65000
+    enable_ipv6 = true
+    st_subnet   = "10.224.0.0/12"
   }
 
   wan_pma {

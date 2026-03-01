@@ -43,7 +43,7 @@ func extraRoutesTerraformToSdk(d basetypes.MapValue) map[string]models.ExtraRout
 			vData.Preference = models.NewOptional(models.ToPointer(int(vPlan.Preference.ValueInt64())))
 		}
 		if vPlan.Via.ValueStringPointer() != nil {
-			vData.Via = models.ToPointer(vPlan.Via.ValueString())
+			vData.Via = models.ToPointer(models.NextHopViaContainer.FromString(vPlan.Via.ValueString()))
 		}
 		data[k] = vData
 	}

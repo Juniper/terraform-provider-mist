@@ -228,6 +228,16 @@
       input_port_ids_egress  = ["ge-0/0/5"]
       output_port_id         = "ge-0/0/11"
     }
+    "mirror3" = {
+      input_networks_ingress = ["lan"]
+      input_port_ids_ingress = ["ge-0/0/6"]
+      output_network         = "management"
+    }
+    "mirror4" = {
+      input_networks_ingress = ["guest"]
+      input_port_ids_ingress = ["ge-0/0/7"]
+      output_ip_address      = "192.168.1.100"
+    }
   }
 
   port_usages = {
@@ -254,9 +264,10 @@
       allow_dhcpd            = false
       allow_multiple_supplicants = false
       bypass_auth_when_server_down = true
-      bypass_auth_when_server_down_for_unkown_client = false
+      bypass_auth_when_server_down_for_unknown_client = false
       bypass_auth_when_server_down_for_voip = true
       inter_switch_link      = false
+      inter_isolation_network_link = true
       stp_disable            = false
       stp_edge               = true
       stp_no_root_port       = false
@@ -308,6 +319,7 @@
       all_networks           = false
       rules = [
         {
+          description = "Dynamic access rule for admin users"
           equals = "admin"
           equals_any = ["user1", "user2"]
           expression = "{user.role == admin}"
@@ -680,6 +692,7 @@
         match_type   = "name"
         match_value  = "access"
         match_name_offset = 10
+        default_port_usage = "access"
         additional_config_cmds = ["set vlans guest vlan-id 200"]
         ip_config = {
           network = "management"
@@ -700,11 +713,40 @@
             speed    = "10g"
             networks = ["lan", "guest"]
           }
+          "ge-0/0/2" = {
+            usage              = "access"
+            ae_disable_lacp    = false
+            ae_idx             = "0"
+            ae_lacp_slow       = false
+            aggregated         = false
+            critical           = false
+            description        = "Test port with all fields"
+            disable_autoneg    = false
+            duplex             = "auto"
+            dynamic_usage      = "dynamic_vlan"
+            esilag             = false
+            mtu                = 9000
+            no_local_overwrite = false
+            poe_disabled       = false
+            port_network       = "lan"
+            speed              = "1g"
+          }
         }
         port_mirroring = {
           "local_mirror" = {
+            input_networks_ingress = ["lan"]
             input_port_ids_ingress = ["ge-0/0/2"]
+            input_port_ids_egress  = ["ge-0/0/3"]
             output_port_id         = "ge-0/0/10"
+          }
+          "remote_mirror" = {
+            input_networks_ingress = ["guest"]
+            input_port_ids_ingress = ["ge-0/0/4"]
+            output_network         = "management"
+          }
+          "ip_mirror" = {
+            input_port_ids_ingress = ["ge-0/0/5"]
+            output_ip_address      = "192.168.10.50"
           }
         }
         stp_config = {
@@ -780,6 +822,7 @@
   vrf_instances = {
     "management" = {
       networks = ["mgmt"]
+      evpn_auto_loopback_subnet6 = "fd00:255::/64"
       extra_routes = {
         "0.0.0.0/0" = {
           via = "192.168.100.1"
@@ -788,6 +831,7 @@
     }
     "guest" = {
       networks = ["guest", "public"]
+      evpn_auto_loopback_subnet = "10.255.1.0/24"
       extra_routes = {
         "10.0.0.0/8" = {
           via = "192.168.2.254"
@@ -806,4 +850,3 @@
       }
     }
   }
-

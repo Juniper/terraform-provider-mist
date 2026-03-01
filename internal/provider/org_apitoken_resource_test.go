@@ -125,6 +125,17 @@ func (s *OrgApitokenModel) testChecks(t testing.TB, rType, tName string, tracker
 		if priv.SitegroupId != nil {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.sitegroup_id", i), *priv.SitegroupId)
 		}
+		if priv.View != nil {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.view", i), *priv.View)
+		}
+	}
+
+	// Validate src_ips if present
+	if len(s.SrcIps) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "src_ips.#", fmt.Sprintf("%d", len(s.SrcIps)))
+		for i, ip := range s.SrcIps {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("src_ips.%d", i), ip)
+		}
 	}
 
 	return checks

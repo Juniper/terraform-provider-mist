@@ -5,7 +5,9 @@ package resource_site_wlan
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -26,7 +28,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -873,6 +874,11 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "To disable ht or vht rates",
 				MarkdownDescription: "To disable ht or vht rates",
+			},
+			"disable_message_authenticator_check": schema.BoolAttribute{
+				Computed:            true,
+				Description:         "whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)",
+				MarkdownDescription: "whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)",
 			},
 			"disable_uapsd": schema.BoolAttribute{
 				Optional:            true,
@@ -2641,6 +2647,7 @@ type SiteWlanModel struct {
 	Disable11ax                          types.Bool              `tfsdk:"disable_11ax"`
 	Disable11be                          types.Bool              `tfsdk:"disable_11be"`
 	DisableHtVhtRates                    types.Bool              `tfsdk:"disable_ht_vht_rates"`
+	DisableMessageAuthenticatorCheck     types.Bool              `tfsdk:"disable_message_authenticator_check"`
 	DisableUapsd                         types.Bool              `tfsdk:"disable_uapsd"`
 	DisableV1RoamNotify                  types.Bool              `tfsdk:"disable_v1_roam_notify"`
 	DisableV2RoamNotify                  types.Bool              `tfsdk:"disable_v2_roam_notify"`

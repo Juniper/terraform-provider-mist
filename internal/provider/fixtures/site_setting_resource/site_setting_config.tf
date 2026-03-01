@@ -181,49 +181,10 @@
   }
   
   sle_thresholds = {
-    ap_health = {
-      cpu_util    = 80
-      mem_util    = 85
-      temperature = 68
-    }
-    capacity = {
-      max_capacity = 500
-    }
-    coverage = {
-      coverage = -70
-    }
-    roaming = {
-      failure_reasons = [
-        {
-          reason    = "auth-or-assoc-failure"
-          threshold = 10
-        }
-      ]
-    }
-    successful_connect = {
-      auth_time_threshold   = 10000
-      dhcp_time_threshold   = 15000
-      dns_time_threshold    = 8000
-      failure_reasons = [
-        {
-          reason    = "auth-or-assoc-failure"
-          threshold = 10
-        }
-      ]
-    }
-    throughput = {
-      download = 10.0
-      upload   = 5.0
-    }
-    time_to_connect = {
-      failure_reasons = [
-        {
-          reason    = "auth-or-assoc-failure"
-          threshold = 10
-        }
-      ]
-      threshold = 10000
-    }
+    capacity      = 20
+    coverage      = -72
+    throughput    = 10
+    timetoconnect = 4
   }
   
   srx_app = {
@@ -286,6 +247,8 @@
     dot1x_enabled      = false
     keep_wlans_up_if_down = false
   }
+  
+  uses_description_from_port_usage = true
   
   vars = {
     "custom_var1" = "value1"

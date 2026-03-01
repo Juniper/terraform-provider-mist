@@ -12,6 +12,7 @@ type SiteModel struct {
 	Notes             *string          `hcl:"notes"`
 	OrgId             string           `hcl:"org_id"`
 	RftemplateId      *string          `hcl:"rftemplate_id"`
+	RoutertemplateId  *string          `hcl:"routertemplate_id"`
 	SecpolicyId       *string          `hcl:"secpolicy_id"`
 	SitegroupIds      []string         `hcl:"sitegroup_ids"`
 	SitetemplateId    *string          `hcl:"sitetemplate_id"`

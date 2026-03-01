@@ -94,6 +94,11 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "RF Template ID, this takes precedence over Site Settings",
 				MarkdownDescription: "RF Template ID, this takes precedence over Site Settings",
 			},
+			"routertemplate_id": schema.StringAttribute{
+				Optional:            true,
+				Description:         "Router Template ID, used by gateways",
+				MarkdownDescription: "Router Template ID, used by gateways",
+			},
 			"secpolicy_id": schema.StringAttribute{
 				Optional:            true,
 				Description:         "SecPolicy ID",
@@ -139,6 +144,7 @@ type SiteModel struct {
 	Notes             types.String `tfsdk:"notes"`
 	OrgId             types.String `tfsdk:"org_id"`
 	RftemplateId      types.String `tfsdk:"rftemplate_id"`
+	RoutertemplateId  types.String `tfsdk:"routertemplate_id"`
 	SecpolicyId       types.String `tfsdk:"secpolicy_id"`
 	SitegroupIds      types.List   `tfsdk:"sitegroup_ids"`
 	SitetemplateId    types.String `tfsdk:"sitetemplate_id"`

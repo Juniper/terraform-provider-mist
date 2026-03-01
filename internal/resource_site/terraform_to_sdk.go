@@ -54,6 +54,7 @@ func TerraformToSdk(plan *SiteModel) (*models.Site, diag.Diagnostics) {
 	data.GatewaytemplateId = mistutils.RequiredMistIdField(&diags, plan.GatewaytemplateId)
 	data.NetworktemplateId = mistutils.RequiredMistIdField(&diags, plan.NetworktemplateId)
 	data.RftemplateId = mistutils.RequiredMistIdField(&diags, plan.RftemplateId)
+	data.RoutertemplateId = mistutils.RequiredMistIdField(&diags, plan.RoutertemplateId)
 	data.SecpolicyId = mistutils.RequiredMistIdField(&diags, plan.SecpolicyId)
 	data.SitetemplateId = mistutils.RequiredMistIdField(&diags, plan.SitetemplateId)
 

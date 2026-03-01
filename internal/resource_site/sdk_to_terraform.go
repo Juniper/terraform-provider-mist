@@ -27,6 +27,7 @@ func SdkToTerraform(data *models.Site) (SiteModel, diag.Diagnostics) {
 	var gatewaytemplateId basetypes.StringValue
 	var networktemplateId basetypes.StringValue
 	var rftemplateId basetypes.StringValue
+	var routertemplateId basetypes.StringValue
 	var secpolicyId basetypes.StringValue
 	var sitetemplateId basetypes.StringValue
 	var sitegroupIds = types.ListValueMust(types.StringType, []attr.Value{})
@@ -75,6 +76,9 @@ func SdkToTerraform(data *models.Site) (SiteModel, diag.Diagnostics) {
 	if data.RftemplateId.Value() != nil && data.RftemplateId.Value().String() != "00000000-0000-0000-0000-000000000000" {
 		rftemplateId = types.StringValue(data.RftemplateId.Value().String())
 	}
+	if data.RoutertemplateId.Value() != nil && data.RoutertemplateId.Value().String() != "00000000-0000-0000-0000-000000000000" {
+		routertemplateId = types.StringValue(data.RoutertemplateId.Value().String())
+	}
 	if data.SecpolicyId.Value() != nil && data.SecpolicyId.Value().String() != "00000000-0000-0000-0000-000000000000" {
 		secpolicyId = types.StringValue(data.SecpolicyId.Value().String())
 	}
@@ -108,6 +112,7 @@ func SdkToTerraform(data *models.Site) (SiteModel, diag.Diagnostics) {
 	state.GatewaytemplateId = gatewaytemplateId
 	state.NetworktemplateId = networktemplateId
 	state.RftemplateId = rftemplateId
+	state.RoutertemplateId = routertemplateId
 	state.SecpolicyId = secpolicyId
 	state.SitetemplateId = sitetemplateId
 	state.SitegroupIds = sitegroupIds

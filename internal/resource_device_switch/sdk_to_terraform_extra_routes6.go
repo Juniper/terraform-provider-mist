@@ -3,6 +3,7 @@ package resource_device_switch
 import (
 	"context"
 
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -66,7 +67,7 @@ func extraRoutes6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m 
 			preference = types.Int64Value(int64(*d.Preference.Value()))
 		}
 		if d.Via != nil {
-			via = types.StringValue(*d.Via)
+			via = mistutils.NextHopViaAsString(d.Via)
 		}
 
 		dataMapValue := map[string]attr.Value{
