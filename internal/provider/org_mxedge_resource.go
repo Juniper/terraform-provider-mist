@@ -312,7 +312,7 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 	var state, plan resource_org_mxedge.OrgMxedgeModel
 	tflog.Info(ctx, "Starting OrgMxedge Update")
 
-	diags := resp.State.Get(ctx, &state)
+	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -331,20 +331,20 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 
 	tflog.Info(ctx, "Starting OrgMxedge Update for MxEdge "+state.Id.ValueString())
 
-	orgId, err := uuid.Parse(plan.OrgId.ValueString())
+	orgId, err := uuid.Parse(state.OrgId.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"org_id\" value for \"mist_org_mxedge\" resource",
-			fmt.Sprintf("Unable to parse the UUID \"%s\": %s", plan.OrgId.ValueString(), err.Error()),
+			fmt.Sprintf("Unable to parse the UUID \"%s\": %s", state.OrgId.ValueString(), err.Error()),
 		)
 		return
 	}
 
-	mxedgeId, err := uuid.Parse(plan.Id.ValueString())
+	mxedgeId, err := uuid.Parse(state.Id.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid \"id\" value for \"mist_org_mxedge\" resource",
-			fmt.Sprintf("Unable to parse the UUID \"%s\": %s", plan.Id.ValueString(), err.Error()),
+			fmt.Sprintf("Unable to parse the UUID \"%s\": %s", state.Id.ValueString(), err.Error()),
 		)
 		return
 	}

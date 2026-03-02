@@ -16,7 +16,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -29,13 +33,18 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Optional:            true,
 				Computed:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"mac": schema.StringAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"claim_code": schema.StringAttribute{
 				Optional: true,
@@ -50,6 +59,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"mxagent_registered": schema.BoolAttribute{
 				Computed: true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"mxcluster_id": schema.StringAttribute{
 				Optional:            true,
@@ -243,12 +255,18 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Registration code for the MxEdge",
 				MarkdownDescription: "Registration code for the MxEdge",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"services": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Computed:            true,
 				Description:         "List of services to run, tunterm only for now",
 				MarkdownDescription: "List of services to run, tunterm only for now",
+				PlanModifiers: []planmodifier.List{
+					listplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"site_id": schema.StringAttribute{
 				Optional: true,
@@ -547,8 +565,10 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Ethernet port configurations",
 			},
 			"tunterm_registered": schema.BoolAttribute{
-				Optional: true,
 				Computed: true,
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"tunterm_switch_config": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -581,9 +601,15 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"mxagent": schema.StringAttribute{
 						Computed: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+						},
 					},
 					"tunterm": schema.StringAttribute{
 						Computed: true,
+						PlanModifiers: []planmodifier.String{
+							stringplanmodifier.UseStateForUnknown(),
+						},
 					},
 				},
 				CustomType: VersionsType{
