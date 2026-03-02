@@ -54,7 +54,6 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				Computed: true,
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("claim_code")),
-					mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("id")),
 				},
 			},
 			"mxagent_registered": schema.BoolAttribute{
