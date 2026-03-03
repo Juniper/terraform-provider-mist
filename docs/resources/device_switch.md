@@ -117,15 +117,16 @@ resource "mist_device_switch" "switch_one" {
 - `default_port_usage` (String) Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior
 - `dhcp_snooping` (Attributes) (see [below for nested schema](#nestedatt--dhcp_snooping))
 - `dhcpd_config` (Attributes) (see [below for nested schema](#nestedatt--dhcpd_config))
-- `disable_auto_config` (Boolean) This disables the default behavior of a cloud-ready switch/gateway being managed/configured by Mist. Setting this to `true` means you want to disable the default behavior and do not want the device to be Mist-managed.
+- `disable_auto_config` (Boolean, Deprecated) This disables the default behavior of a cloud-ready switch/gateway being managed/configured by Mist. Setting this to `true` means you want to disable the default behavior and do not want the device to be Mist-managed.
 - `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--extra_routes))
 - `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--extra_routes6))
 - `ip_config` (Attributes) Junos IP Config (see [below for nested schema](#nestedatt--ip_config))
 - `local_port_config` (Attributes Map) Local port override, overriding the port configuration from `port_config`. Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--local_port_config))
-- `managed` (Boolean) An adopted switch/gateway will not be managed/configured by Mist by default. Setting this parameter to `true` enables the adopted switch/gateway to be managed/configured by Mist.
+- `managed` (Boolean, Deprecated) An adopted switch/gateway will not be managed/configured by Mist by default. Setting this parameter to `true` enables the adopted switch/gateway to be managed/configured by Mist. Deprecated in favour of mist_configured, which is more intuitive and can be used for both adopted and claimed devices.
 - `map_id` (String) Map where the device belongs to
+- `mist_configured` (Boolean) whether the device can be configured by Mist or not. This deprecates `managed` (for adopted device) and `disable_auto_config` for claimed device)
 - `mist_nac` (Attributes) Enable mist_nac to use RadSec (see [below for nested schema](#nestedatt--mist_nac))
 - `networks` (Attributes Map) Property key is network name (see [below for nested schema](#nestedatt--networks))
 - `notes` (String)
@@ -699,6 +700,7 @@ Required:
 
 Optional:
 
+- `description` (String) Optional description of the rule
 - `equals` (String)
 - `equals_any` (List of String) Use `equals_any` to match any item in a list
 - `expression` (String) "[0:3]":"abcdef" -> "abc"

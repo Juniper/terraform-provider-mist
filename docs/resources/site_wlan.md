@@ -145,6 +145,7 @@ resource "mist_site_wlan" "wlan_one" {
 
 ### Read-Only
 
+- `disable_message_authenticator_check` (Boolean) whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)
 - `id` (String) Unique ID of the object instance in the Mist Organization
 - `msp_id` (String)
 - `org_id` (String)

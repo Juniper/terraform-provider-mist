@@ -4,7 +4,7 @@ subcategory: "Devices"
 description: |-
   This resource manages the Gateway configuration.
   It can be used to define specific configuration at the device level or to override Org Gateway template settings.
-  ~> WARNING For adopted devices, make sure to set managed=true to allow Mist to manage the gateway
+  ~> WARNING For adopted devices, make sure to set mist_configured=true to allow Mist to manage the gateway
 ---
 
 # mist_device_gateway (Resource)
@@ -13,7 +13,7 @@ This resource manages the Gateway configuration.
 
 It can be used to define specific configuration at the device level or to override Org Gateway template settings.
 
-~> **WARNING** For **adopted** devices, make sure to set `managed`=`true` to allow Mist to manage the gateway
+~> **WARNING** For **adopted** devices, make sure to set `mist_configured`=`true` to allow Mist to manage the gateway
 
 
 ## Example Usage
@@ -59,8 +59,9 @@ resource "mist_device_gateway" "gateway_one" {
 - `gateway_mgmt` (Attributes) Gateway settings (see [below for nested schema](#nestedatt--gateway_mgmt))
 - `idp_profiles` (Attributes Map) Property key is the profile name (see [below for nested schema](#nestedatt--idp_profiles))
 - `ip_configs` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--ip_configs))
-- `managed` (Boolean)
+- `managed` (Boolean, Deprecated) Whether the device is managed by Mist. Deprecated in favour of mist_configured.
 - `map_id` (String) Map where the device belongs to
+- `mist_configured` (Boolean) whether the device can be configured by Mist or not. This deprecates `managed` for adopted devices.
 - `msp_id` (String)
 - `networks` (Attributes List) (see [below for nested schema](#nestedatt--networks))
 - `notes` (String)
@@ -526,7 +527,6 @@ Optional:
 - `vlan_id` (String)
 - `vpn_paths` (Attributes Map) Property key is the VPN name (see [below for nested schema](#nestedatt--port_config--vpn_paths))
 - `wan_arp_policer` (String) Only when `wan_type`==`broadband`. enum: `default`, `max`, `recommended`
-- `wan_disable_speedtest` (Boolean) If `wan_type`==`wan`, disable speedtest
 - `wan_ext_ip` (String) Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP
 - `wan_ext_ip6` (String) Only if `usage`==`wan`, optional. If spoke should reach this port by a different IPv6
 - `wan_extra_routes` (Attributes Map) Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. "100.100.100.0/24") (see [below for nested schema](#nestedatt--port_config--wan_extra_routes))
@@ -534,6 +534,7 @@ Optional:
 - `wan_networks` (List of String) Only if `usage`==`wan`. If some networks are connected to this WAN port, it can be added here so policies can be defined
 - `wan_probe_override` (Attributes) Only if `usage`==`wan` (see [below for nested schema](#nestedatt--port_config--wan_probe_override))
 - `wan_source_nat` (Attributes) Only if `usage`==`wan`, optional. By default, source-NAT is performed on all WAN Ports using the interface-ip (see [below for nested schema](#nestedatt--port_config--wan_source_nat))
+- `wan_speedtest_mode` (String) Controls whether Marvis/scheduler can run speedtest on this port. enum: `auto`, `enabled`, `disabled`
 - `wan_type` (String) Only if `usage`==`wan`. enum: `broadband`, `dsl`, `lte`
 
 <a id="nestedatt--port_config--ip_config"></a>
@@ -779,10 +780,45 @@ Optional:
 
 Optional:
 
-- `dns_dga_detection` (String) enum: `disabled`, `default`, `standard`, `strict`
-- `dns_tunnel_detection` (String) enum: `disabled`, `default`, `standard`, `strict`
-- `http_inspection` (String) enum: `disabled`, `standard`
-- `iot_device_policy` (String) enum: `disabled`, `enabled`
+- `dns_dga_detection` (Attributes) (see [below for nested schema](#nestedatt--service_policies--skyatp--dns_dga_detection))
+- `dns_tunnel_detection` (Attributes) (see [below for nested schema](#nestedatt--service_policies--skyatp--dns_tunnel_detection))
+- `http_inspection` (Attributes) (see [below for nested schema](#nestedatt--service_policies--skyatp--http_inspection))
+- `iot_device_policy` (Attributes) (see [below for nested schema](#nestedatt--service_policies--skyatp--iot_device_policy))
+
+<a id="nestedatt--service_policies--skyatp--dns_dga_detection"></a>
+### Nested Schema for `service_policies.skyatp.dns_dga_detection`
+
+Optional:
+
+- `enabled` (Boolean)
+- `profile` (String) enum: `default`, `standard`, `strict`
+
+
+<a id="nestedatt--service_policies--skyatp--dns_tunnel_detection"></a>
+### Nested Schema for `service_policies.skyatp.dns_tunnel_detection`
+
+Optional:
+
+- `enabled` (Boolean)
+- `profile` (String) enum: `default`, `standard`, `strict`
+
+
+<a id="nestedatt--service_policies--skyatp--http_inspection"></a>
+### Nested Schema for `service_policies.skyatp.http_inspection`
+
+Optional:
+
+- `enabled` (Boolean)
+- `profile` (String) enum: `standard`, `strict`
+
+
+<a id="nestedatt--service_policies--skyatp--iot_device_policy"></a>
+### Nested Schema for `service_policies.skyatp.iot_device_policy`
+
+Optional:
+
+- `enabled` (Boolean)
+
 
 
 <a id="nestedatt--service_policies--ssl_proxy"></a>

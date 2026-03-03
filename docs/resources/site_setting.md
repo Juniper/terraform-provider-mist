@@ -88,6 +88,7 @@ resource "mist_site_setting" "site_one" {
 - `synthetic_test` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test))
 - `track_anonymous_devices` (Boolean) Whether to track anonymous BLE assets (requires ‘track_asset’  enabled)
 - `uplink_port_config` (Attributes) AP Uplink port configuration (see [below for nested schema](#nestedatt--uplink_port_config))
+- `uses_description_from_port_usage` (Boolean) by default, we only honor description provided in port_config. This allows fallback to those defined in port_usages
 - `vars` (Map of String) Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
 - `vna` (Attributes) (see [below for nested schema](#nestedatt--vna))
 - `vpn_path_updown_threshold` (Number) enable threshold-based vpn path down delivery.
@@ -383,6 +384,7 @@ Optional:
 - `custom_versions` (Map of String) Property key is the SRX Hardware model (e.g. "SRX4600")
 - `enabled` (Boolean)
 - `snapshot` (Boolean)
+- `version` (String) Firmware version to deploy (e.g. 23.4R2-S5.5). Optional, used when custom_versions not specified
 
 
 <a id="nestedatt--juniper_srx--gateways"></a>
@@ -565,6 +567,7 @@ Optional:
 - `channel` (String) upgrade channel to follow. enum: `alpha`, `beta`, `stable`
 - `custom_versions` (Map of String) Property key is the SSR model (e.g. "SSR130").
 - `enabled` (Boolean)
+- `version` (String) Firmware version to deploy (e.g. 6.3.0-107.r1). Optional, used when custom_versions not specified
 
 
 <a id="nestedatt--ssr--proxy"></a>
@@ -595,11 +598,9 @@ Optional:
 Optional:
 
 - `aggressiveness` (String) enum: `auto`, `high`, `low`
-- `host` (String) If `type`==`icmp` or `type`==`tcp`, Host to be used for the custom probe
-- `port` (Number) If `type`==`tcp`, Port to be used for the custom probe
+- `target` (String) Can be URL (e.g. http://x.com, https://x.com:8080/path/to/resource), IP address, or IP:port combination
 - `threshold` (Number) In milliseconds
-- `type` (String) enum: `curl`, `icmp`, `tcp`
-- `url` (String) If `type`==`curl`, URL to be used for the custom probe, can be url or IP
+- `type` (String) enum: `application`, `curl`, `icmp`, `reachability`, `tcp`
 
 
 <a id="nestedatt--synthetic_test--lan_networks"></a>

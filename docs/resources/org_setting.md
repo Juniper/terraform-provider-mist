@@ -80,6 +80,7 @@ resource "mist_org_setting" "terraform_test" {
   * Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 240, default is 0 (trigger immediate)
 - `disable_pcap` (Boolean) Whether to disallow Mist to analyze pcap files (this is required for marvis pcap)
 - `disable_remote_shell` (Boolean) Whether to disable remote shell access for an entire org
+- `gateway_tunnel_updown_threshold` (Number) enable threshold-based gateway tunnel (secure edge tunnels) up-down delivery.
 - `gateway_updown_threshold` (Number) Enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
 - `installer` (Attributes) (see [below for nested schema](#nestedatt--installer))
 - `jcloud` (Attributes) (see [below for nested schema](#nestedatt--jcloud))
@@ -109,6 +110,7 @@ When junos_shell_access is defined - Additional users mist-web-admin (admin perm
 
 ### Read-Only
 
+- `allow_mist` (Boolean) whether to allow Mist to look at this org
 - `cradlepoint` (Attributes) (see [below for nested schema](#nestedatt--cradlepoint))
 - `juniper` (Attributes) (see [below for nested schema](#nestedatt--juniper))
 - `pcap` (Attributes) (see [below for nested schema](#nestedatt--pcap))
@@ -196,6 +198,7 @@ Optional:
 - `custom_versions` (Map of String) Property key is the SRX Hardware model (e.g. "SRX4600")
 - `enabled` (Boolean)
 - `snapshot` (Boolean)
+- `version` (String) Firmware version to deploy (e.g. 23.4R2-S5.5). Optional, used when custom_versions not specified
 
 
 
@@ -254,12 +257,25 @@ Optional:
 - `disable_rsae_algorithms` (Boolean) to disable RSAE_PSS_SHA256, RSAE_PSS_SHA384, RSAE_PSS_SHA512 from server side. see https://www.openssl.org/docs/man3.0/man1/openssl-ciphers.html
 - `eap_ssl_security_level` (Number) eap ssl security level, see https://www.openssl.org/docs/man1.1.1/man3/SSL_CTX_set_security_level.html#DEFAULT-CALLBACK-BEHAVIOUR
 - `eu_only` (Boolean) By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliance NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled
+- `fingerprinting` (Attributes) Allows customer to enable client fingerprinting for policy enforcement (see [below for nested schema](#nestedatt--mist_nac--fingerprinting))
 - `idp_machine_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup. enum: `automatic`, `cn`, `dns`
 - `idp_user_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field. To use for IDP User Groups lookup. enum: `automatic`, `cn`, `email`, `upn`
 - `idps` (Attributes List) (see [below for nested schema](#nestedatt--mist_nac--idps))
 - `server_cert` (Attributes) radius server cert to be presented in EAP TLS (see [below for nested schema](#nestedatt--mist_nac--server_cert))
 - `use_ip_version` (String) by default, NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`
 - `use_ssl_port` (Boolean) By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled
+- `usermac_expiry` (Number) Allow customer to configure an expiry time for usermacs by attaching a Quarantine label to those which have been inactive for the configured period of time (in days). 0 means no expiry
+
+<a id="nestedatt--mist_nac--fingerprinting"></a>
+### Nested Schema for `mist_nac.fingerprinting`
+
+Optional:
+
+- `enabled` (Boolean) enable/disable writes to NAC DDB fingerprint table
+- `generate_coa` (Boolean) enable/disable CoA triggers on fingerprint change for wired clients, always port-bounce
+- `generate_wireless_coa` (Boolean) enable/disable CoA triggers on fingerprint change for wireless clients
+- `wireless_coa_type` (String) enum: `reauth`, `disconnect`
+
 
 <a id="nestedatt--mist_nac--idps"></a>
 ### Nested Schema for `mist_nac.idps`
@@ -350,6 +366,7 @@ Optional:
 - `channel` (String) upgrade channel to follow. enum: `alpha`, `beta`, `stable`
 - `custom_versions` (Map of String) Property key is the SSR model (e.g. "SSR130").
 - `enabled` (Boolean)
+- `version` (String) Firmware version to deploy (e.g. 6.3.0-107.r1). Optional, used when custom_versions not specified
 
 
 <a id="nestedatt--ssr--proxy"></a>
@@ -406,11 +423,9 @@ Optional:
 Optional:
 
 - `aggressiveness` (String) enum: `auto`, `high`, `low`
-- `host` (String) If `type`==`icmp` or `type`==`tcp`, Host to be used for the custom probe
-- `port` (Number) If `type`==`tcp`, Port to be used for the custom probe
+- `target` (String) Can be URL (e.g. http://x.com, https://x.com:8080/path/to/resource), IP address, or IP:port combination
 - `threshold` (Number) In milliseconds
-- `type` (String) enum: `curl`, `icmp`, `tcp`
-- `url` (String) If `type`==`curl`, URL to be used for the custom probe, can be url or IP
+- `type` (String) enum: `application`, `curl`, `icmp`, `reachability`, `tcp`
 
 
 <a id="nestedatt--synthetic_test--lan_networks"></a>

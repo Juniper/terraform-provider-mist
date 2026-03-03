@@ -57,6 +57,7 @@ resource "mist_site" "juniper_france" {
 - `networktemplate_id` (String) Network Template ID, this takes precedence over Site Settings
 - `notes` (String) Optional, any notes about the site
 - `rftemplate_id` (String) RF Template ID, this takes precedence over Site Settings
+- `routertemplate_id` (String) Router Template ID, used by gateways
 - `secpolicy_id` (String) SecPolicy ID
 - `sitegroup_ids` (List of String) Sitegroups this site belongs to
 - `sitetemplate_id` (String) Site Template ID

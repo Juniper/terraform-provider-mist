@@ -91,6 +91,7 @@ resource "mist_org_nacidp" "idp_ldap" {
 - `oauth_cc_client_secret` (String) Required if `idp_type`==`oauth`, oauth_cc_client_secret is RSA private key, of the form "-----BEGIN RSA PRIVATE KEY--...."
 - `oauth_discovery_url` (String) If `idp_type`==`oauth`
 - `oauth_ping_identity_region` (String) enum: `us` (United States, default), `ca` (Canada), `eu` (Europe), `asia` (Asia), `au` (Australia)
+- `oauth_provider_domain` (String) If `oauth_type`==`okta`, specifies the region-specific OAuth provider domain. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`
 - `oauth_ropc_client_id` (String) If `idp_type`==`oauth`, ropc = Resource Owner Password Credentials
 - `oauth_ropc_client_secret` (String) If `oauth_type`==`azure` or `oauth_type`==`azure-gov`. oauth_ropc_client_secret can be empty
 - `oauth_tenant_id` (String) Required if `idp_type`==`oauth`, oauth_tenant_id

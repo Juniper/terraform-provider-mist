@@ -425,6 +425,7 @@ Required:
 
 Optional:
 
+- `description` (String) Optional description of the rule
 - `equals` (String)
 - `equals_any` (List of String) Use `equals_any` to match any item in a list
 - `expression` (String) "[0:3]":"abcdef" -> "abc"
