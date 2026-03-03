@@ -23,6 +23,7 @@ resource "mist_org_mxedge" "new_mxedge" {
 #First import existing device into teraform using:
 #terraform import mist_org_mxedge.existing_mxedge "<org_id>.<device_id>"
 resource "mist_org_mxedge" "existing_mxedge" {
+  org_id = "b3b6ad7a-de9e-438c-8cdf-3ddcc1e124e2"
   name    = "test-mxedge"
   model   = "ME-X5"
   site_id = "{site_id}"
@@ -35,9 +36,6 @@ resource "mist_org_mxedge" "existing_mxedge" {
     "time1.google.com",
     "time2.google.com"
   ]
-
-  # Services configuration
-  services = ["tunterm"]
 
   # MxEdge management configuration
   mxedge_mgmt = {

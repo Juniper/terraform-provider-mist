@@ -26,9 +26,7 @@ description: |-
   - `allow_mist`
 
 - **`mist_site_setting` resource**:
-  - `allow_mist`
-  - `gateway_tunnel_updown_threshold`
-  - `ap_synthetic_test.additional_vlan_ids`
+  - `uses_description_from_port_usage`
 
 - **`mist_org_wlan` and `mist_site_wlan` resources**:
   - `disable_message_authenticator_check`
