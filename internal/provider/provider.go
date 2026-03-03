@@ -530,6 +530,7 @@ func (p *mistProvider) Resources(_ context.Context) []func() resource.Resource {
 		NewOrgEvpnTopologyResource,
 		NewSiteEvpnTopologyResource,
 		NewUpgradeDevice,
+		NewOrgMxedgeResource,
 	}
 }
 
