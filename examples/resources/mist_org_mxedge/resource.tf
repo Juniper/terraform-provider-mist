@@ -1,6 +1,28 @@
-resource "mist_org_mxedge" "mxedge" {
+#Claim a device using claim code:
+resource "mist_org_mxedge" "new_mxedge" {
+  org_id = "b3b6ad7a-de9e-438c-8cdf-3ddcc1e124e2"
+  name   = "edgey"
+  claim_code = "XXX4DSY7TZMDXXX"
+}
 
+#Create a new device using name and model (without claim code):
+resource "mist_org_mxedge" "new_mxedge" {
+  org_id = "b3b6ad7a-de9e-438c-8cdf-3ddcc1e124e2"
+  name   = "edgey"
+  model  = "VM"
+}
 
+#Assign a device to a site (can be done when creating or claiming by setting site_id):
+resource "mist_org_mxedge" "new_mxedge" {
+  org_id = "b3b6ad7a-de9e-438c-8cdf-3ddcc1e124e2"
+  name   = "edgey"
+  model  = "VM"
+  site_id = "971ecb5c-e694-4753-a867-42bf18d60e92"
+
+#Configuring an existing device:
+#First import existing device into teraform using:
+#terraform import mist_org_mxedge.existing_mxedge "<org_id>.<device_id>"
+resource "mist_org_mxedge" "existing_mxedge" {
   name    = "test-mxedge"
   model   = "ME-X5"
   site_id = "{site_id}"
