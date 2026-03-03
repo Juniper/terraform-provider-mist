@@ -118,6 +118,10 @@ resource "mist_site_networktemplate" "networktemplate_one" {
 - `vrf_config` (Attributes) (see [below for nested schema](#nestedatt--vrf_config))
 - `vrf_instances` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--vrf_instances))
 
+### Read-Only
+
+- `uses_description_from_port_usage` (Boolean) by default, we only honor description provided in port_config. This allows fallback to those defined in port_usages
+
 <a id="nestedatt--acl_policies"></a>
 ### Nested Schema for `acl_policies`
 
@@ -390,6 +394,7 @@ Required:
 
 Optional:
 
+- `description` (String) Optional description of the rule
 - `equals` (String)
 - `equals_any` (List of String) Use `equals_any` to match any item in a list
 - `expression` (String) "[0:3]":"abcdef" -> "abc"
