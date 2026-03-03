@@ -157,12 +157,17 @@ func (s *SiteModel) testChecks(t testing.TB, rType, tName string, tracker *valid
 		checks.append(t, "TestCheckResourceAttr", "rftemplate_id", *s.RftemplateId)
 	}
 
-	// 13. SecpolicyId (optional)
+	// 13. RoutertemplateId (optional)
+	if s.RoutertemplateId != nil {
+		checks.append(t, "TestCheckResourceAttr", "routertemplate_id", *s.RoutertemplateId)
+	}
+
+	// 14. SecpolicyId (optional)
 	if s.SecpolicyId != nil {
 		checks.append(t, "TestCheckResourceAttr", "secpolicy_id", *s.SecpolicyId)
 	}
 
-	// 14. SitegroupIds (optional array)
+	// 15. SitegroupIds (optional array)
 	if len(s.SitegroupIds) > 0 {
 		checks.append(t, "TestCheckResourceAttr", "sitegroup_ids.#", fmt.Sprintf("%d", len(s.SitegroupIds)))
 		for i, id := range s.SitegroupIds {
@@ -170,17 +175,17 @@ func (s *SiteModel) testChecks(t testing.TB, rType, tName string, tracker *valid
 		}
 	}
 
-	// 15. SitetemplateId (optional)
+	// 16. SitetemplateId (optional)
 	if s.SitetemplateId != nil {
 		checks.append(t, "TestCheckResourceAttr", "sitetemplate_id", *s.SitetemplateId)
 	}
 
-	// 16. Timezone (optional)
+	// 17. Timezone (optional)
 	if s.Timezone != nil {
 		checks.append(t, "TestCheckResourceAttr", "timezone", *s.Timezone)
 	}
 
-	// 17. Tzoffset (computed-only)
+	// 18. Tzoffset (computed-only)
 	checks.append(t, "TestCheckResourceAttrSet", "tzoffset")
 
 	return checks

@@ -14,6 +14,7 @@ latlng = {
 networktemplate_id     = "00000000-0000-0000-4000-5c5b35000040"
 notes                  = "This is a comprehensive test site with all major configuration options"
 rftemplate_id          = "00000000-0000-0000-5000-5c5b35000050"
+routertemplate_id      = "00000000-0000-0000-5500-5c5b35000055"
 secpolicy_id           = "00000000-0000-0000-6000-5c5b35000060"
 sitegroup_ids          = ["00000000-0000-0000-7000-5c5b35000070", "00000000-0000-0000-7000-5c5b35000071"]
 sitetemplate_id        = "00000000-0000-0000-8000-5c5b35000080"
