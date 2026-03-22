@@ -148,7 +148,15 @@ func main() {
 
 			index := 0
 			if attrStack.Len() > 2 {
-				index = len(attrLookup[attrStack.Peek()]) - 1
+				attrLen := len(attrLookup[attrStack.Peek()])
+				if attrLen > 0 {
+					index = attrLen - 1
+				}
+			}
+
+			// Skip if attrLookup doesn't have entries for this attribute
+			if len(attrLookup[attrStack.Peek()]) == 0 {
+				continue
 			}
 
 			if strings.Contains(line, "Required:") {
