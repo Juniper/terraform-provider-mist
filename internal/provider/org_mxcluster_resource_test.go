@@ -152,21 +152,23 @@ func (o *OrgMxclusterModel) testChecks(t testing.TB, rType, tName string, tracke
 	}
 
 	// Check mist_nac
-	if o.MistNac.Enabled != nil {
-		checks.append(t, "TestCheckResourceAttr", "mist_nac.enabled", fmt.Sprintf("%t", *o.MistNac.Enabled))
+	if o.MistDas != nil {
+		if o.MistNac.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.enabled", fmt.Sprintf("%t", *o.MistNac.Enabled))
+		}
+		if o.MistNac.AcctServerPort != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.acct_server_port", fmt.Sprintf("%d", *o.MistNac.AcctServerPort))
+		}
+		if o.MistNac.AuthServerPort != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.auth_server_port", fmt.Sprintf("%d", *o.MistNac.AuthServerPort))
+		}
+		if o.MistNac.Secret != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.secret", *o.MistNac.Secret)
+		}
+		// if len(o.MistNac.ClientIps) > 0 {
+		// 	checks.append(t, "TestCheckResourceAttr", "mist_nac.client_ips.%", fmt.Sprintf("%d", len(o.MistNac.ClientIps)))
+		// }
 	}
-	if o.MistNac.AcctServerPort != nil {
-		checks.append(t, "TestCheckResourceAttr", "mist_nac.acct_server_port", fmt.Sprintf("%d", *o.MistNac.AcctServerPort))
-	}
-	if o.MistNac.AuthServerPort != nil {
-		checks.append(t, "TestCheckResourceAttr", "mist_nac.auth_server_port", fmt.Sprintf("%d", *o.MistNac.AuthServerPort))
-	}
-	if o.MistNac.Secret != nil {
-		checks.append(t, "TestCheckResourceAttr", "mist_nac.secret", *o.MistNac.Secret)
-	}
-	// if len(o.MistNac.ClientIps) > 0 {
-	// 	checks.append(t, "TestCheckResourceAttr", "mist_nac.client_ips.%", fmt.Sprintf("%d", len(o.MistNac.ClientIps)))
-	// }
 
 	// Check radsec
 	if o.Radsec != nil {

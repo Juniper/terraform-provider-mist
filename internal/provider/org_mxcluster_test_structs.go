@@ -2,7 +2,7 @@ package provider
 
 type OrgMxclusterModel struct {
 	MistDas                   *OrgMxclusterMistDasValue                      `hcl:"mist_das"`
-	MistNac                   OrgMxclusterMistNacValue                       `hcl:"mist_nac"`
+	MistNac                   *OrgMxclusterMistNacValue                      `hcl:"mist_nac"`
 	MxedgeMgmt                *OrgMxclusterMxedgeMgmtValue                   `hcl:"mxedge_mgmt"`
 	Name                      string                                         `hcl:"name"`
 	OrgId                     string                                         `hcl:"org_id"`
