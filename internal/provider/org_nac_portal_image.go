@@ -89,7 +89,7 @@ func (r *orgNacPortalImageResource) Create(ctx context.Context, req resource.Cre
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	file, err := models.GetFile(plan.File.ValueString())
 	if err != nil {
-		diags.AddError(
+		resp.Diagnostics.AddError(
 			"Invalid \"file\" value for \"mist_org_nac_portal_image\" resource",
 			fmt.Sprintf("Could not open file \"%s\": %s", plan.File.ValueString(), err.Error()),
 		)
@@ -155,7 +155,7 @@ func (r *orgNacPortalImageResource) Update(ctx context.Context, req resource.Upd
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	file, err := models.GetFile(plan.File.ValueString())
 	if err != nil {
-		diags.AddError(
+		resp.Diagnostics.AddError(
 			"Invalid \"file\" value for \"mist_org_nac_portal_image\" resource",
 			fmt.Sprintf("Could not open file \"%s\": %s", plan.File.ValueString(), err.Error()),
 		)

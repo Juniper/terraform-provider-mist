@@ -54,10 +54,12 @@ func SdkToTerraform(ctx context.Context, d *models.NacPortal) (OrgNacPortalModel
 		expiryNotificationTime = types.Int64Value(int64(*d.ExpiryNotificationTime))
 	}
 
-	// Extract id from AdditionalProperties if present (API returns it but SDK model doesn't include it)
-	if idVal, ok := d.AdditionalProperties["id"]; ok {
-		if idStr, ok := idVal.(string); ok {
-			id = types.StringValue(idStr)
+	// Extract id and org_id from AdditionalProperties if present (API returns them but SDK model doesn't include them)
+	if d.AdditionalProperties != nil {
+		if idVal, ok := d.AdditionalProperties["id"]; ok {
+			if idStr, ok := idVal.(string); ok {
+				id = types.StringValue(idStr)
+			}
 		}
 	}
 
@@ -68,10 +70,12 @@ func SdkToTerraform(ctx context.Context, d *models.NacPortal) (OrgNacPortalModel
 		notifyExpiry = types.BoolValue(*d.NotifyExpiry)
 	}
 
-	// Extract org_id from AdditionalProperties if present (API returns it but SDK model doesn't include it)
-	if orgIdVal, ok := d.AdditionalProperties["org_id"]; ok {
-		if orgIdStr, ok := orgIdVal.(string); ok {
-			orgId = types.StringValue(orgIdStr)
+	// Extract org_id from AdditionalProperties if present
+	if d.AdditionalProperties != nil {
+		if orgIdVal, ok := d.AdditionalProperties["org_id"]; ok {
+			if orgIdStr, ok := orgIdVal.(string); ok {
+				orgId = types.StringValue(orgIdStr)
+			}
 		}
 	}
 

@@ -57,9 +57,9 @@ func (r *orgNacPortalTemplateResource) Schema(ctx context.Context, _ resource.Sc
 			"* Whether to display \"Powered by Juniper Mist\" footer\n\n" +
 			"**Notes:**\n" +
 			"* There is no feedback from the API, so there is no possibility to validate the changes. " +
-			"The resource states is directly generated based on the resource plan." +
-			"* There is no option to delete or revert the changes. Deleting the resource will just remove it from the states. " +
-			"Once removed, it is possible to create a new one. It will replace the previous template",
+			"The resource states is directly generated based on the resource plan.\n" +
+			"* Deleting this resource will revert the NAC Portal Template to its default values. " +
+			"Once removed from state, it is possible to create a new one, which will replace the previous template.",
 		Attributes: resource_org_nac_portal_template.OrgNacPortalTemplateResourceSchema(ctx).Attributes,
 	}
 }
