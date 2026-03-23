@@ -5,19 +5,18 @@ package resource_org_nac_portal
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -37,7 +36,6 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 						"wireless+wired",
 					),
 				},
-				Default: stringdefault.StaticString("wireless"),
 			},
 			"additional_cacerts": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -68,7 +66,6 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 						"wpa3",
 					),
 				},
-				Default: stringdefault.StaticString("wpa2"),
 			},
 			"enable_telemetry": schema.BoolAttribute{
 				Optional:            true,
@@ -148,7 +145,6 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.Int64{
 							int64validator.Between(0, 100),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"privacy": schema.BoolAttribute{
 						Optional:            true,
@@ -187,7 +183,6 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 								"sha512",
 							),
 						},
-						Default: stringdefault.StaticString("sha256"),
 					},
 					"idp_sso_url": schema.StringAttribute{
 						Optional: true,
