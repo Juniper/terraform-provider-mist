@@ -4,10 +4,9 @@ package resource_org_nac_portal_template
 
 import (
 	"context"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -30,12 +29,10 @@ func OrgNacPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 						"right",
 					),
 				},
-				Default: stringdefault.StaticString("center"),
 			},
 			"color": schema.StringAttribute{
 				Optional: true,
 				Computed: true,
-				Default:  stringdefault.StaticString("#1074bc"),
 			},
 			"logo": schema.StringAttribute{
 				Optional:            true,
@@ -62,7 +59,6 @@ func OrgNacPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Whether to hide \"Powered by Juniper Mist\" and email footers",
 				MarkdownDescription: "Whether to hide \"Powered by Juniper Mist\" and email footers",
-				Default:             booldefault.StaticBool(false),
 			},
 		},
 	}
