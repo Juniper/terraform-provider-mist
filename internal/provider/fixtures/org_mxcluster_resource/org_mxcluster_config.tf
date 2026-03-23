@@ -30,7 +30,6 @@
     enabled         = true
     acct_server_port = 1813
     auth_server_port = 1812
-    # client_ips
     secret          = "nac-shared-secret"
   }
 
@@ -99,11 +98,6 @@
       }
     ]
   }
-
-  # RadSec TLS configuration
-  #radsec_tls = {
-  #  keypair = "mist-cert-keypair-1"
-  #}
 
   # Tunterm AP subnets - list of subnets where APs can establish Mist Tunnels from
   tunterm_ap_subnets = [

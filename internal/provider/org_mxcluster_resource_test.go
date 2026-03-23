@@ -165,9 +165,6 @@ func (o *OrgMxclusterModel) testChecks(t testing.TB, rType, tName string, tracke
 		if o.MistNac.Secret != nil {
 			checks.append(t, "TestCheckResourceAttr", "mist_nac.secret", *o.MistNac.Secret)
 		}
-		// if len(o.MistNac.ClientIps) > 0 {
-		// 	checks.append(t, "TestCheckResourceAttr", "mist_nac.client_ips.%", fmt.Sprintf("%d", len(o.MistNac.ClientIps)))
-		// }
 	}
 
 	// Check radsec
@@ -250,13 +247,6 @@ func (o *OrgMxclusterModel) testChecks(t testing.TB, rType, tName string, tracke
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radsec.auth_servers.%d.ssids.#", i), fmt.Sprintf("%d", len(server.Ssids)))
 				}
 			}
-		}
-	}
-
-	// Check radsec_tls
-	if o.RadsecTls != nil {
-		if o.RadsecTls.Keypair != nil {
-			checks.append(t, "TestCheckResourceAttr", "radsec_tls.keypair", *o.RadsecTls.Keypair)
 		}
 	}
 

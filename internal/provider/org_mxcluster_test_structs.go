@@ -8,7 +8,6 @@ type OrgMxclusterModel struct {
 	OrgId                     string                                         `hcl:"org_id"`
 	Proxy                     *OrgMxclusterProxyValue                        `hcl:"proxy"`
 	Radsec                    *OrgMxclusterRadsecValue                       `hcl:"radsec"`
-	RadsecTls                 *OrgMxclusterRadsecTlsValue                    `hcl:"radsec_tls"`
 	SiteId                    *string                                        `hcl:"site_id"`
 	TuntermApSubnets          []string                                       `hcl:"tunterm_ap_subnets"`
 	TuntermDhcpdConfig        map[string]OrgMxclusterTuntermDhcpdConfigValue `hcl:"tunterm_dhcpd_config"`
@@ -35,16 +34,11 @@ type OrgMxclusterCoaServersValue struct {
 }
 
 type OrgMxclusterMistNacValue struct {
-	AcctServerPort *int64 `cty:"acct_server_port" hcl:"acct_server_port"`
-	AuthServerPort *int64 `cty:"auth_server_port" hcl:"auth_server_port"`
-	// ClientIps      map[string]OrgMxclusterClientIpsValue `cty:"client_ips" hcl:"client_ips"` // Commented out: empty struct can't be encoded in HCL
-	Enabled *bool   `cty:"enabled" hcl:"enabled"`
-	Secret  *string `cty:"secret" hcl:"secret"`
+	AcctServerPort *int64  `cty:"acct_server_port" hcl:"acct_server_port"`
+	AuthServerPort *int64  `cty:"auth_server_port" hcl:"auth_server_port"`
+	Enabled        *bool   `cty:"enabled" hcl:"enabled"`
+	Secret         *string `cty:"secret" hcl:"secret"`
 }
-
-// OrgMxclusterClientIpsValue - Commented out: empty struct without cty tags can't be encoded in HCL
-// type OrgMxclusterClientIpsValue struct {
-// }
 
 type OrgMxclusterMxedgeMgmtValue struct {
 	ConfigAutoRevert *bool   `cty:"config_auto_revert" hcl:"config_auto_revert"`
@@ -91,10 +85,6 @@ type OrgMxclusterAuthServersValue struct {
 	Secret               *string  `cty:"secret" hcl:"secret"`
 	Ssids                []string `cty:"ssids" hcl:"ssids"`
 	Timeout              *int64   `cty:"timeout" hcl:"timeout"`
-}
-
-type OrgMxclusterRadsecTlsValue struct {
-	Keypair *string `cty:"keypair" hcl:"keypair"`
 }
 
 type OrgMxclusterTuntermDhcpdConfigValue struct {

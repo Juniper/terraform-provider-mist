@@ -113,7 +113,7 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional:            true,
+						Computed:            true,
 						Description:         "Property key is the RADIUS Client IP/Subnet.",
 						MarkdownDescription: "Property key is the RADIUS Client IP/Subnet.",
 						Validators: []validator.Map{
@@ -439,7 +439,7 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: RadsecTlsValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Computed: true,
 			},
 			"site_id": schema.StringAttribute{
 				Optional: true,
