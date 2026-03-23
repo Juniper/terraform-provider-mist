@@ -13,10 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -47,7 +44,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Whether to disable Event-Timestamp Check",
 									MarkdownDescription: "Whether to disable Event-Timestamp Check",
-									Default:             booldefault.StaticBool(false),
 								},
 								"enabled": schema.BoolAttribute{
 									Optional: true,
@@ -62,14 +58,12 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Mist edges will allow this host on this port",
 									MarkdownDescription: "Mist edges will allow this host on this port",
-									Default:             int64default.StaticInt64(3799),
 								},
 								"require_message_authenticator": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
 									Description:         "Whether to require Message-Authenticator in requests",
 									MarkdownDescription: "Whether to require Message-Authenticator in requests",
-									Default:             booldefault.StaticBool(false),
 								},
 								"secret": schema.StringAttribute{
 									Optional:  true,
@@ -89,7 +83,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"enabled": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 				},
 				CustomType: MistDasType{
@@ -106,12 +99,10 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"acct_server_port": schema.Int64Attribute{
 						Optional: true,
 						Computed: true,
-						Default:  int64default.StaticInt64(1813),
 					},
 					"auth_server_port": schema.Int64Attribute{
 						Optional: true,
 						Computed: true,
-						Default:  int64default.StaticInt64(1812),
 					},
 					"client_ips": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -132,7 +123,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"enabled": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"secret": schema.StringAttribute{
 						Optional:  true,
@@ -151,12 +141,10 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"config_auto_revert": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"fips_enabled": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"mist_password": schema.StringAttribute{
 						Optional:  true,
@@ -175,7 +163,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 								"static",
 							),
 						},
-						Default: stringdefault.StaticString("dhcp"),
 					},
 					"oob_ip_type6": schema.StringAttribute{
 						Optional:            true,
@@ -191,7 +178,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 								"static",
 							),
 						},
-						Default: stringdefault.StaticString("autoconf"),
 					},
 					"root_password": schema.StringAttribute{
 						Optional:  true,
@@ -216,7 +202,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"disabled": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"url": schema.StringAttribute{
 						Optional: true,
@@ -246,7 +231,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Acct port of RADIUS server",
 									MarkdownDescription: "Acct port of RADIUS server",
-									Default:             int64default.StaticInt64(1813),
 								},
 								"secret": schema.StringAttribute{
 									Optional:            true,
@@ -287,7 +271,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Whether to enable inband status check",
 									MarkdownDescription: "Whether to enable inband status check",
-									Default:             booldefault.StaticBool(false),
 								},
 								"inband_status_interval": schema.Int64Attribute{
 									Optional:            true,
@@ -297,7 +280,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 									Validators: []validator.Int64{
 										int64validator.AtLeast(0),
 									},
-									Default: int64default.StaticInt64(300),
 								},
 								"keywrap_enabled": schema.BoolAttribute{
 									Optional:            true,
@@ -316,7 +298,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 											"hex",
 										),
 									},
-									Default: stringdefault.StaticString("ascii"),
 								},
 								"keywrap_kek": schema.StringAttribute{
 									Optional:            true,
@@ -333,14 +314,12 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Auth port of RADIUS server",
 									MarkdownDescription: "Auth port of RADIUS server",
-									Default:             int64default.StaticInt64(1812),
 								},
 								"retry": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
 									Description:         "Authentication request retry",
 									MarkdownDescription: "Authentication request retry",
-									Default:             int64default.StaticInt64(2),
 								},
 								"secret": schema.StringAttribute{
 									Optional:            true,
@@ -359,7 +338,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Authentication request timeout, in seconds",
 									MarkdownDescription: "Authentication request timeout, in seconds",
-									Default:             int64default.StaticInt64(5),
 								},
 							},
 							CustomType: AuthServersType{
@@ -400,7 +378,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 								"tunnel6",
 							),
 						},
-						Default: stringdefault.StaticString("any"),
 					},
 					"proxy_hosts": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -424,7 +401,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 								"unordered",
 							),
 						},
-						Default: stringdefault.StaticString("ordered"),
 					},
 					"src_ip_source": schema.StringAttribute{
 						Optional:            true,
@@ -441,7 +417,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 								"tunnel6",
 							),
 						},
-						Default: stringdefault.StaticString("any"),
 					},
 				},
 				CustomType: RadsecType{
@@ -485,7 +460,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 						"enabled": schema.BoolAttribute{
 							Optional: true,
 							Computed: true,
-							Default:  booldefault.StaticBool(false),
 						},
 						"servers": schema.ListAttribute{
 							ElementType: types.StringType,
@@ -505,7 +479,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 									"relay",
 								),
 							},
-							Default: stringdefault.StaticString("relay"),
 						},
 					},
 					CustomType: TuntermDhcpdConfigType{
@@ -574,7 +547,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 						"shuffle-by-site",
 					),
 				},
-				Default: stringdefault.StaticString("shuffle"),
 			},
 			"tunterm_monitoring": schema.ListAttribute{
 				ElementType: types.ListType{
