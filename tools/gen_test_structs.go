@@ -150,7 +150,7 @@ func main() {
 			if attrStack.Len() > 2 {
 				attrLen := len(attrLookup[attrStack.Peek()])
 				// Skip if attrLookup doesn't have entries for this attribute
-				if len(attrLookup[attrStack.Peek()]) == 0 {
+				if attrLen == 0 {
 					continue
 				}
 
