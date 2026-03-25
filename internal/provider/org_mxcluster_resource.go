@@ -60,7 +60,7 @@ func (r *orgMxclusterResource) Metadata(_ context.Context, req resource.Metadata
 func (r *orgMxclusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: docCategoryDevices + "This resource manages MxCluster (cluster of MxEdge devices) in the Mist Organization.\n\n" +
-			"MxCluster provides high-availability configuration for groups of MxEdge devices.",
+			"A Mist Edge Cluster is a group of one or more Org Mist Edge devices (mist_org_mxedge) providing tunnel termination, edge network services and RADIUS proxy capabilities.",
 		Attributes: resource_org_mxcluster.OrgMxclusterResourceSchema(ctx).Attributes,
 	}
 }
