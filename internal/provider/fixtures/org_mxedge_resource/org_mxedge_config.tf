@@ -5,7 +5,7 @@
   site_id = "{site_id}"
 
   # Optional attributes
-  note              = "Test MxEdge for comprehensive attribute testing"
+  notes              = "Test MxEdge for comprehensive attribute testing"
 
   # NTP servers configuration
   ntp_servers = [

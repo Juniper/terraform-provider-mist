@@ -273,11 +273,14 @@ func (r *orgMxedgeResource) Read(ctx context.Context, _ resource.ReadRequest, re
 	if httpr.Response.StatusCode == 404 {
 		resp.State.RemoveResource(ctx)
 		return
-	} else if httpr.Response.StatusCode != 200 && err != nil {
-		resp.Diagnostics.AddError(
-			"Error getting \"mist_org_mxedge\" resource",
-			"Unable to get the MxEdge, unexpected error: "+err.Error(),
-		)
+	} else if httpr.Response.StatusCode != 200 {
+		apiErr := mistapierror.ProcessApiError(httpr.Response.StatusCode, httpr.Response.Body, err)
+		if apiErr != "" {
+			resp.Diagnostics.AddError(
+				"Error getting \"mist_org_mxedge\" resource",
+				fmt.Sprintf("Unable to get the MxEdge. %s", apiErr),
+			)
+		}
 		return
 	}
 
@@ -285,7 +288,8 @@ func (r *orgMxedgeResource) Read(ctx context.Context, _ resource.ReadRequest, re
 	mistMxedge := models.Mxedge{}
 	json.Unmarshal(body, &mistMxedge)
 
-	// Preserve claim_code from existing state before overwriting
+	// Preserve org_id and claim_code from existing state before overwriting
+	existingOrgId := state.OrgId
 	existingClaimCode := state.Magic
 
 	state, diags = resource_org_mxedge.SdkToTerraform(ctx, &mistMxedge)
@@ -293,6 +297,9 @@ func (r *orgMxedgeResource) Read(ctx context.Context, _ resource.ReadRequest, re
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	// Restore org_id - API doesn't return this value
+	state.OrgId = existingOrgId
 
 	// Restore claim_code if it was previously set
 	// The API doesn't return this value, but we need to keep it in state for consistency
@@ -375,15 +382,63 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	// Handle site assignment if site_id in plan differs from current state
-	if !plan.SiteId.IsNull() && !plan.SiteId.IsUnknown() {
-		planSiteId := plan.SiteId.ValueString()
-		stateSiteId := ""
-		if !state.SiteId.IsNull() {
-			stateSiteId = state.SiteId.ValueString()
-		}
+	// Handle site assignment/unassignment if site_id changes
+	planSiteId := ""
+	stateSiteId := ""
 
-		if planSiteId != stateSiteId {
+	if !plan.SiteId.IsNull() && !plan.SiteId.IsUnknown() {
+		planSiteId = plan.SiteId.ValueString()
+	}
+	if !state.SiteId.IsNull() {
+		stateSiteId = state.SiteId.ValueString()
+	}
+
+	// Check if site assignment needs to be changed
+	if planSiteId != stateSiteId {
+		// Case 1: Unassign device from site (site_id removed from config)
+		if planSiteId == "" && stateSiteId != "" {
+			tflog.Info(ctx, fmt.Sprintf("Unassigning MxEdge from site: %s", stateSiteId))
+
+			unassignBody := models.MxedgesUnassign{
+				MxedgeIds: []uuid.UUID{mxedgeId},
+			}
+
+			unassignResponse, err := r.client.OrgsMxEdges().UnassignOrgMxEdgeFromSite(ctx, orgId, &unassignBody)
+			if err != nil || unassignResponse.Response.StatusCode != 200 {
+				apiErr := mistapierror.ProcessApiError(unassignResponse.Response.StatusCode, unassignResponse.Response.Body, err)
+				if apiErr != "" {
+					resp.Diagnostics.AddError(
+						"Error unassigning \"mist_org_mxedge\" from site",
+						fmt.Sprintf("Unable to unassign the MxEdge from site. %s", apiErr),
+					)
+					return
+				}
+			}
+
+			// Refresh state after unassignment
+			httpr, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
+			if httpr.Response.StatusCode != 200 {
+				apiErr := mistapierror.ProcessApiError(httpr.Response.StatusCode, httpr.Response.Body, err)
+				if apiErr != "" {
+					resp.Diagnostics.AddError(
+						"Error retrieving \"mist_org_mxedge\" after unassignment",
+						fmt.Sprintf("Unable to retrieve the MxEdge. %s", apiErr),
+					)
+				}
+				return
+			}
+
+			body, _ := io.ReadAll(httpr.Response.Body)
+			json.Unmarshal(body, &mistMxedge)
+
+			state, diags = resource_org_mxedge.SdkToTerraform(ctx, &mistMxedge)
+			resp.Diagnostics.Append(diags...)
+			if resp.Diagnostics.HasError() {
+				return
+			}
+
+			// Case 2: Assign device to a site (site_id added or changed)
+		} else if planSiteId != "" {
 			tflog.Info(ctx, fmt.Sprintf("Assigning MxEdge to site: %s", planSiteId))
 			siteId, err := uuid.Parse(planSiteId)
 			if err != nil {

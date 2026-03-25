@@ -23,7 +23,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	var mxclusterId = types.StringNull()
 	var mxedgeMgmt = NewMxedgeMgmtValueNull()
 	var name = types.StringNull()
-	var note = types.StringNull()
+	var notes = types.StringNull()
 	var ntpServers = types.ListNull(types.StringType)
 	var oobIpConfig = NewOobIpConfigValueNull()
 	var orgId = types.StringNull()
@@ -72,7 +72,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	}
 	name = types.StringValue(data.Name)
 	if data.Note != nil {
-		note = types.StringValue(*data.Note)
+		notes = types.StringValue(*data.Note)
 	}
 	if data.NtpServers != nil {
 		ntpServers = mistutils.ListOfStringSdkToTerraform(data.NtpServers)
@@ -133,7 +133,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	state.MxclusterId = mxclusterId
 	state.MxedgeMgmt = mxedgeMgmt
 	state.Name = name
-	state.Note = note
+	state.Notes = notes
 	state.NtpServers = ntpServers
 	state.OobIpConfig = oobIpConfig
 	state.OrgId = orgId

@@ -49,8 +49,8 @@ func TerraformToSdk(ctx context.Context, plan *OrgMxedgeModel) (*models.Mxedge, 
 
 	data.Name = plan.Name.ValueString()
 
-	if !plan.Note.IsNull() && !plan.Note.IsUnknown() {
-		data.Note = plan.Note.ValueStringPointer()
+	if !plan.Notes.IsNull() && !plan.Notes.IsUnknown() {
+		data.Note = plan.Notes.ValueStringPointer()
 	} else {
 		unset["-note"] = ""
 	}
