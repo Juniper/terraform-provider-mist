@@ -289,6 +289,21 @@ func GetOrgWlanBaseConfig(orgID string) (config string, wlanRef string) {
 	return wlanTemplateConfigStr + "\n\n" + wlanConfigStr, "mist_org_wlan.wlanName.id"
 }
 
+func GetOrgNacPortalBaseConfig(orgID string) (config string, nacPortalRef string) {
+	// Create the NAC portal that is required for the NAC portal template
+	nacPortalConfig := OrgNacPortalModel{
+		Name:  "Test_NAC_Portal",
+		OrgId: orgID,
+		Type:  stringPtr("guest_portal"),
+	}
+
+	f := hclwrite.NewEmptyFile()
+	gohcl.EncodeIntoBody(&nacPortalConfig, f.Body())
+	nacPortalConfigStr := Render("org_nac_portal", "test_nac_portal", string(f.Bytes()))
+
+	return nacPortalConfigStr, "mist_org_nac_portal.test_nac_portal.id"
+}
+
 func GetSiteWlanBaseConfig(orgID string) (config string, siteRef string, wlanRef string) {
 	siteConfig := SiteModel{
 		Name:    "TestSite",
