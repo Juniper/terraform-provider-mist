@@ -606,6 +606,41 @@ func (r *orgMxedgeResource) Delete(ctx context.Context, _ resource.DeleteRequest
 		return
 	}
 
+	// If device is currently site-assigned, unassign it before deletion
+	if !state.SiteId.IsNull() && state.SiteId.ValueString() != "" {
+		tflog.Info(ctx, fmt.Sprintf("Unassigning MxEdge from site %s before deletion", state.SiteId.ValueString()))
+
+		unassignBody := models.MxedgesUnassign{
+			MxedgeIds: []uuid.UUID{mxedgeId},
+		}
+
+		unassignResponse, err := r.client.OrgsMxEdges().UnassignOrgMxEdgeFromSite(ctx, orgId, &unassignBody)
+		if err != nil || unassignResponse.Response == nil || unassignResponse.Response.StatusCode != 200 {
+			if unassignResponse.Response != nil {
+				apiErr := mistapierror.ProcessApiError(unassignResponse.Response.StatusCode, unassignResponse.Response.Body, err)
+				if apiErr != "" {
+					resp.Diagnostics.AddError(
+						"Error unassigning \"mist_org_mxedge\" from site before deletion",
+						fmt.Sprintf("Unable to unassign the MxEdge from site. %s", apiErr),
+					)
+				} else {
+					// Fallback when ProcessApiError returns empty string
+					body, _ := io.ReadAll(unassignResponse.Response.Body)
+					resp.Diagnostics.AddError(
+						"Error unassigning \"mist_org_mxedge\" from site before deletion",
+						fmt.Sprintf("Unable to unassign the MxEdge from site. HTTP %d: %s", unassignResponse.Response.StatusCode, string(body)),
+					)
+				}
+			} else {
+				resp.Diagnostics.AddError(
+					"Error unassigning \"mist_org_mxedge\" from site before deletion",
+					"API response is nil",
+				)
+			}
+			return
+		}
+	}
+
 	httpr, err := r.client.OrgsMxEdges().DeleteOrgMxEdge(ctx, orgId, mxedgeId)
 	if httpr.StatusCode != 200 && httpr.StatusCode != 404 {
 		apiErr := mistapierror.ProcessApiError(httpr.StatusCode, httpr.Body, err)
