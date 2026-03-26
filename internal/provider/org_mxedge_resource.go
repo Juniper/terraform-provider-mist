@@ -161,29 +161,51 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 			return
 		}
 
-		// Now retrieve the claimed device details
+		// Now retrieve the claimed device details using ListOrgMxEdges
 		tflog.Info(ctx, "Retrieving claimed MxEdge details: "+mxedgeId.String())
-		httpr, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
-		if httpr.Response == nil {
+		var limit = 1000
+		var page = 1
+		forSite := models.MxedgeForSiteEnum_ANY
+		listResp, listErr := r.client.OrgsMxEdges().ListOrgMxEdges(ctx, orgId, &forSite, &limit, &page)
+		if listErr != nil {
+			resp.Diagnostics.AddError(
+				"Error retrieving claimed \"mist_org_mxedge\" resource",
+				fmt.Sprintf("Unable to list MxEdges: %s", listErr.Error()),
+			)
+			return
+		}
+		if listResp.Response == nil {
 			resp.Diagnostics.AddError(
 				"Error retrieving claimed \"mist_org_mxedge\" resource",
 				"API response is nil",
 			)
 			return
 		}
-		if httpr.Response.StatusCode != 200 {
-			apiErr := mistapierror.ProcessApiError(httpr.Response.StatusCode, httpr.Response.Body, err)
-			if apiErr != "" {
-				resp.Diagnostics.AddError(
-					"Error retrieving claimed \"mist_org_mxedge\" resource",
-					fmt.Sprintf("Unable to retrieve the claimed MxEdge. %s", apiErr),
-				)
-			}
+		if listResp.Response.StatusCode != 200 {
+			apiErr := mistapierror.ProcessApiError(listResp.Response.StatusCode, listResp.Response.Body, listErr)
+			resp.Diagnostics.AddError(
+				"Error retrieving claimed \"mist_org_mxedge\" resource",
+				fmt.Sprintf("Unable to list MxEdges: %s", apiErr),
+			)
 			return
 		}
 
-		body, _ := io.ReadAll(httpr.Response.Body)
-		json.Unmarshal(body, &mistMxedge)
+		// Find the device in the list
+		var found bool
+		for _, device := range listResp.Data {
+			if device.Id != nil && *device.Id == mxedgeId {
+				mistMxedge = device
+				found = true
+				break
+			}
+		}
+		if !found {
+			resp.Diagnostics.AddError(
+				"Error retrieving claimed \"mist_org_mxedge\" resource",
+				"Device not found in list after claiming",
+			)
+			return
+		}
 
 		// If additional fields from plan need to be updated (name, site_id, etc.), do it now
 		if !plan.Name.IsNull() || !plan.SiteId.IsNull() || !plan.MxclusterId.IsNull() {
@@ -299,141 +321,74 @@ func (r *orgMxedgeResource) Read(ctx context.Context, _ resource.ReadRequest, re
 		return
 	}
 
-	// First try to get the mxedge directly
-	httpr, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
+	// Use ListOrgMxEdges with forSite=ANY to get both org-level and site-assigned MxEdges
+	// Implement pagination to handle orgs with more than 1000 devices
+	var limit = 1000
+	var page = 0
+	var total = 9999
+	var found bool
+	var mistMxedge models.Mxedge
+	forSite := models.MxedgeForSiteEnum_ANY
 
-	// If we get 404, the device might be assigned to a site
-	// Use ListOrgMxEdges to search for it (SDK limitation: GetOrgMxEdge doesn't support for_site parameter)
-	if httpr.Response != nil && httpr.Response.StatusCode == 404 {
-		tflog.Debug(ctx, "Device not found with direct GET, searching in list (may be assigned to site)")
+	for limit*page < total && !found {
+		page += 1
+		tflog.Debug(ctx, fmt.Sprintf("Searching for MxEdge in list page %d (limit=%d, total=%d)", page, limit, total))
 
-		// Search for the device in the list using ANY to get both org-level and site-assigned MxEdges
-		// Implement pagination to handle orgs with more than 1000 devices
-		var limit = 1000
-		var page = 0
-		var total = 9999
-		var found bool
-		var mistMxedge models.Mxedge
-		forSite := models.MxedgeForSiteEnum_ANY
-
-		for limit*page < total && !found {
-			page += 1
-			tflog.Debug(ctx, fmt.Sprintf("Searching for MxEdge in list page %d (limit=%d, total=%d)", page, limit, total))
-
-			listResp, listErr := r.client.OrgsMxEdges().ListOrgMxEdges(ctx, orgId, &forSite, &limit, &page)
-			if listErr != nil {
-				resp.Diagnostics.AddError(
-					"Error retrieving \"mist_org_mxedge\" resource",
-					fmt.Sprintf("Unable to list MxEdges: %s", listErr.Error()),
-				)
-				return
-			}
-			if listResp.Response == nil {
-				resp.Diagnostics.AddError(
-					"Error retrieving \"mist_org_mxedge\" resource",
-					"List API response is nil",
-				)
-				return
-			}
-			if listResp.Response.StatusCode != 200 {
-				apiErr := mistapierror.ProcessApiError(listResp.Response.StatusCode, listResp.Response.Body, listErr)
-				resp.Diagnostics.AddError(
-					"Error retrieving \"mist_org_mxedge\" resource",
-					fmt.Sprintf("Unable to list MxEdges: %s", apiErr),
-				)
-				return
-			}
-
-			// Extract pagination info from headers
-			limitString := listResp.Response.Header.Get("X-Page-Limit")
-			if limitString != "" {
-				if parsedLimit, err := strconv.Atoi(limitString); err == nil {
-					limit = parsedLimit
-				}
-			}
-
-			totalString := listResp.Response.Header.Get("X-Page-Total")
-			if totalString != "" {
-				if parsedTotal, err := strconv.Atoi(totalString); err == nil {
-					total = parsedTotal
-				}
-			}
-
-			// Search for the device in this page
-			for _, device := range listResp.Data {
-				if device.Id != nil && *device.Id == mxedgeId {
-					mistMxedge = device
-					found = true
-					tflog.Debug(ctx, fmt.Sprintf("Found MxEdge in list on page %d", page))
-					break
-				}
-			}
+		listResp, listErr := r.client.OrgsMxEdges().ListOrgMxEdges(ctx, orgId, &forSite, &limit, &page)
+		if listErr != nil {
+			resp.Diagnostics.AddError(
+				"Error retrieving \"mist_org_mxedge\" resource",
+				fmt.Sprintf("Unable to list MxEdges: %s", listErr.Error()),
+			)
+			return
 		}
-
-		if !found {
-			tflog.Warn(ctx, fmt.Sprintf("MxEdge not found in list after checking %d pages, removing from state", page))
-			resp.State.RemoveResource(ctx)
+		if listResp.Response == nil {
+			resp.Diagnostics.AddError(
+				"Error retrieving \"mist_org_mxedge\" resource",
+				"List API response is nil",
+			)
+			return
+		}
+		if listResp.Response.StatusCode != 200 {
+			apiErr := mistapierror.ProcessApiError(listResp.Response.StatusCode, listResp.Response.Body, listErr)
+			resp.Diagnostics.AddError(
+				"Error retrieving \"mist_org_mxedge\" resource",
+				fmt.Sprintf("Unable to list MxEdges: %s", apiErr),
+			)
 			return
 		}
 
-		// Preserve org_id and claim_code from existing state before overwriting
-		existingOrgId := state.OrgId
-		existingClaimCode := state.Magic
-
-		state, diags = resource_org_mxedge.SdkToTerraform(ctx, &mistMxedge)
-		resp.Diagnostics.Append(diags...)
-		if resp.Diagnostics.HasError() {
-			return
+		// Extract pagination info from headers
+		limitString := listResp.Response.Header.Get("X-Page-Limit")
+		if limitString != "" {
+			if parsedLimit, err := strconv.Atoi(limitString); err == nil {
+				limit = parsedLimit
+			}
 		}
 
-		// Restore org_id - API doesn't return this value
-		state.OrgId = existingOrgId
-
-		// Restore claim_code if it was previously set
-		if !existingClaimCode.IsNull() && existingClaimCode.ValueString() != "" {
-			state.Magic = existingClaimCode
+		totalString := listResp.Response.Header.Get("X-Page-Total")
+		if totalString != "" {
+			if parsedTotal, err := strconv.Atoi(totalString); err == nil {
+				total = parsedTotal
+			}
 		}
 
-		diags = resp.State.Set(ctx, &state)
-		resp.Diagnostics.Append(diags...)
-		return
-	}
-
-	// Log API response details for debugging
-	if httpr.Response != nil {
-		tflog.Debug(ctx, fmt.Sprintf("API Response: StatusCode=%d", httpr.Response.StatusCode))
-	}
-	if err != nil {
-		tflog.Error(ctx, fmt.Sprintf("API Error: %s", err.Error()))
-	}
-
-	if httpr.Response == nil {
-		resp.Diagnostics.AddError(
-			"Error getting \"mist_org_mxedge\" resource",
-			"API response is nil",
-		)
-		return
-	}
-
-	if httpr.Response.StatusCode != 200 {
-		apiErr := mistapierror.ProcessApiError(httpr.Response.StatusCode, httpr.Response.Body, err)
-		if apiErr != "" {
-			resp.Diagnostics.AddError(
-				"Error getting \"mist_org_mxedge\" resource",
-				fmt.Sprintf("Unable to get the MxEdge. %s", apiErr),
-			)
-		} else if err != nil {
-			resp.Diagnostics.AddError(
-				"Error getting \"mist_org_mxedge\" resource",
-				fmt.Sprintf("Unable to get the MxEdge, unexpected error: %s", err.Error()),
-			)
+		// Search for the device in this page
+		for _, device := range listResp.Data {
+			if device.Id != nil && *device.Id == mxedgeId {
+				mistMxedge = device
+				found = true
+				tflog.Debug(ctx, fmt.Sprintf("Found MxEdge in list on page %d", page))
+				break
+			}
 		}
-		return
 	}
 
-	body, _ := io.ReadAll(httpr.Response.Body)
-	mistMxedge := models.Mxedge{}
-	json.Unmarshal(body, &mistMxedge)
+	if !found {
+		tflog.Warn(ctx, fmt.Sprintf("MxEdge not found in list after checking %d pages, removing from state", page))
+		resp.State.RemoveResource(ctx)
+		return
+	}
 
 	// Preserve org_id and claim_code from existing state before overwriting
 	existingOrgId := state.OrgId
@@ -508,10 +463,10 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 		planSiteId = plan.SiteId.ValueString()
 	}
 
-	// Step 1: If unassigning from site, do it BEFORE updating other fields
-	// (UpdateOrgMxEdge may not work on site-assigned devices)
-	if currentSiteId != "" && planSiteId == "" {
-		tflog.Info(ctx, fmt.Sprintf("Unassigning MxEdge from site: %s", currentSiteId))
+	// Step 1: If device is currently site-assigned, temporarily unassign it BEFORE updating
+	// (UpdateOrgMxEdge does not work on site-assigned devices)
+	if currentSiteId != "" {
+		tflog.Info(ctx, fmt.Sprintf("Temporarily unassigning MxEdge from site %s to allow attribute updates", currentSiteId))
 
 		unassignBody := models.MxedgesUnassign{
 			MxedgeIds: []uuid.UUID{mxedgeId},
@@ -574,8 +529,8 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 	mistMxedge := models.Mxedge{}
 	json.Unmarshal(body, &mistMxedge)
 
-	// Step 3: If assigning to a new site, do it AFTER updating other fields
-	if planSiteId != "" && currentSiteId != planSiteId {
+	// Step 3: If plan includes site assignment, assign/re-assign device to site AFTER updating
+	if planSiteId != "" {
 		tflog.Info(ctx, fmt.Sprintf("Assigning MxEdge to site: %s", planSiteId))
 		siteId, err := uuid.Parse(planSiteId)
 		if err != nil {
@@ -618,27 +573,51 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 		}
 
 		// Refresh state after assignment
-		httpr, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
-		if httpr.Response == nil {
+		// Use ListOrgMxEdges since GetOrgMxEdge doesn't work for site-assigned devices
+		var limit = 1000
+		var page = 1
+		forSite := models.MxedgeForSiteEnum_ANY
+		listResp, listErr := r.client.OrgsMxEdges().ListOrgMxEdges(ctx, orgId, &forSite, &limit, &page)
+		if listErr != nil {
 			resp.Diagnostics.AddError(
 				"Error retrieving \"mist_org_mxedge\" after site assignment",
-				"API response is nil",
+				fmt.Sprintf("Unable to list MxEdges: %s", listErr.Error()),
 			)
 			return
 		}
-		if httpr.Response.StatusCode != 200 {
-			apiErr := mistapierror.ProcessApiError(httpr.Response.StatusCode, httpr.Response.Body, err)
-			if apiErr != "" {
-				resp.Diagnostics.AddError(
-					"Error retrieving \"mist_org_mxedge\" after site assignment",
-					fmt.Sprintf("Unable to retrieve the MxEdge. %s", apiErr),
-				)
-			}
+		if listResp.Response == nil {
+			resp.Diagnostics.AddError(
+				"Error retrieving \"mist_org_mxedge\" after site assignment",
+				"List API response is nil",
+			)
+			return
+		}
+		if listResp.Response.StatusCode != 200 {
+			apiErr := mistapierror.ProcessApiError(listResp.Response.StatusCode, listResp.Response.Body, listErr)
+			resp.Diagnostics.AddError(
+				"Error retrieving \"mist_org_mxedge\" after site assignment",
+				fmt.Sprintf("Unable to list MxEdges: %s", apiErr),
+			)
 			return
 		}
 
-		body, _ := io.ReadAll(httpr.Response.Body)
-		json.Unmarshal(body, &mistMxedge)
+		// Find the device in the list
+		var found bool
+		for _, device := range listResp.Data {
+			if device.Id != nil && *device.Id == mxedgeId {
+				mistMxedge = device
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			resp.Diagnostics.AddError(
+				"Error retrieving \"mist_org_mxedge\" after site assignment",
+				"Device not found in list after assignment",
+			)
+			return
+		}
 	}
 
 	// Convert API response to Terraform state
