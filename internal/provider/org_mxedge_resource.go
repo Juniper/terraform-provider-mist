@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
@@ -101,6 +102,13 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 			return
 		}
 
+		if claimResponse.Response == nil {
+			resp.Diagnostics.AddError(
+				"Error claiming \"mist_org_mxedge\" resource",
+				"API response is nil",
+			)
+			return
+		}
 		if claimResponse.Response.StatusCode != 200 {
 			apiErr := mistapierror.ProcessApiError(claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
 			if apiErr != "" {
@@ -156,6 +164,13 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 		// Now retrieve the claimed device details
 		tflog.Info(ctx, "Retrieving claimed MxEdge details: "+mxedgeId.String())
 		httpr, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
+		if httpr.Response == nil {
+			resp.Diagnostics.AddError(
+				"Error retrieving claimed \"mist_org_mxedge\" resource",
+				"API response is nil",
+			)
+			return
+		}
 		if httpr.Response.StatusCode != 200 {
 			apiErr := mistapierror.ProcessApiError(httpr.Response.StatusCode, httpr.Response.Body, err)
 			if apiErr != "" {
@@ -180,6 +195,13 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 
 			tflog.Info(ctx, "Updating claimed MxEdge with additional fields")
 			data, err := r.client.OrgsMxEdges().UpdateOrgMxEdge(ctx, orgId, mxedgeId, updateMxedge)
+			if data.Response == nil {
+				resp.Diagnostics.AddError(
+					"Error updating claimed \"mist_org_mxedge\" resource",
+					"API response is nil",
+				)
+				return
+			}
 			if data.Response.StatusCode != 200 {
 				apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
 				if apiErr != "" {
@@ -206,6 +228,13 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 		}
 
 		data, err := r.client.OrgsMxEdges().CreateOrgMxEdge(ctx, orgId, mxedge)
+		if data.Response == nil {
+			resp.Diagnostics.AddError(
+				"Error creating \"mist_org_mxedge\" resource",
+				"API response is nil",
+			)
+			return
+		}
 		if data.Response.StatusCode != 200 {
 			apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
 			if apiErr != "" {
@@ -279,28 +308,70 @@ func (r *orgMxedgeResource) Read(ctx context.Context, _ resource.ReadRequest, re
 		tflog.Debug(ctx, "Device not found with direct GET, searching in list (may be assigned to site)")
 
 		// Search for the device in the list using ANY to get both org-level and site-assigned MxEdges
+		// Implement pagination to handle orgs with more than 1000 devices
 		var limit = 1000
-		forSite := models.MxedgeForSiteEnum_ANY
-		listResp, listErr := r.client.OrgsMxEdges().ListOrgMxEdges(ctx, orgId, &forSite, &limit, nil)
-		if listErr != nil || listResp.Response.StatusCode != 200 {
-			tflog.Warn(ctx, "MxEdge not found, removing from state")
-			resp.State.RemoveResource(ctx)
-			return
-		}
-
-		// Find the device in the list
+		var page = 0
+		var total = 9999
 		var found bool
 		var mistMxedge models.Mxedge
-		for _, device := range listResp.Data {
-			if device.Id != nil && *device.Id == mxedgeId {
-				mistMxedge = device
-				found = true
-				break
+		forSite := models.MxedgeForSiteEnum_ANY
+
+		for limit*page < total && !found {
+			page += 1
+			tflog.Debug(ctx, fmt.Sprintf("Searching for MxEdge in list page %d (limit=%d, total=%d)", page, limit, total))
+
+			listResp, listErr := r.client.OrgsMxEdges().ListOrgMxEdges(ctx, orgId, &forSite, &limit, &page)
+			if listErr != nil {
+				resp.Diagnostics.AddError(
+					"Error retrieving \"mist_org_mxedge\" resource",
+					fmt.Sprintf("Unable to list MxEdges: %s", listErr.Error()),
+				)
+				return
+			}
+			if listResp.Response == nil {
+				resp.Diagnostics.AddError(
+					"Error retrieving \"mist_org_mxedge\" resource",
+					"List API response is nil",
+				)
+				return
+			}
+			if listResp.Response.StatusCode != 200 {
+				apiErr := mistapierror.ProcessApiError(listResp.Response.StatusCode, listResp.Response.Body, listErr)
+				resp.Diagnostics.AddError(
+					"Error retrieving \"mist_org_mxedge\" resource",
+					fmt.Sprintf("Unable to list MxEdges: %s", apiErr),
+				)
+				return
+			}
+
+			// Extract pagination info from headers
+			limitString := listResp.Response.Header.Get("X-Page-Limit")
+			if limitString != "" {
+				if parsedLimit, err := strconv.Atoi(limitString); err == nil {
+					limit = parsedLimit
+				}
+			}
+
+			totalString := listResp.Response.Header.Get("X-Page-Total")
+			if totalString != "" {
+				if parsedTotal, err := strconv.Atoi(totalString); err == nil {
+					total = parsedTotal
+				}
+			}
+
+			// Search for the device in this page
+			for _, device := range listResp.Data {
+				if device.Id != nil && *device.Id == mxedgeId {
+					mistMxedge = device
+					found = true
+					tflog.Debug(ctx, fmt.Sprintf("Found MxEdge in list on page %d", page))
+					break
+				}
 			}
 		}
 
 		if !found {
-			tflog.Warn(ctx, "MxEdge not found in list, removing from state")
+			tflog.Warn(ctx, fmt.Sprintf("MxEdge not found in list after checking %d pages, removing from state", page))
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -447,15 +518,29 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 		}
 
 		unassignResponse, err := r.client.OrgsMxEdges().UnassignOrgMxEdgeFromSite(ctx, orgId, &unassignBody)
-		if err != nil || unassignResponse.Response.StatusCode != 200 {
-			apiErr := mistapierror.ProcessApiError(unassignResponse.Response.StatusCode, unassignResponse.Response.Body, err)
-			if apiErr != "" {
+		if err != nil || unassignResponse.Response == nil || unassignResponse.Response.StatusCode != 200 {
+			if unassignResponse.Response != nil {
+				apiErr := mistapierror.ProcessApiError(unassignResponse.Response.StatusCode, unassignResponse.Response.Body, err)
+				if apiErr != "" {
+					resp.Diagnostics.AddError(
+						"Error unassigning \"mist_org_mxedge\" from site",
+						fmt.Sprintf("Unable to unassign the MxEdge from site. %s", apiErr),
+					)
+				} else {
+					// Fallback when ProcessApiError returns empty string
+					body, _ := io.ReadAll(unassignResponse.Response.Body)
+					resp.Diagnostics.AddError(
+						"Error unassigning \"mist_org_mxedge\" from site",
+						fmt.Sprintf("Unable to unassign the MxEdge from site. HTTP %d: %s", unassignResponse.Response.StatusCode, string(body)),
+					)
+				}
+			} else {
 				resp.Diagnostics.AddError(
 					"Error unassigning \"mist_org_mxedge\" from site",
-					fmt.Sprintf("Unable to unassign the MxEdge from site. %s", apiErr),
+					"API response is nil",
 				)
-				return
 			}
+			return
 		}
 	}
 
@@ -467,6 +552,13 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 
 	data, err := r.client.OrgsMxEdges().UpdateOrgMxEdge(ctx, orgId, mxedgeId, mxedge)
+	if data.Response == nil {
+		resp.Diagnostics.AddError(
+			"Error updating \"mist_org_mxedge\" resource",
+			"API response is nil",
+		)
+		return
+	}
 	if data.Response.StatusCode != 200 {
 		apiErr := mistapierror.ProcessApiError(data.Response.StatusCode, data.Response.Body, err)
 		if apiErr != "" {
@@ -500,19 +592,40 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 		}
 
 		assignResponse, err := r.client.OrgsMxEdges().AssignOrgMxEdgeToSite(ctx, orgId, &assignBody)
-		if err != nil || assignResponse.Response.StatusCode != 200 {
-			apiErr := mistapierror.ProcessApiError(assignResponse.Response.StatusCode, assignResponse.Response.Body, err)
-			if apiErr != "" {
+		if err != nil || assignResponse.Response == nil || assignResponse.Response.StatusCode != 200 {
+			if assignResponse.Response != nil {
+				apiErr := mistapierror.ProcessApiError(assignResponse.Response.StatusCode, assignResponse.Response.Body, err)
+				if apiErr != "" {
+					resp.Diagnostics.AddError(
+						"Error assigning \"mist_org_mxedge\" to site",
+						fmt.Sprintf("Unable to assign the MxEdge to site. %s", apiErr),
+					)
+				} else {
+					// Fallback when ProcessApiError returns empty string
+					body, _ := io.ReadAll(assignResponse.Response.Body)
+					resp.Diagnostics.AddError(
+						"Error assigning \"mist_org_mxedge\" to site",
+						fmt.Sprintf("Unable to assign the MxEdge to site. HTTP %d: %s", assignResponse.Response.StatusCode, string(body)),
+					)
+				}
+			} else {
 				resp.Diagnostics.AddError(
 					"Error assigning \"mist_org_mxedge\" to site",
-					fmt.Sprintf("Unable to assign the MxEdge to site. %s", apiErr),
+					"API response is nil",
 				)
-				return
 			}
+			return
 		}
 
 		// Refresh state after assignment
 		httpr, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
+		if httpr.Response == nil {
+			resp.Diagnostics.AddError(
+				"Error retrieving \"mist_org_mxedge\" after site assignment",
+				"API response is nil",
+			)
+			return
+		}
 		if httpr.Response.StatusCode != 200 {
 			apiErr := mistapierror.ProcessApiError(httpr.Response.StatusCode, httpr.Response.Body, err)
 			if apiErr != "" {
