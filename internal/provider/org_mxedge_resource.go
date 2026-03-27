@@ -268,7 +268,8 @@ func (r *orgMxedgeResource) findMxEdgeByIdWithPagination(ctx context.Context, or
 	var mistMxedge models.Mxedge
 	forSite := models.MxedgeForSiteEnum_ANY
 
-	for limit*page <= total+limit && !found {
+	// Continue while: we're on first page (before knowing total) OR there are more pages to check
+	for !found && (page == 1 || (page-1)*limit < total) {
 		listResp, listErr := r.client.OrgsMxEdges().ListOrgMxEdges(ctx, orgId, &forSite, &limit, &page)
 		if listErr != nil {
 			return nil, fmt.Errorf("unable to list MxEdges: %s", listErr.Error())
