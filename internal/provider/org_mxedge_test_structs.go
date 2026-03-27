@@ -7,7 +7,7 @@ type OrgMxedgeModel struct {
 	MxclusterId               *string                                        `hcl:"mxcluster_id"`
 	MxedgeMgmt                *OrgMxedgeMxedgeMgmtValue                      `hcl:"mxedge_mgmt"`
 	Name                      *string                                        `hcl:"name"`
-	Note                      *string                                        `hcl:"note"`
+	Notes                     *string                                        `hcl:"notes"`
 	NtpServers                []string                                       `hcl:"ntp_servers"`
 	OobIpConfig               *OrgMxedgeOobIpConfigValue                     `hcl:"oob_ip_config"`
 	OrgId                     string                                         `hcl:"org_id"`

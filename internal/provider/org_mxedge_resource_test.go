@@ -124,8 +124,8 @@ func (o *OrgMxedgeModel) testChecks(t testing.TB, rType, tName string, tracker *
 	}
 
 	// Check optional basic fields
-	if o.Note != nil {
-		checks.append(t, "TestCheckResourceAttr", "note", *o.Note)
+	if o.Notes != nil {
+		checks.append(t, "TestCheckResourceAttr", "notes", *o.Notes)
 	}
 	if o.Magic != nil {
 		checks.append(t, "TestCheckResourceAttr", "claim_code", *o.Magic)
