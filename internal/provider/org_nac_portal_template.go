@@ -51,14 +51,14 @@ func (r *orgNacPortalTemplateResource) Metadata(_ context.Context, req resource.
 
 func (r *orgNacPortalTemplateResource) Schema(ctx context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: docCategoryNac + "This resource is used customize the NAC Portal.\n\n" +
-			"The NAC Portal Template can be used to define:\n" +
-			"* The portal alignment, color scheme, and logo\n" +
-			"* Whether to display \"Powered by Juniper Mist\" footer\n\n" +
-			"**Notes:**\n" +
+		MarkdownDescription: docCategoryNac + "This resource is used to customize the NAC Portal.\n\n" +
+			"The NAC Portal Template can be used to define:\n\n" +
+			"* The portal alignment, color scheme, and logo\n\n" +
+			"* , and whether to display the \"Powered by Juniper Mist\" footer.\n\n" +
+			"**Notes:**\n\n" +
 			"* There is no feedback from the API, so there is no possibility to validate the changes. " +
-			"The resource states is directly generated based on the resource plan.\n" +
-			"* Deleting this resource will revert the NAC Portal Template to its default values. " +
+			"The resource state is directly generated based on the resource plan. " +
+			"Deleting this resource will revert the NAC Portal Template to its default values. " +
 			"Once removed from state, it is possible to create a new one, which will replace the previous template.",
 		Attributes: resource_org_nac_portal_template.OrgNacPortalTemplateResourceSchema(ctx).Attributes,
 	}

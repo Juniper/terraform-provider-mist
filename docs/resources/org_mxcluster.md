@@ -16,11 +16,21 @@ A Mist Edge Cluster is a group of one or more Org Mist Edge devices (mist_org_mx
 ## Example Usage
 
 ```terraform
+# Resource for importing existing mxcluster
+# Import with: terraform import mist_org_mxcluster.existing_mxcluster "<org_id>.<mxcluster_id>"
+resource "mist_org_mxcluster" "existing_mxcluster" {
+  org_id = mist_org.terraform_test.id
+  name   = "edgey_cluster"
+
+  site_id = mist_site.terraform_test_site.id
+}
+
+# Create new mxcluster
 resource "mist_org_mxcluster" "new_mxcluster" {
-  name    = "test-mxcluster"
-  org_id  = mist_org.terraform_test.id
-  site_id = mist_site.terraform_test.id
-  
+  org_id = mist_org.terraform_test.id
+  name   = "edgey_cluster_new"
+  site_id = mist_site.terraform_test_site.id
+
   # Mist DAS (Dynamic Authorization Service) configuration
   mist_das = {
     enabled = true
@@ -361,3 +371,10 @@ Optional:
 - `keypair` (String)
 
 
+
+## Import
+Using `terraform import`, import `mist_org_mxcluster` with:
+```shell
+# Mist Org MxCluster can be imported by specifying the org_id and the mxcluster_id
+terraform import mist_org_mxcluster.cluster_one 17f90707-aebe-4274-af42-f42952a665a3.387804a7-3474-85ce-15a2-f9a9684c9c90
+```
