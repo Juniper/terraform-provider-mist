@@ -174,7 +174,7 @@ resource "mist_org_mxedge" "existing_mxedge" {
 - `mxcluster_id` (String) MxCluster this MxEdge belongs to
 - `mxedge_mgmt` (Attributes) (see [below for nested schema](#nestedatt--mxedge_mgmt))
 - `name` (String)
-- `note` (String)
+- `notes` (String)
 - `ntp_servers` (List of String)
 - `oob_ip_config` (Attributes) IPconfiguration of the Mist Edge out-of_band management interface (see [below for nested schema](#nestedatt--oob_ip_config))
 - `proxy` (Attributes) Proxy Configuration to talk to Mist (see [below for nested schema](#nestedatt--proxy))
@@ -360,3 +360,10 @@ Read-Only:
 - `tunterm` (String)
 
 
+
+## Import
+Using `terraform import`, import `mist_org_mxedge` with:
+```shell
+# Mist Org MxEdge can be imported by specifying the org_id and the mxedge_id
+terraform import mist_org_mxedge.edge_one 17f90707-aebe-4274-af42-f42952a665a3.387804a7-3474-85ce-15a2-f9a9684c9c90
+```
