@@ -2,44 +2,59 @@
 page_title: "mist_org_nac_portal_template Resource - terraform-provider-mist"
 subcategory: "Access Assurance"
 description: |-
-  This resource is used customize the NAC Portal.
+  This resource is used to customize the NAC Portal.
   The NAC Portal Template can be used to define:
-  The portal alignment, color scheme, and logoWhether to display "Powered by Juniper Mist" footer
+  
+  The portal alignment, color scheme, and logo
+  , and whether to display the "Powered by Juniper Mist" footer.
   Notes:
-  There is no feedback from the API, so there is no possibility to validate the changes. The resource states is directly generated based on the resource plan.Deleting this resource will revert the NAC Portal Template to its default values. Once removed from state, it is possible to create a new one, which will replace the previous template.
+  There is no feedback from the API, so there is no possibility to validate the changes. The resource state is directly generated based on the resource plan. Deleting this resource will revert the NAC Portal Template to its default values. Once removed from state, it is possible to create a new one, which will replace the previous template.
 ---
 
 # mist_org_nac_portal_template (Resource)
 
-This resource is used customize the NAC Portal.
+This resource is used to customize the NAC Portal.
 
 The NAC Portal Template can be used to define:
+
 * The portal alignment, color scheme, and logo
-* Whether to display "Powered by Juniper Mist" footer
+
+* , and whether to display the "Powered by Juniper Mist" footer.
 
 **Notes:**
-* There is no feedback from the API, so there is no possibility to validate the changes. The resource states is directly generated based on the resource plan.
-* Deleting this resource will revert the NAC Portal Template to its default values. Once removed from state, it is possible to create a new one, which will replace the previous template.
+
+* There is no feedback from the API, so there is no possibility to validate the changes. The resource state is directly generated based on the resource plan. Deleting this resource will revert the NAC Portal Template to its default values. Once removed from state, it is possible to create a new one, which will replace the previous template.
 
 
 ## Example Usage
 
 ```terraform
+# Create a NAC Portal first
+resource "mist_org_nac_portal" "guest_portal" {
+  org_id      = mist_org.terraform_test.id
+  name        = "Guest Portal"
+  type        = "guest_portal"
+  access_type = "wireless"
+  ssid        = "Guest-Network"
+}
+
 # Example 1: Basic NAC Portal Template with centered alignment
 resource "mist_org_nac_portal_template" "centered_template" {
-  org_id     = mist_org.terraform_test.id
-  alignment  = "center"
-  color      = "#1074bc"
-  powered_by = false
+  org_id       = mist_org.terraform_test.id
+  nacportal_id = mist_org_nac_portal.guest_portal.id
+  alignment    = "center"
+  color        = "#1074bc"
+  powered_by   = false
 }
 
 # Example 2: NAC Portal Template with logo and left alignment
 resource "mist_org_nac_portal_template" "logo_template" {
-  org_id     = mist_org.terraform_test.id
-  alignment  = "left"
-  color      = "#ff6600"
-  logo       = "logo.png"
-  powered_by = true
+  org_id       = mist_org.terraform_test.id
+  nacportal_id = mist_org_nac_portal.guest_portal.id
+  alignment    = "left"
+  color        = "#ff6600"
+  logo         = "logo.png"
+  powered_by   = true
 }
 ```
 

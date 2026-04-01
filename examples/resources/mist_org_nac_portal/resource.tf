@@ -2,7 +2,7 @@
 resource "mist_org_nac_portal" "guest_portal" {
   org_id      = mist_org.terraform_test.id
   name        = "Guest Portal"
-  type        = "guest_portal"
+  type        = "marvis_client"
   access_type = "wireless+wired"
   ssid        = "Guest-Network"
   
