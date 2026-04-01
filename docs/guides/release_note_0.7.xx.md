@@ -26,9 +26,7 @@ description: |-
 #### Improvements
 
 - **`mist_org_mxedge` resource**:
-  - Added pagination support for organizations with more than 1000 devices
   - Fixed site assignment and unassignment operations to properly handle all scenarios
-  - Improved handling of site-assigned devices during updates (temporary unassignment when needed)
 
 ## Release Notes for v0.7.0
 **Release Date**: March 3rd, 2026
