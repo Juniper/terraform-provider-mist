@@ -7,6 +7,29 @@ description: |-
 
 # Release Notes for v0.7.xx
 
+## Release Notes for v0.7.1
+**Release Date**: April 1st, 2026
+
+### General Changes
+
+#### Resources added
+
+- **`mist_org_mxcluster` resource**: Manage Mist Edge clusters in your organization
+- **`mist_org_nac_portal` resource**: Manage NAC (Network Access Control) portals for guest and employee authentication
+- **`mist_org_nac_portal_template` resource**: Manage customizable NAC portal templates with branding and styling
+- **`mist_org_nac_portal_image` resource**: Manage image assets for NAC portal customization
+
+#### Attributes updated
+- **`mist_org_mxedge` resource**:
+  - Changed note attribute to notes
+
+#### Improvements
+
+- **`mist_org_mxedge` resource**:
+  - Added pagination support for organizations with more than 1000 devices
+  - Fixed site assignment and unassignment operations to properly handle all scenarios
+  - Improved handling of site-assigned devices during updates (temporary unassignment when needed)
+
 ## Release Notes for v0.7.0
 **Release Date**: March 3rd, 2026
 
