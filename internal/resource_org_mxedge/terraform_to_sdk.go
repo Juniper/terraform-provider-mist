@@ -38,6 +38,9 @@ func TerraformToSdk(ctx context.Context, plan *OrgMxedgeModel) (*models.Mxedge, 
 			diags.AddError("Bad value for mxcluster_id", e.Error())
 		}
 	} else {
+		// Set to zero UUID to explicitly unset (SDK may serialize this as null or zero UUID)
+		zeroUUID := uuid.UUID{}
+		data.MxclusterId = &zeroUUID
 		unset["-mxcluster_id"] = ""
 	}
 
