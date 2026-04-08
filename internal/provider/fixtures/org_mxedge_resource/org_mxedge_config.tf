@@ -118,3 +118,7 @@
       vlan_ids     = ["100", "200", "300"]
     }
   }
+  ␞
+  name    = "test-mxedge"
+  model   = "ME-X5"
+  mxcluster_id = ""

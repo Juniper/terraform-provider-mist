@@ -30,7 +30,10 @@ func TerraformToSdk(ctx context.Context, plan *OrgMxedgeModel) (*models.Mxedge, 
 		unset["-mxagent_registered"] = ""
 	}
 
-	if len(plan.MxclusterId.ValueString()) > 0 {
+	if plan.MxclusterId.IsUnknown() {
+		// Leave unset when value is unknown during planning
+		// Do not set data.MxclusterId or add unset marker
+	} else if len(plan.MxclusterId.ValueString()) > 0 {
 		mxclusterId, e := uuid.Parse(plan.MxclusterId.ValueString())
 		if e == nil {
 			data.MxclusterId = &mxclusterId
