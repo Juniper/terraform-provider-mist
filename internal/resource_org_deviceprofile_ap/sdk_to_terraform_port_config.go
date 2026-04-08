@@ -377,18 +377,18 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 	stateValueMap := make(map[string]attr.Value)
 	for k, d := range m {
 		var disabled basetypes.BoolValue
-		var dynamicVlan basetypes.ObjectValue
+		var dynamicVlan = types.ObjectNull(DynamicVlanValue{}.AttributeTypes(ctx))
 		var enableMacAuth basetypes.BoolValue
 		var forwarding basetypes.StringValue
 		var macAuthPreferred basetypes.BoolValue
 		var macAuthProtocol basetypes.StringValue
-		var mistNac basetypes.ObjectValue
+		var mistNac = types.ObjectNull(MistNacValue{}.AttributeTypes(ctx))
 		var mxTunnelId basetypes.StringValue
 		var mxtunnelName basetypes.StringValue
 		var portAuth basetypes.StringValue
 		var portVlanId basetypes.Int64Value
-		var radiusConfig basetypes.ObjectValue
-		var radsec basetypes.ObjectValue
+		var radiusConfig = types.ObjectNull(RadiusConfigValue{}.AttributeTypes(ctx))
+		var radsec = types.ObjectNull(RadsecValue{}.AttributeTypes(ctx))
 		var vlanId basetypes.Int64Value
 		var vlanIds basetypes.StringValue
 		var wxtunnelId basetypes.StringValue
