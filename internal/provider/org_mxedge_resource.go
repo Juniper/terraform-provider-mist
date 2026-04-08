@@ -251,6 +251,12 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 		state.Magic = plan.Magic
 	}
 
+	// Preserve mxcluster_id when the plan explicitly set it to "" and the API returns nil.
+	// API returns nil when no cluster is assigned; "" and nil are equivalent on the API side.
+	if state.MxclusterId.IsNull() && !plan.MxclusterId.IsNull() && !plan.MxclusterId.IsUnknown() {
+		state.MxclusterId = plan.MxclusterId
+	}
+
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -361,9 +367,10 @@ func (r *orgMxedgeResource) Read(ctx context.Context, _ resource.ReadRequest, re
 		return
 	}
 
-	// Preserve org_id and claim_code from existing state before overwriting
+	// Preserve org_id, claim_code and mxcluster_id from existing state before overwriting
 	existingOrgId := state.OrgId
 	existingClaimCode := state.Magic
+	existingMxclusterId := state.MxclusterId
 
 	state, diags = resource_org_mxedge.SdkToTerraform(ctx, foundDevice)
 	resp.Diagnostics.Append(diags...)
@@ -378,6 +385,12 @@ func (r *orgMxedgeResource) Read(ctx context.Context, _ resource.ReadRequest, re
 	// The API doesn't return this value, but we need to keep it in state for consistency
 	if !existingClaimCode.IsNull() && existingClaimCode.ValueString() != "" {
 		state.Magic = existingClaimCode
+	}
+
+	// Restore mxcluster_id when API returns nil (no cluster) but state had an explicit empty string.
+	// Both nil and zero-UUID mean "no cluster" on the API side; preserve the state value to avoid drift.
+	if state.MxclusterId.IsNull() && !existingMxclusterId.IsNull() && !existingMxclusterId.IsUnknown() {
+		state.MxclusterId = existingMxclusterId
 	}
 
 	// Set refreshed state
@@ -569,6 +582,12 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 	// The API doesn't return this value, but we need to keep it in state for consistency
 	if !plan.Magic.IsNull() && plan.Magic.ValueString() != "" {
 		state.Magic = plan.Magic
+	}
+
+	// Preserve mxcluster_id when the plan explicitly set it to "" and the API returns nil.
+	// API returns nil when no cluster is assigned; "" and nil are equivalent on the API side.
+	if state.MxclusterId.IsNull() && !plan.MxclusterId.IsNull() && !plan.MxclusterId.IsUnknown() {
+		state.MxclusterId = plan.MxclusterId
 	}
 
 	diags = resp.State.Set(ctx, state)
