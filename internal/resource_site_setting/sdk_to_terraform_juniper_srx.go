@@ -45,13 +45,15 @@ func juniperSrxAutoUpgradeSdkToTerraform(ctx context.Context, diags *diag.Diagno
 	var snapshot basetypes.BoolValue
 	var version basetypes.StringValue
 
-	rMapValue := make(map[string]attr.Value)
-	for k, v := range d.CustomVersions {
-		rMapValue[k] = types.StringValue(v)
+	if len(d.CustomVersions) > 0 {
+		rMapValue := make(map[string]attr.Value)
+		for k, v := range d.CustomVersions {
+			rMapValue[k] = types.StringValue(v)
+		}
+		m, e := types.MapValueFrom(ctx, types.StringType, rMapValue)
+		diags.Append(e...)
+		customVersions = m
 	}
-	m, e := types.MapValueFrom(ctx, types.StringType, rMapValue)
-	diags.Append(e...)
-	customVersions = m
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}

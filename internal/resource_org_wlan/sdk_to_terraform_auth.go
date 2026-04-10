@@ -46,6 +46,13 @@ func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 			keysList = append(keysList, types.StringValue(value))
 		}
 		keys = types.ListValueMust(basetypes.StringType{}, keysList)
+	} else {
+		keys = types.ListValueMust(types.StringType, []attr.Value{
+			types.StringValue(""),
+			types.StringValue(""),
+			types.StringValue(""),
+			types.StringValue(""),
+		})
 	}
 
 	if d != nil && d.MultiPskOnly != nil {

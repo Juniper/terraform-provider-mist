@@ -4,6 +4,7 @@ package resource_site_wxrule
 
 import (
 	"context"
+
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -11,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -23,7 +25,8 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"action": schema.StringAttribute{
-				Required:            true,
+				Optional:            true,
+				Computed:            true,
 				Description:         "type of action, allow / block. enum: `allow`, `block`",
 				MarkdownDescription: "type of action, allow / block. enum: `allow`, `block`",
 				Validators: []validator.String{
@@ -33,6 +36,7 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 						"block",
 					),
 				},
+				Default: stringdefault.StaticString("block"),
 			},
 			"apply_tags": schema.ListAttribute{
 				ElementType: types.StringType,
