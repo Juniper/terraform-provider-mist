@@ -68,7 +68,7 @@ func radsecSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.ServerName != nil {
 		serverName = types.StringValue(*d.ServerName)
 	}
-	if d != nil {
+	if d != nil && len(d.Servers) > 0 {
 		servers = radsecServersSkToTerraform(ctx, diags, d.Servers)
 	}
 	if d != nil && d.UseMxedge != nil {
