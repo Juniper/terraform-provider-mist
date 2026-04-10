@@ -447,12 +447,17 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 								types.StringValue("wep"),
 							),
 						},
-						Default: listdefault.StaticValue(types.ListNull(types.StringType, []attr.Value{
-							types.StringValue(""),
-							types.StringValue(""),
-							types.StringValue(""),
-							types.StringValue(""),
-						})),
+						Default: listdefault.StaticValue(
+							types.ListValueMust(
+								types.StringType,
+								[]attr.Value{
+									types.StringValue(""),
+									types.StringValue(""),
+									types.StringValue(""),
+									types.StringValue(""),
+								},
+							),
+						),
 					},
 					"multi_psk_only": schema.BoolAttribute{
 						Optional:            true,
