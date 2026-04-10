@@ -5,8 +5,7 @@ package resource_org_rftemplate
 import (
 	"context"
 	"fmt"
-	"strings"
-
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -22,6 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -150,6 +150,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Radio Band AP settings",
 				MarkdownDescription: "Radio Band AP settings",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"band_24_usage": schema.StringAttribute{
 				Optional:            true,
@@ -272,6 +275,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Radio Band AP settings",
 				MarkdownDescription: "Radio Band AP settings",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"band_5_on_24_radio": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -390,6 +396,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Radio Band AP settings",
 				MarkdownDescription: "Radio Band AP settings",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"band_6": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -504,6 +513,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Radio Band AP settings",
 				MarkdownDescription: "Radio Band AP settings",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"country_code": schema.StringAttribute{
 				Optional:            true,
@@ -630,6 +642,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Radio Band AP settings",
 							MarkdownDescription: "Radio Band AP settings",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"band_24_usage": schema.StringAttribute{
 							Optional:            true,
@@ -746,6 +761,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Radio Band AP settings",
 							MarkdownDescription: "Radio Band AP settings",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"band_5_on_24_radio": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -864,6 +882,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Radio Band AP settings",
 							MarkdownDescription: "Radio Band AP settings",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"band_6": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -974,6 +995,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Radio Band AP settings",
 							MarkdownDescription: "Radio Band AP settings",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 					},
 					CustomType: ModelSpecificType{

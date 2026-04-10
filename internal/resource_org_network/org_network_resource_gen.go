@@ -70,6 +70,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"internet_access": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -201,6 +204,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Whether this network has direct internet access",
 				MarkdownDescription: "Whether this network has direct internet access",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"isolation": schema.BoolAttribute{
 				Optional:            true,
@@ -252,6 +258,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Whether to enable multicast support (only PIM-sparse mode is supported)",
 				MarkdownDescription: "Whether to enable multicast support (only PIM-sparse mode is supported)",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -268,10 +277,10 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
 				MarkdownDescription: "For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
-				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"subnet": schema.StringAttribute{
 				Required: true,
@@ -358,10 +367,10 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs",
 							MarkdownDescription: "By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs",
-							Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
+							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"routed": schema.BoolAttribute{
 							Optional:            true,
@@ -383,6 +392,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
 							MarkdownDescription: "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 							Default: objectdefault.StaticValue(
 								types.ObjectValueMust(
 									SourceNatValue{}.AttributeTypes(ctx),

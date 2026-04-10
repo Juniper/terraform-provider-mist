@@ -4,8 +4,7 @@ package resource_org_nac_portal_template
 
 import (
 	"context"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"

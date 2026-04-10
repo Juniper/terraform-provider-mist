@@ -103,6 +103,9 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"name": schema.StringAttribute{
 							Required: true,

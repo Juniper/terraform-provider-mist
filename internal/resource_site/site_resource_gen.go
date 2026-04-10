@@ -5,20 +5,21 @@ package resource_site
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 func SiteResourceSchema(ctx context.Context) schema.Schema {
@@ -72,6 +73,9 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -112,10 +116,10 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Sitegroups this site belongs to",
 				MarkdownDescription: "Sitegroups this site belongs to",
-				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
+				Default: listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"sitetemplate_id": schema.StringAttribute{
 				Optional:            true,

@@ -552,6 +552,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"dns_servers": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -634,8 +637,11 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Gateway settings",
-				MarkdownDescription: "Gateway settings",
+				Description:         "Gateway Management settings",
+				MarkdownDescription: "Gateway Management settings",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"idp_profiles": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -710,6 +716,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 										Optional: true,
+										Validators: []validator.Object{
+											mistvalidator.AtLeastNAttributes(1),
+										},
 									},
 									"name": schema.StringAttribute{
 										Optional: true,
@@ -722,6 +731,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 					},
 					CustomType: IdpProfilesType{
@@ -784,10 +796,10 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Optional list of secondary IPs in CIDR format",
 							MarkdownDescription: "Optional list of secondary IPs in CIDR format",
-							Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
+							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
 						"type": schema.StringAttribute{
 							Optional:            true,
@@ -908,6 +920,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"internet_access": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -1039,6 +1054,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Whether this network has direct internet access",
 							MarkdownDescription: "Whether this network has direct internet access",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"isolation": schema.BoolAttribute{
 							Optional:            true,
@@ -1090,6 +1108,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Whether to enable multicast support (only PIM-sparse mode is supported)",
 							MarkdownDescription: "Whether to enable multicast support (only PIM-sparse mode is supported)",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"name": schema.StringAttribute{
 							Required: true,
@@ -1191,10 +1212,10 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Computed:            true,
 										Description:         "By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs",
 										MarkdownDescription: "By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs",
-										Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 										Validators: []validator.List{
 											listvalidator.SizeAtLeast(1),
 										},
+										Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 									},
 									"routed": schema.BoolAttribute{
 										Optional:            true,
@@ -1216,6 +1237,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Computed:            true,
 										Description:         "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
 										MarkdownDescription: "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
+										Validators: []validator.Object{
+											mistvalidator.AtLeastNAttributes(1),
+										},
 										Default: objectdefault.StaticValue(
 											types.ObjectValueMust(
 												SourceNatValue{}.AttributeTypes(ctx),
@@ -1361,6 +1385,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"notes": schema.StringAttribute{
 				Optional: true,
@@ -1474,6 +1501,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "For HA Cluster, node1 can have different IP Config",
 						MarkdownDescription: "For HA Cluster, node1 can have different IP Config",
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 						Default: objectdefault.StaticValue(
 							types.ObjectValueMust(
 								Node1Value{}.AttributeTypes(ctx),
@@ -1529,6 +1559,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Out-of-band (vme/em0/fxp0) IP config",
 				MarkdownDescription: "Out-of-band (vme/em0/fxp0) IP config",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						OobIpConfigValue{}.AttributeTypes(ctx),
@@ -1652,6 +1685,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"strategy": schema.StringAttribute{
 							Optional:            true,
@@ -1968,6 +2004,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Junos IP Config",
 							MarkdownDescription: "Junos IP Config",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"port_network": schema.StringAttribute{
 							Optional:            true,
@@ -2055,6 +2094,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"usage": schema.StringAttribute{
 							Required:            true,
@@ -2137,6 +2179,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 										Optional: true,
+										Validators: []validator.Object{
+											mistvalidator.AtLeastNAttributes(1),
+										},
 									},
 								},
 								CustomType: VpnPathsType{
@@ -2385,6 +2430,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 					},
 				},
 				CustomType: PortMirroringType{
@@ -2393,6 +2441,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"router_id": schema.StringAttribute{
 				Optional:            true,
@@ -2483,6 +2534,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Optional:            true,
 										Description:         "When used as import policy",
 										MarkdownDescription: "When used as import policy",
+										Validators: []validator.Object{
+											mistvalidator.AtLeastNAttributes(1),
+										},
 									},
 									"matching": schema.SingleNestedAttribute{
 										Attributes: map[string]schema.Attribute{
@@ -2563,6 +2617,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 													},
 												},
 												Optional: true,
+												Validators: []validator.Object{
+													mistvalidator.AtLeastNAttributes(1),
+												},
 											},
 											"vpn_neighbor_mac": schema.ListAttribute{
 												ElementType:         types.StringType,
@@ -2600,6 +2657,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 													},
 												},
 												Optional: true,
+												Validators: []validator.Object{
+													mistvalidator.AtLeastNAttributes(1),
+												},
 											},
 										},
 										CustomType: RoutingPolicyTermMatchingType{
@@ -2610,6 +2670,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Optional:            true,
 										Description:         "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
 										MarkdownDescription: "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
+										Validators: []validator.Object{
+											mistvalidator.AtLeastNAttributes(1),
+										},
 									},
 								},
 								CustomType: TermsType{
@@ -2687,6 +2750,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "For SRX-only",
 							MarkdownDescription: "For SRX-only",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"appqoe": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -2702,6 +2768,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "SRX only",
 							MarkdownDescription: "SRX only",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"ewf": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -2836,6 +2905,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional: true,
+									Validators: []validator.Object{
+										mistvalidator.AtLeastNAttributes(1),
+									},
 								},
 								"dns_tunnel_detection": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
@@ -2862,6 +2934,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional: true,
+									Validators: []validator.Object{
+										mistvalidator.AtLeastNAttributes(1),
+									},
 								},
 								"http_inspection": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
@@ -2887,6 +2962,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional: true,
+									Validators: []validator.Object{
+										mistvalidator.AtLeastNAttributes(1),
+									},
 								},
 								"iot_device_policy": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
@@ -2900,6 +2978,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional: true,
+									Validators: []validator.Object{
+										mistvalidator.AtLeastNAttributes(1),
+									},
 								},
 							},
 							CustomType: SkyatpType{
@@ -2910,6 +2991,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "SRX only",
 							MarkdownDescription: "SRX only",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"ssl_proxy": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -2938,6 +3022,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "For SRX-only",
 							MarkdownDescription: "For SRX-only",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"syslog": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -2962,6 +3049,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Required for syslog logging",
 							MarkdownDescription: "Required for syslog logging",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"tenants": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -2982,6 +3072,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"site_id": schema.StringAttribute{
 				Required: true,
@@ -3026,6 +3119,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional: true,
+									Validators: []validator.Object{
+										mistvalidator.AtLeastNAttributes(1),
+									},
 								},
 								"secondary": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
@@ -3053,6 +3149,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional: true,
+									Validators: []validator.Object{
+										mistvalidator.AtLeastNAttributes(1),
+									},
 								},
 								"enabled": schema.BoolAttribute{
 									Optional:            true,
@@ -3076,6 +3175,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "API override for POP selection",
 									MarkdownDescription: "API override for POP selection",
+									Validators: []validator.Object{
+										mistvalidator.AtLeastNAttributes(1),
+									},
 								},
 								"provider": schema.StringAttribute{
 									Required:            true,
@@ -3108,6 +3210,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Auto Provisioning configuration for the tunne. This takes precedence over the `primary` and `secondary` nodes.",
 							MarkdownDescription: "Auto Provisioning configuration for the tunne. This takes precedence over the `primary` and `secondary` nodes.",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"ike_lifetime": schema.Int64Attribute{
 							Optional:            true,
@@ -3263,8 +3368,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Only if  `provider`==`custom-ipsec`",
-							MarkdownDescription: "Only if  `provider`==`custom-ipsec`",
+							Description:         "Only if `provider`==`custom-ipsec`",
+							MarkdownDescription: "Only if `provider`==`custom-ipsec`",
 							Validators: []validator.List{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("custom-ipsec")),
 							},
@@ -3344,8 +3449,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"remote_ids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
-									MarkdownDescription: "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+									Description:         "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+									MarkdownDescription: "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
@@ -3366,6 +3471,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 							MarkdownDescription: "Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"probe": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -3407,6 +3515,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Only if `provider`==`custom-ipsec`",
 							MarkdownDescription: "Only if `provider`==`custom-ipsec`",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"protocol": schema.StringAttribute{
 							Optional:            true,
@@ -3485,8 +3596,8 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"remote_ids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
-									MarkdownDescription: "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+									Description:         "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+									MarkdownDescription: "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
@@ -3507,6 +3618,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 							MarkdownDescription: "Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+							Validators: []validator.Object{
+								mistvalidator.AtLeastNAttributes(1),
+							},
 						},
 						"version": schema.StringAttribute{
 							Optional:            true,
@@ -3555,6 +3669,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "For jse-ipsec, this allows provisioning of adequate resource on JSE. Make sure adequate licenses are added",
 						MarkdownDescription: "For jse-ipsec, this allows provisioning of adequate resource on JSE. Make sure adequate licenses are added",
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 					},
 					"prisma": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -3570,6 +3687,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 					},
 					"zscaler": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -3729,6 +3849,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								Optional:            true,
 								Description:         "`sub-locations` can be used for specific uses cases to define different configuration based on the user network",
 								MarkdownDescription: "`sub-locations` can be used for specific uses cases to define different configuration based on the user network",
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 							"surrogate_ip": schema.BoolAttribute{
 								Optional:            true,
@@ -3774,6 +3897,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "For zscaler-ipsec and zscaler-gre",
 						MarkdownDescription: "For zscaler-ipsec and zscaler-gre",
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 					},
 				},
 				CustomType: TunnelProviderOptionsType{
@@ -3782,6 +3908,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"type": schema.StringAttribute{
 				Computed:            true,
@@ -3823,6 +3952,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"vrf_instances": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -9868,11 +10000,11 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 
 		if !ok {
 			diags.AddError(
-				"Missing GatewayMgmtValue Attribute Value",
-				"While creating a GatewayMgmtValue value, a missing attribute value was detected. "+
-					"A GatewayMgmtValue must contain values for all attributes, even if null or unknown. "+
+				"Missing CustomValue Attribute Value",
+				"While creating a CustomValue value, a missing attribute value was detected. "+
+					"A CustomValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("GatewayMgmtValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("CustomValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -9880,12 +10012,12 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid GatewayMgmtValue Attribute Type",
-				"While creating a GatewayMgmtValue value, an invalid attribute value was detected. "+
-					"A GatewayMgmtValue must use a matching attribute type for the value. "+
+				"Invalid CustomValue Attribute Type",
+				"While creating a CustomValue value, an invalid attribute value was detected. "+
+					"A CustomValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("GatewayMgmtValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("GatewayMgmtValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("CustomValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("CustomValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -9895,49 +10027,87 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 
 		if !ok {
 			diags.AddError(
-				"Extra GatewayMgmtValue Attribute Value",
-				"While creating a GatewayMgmtValue value, an extra attribute value was detected. "+
-					"A GatewayMgmtValue must not contain values beyond the expected attribute types. "+
+				"Extra CustomValue Attribute Value",
+				"While creating a CustomValue value, an extra attribute value was detected. "+
+					"A CustomValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra GatewayMgmtValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra CustomValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewGatewayMgmtValueUnknown(), diags
+		return NewCustomValueUnknown(), diags
 	}
 
-	configRevertTimerAttribute, ok := attributes["config_revert_timer"]
+	portRangeAttribute, ok := attributes["port_range"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`config_revert_timer is missing from object`)
+			`port_range is missing from object`)
 
-		return NewGatewayMgmtValueUnknown(), diags
+		return NewCustomValueUnknown(), diags
 	}
 
-	configRevertTimerVal, ok := configRevertTimerAttribute.(basetypes.Int64Value)
+	portRangeVal, ok := portRangeAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`config_revert_timer expected to be basetypes.Int64Value, was: %T`, configRevertTimerAttribute))
+			fmt.Sprintf(`port_range expected to be basetypes.StringValue, was: %T`, portRangeAttribute))
+	}
+
+	protocolAttribute, ok := attributes["protocol"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`protocol is missing from object`)
+
+		return NewCustomValueUnknown(), diags
+	}
+
+	protocolVal, ok := protocolAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`protocol expected to be basetypes.StringValue, was: %T`, protocolAttribute))
+	}
+
+	subnetsAttribute, ok := attributes["subnets"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`subnets is missing from object`)
+
+		return NewCustomValueUnknown(), diags
+	}
+
+	subnetsVal, ok := subnetsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`subnets expected to be basetypes.ListValue, was: %T`, subnetsAttribute))
 	}
 
 	if diags.HasError() {
-		return NewGatewayMgmtValueUnknown(), diags
+		return NewCustomValueUnknown(), diags
 	}
 
-	return GatewayMgmtValue{
-		ConfigRevertTimer: configRevertTimerVal,
-		state:             attr.ValueStateKnown,
+	return CustomValue{
+		PortRange: portRangeVal,
+		Protocol:  protocolVal,
+		Subnets:   subnetsVal,
+		state:     attr.ValueStateKnown,
 	}, diags
 }
 
-func NewGatewayMgmtValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) GatewayMgmtValue {
-	object, diags := NewGatewayMgmtValue(attributeTypes, attributes)
+func NewCustomValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) CustomValue {
+	object, diags := NewCustomValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -9951,15 +10121,15 @@ func NewGatewayMgmtValueMust(attributeTypes map[string]attr.Type, attributes map
 				diagnostic.Detail()))
 		}
 
-		panic("NewGatewayMgmtValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewCustomValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t GatewayMgmtType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t CustomType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewGatewayMgmtValueNull(), nil
+		return NewCustomValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -9967,11 +10137,11 @@ func (t GatewayMgmtType) ValueFromTerraform(ctx context.Context, in tftypes.Valu
 	}
 
 	if !in.IsKnown() {
-		return NewGatewayMgmtValueUnknown(), nil
+		return NewCustomValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewGatewayMgmtValueNull(), nil
+		return NewCustomValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -9994,41 +10164,63 @@ func (t GatewayMgmtType) ValueFromTerraform(ctx context.Context, in tftypes.Valu
 		attributes[k] = a
 	}
 
-	return NewGatewayMgmtValueMust(GatewayMgmtValue{}.AttributeTypes(ctx), attributes), nil
+	return NewCustomValueMust(CustomValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t GatewayMgmtType) ValueType(ctx context.Context) attr.Value {
-	return GatewayMgmtValue{}
+func (t CustomType) ValueType(ctx context.Context) attr.Value {
+	return CustomValue{}
 }
 
-var _ basetypes.ObjectValuable = GatewayMgmtValue{}
+var _ basetypes.ObjectValuable = CustomValue{}
 
-type GatewayMgmtValue struct {
-	ConfigRevertTimer basetypes.Int64Value `tfsdk:"config_revert_timer"`
-	state             attr.ValueState
+type CustomValue struct {
+	PortRange basetypes.StringValue `tfsdk:"port_range"`
+	Protocol  basetypes.StringValue `tfsdk:"protocol"`
+	Subnets   basetypes.ListValue   `tfsdk:"subnets"`
+	state     attr.ValueState
 }
 
-func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 1)
+func (v CustomValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["config_revert_timer"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["port_range"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["protocol"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["subnets"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 1)
+		vals := make(map[string]tftypes.Value, 3)
 
-		val, err = v.ConfigRevertTimer.ToTerraformValue(ctx)
+		val, err = v.PortRange.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["config_revert_timer"] = val
+		vals["port_range"] = val
+
+		val, err = v.Protocol.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["protocol"] = val
+
+		val, err = v.Subnets.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["subnets"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -10044,23 +10236,49 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	}
 }
 
-func (v GatewayMgmtValue) IsNull() bool {
+func (v CustomValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v GatewayMgmtValue) IsUnknown() bool {
+func (v CustomValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v GatewayMgmtValue) String() string {
-	return "GatewayMgmtValue"
+func (v CustomValue) String() string {
+	return "CustomValue"
 }
 
-func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v CustomValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var subnetsVal basetypes.ListValue
+	switch {
+	case v.Subnets.IsUnknown():
+		subnetsVal = types.ListUnknown(types.StringType)
+	case v.Subnets.IsNull():
+		subnetsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		subnetsVal, d = types.ListValue(types.StringType, v.Subnets.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"port_range": basetypes.StringType{},
+			"protocol":   basetypes.StringType{},
+			"subnets": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
-		"config_revert_timer": basetypes.Int64Type{},
+		"port_range": basetypes.StringType{},
+		"protocol":   basetypes.StringType{},
+		"subnets": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 	}
 
 	if v.IsNull() {
@@ -10074,14 +10292,16 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"config_revert_timer": v.ConfigRevertTimer,
+			"port_range": v.PortRange,
+			"protocol":   v.Protocol,
+			"subnets":    subnetsVal,
 		})
 
 	return objVal, diags
 }
 
-func (v GatewayMgmtValue) Equal(o attr.Value) bool {
-	other, ok := o.(GatewayMgmtValue)
+func (v CustomValue) Equal(o attr.Value) bool {
+	other, ok := o.(CustomValue)
 
 	if !ok {
 		return false
@@ -10095,24 +10315,36 @@ func (v GatewayMgmtValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.ConfigRevertTimer.Equal(other.ConfigRevertTimer) {
+	if !v.PortRange.Equal(other.PortRange) {
+		return false
+	}
+
+	if !v.Protocol.Equal(other.Protocol) {
+		return false
+	}
+
+	if !v.Subnets.Equal(other.Subnets) {
 		return false
 	}
 
 	return true
 }
 
-func (v GatewayMgmtValue) Type(ctx context.Context) attr.Type {
-	return GatewayMgmtType{
+func (v CustomValue) Type(ctx context.Context) attr.Type {
+	return CustomType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v GatewayMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v CustomValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"config_revert_timer": basetypes.Int64Type{},
+		"port_range": basetypes.StringType{},
+		"protocol":   basetypes.StringType{},
+		"subnets": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 	}
 }
 

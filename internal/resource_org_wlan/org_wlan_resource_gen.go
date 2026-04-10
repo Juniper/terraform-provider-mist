@@ -5,9 +5,7 @@ package resource_org_wlan
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -28,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -101,7 +100,10 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of RADIUS accounting servers, optional, order matters where the first one is treated as primary",
 				MarkdownDescription: "List of RADIUS accounting servers, optional, order matters where the first one is treated as primary",
-				Default:             listdefault.StaticValue(types.ListNull(AcctServersValue{}.Type(ctx))),
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
+				Default: listdefault.StaticValue(types.ListNull(AcctServersValue{}.Type(ctx))),
 			},
 			"airwatch": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -161,6 +163,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Airwatch wlan settings",
 				MarkdownDescription: "Airwatch wlan settings",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						AirwatchValue{}.AttributeTypes(ctx),
@@ -238,6 +243,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Bandwidth limiting for apps (applies to up/down)",
 				MarkdownDescription: "Bandwidth limiting for apps (applies to up/down)",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"app_qos": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -346,6 +354,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "APP qos wlan settings",
 				MarkdownDescription: "APP qos wlan settings",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						AppQosValue{}.AttributeTypes(ctx),
@@ -431,9 +442,12 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "When type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
-							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wep")),
+							mistvalidator.RequiredWhenValueIs(
+								path.MatchRelative().AtParent().AtName("type"),
+								types.StringValue("wep"),
+							),
 						},
-						Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{
+						Default: listdefault.StaticValue(types.ListNull(types.StringType, []attr.Value{
 							types.StringValue(""),
 							types.StringValue(""),
 							types.StringValue(""),
@@ -528,6 +542,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Authentication wlan settings",
 				MarkdownDescription: "Authentication wlan settings",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"auth_server_selection": schema.StringAttribute{
 				Optional:            true,
@@ -599,7 +616,10 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary",
 				MarkdownDescription: "List of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary",
-				Default:             listdefault.StaticValue(types.ListNull(AuthServersValue{}.Type(ctx))),
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
+				Default: listdefault.StaticValue(types.ListNull(AuthServersValue{}.Type(ctx))),
 			},
 			"auth_servers_nas_id": schema.StringAttribute{
 				Optional:            true,
@@ -617,8 +637,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"auth_servers_retries": schema.Int64Attribute{
 				Optional:            true,
-				Description:         "Radius auth session retries. Following fast timers are set if \"fast_dot1x_timers\" knob is enabled. ‘retries’  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
-				MarkdownDescription: "Radius auth session retries. Following fast timers are set if \"fast_dot1x_timers\" knob is enabled. ‘retries’  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
+				Description:         "Radius auth session retries. Following fast timers are set if \"fast_dot1x_timers\" knob is enabled. ‘retries’ are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
+				MarkdownDescription: "Radius auth session retries. Following fast timers are set if \"fast_dot1x_timers\" knob is enabled. ‘retries’ are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
 			},
 			"auth_servers_timeout": schema.Int64Attribute{
 				Optional:            true,
@@ -734,6 +754,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Bonjour gateway wlan settings",
 				MarkdownDescription: "Bonjour gateway wlan settings",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"cisco_cwa": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -743,10 +766,10 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of hostnames without http(s):// (matched by substring)",
 						MarkdownDescription: "List of hostnames without http(s):// (matched by substring)",
-						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"allowed_subnets": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -797,6 +820,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Cisco CWA (central web authentication) required RADIUS with COA in order to work. See CWA: https://www.cisco.com/c/en/us/support/docs/security/identity-services-engine/115732-central-web-auth-00.html",
 				MarkdownDescription: "Cisco CWA (central web authentication) required RADIUS with COA in order to work. See CWA: https://www.cisco.com/c/en/us/support/docs/security/identity-services-engine/115732-central-web-auth-00.html",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						CiscoCwaValue{}.AttributeTypes(ctx),
@@ -867,6 +893,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "List of COA (change of authorization) servers, optional",
 				MarkdownDescription: "List of COA (change of authorization) servers, optional",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"disable_11ax": schema.BoolAttribute{
 				Optional:            true,
@@ -944,6 +973,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "For radius_group-based DNS server (rewrite DNS request depending on the Group RADIUS server returns)",
 				MarkdownDescription: "For radius_group-based DNS server (rewrite DNS request depending on the Group RADIUS server returns)",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"dtim": schema.Int64Attribute{
 				Optional: true,
@@ -1002,6 +1034,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "For dynamic PSK where we get per_user PSK from Radius. dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)\n  * PSK will come from RADIUS server\n  * AP sends client MAC as username and password (i.e. `enable_mac_auth` is assumed)\n  * AP sends BSSID:SSID as Caller-Station-ID\n  * `auth_servers` is required\n  * PSK will come from cloud WLC if source is cloud_psks\n  * default_psk will be used if cloud WLC is not available\n  * `multi_psk_only` and `psk` is ignored\n  * `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap)",
 				MarkdownDescription: "For dynamic PSK where we get per_user PSK from Radius. dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)\n  * PSK will come from RADIUS server\n  * AP sends client MAC as username and password (i.e. `enable_mac_auth` is assumed)\n  * AP sends BSSID:SSID as Caller-Station-ID\n  * `auth_servers` is required\n  * PSK will come from cloud WLC if source is cloud_psks\n  * default_psk will be used if cloud WLC is not available\n  * `multi_psk_only` and `psk` is ignored\n  * `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap)",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"dynamic_vlan": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1046,7 +1081,12 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "VLAN_ids to be locally bridged",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
-							listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),
+							listvalidator.ValueStringsAre(
+								stringvalidator.Any(
+									mistvalidator.ParseInt(1, 4094),
+									mistvalidator.ParseVar(),
+								),
+							),
 						},
 					},
 					"type": schema.StringAttribute{
@@ -1081,6 +1121,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "For 802.1x",
 				MarkdownDescription: "For 802.1x",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"enable_local_keycaching": schema.BoolAttribute{
 				Optional:            true,
@@ -1175,6 +1218,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Hostspot 2.0 wlan settings",
 				MarkdownDescription: "Hostspot 2.0 wlan settings",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -1205,6 +1251,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"interface": schema.StringAttribute{
 				Optional:            true,
@@ -1351,6 +1400,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 				Computed: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						MistNacValue{}.AttributeTypes(ctx),
@@ -1438,10 +1490,10 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Optional if `amazon_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
 						MarkdownDescription: "Optional if `amazon_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"amazon_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1614,10 +1666,10 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Optional if `facebook_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
 						MarkdownDescription: "Optional if `facebook_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"facebook_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1668,10 +1720,10 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Optional if `google_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
 						MarkdownDescription: "Optional if `google_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"google_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1716,10 +1768,10 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Optional if `microsoft_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
 						MarkdownDescription: "Optional if `microsoft_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"microsoft_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1838,6 +1890,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"smsglobal_api_secret": schema.StringAttribute{
 						Optional:            true,
+						Sensitive:           true,
 						Description:         "Required if `sms_provider`==`smsglobal`, Client secret",
 						MarkdownDescription: "Required if `sms_provider`==`smsglobal`, Client secret",
 					},
@@ -1852,10 +1905,10 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.",
 						MarkdownDescription: "List of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.",
-						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"sponsor_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1979,6 +2032,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"telstra_client_secret": schema.StringAttribute{
 						Optional:            true,
+						Sensitive:           true,
 						Description:         "Required if `sms_provider`==`telstra`, Client secret provided by Telstra",
 						MarkdownDescription: "Required if `sms_provider`==`telstra`, Client secret provided by Telstra",
 					},
@@ -2007,6 +2061,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Portal wlan settings",
 				MarkdownDescription: "Portal wlan settings",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						PortalValue{}.AttributeTypes(ctx),
@@ -2131,10 +2188,10 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames",
 				MarkdownDescription: "List of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames",
-				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"portal_image": schema.StringAttribute{
 				Computed:            true,
@@ -2185,6 +2242,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 				Computed: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						QosValue{}.AttributeTypes(ctx),
@@ -2283,6 +2343,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "RadSec settings",
 				MarkdownDescription: "RadSec settings",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						RadsecValue{}.AttributeTypes(ctx),
@@ -2540,6 +2603,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "WLAN operating schedule, default is disabled",
 				MarkdownDescription: "WLAN operating schedule, default is disabled",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						ScheduleValue{}.AttributeTypes(ctx),
@@ -2591,8 +2657,14 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separated) to be used in the VLAN Pool",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
-					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),
-					mistvalidator.RequiredWhenValueIs(path.MatchRoot("vlan_pooling"), types.BoolValue(true)),
+					listvalidator.ValueStringsAre(
+						stringvalidator.Any(mistvalidator.ParseInt(1, 4094),
+							mistvalidator.ParseVar()),
+					),
+					mistvalidator.RequiredWhenValueIs(
+						path.MatchRoot("vlan_pooling"),
+						types.BoolValue(true),
+					),
 				},
 				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
@@ -2632,10 +2704,10 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of wxtag_ids",
 				MarkdownDescription: "List of wxtag_ids",
-				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"wxtunnel_id": schema.StringAttribute{
 				Optional:            true,

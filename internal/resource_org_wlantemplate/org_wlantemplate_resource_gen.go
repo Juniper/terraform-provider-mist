@@ -5,6 +5,8 @@ package resource_org_wlantemplate
 import (
 	"context"
 	"fmt"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
@@ -12,14 +14,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"strings"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
@@ -36,10 +37,10 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of site ids",
 						MarkdownDescription: "List of site ids",
-						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"sitegroup_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -47,10 +48,10 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of sitegroup ids",
 						MarkdownDescription: "List of sitegroup ids",
-						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 				},
 				CustomType: AppliesType{
@@ -62,6 +63,9 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
 				MarkdownDescription: "Where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						AppliesValue{}.AttributeTypes(ctx),
@@ -79,10 +83,10 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of Device Profile ids",
 				MarkdownDescription: "List of Device Profile ids",
-				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"exceptions": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -92,10 +96,10 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of site ids",
 						MarkdownDescription: "List of site ids",
-						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"sitegroup_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -103,10 +107,10 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of sitegroup ids",
 						MarkdownDescription: "List of sitegroup ids",
-						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 				},
 				CustomType: ExceptionsType{
@@ -118,6 +122,9 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Where this template should not be applied to (takes precedence)",
 				MarkdownDescription: "Where this template should not be applied to (takes precedence)",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						ExceptionsValue{}.AttributeTypes(ctx),

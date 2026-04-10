@@ -4,10 +4,10 @@ package resource_site_wxrule
 
 import (
 	"context"
-
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -58,10 +59,10 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of WxTag UUID to indicate these tags are allowed access",
 				MarkdownDescription: "List of WxTag UUID to indicate these tags are allowed access",
-				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"dst_deny_wxtags": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -69,10 +70,10 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of WxTag UUID to indicate these tags are blocked access",
 				MarkdownDescription: "List of WxTag UUID to indicate these tags are blocked access",
-				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"dst_wxtags": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -80,10 +81,10 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of WxTag UUID",
 				MarkdownDescription: "List of WxTag UUID",
-				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"enabled": schema.BoolAttribute{
 				Optional: true,
@@ -118,10 +119,10 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of WxTag UUID to determine if this rule would match",
 				MarkdownDescription: "List of WxTag UUID to determine if this rule would match",
-				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 		},
 	}

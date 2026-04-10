@@ -180,6 +180,7 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"oauth_cc_client_secret": schema.StringAttribute{
 				Optional:            true,
+				Sensitive:           true,
 				Description:         "Required if `idp_type`==`oauth`, oauth_cc_client_secret is RSA private key, of the form \"-----BEGIN RSA PRIVATE KEY--....\"",
 				MarkdownDescription: "Required if `idp_type`==`oauth`, oauth_cc_client_secret is RSA private key, of the form \"-----BEGIN RSA PRIVATE KEY--....\"",
 				Validators: []validator.String{
@@ -239,6 +240,7 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"oauth_ropc_client_secret": schema.StringAttribute{
 				Optional:            true,
+				Sensitive:           true,
 				Description:         "If `oauth_type`==`azure` or `oauth_type`==`azure-gov`. oauth_ropc_client_secret can be empty",
 				MarkdownDescription: "If `oauth_type`==`azure` or `oauth_type`==`azure-gov`. oauth_ropc_client_secret can be empty",
 				Validators: []validator.String{
@@ -287,6 +289,7 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			"scim_secret_token": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
+				Sensitive:           true,
 				Description:         "If `idp_type`==`oauth`, scim_secret_token (auto-generated when not provided by caller and `scim_enabled`==`true`, empty string when `scim_enabled`==`false`) is used as the Bearer token in the Authorization header of SCIM provisioning requests by the IDP",
 				MarkdownDescription: "If `idp_type`==`oauth`, scim_secret_token (auto-generated when not provided by caller and `scim_enabled`==`true`, empty string when `scim_enabled`==`false`) is used as the Bearer token in the Authorization header of SCIM provisioning requests by the IDP",
 				Validators: []validator.String{

@@ -36,6 +36,9 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Computed: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"config_timestamp": schema.Int64Attribute{
 				Computed: true,
@@ -82,6 +85,9 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Computed: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"reboot": schema.BoolAttribute{
 				Optional:            true,

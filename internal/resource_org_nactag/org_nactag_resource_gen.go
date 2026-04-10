@@ -30,8 +30,10 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`egress_vlan_names`, list of egress vlans to return",
 				MarkdownDescription: "If `type`==`egress_vlan_names`, list of egress vlans to return",
 				Validators: []validator.List{
-					listvalidator.SizeAtLeast(1),
-					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("egress_vlan_names")),
+					mistvalidator.RequiredWhenValueIs(
+						path.MatchRelative().AtParent().AtName("type"),
+						types.StringValue("egress_vlan_names"),
+					),
 				},
 			},
 			"gbp_tag": schema.StringAttribute{
@@ -109,7 +111,10 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "If `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
-					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_attrs")),
+					mistvalidator.RequiredWhenValueIs(
+						path.MatchRelative().AtParent().AtName("type"),
+						types.StringValue("radius_attrs"),
+					),
 				},
 			},
 			"radius_group": schema.StringAttribute{
@@ -127,7 +132,10 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "If `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
-					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_vendor_attrs")),
+					mistvalidator.RequiredWhenValueIs(
+						path.MatchRelative().AtParent().AtName("type"),
+						types.StringValue("radius_vendor_attrs"),
+					),
 				},
 			},
 			"session_timeout": schema.Int64Attribute{
@@ -135,7 +143,10 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`session_timeout, in seconds",
 				MarkdownDescription: "If `type`==`session_timeout, in seconds",
 				Validators: []validator.Int64{
-					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("session_timeout")),
+					mistvalidator.RequiredWhenValueIs(
+						path.MatchRelative().AtParent().AtName("type"),
+						types.StringValue("session_timeout"),
+					),
 				},
 			},
 			"type": schema.StringAttribute{
@@ -181,7 +192,8 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "If `type`==`match`",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
-					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
+					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"),
+						types.StringValue("match")),
 				},
 			},
 			"vlan": schema.StringAttribute{
@@ -189,7 +201,10 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`vlan`",
 				MarkdownDescription: "If `type`==`vlan`",
 				Validators: []validator.String{
-					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vlan")),
+					mistvalidator.RequiredWhenValueIs(
+						path.MatchRelative().AtParent().AtName("type"),
+						types.StringValue("vlan"),
+					),
 				},
 			},
 		},
