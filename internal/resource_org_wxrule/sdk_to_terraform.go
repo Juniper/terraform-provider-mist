@@ -31,13 +31,21 @@ func SdkToTerraform(data *models.WxlanRule) (OrgWxruleModel, diag.Diagnostics) {
 	if len(data.BlockedApps) > 0 {
 		blockedApps = mistutils.ListOfStringSdkToTerraform(data.BlockedApps)
 	}
-	dstAllowWxtags = mistutils.ListOfStringSdkToTerraform(data.DstAllowWxtags)
-	dstDenyWxtags = mistutils.ListOfStringSdkToTerraform(data.DstDenyWxtags)
-	dstWxtags = mistutils.ListOfStringSdkToTerraform(data.DstWxtags)
+	if len(data.DstAllowWxtags) > 0 {
+		dstAllowWxtags = mistutils.ListOfStringSdkToTerraform(data.DstAllowWxtags)
+	}
+	if len(data.DstDenyWxtags) > 0 {
+		dstDenyWxtags = mistutils.ListOfStringSdkToTerraform(data.DstDenyWxtags)
+	}
+	if len(data.DstWxtags) > 0 {
+		dstWxtags = mistutils.ListOfStringSdkToTerraform(data.DstWxtags)
+	}
 	if data.Enabled != nil {
 		enabled = types.BoolValue(*data.Enabled)
 	}
-	srcWxtags = mistutils.ListOfStringSdkToTerraform(data.SrcWxtags)
+	if len(data.SrcWxtags) > 0 {
+		srcWxtags = mistutils.ListOfStringSdkToTerraform(data.SrcWxtags)
+	}
 
 	state.Id = types.StringValue(data.Id.String())
 	state.OrgId = types.StringValue(data.OrgId.String())
