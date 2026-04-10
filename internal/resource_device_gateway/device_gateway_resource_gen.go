@@ -10000,11 +10000,11 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 
 		if !ok {
 			diags.AddError(
-				"Missing CustomValue Attribute Value",
-				"While creating a CustomValue value, a missing attribute value was detected. "+
-					"A CustomValue must contain values for all attributes, even if null or unknown. "+
+				"Missing GatewayMgmtValue Attribute Value",
+				"While creating a GatewayMgmtValue value, a missing attribute value was detected. "+
+					"A GatewayMgmtValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("CustomValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("GatewayMgmtValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -10012,12 +10012,12 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid CustomValue Attribute Type",
-				"While creating a CustomValue value, an invalid attribute value was detected. "+
-					"A CustomValue must use a matching attribute type for the value. "+
+				"Invalid GatewayMgmtValue Attribute Type",
+				"While creating a GatewayMgmtValue value, an invalid attribute value was detected. "+
+					"A GatewayMgmtValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("CustomValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("CustomValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("GatewayMgmtValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("GatewayMgmtValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -10027,87 +10027,49 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 
 		if !ok {
 			diags.AddError(
-				"Extra CustomValue Attribute Value",
-				"While creating a CustomValue value, an extra attribute value was detected. "+
-					"A CustomValue must not contain values beyond the expected attribute types. "+
+				"Extra GatewayMgmtValue Attribute Value",
+				"While creating a GatewayMgmtValue value, an extra attribute value was detected. "+
+					"A GatewayMgmtValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra CustomValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra GatewayMgmtValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewCustomValueUnknown(), diags
+		return NewGatewayMgmtValueUnknown(), diags
 	}
 
-	portRangeAttribute, ok := attributes["port_range"]
+	configRevertTimerAttribute, ok := attributes["config_revert_timer"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`port_range is missing from object`)
+			`config_revert_timer is missing from object`)
 
-		return NewCustomValueUnknown(), diags
+		return NewGatewayMgmtValueUnknown(), diags
 	}
 
-	portRangeVal, ok := portRangeAttribute.(basetypes.StringValue)
+	configRevertTimerVal, ok := configRevertTimerAttribute.(basetypes.Int64Value)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`port_range expected to be basetypes.StringValue, was: %T`, portRangeAttribute))
-	}
-
-	protocolAttribute, ok := attributes["protocol"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`protocol is missing from object`)
-
-		return NewCustomValueUnknown(), diags
-	}
-
-	protocolVal, ok := protocolAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`protocol expected to be basetypes.StringValue, was: %T`, protocolAttribute))
-	}
-
-	subnetsAttribute, ok := attributes["subnets"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`subnets is missing from object`)
-
-		return NewCustomValueUnknown(), diags
-	}
-
-	subnetsVal, ok := subnetsAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`subnets expected to be basetypes.ListValue, was: %T`, subnetsAttribute))
+			fmt.Sprintf(`config_revert_timer expected to be basetypes.Int64Value, was: %T`, configRevertTimerAttribute))
 	}
 
 	if diags.HasError() {
-		return NewCustomValueUnknown(), diags
+		return NewGatewayMgmtValueUnknown(), diags
 	}
 
-	return CustomValue{
-		PortRange: portRangeVal,
-		Protocol:  protocolVal,
-		Subnets:   subnetsVal,
-		state:     attr.ValueStateKnown,
+	return GatewayMgmtValue{
+		ConfigRevertTimer: configRevertTimerVal,
+		state:             attr.ValueStateKnown,
 	}, diags
 }
 
-func NewCustomValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) CustomValue {
-	object, diags := NewCustomValue(attributeTypes, attributes)
+func NewGatewayMgmtValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) GatewayMgmtValue {
+	object, diags := NewGatewayMgmtValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -10121,15 +10083,15 @@ func NewCustomValueMust(attributeTypes map[string]attr.Type, attributes map[stri
 				diagnostic.Detail()))
 		}
 
-		panic("NewCustomValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewGatewayMgmtValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t CustomType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t GatewayMgmtType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewCustomValueNull(), nil
+		return NewGatewayMgmtValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -10137,11 +10099,11 @@ func (t CustomType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (a
 	}
 
 	if !in.IsKnown() {
-		return NewCustomValueUnknown(), nil
+		return NewGatewayMgmtValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewCustomValueNull(), nil
+		return NewGatewayMgmtValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -10164,63 +10126,41 @@ func (t CustomType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (a
 		attributes[k] = a
 	}
 
-	return NewCustomValueMust(CustomValue{}.AttributeTypes(ctx), attributes), nil
+	return NewGatewayMgmtValueMust(GatewayMgmtValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t CustomType) ValueType(ctx context.Context) attr.Value {
-	return CustomValue{}
+func (t GatewayMgmtType) ValueType(ctx context.Context) attr.Value {
+	return GatewayMgmtValue{}
 }
 
-var _ basetypes.ObjectValuable = CustomValue{}
+var _ basetypes.ObjectValuable = GatewayMgmtValue{}
 
-type CustomValue struct {
-	PortRange basetypes.StringValue `tfsdk:"port_range"`
-	Protocol  basetypes.StringValue `tfsdk:"protocol"`
-	Subnets   basetypes.ListValue   `tfsdk:"subnets"`
-	state     attr.ValueState
+type GatewayMgmtValue struct {
+	ConfigRevertTimer basetypes.Int64Value `tfsdk:"config_revert_timer"`
+	state             attr.ValueState
 }
 
-func (v CustomValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
 
 	var val tftypes.Value
 	var err error
 
-	attrTypes["port_range"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["protocol"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["subnets"] = basetypes.ListType{
-		ElemType: types.StringType,
-	}.TerraformType(ctx)
+	attrTypes["config_revert_timer"] = basetypes.Int64Type{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 1)
 
-		val, err = v.PortRange.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["port_range"] = val
-
-		val, err = v.Protocol.ToTerraformValue(ctx)
+		val, err = v.ConfigRevertTimer.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["protocol"] = val
-
-		val, err = v.Subnets.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["subnets"] = val
+		vals["config_revert_timer"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -10236,49 +10176,23 @@ func (v CustomValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	}
 }
 
-func (v CustomValue) IsNull() bool {
+func (v GatewayMgmtValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v CustomValue) IsUnknown() bool {
+func (v GatewayMgmtValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v CustomValue) String() string {
-	return "CustomValue"
+func (v GatewayMgmtValue) String() string {
+	return "GatewayMgmtValue"
 }
 
-func (v CustomValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	var subnetsVal basetypes.ListValue
-	switch {
-	case v.Subnets.IsUnknown():
-		subnetsVal = types.ListUnknown(types.StringType)
-	case v.Subnets.IsNull():
-		subnetsVal = types.ListNull(types.StringType)
-	default:
-		var d diag.Diagnostics
-		subnetsVal, d = types.ListValue(types.StringType, v.Subnets.Elements())
-		diags.Append(d...)
-	}
-
-	if diags.HasError() {
-		return types.ObjectUnknown(map[string]attr.Type{
-			"port_range": basetypes.StringType{},
-			"protocol":   basetypes.StringType{},
-			"subnets": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-		}), diags
-	}
-
 	attributeTypes := map[string]attr.Type{
-		"port_range": basetypes.StringType{},
-		"protocol":   basetypes.StringType{},
-		"subnets": basetypes.ListType{
-			ElemType: types.StringType,
-		},
+		"config_revert_timer": basetypes.Int64Type{},
 	}
 
 	if v.IsNull() {
@@ -10292,16 +10206,14 @@ func (v CustomValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"port_range": v.PortRange,
-			"protocol":   v.Protocol,
-			"subnets":    subnetsVal,
+			"config_revert_timer": v.ConfigRevertTimer,
 		})
 
 	return objVal, diags
 }
 
-func (v CustomValue) Equal(o attr.Value) bool {
-	other, ok := o.(CustomValue)
+func (v GatewayMgmtValue) Equal(o attr.Value) bool {
+	other, ok := o.(GatewayMgmtValue)
 
 	if !ok {
 		return false
@@ -10315,36 +10227,24 @@ func (v CustomValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.PortRange.Equal(other.PortRange) {
-		return false
-	}
-
-	if !v.Protocol.Equal(other.Protocol) {
-		return false
-	}
-
-	if !v.Subnets.Equal(other.Subnets) {
+	if !v.ConfigRevertTimer.Equal(other.ConfigRevertTimer) {
 		return false
 	}
 
 	return true
 }
 
-func (v CustomValue) Type(ctx context.Context) attr.Type {
-	return CustomType{
+func (v GatewayMgmtValue) Type(ctx context.Context) attr.Type {
+	return GatewayMgmtType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v CustomValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v GatewayMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"port_range": basetypes.StringType{},
-		"protocol":   basetypes.StringType{},
-		"subnets": basetypes.ListType{
-			ElemType: types.StringType,
-		},
+		"config_revert_timer": basetypes.Int64Type{},
 	}
 }
 
