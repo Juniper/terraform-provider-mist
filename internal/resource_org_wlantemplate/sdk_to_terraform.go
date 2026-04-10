@@ -19,7 +19,7 @@ func SdkToTerraform(ctx context.Context, data models.Template) (OrgWlantemplateM
 		Id:               types.StringValue(data.Id.String()),
 		OrgId:            types.StringValue(data.OrgId.String()),
 		Name:             types.StringValue(data.Name),
-		DeviceprofileIds: mistutils.ListOfUuidSdkToTerraform(data.DeviceprofileIds),
+		DeviceprofileIds: types.ListNull(types.StringType),
 	}
 
 	if data.Applies != nil {
@@ -32,6 +32,10 @@ func SdkToTerraform(ctx context.Context, data models.Template) (OrgWlantemplateM
 
 	if data.FilterByDeviceprofile != nil {
 		state.FilterByDeviceprofile = types.BoolValue(*data.FilterByDeviceprofile)
+	}
+
+	if len(data.DeviceprofileIds) > 0 {
+		state.DeviceprofileIds = mistutils.ListOfUuidSdkToTerraform(data.DeviceprofileIds)
 	}
 
 	return state, diags
