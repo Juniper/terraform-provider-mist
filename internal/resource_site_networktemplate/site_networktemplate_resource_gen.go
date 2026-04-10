@@ -3352,7 +3352,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Switch settings",
 			},
 			"uses_description_from_port_usage": schema.BoolAttribute{
-				Computed:            true,
+				Optional:            true,
 				Description:         "by default, we only honor description provided in port_config. This allows fallback to those defined in port_usages",
 				MarkdownDescription: "by default, we only honor description provided in port_config. This allows fallback to those defined in port_usages",
 			},
