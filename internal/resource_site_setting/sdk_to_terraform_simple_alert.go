@@ -1,7 +1,6 @@
 package resource_site_setting
 
 import (
-	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -120,13 +119,13 @@ func simpleAlertSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var dhcpFailure = types.ObjectNull(DhcpFailureValue{}.AttributeTypes(ctx))
 	var dnsFailure = types.ObjectNull(DnsFailureValue{}.AttributeTypes(ctx))
 
-	if d != nil && !mistutils.IsSdkDataEmpty(d.ArpFailure) {
+	if d != nil && d.ArpFailure != nil {
 		arpFailure = simpleAlertArpSdkToTerraform(ctx, diags, d.ArpFailure)
 	}
-	if d != nil && !mistutils.IsSdkDataEmpty(d.DhcpFailure) {
+	if d != nil && d.DhcpFailure != nil {
 		dhcpFailure = simpleAlertDhcpSdkToTerraform(ctx, diags, d.DhcpFailure)
 	}
-	if d != nil && !mistutils.IsSdkDataEmpty(d.DnsFailure) {
+	if d != nil && d.DnsFailure != nil {
 		dnsFailure = simpleAlertDnsSdkToTerraform(ctx, diags, d.DnsFailure)
 	}
 

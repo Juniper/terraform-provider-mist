@@ -1,7 +1,6 @@
 package resource_site_setting
 
 import (
-	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -74,7 +73,7 @@ func marvisSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 
 	var autoOperations = types.ObjectNull(AutoOperationsValue{}.AttributeTypes(ctx))
 
-	if !mistutils.IsSdkDataEmpty(d.AutoOperations) {
+	if d.AutoOperations != nil {
 		autoOperations = marvisAutoOperationsSdkToTerraform(ctx, diags, d.AutoOperations)
 	}
 

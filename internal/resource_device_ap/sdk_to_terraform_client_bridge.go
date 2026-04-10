@@ -1,7 +1,6 @@
 package resource_device_ap
 
 import (
-	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -38,7 +37,7 @@ func clientBridgeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var enabled basetypes.BoolValue
 	var ssid basetypes.StringValue
 
-	if d != nil && !mistutils.IsSdkDataEmpty(d.Auth) {
+	if d != nil && d.Auth != nil {
 		auth = clientAuthBridgeSdkToTerraform(ctx, diags, d.Auth)
 	}
 	if d != nil && d.Enabled != nil {

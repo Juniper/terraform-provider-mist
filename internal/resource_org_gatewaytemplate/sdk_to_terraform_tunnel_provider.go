@@ -1,7 +1,6 @@
 package resource_org_gatewaytemplate
 
 import (
-	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -18,11 +17,11 @@ func tunnelProviderJseSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	var numUsers basetypes.Int64Value
 	configured := false
 
-	if d != nil && !mistutils.IsSdkDataEmpty(d.Jse) && d.Jse.OrgName != nil {
+	if d != nil && d.Jse != nil && d.Jse.OrgName != nil {
 		orgName = types.StringValue(*d.Jse.OrgName)
 		configured = true
 	}
-	if d != nil && !mistutils.IsSdkDataEmpty(d.Jse) && d.Jse.NumUsers != nil {
+	if d != nil && d.Jse != nil && d.Jse.NumUsers != nil {
 		numUsers = types.Int64Value(int64(*d.Jse.NumUsers))
 		configured = true
 	}
@@ -41,7 +40,7 @@ func tunnelProviderPrismaSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 	var serviceAccountName basetypes.StringValue
 	configured := false
 
-	if d != nil && !mistutils.IsSdkDataEmpty(d.Prisma) && d.Prisma.ServiceAccountName != nil {
+	if d != nil && d.Prisma != nil && d.Prisma.ServiceAccountName != nil {
 		serviceAccountName = types.StringValue(*d.Prisma.ServiceAccountName)
 		configured = true
 	}
@@ -251,19 +250,19 @@ func tunnelProviderSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	var zscaler = types.ObjectNull(ZscalerValue{}.AttributeTypes(ctx))
 	configured := false
 
-	if d != nil && !mistutils.IsSdkDataEmpty(d.Jse) {
+	if d != nil && d.Jse != nil {
 		if jseTmp, ok := tunnelProviderJseSdkToTerraform(ctx, diags, d); ok {
 			jse = jseTmp
 			configured = true
 		}
 	}
-	if d != nil && !mistutils.IsSdkDataEmpty(d.Prisma) {
+	if d != nil && d.Prisma != nil {
 		if prismaTmp, ok := tunnelProviderPrismaSdkToTerraform(ctx, diags, d); ok {
 			prisma = prismaTmp
 			configured = true
 		}
 	}
-	if d != nil && !mistutils.IsSdkDataEmpty(d.Zscaler) {
+	if d != nil && d.Zscaler != nil {
 		if zscalerTmp, ok := tunnelProviderZscalerSdkToTerraform(ctx, diags, d); ok {
 			zscaler = zscalerTmp
 			configured = true

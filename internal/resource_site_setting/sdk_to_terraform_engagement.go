@@ -1,7 +1,6 @@
 package resource_site_setting
 
 import (
-	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -94,13 +93,13 @@ func engagementSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var maxDwell = types.Int64Null()
 	var minDwell = types.Int64Null()
 
-	if d != nil && !mistutils.IsSdkDataEmpty(d.DwellTagNames) {
+	if d != nil && d.DwellTagNames != nil {
 		dwellTagNames = engagementDwellTagNamesSdkToTerraform(ctx, diags, d.DwellTagNames)
 	}
-	if d != nil && !mistutils.IsSdkDataEmpty(d.DwellTags) {
+	if d != nil && d.DwellTags != nil {
 		dwellTags = engagementDwellTagsSdkToTerraform(ctx, diags, d.DwellTags)
 	}
-	if d != nil && !mistutils.IsSdkDataEmpty(d.Hours) {
+	if d != nil && d.Hours != nil {
 		hours = misthours.HoursSdkToTerraform(diags, d.Hours)
 	}
 	if d != nil && d.MaxDwell != nil {

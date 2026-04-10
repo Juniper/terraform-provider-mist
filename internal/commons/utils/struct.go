@@ -21,9 +21,28 @@ func IsSdkDataEmpty(v interface{}) bool {
 		return false
 	}
 	for i := 0; i < val.NumField(); i++ {
+		if val.Type().Field(i).Name == "AdditionalProperties" {
+			continue
+		}
 		f := val.Field(i)
 		switch f.Kind() {
-		case reflect.Ptr, reflect.Interface:
+		case reflect.Ptr:
+			if f.IsNil() {
+				continue
+			}
+			// Dereference and check the pointed-to value
+			elem := f.Elem()
+			switch elem.Kind() {
+			case reflect.Slice, reflect.Map:
+				if elem.Len() > 0 {
+					return false
+				}
+			default:
+				if !elem.IsZero() {
+					return false
+				}
+			}
+		case reflect.Interface:
 			if !f.IsNil() {
 				return false
 			}

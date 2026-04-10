@@ -1,7 +1,6 @@
 package resource_org_mxedge
 
 import (
-	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -20,7 +19,7 @@ func tuntermIgmpSnoopingConfigSdkToTerraform(ctx context.Context, diags *diag.Di
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if !mistutils.IsSdkDataEmpty(d.Querier) {
+	if d.Querier != nil {
 		querierValue := querierSdkToTerraform(ctx, diags, d.Querier)
 		querierObj, e := querierValue.ToObjectValue(ctx)
 		diags.Append(e...)

@@ -1,7 +1,6 @@
 package datasource_sites
 
 import (
-	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -65,7 +64,7 @@ func siteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
-	if !mistutils.IsSdkDataEmpty(d.Latlng) {
+	if d.Latlng != nil {
 
 		t := map[string]attr.Type{
 			"lat": basetypes.Float64Type{},

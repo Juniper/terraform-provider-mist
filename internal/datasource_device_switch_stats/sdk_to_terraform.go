@@ -1,7 +1,6 @@
 package datasource_device_switch_stats
 
 import (
-	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 	"math/big"
 
@@ -74,13 +73,13 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	var vcSetupInfo = types.ObjectNull(VcSetupInfoValue{}.AttributeTypes(ctx))
 	var version basetypes.StringValue
 
-	if !mistutils.IsSdkDataEmpty(d.ApRedundancy) {
+	if d.ApRedundancy != nil {
 		apRedundancy = apRedundancySdkToTerraform(ctx, diags, d.ApRedundancy)
 	}
-	if !mistutils.IsSdkDataEmpty(d.ArpTableStats) {
+	if d.ArpTableStats != nil {
 		arpTableStats = arpTableStatsSdkToTerraform(ctx, diags, d.ArpTableStats)
 	}
-	if !mistutils.IsSdkDataEmpty(d.AutoUpgradeStat) {
+	if d.AutoUpgradeStat != nil {
 		autoUpgradeStat = autoUpgradeStatSdkToTerraform(ctx, diags, d.AutoUpgradeStat)
 	}
 	if d.CertExpiry != nil {
@@ -89,7 +88,7 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d.Clients != nil {
 		clients = clientsSdkToTerraform(ctx, diags, d.Clients)
 	}
-	if !mistutils.IsSdkDataEmpty(d.ClientsStats) {
+	if d.ClientsStats != nil {
 		clientsStats = clientsStatsSdkToTerraform(ctx, diags, d.ClientsStats)
 	}
 	if d.ConfigStatus != nil {
@@ -101,7 +100,7 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d.ConfigVersion != nil {
 		configVersion = types.Int64Value(int64(*d.ConfigVersion))
 	}
-	if !mistutils.IsSdkDataEmpty(d.CpuStat) {
+	if d.CpuStat != nil {
 		cpuStat = cpuStatsSdkToTerraform(ctx, diags, d.CpuStat)
 	}
 	if d.CreatedTime != nil {
@@ -122,7 +121,7 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d.FwVersionsOutofsync != nil {
 		fwVersionsOutofsync = types.BoolValue(*d.FwVersionsOutofsync)
 	}
-	if !mistutils.IsSdkDataEmpty(d.Fwupdate) {
+	if d.Fwupdate != nil {
 		fwupdate = fwupdateSdkToTerraform(ctx, diags, d.Fwupdate)
 	}
 	if d.HasPcap != nil {
@@ -143,25 +142,25 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d.Ip != nil {
 		ip = types.StringValue(*d.Ip)
 	}
-	if !mistutils.IsSdkDataEmpty(d.IpStat) {
+	if d.IpStat != nil {
 		ipStat = ipStatsSdkToTerraform(ctx, diags, d.IpStat)
 	}
 	if d.LastSeen.Value() != nil {
 		lastSeen = types.Float64Value(*d.LastSeen.Value())
 	}
-	if !mistutils.IsSdkDataEmpty(d.LastTrouble) {
+	if d.LastTrouble != nil {
 		lastTrouble = lastTroubleSdkToTerraform(ctx, diags, d.LastTrouble)
 	}
 	if d.Mac != nil {
 		mac = types.StringValue(*d.Mac)
 	}
-	if !mistutils.IsSdkDataEmpty(d.MacTableStats) {
+	if d.MacTableStats != nil {
 		macTableStats = macTableStatSdkToTerraform(ctx, diags, d.MacTableStats)
 	}
 	if d.MapId.Value() != nil {
 		mapId = types.StringValue(d.MapId.Value().String())
 	}
-	if !mistutils.IsSdkDataEmpty(d.MemoryStat) {
+	if d.MemoryStat != nil {
 		memoryStat = memoryStatSdkToTerraform(ctx, diags, d.MemoryStat)
 	}
 	if d.Model != nil {
@@ -182,7 +181,7 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d.Ports != nil {
 		ports = portsSdkToTerraform(ctx, diags, d.Ports)
 	}
-	if !mistutils.IsSdkDataEmpty(d.RouteSummaryStats) {
+	if d.RouteSummaryStats != nil {
 		routeSummaryStats = routeSummaryStatsSdkToTerraform(ctx, diags, d.RouteSummaryStats)
 	}
 	if d.Serial != nil {
@@ -209,7 +208,7 @@ func deviceSwitchStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d.VcMac.Value() != nil {
 		vcMac = types.StringValue(*d.VcMac.Value())
 	}
-	if !mistutils.IsSdkDataEmpty(d.VcSetupInfo) {
+	if d.VcSetupInfo != nil {
 		vcSetupInfo = vcSetupInfoSdkToTerraform(ctx, diags, d.VcSetupInfo)
 	}
 	if d.Version.Value() != nil {

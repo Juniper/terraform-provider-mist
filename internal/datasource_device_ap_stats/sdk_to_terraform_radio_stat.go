@@ -1,7 +1,6 @@
 package datasource_device_ap_stats
 
 import (
-	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -130,13 +129,13 @@ func radioStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 	var band5 = types.ObjectNull(BandValue{}.AttributeTypes(ctx))
 	var band6 = types.ObjectNull(BandValue{}.AttributeTypes(ctx))
 
-	if !mistutils.IsSdkDataEmpty(d.Band24) {
+	if d.Band24 != nil {
 		band24 = radioStatBandSdkToTerraform(ctx, diags, d.Band24)
 	}
-	if !mistutils.IsSdkDataEmpty(d.Band5) {
+	if d.Band5 != nil {
 		band5 = radioStatBandSdkToTerraform(ctx, diags, d.Band5)
 	}
-	if !mistutils.IsSdkDataEmpty(d.Band6) {
+	if d.Band6 != nil {
 		band6 = radioStatBandSdkToTerraform(ctx, diags, d.Band6)
 	}
 

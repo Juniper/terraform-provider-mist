@@ -1,7 +1,6 @@
 package resource_site_setting
 
 import (
-	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -85,7 +84,7 @@ func juniperSrxSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var gateways = types.ListNull(GatewaysValue{}.Type(ctx))
 	var sendMistNacUserInfo basetypes.BoolValue
 
-	if d != nil && !mistutils.IsSdkDataEmpty(d.AutoUpgrade) {
+	if d != nil && d.AutoUpgrade != nil {
 		autoUpgrade = juniperSrxAutoUpgradeSdkToTerraform(ctx, diags, *d.AutoUpgrade)
 	}
 	if d != nil && d.Gateways != nil {
