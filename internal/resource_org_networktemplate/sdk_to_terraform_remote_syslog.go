@@ -20,7 +20,7 @@ func remoteSyslogArchiveSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 	if d != nil && d.Files != nil {
 		files = mistutils.SyslogFilesAsString(d.Files)
 	}
-	if d != nil && len(*d.Size) != 0 {
+	if d != nil && d.Size != nil && len(*d.Size) != 0 {
 		size = types.StringValue(*d.Size)
 	}
 
@@ -42,10 +42,10 @@ func remoteSyslogContentsSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 		var facility basetypes.StringValue
 		var severity basetypes.StringValue
 
-		if len(*d.Facility) != 0 {
+		if d.Facility != nil && len(*d.Facility) != 0 {
 			facility = types.StringValue(string(*d.Facility))
 		}
-		if len(*d.Severity) != 0 {
+		if d.Severity != nil && len(*d.Severity) != 0 {
 			severity = types.StringValue(string(*d.Severity))
 		}
 
