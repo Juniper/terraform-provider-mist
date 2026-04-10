@@ -31,7 +31,7 @@ func switchesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 		var suggestedDownlinks = types.ListNull(types.StringType)
 		var suggestedEsilaglinks = types.ListNull(types.StringType)
 		var suggestedUplinks = types.ListNull(types.StringType)
-		var uplinks basetypes.ListValue
+		var uplinks = types.ListNull(types.StringType)
 
 		if d.DeviceprofileId != nil {
 			deviceprofileId = types.StringValue(d.DeviceprofileId.String())

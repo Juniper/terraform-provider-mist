@@ -8,17 +8,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 func autoUpgradeEslSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SiteSettingAutoUpgradeEsl) AutoUpgradeEslValue {
 
 	var allowDowngrade = types.BoolValue(false)
-	var customVersions basetypes.MapValue
-	var dayOfWeek basetypes.StringValue
+	var customVersions = types.MapNull(types.StringType)
+	var dayOfWeek = types.StringNull()
 	var enabled = types.BoolValue(false)
-	var timeOfDay basetypes.StringValue
-	var version basetypes.StringValue
+	var timeOfDay = types.StringNull()
+	var version = types.StringNull()
 
 	if d.AllowDowngrade != nil {
 		allowDowngrade = types.BoolValue(*d.AllowDowngrade)

@@ -63,7 +63,7 @@ func underlayEvpnOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 func vsInstanceEvpnOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.EvpnOptionsVsInstance) basetypes.MapValue {
 	stateValueMap := make(map[string]attr.Value)
 	for k, d := range m {
-		var networks basetypes.ListValue
+		var networks = types.ListNull(types.StringType)
 
 		if len(d.Networks) > 0 {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
