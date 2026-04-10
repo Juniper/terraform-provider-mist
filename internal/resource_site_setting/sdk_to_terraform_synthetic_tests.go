@@ -102,10 +102,10 @@ func syntheticTestLanNetworksSdkToTerraform(ctx context.Context, diags *diag.Dia
 func syntheticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SynthetictestConfigVlan) basetypes.ListValue {
 	var dataList []VlansValue
 	for _, d := range l {
-		var customTestUrls = mistutils.ListOfStringSdkToTerraformEmpty()
+		var customTestUrls = types.ListNull(basetypes.StringType{})
 		var disabled basetypes.BoolValue
 		var probes = types.ListNull(basetypes.StringType{})
-		var vlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
+		var vlanIds = types.ListNull(basetypes.StringType{})
 
 		if len(d.CustomTestUrls) > 0 {
 			customTestUrls = mistutils.ListOfStringSdkToTerraform(d.CustomTestUrls)
