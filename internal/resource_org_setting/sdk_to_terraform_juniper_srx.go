@@ -1,6 +1,7 @@
 package resource_org_setting
 
 import (
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -55,7 +56,7 @@ func juniperSrxAutoUpgradeSdkToTerraform(ctx context.Context, diags *diag.Diagno
 func juniperSrxSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingJuniperSrx) JuniperSrxValue {
 	var autoUpgrade = types.ObjectNull(SrxAutoUpgradeValue{}.AttributeTypes(ctx))
 
-	if d.AutoUpgrade != nil {
+	if !mistutils.IsSdkDataEmpty(d.AutoUpgrade) {
 		autoUpgrade = juniperSrxAutoUpgradeSdkToTerraform(ctx, diags, *d.AutoUpgrade)
 	}
 

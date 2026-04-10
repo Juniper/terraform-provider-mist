@@ -262,19 +262,19 @@ func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.AntennaSelect != nil {
 		antennaSelect = types.StringValue(string(*d.AntennaSelect))
 	}
-	if d.Band24 != nil {
+	if !mistutils.IsSdkDataEmpty(d.Band24) {
 		band24 = band24SdkToTerraform(ctx, diags, d.Band24)
 	}
 	if d.Band24Usage != nil && *d.Band24Usage != "" {
 		band24Usage = types.StringValue(string(*d.Band24Usage))
 	}
-	if d.Band5 != nil {
+	if !mistutils.IsSdkDataEmpty(d.Band5) {
 		band5 = band5SdkToTerraform(ctx, diags, d.Band5)
 	}
-	if d.Band5On24Radio != nil {
+	if !mistutils.IsSdkDataEmpty(d.Band5On24Radio) {
 		band5On24Radio = band5SdkToTerraform(ctx, diags, d.Band5On24Radio)
 	}
-	if d.Band6 != nil {
+	if !mistutils.IsSdkDataEmpty(d.Band6) {
 		band6 = band6SdkToTerraform(ctx, diags, d.Band6)
 	}
 	if d.FullAutomaticRrm != nil {

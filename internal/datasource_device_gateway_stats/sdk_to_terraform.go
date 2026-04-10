@@ -1,6 +1,7 @@
 package datasource_device_gateway_stats
 
 import (
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 	"math/big"
 
@@ -85,13 +86,13 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	var version basetypes.StringValue
 	var vpnPeers = types.ListNull(VpnPeersValue{}.Type(ctx))
 
-	if d.ApRedundancy != nil {
+	if !mistutils.IsSdkDataEmpty(d.ApRedundancy) {
 		apRedundancy = apRedundancySdkToTerraform(ctx, diags, d.ApRedundancy)
 	}
-	if d.ArpTableStats != nil {
+	if !mistutils.IsSdkDataEmpty(d.ArpTableStats) {
 		arpTableStats = arpTableStatsSdkToTerraform(ctx, diags, d.ArpTableStats)
 	}
-	if d.AutoUpgradeStat != nil {
+	if !mistutils.IsSdkDataEmpty(d.AutoUpgradeStat) {
 		autoUpgradeStat = autoUpgradeStatSdkToTerraform(ctx, diags, d.AutoUpgradeStat)
 	}
 	if d.BgpPeers != nil {
@@ -100,10 +101,10 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d.CertExpiry != nil {
 		certExpiry = types.Int64Value(*d.CertExpiry)
 	}
-	if d.ClusterConfig != nil {
+	if !mistutils.IsSdkDataEmpty(d.ClusterConfig) {
 		clusterConfig = clusterConfigSdkToTerraform(ctx, diags, d.ClusterConfig)
 	}
-	if d.ClusterStat != nil {
+	if !mistutils.IsSdkDataEmpty(d.ClusterStat) {
 		clusterStat = clusterStatsSdkToTerraform(ctx, diags, d.ClusterStat)
 	}
 	if d.ConductorName != nil {
@@ -118,10 +119,10 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d.ConfigVersion != nil {
 		configVersion = types.Int64Value(int64(*d.ConfigVersion))
 	}
-	if d.Cpu2Stat != nil {
+	if !mistutils.IsSdkDataEmpty(d.Cpu2Stat) {
 		cpu2Stat = cpuStatsSdkToTerraform(ctx, diags, d.Cpu2Stat)
 	}
-	if d.CpuStat != nil {
+	if !mistutils.IsSdkDataEmpty(d.CpuStat) {
 		cpuStat = cpuStatsSdkToTerraform(ctx, diags, d.CpuStat)
 	}
 	if d.CreatedTime != nil {
@@ -142,7 +143,7 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d.ExtIp.Value() != nil {
 		extIp = types.StringValue(*d.ExtIp.Value())
 	}
-	if d.Fwupdate != nil {
+	if !mistutils.IsSdkDataEmpty(d.Fwupdate) {
 		fwupdate = fwupdateSdkToTerraform(ctx, diags, d.Fwupdate)
 	}
 	if d.HasPcap.Value() != nil {
@@ -163,10 +164,10 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d.Ip.Value() != nil {
 		ip = types.StringValue(*d.Ip.Value())
 	}
-	if d.Ip2Stat != nil {
+	if !mistutils.IsSdkDataEmpty(d.Ip2Stat) {
 		ip2Stat = ipStatsSdkToTerraform(ctx, diags, d.Ip2Stat)
 	}
-	if d.IpStat != nil {
+	if !mistutils.IsSdkDataEmpty(d.IpStat) {
 		ipStat = ipStatsSdkToTerraform(ctx, diags, d.IpStat)
 	}
 	if d.IsHa.Value() != nil {
@@ -178,16 +179,16 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 
 	mac = types.StringValue(d.Mac)
 
-	if d.MacTableStats != nil {
+	if !mistutils.IsSdkDataEmpty(d.MacTableStats) {
 		macTableStats = macTableStatStatSdkToTerraform(ctx, diags, d.MacTableStats)
 	}
 	if d.MapId.Value() != nil {
 		mapId = types.StringValue(d.MapId.Value().String())
 	}
-	if d.Memory2Stat != nil {
+	if !mistutils.IsSdkDataEmpty(d.Memory2Stat) {
 		memory2Stat = memoryStatSdkToTerraform(ctx, diags, d.Memory2Stat)
 	}
-	if d.MemoryStat != nil {
+	if !mistutils.IsSdkDataEmpty(d.MemoryStat) {
 		memoryStat = memoryStatSdkToTerraform(ctx, diags, d.MemoryStat)
 	}
 	if d.Model != nil {
@@ -214,7 +215,7 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d.Ports != nil {
 		ports = portsSdkToTerraform(ctx, diags, d.Ports)
 	}
-	if d.RouteSummaryStats != nil {
+	if !mistutils.IsSdkDataEmpty(d.RouteSummaryStats) {
 		routeSummaryStats = routeSummaryStatsSdkToTerraform(ctx, diags, d.RouteSummaryStats)
 	}
 	if d.RouterName != nil {
@@ -229,7 +230,7 @@ func deviceGatewayStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if len(d.ServiceStat) > 0 {
 		serviceStat = serviceStatsSdkToTerraform(ctx, diags, d.ServiceStat)
 	}
-	if d.ServiceStatus != nil {
+	if !mistutils.IsSdkDataEmpty(d.ServiceStatus) {
 		serviceStatus = serviceStatusSdkToTerraform(ctx, diags, d.ServiceStatus)
 	}
 	if d.SiteId != nil {

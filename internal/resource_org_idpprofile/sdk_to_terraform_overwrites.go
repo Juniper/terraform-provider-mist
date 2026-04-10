@@ -60,7 +60,7 @@ func overwritesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		if d.Action != nil {
 			action = types.StringValue(string(*d.Action))
 		}
-		if d.Matching != nil {
+		if !mistutils.IsSdkDataEmpty(d.Matching) {
 			matching = overwritesMatchingSdkToTerraform(ctx, diags, d.Matching)
 		}
 		if d.Name != nil {

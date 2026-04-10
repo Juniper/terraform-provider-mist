@@ -1,6 +1,7 @@
 package resource_org_deviceprofile_gateway
 
 import (
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -76,7 +77,7 @@ func oobIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d != nil && d.Netmask != nil {
 		netmask = types.StringValue(*d.Netmask)
 	}
-	if d != nil && d.Node1 != nil {
+	if d != nil && !mistutils.IsSdkDataEmpty(d.Node1) {
 		node1 = oobIpConfigsNode1SdkToTerraform(ctx, diags, d.Node1)
 	}
 	if d != nil && d.Type != nil {

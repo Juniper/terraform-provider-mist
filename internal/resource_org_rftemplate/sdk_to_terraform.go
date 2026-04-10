@@ -1,6 +1,7 @@
 package resource_org_rftemplate
 
 import (
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -37,19 +38,19 @@ func SdkToTerraform(ctx context.Context, data models.RfTemplate) (OrgRftemplateM
 	if data.AntGain6 != nil {
 		antGain6 = types.Int64Value(int64(*data.AntGain6))
 	}
-	if data.Band24 != nil {
+	if !mistutils.IsSdkDataEmpty(data.Band24) {
 		band24 = band24SdkToTerraform(ctx, &diags, data.Band24)
 	}
 	if data.Band24Usage != nil {
 		band24Usage = types.StringValue(string(*data.Band24Usage))
 	}
-	if data.Band5 != nil {
+	if !mistutils.IsSdkDataEmpty(data.Band5) {
 		band5 = band5SdkToTerraform(ctx, &diags, data.Band5)
 	}
-	if data.Band5On24Radio != nil {
+	if !mistutils.IsSdkDataEmpty(data.Band5On24Radio) {
 		band5On24Radio = band5On24RadioSdkToTerraform(ctx, &diags, data.Band5On24Radio)
 	}
-	if data.Band6 != nil {
+	if !mistutils.IsSdkDataEmpty(data.Band6) {
 		band6 = band6SdkToTerraform(ctx, &diags, data.Band6)
 	}
 	if data.CountryCode != nil {

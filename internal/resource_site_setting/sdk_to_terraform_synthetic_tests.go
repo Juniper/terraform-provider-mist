@@ -168,7 +168,7 @@ func syntheticTestSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	if d != nil && len(d.Vlans) > 0 {
 		vlans = syntheticTestVlansSdkToTerraform(ctx, diags, d.Vlans)
 	}
-	if d != nil && d.WanSpeedtest != nil {
+	if d != nil && !mistutils.IsSdkDataEmpty(d.WanSpeedtest) {
 		wanSpeedtest = syntheticTestWanSdkToTerraform(ctx, diags, d.WanSpeedtest)
 	}
 

@@ -1,6 +1,7 @@
 package datasource_device_gateway_stats
 
 import (
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 	"math/big"
 
@@ -267,7 +268,7 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		if d.Mac != nil {
 			mac = types.StringValue(*d.Mac)
 		}
-		if d.MemoryStat != nil {
+		if !mistutils.IsSdkDataEmpty(d.MemoryStat) {
 			memoryStat = memoryStatSdkToTerraform(ctx, diags, d.MemoryStat)
 		}
 		if d.Model.Value() != nil {
@@ -282,7 +283,7 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		if d.PendingVersion.Value() != nil {
 			pendingVersion = types.StringValue(*d.PendingVersion.Value())
 		}
-		if d.Poe != nil {
+		if !mistutils.IsSdkDataEmpty(d.Poe) {
 			poe = moduleStatPoeSdkToTerraform(ctx, diags, d.Poe)
 		}
 		if d.PoeVersion.Value() != nil {

@@ -1,6 +1,7 @@
 package resource_site_evpn_topology
 
 import (
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -21,7 +22,7 @@ func SdkToTerraform(ctx context.Context, data models.EvpnTopology) (SiteEvpnTopo
 	var siteId types.String
 	var switches = types.MapNull(SwitchesValue{}.Type(ctx))
 
-	if data.EvpnOptions != nil {
+	if !mistutils.IsSdkDataEmpty(data.EvpnOptions) {
 		evpnOptions = evpnOptionsSdkToTerraform(ctx, &diags, data.EvpnOptions)
 	}
 	if data.Id != nil {

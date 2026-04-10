@@ -109,7 +109,7 @@ func ifStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 		if d.RxPkts.Value() != nil {
 			rxPkts = types.Int64Value(*d.RxPkts.Value())
 		}
-		if d.ServpInfo != nil {
+		if !mistutils.IsSdkDataEmpty(d.ServpInfo) {
 			servpInfo = ifStatsServpInfoSdkToTerraform(ctx, diags, d.ServpInfo)
 		}
 		if d.TxBytes.Value() != nil {

@@ -1,6 +1,7 @@
 package resource_site_setting
 
 import (
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	misthours "github.com/Juniper/terraform-provider-mist/internal/commons/hours"
@@ -20,7 +21,7 @@ func configPushPolicyWindowSdkToTerraform(ctx context.Context, diags *diag.Diagn
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d != nil && d.Hours != nil {
+	if d != nil && !mistutils.IsSdkDataEmpty(d.Hours) {
 		hours = misthours.HoursSdkToTerraform(diags, d.Hours)
 	}
 
@@ -41,7 +42,7 @@ func configPushPolicySdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d != nil && d.NoPush != nil {
 		noPush = types.BoolValue(*d.NoPush)
 	}
-	if d != nil && d.PushWindow != nil {
+	if d != nil && !mistutils.IsSdkDataEmpty(d.PushWindow) {
 		pushWindow = configPushPolicyWindowSdkToTerraform(ctx, diags, d.PushWindow)
 	}
 

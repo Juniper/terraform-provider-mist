@@ -79,13 +79,13 @@ func SdkToTerraform(ctx context.Context, d *models.NacPortal) (OrgNacPortalModel
 		}
 	}
 
-	if d.Portal != nil {
+	if !mistutils.IsSdkDataEmpty(d.Portal) {
 		portal = portalSdkToTerraform(ctx, &diags, d.Portal)
 	}
 	if d.Ssid != nil {
 		ssid = types.StringValue(*d.Ssid)
 	}
-	if d.Sso != nil {
+	if !mistutils.IsSdkDataEmpty(d.Sso) {
 		sso = ssoSdkToTerraform(ctx, &diags, d.Sso)
 	}
 	if d.Tos != nil {

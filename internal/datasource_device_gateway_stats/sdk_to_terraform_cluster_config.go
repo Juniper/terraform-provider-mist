@@ -145,13 +145,13 @@ func clusterConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	if d.Configuration != nil {
 		configuration = types.StringValue(*d.Configuration)
 	}
-	if d.ControlLinkInfo != nil {
+	if !mistutils.IsSdkDataEmpty(d.ControlLinkInfo) {
 		controlLinkInfo = clusterConfigControlLinkInfoSdkToTerraform(ctx, diags, d.ControlLinkInfo)
 	}
 	if d.EthernetConnection != nil {
 		ethernetConnection = clusterConfigStatsEthernetConnectionSdkToTerraform(ctx, diags, d.EthernetConnection)
 	}
-	if d.FabricLinkInfo != nil {
+	if !mistutils.IsSdkDataEmpty(d.FabricLinkInfo) {
 		fabricLinkInfo = clusterConfigFabricLinkInfoSdkToTerraform(ctx, diags, d.FabricLinkInfo)
 	}
 	if d.LastStatusChangeReason != nil {

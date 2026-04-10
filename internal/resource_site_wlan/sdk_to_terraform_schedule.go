@@ -1,6 +1,7 @@
 package resource_site_wlan
 
 import (
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	misthours "github.com/Juniper/terraform-provider-mist/internal/commons/hours"
@@ -20,7 +21,7 @@ func scheduleSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d != nil && d.Hours != nil && len(d.Hours.String()) > 0 {
+	if d != nil && !mistutils.IsSdkDataEmpty(d.Hours) && len(d.Hours.String()) > 0 {
 		hours = misthours.HoursSdkToTerraform(diags, d.Hours)
 	}
 

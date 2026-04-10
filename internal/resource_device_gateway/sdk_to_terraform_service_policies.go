@@ -150,7 +150,7 @@ func skyatpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 	var httpInspection = types.ObjectNull(HttpInspectionValue{}.AttributeTypes(ctx))
 	var iotDevicePolicy = types.ObjectNull(IotDevicePolicyValue{}.AttributeTypes(ctx))
 
-	if d.DnsDgaDetection != nil {
+	if !mistutils.IsSdkDataEmpty(d.DnsDgaDetection) {
 		var enabled basetypes.BoolValue
 		var profile basetypes.StringValue
 
@@ -167,7 +167,7 @@ func skyatpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 		}
 		dnsDgaDetection, _ = types.ObjectValue(DnsDgaDetectionValue{}.AttributeTypes(ctx), dnsDgaAttr)
 	}
-	if d.DnsTunnelDetection != nil {
+	if !mistutils.IsSdkDataEmpty(d.DnsTunnelDetection) {
 		var enabled basetypes.BoolValue
 		var profile basetypes.StringValue
 
@@ -184,7 +184,7 @@ func skyatpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 		}
 		dnsTunnelDetection, _ = types.ObjectValue(DnsTunnelDetectionValue{}.AttributeTypes(ctx), dnsTunnelAttr)
 	}
-	if d.HttpInspection != nil {
+	if !mistutils.IsSdkDataEmpty(d.HttpInspection) {
 		var enabled basetypes.BoolValue
 		var profile basetypes.StringValue
 
@@ -201,7 +201,7 @@ func skyatpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 		}
 		httpInspection, _ = types.ObjectValue(HttpInspectionValue{}.AttributeTypes(ctx), httpInspAttr)
 	}
-	if d.IotDevicePolicy != nil {
+	if !mistutils.IsSdkDataEmpty(d.IotDevicePolicy) {
 		var enabled basetypes.BoolValue
 
 		if d.IotDevicePolicy.Enabled != nil {

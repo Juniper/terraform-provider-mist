@@ -1,6 +1,7 @@
 package resource_org_setting
 
 import (
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -54,7 +55,7 @@ func switchSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 
 	var autoUpgrade = types.ObjectNull(AutoUpgradeValue{}.AttributeTypes(ctx))
 
-	if d != nil && d.AutoUpgrade != nil {
+	if d != nil && !mistutils.IsSdkDataEmpty(d.AutoUpgrade) {
 		autoUpgrade = switchAutoUpgradesSdkToTerraform(ctx, diags, d.AutoUpgrade)
 	}
 

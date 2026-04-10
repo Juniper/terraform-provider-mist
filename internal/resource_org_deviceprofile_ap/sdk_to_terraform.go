@@ -3,7 +3,7 @@ package resource_org_deviceprofile_ap
 import (
 	"context"
 
-	mistlist "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -42,13 +42,13 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 
 	var profileType types.String
 
-	if data.Aeroscout != nil {
+	if !mistutils.IsSdkDataEmpty(data.Aeroscout) {
 		aeroscout = aeroscoutSdkToTerraform(ctx, &diags, data.Aeroscout)
 	}
-	if data.Airista != nil {
+	if !mistutils.IsSdkDataEmpty(data.Airista) {
 		airista = airistaSdkToTerraform(ctx, &diags, data.Airista)
 	}
-	if data.BleConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.BleConfig) {
 		bleConfig = bleConfigSdkToTerraform(ctx, &diags, data.BleConfig)
 	}
 	if data.DisableEth1 != nil {
@@ -63,22 +63,22 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	if data.DisableModule != nil {
 		disableModule = types.BoolValue(*data.DisableModule)
 	}
-	if data.EslConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.EslConfig) {
 		eslConfig = eslSdkToTerraform(ctx, &diags, data.EslConfig)
 	}
 	if data.Id != nil {
 		profileId = types.StringValue(data.Id.String())
 	}
-	if data.IpConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.IpConfig) {
 		ipConfig = ipConfigSdkToTerraform(ctx, &diags, data.IpConfig)
 	}
-	if data.LacpConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.LacpConfig) {
 		lacpConfig = lacpConfigSdkToTerraform(ctx, &diags, data.LacpConfig)
 	}
-	if data.Led != nil {
+	if !mistutils.IsSdkDataEmpty(data.Led) {
 		led = ledSdkToTerraform(ctx, &diags, data.Led)
 	}
-	if data.Mesh != nil {
+	if !mistutils.IsSdkDataEmpty(data.Mesh) {
 		mesh = meshSdkToTerraform(ctx, &diags, data.Mesh)
 	}
 	if data.Name.Value() != nil {
@@ -86,7 +86,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	}
 
 	if len(data.NtpServers) > 0 {
-		ntpServers = mistlist.ListOfStringSdkToTerraform(data.NtpServers)
+		ntpServers = mistutils.ListOfStringSdkToTerraform(data.NtpServers)
 	}
 	if data.OrgId != nil {
 		orgId = types.StringValue(data.OrgId.String())
@@ -97,19 +97,19 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	if data.PortConfig != nil {
 		portConfig = portConfigSdkToTerraform(ctx, &diags, data.PortConfig)
 	}
-	if data.PwrConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.PwrConfig) {
 		pwrConfig = pwrConfigSdkToTerraform(ctx, &diags, data.PwrConfig)
 	}
-	if data.RadioConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.RadioConfig) {
 		radioConfig = radioConfigSdkToTerraform(ctx, &diags, data.RadioConfig)
 	}
 	if data.SiteId != nil {
 		siteId = types.StringValue(data.SiteId.String())
 	}
-	if data.UplinkPortConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.UplinkPortConfig) {
 		uplinkPortConfig = uplinkPortConfigSdkToTerraform(ctx, &diags, data.UplinkPortConfig)
 	}
-	if data.UsbConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.UsbConfig) {
 		usbConfig = usbConfigSdkToTerraform(ctx, &diags, data.UsbConfig)
 	}
 	if len(data.Vars) > 0 {

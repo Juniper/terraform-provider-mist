@@ -51,7 +51,7 @@ func vpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.V
 	if len(d.Paths) > 0 {
 		paths = vpnPathsSdkToTerraform(ctx, diags, d.Paths)
 	}
-	if d.PathSelection != nil {
+	if !mistutils.IsSdkDataEmpty(d.PathSelection) {
 		pathSelection = vpnPathSelectionSdkToTerraform(ctx, diags, d.PathSelection)
 	}
 	if d.Type != nil {
@@ -161,7 +161,7 @@ func vpnPathsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 		if d.Pod != nil {
 			pod = types.Int64Value(int64(*d.Pod))
 		}
-		if d.TrafficShaping != nil {
+		if !mistutils.IsSdkDataEmpty(d.TrafficShaping) {
 			trafficShaping = vpnPathsTrafficShapingSdkToTerraform(ctx, diags, d.TrafficShaping)
 		}
 

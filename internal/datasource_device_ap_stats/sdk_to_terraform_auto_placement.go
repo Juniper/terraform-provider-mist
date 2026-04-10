@@ -1,6 +1,7 @@
 package datasource_device_ap_stats
 
 import (
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 	"math/big"
 
@@ -49,7 +50,7 @@ func autoPlacementInfoSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d.OrientationStats != nil {
 		orientationStats = types.Int64Value(int64(*d.OrientationStats))
 	}
-	if d.ProbabilitySurface != nil {
+	if !mistutils.IsSdkDataEmpty(d.ProbabilitySurface) {
 		probabilitySurface = autoPlacementInfoProbaSdkToTerraform(ctx, diags, d.ProbabilitySurface)
 	}
 
@@ -74,7 +75,7 @@ func autoPlacementSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	var y basetypes.Float64Value
 	var yM basetypes.Float64Value
 
-	if d.Info != nil {
+	if !mistutils.IsSdkDataEmpty(d.Info) {
 		info = autoPlacementInfoSdkToTerraform(ctx, diags, d.Info)
 	}
 	if d.RecommendedAnchor != nil {

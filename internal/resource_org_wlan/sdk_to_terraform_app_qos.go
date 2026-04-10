@@ -2,6 +2,7 @@ package resource_org_wlan
 
 import (
 	"context"
+
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -95,11 +96,13 @@ func appQosSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models
 	var enabled basetypes.BoolValue
 	var others = types.ListNull(OthersValue{}.Type(ctx))
 
-	apps = appQosAppsSdkToTerraform(ctx, diags, d.Apps)
+	if len(d.Apps) > 0 {
+		apps = appQosAppsSdkToTerraform(ctx, diags, d.Apps)
+	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d.Others != nil {
+	if len(d.Others) > 0 {
 		others = appQosOthersSdkToTerraform(ctx, diags, d.Others)
 	}
 

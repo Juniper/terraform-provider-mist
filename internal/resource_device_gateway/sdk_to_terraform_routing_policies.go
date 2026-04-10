@@ -95,7 +95,7 @@ func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 		}
 		protocol, _ = types.ListValue(basetypes.StringType{}, items)
 	}
-	if d.RouteExists != nil {
+	if !mistutils.IsSdkDataEmpty(d.RouteExists) {
 		routeExists = routingPolicyTermMatchingRouteExistsSdkToTerraform(ctx, diags, *d.RouteExists)
 	}
 	if len(d.VpnNeighborMac) > 0 {
@@ -104,7 +104,7 @@ func routingPolicyTermMatchingSdkToTerraform(ctx context.Context, diags *diag.Di
 	if len(d.VpnPath) > 0 {
 		vpnPath = mistutils.ListOfStringSdkToTerraform(d.VpnPath)
 	}
-	if d.VpnPathSla != nil {
+	if !mistutils.IsSdkDataEmpty(d.VpnPathSla) {
 		vpnPathSla = routingPolicyTermMatchingVpnSlaSdkToTerraform(ctx, diags, *d.VpnPathSla)
 	}
 
@@ -188,10 +188,10 @@ func routingPolicyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		var actions = types.ObjectNull(ActionsValue{}.AttributeTypes(ctx))
 		var matching = types.ObjectNull(RoutingPolicyTermMatchingValue{}.AttributeTypes(ctx))
 
-		if d.Actions != nil {
+		if !mistutils.IsSdkDataEmpty(d.Actions) {
 			actions = routingPolicyTermActionsSdkToTerraform(ctx, diags, *d.Actions)
 		}
-		if d.Matching != nil {
+		if !mistutils.IsSdkDataEmpty(d.Matching) {
 			matching = routingPolicyTermMatchingSdkToTerraform(ctx, diags, *d.Matching)
 		}
 

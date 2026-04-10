@@ -39,11 +39,11 @@ func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, 
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
 	}
-	if data.Matching != nil {
+	if !mistutils.IsSdkDataEmpty(data.Matching) {
 		matching = matchingSdkToTerraform(ctx, &diags, data.Matching)
 	}
 	name = types.StringValue(data.Name)
-	if data.NotMatching != nil {
+	if !mistutils.IsSdkDataEmpty(data.NotMatching) {
 		notMatching = notMatchingSdkToTerraform(ctx, &diags, data.NotMatching)
 	}
 	if data.Order != nil {

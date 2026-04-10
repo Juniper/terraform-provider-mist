@@ -29,16 +29,16 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 	var sslProxy = NewSslProxyValueNull()
 	var tenants = types.ListNull(types.StringType)
 
-	if d.Aamw != nil {
+	if !mistutils.IsSdkDataEmpty(d.Aamw) {
 		aamw = aamwSdkToTerraform(ctx, &diags, d.Aamw)
 	}
 	if d.Action != nil {
 		action = types.StringValue(string(*d.Action))
 	}
-	if d.Antivirus != nil {
+	if !mistutils.IsSdkDataEmpty(d.Antivirus) {
 		antivirus = avSdkToTerraform(ctx, &diags, d.Antivirus)
 	}
-	if d.Appqoe != nil {
+	if !mistutils.IsSdkDataEmpty(d.Appqoe) {
 		appqoe = appQoeToTerraform(ctx, &diags, d.Appqoe)
 	}
 	if d.Ewf != nil {
@@ -46,7 +46,7 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 	}
 	id = types.StringValue(d.Id.String())
 
-	if d.Idp != nil {
+	if !mistutils.IsSdkDataEmpty(d.Idp) {
 		idp = idpSdkToTerraform(ctx, &diags, d.Idp)
 	}
 	if d.LocalRouting != nil {
@@ -63,7 +63,7 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 	if len(d.Services) > 0 {
 		services = mistutils.ListOfStringSdkToTerraform(d.Services)
 	}
-	if d.SslProxy != nil {
+	if !mistutils.IsSdkDataEmpty(d.SslProxy) {
 		sslProxy = sslProxySdkToTerraform(ctx, &diags, d.SslProxy)
 	}
 	if len(d.Tenants) > 0 {

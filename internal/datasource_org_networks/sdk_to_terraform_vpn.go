@@ -118,7 +118,7 @@ func VpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[strin
 		if d.Routed != nil {
 			routed = types.BoolValue(*d.Routed)
 		}
-		if d.SourceNat != nil {
+		if !mistutils.IsSdkDataEmpty(d.SourceNat) {
 			sourceNat = sourceNatSdkToTerraform(ctx, diags, d.SourceNat)
 		}
 		if d.StaticNat != nil {

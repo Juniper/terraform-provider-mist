@@ -1,6 +1,7 @@
 package resource_site_setting
 
 import (
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 	"context"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -37,7 +38,7 @@ func widsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 
 	var repeatedAuthFailures = types.ObjectNull(RepeatedAuthFailuresValue{}.AttributeTypes(ctx))
 
-	if d != nil && d.RepeatedAuthFailures != nil {
+	if d != nil && !mistutils.IsSdkDataEmpty(d.RepeatedAuthFailures) {
 		repeatedAuthFailures = widsAuthFailureSdkToTerraform(ctx, diags, d.RepeatedAuthFailures)
 	}
 

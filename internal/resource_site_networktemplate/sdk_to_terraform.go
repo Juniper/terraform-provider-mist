@@ -55,7 +55,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	if data.AutoUpgradeLinecard != nil {
 		autoUpgradeLinecard = types.BoolValue(*data.AutoUpgradeLinecard)
 	}
-	if data.DhcpSnooping != nil {
+	if !mistutils.IsSdkDataEmpty(data.DhcpSnooping) {
 		dhcpSnooping = dhcpSnoopingSdkToTerraform(ctx, &diags, data.DhcpSnooping)
 	}
 	if len(data.DnsServers) > 0 {
@@ -79,7 +79,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	if len(data.ExtraRoutes6) > 0 {
 		extraRoutes6 = extraRoutes6SdkToTerraform(ctx, &diags, data.ExtraRoutes6)
 	}
-	if data.MistNac != nil {
+	if !mistutils.IsSdkDataEmpty(data.MistNac) {
 		mistNac = mistNacSdkToTerraform(ctx, &diags, data.MistNac)
 	}
 	if len(data.Networks) > 0 {
@@ -97,25 +97,25 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	if len(data.PortUsages) > 0 {
 		portUsages = portUsagesSdkToTerraform(ctx, &diags, data.PortUsages)
 	}
-	if data.RadiusConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.RadiusConfig) {
 		radiusConfig = radiusConfigSdkToTerraform(ctx, &diags, data.RadiusConfig)
 	}
-	if data.RemoteSyslog != nil {
+	if !mistutils.IsSdkDataEmpty(data.RemoteSyslog) {
 		remoteSyslog = remoteSyslogSdkToTerraform(ctx, &diags, data.RemoteSyslog)
 	}
 	if len(data.RoutingPolicies) > 0 {
 		routingPolicies = routingPoliciesSdkToTerraform(ctx, &diags, data.RoutingPolicies)
 	}
-	if data.SnmpConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.SnmpConfig) {
 		snmpConfig = snmpConfigSdkToTerraform(ctx, &diags, data.SnmpConfig)
 	}
-	if data.SwitchMatching != nil {
+	if !mistutils.IsSdkDataEmpty(data.SwitchMatching) {
 		switchMatching = switchMatchingSdkToTerraform(ctx, &diags, data.SwitchMatching)
 	}
-	if data.SwitchMgmt != nil {
+	if !mistutils.IsSdkDataEmpty(data.SwitchMgmt) {
 		switchMgmt = switchMgmtSdkToTerraform(ctx, &diags, data.SwitchMgmt)
 	}
-	if data.VrfConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.VrfConfig) {
 		vrfConfig = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
 	}
 	if data.VrfInstances != nil {

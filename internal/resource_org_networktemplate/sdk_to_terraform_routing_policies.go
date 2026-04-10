@@ -92,10 +92,10 @@ func routingPolicyTermsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		var matching = types.ObjectNull(MatchingValue{}.AttributeTypes(ctx))
 		var name basetypes.StringValue
 
-		if d.Actions != nil {
+		if !mistutils.IsSdkDataEmpty(d.Actions) {
 			actions = routingPolicyTermActionsSdkToTerraform(ctx, diags, *d.Actions)
 		}
-		if d.Matching != nil {
+		if !mistutils.IsSdkDataEmpty(d.Matching) {
 			matching = routingPolicyTermMatchingSdkToTerraform(ctx, diags, *d.Matching)
 		}
 		name = types.StringValue(d.Name)

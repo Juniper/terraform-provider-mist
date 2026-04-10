@@ -67,7 +67,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	if data.MxclusterId != nil && data.MxclusterId.String() != "00000000-0000-0000-0000-000000000000" {
 		mxclusterId = types.StringValue(data.MxclusterId.String())
 	}
-	if data.MxedgeMgmt != nil {
+	if !mistutils.IsSdkDataEmpty(data.MxedgeMgmt) {
 		mxedgeMgmt = mxedgeMgmtSdkToTerraform(ctx, &diags, data.MxedgeMgmt)
 	}
 	name = types.StringValue(data.Name)
@@ -77,13 +77,13 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	if len(data.NtpServers) > 0 {
 		ntpServers = mistutils.ListOfStringSdkToTerraform(data.NtpServers)
 	}
-	if data.OobIpConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.OobIpConfig) {
 		oobIpConfig = oobIpConfigSdkToTerraform(ctx, &diags, data.OobIpConfig)
 	}
 	if data.OrgId != nil {
 		orgId = types.StringValue(data.OrgId.String())
 	}
-	if data.Proxy != nil {
+	if !mistutils.IsSdkDataEmpty(data.Proxy) {
 		proxy = proxySdkToTerraform(ctx, &diags, data.Proxy)
 	}
 	if len(data.Services) > 0 {
@@ -98,22 +98,22 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	if data.TuntermExtraRoutes != nil {
 		tuntermExtraRoutes = tuntermExtraRoutesSdkToTerraform(ctx, &diags, data.TuntermExtraRoutes)
 	}
-	if data.TuntermIgmpSnoopingConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.TuntermIgmpSnoopingConfig) {
 		tuntermIgmpSnoopingConfig = tuntermIgmpSnoopingConfigSdkToTerraform(ctx, &diags, data.TuntermIgmpSnoopingConfig)
 	}
-	if data.TuntermIpConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.TuntermIpConfig) {
 		tuntermIpConfig = tuntermIpConfigSdkToTerraform(ctx, &diags, data.TuntermIpConfig)
 	}
 	if data.TuntermMonitoring != nil {
 		tuntermMonitoring = tuntermMonitoringSdkToTerraform(ctx, &diags, data.TuntermMonitoring)
 	}
-	if data.TuntermMulticastConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.TuntermMulticastConfig) {
 		tuntermMulticastConfig = tuntermMulticastConfigSdkToTerraform(ctx, &diags, data.TuntermMulticastConfig)
 	}
 	if data.TuntermOtherIpConfigs != nil {
 		tuntermOtherIpConfigs = tuntermOtherIpConfigsSdkToTerraform(ctx, &diags, data.TuntermOtherIpConfigs)
 	}
-	if data.TuntermPortConfig != nil {
+	if !mistutils.IsSdkDataEmpty(data.TuntermPortConfig) {
 		tuntermPortConfig = tuntermPortConfigSdkToTerraform(ctx, &diags, data.TuntermPortConfig)
 	}
 	if data.TuntermRegistered != nil {
@@ -122,7 +122,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	if data.TuntermSwitchConfig != nil {
 		tuntermSwitchConfig = tuntermSwitchConfigSdkToTerraform(ctx, &diags, data.TuntermSwitchConfig)
 	}
-	if data.Versions != nil {
+	if !mistutils.IsSdkDataEmpty(data.Versions) {
 		versions = versionsSdkToTerraform(ctx, &diags, data.Versions)
 	}
 

@@ -17,13 +17,13 @@ func tuntermMulticastConfigSdkToTerraform(ctx context.Context, diags *diag.Diagn
 	var mdns = types.ObjectNull(MdnsValue{}.AttributeTypes(ctx))
 	var ssdp = types.ObjectNull(SsdpValue{}.AttributeTypes(ctx))
 
-	if d.Mdns != nil {
+	if !mistutils.IsSdkDataEmpty(d.Mdns) {
 		mdnsValue := mdnsSdkToTerraform(ctx, diags, d.Mdns)
 		mdnsObj, e := mdnsValue.ToObjectValue(ctx)
 		diags.Append(e...)
 		mdns = mdnsObj
 	}
-	if d.Ssdp != nil {
+	if !mistutils.IsSdkDataEmpty(d.Ssdp) {
 		ssdpValue := ssdpSdkToTerraform(ctx, diags, d.Ssdp)
 		ssdpObj, e := ssdpValue.ToObjectValue(ctx)
 		diags.Append(e...)
