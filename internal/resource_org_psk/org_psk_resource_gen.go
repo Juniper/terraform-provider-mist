@@ -4,7 +4,8 @@ package resource_org_psk
 
 import (
 	"context"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -112,9 +113,11 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"role": schema.StringAttribute{
 				Optional: true,
+				Computed: true,
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(0, 32),
 				},
+				Default: stringdefault.StaticString(""),
 			},
 			"ssid": schema.StringAttribute{
 				Required:            true,

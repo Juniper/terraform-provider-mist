@@ -5,7 +5,9 @@ package resource_org_wlan
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -26,7 +28,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -84,8 +85,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 							Optional: true,
 						},
 						"secret": schema.StringAttribute{
-							Required:            true,
-							Sensitive:           true,
+							Required: true,
+
 							Description:         "Secret of RADIUS server",
 							MarkdownDescription: "Secret of RADIUS server",
 						},
@@ -133,9 +134,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Default:  booldefault.StaticBool(false),
 					},
 					"password": schema.StringAttribute{
-						Optional:            true,
-						Computed:            true,
-						Sensitive:           true,
+						Optional: true,
+						Computed: true,
+
 						Description:         "Password",
 						MarkdownDescription: "Password",
 						Validators: []validator.String{
@@ -495,9 +496,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Default:             booldefault.StaticBool(false),
 					},
 					"psk": schema.StringAttribute{
-						Optional:            true,
-						Computed:            true,
-						Sensitive:           true,
+						Optional: true,
+						Computed: true,
+
 						Description:         "When `type`==`psk`, 8-64 characters, or 64 hex characters",
 						MarkdownDescription: "When `type`==`psk`, 8-64 characters, or 64 hex characters",
 						Validators: []validator.String{
@@ -593,8 +594,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 							Default:             booldefault.StaticBool(false),
 						},
 						"secret": schema.StringAttribute{
-							Required:            true,
-							Sensitive:           true,
+							Required: true,
+
 							Description:         "Secret of RADIUS server",
 							MarkdownDescription: "Secret of RADIUS server",
 						},
@@ -867,8 +868,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 							Optional: true,
 						},
 						"secret": schema.StringAttribute{
-							Required:  true,
-							Sensitive: true,
+							Required: true,
 						},
 					},
 					CustomType: CoaServersType{
@@ -969,8 +969,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 			"dynamic_psk": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"default_psk": schema.StringAttribute{
-						Optional:            true,
-						Sensitive:           true,
+						Optional: true,
+
 						Description:         "Default PSK to use if cloud WLC is not available, 8-63 characters",
 						MarkdownDescription: "Default PSK to use if cloud WLC is not available, 8-63 characters",
 						Validators: []validator.String{
@@ -1544,9 +1544,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Default: stringdefault.StaticString(""),
 					},
 					"broadnet_password": schema.StringAttribute{
-						Optional:            true,
-						Computed:            true,
-						Sensitive:           true,
+						Optional: true,
+						Computed: true,
+
 						Description:         "Required if `sms_provider`==`broadnet`",
 						MarkdownDescription: "Required if `sms_provider`==`broadnet`",
 						Default:             stringdefault.StaticString(""),
@@ -1707,8 +1707,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Optional if `google_enabled`==`true`. Interval for which guest remains authorized using Google Auth (in minutes), if not provided, uses expire`",
 					},
 					"gupshup_password": schema.StringAttribute{
-						Optional:            true,
-						Sensitive:           true,
+						Optional: true,
+
 						Description:         "Required if `sms_provider`==`gupshup`",
 						MarkdownDescription: "Required if `sms_provider`==`gupshup`",
 					},
@@ -1767,9 +1767,9 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Optional if `passphrase_enabled`==`true`. Interval for which guest remains authorized using passphrase auth (in minutes), if not provided, uses `expire`",
 					},
 					"password": schema.StringAttribute{
-						Optional:            true,
-						Computed:            true,
-						Sensitive:           true,
+						Optional: true,
+						Computed: true,
+
 						Description:         "Required if `passphrase_enabled`==`true`.",
 						MarkdownDescription: "Required if `passphrase_enabled`==`true`.",
 						Validators: []validator.String{
@@ -1797,8 +1797,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						Default:  booldefault.StaticBool(false),
 					},
 					"puzzel_password": schema.StringAttribute{
-						Optional:            true,
-						Sensitive:           true,
+						Optional: true,
+
 						Description:         "Required if `sms_provider`==`puzzel`",
 						MarkdownDescription: "Required if `sms_provider`==`puzzel`",
 					},
@@ -1858,8 +1858,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Required if `sms_provider`==`smsglobal`, Client API Key",
 					},
 					"smsglobal_api_secret": schema.StringAttribute{
-						Optional:            true,
-						Sensitive:           true,
+						Optional: true,
+
 						Description:         "Required if `sms_provider`==`smsglobal`, Client secret",
 						MarkdownDescription: "Required if `sms_provider`==`smsglobal`, Client secret",
 					},
@@ -2000,8 +2000,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Required if `sms_provider`==`telstra`, Client ID provided by Telstra",
 					},
 					"telstra_client_secret": schema.StringAttribute{
-						Optional:            true,
-						Sensitive:           true,
+						Optional: true,
+
 						Description:         "Required if `sms_provider`==`telstra`, Client secret provided by Telstra",
 						MarkdownDescription: "Required if `sms_provider`==`telstra`, Client secret provided by Telstra",
 					},
