@@ -165,6 +165,7 @@ func OrgEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 									ElementType: types.StringType,
 									Optional:    true,
 									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
 										listvalidator.UniqueValues(),
 									},
 								},
@@ -225,14 +226,23 @@ func OrgEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 						"downlink_ips": schema.ListAttribute{
 							ElementType: types.StringType,
 							Computed:    true,
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"downlinks": schema.ListAttribute{
 							ElementType: types.StringType,
 							Computed:    true,
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"esilaglinks": schema.ListAttribute{
 							ElementType: types.StringType,
 							Computed:    true,
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"evpn_id": schema.Int64Attribute{
 							Computed: true,
@@ -265,6 +275,9 @@ func OrgEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "By default, core switches are assumed to be connecting all pods. \nif you want to limit the pods, you can specify pods.",
 							MarkdownDescription: "By default, core switches are assumed to be connecting all pods. \nif you want to limit the pods, you can specify pods.",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"role": schema.StringAttribute{
 							Required:            true,
@@ -292,18 +305,30 @@ func OrgEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 						"suggested_downlinks": schema.ListAttribute{
 							ElementType: types.StringType,
 							Computed:    true,
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"suggested_esilaglinks": schema.ListAttribute{
 							ElementType: types.StringType,
 							Computed:    true,
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"suggested_uplinks": schema.ListAttribute{
 							ElementType: types.StringType,
 							Computed:    true,
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"uplinks": schema.ListAttribute{
 							ElementType: types.StringType,
 							Computed:    true,
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 					},
 					CustomType: SwitchesType{

@@ -17,7 +17,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
@@ -34,7 +36,10 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of site ids",
 						MarkdownDescription: "List of site ids",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"sitegroup_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -42,7 +47,10 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of sitegroup ids",
 						MarkdownDescription: "List of sitegroup ids",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 				},
 				CustomType: AppliesType{
@@ -59,8 +67,8 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						AppliesValue{}.AttributeTypes(ctx),
 						map[string]attr.Value{
 							"org_id":        types.StringNull(),
-							"site_ids":      types.ListValueMust(types.StringType, []attr.Value{}),
-							"sitegroup_ids": types.ListValueMust(types.StringType, []attr.Value{}),
+							"site_ids":      types.ListNull(types.StringType),
+							"sitegroup_ids": types.ListNull(types.StringType),
 						},
 					),
 				),
@@ -71,7 +79,10 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of Device Profile ids",
 				MarkdownDescription: "List of Device Profile ids",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"exceptions": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -81,7 +92,10 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of site ids",
 						MarkdownDescription: "List of site ids",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"sitegroup_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -89,7 +103,10 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of sitegroup ids",
 						MarkdownDescription: "List of sitegroup ids",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 				},
 				CustomType: ExceptionsType{
@@ -105,8 +122,8 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 					types.ObjectValueMust(
 						ExceptionsValue{}.AttributeTypes(ctx),
 						map[string]attr.Value{
-							"site_ids":      types.ListValueMust(types.StringType, []attr.Value{}),
-							"sitegroup_ids": types.ListValueMust(types.StringType, []attr.Value{}),
+							"site_ids":      types.ListNull(types.StringType),
+							"sitegroup_ids": types.ListNull(types.StringType),
 						},
 					),
 				),

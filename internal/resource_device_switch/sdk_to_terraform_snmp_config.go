@@ -493,7 +493,7 @@ func snmpV3VacmSecurityToGroupSdkToTerraform(ctx context.Context, diags *diag.Di
 	if d.SecurityModel != nil {
 		securityModel = types.StringValue(string(*d.SecurityModel))
 	}
-	if d.Content != nil {
+	if !mistutils.IsSdkDataEmpty(d.Content) {
 		content = snmpV3VacmSecurityToGroupContentSdkToTerraform(ctx, diags, d.Content)
 	}
 
@@ -515,7 +515,7 @@ func snmpV3VacmSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	if d.Access != nil {
 		access = snmpV3VacmAccessSdkToTerraform(ctx, diags, d.Access)
 	}
-	if d.SecurityToGroup != nil {
+	if !mistutils.IsSdkDataEmpty(d.SecurityToGroup) {
 		securityToGroup = snmpV3VacmSecurityToGroupSdkToTerraform(ctx, diags, d.SecurityToGroup)
 	}
 
@@ -549,10 +549,10 @@ func snmpV3SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 	if d.TargetParameters != nil {
 		targetParameters = snmpV3TargetParametersSdkToTerraform(ctx, diags, d.TargetParameters)
 	}
-	if d.Usm != nil {
+	if !mistutils.IsSdkDataEmpty(d.Usm) {
 		usm = snmpV3UsmSdkToTerraform(ctx, diags, d.Usm)
 	}
-	if d.Vacm != nil {
+	if !mistutils.IsSdkDataEmpty(d.Vacm) {
 		vacm = snmpV3VacmSdkToTerraform(ctx, diags, d.Vacm)
 
 	}
@@ -656,7 +656,7 @@ func snmpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		if d.V2cConfig != nil {
 			v2cConfig = snmpV2cSdkToTerraform(ctx, diags, d.V2cConfig)
 		}
-		if d.V3Config != nil {
+		if !mistutils.IsSdkDataEmpty(d.V3Config) {
 			v3Config = snmpV3SdkToTerraform(ctx, diags, d.V3Config)
 		}
 		if d.Views != nil {

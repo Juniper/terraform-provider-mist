@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/objectvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -267,7 +268,10 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
 				MarkdownDescription: "For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"subnet": schema.StringAttribute{
 				Required: true,
@@ -287,6 +291,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 						"addresses": schema.ListAttribute{
 							ElementType: types.StringType,
 							Optional:    true,
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 					},
 					CustomType: TenantsType{
@@ -351,7 +358,10 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs",
 							MarkdownDescription: "By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs",
-							Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+							Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"routed": schema.BoolAttribute{
 							Optional:            true,

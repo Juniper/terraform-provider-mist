@@ -27,6 +27,9 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Only if `type`==`asset-raw-rssi`. List of ids to associated asset filters. These filters will be applied to messages routed to a filtered-asset-rssi webhook",
 				MarkdownDescription: "Only if `type`==`asset-raw-rssi`. List of ids to associated asset filters. These filters will be applied to messages routed to a filtered-asset-rssi webhook",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"enabled": schema.BoolAttribute{
 				Optional:            true,
@@ -104,6 +107,7 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Required when `type`==`oauth2`, if provided, will be used in the token request",
 				MarkdownDescription: "Required when `type`==`oauth2`, if provided, will be used in the token request",
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("oauth2")),
 				},
 			},

@@ -1101,12 +1101,18 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org mxedge(s) identified by mxcluster_ids",
 									MarkdownDescription: "To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org mxedge(s) identified by mxcluster_ids",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"proxy_hosts": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
 									Description:         "Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`",
 									MarkdownDescription: "Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"server_name": schema.StringAttribute{
 									Optional:            true,
@@ -1345,6 +1351,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								Optional:            true,
 								Description:         "For RFTemplates. List of channels, null or empty array means auto",
 								MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 							"disabled": schema.BoolAttribute{
 								Optional:            true,
@@ -1494,6 +1503,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								Optional:            true,
 								Description:         "For RFTemplates. List of channels, null or empty array means auto",
 								MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 							"disabled": schema.BoolAttribute{
 								Optional:            true,
@@ -1629,6 +1641,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								Optional:            true,
 								Description:         "For RFTemplates. List of channels, null or empty array means auto",
 								MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 							"disabled": schema.BoolAttribute{
 								Optional:            true,
@@ -1765,6 +1780,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								Optional:            true,
 								Description:         "For RFTemplates. List of channels, null or empty array means auto",
 								MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 							"disabled": schema.BoolAttribute{
 								Optional:            true,

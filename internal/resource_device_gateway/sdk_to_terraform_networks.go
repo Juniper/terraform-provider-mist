@@ -291,7 +291,7 @@ func vpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[strin
 		var noReadvertiseToLanBgp = types.BoolValue(false)
 		var noReadvertiseToLanOspf = types.BoolValue(false)
 		var noReadvertiseToOverlay basetypes.BoolValue
-		var otherVrfs = types.ListValueMust(types.StringType, []attr.Value{})
+		var otherVrfs = types.ListNull(types.StringType)
 		var routed basetypes.BoolValue
 		var sourceNat = types.ObjectNull(SourceNatValue{}.AttributeTypes(ctx))
 		var staticNat = types.MapNull(VpnAccessStaticNatValue{}.Type(ctx))

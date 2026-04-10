@@ -4,18 +4,18 @@ package resource_org_avprofile
 
 import (
 	"context"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"regexp"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -59,6 +59,7 @@ func OrgAvprofileResourceSchema(ctx context.Context) schema.Schema {
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					listvalidator.UniqueValues(),
 					listvalidator.ValueStringsAre(
 						stringvalidator.RegexMatches(
@@ -67,7 +68,7 @@ func OrgAvprofileResourceSchema(ctx context.Context) schema.Schema {
 						),
 					),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -101,6 +102,7 @@ func OrgAvprofileResourceSchema(ctx context.Context) schema.Schema {
 				Optional:    true,
 				Computed:    true,
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					listvalidator.UniqueValues(),
 					listvalidator.ValueStringsAre(
 						stringvalidator.RegexMatches(
@@ -109,7 +111,7 @@ func OrgAvprofileResourceSchema(ctx context.Context) schema.Schema {
 						),
 					),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 		},
 	}

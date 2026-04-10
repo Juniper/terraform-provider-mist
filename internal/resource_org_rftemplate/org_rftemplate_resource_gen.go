@@ -325,6 +325,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "For RFTemplates. List of channels, null or empty array means auto",
 						MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"disabled": schema.BoolAttribute{
 						Optional:            true,
@@ -796,6 +799,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "For RFTemplates. List of channels, null or empty array means auto",
 									MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"disabled": schema.BoolAttribute{
 									Optional:            true,

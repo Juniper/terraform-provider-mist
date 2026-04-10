@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -42,12 +43,18 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Optional list of additional CA certificates to be used",
 				MarkdownDescription: "Optional list of additional CA certificates to be used",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"additional_nac_server_name": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Description:         "Optional list of additional NAC server names",
 				MarkdownDescription: "Optional list of additional NAC server names",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"cert_expire_time": schema.Int64Attribute{
 				Optional:            true,

@@ -243,6 +243,9 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "List of ssids that will use this server if match_ssid is true and match is found",
 									MarkdownDescription: "List of ssids that will use this server if match_ssid is true and match is found",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 							},
 							CustomType: AcctServersType{
@@ -332,6 +335,9 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "List of ssids that will use this server if match_ssid is true and match is found",
 									MarkdownDescription: "List of ssids that will use this server if match_ssid is true and match is found",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"timeout": schema.Int64Attribute{
 									Optional:            true,
@@ -465,6 +471,7 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 							ElementType: types.StringType,
 							Optional:    true,
 							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
 								listvalidator.UniqueValues(),
 							},
 						},

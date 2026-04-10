@@ -359,6 +359,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "List of network names for BGP configuration. When a network is specified, a BGP group will be added to the VRF that network is part of.",
 							MarkdownDescription: "List of network names for BGP configuration. When a network is specified, a BGP group will be added to the VRF that network is part of.",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"type": schema.StringAttribute{
 							Required:            true,
@@ -441,6 +444,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "If `type`==`server` or `type6`==`server` - optional, if not defined, system one will be used",
 									MarkdownDescription: "If `type`==`server` or `type6`==`server` - optional, if not defined, system one will be used",
 									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
 										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar())),
 										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
@@ -452,6 +456,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "If `type`==`server` or `type6`==`server` - optional, if not defined, system one will be used",
 									MarkdownDescription: "If `type`==`server` or `type6`==`server` - optional, if not defined, system one will be used",
 									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
 										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 									},
 								},
@@ -606,6 +611,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "If `type`==`relay`",
 									MarkdownDescription: "If `type`==`relay`",
 									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
 										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar())),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("relay")),
 										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("server")),
@@ -618,6 +624,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "If `type6`==`relay`",
 									MarkdownDescription: "If `type6`==`relay`",
 									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
 										listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar())),
 										mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("relay")),
 										mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("server")),
@@ -744,7 +751,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 					),
 					listvalidator.SizeAtLeast(1),
 				},
-				Default: listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"dns_suffix": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -752,7 +759,10 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
 				MarkdownDescription: "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
-				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"extra_routes": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -927,6 +937,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						Optional:    true,
 						Computed:    true,
 						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
 							listvalidator.UniqueValues(),
 						},
@@ -1042,6 +1053,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Only if `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return",
 							MarkdownDescription: "Only if `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"enable_mac_auth": schema.BoolAttribute{
 							Optional:            true,
@@ -1115,6 +1129,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Only if `mode`==`trunk`, the list of network/vlans",
 							MarkdownDescription: "Only if `mode`==`trunk`, the list of network/vlans",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"note": schema.StringAttribute{
 							Optional:            true,
@@ -1412,7 +1429,10 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of NTP servers specific to this device. By default, those in Site Settings will be used",
 				MarkdownDescription: "List of NTP servers specific to this device. By default, those in Site Settings will be used",
-				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"oob_ip_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1851,6 +1871,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "List of network names. Required if `usage`==`inet`",
 							MarkdownDescription: "List of network names. Required if `usage`==`inet`",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"no_local_overwrite": schema.BoolAttribute{
 							Optional:            true,
@@ -1994,7 +2017,10 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+							Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"input_port_ids_egress": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -2002,7 +2028,10 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+							Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"input_port_ids_ingress": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -2010,7 +2039,10 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
 							MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+							Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"output_ip_address": schema.StringAttribute{
 							Optional:            true,
@@ -2155,6 +2187,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return",
 							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
 						},
@@ -2359,6 +2392,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 										Optional:            true,
 										Description:         "Use `equals_any` to match any item in a list",
 										MarkdownDescription: "Use `equals_any` to match any item in a list",
+										Validators: []validator.List{
+											listvalidator.SizeAtLeast(1),
+										},
 									},
 									"expression": schema.StringAttribute{
 										Optional:            true,
@@ -3231,6 +3267,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 												Description:         "BGP AS, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)",
 												MarkdownDescription: "BGP AS, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)",
 												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
 													listvalidator.ValueStringsAre(
 														stringvalidator.Any(
 															mistvalidator.ParseInt(1, 4294967294),
@@ -3242,12 +3279,18 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 											"community": schema.ListAttribute{
 												ElementType: types.StringType,
 												Optional:    true,
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"prefix": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
 												Description:         "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
 												MarkdownDescription: "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"protocol": schema.ListAttribute{
 												ElementType:         types.StringType,
@@ -3255,6 +3298,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 												Description:         "enum: `bgp`, `direct`, `evpn`, `ospf`, `static`",
 												MarkdownDescription: "enum: `bgp`, `direct`, `evpn`, `ospf`, `static`",
 												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
 													listvalidator.ValueStringsAre(
 														stringvalidator.OneOf(
 															"",
@@ -3290,6 +3334,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 												Optional:            true,
 												Description:         "When used as export policy, optional",
 												MarkdownDescription: "When used as export policy, optional",
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"local_preference": schema.StringAttribute{
 												Optional:            true,
@@ -3307,6 +3354,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 												Optional:            true,
 												Description:         "When used as export policy, optional. By default, the local AS will be prepended, to change it. Can be a Variable (e.g. `{{as_path}}`)",
 												MarkdownDescription: "When used as export policy, optional. By default, the local AS will be prepended, to change it. Can be a Variable (e.g. `{{as_path}}`)",
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 										},
 										CustomType: RoutingPolicyTermActionsType{
@@ -3368,6 +3418,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								"clients": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 							},
 							CustomType: ClientListType{
@@ -3427,6 +3480,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								"categories": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"group_name": schema.StringAttribute{
 									Optional:            true,
@@ -3436,6 +3492,9 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								"targets": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"version": schema.StringAttribute{
 									Optional:            true,
@@ -4067,6 +4126,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								Description:         "optionally, services we'll allow. enum: `icmp`, `ssh`",
 								MarkdownDescription: "optionally, services we'll allow. enum: `icmp`, `ssh`",
 								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
 									listvalidator.ValueStringsAre(
 										stringvalidator.OneOf(
 											"icmp",
@@ -4074,7 +4134,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 										),
 									),
 								},
-								Default: listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+								Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 							},
 							"custom": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
@@ -4127,7 +4187,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								},
 								Optional: true,
 								Computed: true,
-								Default:  listdefault.StaticValue(basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})),
+								Default:  listdefault.StaticValue(types.ListNull(CustomValue{}.Type(ctx))),
 							},
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
@@ -4149,7 +4209,10 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "host/subnets we'll allow traffic to/from",
 								MarkdownDescription: "host/subnets we'll allow traffic to/from",
-								Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+								Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 						},
 						CustomType: ProtectReType{
@@ -4387,6 +4450,7 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 							ElementType: types.StringType,
 							Optional:    true,
 							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
 								listvalidator.UniqueValues(),
 							},
 						},

@@ -35,10 +35,11 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)",
 				MarkdownDescription: "If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)",
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseCidrSubnetOnly(false, false), mistvalidator.ParseVar())),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"app_categories": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -47,9 +48,10 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "When `type`==`app_categories`, list of application categories are available through [List App Category Definitions]($e/Constants%20Definitions/listAppCategoryDefinitions)",
 				MarkdownDescription: "When `type`==`app_categories`, list of application categories are available through [List App Category Definitions]($e/Constants%20Definitions/listAppCategoryDefinitions)",
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("app_categories")),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"app_subcategories": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -58,9 +60,10 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "When `type`==`app_categories`, list of application categories are available through [List App Sub Category Definitions]($e/Constants%20Definitions/listAppSubCategoryDefinitions)",
 				MarkdownDescription: "When `type`==`app_categories`, list of application categories are available through [List App Sub Category Definitions]($e/Constants%20Definitions/listAppSubCategoryDefinitions)",
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("app_categories")),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"apps": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -69,9 +72,10 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "When `type`==`apps`, list of applications are available through:\n  * [List Applications]($e/Constants%20Definitions/listApplications)\n  * [List Gateway Applications]($e/Constants%20Definitions/listGatewayApplications)\n  * /insight/top_app_by-bytes?wired=true",
 				MarkdownDescription: "When `type`==`apps`, list of applications are available through:\n  * [List Applications]($e/Constants%20Definitions/listApplications)\n  * [List Gateway Applications]($e/Constants%20Definitions/listGatewayApplications)\n  * /insight/top_app_by-bytes?wired=true",
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("apps")),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"client_limit_down": schema.Int64Attribute{
 				Optional:            true,
@@ -122,9 +126,10 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`custom`, web filtering",
 				MarkdownDescription: "If `type`==`custom`, web filtering",
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -295,7 +300,7 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 					listvalidator.SizeAtLeast(1),
 					mistvalidator.AllowedWhenValueIsIn(path.MatchRelative().AtParent().AtName("type"), []attr.Value{types.StringValue("custom"), types.StringValue("urls")}),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 		},
 	}

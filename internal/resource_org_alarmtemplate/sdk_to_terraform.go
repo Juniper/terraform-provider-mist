@@ -36,7 +36,7 @@ func deliverySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *
 		return NewDeliveryValueNull()
 	}
 
-	var additionalEmails = types.ListValueMust(types.StringType, []attr.Value{})
+	var additionalEmails = types.ListNull(types.StringType)
 	if len(data.AdditionalEmails) > 0 {
 		additionalEmails = mistutils.ListOfStringSdkToTerraform(data.AdditionalEmails)
 	}

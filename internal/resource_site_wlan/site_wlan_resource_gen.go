@@ -101,7 +101,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of RADIUS accounting servers, optional, order matters where the first one is treated as primary",
 				MarkdownDescription: "List of RADIUS accounting servers, optional, order matters where the first one is treated as primary",
-				Default:             listdefault.StaticValue(types.ListValueMust(AcctServersValue{}.Type(ctx), []attr.Value{})),
+				Default:             listdefault.StaticValue(types.ListNull(AcctServersValue{}.Type(ctx))),
 			},
 			"airwatch": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -430,6 +430,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "When type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length",
 						MarkdownDescription: "When type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length",
 						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("wep")),
 						},
 						Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{
@@ -463,6 +464,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "When `type`=`psk` or `type`=`eap`, one or more of `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`",
 						MarkdownDescription: "When `type`=`psk` or `type`=`eap`, one or more of `wpa1-ccmp`, `wpa1-tkip`, `wpa2-ccmp`, `wpa2-tkip`, `wpa3`",
 						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
 							mistvalidator.AllowedWhenValueIsIn(
 								path.MatchRelative().AtParent().AtName("type"),
 								[]attr.Value{
@@ -597,7 +599,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary",
 				MarkdownDescription: "List of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary",
-				Default:             listdefault.StaticValue(types.ListValueMust(AuthServersValue{}.Type(ctx), []attr.Value{})),
+				Default:             listdefault.StaticValue(types.ListNull(AuthServersValue{}.Type(ctx))),
 			},
 			"auth_servers_nas_id": schema.StringAttribute{
 				Optional:            true,
@@ -690,6 +692,9 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Optional, if the service is further restricted for certain RADIUS groups",
 									MarkdownDescription: "Optional, if the service is further restricted for certain RADIUS groups",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"scope": schema.StringAttribute{
 									Optional:            true,
@@ -738,7 +743,10 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of hostnames without http(s):// (matched by substring)",
 						MarkdownDescription: "List of hostnames without http(s):// (matched by substring)",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"allowed_subnets": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -747,6 +755,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "List of CIDRs",
 						MarkdownDescription: "List of CIDRs",
 						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
 							listvalidator.ValueStringsAre(
 								stringvalidator.Any(
 									mistvalidator.ParseCidr(true, false),
@@ -754,7 +763,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 								),
 							),
 						},
-						Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"blocked_subnets": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -763,6 +772,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "List of blocked CIDRs",
 						MarkdownDescription: "List of blocked CIDRs",
 						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
 							listvalidator.ValueStringsAre(
 								stringvalidator.Any(
 									mistvalidator.ParseCidr(true, false),
@@ -770,7 +780,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 								),
 							),
 						},
-						Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional: true,
@@ -791,9 +801,9 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					types.ObjectValueMust(
 						CiscoCwaValue{}.AttributeTypes(ctx),
 						map[string]attr.Value{
-							"allowed_hostnames": types.ListValueMust(types.StringType, []attr.Value{}),
-							"allowed_subnets":   types.ListValueMust(types.StringType, []attr.Value{}),
-							"blocked_subnets":   types.ListValueMust(types.StringType, []attr.Value{}),
+							"allowed_hostnames": types.ListNull(types.StringType),
+							"allowed_subnets":   types.ListNull(types.StringType),
+							"blocked_subnets":   types.ListNull(types.StringType),
 							"enabled":           types.BoolValue(false),
 						},
 					),
@@ -1001,6 +1011,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Default VLAN ID(s) can be a number, a range of VLAN IDs, a variable or multiple numbers, ranges or variables as a VLAN pool. Default VLAN as a pool of VLANS requires 0.14.x or newer firmware",
 						MarkdownDescription: "Default VLAN ID(s) can be a number, a range of VLAN IDs, a variable or multiple numbers, ranges or variables as a VLAN pool. Default VLAN as a pool of VLANS requires 0.14.x or newer firmware",
 						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
 							listvalidator.ValueStringsAre(
 								stringvalidator.Any(
 									mistvalidator.ParseInt(1, 4094),
@@ -1034,6 +1045,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "VLAN_ids to be locally bridged",
 						MarkdownDescription: "VLAN_ids to be locally bridged",
 						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
 							listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),
 						},
 					},
@@ -1116,6 +1128,9 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					"domain_name": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1126,6 +1141,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						ElementType: types.StringType,
 						Optional:    true,
 						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
 							listvalidator.UniqueValues(),
 						},
 					},
@@ -1134,10 +1150,16 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "List of operators to support",
 						MarkdownDescription: "List of operators to support",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"rcoi": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"venue_name": schema.StringAttribute{
 						Optional:            true,
@@ -1419,7 +1441,10 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Optional if `amazon_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
 						MarkdownDescription: "Optional if `amazon_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"amazon_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1592,7 +1617,10 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Optional if `facebook_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
 						MarkdownDescription: "Optional if `facebook_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"facebook_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1643,7 +1671,10 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Optional if `google_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
 						MarkdownDescription: "Optional if `google_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"google_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1688,7 +1719,10 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Optional if `microsoft_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
 						MarkdownDescription: "Optional if `microsoft_enabled`==`true`. Matches authenticated user email against provided domains. If null or [], all authenticated emails will be allowed.",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"microsoft_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1821,7 +1855,10 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.",
 						MarkdownDescription: "List of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"sponsor_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1980,7 +2017,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							"allow_wlan_id_roam":             types.BoolNull(),
 							"amazon_client_id":               types.StringValue(""),
 							"amazon_client_secret":           types.StringValue(""),
-							"amazon_email_domains":           types.ListValueMust(types.StringType, []attr.Value{}),
+							"amazon_email_domains":           types.ListNull(types.StringType),
 							"amazon_enabled":                 types.BoolValue(false),
 							"amazon_expire":                  types.Int64Null(),
 							"auth":                           types.StringValue("none"),
@@ -2001,21 +2038,21 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							"external_portal_url":            types.StringValue(""),
 							"facebook_client_id":             types.StringValue(""),
 							"facebook_client_secret":         types.StringValue(""),
-							"facebook_email_domains":         types.ListValueMust(types.StringType, []attr.Value{}),
+							"facebook_email_domains":         types.ListNull(types.StringType),
 							"facebook_enabled":               types.BoolValue(false),
 							"facebook_expire":                types.Int64Null(),
 							"forward":                        types.BoolValue(false),
 							"forward_url":                    types.StringValue(""),
 							"google_client_id":               types.StringValue(""),
 							"google_client_secret":           types.StringValue(""),
-							"google_email_domains":           types.ListValueMust(types.StringType, []attr.Value{}),
+							"google_email_domains":           types.ListNull(types.StringType),
 							"google_enabled":                 types.BoolValue(false),
 							"google_expire":                  types.Int64Null(),
 							"gupshup_userid":                 types.StringNull(),
 							"gupshup_password":               types.StringNull(),
 							"microsoft_client_id":            types.StringValue(""),
 							"microsoft_client_secret":        types.StringValue(""),
-							"microsoft_email_domains":        types.ListValueMust(types.StringType, []attr.Value{}),
+							"microsoft_email_domains":        types.ListNull(types.StringType),
 							"microsoft_enabled":              types.BoolValue(false),
 							"microsoft_expire":               types.Int64Null(),
 							"passphrase_enabled":             types.BoolValue(false),
@@ -2030,7 +2067,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							"smsglobal_api_key":              types.StringNull(),
 							"smsglobal_api_secret":           types.StringNull(),
 							"sponsor_auto_approve":           types.BoolNull(),
-							"sponsor_email_domains":          types.ListValueMust(types.StringType, []attr.Value{}),
+							"sponsor_email_domains":          types.ListNull(types.StringType),
 							"sponsor_enabled":                types.BoolValue(false),
 							"sponsor_expire":                 types.Int64Null(),
 							"sponsor_link_validity_duration": types.StringValue("60"),
@@ -2066,7 +2103,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"portal_allowed_subnets": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -2081,7 +2118,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						mistvalidator.ParseVar(),
 					)),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"portal_api_secret": schema.StringAttribute{
 				Computed:            true,
@@ -2097,7 +2134,10 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames",
 				MarkdownDescription: "List of hostnames without http(s):// (matched by substring), this takes precedence over portal_allowed_hostnames",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"portal_image": schema.StringAttribute{
 				Computed:            true,
@@ -2290,6 +2330,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "if `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values. enum: `1`, `11`, `11b`, `12`, `12b`, `18`, `18b`, `1b`, `2`, `24`, `24b`, `2b`, `36`, `36b`, `48`, `48b`, `5.5`, `5.5b`, `54`, `54b`, `6`, `6b`, `9`, `9b`",
 							MarkdownDescription: "if `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values. enum: `1`, `11`, `11b`, `12`, `12b`, `18`, `18b`, `1b`, `2`, `24`, `24b`, `2b`, `36`, `36b`, `48`, `48b`, `5.5`, `5.5b`, `54`, `54b`, `6`, `6b`, `9`, `9b`",
 							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("template"), types.StringValue("custom")),
 								listvalidator.ValueStringsAre(
 									stringvalidator.OneOf(
@@ -2552,10 +2593,11 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separated) to be used in the VLAN Pool",
 				MarkdownDescription: "if `vlan_enabled`==`true` and `vlan_pooling`==`true`. List of VLAN IDs (comma separated) to be used in the VLAN Pool",
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar())),
 					mistvalidator.RequiredWhenValueIs(path.MatchRoot("vlan_pooling"), types.BoolValue(true)),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"vlan_pooling": schema.BoolAttribute{
 				Optional:            true,
@@ -2593,7 +2635,10 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "List of wxtag_ids",
 				MarkdownDescription: "List of wxtag_ids",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"wxtunnel_id": schema.StringAttribute{
 				Optional:            true,

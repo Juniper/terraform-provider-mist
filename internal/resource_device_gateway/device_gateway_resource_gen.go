@@ -558,12 +558,18 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
 				MarkdownDescription: "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"dns_suffix": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Description:         "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
 				MarkdownDescription: "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"extra_routes": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -679,14 +685,23 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											"attack_name": schema.ListAttribute{
 												ElementType: types.StringType,
 												Optional:    true,
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"dst_subnet": schema.ListAttribute{
 												ElementType: types.StringType,
 												Optional:    true,
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"severity": schema.ListAttribute{
 												ElementType: types.StringType,
 												Optional:    true,
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 										},
 										CustomType: IpdProfileOverwriteMatchingType{
@@ -770,6 +785,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Optional list of secondary IPs in CIDR format",
 							MarkdownDescription: "Optional list of secondary IPs in CIDR format",
 							Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"type": schema.StringAttribute{
 							Optional:            true,
@@ -1084,6 +1102,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
 							MarkdownDescription: "For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"subnet": schema.StringAttribute{
 							Required: true,
@@ -1103,6 +1124,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									"addresses": schema.ListAttribute{
 										ElementType: types.StringType,
 										Optional:    true,
+										Validators: []validator.List{
+											listvalidator.SizeAtLeast(1),
+										},
 									},
 								},
 								CustomType: TenantsType{
@@ -1167,7 +1191,10 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Computed:            true,
 										Description:         "By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs",
 										MarkdownDescription: "By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs",
-										Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+										Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+										Validators: []validator.List{
+											listvalidator.SizeAtLeast(1),
+										},
 									},
 									"routed": schema.BoolAttribute{
 										Optional:            true,
@@ -1819,12 +1846,18 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Except for out-of_band interface (vme/em0/fxp0)",
 									MarkdownDescription: "Except for out-of_band interface (vme/em0/fxp0)",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"dns_suffix": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
 									Description:         "Except for out-of_band interface (vme/em0/fxp0)",
 									MarkdownDescription: "Except for out-of_band interface (vme/em0/fxp0)",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"gateway": schema.StringAttribute{
 									Optional:            true,
@@ -1979,6 +2012,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "SSR only - supporting vlan-based redundancy (matching the size of `networks`)",
 							MarkdownDescription: "SSR only - supporting vlan-based redundancy (matching the size of `networks`)",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"speed": schema.StringAttribute{
 							Optional: true,
@@ -2000,6 +2036,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "percentages for different class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
 									MarkdownDescription: "percentages for different class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"enabled": schema.BoolAttribute{
 									Optional: true,
@@ -2079,6 +2118,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 												Optional:            true,
 												Description:         "percentages for different class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
 												MarkdownDescription: "percentages for different class of traffic: high / medium / low / best-effort. Sum must be equal to 100",
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"enabled": schema.BoolAttribute{
 												Optional: true,
@@ -2200,6 +2242,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									ElementType: types.StringType,
 									Optional:    true,
 									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
 										listvalidator.UniqueValues(),
 									},
 								},
@@ -2207,6 +2250,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									ElementType: types.StringType,
 									Optional:    true,
 									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
 										listvalidator.UniqueValues(),
 									},
 								},
@@ -2318,6 +2362,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							"ingress_port_ids": schema.ListAttribute{
 								ElementType: types.StringType,
 								Optional:    true,
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 							"output_port_id": schema.StringAttribute{
 								Optional: true,
@@ -2366,34 +2413,52 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											"add_community": schema.ListAttribute{
 												ElementType: types.StringType,
 												Optional:    true,
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"add_target_vrfs": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
 												Description:         "For SSR, hub decides how VRF routes are leaked on spoke",
 												MarkdownDescription: "For SSR, hub decides how VRF routes are leaked on spoke",
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"community": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
 												Description:         "When used as export policy, optional",
 												MarkdownDescription: "When used as export policy, optional",
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"exclude_as_path": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
 												Description:         "When used as export policy, optional. To exclude certain AS",
 												MarkdownDescription: "When used as export policy, optional. To exclude certain AS",
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"exclude_community": schema.ListAttribute{
 												ElementType: types.StringType,
 												Optional:    true,
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"export_communities": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
 												Description:         "When used as export policy, optional",
 												MarkdownDescription: "When used as export policy, optional",
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"local_preference": schema.StringAttribute{
 												Optional:            true,
@@ -2405,6 +2470,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 												Optional:            true,
 												Description:         "When used as export policy, optional. By default, the local AS will be prepended, to change it. Can be a Variable (e.g. `{{as_path}}`)",
 												MarkdownDescription: "When used as export policy, optional. By default, the local AS will be prepended, to change it. Can be a Variable (e.g. `{{as_path}}`)",
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 										},
 										CustomType: ActionsType{
@@ -2424,6 +2492,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 												Description:         "BGP AS, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)",
 												MarkdownDescription: "BGP AS, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)",
 												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
 													listvalidator.ValueStringsAre(
 														stringvalidator.Any(
 															mistvalidator.ParseInt(1, 4294967294),
@@ -2435,11 +2504,15 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											"community": schema.ListAttribute{
 												ElementType: types.StringType,
 												Optional:    true,
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"network": schema.ListAttribute{
 												ElementType: types.StringType,
 												Optional:    true,
 												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
 													listvalidator.UniqueValues(),
 												},
 											},
@@ -2448,6 +2521,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 												Optional:            true,
 												Description:         "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
 												MarkdownDescription: "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"protocol": schema.ListAttribute{
 												ElementType:         types.StringType,
@@ -2455,6 +2531,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 												Description:         "enum: `aggregate`, `bgp`, `direct`, `ospf`, `static` (SRX Only)",
 												MarkdownDescription: "enum: `aggregate`, `bgp`, `direct`, `ospf`, `static` (SRX Only)",
 												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
 													listvalidator.ValueStringsAre(
 														stringvalidator.OneOf(
 															"",
@@ -2492,12 +2569,18 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 												Optional:            true,
 												Description:         "overlay-facing criteria (used for bgp_config where via=vpn)",
 												MarkdownDescription: "overlay-facing criteria (used for bgp_config where via=vpn)",
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"vpn_path": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
 												Description:         "overlay-facing criteria (used for bgp_config where via=vpn). ordered-",
 												MarkdownDescription: "overlay-facing criteria (used for bgp_config where via=vpn). ordered-",
+												Validators: []validator.List{
+													listvalidator.SizeAtLeast(1),
+												},
 											},
 											"vpn_path_sla": schema.SingleNestedAttribute{
 												Attributes: map[string]schema.Attribute{
@@ -2866,6 +2949,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"server_names": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 							},
 							CustomType: SyslogType{
@@ -2905,6 +2991,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "additional CLI commands to append to the generated SSR config. **Note**: no check is done",
 				MarkdownDescription: "additional CLI commands to append to the generated SSR config. **Note**: no check is done",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"tunnel_configs": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -2926,6 +3015,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											Optional:            true,
 											Description:         "Optional, only needed if `vars_only`==`false`",
 											MarkdownDescription: "Optional, only needed if `vars_only`==`false`",
+											Validators: []validator.List{
+												listvalidator.SizeAtLeast(1),
+											},
 										},
 									},
 									CustomType: AutoProvisionPrimaryType{
@@ -2950,6 +3042,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											Optional:            true,
 											Description:         "Optional, only needed if `vars_only`==`false`",
 											MarkdownDescription: "Optional, only needed if `vars_only`==`false`",
+											Validators: []validator.List{
+												listvalidator.SizeAtLeast(1),
+											},
 										},
 									},
 									CustomType: AutoProvisionSecondaryType{
@@ -3189,6 +3284,9 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "List of Local protected subnet for policy-based IPSec negotiation",
 							MarkdownDescription: "List of Local protected subnet for policy-based IPSec negotiation",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"mode": schema.StringAttribute{
 							Optional:            true,
@@ -3222,17 +3320,24 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"hosts": schema.ListAttribute{
 									ElementType: types.StringType,
 									Required:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"internal_ips": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
 									Description:         "Only if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`, `provider`==`custom-ipsec` or `provider`==`custom-gre`",
 									MarkdownDescription: "Only if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`, `provider`==`custom-ipsec` or `provider`==`custom-gre`",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"probe_ips": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
 									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
 										listvalidator.UniqueValues(),
 									},
 								},
@@ -3241,10 +3346,16 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 									MarkdownDescription: "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"wan_names": schema.ListAttribute{
 									ElementType: types.StringType,
 									Required:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 							},
 							CustomType: PrimaryType{
@@ -3341,23 +3452,33 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "List of Remote protected subnet for policy-based IPSec negotiation",
 							MarkdownDescription: "List of Remote protected subnet for policy-based IPSec negotiation",
+							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
+							},
 						},
 						"secondary": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"hosts": schema.ListAttribute{
 									ElementType: types.StringType,
 									Required:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"internal_ips": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
 									Description:         "Only if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`, `provider`==`custom-ipsec` or `provider`==`custom-gre`",
 									MarkdownDescription: "Only if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`, `provider`==`custom-ipsec` or `provider`==`custom-gre`",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"probe_ips": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
 									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
 										listvalidator.UniqueValues(),
 									},
 								},
@@ -3366,10 +3487,16 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 									MarkdownDescription: "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"wan_names": schema.ListAttribute{
 									ElementType: types.StringType,
 									Required:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 							},
 							CustomType: SecondaryType{
@@ -3704,6 +3831,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							ElementType: types.StringType,
 							Optional:    true,
 							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
 								listvalidator.UniqueValues(),
 							},
 						},

@@ -8,7 +8,6 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -19,7 +18,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 
 	var acctImmediateUpdate = types.BoolValue(false)
 	var acctInterimInterval types.Int64
-	var acctServers = types.ListValueMust(AcctServersValue{}.Type(ctx), []attr.Value{})
+	var acctServers = types.ListNull(AcctServersValue{}.Type(ctx))
 	var airwatch = NewAirwatchValueNull()
 	var allowIpv6Ndp = types.BoolValue(true)
 	var allowMdns = types.BoolValue(false)
@@ -31,7 +30,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var arpFilter types.Bool
 	var auth = NewAuthValueNull()
 	var authServerSelection types.String
-	var authServers = types.ListValueMust(AuthServersValue{}.Type(ctx), []attr.Value{})
+	var authServers = types.ListNull(AuthServersValue{}.Type(ctx))
 	var authServersNasId types.String
 	var authServersNasIp types.String
 	var authServersRetries types.Int64
@@ -87,10 +86,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var noStaticIp types.Bool
 	var orgId types.String
 	var portal = NewPortalValueNull()
-	var portalAllowedHostnames = types.ListValueMust(types.StringType, []attr.Value{})
-	var portalAllowedSubnets = types.ListValueMust(types.StringType, []attr.Value{})
+	var portalAllowedHostnames = types.ListNull(types.StringType)
+	var portalAllowedSubnets = types.ListNull(types.StringType)
 	var portalApiSecret = types.StringValue("")
-	var portalDeniedHostnames = types.ListValueMust(types.StringType, []attr.Value{})
+	var portalDeniedHostnames = types.ListNull(types.StringType)
 	var portalImage = types.StringValue("not_present")
 	var portalSsoUrl = types.StringValue("")
 	var qos = NewQosValueNull()
@@ -105,7 +104,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var useEapolV1 types.Bool
 	var vlanEnabled types.Bool
 	var vlanId types.String
-	var vlanIds = types.ListValueMust(types.StringType, []attr.Value{})
+	var vlanIds = types.ListNull(types.StringType)
 	var vlanPooling types.Bool
 	var wlanLimitDown types.String
 	var wlanLimitDownEnabled types.Bool

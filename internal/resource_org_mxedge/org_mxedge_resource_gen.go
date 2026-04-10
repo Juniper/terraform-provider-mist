@@ -266,6 +266,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				PlanModifiers: []planmodifier.List{
 					listplanmodifier.UseStateForUnknown(),
 				},
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"site_id": schema.StringAttribute{
 				Optional: true,

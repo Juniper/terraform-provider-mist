@@ -88,7 +88,10 @@ func OrgAlarmtemplateResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "List of additional email string to deliver the alarms via emails",
 									MarkdownDescription: "List of additional email string to deliver the alarms via emails",
-									Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+									Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"enabled": schema.BoolAttribute{
 									Required:            true,

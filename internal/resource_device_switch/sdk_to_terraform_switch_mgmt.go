@@ -50,11 +50,11 @@ func switchMgmtProtectCustomReSdkToTerraform(ctx context.Context, diags *diag.Di
 }
 
 func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ProtectRe) basetypes.ObjectValue {
-	var allowedServices = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
-	var custom = basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})
+	var allowedServices = types.ListNull(types.StringType)
+	var custom = types.ListNull(CustomValue{}.Type(ctx))
 	var enabled basetypes.BoolValue
 	var hitCount basetypes.BoolValue
-	var trustedHosts = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
+	var trustedHosts = types.ListNull(types.StringType)
 
 	if len(d.AllowedServices) > 0 {
 		var items []attr.Value

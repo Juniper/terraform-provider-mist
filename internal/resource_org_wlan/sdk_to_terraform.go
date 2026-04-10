@@ -8,7 +8,6 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -19,7 +18,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 
 	var acctImmediateUpdate = types.BoolValue(false)
 	var acctInterimInterval types.Int64
-	var acctServers = types.ListValueMust(AcctServersValue{}.Type(ctx), []attr.Value{})
+	var acctServers = types.ListNull(AcctServersValue{}.Type(ctx))
 	var airwatch = NewAirwatchValueNull()
 	var allowIpv6Ndp = types.BoolValue(true)
 	var allowMdns = types.BoolValue(false)
@@ -31,7 +30,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var arpFilter types.Bool
 	var auth = NewAuthValueNull()
 	var authServerSelection types.String
-	var authServers = types.ListValueMust(AuthServersValue{}.Type(ctx), []attr.Value{})
+	var authServers = types.ListNull(AuthServersValue{}.Type(ctx))
 	var authServersNasId types.String
 	var authServersNasIp types.String
 	var authServersRetries types.Int64

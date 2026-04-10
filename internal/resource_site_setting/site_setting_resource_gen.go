@@ -803,7 +803,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "For SSR only, as direct root access is not allowed",
 						MarkdownDescription: "For SSR only, as direct root access is not allowed",
-						Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"app_probing": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -812,6 +815,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								Optional:            true,
 								Description:         "APp-keys from [List Applications]($e/Constants%20Definitions/listApplications)",
 								MarkdownDescription: "APp-keys from [List Applications]($e/Constants%20Definitions/listApplications)",
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 							"custom_apps": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
@@ -978,13 +984,19 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						ElementType: types.StringType,
 						Optional:    true,
 						Computed:    true,
-						Default:     listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+						Default:     listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"probe_hostsv6": schema.ListAttribute{
 						ElementType: types.StringType,
 						Optional:    true,
 						Computed:    true,
-						Default:     listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+						Default:     listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"protect_re": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -995,6 +1007,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								Description:         "optionally, services we'll allow. enum: `icmp`, `ssh`",
 								MarkdownDescription: "optionally, services we'll allow. enum: `icmp`, `ssh`",
 								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
 									listvalidator.ValueStringsAre(
 										stringvalidator.OneOf(
 											"icmp",
@@ -1002,7 +1015,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 										),
 									),
 								},
-								Default: listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+								Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 							},
 							"custom": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
@@ -1055,7 +1068,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								},
 								Optional: true,
 								Computed: true,
-								Default:  listdefault.StaticValue(basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})),
+								Default:  listdefault.StaticValue(types.ListNull(CustomValue{}.Type(ctx))),
 							},
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
@@ -1077,7 +1090,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "host/subnets we'll allow traffic to/from",
 								MarkdownDescription: "host/subnets we'll allow traffic to/from",
-								Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+								Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+								Validators: []validator.List{
+									listvalidator.SizeAtLeast(1),
+								},
 							},
 						},
 						CustomType: ProtectReType{
@@ -1117,7 +1133,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					types.ObjectValueMust(
 						GatewayMgmtValue{}.AttributeTypes(ctx),
 						map[string]attr.Value{
-							"admin_sshkeys": types.ListValueMust(types.StringType, []attr.Value{}),
+							"admin_sshkeys": types.ListNull(types.StringType),
 							"app_probing":   types.ObjectNull(AppProbingValue{}.AttributeTypes(ctx)),
 							"app_usage":     types.BoolValue(false),
 							"auto_signature_update": types.ObjectValueMust(
@@ -1133,8 +1149,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							"disable_oob":                   types.BoolNull(),
 							"disable_usb":                   types.BoolNull(),
 							"fips_enabled":                  types.BoolNull(),
-							"probe_hosts":                   types.ListValueMust(types.StringType, []attr.Value{}),
-							"probe_hostsv6":                 types.ListValueMust(types.StringType, []attr.Value{}),
+							"probe_hosts":                   types.ListNull(types.StringType),
+							"probe_hostsv6":                 types.ListNull(types.StringType),
 							"protect_re":                    types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx)),
 							"root_password":                 types.StringNull(),
 							"security_log_source_address":   types.StringNull(),
@@ -1417,7 +1433,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "list of VLAN IDs on which rogue APs are ignored",
 						MarkdownDescription: "list of VLAN IDs on which rogue APs are ignored",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.Int64Type, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.Int64Type)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -1478,7 +1497,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
-						Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"whitelisted_ssids": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -1489,7 +1508,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
-						Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 				},
 				CustomType: RogueType{
@@ -1505,15 +1524,15 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					types.ObjectValueMust(
 						RogueValue{}.AttributeTypes(ctx),
 						map[string]attr.Value{
-							"allowed_vlan_ids":   types.ListValueMust(types.Int64Type, []attr.Value{}),
+							"allowed_vlan_ids":   types.ListNull(types.Int64Type),
 							"enabled":            types.BoolValue(false),
 							"honeypot_enabled":   types.BoolValue(true),
 							"min_duration":       types.Int64Value(10),
 							"min_rogue_duration": types.Int64Null(),
 							"min_rogue_rssi":     types.Int64Null(),
 							"min_rssi":           types.Int64Value(-80),
-							"whitelisted_bssids": types.ListValueMust(types.StringType, []attr.Value{}),
-							"whitelisted_ssids":  types.ListValueMust(types.StringType, []attr.Value{}),
+							"whitelisted_bssids": types.ListNull(types.StringType),
+							"whitelisted_ssids":  types.ListNull(types.StringType),
 						},
 					),
 				),
@@ -1763,7 +1782,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
-				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 			},
 			"ssr": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -2003,6 +2022,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								"vlan_ids": schema.ListAttribute{
 									ElementType: types.StringType,
 									Optional:    true,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 							},
 							CustomType: VlansType{
@@ -2376,7 +2398,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "List of email addresses to send email notifications when the alert threshold is reached",
 						MarkdownDescription: "List of email addresses to send email notifications when the alert threshold is reached",
-						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+						Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -2409,7 +2434,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					types.ObjectValueMust(
 						ZoneOccupancyAlertValue{}.AttributeTypes(ctx),
 						map[string]attr.Value{
-							"email_notifiers": types.ListValueMust(types.StringType, []attr.Value{}),
+							"email_notifiers": types.ListNull(types.StringType),
 							"enabled":         types.BoolValue(false),
 							"threshold":       types.Int64Value(5),
 						},

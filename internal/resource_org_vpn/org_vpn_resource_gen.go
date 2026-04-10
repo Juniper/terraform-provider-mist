@@ -129,6 +129,7 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "percentages for different class of traffic: high / medium / low / best-effort adding up to 100",
 									MarkdownDescription: "percentages for different class of traffic: high / medium / low / best-effort adding up to 100",
 									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
 										listvalidator.SizeBetween(4, 4),
 									},
 								},

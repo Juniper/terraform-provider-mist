@@ -5,7 +5,6 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -17,7 +16,7 @@ func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, 
 	var diags diag.Diagnostics
 
 	var action types.String
-	var applyTags = types.ListValueMust(types.StringType, []attr.Value{})
+	var applyTags = types.ListNull(types.StringType)
 	var enabled types.Bool
 	var guestAuthState types.String
 	var id types.String

@@ -213,6 +213,7 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 				ElementType: types.StringType,
 				Optional:    true,
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					listvalidator.UniqueValues(),
 				},
 			},
@@ -252,6 +253,7 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 				ElementType: types.StringType,
 				Optional:    true,
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					listvalidator.UniqueValues(),
 				},
 			},

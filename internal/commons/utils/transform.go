@@ -34,10 +34,7 @@ func ListOfStringSdkToTerraform(data []string) basetypes.ListValue {
 }
 
 func ListOfStringSdkToTerraformEmpty() basetypes.ListValue {
-	var items []attr.Value
-	var itemsType attr.Type = basetypes.StringType{}
-	list, _ := types.ListValue(itemsType, items)
-	return list
+	return types.ListNull(basetypes.StringType{})
 }
 
 // ///////
@@ -62,10 +59,7 @@ func ListOfNumberSdkToTerraform(data []float64) basetypes.ListValue {
 }
 
 func ListOfNumberSdkToTerraformEmpty() basetypes.ListValue {
-	var items []attr.Value
-	var itemsType attr.Type = basetypes.NumberType{}
-	list, _ := types.ListValue(itemsType, items)
-	return list
+	return types.ListNull(basetypes.NumberType{})
 }
 
 // /////// INT
@@ -90,10 +84,7 @@ func ListOfIntSdkToTerraform(data []int) basetypes.ListValue {
 }
 
 func ListOfIntSdkToTerraformEmpty() basetypes.ListValue {
-	var items []attr.Value
-	var itemsType attr.Type = basetypes.Int64Type{}
-	list, _ := types.ListValue(itemsType, items)
-	return list
+	return types.ListNull(basetypes.Int64Type{})
 }
 
 // /////// UUID
@@ -116,10 +107,7 @@ func ListOfUuidSdkToTerraform(data []uuid.UUID) basetypes.ListValue {
 }
 
 func ListOfUuidSdkToTerraformEmpty() basetypes.ListValue {
-	var items []attr.Value
-	var itemsType attr.Type = basetypes.StringType{}
-	list, _ := types.ListValue(itemsType, items)
-	return list
+	return types.ListNull(basetypes.StringType{})
 }
 
 // /////// DOT11

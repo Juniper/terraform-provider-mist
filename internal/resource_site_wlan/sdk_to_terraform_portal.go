@@ -17,7 +17,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var allowWlanIdRoam basetypes.BoolValue
 	var amazonClientId = types.StringValue("")
 	var amazonClientSecret = types.StringValue("")
-	var amazonEmailDomains = types.ListValueMust(types.StringType, []attr.Value{})
+	var amazonEmailDomains = types.ListNull(types.StringType)
 	var amazonEnabled = types.BoolValue(false)
 	var amazonExpire basetypes.Int64Value
 	var auth = types.StringValue("none")
@@ -38,21 +38,21 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var externalPortalUrl = types.StringValue("")
 	var facebookClientId = types.StringValue("")
 	var facebookClientSecret = types.StringValue("")
-	var facebookEmailDomains = types.ListValueMust(types.StringType, []attr.Value{})
+	var facebookEmailDomains = types.ListNull(types.StringType)
 	var facebookEnabled = types.BoolValue(false)
 	var facebookExpire basetypes.Int64Value
 	var forward = types.BoolValue(false)
 	var forwardUrl = types.StringValue("")
 	var googleClientId = types.StringValue("")
 	var googleClientSecret = types.StringValue("")
-	var googleEmailDomains = types.ListValueMust(types.StringType, []attr.Value{})
+	var googleEmailDomains = types.ListNull(types.StringType)
 	var googleEnabled = types.BoolValue(false)
 	var googleExpire basetypes.Int64Value
 	var gupshupPassword basetypes.StringValue
 	var gupshupUserid basetypes.StringValue
 	var microsoftClientId = types.StringValue("")
 	var microsoftClientSecret = types.StringValue("")
-	var microsoftEmailDomains = types.ListValueMust(types.StringType, []attr.Value{})
+	var microsoftEmailDomains = types.ListNull(types.StringType)
 	var microsoftEnabled = types.BoolValue(false)
 	var microsoftExpire basetypes.Int64Value
 	var passphraseEnabled = types.BoolValue(false)
@@ -71,7 +71,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var smsGlobalApiKey basetypes.StringValue
 	var smsGlobalApiSecret basetypes.StringValue
 	var sponsorAutoApprove basetypes.BoolValue
-	var sponsorEmailDomains = types.ListValueMust(types.StringType, []attr.Value{})
+	var sponsorEmailDomains = types.ListNull(types.StringType)
 	var sponsorEnabled = types.BoolValue(false)
 	var sponsorExpire basetypes.Int64Value
 	var sponsorLinkValidityDuration = types.StringValue("60")

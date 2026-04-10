@@ -5,6 +5,7 @@ package resource_org_nacidp
 import (
 	"context"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
@@ -78,6 +79,7 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Required if `idp_type`==`ldap`, list of CA certificates to validate the LDAP certificate",
 				MarkdownDescription: "Required if `idp_type`==`ldap`, list of CA certificates to validate the LDAP certificate",
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("ldap")),
 				},
 			},
@@ -128,6 +130,7 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `idp_type`==`ldap`, list of LDAP/LDAPS server IP Addresses or Hostnames",
 				MarkdownDescription: "If `idp_type`==`ldap`, list of LDAP/LDAPS server IP Addresses or Hostnames",
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("ldap")),
 				},
 			},

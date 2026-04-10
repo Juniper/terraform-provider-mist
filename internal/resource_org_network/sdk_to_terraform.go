@@ -7,7 +7,6 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
@@ -27,7 +26,7 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 	var isolation basetypes.BoolValue
 	var name basetypes.StringValue
 	var orgId basetypes.StringValue
-	var routedForNetworks = types.ListValueMust(types.StringType, []attr.Value{})
+	var routedForNetworks = types.ListNull(types.StringType)
 	var subnet basetypes.StringValue
 	var subnet6 basetypes.StringValue
 	var tenants = types.MapNull(TenantsValue{}.Type(ctx))

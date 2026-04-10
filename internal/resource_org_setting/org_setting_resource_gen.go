@@ -1143,6 +1143,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "app name comes from `custom_probes` above or /const/synthetic_test_probes",
 									MarkdownDescription: "app name comes from `custom_probes` above or /const/synthetic_test_probes",
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 							},
 							CustomType: LanNetworksType{

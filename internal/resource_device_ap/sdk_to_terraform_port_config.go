@@ -324,7 +324,7 @@ func radsecPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	var mxclusterIds = basetypes.NewListNull(types.StringType)
 	var proxyHosts = basetypes.NewListNull(types.StringType)
 	var serverName basetypes.StringValue
-	var servers = types.ListValueMust(ServersValue{}.Type(ctx), []attr.Value{})
+	var servers = types.ListNull(ServersValue{}.Type(ctx))
 	var useMxedge basetypes.BoolValue
 	var useSiteMxedge basetypes.BoolValue
 

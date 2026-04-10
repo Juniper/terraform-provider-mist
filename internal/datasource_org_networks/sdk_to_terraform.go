@@ -38,7 +38,7 @@ func networkSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var modifiedTime basetypes.Float64Value
 	var name basetypes.StringValue
 	var orgId basetypes.StringValue
-	var routedForNetworks = types.ListValueMust(types.StringType, []attr.Value{})
+	var routedForNetworks = types.ListNull(types.StringType)
 	var subnet basetypes.StringValue
 	var subnet6 basetypes.StringValue
 	var tenants = types.MapNull(TenantsValue{}.Type(ctx))

@@ -5,7 +5,6 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -48,7 +47,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var skyatp = NewSkyatpValueNull()
 	var sleThresholds = NewSleThresholdsValueNull()
 	var srxApp = NewSrxAppValueNull()
-	var sshKeys = types.ListValueMust(types.StringType, []attr.Value{})
+	var sshKeys = types.ListNull(types.StringType)
 	var ssr = NewSsrValueNull()
 	var switchUpdownThreshold types.Int64
 	var syntheticTest = NewSyntheticTestValueNull()

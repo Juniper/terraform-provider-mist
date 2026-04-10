@@ -5,6 +5,7 @@ package resource_org_nactag
 import (
 	"context"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -29,6 +30,7 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`egress_vlan_names`, list of egress vlans to return",
 				MarkdownDescription: "If `type`==`egress_vlan_names`, list of egress vlans to return",
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("egress_vlan_names")),
 				},
 			},
@@ -106,6 +108,7 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
 				MarkdownDescription: "If `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_attrs")),
 				},
 			},
@@ -123,6 +126,7 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
 				MarkdownDescription: "If `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_vendor_attrs")),
 				},
 			},
@@ -176,6 +180,7 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "If `type`==`match`",
 				MarkdownDescription: "If `type`==`match`",
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
 				},
 			},

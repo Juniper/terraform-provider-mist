@@ -44,7 +44,10 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "All optional, this goes into Access-Accept",
 				MarkdownDescription: "All optional, this goes into Access-Accept",
-				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"enabled": schema.BoolAttribute{
 				Optional:            true,

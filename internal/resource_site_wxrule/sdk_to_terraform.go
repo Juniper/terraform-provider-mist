@@ -5,10 +5,8 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 func SdkToTerraform(data models.WxlanRule) (SiteWxruleModel, diag.Diagnostics) {
@@ -18,11 +16,11 @@ func SdkToTerraform(data models.WxlanRule) (SiteWxruleModel, diag.Diagnostics) {
 	var action types.String
 	var applyTags = types.ListNull(types.StringType)
 	var blockedApps = types.ListNull(types.StringType)
-	var dstAllowWxtags = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
-	var dstDenyWxtags = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
-	var dstWxtags = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
+	var dstAllowWxtags = types.ListNull(types.StringType)
+	var dstDenyWxtags = types.ListNull(types.StringType)
+	var dstWxtags = types.ListNull(types.StringType)
 	var enabled = types.BoolValue(true)
-	var srcWxtags = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
+	var srcWxtags = types.ListNull(types.StringType)
 
 	if data.Action != nil {
 		action = types.StringValue(string(*data.Action))

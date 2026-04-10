@@ -14,9 +14,9 @@ import (
 )
 
 func ciscoCwaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanCiscoCwa) CiscoCwaValue {
-	var allowedHostnames = types.ListValueMust(types.StringType, []attr.Value{})
-	var allowedSubnets = types.ListValueMust(types.StringType, []attr.Value{})
-	var blockedSubnets = types.ListValueMust(types.StringType, []attr.Value{})
+	var allowedHostnames = types.ListNull(types.StringType)
+	var allowedSubnets = types.ListNull(types.StringType)
+	var blockedSubnets = types.ListNull(types.StringType)
 	var enabled basetypes.BoolValue
 
 	if d != nil && len(d.AllowedHostnames) > 0 {

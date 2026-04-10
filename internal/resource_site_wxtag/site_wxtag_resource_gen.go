@@ -120,6 +120,7 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "Matched destination subnets and/or IP Addresses",
 							MarkdownDescription: "Matched destination subnets and/or IP Addresses",
 							Validators: []validator.List{
+								listvalidator.SizeAtLeast(1),
 								listvalidator.ValueStringsAre(
 									stringvalidator.Any(
 										mistvalidator.ParseCidr(false, false),

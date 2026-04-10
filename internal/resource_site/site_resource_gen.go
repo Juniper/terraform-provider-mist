@@ -16,7 +16,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 func SiteResourceSchema(ctx context.Context) schema.Schema {
@@ -110,7 +112,10 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Sitegroups this site belongs to",
 				MarkdownDescription: "Sitegroups this site belongs to",
-				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
+				Default:             listdefault.StaticValue(types.ListNull(types.StringType)),
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"sitetemplate_id": schema.StringAttribute{
 				Optional:            true,

@@ -5,6 +5,7 @@ package resource_org
 import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -53,6 +54,9 @@ func OrgResourceSchema(ctx context.Context) schema.Schema {
 			"orggroup_ids": schema.ListAttribute{
 				ElementType: types.StringType,
 				Computed:    true,
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
 			},
 			"session_expiry": schema.Int64Attribute{
 				Optional: true,
