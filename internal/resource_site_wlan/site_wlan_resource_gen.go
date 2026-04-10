@@ -2256,7 +2256,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							"mxcluster_ids":   types.ListNull(types.StringType),
 							"proxy_hosts":     types.ListNull(types.StringType),
 							"server_name":     types.StringValue(""),
-							"servers":         types.ListValueMust(ServersValue{}.Type(ctx), []attr.Value{}),
+							"servers":         types.ListNull(ServersValue{}.Type(ctx)),
 							"use_mxedge":      types.BoolNull(),
 							"use_site_mxedge": types.BoolNull(),
 						},
