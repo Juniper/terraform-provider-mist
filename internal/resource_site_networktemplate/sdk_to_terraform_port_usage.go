@@ -237,7 +237,10 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			portNetwork = types.StringValue(*d.PortNetwork)
 		}
 		if d.ReauthInterval != nil {
-			reauthInterval = mistutils.SwitchPortUsageReauthIntervalAsString(*d.ReauthInterval)
+			tmp := mistutils.SwitchPortUsageReauthIntervalAsString(*d.ReauthInterval)
+			if tmp.ValueString() != "" {
+				reauthInterval = tmp
+			}
 		}
 		if d.ResetDefaultWhen != nil {
 			resetDefaultWhen = types.StringValue(string(*d.ResetDefaultWhen))
@@ -254,7 +257,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.Speed != nil {
 			speed = types.StringValue(string(*d.Speed))
 		}
-		if d.StormControl != nil {
+		if !mistutils.IsSdkDataEmpty(d.StormControl) {
 			stormControl = portUsageStormControlSdkToTerraform(ctx, diags, *d.StormControl)
 		}
 		if d.StpEdge != nil {
