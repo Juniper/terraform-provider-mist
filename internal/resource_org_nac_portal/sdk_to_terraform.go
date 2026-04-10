@@ -35,10 +35,10 @@ func SdkToTerraform(ctx context.Context, d *models.NacPortal) (OrgNacPortalModel
 	if d.AccessType != nil {
 		accessType = types.StringValue(string(*d.AccessType))
 	}
-	if d.AdditionalCacerts != nil {
+	if len(d.AdditionalCacerts) > 0 {
 		additionalCacerts = mistutils.ListOfStringSdkToTerraform(d.AdditionalCacerts)
 	}
-	if d.AdditionalNacServerName != nil {
+	if len(d.AdditionalNacServerName) > 0 {
 		additionalNacServerName = mistutils.ListOfStringSdkToTerraform(d.AdditionalNacServerName)
 	}
 	if d.CertExpireTime != nil {

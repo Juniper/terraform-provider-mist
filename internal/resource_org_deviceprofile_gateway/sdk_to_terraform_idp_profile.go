@@ -31,10 +31,10 @@ func idpProfileOverwriteMatchingSdkToTerraform(ctx context.Context, diags *diag.
 	var dstSubnet = types.ListNull(types.StringType)
 	var severity = types.ListNull(types.StringType)
 
-	if d != nil && d.AttackName != nil {
+	if d != nil && len(d.AttackName) > 0 {
 		attackName = mistutils.ListOfStringSdkToTerraform(d.AttackName)
 	}
-	if d != nil && d.DstSubnet != nil {
+	if d != nil && len(d.DstSubnet) > 0 {
 		dstSubnet = mistutils.ListOfStringSdkToTerraform(d.DstSubnet)
 	}
 	if d != nil && d.Severity != nil {

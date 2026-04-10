@@ -8,24 +8,21 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func autoUpgradeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SiteSettingAutoUpgrade) AutoUpgradeValue {
+func autoUpgradeEslSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models.SiteSettingAutoUpgradeEsl) AutoUpgradeEslValue {
 
-	// Check if all fields are effectively empty/null
-	if d.CustomVersions == nil &&
-		(d.DayOfWeek == nil || string(*d.DayOfWeek) == "") &&
-		d.Enabled == nil &&
-		(d.TimeOfDay == nil || *d.TimeOfDay == "") &&
-		(d.Version == nil || string(*d.Version) == "") {
-		return NewAutoUpgradeValueNull()
+	var allowDowngrade = types.BoolValue(false)
+	var customVersions basetypes.MapValue
+	var dayOfWeek basetypes.StringValue
+	var enabled = types.BoolValue(false)
+	var timeOfDay basetypes.StringValue
+	var version basetypes.StringValue
+
+	if d.AllowDowngrade != nil {
+		allowDowngrade = types.BoolValue(*d.AllowDowngrade)
 	}
-
-	var customVersions = types.MapNull(types.StringType)
-	var dayOfWeek = types.StringNull()
-	var enabled = types.BoolNull()
-	var timeOfDay = types.StringNull()
-	var version = types.StringNull()
 
 	if len(d.CustomVersions) > 0 {
 		customVersionsMapValue := make(map[string]attr.Value)
@@ -49,13 +46,14 @@ func autoUpgradeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d m
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"allow_downgrade": allowDowngrade,
 		"custom_versions": customVersions,
 		"day_of_week":     dayOfWeek,
 		"enabled":         enabled,
 		"time_of_day":     timeOfDay,
 		"version":         version,
 	}
-	data, e := NewAutoUpgradeValue(AutoUpgradeValue{}.AttributeTypes(ctx), dataMapValue)
+	data, e := NewAutoUpgradeEslValue(AutoUpgradeEslValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	return data

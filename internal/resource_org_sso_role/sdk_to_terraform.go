@@ -47,7 +47,7 @@ func privilegesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data
 			viewsArray = append(viewsArray, types.StringValue(string(*val.View)))
 		}
 
-		if val.Views != nil {
+		if len(val.Views) > 0 {
 			for _, view := range val.Views {
 				viewsArray = append(viewsArray, types.StringValue(string(view)))
 			}

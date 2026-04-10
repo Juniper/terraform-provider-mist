@@ -234,7 +234,7 @@ func syslogSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d.ServerNames != nil {
+	if len(d.ServerNames) > 0 {
 		serverNames = mistutils.ListOfStringSdkToTerraform(d.ServerNames)
 	}
 
@@ -292,7 +292,7 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		if v.PathPreference != nil {
 			pathPreference = types.StringValue(*v.PathPreference)
 		}
-		if v.Services != nil {
+		if len(v.Services) > 0 {
 			services = mistutils.ListOfStringSdkToTerraform(v.Services)
 		}
 		if v.ServicepolicyId != nil {
@@ -307,7 +307,7 @@ func servicePoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		if v.Syslog != nil {
 			syslog = syslogSdkToTerraform(ctx, diags, v.Syslog)
 		}
-		if v.Tenants != nil {
+		if len(v.Tenants) > 0 {
 			tenants = mistutils.ListOfStringSdkToTerraform(v.Tenants)
 		}
 

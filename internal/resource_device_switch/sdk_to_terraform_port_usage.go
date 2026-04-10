@@ -70,7 +70,7 @@ func portUsageRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		if d.Equals != nil {
 			equals = types.StringValue(*d.Equals)
 		}
-		if d.EqualsAny != nil {
+		if len(d.EqualsAny) > 0 {
 			equalsAny = mistutils.ListOfStringSdkToTerraform(d.EqualsAny)
 		}
 		if d.Expression != nil {
@@ -181,7 +181,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.Duplex != nil {
 			duplex = types.StringValue(string(*d.Duplex))
 		}
-		if d.DynamicVlanNetworks != nil {
+		if len(d.DynamicVlanNetworks) > 0 {
 			dynamicVlanNetworks = mistutils.ListOfStringSdkToTerraform(d.DynamicVlanNetworks)
 		}
 		if d.EnableMacAuth != nil {
@@ -217,7 +217,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.Mtu != nil {
 			mtu = mistutils.SwitchPortUsageMtuAsString(d.Mtu)
 		}
-		if d.Networks != nil {
+		if len(d.Networks) > 0 {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.PersistMac != nil {

@@ -72,7 +72,7 @@ func switchMatchingRulesPortConfigSdkToTerraform(ctx context.Context, diags *dia
 		if d.Mtu != nil {
 			mtu = types.Int64Value(int64(*d.Mtu))
 		}
-		if d.Networks != nil {
+		if len(d.Networks) > 0 {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.NoLocalOverwrite != nil {

@@ -395,10 +395,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		portal = portalSkToTerraform(ctx, &diags, data.Portal)
 	}
 
-	if data.PortalAllowedHostnames != nil {
+	if len(data.PortalAllowedHostnames) > 0 {
 		portalAllowedHostnames = mistutils.ListOfStringSdkToTerraform(data.PortalAllowedHostnames)
 	}
-	if data.PortalAllowedSubnets != nil {
+	if len(data.PortalAllowedSubnets) > 0 {
 		portalAllowedSubnets = mistutils.ListOfStringSdkToTerraform(data.PortalAllowedSubnets)
 	}
 
@@ -406,7 +406,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		portalApiSecret = types.StringValue(*data.PortalApiSecret.Value())
 	}
 
-	if data.PortalDeniedHostnames != nil {
+	if len(data.PortalDeniedHostnames) > 0 {
 		portalDeniedHostnames = mistutils.ListOfStringSdkToTerraform(data.PortalDeniedHostnames)
 	}
 

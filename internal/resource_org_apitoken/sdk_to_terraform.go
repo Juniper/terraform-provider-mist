@@ -33,7 +33,7 @@ func SdkToTerraform(ctx context.Context, data models.OrgApitoken, previousState 
 	state.Name = types.StringValue(data.Name)
 	state.OrgId = types.StringValue(data.OrgId.String())
 	state.Privileges = privilegesSdkToTerraform(ctx, &diags, data.Privileges)
-	if data.SrcIps != nil {
+	if len(data.SrcIps) > 0 {
 		state.SrcIps = mistutils.ListOfStringSdkToTerraform(data.SrcIps)
 	} else {
 		state.SrcIps = types.ListNull(types.StringType)

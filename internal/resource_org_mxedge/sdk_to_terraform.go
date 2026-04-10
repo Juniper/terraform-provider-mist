@@ -74,7 +74,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	if data.Note != nil {
 		notes = types.StringValue(*data.Note)
 	}
-	if data.NtpServers != nil {
+	if len(data.NtpServers) > 0 {
 		ntpServers = mistutils.ListOfStringSdkToTerraform(data.NtpServers)
 	}
 	if data.OobIpConfig != nil {
@@ -86,7 +86,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	if data.Proxy != nil {
 		proxy = proxySdkToTerraform(ctx, &diags, data.Proxy)
 	}
-	if data.Services != nil {
+	if len(data.Services) > 0 {
 		services = mistutils.ListOfStringSdkToTerraform(data.Services)
 	}
 	if data.SiteId != nil && data.SiteId.String() != "00000000-0000-0000-0000-000000000000" {

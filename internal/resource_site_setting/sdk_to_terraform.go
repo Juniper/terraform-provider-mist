@@ -20,236 +20,242 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	var analytic = NewAnalyticValueNull()
+	var apUpdownThreshold types.Int64
+	var autoUpgrade = NewAutoUpgradeValueNull()
+	var autoUpgradeEsl = NewAutoUpgradeEslValueNull()
+	var blacklistUrl = types.StringValue("")
+	var bgpNeighborUpdownThreshold types.Int64
+	var bleConfig = NewBleConfigValueNull()
+	var configAutoRevert = types.BoolValue(false)
+	var configPushPolicy = NewConfigPushPolicyValueNull()
+	var criticalUrlMonitoring = NewCriticalUrlMonitoringValueNull()
+	var deviceUpdownThreshold types.Int64
+	var engagement = NewEngagementValueNull()
+	var enableUnii4 = types.BoolValue(false)
+	var gatewayMgmt = NewGatewayMgmtValueNull()
+	var gatewayUpdownThreshold types.Int64
+	var juniperSrx = NewJuniperSrxValueNull()
+	var marvis = NewMarvisValueNull()
+	var led = NewLedValueNull()
+	var occupancy = NewOccupancyValueNull()
+	var persistConfigOnDevice = types.BoolValue(false)
+	var proxy = NewProxyValueNull()
+	var removeExistingConfigs types.Bool
+	var reportGatt types.Bool
+	var rogue = NewRogueValueNull()
+	var rtsa = NewRtsaValueNull()
+	var simpleAlert = NewSimpleAlertValueNull()
+	var skyatp = NewSkyatpValueNull()
+	var sleThresholds = NewSleThresholdsValueNull()
+	var srxApp = NewSrxAppValueNull()
+	var sshKeys = types.ListValueMust(types.StringType, []attr.Value{})
+	var ssr = NewSsrValueNull()
+	var switchUpdownThreshold types.Int64
+	var syntheticTest = NewSyntheticTestValueNull()
+	var trackAnonymousDevices types.Bool
+	var uplinkPortConfig = NewUplinkPortConfigValueNull()
+	var usesDescriptionFromPortUsage types.Bool
+	var vars = types.MapNull(types.StringType)
+	var vna = NewVnaValueNull()
+	var vpnPathUpdownThreshold types.Int64
+	var vpnPeerUpdownThreshold types.Int64
+	var vsInstance = types.MapNull(VsInstanceValue{}.Type(ctx))
+	var wanVan = NewWanVnaValueNull()
+	var watchedStationUrl = types.StringValue("")
+	var whitelistUrl = types.StringValue("")
+	var wids = NewWidsValueNull()
+	var wifi = NewWifiValueNull()
+	var wiredVna = NewWiredVnaValueNull()
+	var zoneOccupancyAlert = NewZoneOccupancyAlertValueNull()
+
 	if data.Analytic != nil {
 		analytic = analyticSdkToTerraform(ctx, &diags, data.Analytic)
 	}
 
-	var apUpdownThreshold types.Int64
 	if data.ApUpdownThreshold.Value() != nil {
 		apUpdownThreshold = types.Int64Value(int64(*data.ApUpdownThreshold.Value()))
 	}
 
-	var autoUpgrade = NewAutoUpgradeValueNull()
 	if data.AutoUpgrade != nil {
 		autoUpgrade = autoUpgradeSdkToTerraform(ctx, &diags, *data.AutoUpgrade)
 	}
 
-	var blacklistUrl = types.StringValue("")
+	if data.AutoUpgradeEsl != nil {
+		autoUpgradeEsl = autoUpgradeEslSdkToTerraform(ctx, &diags, *data.AutoUpgradeEsl)
+	}
+
 	if data.BlacklistUrl != nil {
 		blacklistUrl = types.StringValue(*data.BlacklistUrl)
 	}
 
-	var bgpNeighborUpdownThreshold types.Int64
 	if data.BgpNeighborUpdownThreshold.Value() != nil {
 		bgpNeighborUpdownThreshold = types.Int64Value(int64(*data.BgpNeighborUpdownThreshold.Value()))
 	}
 
-	var bleConfig = NewBleConfigValueNull()
 	if data.BleConfig != nil {
 		bleConfig = bleConfigsSdkToTerraform(ctx, &diags, data.BleConfig)
 	}
 
-	var configAutoRevert types.Bool
 	if data.ConfigAutoRevert != nil {
 		configAutoRevert = types.BoolValue(*data.ConfigAutoRevert)
 	}
 
-	var configPushPolicy = NewConfigPushPolicyValueNull()
 	if data.ConfigPushPolicy != nil {
 		configPushPolicy = configPushPolicySdkToTerraform(ctx, &diags, data.ConfigPushPolicy)
 	}
 
-	var criticalUrlMonitoring = NewCriticalUrlMonitoringValueNull()
 	if data.CriticalUrlMonitoring != nil {
 		criticalUrlMonitoring = criticalUrlMonitoringSdkToTerraform(ctx, &diags, data.CriticalUrlMonitoring)
 	}
 
-	var deviceUpdownThreshold types.Int64
 	if data.DeviceUpdownThreshold.Value() != nil {
 		deviceUpdownThreshold = types.Int64Value(int64(*data.DeviceUpdownThreshold.Value()))
 	}
 
-	var engagement = NewEngagementValueNull()
 	if data.Engagement != nil {
 		engagement = engagementSdkToTerraform(ctx, &diags, data.Engagement)
 	}
 
-	var enableUnii4 types.Bool
 	if data.EnableUnii4 != nil {
 		enableUnii4 = types.BoolValue(*data.EnableUnii4)
 	}
 
-	var gatewayMgmt = NewGatewayMgmtValueNull()
 	if data.GatewayMgmt != nil {
 		gatewayMgmt = gatewayMgmtSdkToTerraform(ctx, &diags, data.GatewayMgmt)
 	}
 
-	var gatewayUpdownThreshold types.Int64
 	if data.GatewayUpdownThreshold.Value() != nil {
 		gatewayUpdownThreshold = types.Int64Value(int64(*data.GatewayUpdownThreshold.Value()))
 	}
 
-	var juniperSrx = NewJuniperSrxValueNull()
 	if data.JuniperSrx != nil {
 		juniperSrx = juniperSrxSdkToTerraform(ctx, &diags, data.JuniperSrx)
 	}
 
-	var led = NewLedValueNull()
 	if data.Led != nil {
 		led = ledSdkToTerraform(ctx, &diags, data.Led)
 	}
 
-	var marvis = NewMarvisValueNull()
 	if data.Marvis != nil {
 		marvis = marvisSdkToTerraform(ctx, &diags, data.Marvis)
 	}
 
-	var occupancy = NewOccupancyValueNull()
 	if data.Occupancy != nil {
 		occupancy = occupancySdkToTerraform(ctx, &diags, data.Occupancy)
 	}
 
-	var persistConfigOnDevice types.Bool
 	if data.PersistConfigOnDevice != nil {
 		persistConfigOnDevice = types.BoolValue(*data.PersistConfigOnDevice)
 	}
 
-	var proxy = NewProxyValueNull()
 	if data.Proxy != nil {
 		proxy = proxySdkToTerraform(ctx, &diags, data.Proxy)
 	}
 
-	var removeExistingConfigs types.Bool
 	if data.RemoveExistingConfigs != nil {
 		removeExistingConfigs = types.BoolValue(*data.RemoveExistingConfigs)
 	}
 
-	var reportGatt types.Bool
 	if data.ReportGatt != nil {
 		reportGatt = types.BoolValue(*data.ReportGatt)
 	}
 
-	var rogue = NewRogueValueNull()
 	if data.Rogue != nil {
 		rogue = rogueSdkToTerraform(ctx, &diags, data.Rogue)
 	}
 
-	var rtsa = NewRtsaValueNull()
 	if data.Rtsa != nil {
 		rtsa = rtsaSdkToTerraform(ctx, &diags, data.Rtsa)
 	}
 
-	var simpleAlert = NewSimpleAlertValueNull()
 	if data.SimpleAlert != nil {
 		simpleAlert = simpleAlertSdkToTerraform(ctx, &diags, data.SimpleAlert)
 	}
 
-	var skyatp = NewSkyatpValueNull()
 	if data.Skyatp != nil {
 		skyatp = skyAtpSdkToTerraform(ctx, &diags, data.Skyatp)
 	}
 
-	var sleThresholds = NewSleThresholdsValueNull()
 	if data.SleThresholds != nil {
 		sleThresholds = sleThresholdsSdkToTerraform(ctx, &diags, data.SleThresholds)
 	}
 
-	var srxApp = NewSrxAppValueNull()
 	if data.SrxApp != nil {
 		srxApp = srxAppSdkToTerraform(ctx, &diags, data.SrxApp)
 	}
 
-	var sshKeys = types.ListValueMust(types.StringType, []attr.Value{})
-	if data.SshKeys != nil {
+	if len(data.SshKeys) > 0 {
 		sshKeys = mistlist.ListOfStringSdkToTerraform(data.SshKeys)
 	}
 
-	var ssr = NewSsrValueNull()
 	if data.Ssr != nil {
 		ssr = ssrSdkToTerraform(ctx, &diags, data.Ssr)
 	}
 
-	var switchUpdownThreshold types.Int64
 	if data.SwitchUpdownThreshold.Value() != nil {
 		switchUpdownThreshold = types.Int64Value(int64(*data.SwitchUpdownThreshold.Value()))
 	}
 
-	var syntheticTest = NewSyntheticTestValueNull()
 	if data.SyntheticTest != nil {
 		syntheticTest = syntheticTestSdkToTerraform(ctx, &diags, data.SyntheticTest)
 	}
 
-	var trackAnonymousDevices types.Bool
 	if data.TrackAnonymousDevices != nil {
 		trackAnonymousDevices = types.BoolValue(*data.TrackAnonymousDevices)
 	}
 
-	var uplinkPortConfig = NewUplinkPortConfigValueNull()
 	if data.UplinkPortConfig != nil {
 		uplinkPortConfig = uplinkPortConfigValueSdkToTerraform(ctx, &diags, data.UplinkPortConfig)
 	}
 
-	var usesDescriptionFromPortUsage types.Bool
 	if data.UsesDescriptionFromPortUsage != nil {
 		usesDescriptionFromPortUsage = types.BoolValue(*data.UsesDescriptionFromPortUsage)
 	}
 
-	var vars = types.MapNull(types.StringType)
 	if len(data.Vars) > 0 {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
 
-	var vna = NewVnaValueNull()
 	if data.Vna != nil {
 		vna = vnaSdkToTerraform(ctx, &diags, data.Vna)
 	}
 
-	var vpnPathUpdownThreshold types.Int64
 	if data.VpnPathUpdownThreshold.Value() != nil {
 		vpnPathUpdownThreshold = types.Int64Value(int64(*data.VpnPathUpdownThreshold.Value()))
 	}
 
-	var vpnPeerUpdownThreshold types.Int64
 	if data.VpnPeerUpdownThreshold.Value() != nil {
 		vpnPeerUpdownThreshold = types.Int64Value(int64(*data.VpnPeerUpdownThreshold.Value()))
 	}
 
-	var vsInstance = types.MapNull(VsInstanceValue{}.Type(ctx))
 	if data.VsInstance != nil {
 		vsInstance = vsInstanceSdkToTerraform(ctx, &diags, data.VsInstance)
 	}
 
-	var wanVan = NewWanVnaValueNull()
 	if data.WanVna != nil {
 		wanVan = wanVnaSdkToTerraform(ctx, &diags, data.WanVna)
 	}
 
-	var watchedStationUrl = types.StringValue("")
 	if data.WatchedStationUrl != nil {
 		watchedStationUrl = types.StringValue(*data.WatchedStationUrl)
 	}
 
-	var whitelistUrl = types.StringValue("")
 	if data.WhitelistUrl != nil {
 		whitelistUrl = types.StringValue(*data.WhitelistUrl)
 	}
 
-	var wids = NewWidsValueNull()
 	if data.Wids != nil {
 		wids = widsSdkToTerraform(ctx, &diags, data.Wids)
 	}
 
-	var wifi = NewWifiValueNull()
 	if data.Wifi != nil {
 		wifi = wifiSdkToTerraform(ctx, &diags, data.Wifi)
 	}
 
-	var wiredVna = NewWiredVnaValueNull()
 	if data.WiredVna != nil {
 		wiredVna = wiredVnaSdkToTerraform(ctx, &diags, data.WiredVna)
 	}
 
-	var zoneOccupancyAlert = NewZoneOccupancyAlertValueNull()
 	if data.ZoneOccupancyAlert != nil {
 		zoneOccupancyAlert = zoneOccupancySdkToTerraform(ctx, &diags, *data.ZoneOccupancyAlert)
 	}
@@ -259,6 +265,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		Analytic:                     analytic,
 		ApUpdownThreshold:            apUpdownThreshold,
 		AutoUpgrade:                  autoUpgrade,
+		AutoUpgradeEsl:               autoUpgradeEsl,
 		BgpNeighborUpdownThreshold:   bgpNeighborUpdownThreshold,
 		BleConfig:                    bleConfig,
 		BlacklistUrl:                 blacklistUrl,

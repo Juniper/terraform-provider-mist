@@ -25,7 +25,7 @@ func tuntermSwitchConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		if v.PortVlanId != nil {
 			portVlanId = types.Int64Value(int64(*v.PortVlanId))
 		}
-		if v.VlanIds != nil {
+		if len(v.VlanIds) > 0 {
 			vlanIds_list := make([]attr.Value, len(v.VlanIds))
 			for i, vlanId := range v.VlanIds {
 				vlanIds_list[i] = mistutils.VlanAsString(vlanId)

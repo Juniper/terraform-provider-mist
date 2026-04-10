@@ -36,13 +36,13 @@ func switchesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 		if d.DeviceprofileId != nil {
 			deviceprofileId = types.StringValue(d.DeviceprofileId.String())
 		}
-		if d.DownlinkIps != nil {
+		if len(d.DownlinkIps) > 0 {
 			downlinkIps = mistutils.ListOfStringSdkToTerraform(d.DownlinkIps)
 		}
-		if d.Downlinks != nil {
+		if len(d.Downlinks) > 0 {
 			downlinks = mistutils.ListOfStringSdkToTerraform(d.Downlinks)
 		}
-		if d.Esilaglinks != nil {
+		if len(d.Esilaglinks) > 0 {
 			esilaglinks = mistutils.ListOfStringSdkToTerraform(d.Esilaglinks)
 		}
 		if d.EvpnId != nil {
@@ -57,7 +57,7 @@ func switchesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 		if d.Pod != nil {
 			pod = types.Int64Value(int64(*d.Pod))
 		}
-		if d.Pods != nil {
+		if len(d.Pods) > 0 {
 			pods = mistutils.ListOfIntSdkToTerraform(d.Pods)
 		}
 
@@ -69,16 +69,16 @@ func switchesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []mo
 		if d.SiteId != nil {
 			siteId = types.StringValue(d.SiteId.String())
 		}
-		if d.SuggestedDownlinks != nil {
+		if len(d.SuggestedDownlinks) > 0 {
 			suggestedDownlinks = mistutils.ListOfStringSdkToTerraform(d.SuggestedDownlinks)
 		}
-		if d.SuggestedEsilaglinks != nil {
+		if len(d.SuggestedEsilaglinks) > 0 {
 			suggestedEsilaglinks = mistutils.ListOfStringSdkToTerraform(d.SuggestedEsilaglinks)
 		}
-		if d.SuggestedUplinks != nil {
+		if len(d.SuggestedUplinks) > 0 {
 			suggestedUplinks = mistutils.ListOfStringSdkToTerraform(d.SuggestedUplinks)
 		}
-		if d.Uplinks != nil {
+		if len(d.Uplinks) > 0 {
 			uplinks = mistutils.ListOfStringSdkToTerraform(d.Uplinks)
 		}
 

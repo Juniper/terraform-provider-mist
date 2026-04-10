@@ -30,10 +30,10 @@ func overwritesMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	var dstSubnet = types.ListNull(types.StringType)
 	var severity = types.ListNull(types.StringType)
 
-	if d.AttackName != nil {
+	if len(d.AttackName) > 0 {
 		attackName = mistutils.ListOfStringSdkToTerraform(d.AttackName)
 	}
-	if d.DstSubnet != nil {
+	if len(d.DstSubnet) > 0 {
 		dstSubnet = mistutils.ListOfStringSdkToTerraform(d.DstSubnet)
 	}
 	if d.Severity != nil {

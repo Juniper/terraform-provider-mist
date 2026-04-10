@@ -37,10 +37,10 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 	if data.DisallowMistServices != nil {
 		disallowMistServices = types.BoolValue(*data.DisallowMistServices)
 	}
-	if data.Gateway != nil {
+	if data.Gateway != nil && len(*data.Gateway) > 0 {
 		gateway = types.StringValue(*data.Gateway)
 	}
-	if data.Gateway6 != nil {
+	if data.Gateway6 != nil && len(*data.Gateway6) > 0 {
 		gateway6 = types.StringValue(*data.Gateway6)
 	}
 	if data.Multicast != nil {
@@ -62,13 +62,13 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 	if data.OrgId != nil {
 		orgId = types.StringValue(data.OrgId.String())
 	}
-	if data.RoutedForNetworks != nil {
+	if len(data.RoutedForNetworks) > 0 {
 		routedForNetworks = mistutils.ListOfStringSdkToTerraform(data.RoutedForNetworks)
 	}
-	if data.Subnet != nil {
+	if data.Subnet != nil && len(*data.Subnet) > 0 {
 		subnet = types.StringValue(*data.Subnet)
 	}
-	if data.Subnet6 != nil {
+	if data.Subnet6 != nil && len(*data.Subnet6) > 0 {
 		subnet6 = types.StringValue(*data.Subnet6)
 	}
 	if len(data.Tenants) > 0 {

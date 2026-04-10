@@ -38,7 +38,7 @@ func ipConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		if d.Netmask6 != nil {
 			netmask6 = types.StringValue(*d.Netmask6)
 		}
-		if d.SecondaryIps != nil {
+		if len(d.SecondaryIps) > 0 {
 			secondaryIps = mistutils.ListOfStringSdkToTerraform(d.SecondaryIps)
 		}
 		if d.Type != nil {

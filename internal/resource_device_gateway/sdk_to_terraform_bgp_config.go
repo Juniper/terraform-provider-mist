@@ -128,7 +128,7 @@ func bgpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map
 		if len(d.Neighbors) > 0 {
 			neighbors = bgpConfigNeighborsSdkToTerraform(ctx, diags, d.Neighbors)
 		}
-		if d.Networks != nil {
+		if len(d.Networks) > 0 {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.NoPrivateAs != nil {

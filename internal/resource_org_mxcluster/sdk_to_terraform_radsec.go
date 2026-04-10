@@ -23,7 +23,7 @@ func radsecSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 	var serverSelection = types.StringNull()
 	var srcIpSource = types.StringNull()
 
-	if d.AcctServers != nil {
+	if len(d.AcctServers) > 0 {
 		var dataList []attr.Value
 
 		for _, item := range d.AcctServers {
@@ -41,7 +41,7 @@ func radsecSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 			if item.Secret != nil {
 				secret = types.StringValue(*item.Secret)
 			}
-			if item.Ssids != nil {
+			if len(item.Ssids) > 0 {
 				ssids = mistutils.ListOfStringSdkToTerraform(item.Ssids)
 			}
 
@@ -62,7 +62,7 @@ func radsecSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 		diags.Append(e...)
 		acctServers = r_list
 	}
-	if d.AuthServers != nil {
+	if len(d.AuthServers) > 0 {
 		var dataList []attr.Value
 
 		for _, item := range d.AuthServers {
@@ -109,7 +109,7 @@ func radsecSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 			if item.Secret != nil {
 				secret = types.StringValue(*item.Secret)
 			}
-			if item.Ssids != nil {
+			if len(item.Ssids) > 0 {
 				ssids = mistutils.ListOfStringSdkToTerraform(item.Ssids)
 			}
 			if item.Timeout != nil {
@@ -150,7 +150,7 @@ func radsecSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *model
 	if d.NasIpSource != nil {
 		nasIpSource = types.StringValue(string(*d.NasIpSource))
 	}
-	if d.ProxyHosts != nil {
+	if len(d.ProxyHosts) > 0 {
 		proxyHosts = mistutils.ListOfStringSdkToTerraform(d.ProxyHosts)
 	}
 	if d.ServerSelection != nil {

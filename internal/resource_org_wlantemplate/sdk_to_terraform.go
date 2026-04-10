@@ -39,12 +39,12 @@ func SdkToTerraform(ctx context.Context, data models.Template) (OrgWlantemplateM
 
 func exceptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data models.TemplateExceptions) ExceptionsValue {
 	var siteIds = mistutils.ListOfUuidSdkToTerraformEmpty()
-	if data.SiteIds != nil {
+	if len(data.SiteIds) > 0 {
 		siteIds = mistutils.ListOfUuidSdkToTerraform(data.SiteIds)
 	}
 
 	var sitegroupIds = mistutils.ListOfUuidSdkToTerraformEmpty()
-	if data.SitegroupIds != nil {
+	if len(data.SitegroupIds) > 0 {
 		sitegroupIds = mistutils.ListOfUuidSdkToTerraform(data.SitegroupIds)
 	}
 
@@ -65,12 +65,12 @@ func appliesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data mo
 	}
 
 	var siteIds = mistutils.ListOfUuidSdkToTerraformEmpty()
-	if data.SiteIds != nil {
+	if len(data.SiteIds) > 0 {
 		siteIds = mistutils.ListOfUuidSdkToTerraform(data.SiteIds)
 	}
 
 	var sitegroupIds = mistutils.ListOfUuidSdkToTerraformEmpty()
-	if data.SitegroupIds != nil {
+	if len(data.SitegroupIds) > 0 {
 		sitegroupIds = mistutils.ListOfUuidSdkToTerraform(data.SitegroupIds)
 	}
 

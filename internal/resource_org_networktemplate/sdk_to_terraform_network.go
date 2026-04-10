@@ -2,6 +2,7 @@ package resource_org_networktemplate
 
 import (
 	"context"
+
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -37,10 +38,10 @@ func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 		if d.Gateway6 != nil {
 			gateway6 = types.StringValue(*d.Gateway6)
 		}
-		if d.Subnet != nil {
+		if d.Subnet != nil && len(*d.Subnet) > 0 {
 			subnet = types.StringValue(*d.Subnet)
 		}
-		if d.Subnet6 != nil {
+		if d.Subnet6 != nil && len(*d.Subnet6) > 0 {
 			subnet6 = types.StringValue(*d.Subnet6)
 		}
 		vlanId = mistutils.VlanAsString(d.VlanId)

@@ -55,7 +55,7 @@ func tunnelProviderPrismaSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 
 func tunnelProviderZscalerSubLocationSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, t *models.TunnelProviderOptions) basetypes.ListValue {
 	var dataList []SubLocationsValue
-	if t != nil && t.Zscaler != nil && t.Zscaler.SubLocations != nil {
+	if t != nil && t.Zscaler != nil && len(t.Zscaler.SubLocations) > 0 {
 		for _, d := range t.Zscaler.SubLocations {
 			var aupBlockInternetUntilAccepted basetypes.BoolValue
 			var aupEnabled basetypes.BoolValue

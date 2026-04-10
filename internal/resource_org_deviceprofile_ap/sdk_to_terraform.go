@@ -85,7 +85,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 		name = types.StringValue(*data.Name.Value())
 	}
 
-	if data.NtpServers != nil {
+	if len(data.NtpServers) > 0 {
 		ntpServers = mistlist.ListOfStringSdkToTerraform(data.NtpServers)
 	}
 	if data.OrgId != nil {
@@ -112,7 +112,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	if data.UsbConfig != nil {
 		usbConfig = usbConfigSdkToTerraform(ctx, &diags, data.UsbConfig)
 	}
-	if data.Vars != nil {
+	if len(data.Vars) > 0 {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
 

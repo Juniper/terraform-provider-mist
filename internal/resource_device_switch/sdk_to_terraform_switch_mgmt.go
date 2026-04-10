@@ -28,7 +28,7 @@ func switchMgmtProtectCustomReSdkToTerraform(ctx context.Context, diags *diag.Di
 		if d.Protocol != nil {
 			protocol = types.StringValue(string(*d.Protocol))
 		}
-		if d.Subnets != nil {
+		if len(d.Subnets) > 0 {
 			subnets = mistutils.ListOfStringSdkToTerraform(d.Subnets)
 		}
 
@@ -50,14 +50,13 @@ func switchMgmtProtectCustomReSdkToTerraform(ctx context.Context, diags *diag.Di
 }
 
 func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ProtectRe) basetypes.ObjectValue {
-
 	var allowedServices = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
 	var custom = basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})
 	var enabled basetypes.BoolValue
 	var hitCount basetypes.BoolValue
 	var trustedHosts = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
 
-	if d.AllowedServices != nil {
+	if len(d.AllowedServices) > 0 {
 		var items []attr.Value
 		var itemsType attr.Type = basetypes.StringType{}
 		for _, item := range d.AllowedServices {
@@ -66,7 +65,7 @@ func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		list, _ := types.ListValue(itemsType, items)
 		allowedServices = list
 	}
-	if d.Custom != nil {
+	if len(d.Custom) > 0 {
 		custom = switchMgmtProtectCustomReSdkToTerraform(ctx, diags, d.Custom)
 	}
 	if d.Enabled != nil {
@@ -75,7 +74,7 @@ func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 	if d.HitCount != nil {
 		hitCount = types.BoolValue(*d.HitCount)
 	}
-	if d.TrustedHosts != nil {
+	if len(d.TrustedHosts) > 0 {
 		trustedHosts = mistutils.ListOfStringSdkToTerraform(d.TrustedHosts)
 	}
 
@@ -95,7 +94,6 @@ func switchMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 }
 
 func switchMgmtTacacsAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.TacacsAcctServer) basetypes.ListValue {
-
 	var acctValueList []attr.Value
 	for _, d := range l {
 		var host basetypes.StringValue
@@ -136,7 +134,6 @@ func switchMgmtTacacsAcctSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 }
 
 func switchMgmtTacacsAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.TacacsAuthServer) basetypes.ListValue {
-
 	var acctValueList []attr.Value
 	for _, d := range l {
 
@@ -178,7 +175,6 @@ func switchMgmtTacacsAuthSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 }
 
 func switchMgmtTacacsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Tacacs) basetypes.ObjectValue {
-
 	var defaultRole basetypes.StringValue
 	var enabled basetypes.BoolValue
 	var network basetypes.StringValue
@@ -195,9 +191,12 @@ func switchMgmtTacacsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 		if d.Network != nil {
 			network = types.StringValue(*d.Network)
 		}
-		acctServers = switchMgmtTacacsAcctSdkToTerraform(ctx, diags, d.AcctServers)
-		tacplusServers = switchMgmtTacacsAuthSdkToTerraform(ctx, diags, d.TacplusServers)
-
+		if len(d.AcctServers) > 0 {
+			acctServers = switchMgmtTacacsAcctSdkToTerraform(ctx, diags, d.AcctServers)
+		}
+		if len(d.TacplusServers) > 0 {
+			tacplusServers = switchMgmtTacacsAuthSdkToTerraform(ctx, diags, d.TacplusServers)
+		}
 	}
 
 	dataMapValue := map[string]attr.Value{
@@ -257,7 +256,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var mxedgeProxyHost basetypes.StringValue
 	var mxedgeProxyPort basetypes.StringValue
 	var protectRe = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))
-	var removeExistingConfigs basetypes.BoolValue
+	var remoteExistingConfigs basetypes.BoolValue
 	var rootPassword basetypes.StringValue
 	var tacacs = types.ObjectNull(TacacsValue{}.AttributeTypes(ctx))
 	var useMxedgeProxy basetypes.BoolValue
@@ -284,7 +283,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		if d.FipsEnabled != nil {
 			fipsEnabled = types.BoolValue(*d.FipsEnabled)
 		}
-		if d.LocalAccounts != nil {
+		if len(d.LocalAccounts) > 0 {
 			localAccounts = switchLocalAccountUserSdkToTerraform(ctx, diags, d.LocalAccounts)
 		}
 		if d.MxedgeProxyHost != nil {
@@ -297,7 +296,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 			protectRe = switchMgmtProtectReSdkToTerraform(ctx, diags, d.ProtectRe)
 		}
 		if d.RemoveExistingConfigs != nil {
-			removeExistingConfigs = types.BoolValue(*d.RemoveExistingConfigs)
+			remoteExistingConfigs = types.BoolValue(*d.RemoveExistingConfigs)
 		}
 		if d.RootPassword != nil {
 			rootPassword = types.StringValue(*d.RootPassword)
@@ -322,7 +321,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		"mxedge_proxy_host":       mxedgeProxyHost,
 		"mxedge_proxy_port":       mxedgeProxyPort,
 		"protect_re":              protectRe,
-		"remove_existing_configs": removeExistingConfigs,
+		"remove_existing_configs": remoteExistingConfigs,
 		"root_password":           rootPassword,
 		"tacacs":                  tacacs,
 		"use_mxedge_proxy":        useMxedgeProxy,

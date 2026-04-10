@@ -49,7 +49,7 @@ func mdnsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d.VlanIds != nil {
+	if len(d.VlanIds) > 0 {
 		vlanIds = mistutils.ListOfStringSdkToTerraform(d.VlanIds)
 	}
 
@@ -72,7 +72,7 @@ func ssdpSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d.VlanIds != nil {
+	if len(d.VlanIds) > 0 {
 		vlanIds = mistutils.ListOfStringSdkToTerraform(d.VlanIds)
 	}
 

@@ -102,7 +102,7 @@ func vpnPathsTrafficShapingSdkToTerraform(ctx context.Context, diags *diag.Diagn
 	var enabled basetypes.BoolValue
 	var maxTxKbps basetypes.Int64Value
 
-	if d.ClassPercentage != nil {
+	if len(d.ClassPercentage) > 0 {
 		classPercentage = mistutils.ListOfIntSdkToTerraform(d.ClassPercentage)
 	}
 	if d.Enabled != nil {

@@ -24,7 +24,7 @@ func installerSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 	if d.AllowAllSites != nil {
 		allowAllSites = types.BoolValue(*d.AllowAllSites)
 	}
-	if d.ExtraSiteIds != nil {
+	if len(d.ExtraSiteIds) > 0 {
 		extraSiteIds = mistutils.ListOfUuidSdkToTerraform(d.ExtraSiteIds)
 	}
 	if d.GracePeriod != nil {

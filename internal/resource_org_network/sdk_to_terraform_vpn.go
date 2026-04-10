@@ -112,7 +112,7 @@ func vpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[strin
 		if d.NoReadvertiseToOverlay != nil {
 			noReadvertiseToOverlay = types.BoolValue(*d.NoReadvertiseToOverlay)
 		}
-		if d.OtherVrfs != nil {
+		if len(d.OtherVrfs) > 0 {
 			otherVrfs = mistutils.ListOfStringSdkToTerraform(d.OtherVrfs)
 		}
 		if d.Routed != nil {

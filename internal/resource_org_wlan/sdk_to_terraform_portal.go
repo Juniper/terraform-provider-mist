@@ -77,7 +77,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var sponsorLinkValidityDuration basetypes.StringValue
 	var sponsorNotifyAll basetypes.BoolValue
 	var sponsorStatusNotify basetypes.BoolValue
-	var sponsors = types.MapNull(types.StringType)
+	var sponsors = types.MapValueMust(types.StringType, map[string]attr.Value{})
 	var ssoDefaultRole basetypes.StringValue
 	var ssoForcedRole basetypes.StringValue
 	var ssoIdpCert basetypes.StringValue
@@ -100,7 +100,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.AmazonClientSecret.Value() != nil {
 		amazonClientSecret = types.StringValue(*d.AmazonClientSecret.Value())
 	}
-	if d != nil && d.AmazonEmailDomains != nil {
+	if d != nil && len(d.AmazonEmailDomains) > 0 {
 		amazonEmailDomains = mistutils.ListOfStringSdkToTerraform(d.AmazonEmailDomains)
 	}
 	if d != nil && d.AmazonEnabled != nil {
@@ -163,7 +163,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.FacebookClientSecret.Value() != nil {
 		facebookClientSecret = types.StringValue(*d.FacebookClientSecret.Value())
 	}
-	if d != nil && d.FacebookEmailDomains != nil {
+	if d != nil && len(d.FacebookEmailDomains) > 0 {
 		facebookEmailDomains = mistutils.ListOfStringSdkToTerraform(d.FacebookEmailDomains)
 	}
 	if d != nil && d.FacebookEnabled != nil {
@@ -184,7 +184,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.GoogleClientSecret.Value() != nil {
 		googleClientSecret = types.StringValue(*d.GoogleClientSecret.Value())
 	}
-	if d != nil && d.GoogleEmailDomains != nil {
+	if d != nil && len(d.GoogleEmailDomains) > 0 {
 		googleEmailDomains = mistutils.ListOfStringSdkToTerraform(d.GoogleEmailDomains)
 	}
 	if d != nil && d.GoogleEnabled != nil {
@@ -205,7 +205,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.MicrosoftClientSecret.Value() != nil {
 		microsoftClientSecret = types.StringValue(*d.MicrosoftClientSecret.Value())
 	}
-	if d != nil && d.MicrosoftEmailDomains != nil {
+	if d != nil && len(d.MicrosoftEmailDomains) > 0 {
 		microsoftEmailDomains = mistutils.ListOfStringSdkToTerraform(d.MicrosoftEmailDomains)
 	}
 	if d != nil && d.MicrosoftEnabled != nil {
@@ -262,7 +262,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.SponsorAutoApprove != nil {
 		sponsorAutoApprove = types.BoolValue(*d.SponsorAutoApprove)
 	}
-	if d != nil && d.SponsorEmailDomains != nil {
+	if d != nil && len(d.SponsorEmailDomains) > 0 {
 		sponsorEmailDomains = mistutils.ListOfStringSdkToTerraform(d.SponsorEmailDomains)
 	}
 	if d != nil && d.SponsorEnabled != nil {

@@ -95,9 +95,7 @@ func appQosSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d models
 	var enabled basetypes.BoolValue
 	var others = types.ListNull(OthersValue{}.Type(ctx))
 
-	if len(d.Apps) > 0 {
-		apps = appQosAppsSdkToTerraform(ctx, diags, d.Apps)
-	}
+	apps = appQosAppsSdkToTerraform(ctx, diags, d.Apps)
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}

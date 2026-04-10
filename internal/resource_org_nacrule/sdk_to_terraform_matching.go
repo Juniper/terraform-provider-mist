@@ -42,31 +42,31 @@ func matchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 	if d.AuthType != nil {
 		authType = types.StringValue(string(*d.AuthType))
 	}
-	if d.Family != nil {
+	if len(d.Family) > 0 {
 		family = mistutils.ListOfStringSdkToTerraform(d.Family)
 	}
-	if d.Mfg != nil {
+	if len(d.Mfg) > 0 {
 		mfg = mistutils.ListOfStringSdkToTerraform(d.Mfg)
 	}
-	if d.Model != nil {
+	if len(d.Model) > 0 {
 		model = mistutils.ListOfStringSdkToTerraform(d.Model)
 	}
-	if d.Nactags != nil {
+	if len(d.Nactags) > 0 {
 		nactags = mistutils.ListOfStringSdkToTerraform(d.Nactags)
 	}
-	if d.OsType != nil {
+	if len(d.OsType) > 0 {
 		osType = mistutils.ListOfStringSdkToTerraform(d.OsType)
 	}
 	if d.PortTypes != nil {
 		portTypes = matchingPortTypesSdkToTerraform(ctx, diags, d.PortTypes)
 	}
-	if d.SiteIds != nil {
+	if len(d.SiteIds) > 0 {
 		siteIds = mistutils.ListOfUuidSdkToTerraform(d.SiteIds)
 	}
-	if d.SitegroupIds != nil {
+	if len(d.SitegroupIds) > 0 {
 		sitegroupIds = mistutils.ListOfUuidSdkToTerraform(d.SitegroupIds)
 	}
-	if d.Vendor != nil {
+	if len(d.Vendor) > 0 {
 		vendor = mistutils.ListOfStringSdkToTerraform(d.Vendor)
 	}
 
@@ -104,31 +104,31 @@ func notMatchingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.AuthType != nil {
 		authType = types.StringValue(string(*d.AuthType))
 	}
-	if d.Family != nil {
+	if len(d.Family) > 0 {
 		family = mistutils.ListOfStringSdkToTerraform(d.Family)
 	}
-	if d.Mfg != nil {
+	if len(d.Mfg) > 0 {
 		mfg = mistutils.ListOfStringSdkToTerraform(d.Mfg)
 	}
-	if d.Model != nil {
+	if len(d.Model) > 0 {
 		model = mistutils.ListOfStringSdkToTerraform(d.Model)
 	}
-	if d.Nactags != nil {
+	if len(d.Nactags) > 0 {
 		nactags = mistutils.ListOfStringSdkToTerraform(d.Nactags)
 	}
-	if d.OsType != nil {
+	if len(d.OsType) > 0 {
 		osType = mistutils.ListOfStringSdkToTerraform(d.OsType)
 	}
 	if d.PortTypes != nil {
 		portTypes = matchingPortTypesSdkToTerraform(ctx, diags, d.PortTypes)
 	}
-	if d.SiteIds != nil {
+	if len(d.SiteIds) > 0 {
 		siteIds = mistutils.ListOfUuidSdkToTerraform(d.SiteIds)
 	}
-	if d.SitegroupIds != nil {
+	if len(d.SitegroupIds) > 0 {
 		sitegroupIds = mistutils.ListOfUuidSdkToTerraform(d.SitegroupIds)
 	}
-	if d.Vendor != nil {
+	if len(d.Vendor) > 0 {
 		vendor = mistutils.ListOfStringSdkToTerraform(d.Vendor)
 	}
 

@@ -87,10 +87,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var noStaticIp types.Bool
 	var orgId types.String
 	var portal = NewPortalValueNull()
-	var portalAllowedHostnames = mistutils.ListOfStringSdkToTerraformEmpty()
-	var portalAllowedSubnets = mistutils.ListOfStringSdkToTerraformEmpty()
+	var portalAllowedHostnames = types.ListValueMust(types.StringType, []attr.Value{})
+	var portalAllowedSubnets = types.ListValueMust(types.StringType, []attr.Value{})
 	var portalApiSecret = types.StringValue("")
-	var portalDeniedHostnames = mistutils.ListOfStringSdkToTerraformEmpty()
+	var portalDeniedHostnames = types.ListValueMust(types.StringType, []attr.Value{})
 	var portalImage = types.StringValue("not_present")
 	var portalSsoUrl = types.StringValue("")
 	var qos = NewQosValueNull()
@@ -105,7 +105,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 	var useEapolV1 types.Bool
 	var vlanEnabled types.Bool
 	var vlanId types.String
-	var vlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
+	var vlanIds = types.ListValueMust(types.StringType, []attr.Value{})
 	var vlanPooling types.Bool
 	var wlanLimitDown types.String
 	var wlanLimitDownEnabled types.Bool
@@ -395,10 +395,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 		portal = portalSkToTerraform(ctx, &diags, data.Portal)
 	}
 
-	if data.PortalAllowedHostnames != nil {
+	if len(data.PortalAllowedHostnames) > 0 {
 		portalAllowedHostnames = mistutils.ListOfStringSdkToTerraform(data.PortalAllowedHostnames)
 	}
-	if data.PortalAllowedSubnets != nil {
+	if len(data.PortalAllowedSubnets) > 0 {
 		portalAllowedSubnets = mistutils.ListOfStringSdkToTerraform(data.PortalAllowedSubnets)
 	}
 
@@ -406,7 +406,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (SiteWlanModel, diag
 		portalApiSecret = types.StringValue(*data.PortalApiSecret.Value())
 	}
 
-	if data.PortalDeniedHostnames != nil {
+	if len(data.PortalDeniedHostnames) > 0 {
 		portalDeniedHostnames = mistutils.ListOfStringSdkToTerraform(data.PortalDeniedHostnames)
 	}
 

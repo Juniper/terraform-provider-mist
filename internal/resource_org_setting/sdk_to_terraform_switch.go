@@ -16,7 +16,7 @@ func switchAutoUpgradesSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	var enabled basetypes.BoolValue
 	var snapshot basetypes.BoolValue
 
-	if d.CustomVersions != nil {
+	if len(d.CustomVersions) > 0 {
 		rMapValue := make(map[string]attr.Value)
 		for k, v := range d.CustomVersions {
 			rMapValue[k] = types.StringValue(v)

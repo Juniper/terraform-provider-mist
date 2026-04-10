@@ -15,7 +15,7 @@ func mistDasSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var coaServers = types.ListNull(CoaServersValue{}.Type(ctx))
 	var enabled = types.BoolNull()
 
-	if d.CoaServers != nil {
+	if len(d.CoaServers) > 0 {
 		var dataList []attr.Value
 
 		for _, item := range d.CoaServers {

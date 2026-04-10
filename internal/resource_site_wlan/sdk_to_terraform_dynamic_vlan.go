@@ -16,11 +16,11 @@ func dynamicVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 
 	var defaultVlanIds = basetypes.NewListNull(types.StringType)
 	var enabled basetypes.BoolValue
-	var localVlanIds = mistutils.ListOfStringSdkToTerraformEmpty()
+	var localVlanIds = types.ListNull(types.StringType)
 	var typeDynamicVlan basetypes.StringValue
 	var vlans = types.MapNull(types.StringType)
 
-	if d != nil && d.DefaultVlanIds != nil {
+	if d != nil && len(d.DefaultVlanIds) > 0 {
 		var items []attr.Value
 		var itemsType attr.Type = basetypes.StringType{}
 		for _, item := range d.DefaultVlanIds {
@@ -45,7 +45,7 @@ func dynamicVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d != nil && d.LocalVlanIds != nil {
+	if d != nil && len(d.LocalVlanIds) > 0 {
 		var list []attr.Value
 		for _, v := range d.LocalVlanIds {
 			list = append(list, types.StringValue(v.String()))
@@ -57,7 +57,7 @@ func dynamicVlanSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d != nil && d.Type != nil {
 		typeDynamicVlan = types.StringValue(string(*d.Type))
 	}
-	if d != nil && d.Vlans != nil {
+	if d != nil && len(d.Vlans) > 0 {
 		vlansAttr := make(map[string]attr.Value)
 		for k, v := range d.Vlans {
 			vlansAttr[k] = types.StringValue(v)

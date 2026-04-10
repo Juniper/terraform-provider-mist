@@ -25,7 +25,7 @@ func bonjourServicesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		if d.DisableLocal != nil {
 			disableLocal = types.BoolValue(*d.DisableLocal)
 		}
-		if d.RadiusGroups != nil {
+		if len(d.RadiusGroups) > 0 {
 			radiusGroups = mistutils.ListOfStringSdkToTerraform(d.RadiusGroups)
 		}
 		if d.Scope != nil {
@@ -58,7 +58,7 @@ func bonjourSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d != nil && d.Services != nil && len(d.Services) > 0 {
+	if d != nil && len(d.Services) > 0 {
 		services = bonjourServicesSdkToTerraform(ctx, diags, d.Services)
 	}
 

@@ -12,9 +12,14 @@ import (
 
 func centrakSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ApCentrak) CentrakValue {
 
+	var enabled = types.BoolValue(false)
+	if d.Enabled != nil {
+		enabled = types.BoolValue(*d.Enabled)
+	}
+
 	rAttrType := CentrakValue{}.AttributeTypes(ctx)
 	rAttrValue := map[string]attr.Value{
-		"enabled": types.BoolValue(*d.Enabled),
+		"enabled": enabled,
 	}
 	r, e := NewCentrakValue(rAttrType, rAttrValue)
 	diags.Append(e...)

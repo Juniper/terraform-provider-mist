@@ -35,7 +35,7 @@ func dynamicVlanPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagno
 	if d.Type != nil {
 		typeDynamicVlan = types.StringValue(*d.Type)
 	}
-	if d != nil && d.Vlans != nil {
+	if d != nil && len(d.Vlans) > 0 {
 		vlansAttr := make(map[string]attr.Value)
 		for k, v := range d.Vlans {
 			vlansAttr[k] = types.StringValue(v)
@@ -337,10 +337,10 @@ func radsecPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d != nil && d.IdleTimeout != nil {
 		idleTimeout = mistutils.RadsecIdleTimeoutAsString(d.IdleTimeout)
 	}
-	if d != nil && d.MxclusterIds != nil {
+	if d != nil && len(d.MxclusterIds) > 0 {
 		mxclusterIds = mistutils.ListOfUuidSdkToTerraform(d.MxclusterIds)
 	}
-	if d != nil && d.ProxyHosts != nil {
+	if d != nil && len(d.ProxyHosts) > 0 {
 		proxyHosts = mistutils.ListOfStringSdkToTerraform(d.ProxyHosts)
 	}
 	if d != nil && d.ServerName != nil {

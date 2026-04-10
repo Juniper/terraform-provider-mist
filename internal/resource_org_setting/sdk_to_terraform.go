@@ -70,7 +70,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	// if data.BlacklistUrl != nil {
 	// 	blacklist_url = types.StringValue(*data.BlacklistUrl)
 	// }
-	if data.Cacerts != nil {
+	if len(data.Cacerts) > 0 {
 		cacerts = mistutils.ListOfStringSdkToTerraform(data.Cacerts)
 	}
 	if data.Celona != nil {

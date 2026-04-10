@@ -17,10 +17,24 @@ func specsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data []mo
 
 	var dataList []SpecsValue
 	for _, v := range data {
+		var portRange = types.StringValue("0")
+		var protocol = types.StringValue("any")
+		var subnets = types.ListNull(types.StringType)
+
+		if v.PortRange != nil {
+			portRange = types.StringValue(*v.PortRange)
+		}
+		if v.Protocol != nil {
+			protocol = types.StringValue(*v.Protocol)
+		}
+		if len(v.Subnets) > 0 {
+			subnets = mistutils.ListOfStringSdkToTerraform(v.Subnets)
+		}
+
 		dataMapValue := map[string]attr.Value{
-			"port_range": types.StringValue(*v.PortRange),
-			"protocol":   types.StringValue(*v.Protocol),
-			"subnets":    mistutils.ListOfStringSdkToTerraform(v.Subnets),
+			"port_range": portRange,
+			"protocol":   protocol,
+			"subnets":    subnets,
 		}
 		data, e := NewSpecsValue(SpecsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)

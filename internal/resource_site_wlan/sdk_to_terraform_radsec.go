@@ -59,10 +59,10 @@ func radsecSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.IdleTimeout != nil {
 		idleTimeout = mistutils.RadsecIdleTimeoutAsString(d.IdleTimeout)
 	}
-	if d != nil && d.MxclusterIds != nil {
+	if d != nil && len(d.MxclusterIds) > 0 {
 		mxclusterIds = mistutils.ListOfUuidSdkToTerraform(d.MxclusterIds)
 	}
-	if d != nil && d.ProxyHosts != nil {
+	if d != nil && len(d.ProxyHosts) > 0 {
 		proxyHosts = mistutils.ListOfStringSdkToTerraform(d.ProxyHosts)
 	}
 	if d != nil && d.ServerName != nil {

@@ -35,7 +35,7 @@ func SdkToTerraform(_ context.Context, data *models.Avprofile) (OrgAvprofileMode
 	if data.MaxFilesize != nil {
 		maxFilesize = types.Int64Value(int64(*data.MaxFilesize))
 	}
-	if data.MimeWhitelist != nil {
+	if len(data.MimeWhitelist) > 0 {
 		mimeWhitelist = mistutils.ListOfStringSdkToTerraform(data.MimeWhitelist)
 	}
 
@@ -43,7 +43,7 @@ func SdkToTerraform(_ context.Context, data *models.Avprofile) (OrgAvprofileMode
 
 	orgId = types.StringValue(data.OrgId.String())
 
-	if data.Protocols != nil {
+	if len(data.Protocols) > 0 {
 		var items []attr.Value
 		for _, v := range data.Protocols {
 			items = append(items, types.StringValue(string(v)))
@@ -55,7 +55,7 @@ func SdkToTerraform(_ context.Context, data *models.Avprofile) (OrgAvprofileMode
 			protocols = tmp
 		}
 	}
-	if data.UrlWhitelist != nil {
+	if len(data.UrlWhitelist) > 0 {
 		urlWhitelist = mistutils.ListOfStringSdkToTerraform(data.UrlWhitelist)
 	}
 

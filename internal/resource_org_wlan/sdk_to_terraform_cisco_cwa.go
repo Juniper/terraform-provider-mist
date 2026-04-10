@@ -19,13 +19,13 @@ func ciscoCwaSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 	var blockedSubnets = mistutils.ListOfStringSdkToTerraformEmpty()
 	var enabled basetypes.BoolValue
 
-	if d != nil && d.AllowedHostnames != nil {
+	if d != nil && len(d.AllowedHostnames) > 0 {
 		allowedHostnames = mistutils.ListOfStringSdkToTerraform(d.AllowedHostnames)
 	}
-	if d != nil && d.AllowedSubnets != nil {
+	if d != nil && len(d.AllowedSubnets) > 0 {
 		allowedSubnets = mistutils.ListOfStringSdkToTerraform(d.AllowedSubnets)
 	}
-	if d != nil && d.BlockedSubnets != nil {
+	if d != nil && len(d.BlockedSubnets) > 0 {
 		blockedSubnets = mistutils.ListOfStringSdkToTerraform(d.BlockedSubnets)
 	}
 	if d != nil && d.Enabled != nil {

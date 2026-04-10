@@ -25,7 +25,7 @@ func rogueSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	var whitelistedBssids = mistutils.ListOfStringSdkToTerraformEmpty()
 	var whitelistedSsids = mistutils.ListOfStringSdkToTerraformEmpty()
 
-	if d != nil && d.AllowedVlanIds != nil {
+	if d != nil && len(d.AllowedVlanIds) > 0 {
 		allowedVlanIds = mistutils.ListOfIntSdkToTerraform(d.AllowedVlanIds)
 	}
 	if d != nil && d.Enabled != nil {
@@ -46,10 +46,10 @@ func rogueSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.MinRogueRssi != nil {
 		minRogueRssi = types.Int64Value(int64(*d.MinRogueRssi))
 	}
-	if d != nil && d.WhitelistedBssids != nil {
+	if d != nil && len(d.WhitelistedBssids) > 0 {
 		whitelistedBssids = mistutils.ListOfStringSdkToTerraform(d.WhitelistedBssids)
 	}
-	if d != nil && d.WhitelistedSsids != nil {
+	if d != nil && len(d.WhitelistedSsids) > 0 {
 		whitelistedSsids = mistutils.ListOfStringSdkToTerraform(d.WhitelistedSsids)
 	}
 

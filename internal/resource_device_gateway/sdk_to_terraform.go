@@ -59,7 +59,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	var mac types.String
 	var model types.String
 
-	if data.AdditionalConfigCmds != nil {
+	if len(data.AdditionalConfigCmds) > 0 {
 		additionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
 	}
 	if len(data.BgpConfig) > 0 {
@@ -68,10 +68,10 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	if data.DhcpdConfig != nil {
 		dhcpdConfig = dhcpdConfigSdkToTerraform(ctx, &diags, data.DhcpdConfig)
 	}
-	if data.DnsServers != nil {
+	if len(data.DnsServers) > 0 {
 		dnsServers = mistutils.ListOfStringSdkToTerraform(data.DnsServers)
 	}
-	if data.DnsSuffix != nil {
+	if len(data.DnsSuffix) > 0 {
 		dnsSuffix = mistutils.ListOfStringSdkToTerraform(data.DnsSuffix)
 	}
 	if len(data.ExtraRoutes) > 0 {
@@ -124,7 +124,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	if data.Notes != nil {
 		notes = types.StringValue(*data.Notes)
 	}
-	if data.NtpServers != nil {
+	if len(data.NtpServers) > 0 {
 		ntpServers = mistutils.ListOfStringSdkToTerraform(data.NtpServers)
 	}
 	if data.OobIpConfig != nil {
@@ -151,7 +151,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	if data.SiteId != nil {
 		siteId = types.StringValue(data.SiteId.String())
 	}
-	if data.SsrAdditionalConfigCmds != nil {
+	if len(data.SsrAdditionalConfigCmds) > 0 {
 		ssrAdditionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.SsrAdditionalConfigCmds)
 	}
 	if len(data.TunnelConfigs) > 0 {

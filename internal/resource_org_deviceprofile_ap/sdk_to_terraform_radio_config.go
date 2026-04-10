@@ -108,7 +108,7 @@ func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d.Bandwidth != nil {
 		bandwidth = types.Int64Value(int64(*d.Bandwidth))
 	}
-	if d.Channel.Value() != nil {
+	if d.Channels.Value() != nil && len(*d.Channels.Value()) != 0 {
 		channel = types.Int64Value(int64(*d.Channel.Value()))
 	}
 	if d.Channels.Value() != nil {
@@ -183,7 +183,7 @@ func band6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d.Channel.Value() != nil {
 		channel = types.Int64Value(int64(*d.Channel.Value()))
 	}
-	if d.Channels.Value() != nil {
+	if d.Channels.Value() != nil && len(*d.Channels.Value()) != 0 {
 		channels = mistutils.ListOfIntSdkToTerraform(*d.Channels.Value())
 	}
 	if d.Disabled != nil {
@@ -265,7 +265,7 @@ func radioConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.Band24 != nil {
 		band24 = band24SdkToTerraform(ctx, diags, d.Band24)
 	}
-	if d.Band24Usage != nil {
+	if d.Band24Usage != nil && *d.Band24Usage != "" {
 		band24Usage = types.StringValue(string(*d.Band24Usage))
 	}
 	if d.Band5 != nil {

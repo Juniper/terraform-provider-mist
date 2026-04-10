@@ -25,7 +25,7 @@ func tuntermIgmpSnoopingConfigSdkToTerraform(ctx context.Context, diags *diag.Di
 		diags.Append(e...)
 		querier = querierObj
 	}
-	if d.VlanIds != nil {
+	if len(d.VlanIds) > 0 {
 		vlanIds_list := make([]attr.Value, len(d.VlanIds))
 		for i, v := range d.VlanIds {
 			vlanIds_list[i] = types.Int64Value(int64(v))

@@ -36,13 +36,14 @@ func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mode
 		keyIdx = types.Int64Value(int64(*data.KeyIdx))
 	}
 
-	var keysList []attr.Value
-	if data.Keys != nil {
+	var keys = types.ListNull(types.StringType)
+	if len(data.Keys) > 0 {
+		var keysList []attr.Value
 		for _, val := range data.Keys {
 			keysList = append(keysList, types.StringValue(val))
 		}
+		keys = types.ListValueMust(basetypes.StringType{}, keysList)
 	}
-	keys := types.ListValueMust(basetypes.StringType{}, keysList)
 
 	var multiPskOnly basetypes.BoolValue
 	if data.MultiPskOnly != nil {
@@ -55,7 +56,7 @@ func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mode
 	}
 
 	var pairwise = types.ListNull(types.StringType)
-	if data.Pairwise != nil {
+	if len(data.Pairwise) > 0 {
 		var pairwiseList []attr.Value
 		for _, val := range data.Pairwise {
 			pairwiseList = append(pairwiseList, types.StringValue(string(val)))

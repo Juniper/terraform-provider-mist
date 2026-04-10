@@ -47,7 +47,7 @@ func SdkToTerraform(d *models.Psk) (OrgPskModel, diag.Diagnostics) {
 	if d.Mac != nil {
 		mac = types.StringValue(*d.Mac)
 	}
-	if d.Macs != nil {
+	if len(d.Macs) > 0 {
 		macs = mistutils.ListOfStringSdkToTerraform(d.Macs)
 	}
 	if d.MaxUsage != nil {

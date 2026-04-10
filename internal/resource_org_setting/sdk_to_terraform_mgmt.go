@@ -17,7 +17,7 @@ func mgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	var useMxtunnel basetypes.BoolValue
 	var useWxtunnel basetypes.BoolValue
 
-	if d.MxtunnelIds != nil {
+	if len(d.MxtunnelIds) > 0 {
 		mxtunnelIds = mistutils.ListOfUuidSdkToTerraform(d.MxtunnelIds)
 	}
 	if d.UseMxtunnel != nil {

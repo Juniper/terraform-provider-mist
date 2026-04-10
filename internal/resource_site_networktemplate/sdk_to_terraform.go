@@ -43,13 +43,13 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	var vrfConfig = NewVrfConfigValueNull()
 	var vrfInstances = types.MapNull(VrfInstancesValue{}.Type(ctx))
 
-	if data.AclPolicies != nil {
+	if len(data.AclPolicies) > 0 {
 		aclPolicies = aclPoliciesSdkToTerraform(ctx, &diags, data.AclPolicies)
 	}
 	if len(data.AclTags) > 0 {
 		aclTags = aclTagsSdkToTerraform(ctx, &diags, data.AclTags)
 	}
-	if data.AdditionalConfigCmds != nil {
+	if len(data.AdditionalConfigCmds) > 0 {
 		additionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
 	}
 	if data.AutoUpgradeLinecard != nil {
@@ -58,13 +58,13 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	if data.DhcpSnooping != nil {
 		dhcpSnooping = dhcpSnoopingSdkToTerraform(ctx, &diags, data.DhcpSnooping)
 	}
-	if data.DnsServers != nil {
+	if len(data.DnsServers) > 0 {
 		dnsServers = mistutils.ListOfStringSdkToTerraform(data.DnsServers)
 	}
-	if data.DnsSuffix != nil {
+	if len(data.DnsSuffix) > 0 {
 		dnsSuffix = mistutils.ListOfStringSdkToTerraform(data.DnsSuffix)
 	}
-	if data.DisabledSystemDefinedPortUsages != nil {
+	if len(data.DisabledSystemDefinedPortUsages) > 0 {
 		var items []attr.Value
 		var itemsType attr.Type = basetypes.StringType{}
 		for _, item := range data.DisabledSystemDefinedPortUsages {
@@ -85,7 +85,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	if len(data.Networks) > 0 {
 		networks = NetworksSdkToTerraform(ctx, &diags, data.Networks)
 	}
-	if data.NtpServers != nil {
+	if len(data.NtpServers) > 0 {
 		ntpServers = mistutils.ListOfStringSdkToTerraform(data.NtpServers)
 	}
 	if data.OspfAreas != nil {
@@ -103,7 +103,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	if data.RemoteSyslog != nil {
 		remoteSyslog = remoteSyslogSdkToTerraform(ctx, &diags, data.RemoteSyslog)
 	}
-	if data.RoutingPolicies != nil {
+	if len(data.RoutingPolicies) > 0 {
 		routingPolicies = routingPoliciesSdkToTerraform(ctx, &diags, data.RoutingPolicies)
 	}
 	if data.SnmpConfig != nil {

@@ -5,8 +5,10 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 func SdkToTerraform(data models.WxlanRule) (SiteWxruleModel, diag.Diagnostics) {
@@ -16,11 +18,11 @@ func SdkToTerraform(data models.WxlanRule) (SiteWxruleModel, diag.Diagnostics) {
 	var action types.String
 	var applyTags = types.ListNull(types.StringType)
 	var blockedApps = types.ListNull(types.StringType)
-	var dstAllowWxtags = types.ListNull(types.StringType)
-	var dstDenyWxtags = types.ListNull(types.StringType)
-	var dstWxtags = types.ListNull(types.StringType)
-	var enabled types.Bool
-	var srcWxtags = types.ListNull(types.StringType)
+	var dstAllowWxtags = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
+	var dstDenyWxtags = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
+	var dstWxtags = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
+	var enabled = types.BoolValue(true)
+	var srcWxtags = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
 
 	if data.Action != nil {
 		action = types.StringValue(string(*data.Action))
@@ -31,19 +33,19 @@ func SdkToTerraform(data models.WxlanRule) (SiteWxruleModel, diag.Diagnostics) {
 	if len(data.BlockedApps) > 0 {
 		blockedApps = mistutils.ListOfStringSdkToTerraform(data.BlockedApps)
 	}
-	if data.DstAllowWxtags != nil {
+	if len(data.DstAllowWxtags) > 0 {
 		dstAllowWxtags = mistutils.ListOfStringSdkToTerraform(data.DstAllowWxtags)
 	}
-	if data.DstDenyWxtags != nil {
+	if len(data.DstDenyWxtags) > 0 {
 		dstDenyWxtags = mistutils.ListOfStringSdkToTerraform(data.DstDenyWxtags)
 	}
-	if data.DstWxtags != nil {
+	if len(data.DstWxtags) > 0 {
 		dstWxtags = mistutils.ListOfStringSdkToTerraform(data.DstWxtags)
 	}
 	if data.Enabled != nil {
 		enabled = types.BoolValue(*data.Enabled)
 	}
-	if data.SrcWxtags != nil {
+	if len(data.SrcWxtags) > 0 {
 		srcWxtags = mistutils.ListOfStringSdkToTerraform(data.SrcWxtags)
 	}
 

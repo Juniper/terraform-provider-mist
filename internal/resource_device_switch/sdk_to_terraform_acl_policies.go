@@ -55,7 +55,7 @@ func aclPoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l [
 		if d.Name != nil {
 			name = types.StringValue(*d.Name)
 		}
-		if d.SrcTags != nil {
+		if len(d.SrcTags) > 0 {
 			srcTags = mistutils.ListOfStringSdkToTerraform(d.SrcTags)
 		}
 

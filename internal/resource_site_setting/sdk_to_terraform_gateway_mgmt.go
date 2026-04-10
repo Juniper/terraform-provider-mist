@@ -19,7 +19,7 @@ func gatewayMgmtProtectCustomReSdkToTerraform(ctx context.Context, diags *diag.D
 
 		var portRange basetypes.StringValue
 		var protocol basetypes.StringValue
-		var subnets = mistutils.ListOfStringSdkToTerraformEmpty()
+		var subnets = types.ListNull(types.StringType)
 
 		if d.PortRange != nil {
 			portRange = types.StringValue(*d.PortRange)
@@ -27,7 +27,7 @@ func gatewayMgmtProtectCustomReSdkToTerraform(ctx context.Context, diags *diag.D
 		if d.Protocol != nil {
 			protocol = types.StringValue(string(*d.Protocol))
 		}
-		if d.Subnets != nil {
+		if len(d.Subnets) > 0 {
 			subnets = mistutils.ListOfStringSdkToTerraform(d.Subnets)
 		}
 
@@ -48,13 +48,13 @@ func gatewayMgmtProtectCustomReSdkToTerraform(ctx context.Context, diags *diag.D
 	return r
 }
 func gatewayMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.ProtectRe) basetypes.ObjectValue {
-	var allowedServices = types.ListNull(types.StringType)
+	var allowedServices = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
 	var custom = basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})
 	var enabled basetypes.BoolValue
 	var hitCount basetypes.BoolValue
 	var trustedHosts = basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})
 
-	if d.AllowedServices != nil {
+	if len(d.AllowedServices) > 0 {
 		var items []attr.Value
 		var itemsType attr.Type = basetypes.StringType{}
 		for _, item := range d.AllowedServices {
@@ -72,7 +72,7 @@ func gatewayMgmtProtectReSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 	if d.HitCount != nil {
 		hitCount = types.BoolValue(*d.HitCount)
 	}
-	if d.TrustedHosts != nil {
+	if len(d.TrustedHosts) > 0 {
 		trustedHosts = mistutils.ListOfStringSdkToTerraform(d.TrustedHosts)
 	}
 
@@ -111,7 +111,7 @@ func gatewayMgmtAppProbingCustomSdkToTerraform(ctx context.Context, diags *diag.
 		if d.AppType != nil {
 			appType = types.StringValue(*d.AppType)
 		}
-		if d.Hostnames != nil {
+		if len(d.Hostnames) > 0 {
 			hostnames = mistutils.ListOfStringSdkToTerraform(d.Hostnames)
 		}
 		if d.Key != nil {
@@ -164,7 +164,7 @@ func gatewayMgmtAppProbingSdkToTerraform(ctx context.Context, diags *diag.Diagno
 	var customApps = types.ListNull(CustomAppsValue{}.Type(ctx))
 	var enabled basetypes.BoolValue
 
-	if d.Apps != nil {
+	if len(d.Apps) > 0 {
 		apps = mistutils.ListOfStringSdkToTerraform(d.Apps)
 	}
 	if d.CustomApps != nil {
@@ -228,7 +228,7 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var securityLogSourceAddress basetypes.StringValue
 	var securityLogSourceInterface basetypes.StringValue
 
-	if d.AdminSshkeys != nil {
+	if len(d.AdminSshkeys) > 0 {
 		adminSshkeys = mistutils.ListOfStringSdkToTerraform(d.AdminSshkeys)
 	}
 	if d.AppProbing != nil {
@@ -255,10 +255,10 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.DisableOob != nil {
 		disableOob = types.BoolValue(*d.DisableOob)
 	}
-	if d.ProbeHosts != nil {
+	if len(d.ProbeHosts) > 0 {
 		probeHosts = mistutils.ListOfStringSdkToTerraform(d.ProbeHosts)
 	}
-	if d.ProbeHostsv6 != nil {
+	if len(d.ProbeHostsv6) > 0 {
 		probeHostsv6 = mistutils.ListOfStringSdkToTerraform(d.ProbeHostsv6)
 	}
 	if d.ProtectRe != nil {

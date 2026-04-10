@@ -57,7 +57,7 @@ func SdkToTerraform(data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
 	if data.LdapBindPassword != nil {
 		ldapBindPassword = types.StringValue(*data.LdapBindPassword)
 	}
-	if data.LdapCacerts != nil {
+	if len(data.LdapCacerts) > 0 {
 		ldapCaCerts = mistutils.ListOfStringSdkToTerraform(data.LdapCacerts)
 	}
 	if data.LdapClientCert != nil {
@@ -81,7 +81,7 @@ func SdkToTerraform(data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
 	if data.LdapResolveGroups != nil {
 		ldapResolveGroups = types.BoolValue(*data.LdapResolveGroups)
 	}
-	if data.LdapServerHosts != nil {
+	if len(data.LdapServerHosts) > 0 {
 		ldapServerHosts = mistutils.ListOfStringSdkToTerraform(data.LdapServerHosts)
 	}
 	if data.LdapType != nil {

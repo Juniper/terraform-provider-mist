@@ -25,7 +25,7 @@ func snmpClientListSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		if d.ClientListName != nil {
 			clientListName = types.StringValue(*d.ClientListName)
 		}
-		if d.Clients != nil {
+		if len(d.Clients) > 0 {
 			clients = mistutils.ListOfStringSdkToTerraform(d.Clients)
 		}
 
@@ -53,13 +53,13 @@ func snmpTrapGroupsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		var targets = mistutils.ListOfStringSdkToTerraformEmpty()
 		var version basetypes.StringValue
 
-		if d.Categories != nil {
+		if len(d.Categories) > 0 {
 			categories = mistutils.ListOfStringSdkToTerraform(d.Categories)
 		}
 		if d.GroupName != nil {
 			groupName = types.StringValue(*d.GroupName)
 		}
-		if d.Targets != nil {
+		if len(d.Targets) > 0 {
 			targets = mistutils.ListOfStringSdkToTerraform(d.Targets)
 		}
 		if d.Version != nil {
@@ -626,28 +626,28 @@ func snmpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	if d != nil {
 		clientList = snmpClientListSdkToTerraform(ctx, diags, d.ClientList)
 
-		if d.Contact != nil {
+		if d.Contact != nil && len(*d.Contact) != 0 {
 			contact = types.StringValue(*d.Contact)
 		}
-		if d.Description != nil {
+		if d.Description != nil && len(*d.Description) != 0 {
 			description = types.StringValue(*d.Description)
 		}
 		if d.Enabled != nil {
 			enabled = types.BoolValue(*d.Enabled)
 		}
-		if d.EngineId != nil {
+		if d.EngineId != nil && len(*d.EngineId) != 0 {
 			engineId = types.StringValue(*d.EngineId)
 		}
-		if d.EngineIdType != nil {
+		if d.EngineIdType != nil && len(*d.EngineIdType) != 0 {
 			engineIdType = types.StringValue(string(*d.EngineIdType))
 		}
-		if d.Location != nil {
+		if d.Location != nil && len(*d.Location) != 0 {
 			location = types.StringValue(*d.Location)
 		}
-		if d.Name != nil {
+		if d.Name != nil && len(*d.Name) != 0 {
 			name = types.StringValue(*d.Name)
 		}
-		if d.Network != nil {
+		if d.Network != nil && len(*d.Network) != 0 {
 			network = types.StringValue(*d.Network)
 		}
 		if d.TrapGroups != nil {

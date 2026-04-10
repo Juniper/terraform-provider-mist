@@ -2,6 +2,7 @@ package resource_site_networktemplate
 
 import (
 	"context"
+
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -31,16 +32,16 @@ func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 		if d.IsolationVlanId != nil {
 			isolationVlanId = types.StringValue(*d.IsolationVlanId)
 		}
-		if d.Gateway != nil {
+		if d.Gateway != nil && len(*d.Gateway) != 0 {
 			gateway = types.StringValue(*d.Gateway)
 		}
-		if d.Gateway6 != nil {
+		if d.Gateway6 != nil && len(*d.Gateway6) != 0 {
 			gateway6 = types.StringValue(*d.Gateway6)
 		}
-		if d.Subnet != nil {
+		if d.Subnet != nil && len(*d.Subnet) != 0 {
 			subnet = types.StringValue(*d.Subnet)
 		}
-		if d.Subnet6 != nil {
+		if d.Subnet6 != nil && len(*d.Subnet6) != 0 {
 			subnet6 = types.StringValue(*d.Subnet6)
 		}
 		vlanId = mistutils.VlanAsString(d.VlanId)

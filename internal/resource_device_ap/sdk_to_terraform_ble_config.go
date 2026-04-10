@@ -18,7 +18,7 @@ func bleConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 	var beaconEnabled basetypes.BoolValue
 	var beaconRate basetypes.Int64Value
 	var beaconRateMode basetypes.StringValue
-	var beamDisabled = mistutils.ListOfIntSdkToTerraformEmpty()
+	var beamDisabled = types.ListNull(types.Int64Type)
 	var customBlePacketEnabled basetypes.BoolValue
 	var customBlePacketFrame basetypes.StringValue
 	var customBlePacketFreqMsec basetypes.Int64Value
@@ -52,7 +52,7 @@ func bleConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 	if d.BeaconRateMode != nil {
 		beaconRateMode = types.StringValue(string(*d.BeaconRateMode))
 	}
-	if d.BeamDisabled != nil {
+	if len(d.BeamDisabled) > 0 {
 		beamDisabled = mistutils.ListOfIntSdkToTerraform(d.BeamDisabled)
 	}
 	if d.CustomBlePacketEnabled != nil {

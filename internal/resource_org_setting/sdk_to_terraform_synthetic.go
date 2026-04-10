@@ -77,10 +77,10 @@ func syntheticTestLanNetworksSdkToTerraform(ctx context.Context, diags *diag.Dia
 		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
 		var probes = types.ListNull(basetypes.StringType{})
 
-		if d.Networks != nil {
+		if len(d.Networks) > 0 {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
-		if d.Probes != nil {
+		if len(d.Probes) > 0 {
 			probes = mistutils.ListOfStringSdkToTerraform(d.Probes)
 		}
 
@@ -106,16 +106,16 @@ func syntheticTestVlansSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		var probes = types.ListNull(basetypes.StringType{})
 		var vlanIds = types.ListNull(basetypes.StringType{})
 
-		if d.CustomTestUrls != nil {
+		if len(d.CustomTestUrls) > 0 {
 			customTestUrls = mistutils.ListOfStringSdkToTerraform(d.CustomTestUrls)
 		}
 		if d.Disabled != nil {
 			disabled = types.BoolValue(*d.Disabled)
 		}
-		if d.Probes != nil {
+		if len(d.Probes) > 0 {
 			probes = mistutils.ListOfStringSdkToTerraform(d.Probes)
 		}
-		if d.VlanIds != nil {
+		if len(d.VlanIds) > 0 {
 			var items []attr.Value
 			for _, item := range d.VlanIds {
 				items = append(items, mistutils.VlanAsString(item))

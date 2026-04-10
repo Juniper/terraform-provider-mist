@@ -46,7 +46,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	var vrfConfig = NewVrfConfigValueNull()
 	var vrfInstances = types.MapNull(VrfInstancesValue{}.Type(ctx))
 
-	if data.AdditionalConfigCmds != nil {
+	if len(data.AdditionalConfigCmds) > 0 {
 		additionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
 	}
 	if len(data.BgpConfig) > 0 {
@@ -58,10 +58,10 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	if data.DnsOverride != nil {
 		dnsOverride = types.BoolValue(*data.DnsOverride)
 	}
-	if data.DnsServers != nil {
+	if len(data.DnsServers) > 0 {
 		dnsServers = mistutils.ListOfStringSdkToTerraform(data.DnsServers)
 	}
-	if data.DnsSuffix != nil {
+	if len(data.DnsSuffix) > 0 {
 		dnsSuffix = mistutils.ListOfStringSdkToTerraform(data.DnsSuffix)
 	}
 	if len(data.ExtraRoutes) > 0 {
@@ -85,7 +85,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	if data.NtpOverride != nil {
 		ntpOverride = types.BoolValue(*data.NtpOverride)
 	}
-	if data.NtpServers != nil {
+	if len(data.NtpServers) > 0 {
 		ntpServers = mistutils.ListOfStringSdkToTerraform(data.NtpServers)
 	}
 	if data.OobIpConfig != nil {
@@ -109,7 +109,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	if len(data.ServicePolicies) > 0 {
 		servicePolicies = servicePoliciesSdkToTerraform(ctx, &diags, data.ServicePolicies)
 	}
-	if data.SsrAdditionalConfigCmds != nil {
+	if len(data.SsrAdditionalConfigCmds) > 0 {
 		ssrAdditionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.SsrAdditionalConfigCmds)
 	}
 	if len(data.TunnelConfigs) > 0 {

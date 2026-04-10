@@ -65,7 +65,7 @@ func vsInstanceEvpnOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagno
 	for k, d := range m {
 		var networks basetypes.ListValue
 
-		if d.Networks != nil {
+		if len(d.Networks) > 0 {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 

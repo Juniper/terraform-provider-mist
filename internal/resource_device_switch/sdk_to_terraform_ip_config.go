@@ -22,10 +22,10 @@ func ipConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mod
 	var network basetypes.StringValue
 	var type4 basetypes.StringValue
 
-	if d.Dns != nil {
+	if len(d.Dns) > 0 {
 		dns = mistutils.ListOfStringSdkToTerraform(d.Dns)
 	}
-	if d.DnsSuffix != nil {
+	if len(d.DnsSuffix) > 0 {
 		dnsSuffix = mistutils.ListOfStringSdkToTerraform(d.DnsSuffix)
 	}
 	if d.Gateway != nil {

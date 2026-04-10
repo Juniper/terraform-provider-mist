@@ -32,7 +32,7 @@ func oobIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.Dhcp6 != nil {
 		dhcp6 = types.BoolValue(*d.Dhcp6)
 	}
-	if d.Dns != nil {
+	if len(d.Dns) > 0 {
 		dns = mistutils.ListOfStringSdkToTerraform(d.Dns)
 	}
 	if d.Gateway != nil {

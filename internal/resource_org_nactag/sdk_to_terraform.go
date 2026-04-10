@@ -34,7 +34,7 @@ func SdkToTerraform(data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
 	if data.AllowUsermacOverride != nil {
 		allowUsermacOverride = types.BoolValue(*data.AllowUsermacOverride)
 	}
-	if data.EgressVlanNames != nil {
+	if len(data.EgressVlanNames) > 0 {
 		egressVlanNames = mistutils.ListOfStringSdkToTerraform(data.EgressVlanNames)
 	}
 	if data.GbpTag != nil {
@@ -58,13 +58,13 @@ func SdkToTerraform(data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
 	if data.OrgId != nil {
 		orgId = types.StringValue(data.OrgId.String())
 	}
-	if data.RadiusAttrs != nil {
+	if len(data.RadiusAttrs) > 0 {
 		radiusAttrs = mistutils.ListOfStringSdkToTerraform(data.RadiusAttrs)
 	}
 	if data.RadiusGroup != nil {
 		radiusGroup = types.StringValue(*data.RadiusGroup)
 	}
-	if data.RadiusVendorAttrs != nil {
+	if len(data.RadiusVendorAttrs) > 0 {
 		radiusVendorAttrs = mistutils.ListOfStringSdkToTerraform(data.RadiusVendorAttrs)
 	}
 	if data.SessionTimeout != nil {
@@ -74,7 +74,7 @@ func SdkToTerraform(data *models.NacTag) (OrgNactagModel, diag.Diagnostics) {
 	if data.UsernameAttr != nil {
 		usernameAttr = types.StringValue(string(*data.UsernameAttr))
 	}
-	if data.Values != nil {
+	if len(data.Values) > 0 {
 		values = mistutils.ListOfStringSdkToTerraform(data.Values)
 	}
 	if data.Vlan != nil {

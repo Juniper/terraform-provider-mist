@@ -24,15 +24,9 @@ func portMirroringSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		var outputIpAddress basetypes.StringValue
 		var outputPortId basetypes.StringValue
 
-		if d.InputNetworksIngress != nil {
-			inputNetworksIngress = mistutils.ListOfStringSdkToTerraform(d.InputNetworksIngress)
-		}
-		if d.InputPortIdsEgress != nil {
-			inputPortIdsEgress = mistutils.ListOfStringSdkToTerraform(d.InputPortIdsEgress)
-		}
-		if d.InputPortIdsIngress != nil {
-			inputPortIdsIngress = mistutils.ListOfStringSdkToTerraform(d.InputPortIdsIngress)
-		}
+		inputNetworksIngress = mistutils.ListOfStringSdkToTerraform(d.InputNetworksIngress)
+		inputPortIdsEgress = mistutils.ListOfStringSdkToTerraform(d.InputPortIdsEgress)
+		inputPortIdsIngress = mistutils.ListOfStringSdkToTerraform(d.InputPortIdsIngress)
 		if d.OutputIpAddress != nil {
 			outputIpAddress = types.StringValue(*d.OutputIpAddress)
 		}

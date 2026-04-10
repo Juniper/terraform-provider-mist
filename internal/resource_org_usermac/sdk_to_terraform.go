@@ -25,7 +25,7 @@ func SdkToTerraform(d *models.UserMac, mistOrgId *uuid.UUID) (OrgUsermacModel, d
 	if d.Id != nil {
 		id = types.StringValue(d.Id.String())
 	}
-	if d.Labels != nil {
+	if len(d.Labels) > 0 {
 		labels = mistutils.ListOfStringSdkToTerraform(d.Labels)
 	}
 

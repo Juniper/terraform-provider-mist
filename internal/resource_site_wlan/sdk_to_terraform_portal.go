@@ -15,76 +15,76 @@ import (
 
 func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanPortal) PortalValue {
 	var allowWlanIdRoam basetypes.BoolValue
-	var amazonClientId basetypes.StringValue
-	var amazonClientSecret basetypes.StringValue
-	var amazonEmailDomains = mistutils.ListOfStringSdkToTerraformEmpty()
-	var amazonEnabled basetypes.BoolValue
+	var amazonClientId = types.StringValue("")
+	var amazonClientSecret = types.StringValue("")
+	var amazonEmailDomains = types.ListValueMust(types.StringType, []attr.Value{})
+	var amazonEnabled = types.BoolValue(false)
 	var amazonExpire basetypes.Int64Value
-	var auth basetypes.StringValue
-	var azureClientId basetypes.StringValue
-	var azureClientSecret basetypes.StringValue
-	var azureEnabled basetypes.BoolValue
+	var auth = types.StringValue("none")
+	var azureClientId = types.StringValue("")
+	var azureClientSecret = types.StringValue("")
+	var azureEnabled = types.BoolValue(false)
 	var azureExpire basetypes.Int64Value
-	var azureTenantId basetypes.StringValue
-	var broadnetPassword basetypes.StringValue
+	var azureTenantId = types.StringValue("")
+	var broadnetPassword = types.StringValue("")
 	var broadnetSid basetypes.StringValue
 	var broadnetUserId basetypes.StringValue
-	var bypassWhenCloudDown basetypes.BoolValue
+	var bypassWhenCloudDown = types.BoolValue(false)
 	var clickatellApiKey basetypes.StringValue
 	var crossSite basetypes.BoolValue
-	var emailEnabled basetypes.BoolValue
-	var enabled basetypes.BoolValue
-	var expire basetypes.Int64Value
+	var emailEnabled = types.BoolValue(false)
+	var enabled = types.BoolValue(false)
+	var expire = types.Int64Value(1440)
 	var externalPortalUrl = types.StringValue("")
-	var facebookClientId basetypes.StringValue
-	var facebookClientSecret basetypes.StringValue
-	var facebookEmailDomains = mistutils.ListOfStringSdkToTerraformEmpty()
-	var facebookEnabled basetypes.BoolValue
+	var facebookClientId = types.StringValue("")
+	var facebookClientSecret = types.StringValue("")
+	var facebookEmailDomains = types.ListValueMust(types.StringType, []attr.Value{})
+	var facebookEnabled = types.BoolValue(false)
 	var facebookExpire basetypes.Int64Value
-	var forward basetypes.BoolValue
-	var forwardUrl basetypes.StringValue
-	var googleClientId basetypes.StringValue
-	var googleClientSecret basetypes.StringValue
-	var googleEmailDomains = mistutils.ListOfStringSdkToTerraformEmpty()
-	var googleEnabled basetypes.BoolValue
+	var forward = types.BoolValue(false)
+	var forwardUrl = types.StringValue("")
+	var googleClientId = types.StringValue("")
+	var googleClientSecret = types.StringValue("")
+	var googleEmailDomains = types.ListValueMust(types.StringType, []attr.Value{})
+	var googleEnabled = types.BoolValue(false)
 	var googleExpire basetypes.Int64Value
 	var gupshupPassword basetypes.StringValue
 	var gupshupUserid basetypes.StringValue
-	var microsoftClientId basetypes.StringValue
-	var microsoftClientSecret basetypes.StringValue
-	var microsoftEmailDomains = mistutils.ListOfStringSdkToTerraformEmpty()
-	var microsoftEnabled basetypes.BoolValue
+	var microsoftClientId = types.StringValue("")
+	var microsoftClientSecret = types.StringValue("")
+	var microsoftEmailDomains = types.ListValueMust(types.StringType, []attr.Value{})
+	var microsoftEnabled = types.BoolValue(false)
 	var microsoftExpire basetypes.Int64Value
-	var passphraseEnabled basetypes.BoolValue
+	var passphraseEnabled = types.BoolValue(false)
 	var passphraseExpire basetypes.Int64Value
-	var password basetypes.StringValue
-	var predefinedSponsorsEnabled basetypes.BoolValue
-	var predefinedSponsorsHideEmail = basetypes.NewBoolValue(false)
-	var privacy basetypes.BoolValue
+	var password = types.StringValue("")
+	var predefinedSponsorsEnabled = types.BoolValue(true)
+	var predefinedSponsorsHideEmail = types.BoolValue(false)
+	var privacy = types.BoolValue(false)
 	var puzzelPassword basetypes.StringValue
 	var puzzelServiceId basetypes.StringValue
 	var puzzelUsername basetypes.StringValue
-	var smsEnabled basetypes.BoolValue
+	var smsEnabled = types.BoolValue(false)
 	var smsExpire basetypes.Int64Value
-	var smsMessageFormat basetypes.StringValue
-	var smsProvider basetypes.StringValue
+	var smsMessageFormat = types.StringValue("Code {{code}} expires in {{duration}} minutes.")
+	var smsProvider = types.StringValue("manual")
 	var smsGlobalApiKey basetypes.StringValue
 	var smsGlobalApiSecret basetypes.StringValue
 	var sponsorAutoApprove basetypes.BoolValue
-	var sponsorEmailDomains = mistutils.ListOfStringSdkToTerraformEmpty()
-	var sponsorEnabled basetypes.BoolValue
+	var sponsorEmailDomains = types.ListValueMust(types.StringType, []attr.Value{})
+	var sponsorEnabled = types.BoolValue(false)
 	var sponsorExpire basetypes.Int64Value
-	var sponsorLinkValidityDuration basetypes.StringValue
-	var sponsorNotifyAll basetypes.BoolValue
-	var sponsorStatusNotify basetypes.BoolValue
-	var sponsors = types.MapNull(types.StringType)
-	var ssoDefaultRole basetypes.StringValue
-	var ssoForcedRole basetypes.StringValue
-	var ssoIdpCert basetypes.StringValue
-	var ssoIdpSignAlgo basetypes.StringValue
-	var ssoIdpSsoUrl basetypes.StringValue
-	var ssoIssuer basetypes.StringValue
-	var ssoNameidFormat basetypes.StringValue
+	var sponsorLinkValidityDuration = types.StringValue("60")
+	var sponsorNotifyAll = types.BoolValue(false)
+	var sponsorStatusNotify = types.BoolValue(false)
+	var sponsors = types.MapValueMust(types.StringType, map[string]attr.Value{})
+	var ssoDefaultRole = types.StringValue("")
+	var ssoForcedRole = types.StringValue("")
+	var ssoIdpCert = types.StringValue("")
+	var ssoIdpSignAlgo = types.StringValue("sha1")
+	var ssoIdpSsoUrl = types.StringValue("")
+	var ssoIssuer = types.StringValue("")
+	var ssoNameidFormat = types.StringValue("email")
 	var telstraClientId basetypes.StringValue
 	var telstraClientSecret basetypes.StringValue
 	var twilioAuthToken basetypes.StringValue
@@ -100,7 +100,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.AmazonClientSecret.Value() != nil {
 		amazonClientSecret = types.StringValue(*d.AmazonClientSecret.Value())
 	}
-	if d != nil && d.AmazonEmailDomains != nil {
+	if d != nil && len(d.AmazonEmailDomains) > 0 {
 		amazonEmailDomains = mistutils.ListOfStringSdkToTerraform(d.AmazonEmailDomains)
 	}
 	if d != nil && d.AmazonEnabled != nil {
@@ -163,7 +163,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.FacebookClientSecret.Value() != nil {
 		facebookClientSecret = types.StringValue(*d.FacebookClientSecret.Value())
 	}
-	if d != nil && d.FacebookEmailDomains != nil {
+	if d != nil && len(d.FacebookEmailDomains) > 0 {
 		facebookEmailDomains = mistutils.ListOfStringSdkToTerraform(d.FacebookEmailDomains)
 	}
 	if d != nil && d.FacebookEnabled != nil {
@@ -184,7 +184,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.GoogleClientSecret.Value() != nil {
 		googleClientSecret = types.StringValue(*d.GoogleClientSecret.Value())
 	}
-	if d != nil && d.GoogleEmailDomains != nil {
+	if d != nil && len(d.GoogleEmailDomains) > 0 {
 		googleEmailDomains = mistutils.ListOfStringSdkToTerraform(d.GoogleEmailDomains)
 	}
 	if d != nil && d.GoogleEnabled != nil {
@@ -205,7 +205,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.MicrosoftClientSecret.Value() != nil {
 		microsoftClientSecret = types.StringValue(*d.MicrosoftClientSecret.Value())
 	}
-	if d != nil && d.MicrosoftEmailDomains != nil {
+	if d != nil && len(d.MicrosoftEmailDomains) > 0 {
 		microsoftEmailDomains = mistutils.ListOfStringSdkToTerraform(d.MicrosoftEmailDomains)
 	}
 	if d != nil && d.MicrosoftEnabled != nil {
@@ -262,7 +262,7 @@ func portalSkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d != nil && d.SponsorAutoApprove != nil {
 		sponsorAutoApprove = types.BoolValue(*d.SponsorAutoApprove)
 	}
-	if d != nil && d.SponsorEmailDomains != nil {
+	if d != nil && len(d.SponsorEmailDomains) > 0 {
 		sponsorEmailDomains = mistutils.ListOfStringSdkToTerraform(d.SponsorEmailDomains)
 	}
 	if d != nil && d.SponsorEnabled != nil {

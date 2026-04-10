@@ -21,23 +21,23 @@ func hotspot20SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 	var rcoi = basetypes.NewListNull(types.StringType)
 	var venueName basetypes.StringValue
 
-	if d != nil && d.DomainName != nil {
+	if d != nil && len(d.DomainName) > 0 {
 		domainName = mistutils.ListOfStringSdkToTerraform(d.DomainName)
 	}
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d != nil && d.NaiRealms != nil {
+	if d != nil && len(d.NaiRealms) > 0 {
 		naiRealms = mistutils.ListOfStringSdkToTerraform(d.NaiRealms)
 	}
-	if d != nil && d.Operators != nil {
+	if d != nil && len(d.Operators) > 0 {
 		var operatorsList []attr.Value
 		for _, v := range d.Operators {
 			operatorsList = append(operatorsList, types.StringValue(string(v)))
 		}
 		operators = types.ListValueMust(basetypes.StringType{}, operatorsList)
 	}
-	if d != nil && d.Rcoi != nil {
+	if d != nil && len(d.Rcoi) > 0 {
 		rcoi = mistutils.ListOfStringSdkToTerraform(d.Rcoi)
 	}
 	if d != nil && d.VenueName != nil {

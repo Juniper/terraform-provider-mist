@@ -60,10 +60,10 @@ func wanProbeOverridePortConfigIpConfigSdkToTerraform(ctx context.Context, diags
 	var ip6s = types.ListNull(types.StringType)
 	var probeProfile basetypes.StringValue
 
-	if g != nil && g.Ips != nil {
+	if g != nil && len(g.Ips) > 0 {
 		ips = mistutils.ListOfStringSdkToTerraform(g.Ips)
 	}
-	if g != nil && g.Ip6s != nil {
+	if g != nil && len(g.Ip6s) > 0 {
 		ip6s = mistutils.ListOfStringSdkToTerraform(g.Ip6s)
 	}
 	if g != nil && g.ProbeProfile != nil {
@@ -97,10 +97,10 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	var ipConfigType basetypes.StringValue
 	var ip6ConfigType basetypes.StringValue
 
-	if g != nil && g.Dns != nil {
+	if g != nil && len(g.Dns) > 0 {
 		dns = mistutils.ListOfStringSdkToTerraform(g.Dns)
 	}
-	if g != nil && g.DnsSuffix != nil {
+	if g != nil && len(g.DnsSuffix) > 0 {
 		dnsSuffix = mistutils.ListOfStringSdkToTerraform(g.DnsSuffix)
 	}
 	if g != nil && g.Gateway != nil {
@@ -168,7 +168,7 @@ func portConfigTrafficShapingSdkToTerraform(ctx context.Context, diags *diag.Dia
 	var enabled basetypes.BoolValue
 	var maxTxKbps basetypes.Int64Value
 
-	if g != nil && g.ClassPercentages != nil {
+	if g != nil && len(g.ClassPercentages) > 0 {
 		classPercentages = mistutils.ListOfIntSdkToTerraform(g.ClassPercentages)
 	}
 	if g != nil && g.Enabled != nil {
@@ -374,7 +374,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.Name != nil {
 			name = types.StringValue(*v.Name)
 		}
-		if v.Networks != nil {
+		if len(v.Networks) > 0 {
 			networks = mistutils.ListOfStringSdkToTerraform(v.Networks)
 		}
 		if v.OuterVlanId != nil {
@@ -434,7 +434,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.WanExtraRoutes6 != nil {
 			wanExtraRoutes6 = wanExtraRoutes6PortConfigIpConfigSdkToTerraform(ctx, diags, v.WanExtraRoutes6)
 		}
-		if v.WanNetworks != nil {
+		if len(v.WanNetworks) > 0 {
 			wanNetworks = mistutils.ListOfStringSdkToTerraform(v.WanNetworks)
 		}
 		if v.WanProbeOverride != nil {

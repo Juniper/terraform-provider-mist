@@ -26,7 +26,7 @@ func tuntermDhcpdConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		if v.Enabled != nil {
 			enabled = types.BoolValue(*v.Enabled)
 		}
-		if v.Servers != nil {
+		if len(v.Servers) > 0 {
 			servers = mistutils.ListOfStringSdkToTerraform(v.Servers)
 		}
 		if v.Type != nil {

@@ -32,7 +32,7 @@ func dhcpSnoopingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d != nil && d.Networks != nil {
+	if d != nil && len(d.Networks) > 0 {
 		networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 	}
 

@@ -18,7 +18,7 @@ func zoneOccupancySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d
 	var enabled basetypes.BoolValue
 	var threshold basetypes.Int64Value
 
-	if d.EmailNotifiers != nil {
+	if len(d.EmailNotifiers) > 0 {
 		emailNotifiers = mistutils.ListOfStringSdkToTerraform(d.EmailNotifiers)
 	}
 	if d.Enabled != nil {

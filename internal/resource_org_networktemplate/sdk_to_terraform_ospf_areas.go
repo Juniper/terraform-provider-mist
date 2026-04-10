@@ -27,7 +27,7 @@ func ospfAreasNetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		var noReadvertiseToOverlay basetypes.BoolValue
 		var passive basetypes.BoolValue
 
-		if d.AuthKeys != nil {
+		if len(d.AuthKeys) > 0 {
 			authKeysVm := make(map[string]string)
 			for k, v := range d.AuthKeys {
 				authKeysVm[k] = v

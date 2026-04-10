@@ -34,7 +34,7 @@ func SdkToTerraform(ctx context.Context, data models.WxlanTag) (SiteWxtagModel, 
 	if data.Specs != nil {
 		specs = specsSdkToTerraform(ctx, &diags, data.Specs)
 	}
-	if data.Values != nil {
+	if len(data.Values) > 0 {
 		values = mistutils.ListOfStringSdkToTerraform(data.Values)
 	}
 	if data.VlanId != nil {

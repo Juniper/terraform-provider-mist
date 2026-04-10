@@ -42,10 +42,10 @@ func pathPreferencePathsSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		if d.Name != nil {
 			name = types.StringValue(*d.Name)
 		}
-		if d.Networks != nil {
+		if len(d.Networks) > 0 {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
-		if d.TargetIps != nil {
+		if len(d.TargetIps) > 0 {
 			targetIps = mistutils.ListOfStringSdkToTerraform(d.TargetIps)
 		}
 

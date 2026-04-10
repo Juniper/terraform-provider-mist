@@ -69,7 +69,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.Mtu != nil {
 			mtu = types.Int64Value(int64(*d.Mtu))
 		}
-		if d.Networks != nil {
+		if len(d.Networks) > 0 {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.NoLocalOverwrite != nil {

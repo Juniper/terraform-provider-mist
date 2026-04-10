@@ -122,7 +122,7 @@ func localPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		if d.Duplex != nil {
 			duplex = types.StringValue(string(*d.Duplex))
 		}
-		if d.DynamicVlanNetworks != nil {
+		if len(d.DynamicVlanNetworks) > 0 {
 			dynamicVlanNetworks = mistutils.ListOfStringSdkToTerraform(d.DynamicVlanNetworks)
 		}
 		if d.EnableMacAuth != nil {
@@ -155,7 +155,7 @@ func localPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		if d.Mtu != nil {
 			mtu = types.Int64Value(int64(*d.Mtu))
 		}
-		if d.Networks != nil {
+		if len(d.Networks) > 0 {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.Note != nil {

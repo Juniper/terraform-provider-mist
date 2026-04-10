@@ -18,10 +18,10 @@ func tunnelConfigAutoProvNodeSdkToTerraform(diags *diag.Diagnostics, d models.Tu
 	var probeIps = types.ListNull(types.StringType)
 	var wanNames = types.ListNull(types.StringType)
 
-	if d.ProbeIps != nil {
+	if len(d.ProbeIps) > 0 {
 		probeIps = mistutils.ListOfStringSdkToTerraform(d.ProbeIps)
 	}
-	if d.WanNames != nil {
+	if len(d.WanNames) > 0 {
 		wanNames = mistutils.ListOfStringSdkToTerraform(d.WanNames)
 	}
 
@@ -162,19 +162,19 @@ func tunnelConfigNodeSdkToTerraform(diags *diag.Diagnostics, d models.TunnelConf
 	var remoteIds = types.ListNull(types.StringType)
 	var wanNames = types.ListNull(types.StringType)
 
-	if d.Hosts != nil {
+	if len(d.Hosts) > 0 {
 		hosts = mistutils.ListOfStringSdkToTerraform(d.Hosts)
 	}
-	if d.InternalIps != nil {
+	if len(d.InternalIps) > 0 {
 		internalIps = mistutils.ListOfStringSdkToTerraform(d.InternalIps)
 	}
-	if d.ProbeIps != nil {
+	if len(d.ProbeIps) > 0 {
 		probeIps = mistutils.ListOfStringSdkToTerraform(d.ProbeIps)
 	}
-	if d.RemoteIds != nil {
+	if len(d.RemoteIds) > 0 {
 		remoteIds = mistutils.ListOfStringSdkToTerraform(d.RemoteIds)
 	}
-	if d.WanNames != nil {
+	if len(d.WanNames) > 0 {
 		wanNames = mistutils.ListOfStringSdkToTerraform(d.WanNames)
 	}
 
@@ -266,13 +266,13 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		if d.LocalId != nil {
 			localId = types.StringValue(*d.LocalId)
 		}
-		if d.LocalSubnets != nil {
+		if len(d.LocalSubnets) > 0 {
 			localSubnets = mistutils.ListOfStringSdkToTerraform(d.LocalSubnets)
 		}
 		if d.Mode != nil {
 			mode = types.StringValue(string(*d.Mode))
 		}
-		if d.Networks != nil {
+		if len(d.Networks) > 0 {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 		if d.Primary != nil {
@@ -290,7 +290,7 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		if d.Psk != nil {
 			psk = types.StringValue(*d.Psk)
 		}
-		if d.RemoteSubnets != nil {
+		if len(d.RemoteSubnets) > 0 {
 			remoteSubnets = mistutils.ListOfStringSdkToTerraform(d.RemoteSubnets)
 		}
 		if d.Secondary != nil {

@@ -56,13 +56,13 @@ func aclTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 		var subnets = types.ListNull(types.StringType)
 		var tagType = types.StringValue(string(d.Type))
 
-		if d.EtherTypes != nil {
+		if len(d.EtherTypes) > 0 {
 			etherTypes = mistutils.ListOfStringSdkToTerraform(d.EtherTypes)
 		}
 		if d.GbpTag != nil {
 			gbpTag = types.Int64Value(int64(*d.GbpTag))
 		}
-		if d.Macs != nil {
+		if len(d.Macs) > 0 {
 			macs = mistutils.ListOfStringSdkToTerraform(d.Macs)
 		}
 		if d.Network != nil {
@@ -77,7 +77,7 @@ func aclTagsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[s
 		if d.Specs != nil {
 			specs = aclTagSpecsSdkToTerraform(ctx, diags, d.Specs)
 		}
-		if d.Subnets != nil {
+		if len(d.Subnets) > 0 {
 			subnets = mistutils.ListOfStringSdkToTerraform(d.Subnets)
 		}
 

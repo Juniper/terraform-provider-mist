@@ -35,12 +35,12 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (OrgWebhookModel, di
 	var topics types.List
 	var wType types.String
 	var url types.String
-	var verifyCert types.Bool
+	var verifyCert = types.BoolValue(true)
 
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d.Headers.Value() != nil {
+	if d.Headers.Value() != nil && len(*d.Headers.Value()) > 0 {
 		tmp, e := types.MapValueFrom(ctx, types.StringType, *d.Headers.Value())
 		if e != nil {
 			diags.Append(e...)
@@ -67,7 +67,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (OrgWebhookModel, di
 	if d.Oauth2Password != nil {
 		oauth2Password = types.StringValue(*d.Oauth2Password)
 	}
-	if d.Oauth2Scopes != nil {
+	if len(d.Oauth2Scopes) > 0 {
 		oauth2Scopes = mistutils.ListOfStringSdkToTerraform(d.Oauth2Scopes)
 	}
 	if d.Oauth2TokenUrl != nil {
@@ -88,7 +88,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (OrgWebhookModel, di
 	if d.SplunkToken.Value() != nil {
 		splunkToken = types.StringValue(*d.SplunkToken.Value())
 	}
-	if d.Topics != nil {
+	if len(d.Topics) > 0 {
 		var items []attr.Value
 		var itemsType attr.Type = basetypes.StringType{}
 		for _, item := range d.Topics {

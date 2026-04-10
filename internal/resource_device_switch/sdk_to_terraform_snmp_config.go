@@ -25,7 +25,7 @@ func snmpClientListSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		if d.ClientListName != nil {
 			clientListName = types.StringValue(*d.ClientListName)
 		}
-		if d.Clients != nil {
+		if len(d.Clients) > 0 {
 			clients = mistutils.ListOfStringSdkToTerraform(d.Clients)
 		}
 
@@ -53,13 +53,13 @@ func snmpTrapGroupsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 		var targets = mistutils.ListOfStringSdkToTerraformEmpty()
 		var version basetypes.StringValue
 
-		if d.Categories != nil {
+		if len(d.Categories) > 0 {
 			categories = mistutils.ListOfStringSdkToTerraform(d.Categories)
 		}
 		if d.GroupName != nil {
 			groupName = types.StringValue(*d.GroupName)
 		}
-		if d.Targets != nil {
+		if len(d.Targets) > 0 {
 			targets = mistutils.ListOfStringSdkToTerraform(d.Targets)
 		}
 		if d.Version != nil {

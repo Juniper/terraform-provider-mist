@@ -73,7 +73,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxcluster) (OrgMxclusterMo
 	if data.SiteId != nil && data.SiteId.String() != "00000000-0000-0000-0000-000000000000" {
 		siteId = types.StringValue(data.SiteId.String())
 	}
-	if data.TuntermApSubnets != nil {
+	if len(data.TuntermApSubnets) > 0 {
 		tuntermApSubnets = mistutils.ListOfStringSdkToTerraform(data.TuntermApSubnets)
 	}
 	if data.TuntermDhcpdConfig != nil {
@@ -82,7 +82,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxcluster) (OrgMxclusterMo
 	if data.TuntermExtraRoutes != nil {
 		tuntermExtraRoutes = tuntermExtraRoutesSdkToTerraform(ctx, &diags, data.TuntermExtraRoutes)
 	}
-	if data.TuntermHosts != nil {
+	if len(data.TuntermHosts) > 0 {
 		tuntermHosts = mistutils.ListOfStringSdkToTerraform(data.TuntermHosts)
 	}
 	if data.TuntermHostsOrder != nil {

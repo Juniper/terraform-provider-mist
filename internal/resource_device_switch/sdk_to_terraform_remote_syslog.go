@@ -268,7 +268,7 @@ func remoteSyslogSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d != nil && d.Archive != nil {
 		archive = remoteSyslogArchiveSdkToTerraform(ctx, diags, d.Archive)
 	}
-	if d != nil && d.Cacerts != nil {
+	if d != nil && len(d.Cacerts) > 0 {
 		caCerts = mistutils.ListOfStringSdkToTerraform(d.Cacerts)
 	}
 	if d != nil && d.Console != nil {

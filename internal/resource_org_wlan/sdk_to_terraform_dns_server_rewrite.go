@@ -19,13 +19,13 @@ func dnsServerRewriteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	radiusGroupsValues := make(map[string]attr.Value)
-	if d != nil && d.RadiusGroups != nil && len(d.RadiusGroups) > 0 {
+	if d != nil && len(d.RadiusGroups) > 0 {
+		radiusGroupsValues := make(map[string]attr.Value)
 		for k, v := range d.RadiusGroups {
 			radiusGroupsValues[k] = types.StringValue(v)
 		}
+		radiusGroups = types.MapValueMust(types.StringType, radiusGroupsValues)
 	}
-	radiusGroups = types.MapValueMust(types.StringType, radiusGroupsValues)
 
 	dataMapValue := map[string]attr.Value{
 		"enabled":       enabled,

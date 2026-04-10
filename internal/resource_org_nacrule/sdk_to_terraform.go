@@ -28,7 +28,7 @@ func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, 
 	var orgId types.String
 
 	action = types.StringValue(string(data.Action))
-	if data.ApplyTags != nil {
+	if len(data.ApplyTags) > 0 {
 		applyTags = mistutils.ListOfStringSdkToTerraform(data.ApplyTags)
 	}
 	if data.Enabled != nil {

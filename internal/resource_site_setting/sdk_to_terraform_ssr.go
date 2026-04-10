@@ -48,7 +48,7 @@ func ssrAutoUpgradeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 	if d.Channel != nil {
 		channel = types.StringValue(string(*d.Channel))
 	}
-	if d.CustomVersions != nil {
+	if len(d.CustomVersions) > 0 {
 		rMapValue := make(map[string]attr.Value)
 		for k, v := range d.CustomVersions {
 			rMapValue[k] = types.StringValue(v)
@@ -87,7 +87,7 @@ func ssrSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.S
 	var proxy = types.ObjectNull(ProxyValue{}.AttributeTypes(ctx))
 	var ssrAutoUpgrade = types.ObjectNull(SsrAutoUpgradeValue{}.AttributeTypes(ctx))
 
-	if d != nil && d.ConductorHosts != nil {
+	if d != nil && len(d.ConductorHosts) > 0 {
 		conductorHosts = mistutils.ListOfStringSdkToTerraform(d.ConductorHosts)
 	}
 	if d != nil && d.ConductorToken != nil {

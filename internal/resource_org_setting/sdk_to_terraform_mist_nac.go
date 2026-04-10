@@ -20,13 +20,13 @@ func mistNacIdpsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l [
 		var id basetypes.StringValue
 		var userRealms = types.ListNull(types.StringType)
 
-		if d.ExcludeRealms != nil {
+		if len(d.ExcludeRealms) > 0 {
 			excludeRealms = mistutils.ListOfStringSdkToTerraform(d.ExcludeRealms)
 		}
 		if d.Id != nil {
 			id = types.StringValue(d.Id.String())
 		}
-		if d.UserRealms != nil {
+		if len(d.UserRealms) > 0 {
 			userRealms = mistutils.ListOfStringSdkToTerraform(d.UserRealms)
 		}
 
@@ -115,7 +115,7 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var useSslPort basetypes.BoolValue
 	var usermacExpiry basetypes.Int64Value
 
-	if d.Cacerts != nil {
+	if len(d.Cacerts) > 0 {
 		cacerts = mistutils.ListOfStringSdkToTerraform(d.Cacerts)
 	}
 	if d.DefaultIdpId != nil {

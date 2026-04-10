@@ -25,7 +25,7 @@ func multicastNetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d != nil && d.Groups != nil {
+	if d != nil && len(d.Groups) > 0 {
 		rMapValue := make(map[string]attr.Value)
 		for k, v := range d.Groups {
 			var rpIp types.String
@@ -320,7 +320,7 @@ func vpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[strin
 		if d.NoReadvertiseToOverlay != nil {
 			noReadvertiseToOverlay = types.BoolValue(*d.NoReadvertiseToOverlay)
 		}
-		if d.OtherVrfs != nil {
+		if len(d.OtherVrfs) > 0 {
 			otherVrfs = mistutils.ListOfStringSdkToTerraform(d.OtherVrfs)
 		}
 		if d.Routed != nil {
@@ -410,7 +410,7 @@ func networksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []mo
 			multicast = multicastNetworksSdkToTerraform(ctx, diags, d.Multicast)
 		}
 		name = types.StringValue(d.Name)
-		if d.RoutedForNetworks != nil {
+		if len(d.RoutedForNetworks) > 0 {
 			routedForNetworks = mistutils.ListOfStringSdkToTerraform(d.RoutedForNetworks)
 		}
 		if d.Subnet != nil {

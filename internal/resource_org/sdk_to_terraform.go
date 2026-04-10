@@ -29,7 +29,7 @@ func SdkToTerraform(data models.Org) (OrgModel, diag.Diagnostics) {
 	if data.AllowMist != nil {
 		allowMist = types.BoolValue(*data.AllowMist)
 	}
-	if data.OrggroupIds != nil {
+	if len(data.OrggroupIds) > 0 {
 		orggroupIds = mistutils.ListOfUuidSdkToTerraform(data.OrggroupIds)
 	}
 	if data.MspId != nil {

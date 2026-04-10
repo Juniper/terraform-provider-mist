@@ -60,13 +60,13 @@ func SdkToTerraform(ctx context.Context, d *models.OrgServicePolicy) (OrgService
 	if d.PathPreference != nil {
 		pathPreference = types.StringValue(*d.PathPreference)
 	}
-	if d.Services != nil {
+	if len(d.Services) > 0 {
 		services = mistutils.ListOfStringSdkToTerraform(d.Services)
 	}
 	if d.SslProxy != nil {
 		sslProxy = sslProxySdkToTerraform(ctx, &diags, d.SslProxy)
 	}
-	if d.Tenants != nil {
+	if len(d.Tenants) > 0 {
 		tenants = mistutils.ListOfStringSdkToTerraform(d.Tenants)
 	}
 

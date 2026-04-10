@@ -24,7 +24,7 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	if d.AuthServerPort != nil {
 		authServerPort = types.Int64Value(int64(*d.AuthServerPort))
 	}
-	if d.ClientIps != nil {
+	if len(d.ClientIps) > 0 {
 		dataMap := make(map[string]attr.Value)
 
 		for key := range d.ClientIps {

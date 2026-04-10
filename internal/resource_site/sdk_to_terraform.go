@@ -85,7 +85,7 @@ func SdkToTerraform(data *models.Site) (SiteModel, diag.Diagnostics) {
 	if data.SitetemplateId.Value() != nil && data.SitetemplateId.Value().String() != "00000000-0000-0000-0000-000000000000" {
 		sitetemplateId = types.StringValue(data.SitetemplateId.Value().String())
 	}
-	if data.SitegroupIds != nil {
+	if len(data.SitegroupIds) > 0 {
 		var items []attr.Value
 		var itemsType attr.Type = basetypes.StringType{}
 		for _, item := range data.SitegroupIds {

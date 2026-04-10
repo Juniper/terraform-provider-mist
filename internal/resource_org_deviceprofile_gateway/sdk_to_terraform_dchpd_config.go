@@ -123,10 +123,10 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			var type6 basetypes.StringValue
 			var vendorEncapsulated = types.MapNull(VendorEncapsulatedValue{}.Type(ctx))
 
-			if d.DnsServers != nil {
+			if len(d.DnsServers) > 0 {
 				dnsServers = mistutils.ListOfStringSdkToTerraform(d.DnsServers)
 			}
-			if d.DnsSuffix != nil {
+			if len(d.DnsSuffix) > 0 {
 				dnsSuffix = mistutils.ListOfStringSdkToTerraform(d.DnsSuffix)
 			}
 			if len(d.FixedBindings) > 0 {
@@ -156,10 +156,10 @@ func dhcpdConfigConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			if d.ServerIdOverride != nil {
 				serverIdOverride = types.BoolValue(*d.ServerIdOverride)
 			}
-			if d.Servers != nil {
+			if len(d.Servers) > 0 {
 				servers = mistutils.ListOfStringSdkToTerraform(d.Servers)
 			}
-			if d.Serversv6 != nil {
+			if len(d.Serversv6) > 0 {
 				serversv6 = mistutils.ListOfStringSdkToTerraform(d.Serversv6)
 			}
 			if d.Type != nil {

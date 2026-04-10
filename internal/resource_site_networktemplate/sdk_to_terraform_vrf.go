@@ -96,7 +96,7 @@ func vrfInstancesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m 
 		if len(d.ExtraRoutes6) > 0 {
 			extraRoutes6 = vrfInstanceExtraRoute6SdkToTerraform(ctx, diags, d.ExtraRoutes6)
 		}
-		if d.Networks != nil {
+		if len(d.Networks) > 0 {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 

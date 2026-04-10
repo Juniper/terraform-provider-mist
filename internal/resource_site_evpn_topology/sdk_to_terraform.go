@@ -33,7 +33,7 @@ func SdkToTerraform(ctx context.Context, data models.EvpnTopology) (SiteEvpnTopo
 	if data.OrgId != nil {
 		orgId = types.StringValue(data.OrgId.String())
 	}
-	if data.PodNames != nil {
+	if len(data.PodNames) > 0 {
 		dataMap := make(map[string]string)
 		for k, v := range data.PodNames {
 			dataMap[k] = v

@@ -17,7 +17,7 @@ func vsInstanceSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 
 		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
 
-		if d.Networks != nil {
+		if len(d.Networks) > 0 {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
 

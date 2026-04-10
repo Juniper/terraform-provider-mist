@@ -72,16 +72,16 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 	var serviceType types.String
 	var urls = mistutils.ListOfStringSdkToTerraformEmpty()
 
-	if d.Addresses != nil {
+	if len(d.Addresses) > 0 {
 		addresses = mistutils.ListOfStringSdkToTerraform(d.Addresses)
 	}
-	if d.AppCategories != nil {
+	if len(d.AppCategories) > 0 {
 		appCategories = mistutils.ListOfStringSdkToTerraform(d.AppCategories)
 	}
-	if d.AppSubcategories != nil {
+	if len(d.AppSubcategories) > 0 {
 		appSubcategories = mistutils.ListOfStringSdkToTerraform(d.AppSubcategories)
 	}
-	if d.Apps != nil {
+	if len(d.Apps) > 0 {
 		apps = mistutils.ListOfStringSdkToTerraform(d.Apps)
 	}
 	if d.ClientLimitDown != nil {
@@ -99,7 +99,7 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 	if d.FailoverPolicy != nil {
 		failoverPolicy = types.StringValue(string(*d.FailoverPolicy))
 	}
-	if d.Hostnames != nil {
+	if len(d.Hostnames) > 0 {
 		hostnames = mistutils.ListOfStringSdkToTerraform(d.Hostnames)
 	}
 	if d.Id != nil {
@@ -144,7 +144,7 @@ func SdkToTerraform(ctx context.Context, d *models.Service) (OrgServiceModel, di
 	if d.Type != nil {
 		serviceType = types.StringValue(string(*d.Type))
 	}
-	if d.Urls != nil {
+	if len(d.Urls) > 0 {
 		urls = mistutils.ListOfStringSdkToTerraform(d.Urls)
 	}
 
