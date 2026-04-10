@@ -16,22 +16,22 @@ func appLimitSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *
 		return NewAppLimitValueNull()
 	}
 
-	apps := types.MapValueMust(types.Int64Type, map[string]attr.Value{})
-	var enabled basetypes.BoolValue
-	wxtagIds := types.MapValueMust(types.Int64Type, map[string]attr.Value{})
-
 	appLimitAttr := make(map[string]attr.Value)
 	for key, value := range data.Apps {
 		appLimitAttr[key] = types.Int64Value(int64(value))
+	}
+	apps := types.MapValueMust(types.Int64Type, appLimitAttr)
+
+	var enabled basetypes.BoolValue
+	if data.Enabled != nil {
+		enabled = types.BoolValue(*data.Enabled)
 	}
 
 	wxtagLimitAttr := make(map[string]attr.Value)
 	for key, value := range data.WxtagIds {
 		wxtagLimitAttr[key] = types.Int64Value(int64(value))
 	}
-	if data.Enabled != nil {
-		enabled = types.BoolValue(*data.Enabled)
-	}
+	wxtagIds := types.MapValueMust(types.Int64Type, wxtagLimitAttr)
 
 	dataMapValue := map[string]attr.Value{
 		"apps":      apps,

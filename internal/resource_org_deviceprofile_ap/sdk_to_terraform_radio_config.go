@@ -108,10 +108,10 @@ func band5SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models
 	if d.Bandwidth != nil {
 		bandwidth = types.Int64Value(int64(*d.Bandwidth))
 	}
-	if d.Channels.Value() != nil && len(*d.Channels.Value()) != 0 {
+	if d.Channel.Value() != nil {
 		channel = types.Int64Value(int64(*d.Channel.Value()))
 	}
-	if d.Channels.Value() != nil {
+	if d.Channels.Value() != nil && len(*d.Channels.Value()) != 0 {
 		channels = mistutils.ListOfIntSdkToTerraform(*d.Channels.Value())
 	}
 	if d.Disabled != nil {

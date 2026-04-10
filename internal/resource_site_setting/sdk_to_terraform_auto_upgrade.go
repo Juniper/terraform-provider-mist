@@ -21,19 +21,15 @@ func autoUpgradeSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d m
 		return NewAutoUpgradeValueNull()
 	}
 
-	var customVersions = types.MapNull(types.StringType)
+	customVersionsMapValue := make(map[string]attr.Value)
+	for k, v := range d.CustomVersions {
+		customVersionsMapValue[k] = types.StringValue(v)
+	}
+	var customVersions = types.MapValueMust(types.StringType, customVersionsMapValue)
 	var dayOfWeek = types.StringNull()
 	var enabled = types.BoolNull()
 	var timeOfDay = types.StringNull()
 	var version = types.StringNull()
-
-	if len(d.CustomVersions) > 0 {
-		customVersionsMapValue := make(map[string]attr.Value)
-		for k, v := range d.CustomVersions {
-			customVersionsMapValue[k] = types.StringValue(v)
-		}
-		customVersions = types.MapValueMust(types.StringType, customVersionsMapValue)
-	}
 
 	if d.DayOfWeek != nil && string(*d.DayOfWeek) != "" {
 		dayOfWeek = types.StringValue(string(*d.DayOfWeek))
