@@ -5,9 +5,7 @@ package resource_org_setting
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -22,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -56,6 +55,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"cacerts": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -82,6 +84,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"cloudshark": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -105,6 +110,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"cradlepoint": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -132,6 +140,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Computed: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"device_cert": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -151,6 +162,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "common device cert, optional",
 				MarkdownDescription: "common device cert, optional",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"device_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
@@ -211,6 +225,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"jcloud": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -236,6 +253,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"jcloud_ra": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -263,6 +283,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "JCloud Routing Assurance connexion",
 				MarkdownDescription: "JCloud Routing Assurance connexion",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"juniper": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -283,6 +306,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Computed: true,
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 				},
 				CustomType: JuniperType{
@@ -291,6 +317,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Computed: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"juniper_srx": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -322,6 +351,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "auto_upgrade device first time it is onboarded",
 						MarkdownDescription: "auto_upgrade device first time it is onboarded",
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 					},
 				},
 				CustomType: JuniperSrxType{
@@ -330,6 +362,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"junos_shell_access": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -402,6 +437,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "junos_shell_access: Manages role-based web-shell access.  \nWhen junos_shell access is not defined (Default) - No additional users are configured and web-shell uses default `mist` user to login.  \nWhen junos_shell_access is defined - Additional users mist-web-admin (admin permission), mist-web-viewer(viewer permission) are configured on the device and web-shell logs in with the mist-web-admin/mist-web-viewer user depending upon the shell access level. Setting the shell access level to \"none\", disables web-shell access for that specific role.\n",
 				MarkdownDescription: "junos_shell_access: Manages role-based web-shell access.  \nWhen junos_shell access is not defined (Default) - No additional users are configured and web-shell uses default `mist` user to login.  \nWhen junos_shell_access is defined - Additional users mist-web-admin (admin permission), mist-web-viewer(viewer permission) are configured on the device and web-shell logs in with the mist-web-admin/mist-web-viewer user depending upon the shell access level. Setting the shell access level to \"none\", disables web-shell access for that specific role.\n",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"marvis": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -459,6 +497,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 					},
 				},
 				CustomType: MarvisType{
@@ -467,6 +508,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -502,6 +546,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "management-related properties",
 				MarkdownDescription: "management-related properties",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"mist_nac": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -584,6 +631,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Allows customer to enable client fingerprinting for policy enforcement",
 						MarkdownDescription: "Allows customer to enable client fingerprinting for policy enforcement",
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 					},
 					"idp_machine_cert_lookup_field": schema.StringAttribute{
 						Optional:            true,
@@ -676,6 +726,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "radius server cert to be presented in EAP TLS",
 						MarkdownDescription: "radius server cert to be presented in EAP TLS",
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 					},
 					"use_ip_version": schema.StringAttribute{
 						Optional:            true,
@@ -711,6 +764,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"mxedge_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -764,6 +820,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"optic_port_config": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -844,6 +903,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "password policy",
 				MarkdownDescription: "password policy",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"pcap": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -865,6 +927,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Computed: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"security": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -893,6 +958,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"ssr": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -935,6 +1003,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "SSR proxy configuration to talk to Mist",
 						MarkdownDescription: "SSR proxy configuration to talk to Mist",
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 					},
 					"auto_upgrade": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -974,6 +1045,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "auto_upgrade device first time it is onboarded",
 						MarkdownDescription: "auto_upgrade device first time it is onboarded",
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 					},
 				},
 				CustomType: SsrType{
@@ -982,6 +1056,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"switch": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1012,6 +1089,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 					},
 				},
 				CustomType: SwitchType{
@@ -1020,6 +1100,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"switch_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1037,6 +1120,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"switch_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
@@ -1157,6 +1243,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "List of networks to be used for synthetic tests",
 						MarkdownDescription: "List of networks to be used for synthetic tests",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"vlans": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -1232,6 +1321,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 					},
 				},
 				CustomType: SyntheticTestType{
@@ -1240,6 +1332,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"ui_idle_timeout": schema.Int64Attribute{
 				Optional:            true,
@@ -1281,6 +1376,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"wan_pma": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1296,6 +1394,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"wired_pma": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1311,6 +1412,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"wireless_pma": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1326,6 +1430,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 		},
 	}
