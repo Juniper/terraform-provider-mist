@@ -92,7 +92,7 @@ func remoteSyslogFilesSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		var match basetypes.StringValue
 		var structuredData basetypes.BoolValue
 
-		if !mistutils.IsSdkDataEmpty(d.Archive) {
+		if d.Archive != nil {
 			archive = remoteSyslogArchiveSdkToTerraform(ctx, diags, d.Archive)
 		}
 		if d.Contents != nil {
@@ -265,13 +265,13 @@ func remoteSyslogSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	var timeFormat basetypes.StringValue
 	var users = types.ListNull(UsersValue{}.Type(ctx))
 
-	if d != nil && !mistutils.IsSdkDataEmpty(d.Archive) {
+	if d != nil && d.Archive != nil {
 		archive = remoteSyslogArchiveSdkToTerraform(ctx, diags, d.Archive)
 	}
 	if d != nil && len(d.Cacerts) > 0 {
 		caCerts = mistutils.ListOfStringSdkToTerraform(d.Cacerts)
 	}
-	if d != nil && !mistutils.IsSdkDataEmpty(d.Console) {
+	if d != nil && d.Console != nil {
 		console = remoteSyslogConsoleSdkToTerraform(ctx, diags, d.Console)
 	}
 	if d != nil && d.Enabled != nil {

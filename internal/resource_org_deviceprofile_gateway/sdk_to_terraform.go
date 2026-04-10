@@ -52,7 +52,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	if len(data.BgpConfig) > 0 {
 		bgpConfig = bgpConfigSdkToTerraform(ctx, &diags, data.BgpConfig)
 	}
-	if !mistutils.IsSdkDataEmpty(data.DhcpdConfig) {
+	if data.DhcpdConfig != nil {
 		dhcpdConfig = dhcpdConfigSdkToTerraform(ctx, &diags, data.DhcpdConfig)
 	}
 	if data.DnsOverride != nil {
@@ -88,7 +88,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	if len(data.NtpServers) > 0 {
 		ntpServers = mistutils.ListOfStringSdkToTerraform(data.NtpServers)
 	}
-	if !mistutils.IsSdkDataEmpty(data.OobIpConfig) {
+	if data.OobIpConfig != nil {
 		oobIpConfig = oobIpConfigsSdkToTerraform(ctx, &diags, data.OobIpConfig)
 	}
 	if data.OrgId != nil {
@@ -115,7 +115,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	if len(data.TunnelConfigs) > 0 {
 		tunnelConfigs = tunnelConfigsSdkToTerraform(ctx, &diags, data.TunnelConfigs)
 	}
-	if !mistutils.IsSdkDataEmpty(data.TunnelProviderOptions) {
+	if data.TunnelProviderOptions != nil {
 		if tunnelProviderOptionsTmp, ok := tunnelProviderSdkToTerraform(ctx, &diags, data.TunnelProviderOptions); ok {
 			tunnelProviderOptions = tunnelProviderOptionsTmp
 		}
@@ -126,7 +126,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileGateway) (Org
 	if data.UrlFilteringDenyMsg != nil {
 		urlFilteringDenyMsg = types.StringValue(*data.UrlFilteringDenyMsg)
 	}
-	if !mistutils.IsSdkDataEmpty(data.VrfConfig) {
+	if data.VrfConfig != nil {
 		vrfConfig = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
 	}
 	if len(data.VrfInstances) > 0 {

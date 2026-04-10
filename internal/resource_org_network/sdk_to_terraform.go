@@ -42,16 +42,16 @@ func SdkToTerraform(ctx context.Context, data models.Network) (OrgNetworkModel, 
 	if data.Gateway6 != nil && len(*data.Gateway6) > 0 {
 		gateway6 = types.StringValue(*data.Gateway6)
 	}
-	if !mistutils.IsSdkDataEmpty(data.Multicast) {
+	if data.Multicast != nil {
 		multicast = MulticastSdkToTerraform(ctx, &diags, *data.Multicast)
 	}
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
 	}
-	if !mistutils.IsSdkDataEmpty(data.InternalAccess) {
+	if data.InternalAccess != nil {
 		internalAccess = internalAccessSdkToTerraform(ctx, &diags, *data.InternalAccess)
 	}
-	if !mistutils.IsSdkDataEmpty(data.InternetAccess) {
+	if data.InternetAccess != nil {
 		internetAccess = internetAccessSdkToTerraform(ctx, &diags, *data.InternetAccess)
 	}
 	if data.Isolation != nil {

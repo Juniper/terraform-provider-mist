@@ -96,7 +96,7 @@ func ssrSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.S
 	if d != nil && d.DisableStats != nil {
 		disableStats = types.BoolValue(*d.DisableStats)
 	}
-	if d != nil && !mistutils.IsSdkDataEmpty(d.Proxy) {
+	if d != nil && d.Proxy != nil {
 		proxy = ssrProxySdkToTerraform(ctx, diags, *d.Proxy)
 	}
 	if d != nil && d.AutoUpgrade != nil {

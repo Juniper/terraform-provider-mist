@@ -397,7 +397,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.Disabled != nil {
 			disabled = types.BoolValue(*d.Disabled)
 		}
-		if !mistutils.IsSdkDataEmpty(d.DynamicVlan) {
+		if d.DynamicVlan != nil {
 			dynamicVlan = dynamicVlanPortConfigSdkToTerraform(ctx, diags, d.DynamicVlan)
 		}
 		if d.EnableMacAuth != nil {
@@ -412,7 +412,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.MacAuthProtocol != nil {
 			macAuthProtocol = types.StringValue(string(*d.MacAuthProtocol))
 		}
-		if !mistutils.IsSdkDataEmpty(d.MistNac) {
+		if d.MistNac != nil {
 			mistNac = mistNacPortConfigSdkToTerraform(ctx, diags, d.MistNac)
 		}
 		if d.MxTunnelId != nil {
@@ -427,10 +427,10 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.PortVlanId != nil {
 			portVlanId = types.Int64Value(int64(*d.PortVlanId))
 		}
-		if !mistutils.IsSdkDataEmpty(d.RadiusConfig) {
+		if d.RadiusConfig != nil {
 			radiusConfig = radiusConfigPortConfigSdkToTerraform(ctx, diags, d.RadiusConfig)
 		}
-		if !mistutils.IsSdkDataEmpty(d.Radsec) {
+		if d.Radsec != nil {
 			radsec = radsecPortConfigSdkToTerraform(ctx, diags, d.Radsec)
 		}
 		if d.VlanId != nil {

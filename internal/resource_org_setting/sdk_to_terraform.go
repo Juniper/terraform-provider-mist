@@ -64,7 +64,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.ApUpdownThreshold.Value() != nil {
 		apUpdownThreshold = types.Int64Value(int64(*data.ApUpdownThreshold.Value()))
 	}
-	if !mistutils.IsSdkDataEmpty(data.ApiPolicy) {
+	if data.ApiPolicy != nil {
 		apiPolicy = apiPolicySdkToTerraform(ctx, &diags, data.ApiPolicy)
 	}
 	// if data.BlacklistUrl != nil {
@@ -73,16 +73,16 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if len(data.Cacerts) > 0 {
 		cacerts = mistutils.ListOfStringSdkToTerraform(data.Cacerts)
 	}
-	if !mistutils.IsSdkDataEmpty(data.Celona) {
+	if data.Celona != nil {
 		celona = celonaSdkToTerraform(ctx, &diags, data.Celona)
 	}
-	if !mistutils.IsSdkDataEmpty(data.Cloudshark) {
+	if data.Cloudshark != nil {
 		cloudshark = cloudsharkSdkToTerraform(ctx, &diags, data.Cloudshark)
 	}
-	if !mistutils.IsSdkDataEmpty(data.Cradlepoint) {
+	if data.Cradlepoint != nil {
 		cradlepoint = cradlepointSdkToTerraform(ctx, &diags, data.Cradlepoint)
 	}
-	if !mistutils.IsSdkDataEmpty(data.DeviceCert) {
+	if data.DeviceCert != nil {
 		deviceCert = deviceCertSdkToTerraform(ctx, &diags, data.DeviceCert)
 	}
 	if data.DeviceUpdownThreshold.Value() != nil {
@@ -100,31 +100,31 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.GatewayUpdownThreshold.Value() != nil {
 		gatewayUpdownThreshold = types.Int64Value(int64(*data.GatewayUpdownThreshold.Value()))
 	}
-	if !mistutils.IsSdkDataEmpty(data.Installer) {
+	if data.Installer != nil {
 		installer = installerSdkToTerraform(ctx, &diags, data.Installer)
 	}
-	if !mistutils.IsSdkDataEmpty(data.Jcloud) {
+	if data.Jcloud != nil {
 		jcloud = jcloudSdkToTerraform(ctx, &diags, data.Jcloud)
 	}
-	if !mistutils.IsSdkDataEmpty(data.JcloudRa) {
+	if data.JcloudRa != nil {
 		jcloudRa = jcloudRaSdkToTerraform(ctx, &diags, data.JcloudRa)
 	}
-	if !mistutils.IsSdkDataEmpty(data.Juniper) {
+	if data.Juniper != nil {
 		juniper = juniperSdkToTerraform(ctx, &diags, data.Juniper)
 	}
-	if !mistutils.IsSdkDataEmpty(data.JuniperSrx) {
+	if data.JuniperSrx != nil {
 		juniperSrx = juniperSrxSdkToTerraform(ctx, &diags, data.JuniperSrx)
 	}
-	if !mistutils.IsSdkDataEmpty(data.JunosShellAccess) {
+	if data.JunosShellAccess != nil {
 		junosShellAccess = junosShellAccessSdkToTerraform(ctx, &diags, data.JunosShellAccess)
 	}
-	if !mistutils.IsSdkDataEmpty(data.Marvis) {
+	if data.Marvis != nil {
 		marvis = marvisSdkToTerraform(ctx, &diags, data.Marvis)
 	}
-	if !mistutils.IsSdkDataEmpty(data.Mgmt) {
+	if data.Mgmt != nil {
 		mgmt = mgmtSdkToTerraform(ctx, &diags, data.Mgmt)
 	}
-	if !mistutils.IsSdkDataEmpty(data.MistNac) {
+	if data.MistNac != nil {
 		mistNac = mistNacSdkToTerraform(ctx, &diags, data.MistNac)
 	}
 	// if data.MspId != nil {
@@ -139,31 +139,31 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.OrgId != nil {
 		orgId = types.StringValue(data.OrgId.String())
 	}
-	if !mistutils.IsSdkDataEmpty(data.PasswordPolicy) {
+	if data.PasswordPolicy != nil {
 		passwordPolicy = passwordPolicySdkToTerraform(ctx, &diags, data.PasswordPolicy)
 	}
-	if !mistutils.IsSdkDataEmpty(data.Pcap) {
+	if data.Pcap != nil {
 		pcap = pcapSdkToTerraform(ctx, &diags, data.Pcap)
 	}
 	// if data.PcapBucketVerified != nil {
 	// 	pcap_bucket_verified = types.BoolValue(*data.PcapBucketVerified)
 	// }
-	if !mistutils.IsSdkDataEmpty(data.Security) {
+	if data.Security != nil {
 		security = securitySdkToTerraform(ctx, &diags, data.Security)
 	}
 	if data.Switch != nil {
 		switchUpgrade = switchSdkToTerraform(ctx, &diags, data.Switch)
 	}
-	if !mistutils.IsSdkDataEmpty(data.Ssr) {
+	if data.Ssr != nil {
 		ssr = ssrSdkToTerraform(ctx, &diags, data.Ssr)
 	}
-	if !mistutils.IsSdkDataEmpty(data.SwitchMgmt) {
+	if data.SwitchMgmt != nil {
 		switchMgmt = switchMgmtSdkToTerraform(ctx, &diags, data.SwitchMgmt)
 	}
 	if data.SwitchUpdownThreshold.Value() != nil {
 		switchUpdownThreshold = types.Int64Value(int64(*data.SwitchUpdownThreshold.Value()))
 	}
-	if !mistutils.IsSdkDataEmpty(data.SyntheticTest) {
+	if data.SyntheticTest != nil {
 		syntheticTest = syntheticTestSdkToTerraform(ctx, &diags, data.SyntheticTest)
 	}
 	if data.UiIdleTimeout != nil {
@@ -172,10 +172,10 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	if data.UiNoTracking != nil {
 		uiNoTracking = types.BoolValue(*data.UiNoTracking)
 	}
-	if !mistutils.IsSdkDataEmpty(data.VpnOptions) {
+	if data.VpnOptions != nil {
 		vpnOptions = vpnOptionsSdkToTerraform(ctx, &diags, data.VpnOptions)
 	}
-	if !mistutils.IsSdkDataEmpty(data.WanPma) && data.WanPma.Enabled != nil {
+	if data.WanPma != nil && data.WanPma.Enabled != nil {
 		var tempDiags diag.Diagnostics
 		wanPma, tempDiags = NewWanPmaValue(WanPmaValue{}.AttributeTypes(ctx), map[string]attr.Value{
 			"enabled": types.BoolValue(*data.WanPma.Enabled),
@@ -184,7 +184,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 			wanPma = NewWanPmaValueNull()
 		}
 	}
-	if !mistutils.IsSdkDataEmpty(data.WiredPma) && data.WiredPma.Enabled != nil {
+	if data.WiredPma != nil && data.WiredPma.Enabled != nil {
 		var tempDiags diag.Diagnostics
 		wiredPma, tempDiags = NewWiredPmaValue(WiredPmaValue{}.AttributeTypes(ctx), map[string]attr.Value{
 			"enabled": types.BoolValue(*data.WiredPma.Enabled),
@@ -193,7 +193,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 			wiredPma = NewWiredPmaValueNull()
 		}
 	}
-	if !mistutils.IsSdkDataEmpty(data.WirelessPma) && data.WirelessPma.Enabled != nil {
+	if data.WirelessPma != nil && data.WirelessPma.Enabled != nil {
 		var tempDiags diag.Diagnostics
 		wirelessPma, tempDiags = NewWirelessPmaValue(WirelessPmaValue{}.AttributeTypes(ctx), map[string]attr.Value{
 			"enabled": types.BoolValue(*data.WirelessPma.Enabled),

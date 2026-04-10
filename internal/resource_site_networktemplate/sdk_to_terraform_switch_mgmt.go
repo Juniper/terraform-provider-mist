@@ -292,7 +292,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		if d.MxedgeProxyPort != nil {
 			mxedgeProxyPort = mistutils.SwitchMgmtMxedgeProxyPortsAsString(d.MxedgeProxyPort)
 		}
-		if !mistutils.IsSdkDataEmpty(d.ProtectRe) {
+		if d.ProtectRe != nil {
 			protectRe = switchMgmtProtectReSdkToTerraform(ctx, diags, d.ProtectRe)
 		}
 		if d.RemoveExistingConfigs != nil {
@@ -301,7 +301,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		if d.RootPassword != nil {
 			rootPassword = types.StringValue(*d.RootPassword)
 		}
-		if !mistutils.IsSdkDataEmpty(d.Tacacs) {
+		if d.Tacacs != nil {
 			tacacs = switchMgmtTacacsSdkToTerraform(ctx, diags, d.Tacacs)
 		}
 		if d.UseMxedgeProxy != nil {

@@ -5,7 +5,6 @@ package resource_org_nac_portal
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -172,9 +171,6 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Guest portal configuration when `type`==`guest_portal`. If \n  * `auth`==`none`, the user is presented with a terms of service and can click and continue.\n  * `auth`==`external`, the user is redirected to an external URL for authentication.\n  * `auth`==`multi`, the user is presented with a choice of authentication methods:\n    - social logins: facebook / google / amazon / microsoft / azure\n    - sponsor\n    - sms: supported provider: twillio\n    - email\n    - sso\n    - userpass: pre created guest list\n",
 				MarkdownDescription: "Guest portal configuration when `type`==`guest_portal`. If \n  * `auth`==`none`, the user is presented with a terms of service and can click and continue.\n  * `auth`==`external`, the user is redirected to an external URL for authentication.\n  * `auth`==`multi`, the user is presented with a choice of authentication methods:\n    - social logins: facebook / google / amazon / microsoft / azure\n    - sponsor\n    - sms: supported provider: twillio\n    - email\n    - sso\n    - userpass: pre created guest list\n",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"ssid": schema.StringAttribute{
 				Optional: true,
@@ -242,9 +238,6 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"tos": schema.StringAttribute{
 				Optional: true,

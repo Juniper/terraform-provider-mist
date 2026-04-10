@@ -88,10 +88,10 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.DefaultPortUsage != nil {
 		defaultPortUsage = types.StringValue(*data.DefaultPortUsage)
 	}
-	if !mistutils.IsSdkDataEmpty(data.DhcpSnooping) {
+	if data.DhcpSnooping != nil {
 		dhcpSnooping = dhcpSnoopingSdkToTerraform(ctx, &diags, data.DhcpSnooping)
 	}
-	if !mistutils.IsSdkDataEmpty(data.DhcpdConfig) {
+	if data.DhcpdConfig != nil {
 		dhcpdConfig = dhcpdConfigSdkToTerraform(ctx, &diags, data.DhcpdConfig)
 	}
 	if len(data.DnsServers) > 0 {
@@ -118,7 +118,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.Image3Url.Value() != nil {
 		image3Url = types.StringValue("present")
 	}
-	if !mistutils.IsSdkDataEmpty(data.IpConfig) {
+	if data.IpConfig != nil {
 		ipConfig = ipConfigSdkToTerraform(ctx, &diags, data.IpConfig)
 	}
 	if data.LocalPortConfig != nil {
@@ -142,7 +142,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.MapId != nil {
 		mapId = types.StringValue(data.MapId.String())
 	}
-	if !mistutils.IsSdkDataEmpty(data.MistNac) {
+	if data.MistNac != nil {
 		mistNac = mistNacSdkToTerraform(ctx, &diags, data.MistNac)
 	}
 	if data.Name != nil {
@@ -157,7 +157,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if len(data.NtpServers) > 0 {
 		ntpServers = mistutils.ListOfStringSdkToTerraform(data.NtpServers)
 	}
-	if !mistutils.IsSdkDataEmpty(data.OobIpConfig) {
+	if data.OobIpConfig != nil {
 		oobIpConfig = oobIpConfigsSdkToTerraform(ctx, &diags, data.OobIpConfig)
 	}
 	if data.OrgId != nil {
@@ -166,7 +166,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.OspfAreas != nil {
 		ospfAreas = ospfAreasSdkToTerraform(ctx, &diags, data.OspfAreas)
 	}
-	if !mistutils.IsSdkDataEmpty(data.OspfConfig) {
+	if data.OspfConfig != nil {
 		ospfConfig = ospfConfigSdkToTerraform(ctx, &diags, data.OspfConfig)
 	}
 	if len(data.OtherIpConfigs) > 0 {
@@ -184,10 +184,10 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if len(data.PortUsages) > 0 {
 		portUsages = portUsagesSdkToTerraform(ctx, &diags, data.PortUsages)
 	}
-	if !mistutils.IsSdkDataEmpty(data.RadiusConfig) {
+	if data.RadiusConfig != nil {
 		radiusConfig = radiusConfigSdkToTerraform(ctx, &diags, data.RadiusConfig)
 	}
-	if !mistutils.IsSdkDataEmpty(data.RemoteSyslog) {
+	if data.RemoteSyslog != nil {
 		remoteSyslog = remoteSyslogSdkToTerraform(ctx, &diags, data.RemoteSyslog)
 	}
 	if data.Role != nil {
@@ -202,31 +202,31 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceSwitch) (DeviceSwitc
 	if data.SiteId != nil {
 		siteId = types.StringValue(data.SiteId.String())
 	}
-	if !mistutils.IsSdkDataEmpty(data.SnmpConfig) {
+	if data.SnmpConfig != nil {
 		snmpConfig = snmpConfigSdkToTerraform(ctx, &diags, data.SnmpConfig)
 	}
-	if !mistutils.IsSdkDataEmpty(data.StpConfig) {
+	if data.StpConfig != nil {
 		stpConfig = stpConfigSdkToTerraform(ctx, &diags, *data.StpConfig)
 	}
-	if !mistutils.IsSdkDataEmpty(data.SwitchMgmt) {
+	if data.SwitchMgmt != nil {
 		switchMgmt = switchMgmtSdkToTerraform(ctx, &diags, data.SwitchMgmt)
 	}
 	if data.UseRouterIdAsSourceIp != nil {
 		useRouterIdAsSourceIp = types.BoolValue(*data.UseRouterIdAsSourceIp)
 	}
-	if !mistutils.IsSdkDataEmpty(data.VirtualChassis) {
+	if data.VirtualChassis != nil {
 		virtualChassis = virtualChassisSdkToTerraform(ctx, &diags, data.VirtualChassis)
 	}
 	if len(data.Vars) > 0 {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
-	if !mistutils.IsSdkDataEmpty(data.VrfConfig) {
+	if data.VrfConfig != nil {
 		vrfConfig = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
 	}
 	if len(data.VrfInstances) > 0 {
 		vrfInstances = vrfInstancesSdkToTerraform(ctx, &diags, data.VrfInstances)
 	}
-	if !mistutils.IsSdkDataEmpty(data.VrrpConfig) {
+	if data.VrrpConfig != nil {
 		vrrpConfig = vrrpConfigInstancesSdkToTerraform(ctx, &diags, data.VrrpConfig)
 	}
 	if data.X != nil {

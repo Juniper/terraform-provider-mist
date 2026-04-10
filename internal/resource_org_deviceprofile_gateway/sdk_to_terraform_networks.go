@@ -326,7 +326,7 @@ func vpnSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[strin
 		if d.Routed != nil {
 			routed = types.BoolValue(*d.Routed)
 		}
-		if !mistutils.IsSdkDataEmpty(d.SourceNat) {
+		if d.SourceNat != nil {
 			sourceNat = sourceNatSdkToTerraform(ctx, diags, d.SourceNat)
 		}
 		if d.StaticNat != nil {
@@ -397,16 +397,16 @@ func networksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []mo
 		if d.Gateway6 != nil {
 			gateway6 = types.StringValue(*d.Gateway6)
 		}
-		if !mistutils.IsSdkDataEmpty(d.InternalAccess) {
+		if d.InternalAccess != nil {
 			internalAccess = internalAccessSdkToTerraform(ctx, diags, *d.InternalAccess)
 		}
-		if !mistutils.IsSdkDataEmpty(d.InternetAccess) {
+		if d.InternetAccess != nil {
 			internetAccess = internetAccessSdkToTerraform(ctx, diags, *d.InternetAccess)
 		}
 		if d.Isolation != nil {
 			isolation = types.BoolValue(*d.Isolation)
 		}
-		if !mistutils.IsSdkDataEmpty(d.Multicast) {
+		if d.Multicast != nil {
 			multicast = multicastNetworksSdkToTerraform(ctx, diags, d.Multicast)
 		}
 		name = types.StringValue(d.Name)

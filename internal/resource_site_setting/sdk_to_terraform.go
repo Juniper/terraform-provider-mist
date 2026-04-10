@@ -67,7 +67,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var wiredVna = NewWiredVnaValueNull()
 	var zoneOccupancyAlert = NewZoneOccupancyAlertValueNull()
 
-	if !mistutils.IsSdkDataEmpty(data.Analytic) {
+	if data.Analytic != nil {
 		analytic = analyticSdkToTerraform(ctx, &diags, data.Analytic)
 	}
 
@@ -75,11 +75,11 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		apUpdownThreshold = types.Int64Value(int64(*data.ApUpdownThreshold.Value()))
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.AutoUpgrade) {
+	if data.AutoUpgrade != nil {
 		autoUpgrade = autoUpgradeSdkToTerraform(ctx, &diags, *data.AutoUpgrade)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.AutoUpgradeEsl) {
+	if data.AutoUpgradeEsl != nil {
 		autoUpgradeEsl = autoUpgradeEslSdkToTerraform(ctx, &diags, *data.AutoUpgradeEsl)
 	}
 
@@ -91,7 +91,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		bgpNeighborUpdownThreshold = types.Int64Value(int64(*data.BgpNeighborUpdownThreshold.Value()))
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.BleConfig) {
+	if data.BleConfig != nil {
 		bleConfig = bleConfigsSdkToTerraform(ctx, &diags, data.BleConfig)
 	}
 
@@ -99,11 +99,11 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		configAutoRevert = types.BoolValue(*data.ConfigAutoRevert)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.ConfigPushPolicy) {
+	if data.ConfigPushPolicy != nil {
 		configPushPolicy = configPushPolicySdkToTerraform(ctx, &diags, data.ConfigPushPolicy)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.CriticalUrlMonitoring) {
+	if data.CriticalUrlMonitoring != nil {
 		criticalUrlMonitoring = criticalUrlMonitoringSdkToTerraform(ctx, &diags, data.CriticalUrlMonitoring)
 	}
 
@@ -111,7 +111,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		deviceUpdownThreshold = types.Int64Value(int64(*data.DeviceUpdownThreshold.Value()))
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Engagement) {
+	if data.Engagement != nil {
 		engagement = engagementSdkToTerraform(ctx, &diags, data.Engagement)
 	}
 
@@ -119,7 +119,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		enableUnii4 = types.BoolValue(*data.EnableUnii4)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.GatewayMgmt) {
+	if data.GatewayMgmt != nil {
 		gatewayMgmt = gatewayMgmtSdkToTerraform(ctx, &diags, data.GatewayMgmt)
 	}
 
@@ -127,19 +127,19 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		gatewayUpdownThreshold = types.Int64Value(int64(*data.GatewayUpdownThreshold.Value()))
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.JuniperSrx) {
+	if data.JuniperSrx != nil {
 		juniperSrx = juniperSrxSdkToTerraform(ctx, &diags, data.JuniperSrx)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Led) {
+	if data.Led != nil {
 		led = ledSdkToTerraform(ctx, &diags, data.Led)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Marvis) {
+	if data.Marvis != nil {
 		marvis = marvisSdkToTerraform(ctx, &diags, data.Marvis)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Occupancy) {
+	if data.Occupancy != nil {
 		occupancy = occupancySdkToTerraform(ctx, &diags, data.Occupancy)
 	}
 
@@ -147,7 +147,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		persistConfigOnDevice = types.BoolValue(*data.PersistConfigOnDevice)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Proxy) {
+	if data.Proxy != nil {
 		proxy = proxySdkToTerraform(ctx, &diags, data.Proxy)
 	}
 
@@ -159,27 +159,27 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		reportGatt = types.BoolValue(*data.ReportGatt)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Rogue) {
+	if data.Rogue != nil {
 		rogue = rogueSdkToTerraform(ctx, &diags, data.Rogue)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Rtsa) {
+	if data.Rtsa != nil {
 		rtsa = rtsaSdkToTerraform(ctx, &diags, data.Rtsa)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.SimpleAlert) {
+	if data.SimpleAlert != nil {
 		simpleAlert = simpleAlertSdkToTerraform(ctx, &diags, data.SimpleAlert)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Skyatp) {
+	if data.Skyatp != nil {
 		skyatp = skyAtpSdkToTerraform(ctx, &diags, data.Skyatp)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.SleThresholds) {
+	if data.SleThresholds != nil {
 		sleThresholds = sleThresholdsSdkToTerraform(ctx, &diags, data.SleThresholds)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.SrxApp) {
+	if data.SrxApp != nil {
 		srxApp = srxAppSdkToTerraform(ctx, &diags, data.SrxApp)
 	}
 
@@ -187,7 +187,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		sshKeys = mistutils.ListOfStringSdkToTerraform(data.SshKeys)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Ssr) {
+	if data.Ssr != nil {
 		ssr = ssrSdkToTerraform(ctx, &diags, data.Ssr)
 	}
 
@@ -195,7 +195,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		switchUpdownThreshold = types.Int64Value(int64(*data.SwitchUpdownThreshold.Value()))
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.SyntheticTest) {
+	if data.SyntheticTest != nil {
 		syntheticTest = syntheticTestSdkToTerraform(ctx, &diags, data.SyntheticTest)
 	}
 
@@ -203,7 +203,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		trackAnonymousDevices = types.BoolValue(*data.TrackAnonymousDevices)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.UplinkPortConfig) {
+	if data.UplinkPortConfig != nil {
 		uplinkPortConfig = uplinkPortConfigValueSdkToTerraform(ctx, &diags, data.UplinkPortConfig)
 	}
 
@@ -215,7 +215,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Vna) {
+	if data.Vna != nil {
 		vna = vnaSdkToTerraform(ctx, &diags, data.Vna)
 	}
 
@@ -243,19 +243,19 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		whitelistUrl = types.StringValue(*data.WhitelistUrl)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Wids) {
+	if data.Wids != nil {
 		wids = widsSdkToTerraform(ctx, &diags, data.Wids)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Wifi) {
+	if data.Wifi != nil {
 		wifi = wifiSdkToTerraform(ctx, &diags, data.Wifi)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.WiredVna) {
+	if data.WiredVna != nil {
 		wiredVna = wiredVnaSdkToTerraform(ctx, &diags, data.WiredVna)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.ZoneOccupancyAlert) {
+	if data.ZoneOccupancyAlert != nil {
 		zoneOccupancyAlert = zoneOccupancySdkToTerraform(ctx, &diags, *data.ZoneOccupancyAlert)
 	}
 

@@ -5,7 +5,6 @@ package resource_org_vpn
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -28,7 +27,7 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed:            true,
+				Required:            true,
 				Description:         "Unique ID of the object instance in the Mist Organization",
 				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
 				PlanModifiers: []planmodifier.String{
@@ -70,9 +69,6 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Only if `type`==`hub_spoke`",
 				MarkdownDescription: "Only if `type`==`hub_spoke`",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"paths": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -133,6 +129,7 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "percentages for different class of traffic: high / medium / low / best-effort adding up to 100",
 									MarkdownDescription: "percentages for different class of traffic: high / medium / low / best-effort adding up to 100",
 									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
 										listvalidator.SizeBetween(4, 4),
 									},
 								},
@@ -149,9 +146,6 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 					},
 					CustomType: PathsType{

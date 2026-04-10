@@ -70,9 +70,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Aeroscout AP settings",
 				MarkdownDescription: "Aeroscout AP settings",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"airista": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -99,9 +96,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"ble_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -330,9 +324,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "BLE AP settings",
 				MarkdownDescription: "BLE AP settings",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"disable_eth1": schema.BoolAttribute{
 				Optional:            true,
@@ -485,9 +476,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -627,9 +615,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "IP AP settings",
 				MarkdownDescription: "IP AP settings",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"lacp_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -645,9 +630,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"led": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -673,9 +655,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "LED AP settings",
 				MarkdownDescription: "LED AP settings",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"mesh": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -724,9 +703,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Mesh AP settings",
 				MarkdownDescription: "Mesh AP settings",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -790,9 +766,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Optional dynamic vlan",
 							MarkdownDescription: "Optional dynamic vlan",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"enable_mac_auth": schema.BoolAttribute{
 							Optional: true,
@@ -906,9 +879,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"mx_tunnel_id": schema.StringAttribute{
 							Optional:            true,
@@ -1111,9 +1081,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Junos Radius config",
 							MarkdownDescription: "Junos Radius config",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"radsec": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -1198,9 +1165,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "RadSec settings",
 							MarkdownDescription: "RadSec settings",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"vlan_id": schema.Int64Attribute{
 							Optional:            true,
@@ -1268,9 +1232,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Power related configs",
 				MarkdownDescription: "Power related configs",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"radio_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1454,9 +1415,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Radio Band AP settings",
 						MarkdownDescription: "Radio Band AP settings",
-						Validators: []validator.Object{
-							mistvalidator.AtLeastNAttributes(1),
-						},
 					},
 					"band_24_usage": schema.StringAttribute{
 						Optional:            true,
@@ -1609,9 +1567,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Radio Band AP settings",
 						MarkdownDescription: "Radio Band AP settings",
-						Validators: []validator.Object{
-							mistvalidator.AtLeastNAttributes(1),
-						},
 					},
 					"band_5_on_24_radio": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -1750,9 +1705,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Radio Band AP settings",
 						MarkdownDescription: "Radio Band AP settings",
-						Validators: []validator.Object{
-							mistvalidator.AtLeastNAttributes(1),
-						},
 					},
 					"band_6": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -1899,9 +1851,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Radio Band AP settings",
 						MarkdownDescription: "Radio Band AP settings",
-						Validators: []validator.Object{
-							mistvalidator.AtLeastNAttributes(1),
-						},
 					},
 					"full_automatic_rrm": schema.BoolAttribute{
 						Optional:            true,
@@ -1934,9 +1883,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Radio AP settings",
 				MarkdownDescription: "Radio AP settings",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"site_id": schema.StringAttribute{
 				Optional: true,
@@ -1979,9 +1925,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "AP Uplink port configuration",
 				MarkdownDescription: "AP Uplink port configuration",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"usb_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -2087,9 +2030,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "USB AP settings\n  - Note: if native imagotag is enabled, BLE will be disabled automatically\n  - Note: legacy, new config moved to ESL Config.",
 				MarkdownDescription: "USB AP settings\n  - Note: if native imagotag is enabled, BLE will be disabled automatically\n  - Note: legacy, new config moved to ESL Config.",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"vars": schema.MapAttribute{
 				ElementType:         types.StringType,

@@ -130,7 +130,7 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	if d.EuOnly != nil {
 		euOnly = types.BoolValue(*d.EuOnly)
 	}
-	if !mistutils.IsSdkDataEmpty(d.Fingerprinting) {
+	if d.Fingerprinting != nil {
 		fingerprinting = mistNacFingerprintingSdkToTerraform(ctx, diags, d.Fingerprinting)
 	}
 	if d.Idps != nil {
@@ -142,7 +142,7 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	if d.IdpUserCertLookupField != nil {
 		idpUserCertLookupField = types.StringValue(string(*d.IdpUserCertLookupField))
 	}
-	if !mistutils.IsSdkDataEmpty(d.ServerCert) {
+	if d.ServerCert != nil {
 		serverCert = mistNacServerCertSdkToTerraform(ctx, diags, d.ServerCert)
 	}
 	if d.UseIpVersion != nil {

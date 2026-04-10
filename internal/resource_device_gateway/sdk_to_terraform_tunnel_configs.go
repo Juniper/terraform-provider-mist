@@ -44,16 +44,16 @@ func tunnelConfigAutoProvSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 	var region basetypes.StringValue
 	var serviceConnection basetypes.StringValue
 
-	if !mistutils.IsSdkDataEmpty(d.Primary) {
+	if d.Primary != nil {
 		primary = tunnelConfigAutoProvNodeSdkToTerraform(diags, *d.Primary, AutoProvisionPrimaryValue{}.AttributeTypes(ctx))
 	}
-	if !mistutils.IsSdkDataEmpty(d.Secondary) {
+	if d.Secondary != nil {
 		secondary = tunnelConfigAutoProvNodeSdkToTerraform(diags, *d.Secondary, AutoProvisionSecondaryValue{}.AttributeTypes(ctx))
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
 	}
-	if !mistutils.IsSdkDataEmpty(d.Latlng) {
+	if d.Latlng != nil {
 		latlngValue := map[string]attr.Value{
 			"lat": types.Float64Value(d.Latlng.Lat),
 			"lng": types.Float64Value(d.Latlng.Lng),
@@ -245,7 +245,7 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		var secondary = types.ObjectNull(SecondaryValue{}.AttributeTypes(ctx))
 		var version basetypes.StringValue
 
-		if !mistutils.IsSdkDataEmpty(d.AutoProvision) {
+		if d.AutoProvision != nil {
 			autoProvision = tunnelConfigAutoProvSdkToTerraform(ctx, diags, *d.AutoProvision)
 		}
 		if d.IkeLifetime != nil {
@@ -275,10 +275,10 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		if len(d.Networks) > 0 {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
-		if !mistutils.IsSdkDataEmpty(d.Primary) {
+		if d.Primary != nil {
 			primary = tunnelConfigNodeSdkToTerraform(diags, *d.Primary, PrimaryValue{}.AttributeTypes(ctx))
 		}
-		if !mistutils.IsSdkDataEmpty(d.Probe) {
+		if d.Probe != nil {
 			probe = tunnelConfigProbeSdkToTerraform(ctx, diags, *d.Probe)
 		}
 		if d.Protocol != nil {
@@ -293,7 +293,7 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		if len(d.RemoteSubnets) > 0 {
 			remoteSubnets = mistutils.ListOfStringSdkToTerraform(d.RemoteSubnets)
 		}
-		if !mistutils.IsSdkDataEmpty(d.Secondary) {
+		if d.Secondary != nil {
 			secondary = tunnelConfigNodeSdkToTerraform(diags, *d.Secondary, SecondaryValue{}.AttributeTypes(ctx))
 		}
 		if d.Version != nil {

@@ -39,7 +39,7 @@ func clientsStatsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 
 	var total = types.ObjectNull(TotalValue{}.AttributeTypes(ctx))
 
-	if !mistutils.IsSdkDataEmpty(d.Total) {
+	if d.Total != nil {
 		total = clientsStatsTotalSdkToTerraform(ctx, diags, d.Total)
 	}
 

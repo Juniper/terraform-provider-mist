@@ -185,7 +185,7 @@ func localPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 		if d.Speed != nil {
 			speed = types.StringValue(string(*d.Speed))
 		}
-		if !mistutils.IsSdkDataEmpty(d.StormControl) {
+		if d.StormControl != nil {
 			stormControl = localPortConfigStormControlSdkToTerraform(ctx, diags, *d.StormControl)
 		}
 		if d.StpEdge != nil {

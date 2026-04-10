@@ -42,13 +42,13 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 
 	var profileType types.String
 
-	if !mistutils.IsSdkDataEmpty(data.Aeroscout) {
+	if data.Aeroscout != nil {
 		aeroscout = aeroscoutSdkToTerraform(ctx, &diags, data.Aeroscout)
 	}
-	if !mistutils.IsSdkDataEmpty(data.Airista) {
+	if data.Airista != nil {
 		airista = airistaSdkToTerraform(ctx, &diags, data.Airista)
 	}
-	if !mistutils.IsSdkDataEmpty(data.BleConfig) {
+	if data.BleConfig != nil {
 		bleConfig = bleConfigSdkToTerraform(ctx, &diags, data.BleConfig)
 	}
 	if data.DisableEth1 != nil {
@@ -63,22 +63,22 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	if data.DisableModule != nil {
 		disableModule = types.BoolValue(*data.DisableModule)
 	}
-	if !mistutils.IsSdkDataEmpty(data.EslConfig) {
+	if data.EslConfig != nil {
 		eslConfig = eslSdkToTerraform(ctx, &diags, data.EslConfig)
 	}
 	if data.Id != nil {
 		profileId = types.StringValue(data.Id.String())
 	}
-	if !mistutils.IsSdkDataEmpty(data.IpConfig) {
+	if data.IpConfig != nil {
 		ipConfig = ipConfigSdkToTerraform(ctx, &diags, data.IpConfig)
 	}
-	if !mistutils.IsSdkDataEmpty(data.LacpConfig) {
+	if data.LacpConfig != nil {
 		lacpConfig = lacpConfigSdkToTerraform(ctx, &diags, data.LacpConfig)
 	}
-	if !mistutils.IsSdkDataEmpty(data.Led) {
+	if data.Led != nil {
 		led = ledSdkToTerraform(ctx, &diags, data.Led)
 	}
-	if !mistutils.IsSdkDataEmpty(data.Mesh) {
+	if data.Mesh != nil {
 		mesh = meshSdkToTerraform(ctx, &diags, data.Mesh)
 	}
 	if data.Name.Value() != nil {
@@ -97,19 +97,19 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	if data.PortConfig != nil {
 		portConfig = portConfigSdkToTerraform(ctx, &diags, data.PortConfig)
 	}
-	if !mistutils.IsSdkDataEmpty(data.PwrConfig) {
+	if data.PwrConfig != nil {
 		pwrConfig = pwrConfigSdkToTerraform(ctx, &diags, data.PwrConfig)
 	}
-	if !mistutils.IsSdkDataEmpty(data.RadioConfig) {
+	if data.RadioConfig != nil {
 		radioConfig = radioConfigSdkToTerraform(ctx, &diags, data.RadioConfig)
 	}
 	if data.SiteId != nil {
 		siteId = types.StringValue(data.SiteId.String())
 	}
-	if !mistutils.IsSdkDataEmpty(data.UplinkPortConfig) {
+	if data.UplinkPortConfig != nil {
 		uplinkPortConfig = uplinkPortConfigSdkToTerraform(ctx, &diags, data.UplinkPortConfig)
 	}
-	if !mistutils.IsSdkDataEmpty(data.UsbConfig) {
+	if data.UsbConfig != nil {
 		usbConfig = usbConfigSdkToTerraform(ctx, &diags, data.UsbConfig)
 	}
 	if len(data.Vars) > 0 {

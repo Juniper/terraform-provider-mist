@@ -5,7 +5,6 @@ package resource_org_nacrule
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -199,9 +198,6 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -331,9 +327,6 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"order": schema.Int64Attribute{
 				Required:            true,

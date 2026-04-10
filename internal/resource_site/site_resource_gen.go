@@ -5,7 +5,6 @@ package resource_site
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -73,9 +72,6 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,

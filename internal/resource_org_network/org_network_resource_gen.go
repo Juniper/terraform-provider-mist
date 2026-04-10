@@ -70,9 +70,6 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"internet_access": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -204,9 +201,6 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Whether this network has direct internet access",
 				MarkdownDescription: "Whether this network has direct internet access",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"isolation": schema.BoolAttribute{
 				Optional:            true,
@@ -258,9 +252,6 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Whether to enable multicast support (only PIM-sparse mode is supported)",
 				MarkdownDescription: "Whether to enable multicast support (only PIM-sparse mode is supported)",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"name": schema.StringAttribute{
 				Required: true,
@@ -392,9 +383,6 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
 							MarkdownDescription: "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 							Default: objectdefault.StaticValue(
 								types.ObjectValueMust(
 									SourceNatValue{}.AttributeTypes(ctx),

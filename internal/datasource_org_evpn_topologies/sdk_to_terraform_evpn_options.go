@@ -115,7 +115,7 @@ func evpnOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.EnableInbandZtp != nil {
 		enableInbandZtp = types.BoolValue(*d.EnableInbandZtp)
 	}
-	if !mistutils.IsSdkDataEmpty(d.Overlay) {
+	if d.Overlay != nil {
 		overlay = overlayEvpnOptionsSdkToTerraform(ctx, diags, d.Overlay)
 	}
 	if d.PerVlanVgaV4Mac != nil {
@@ -127,7 +127,7 @@ func evpnOptionsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if d.RoutedAt != nil {
 		routedAt = types.StringValue(string(*d.RoutedAt))
 	}
-	if !mistutils.IsSdkDataEmpty(d.Underlay) {
+	if d.Underlay != nil {
 		underlay = underlayEvpnOptionsSdkToTerraform(ctx, diags, d.Underlay)
 	}
 	if d.VsInstances != nil {

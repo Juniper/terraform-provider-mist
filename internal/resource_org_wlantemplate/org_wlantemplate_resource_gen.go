@@ -5,7 +5,6 @@ package resource_org_wlantemplate
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -63,9 +62,6 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
 				MarkdownDescription: "Where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						AppliesValue{}.AttributeTypes(ctx),
@@ -122,9 +118,6 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Where this template should not be applied to (takes precedence)",
 				MarkdownDescription: "Where this template should not be applied to (takes precedence)",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						ExceptionsValue{}.AttributeTypes(ctx),

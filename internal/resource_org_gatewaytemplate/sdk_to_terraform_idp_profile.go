@@ -63,7 +63,7 @@ func idpProfileOverwritesSdkToTerraform(ctx context.Context, diags *diag.Diagnos
 		if d.Action != nil {
 			action = types.StringValue(string(*d.Action))
 		}
-		if !mistutils.IsSdkDataEmpty(d.Matching) {
+		if d.Matching != nil {
 			matching = idpProfileOverwriteMatchingSdkToTerraform(ctx, diags, d.Matching)
 		}
 		if d.Name != nil {

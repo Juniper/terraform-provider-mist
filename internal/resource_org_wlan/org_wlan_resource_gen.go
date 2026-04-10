@@ -163,9 +163,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Airwatch wlan settings",
 				MarkdownDescription: "Airwatch wlan settings",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						AirwatchValue{}.AttributeTypes(ctx),
@@ -243,9 +240,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Bandwidth limiting for apps (applies to up/down)",
 				MarkdownDescription: "Bandwidth limiting for apps (applies to up/down)",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"app_qos": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -354,9 +348,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "APP qos wlan settings",
 				MarkdownDescription: "APP qos wlan settings",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						AppQosValue{}.AttributeTypes(ctx),
@@ -547,9 +538,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Authentication wlan settings",
 				MarkdownDescription: "Authentication wlan settings",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"auth_server_selection": schema.StringAttribute{
 				Optional:            true,
@@ -759,9 +747,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Bonjour gateway wlan settings",
 				MarkdownDescription: "Bonjour gateway wlan settings",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"cisco_cwa": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -825,9 +810,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Cisco CWA (central web authentication) required RADIUS with COA in order to work. See CWA: https://www.cisco.com/c/en/us/support/docs/security/identity-services-engine/115732-central-web-auth-00.html",
 				MarkdownDescription: "Cisco CWA (central web authentication) required RADIUS with COA in order to work. See CWA: https://www.cisco.com/c/en/us/support/docs/security/identity-services-engine/115732-central-web-auth-00.html",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						CiscoCwaValue{}.AttributeTypes(ctx),
@@ -978,9 +960,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "For radius_group-based DNS server (rewrite DNS request depending on the Group RADIUS server returns)",
 				MarkdownDescription: "For radius_group-based DNS server (rewrite DNS request depending on the Group RADIUS server returns)",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"dtim": schema.Int64Attribute{
 				Optional: true,
@@ -1039,9 +1018,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "For dynamic PSK where we get per_user PSK from Radius. dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)\n  * PSK will come from RADIUS server\n  * AP sends client MAC as username and password (i.e. `enable_mac_auth` is assumed)\n  * AP sends BSSID:SSID as Caller-Station-ID\n  * `auth_servers` is required\n  * PSK will come from cloud WLC if source is cloud_psks\n  * default_psk will be used if cloud WLC is not available\n  * `multi_psk_only` and `psk` is ignored\n  * `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap)",
 				MarkdownDescription: "For dynamic PSK where we get per_user PSK from Radius. dynamic_psk allows PSK to be selected at runtime depending on context (wlan/site/user/...) thus following configurations are assumed (currently)\n  * PSK will come from RADIUS server\n  * AP sends client MAC as username and password (i.e. `enable_mac_auth` is assumed)\n  * AP sends BSSID:SSID as Caller-Station-ID\n  * `auth_servers` is required\n  * PSK will come from cloud WLC if source is cloud_psks\n  * default_psk will be used if cloud WLC is not available\n  * `multi_psk_only` and `psk` is ignored\n  * `pairwise` can only be wpa2-ccmp (for now, wpa3 support on the roadmap)",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"dynamic_vlan": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1126,9 +1102,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "For 802.1x",
 				MarkdownDescription: "For 802.1x",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"enable_local_keycaching": schema.BoolAttribute{
 				Optional:            true,
@@ -1223,9 +1196,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Hostspot 2.0 wlan settings",
 				MarkdownDescription: "Hostspot 2.0 wlan settings",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -1256,9 +1226,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"interface": schema.StringAttribute{
 				Optional:            true,
@@ -1405,9 +1372,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 				Computed: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						MistNacValue{}.AttributeTypes(ctx),
@@ -2066,9 +2030,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Portal wlan settings",
 				MarkdownDescription: "Portal wlan settings",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						PortalValue{}.AttributeTypes(ctx),
@@ -2247,9 +2208,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional: true,
 				Computed: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						QosValue{}.AttributeTypes(ctx),
@@ -2348,9 +2306,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "RadSec settings",
 				MarkdownDescription: "RadSec settings",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						RadsecValue{}.AttributeTypes(ctx),
@@ -2608,9 +2563,6 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "WLAN operating schedule, default is disabled",
 				MarkdownDescription: "WLAN operating schedule, default is disabled",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						ScheduleValue{}.AttributeTypes(ctx),

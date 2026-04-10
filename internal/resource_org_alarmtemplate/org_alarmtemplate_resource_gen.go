@@ -5,7 +5,6 @@ package resource_org_alarmtemplate
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -61,9 +60,6 @@ func OrgAlarmtemplateResourceSchema(ctx context.Context) schema.Schema {
 				Required:            true,
 				Description:         "Delivery object to configure the alarm delivery",
 				MarkdownDescription: "Delivery object to configure the alarm delivery",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -121,9 +117,6 @@ func OrgAlarmtemplateResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Delivery object to configure the alarm delivery",
 							MarkdownDescription: "Delivery object to configure the alarm delivery",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"enabled": schema.BoolAttribute{
 							Optional: true,

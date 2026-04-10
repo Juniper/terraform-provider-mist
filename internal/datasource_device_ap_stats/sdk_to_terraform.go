@@ -98,13 +98,13 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.AntennaSelect != nil {
 		antennaSelect = types.StringValue(string(*d.AntennaSelect))
 	}
-	if !mistutils.IsSdkDataEmpty(d.AutoPlacement) {
+	if d.AutoPlacement != nil {
 		autoPlacement = autoPlacementSdkToTerraform(ctx, diags, d.AutoPlacement)
 	}
-	if !mistutils.IsSdkDataEmpty(d.AutoUpgradeStat) {
+	if d.AutoUpgradeStat != nil {
 		autoUpgradeStat = autoUpgradeStatsSdkToTerraform(ctx, diags, d.AutoUpgradeStat)
 	}
-	if !mistutils.IsSdkDataEmpty(d.BleStat) {
+	if d.BleStat != nil {
 		bleStat = bleStatsSdkToTerraform(ctx, diags, d.BleStat)
 	}
 	if d.CertExpiry.Value() != nil {
@@ -128,7 +128,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.DeviceprofileId.Value() != nil {
 		deviceprofileId = types.StringValue(d.DeviceprofileId.Value().String())
 	}
-	if !mistutils.IsSdkDataEmpty(d.EnvStat) {
+	if d.EnvStat != nil {
 		envStat = envStatsSdkToTerraform(ctx, diags, d.EnvStat)
 	}
 	if d.EslStat.Value() != nil {
@@ -146,7 +146,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.ExtIp.Value() != nil {
 		extIp = types.StringValue(*d.ExtIp.Value())
 	}
-	if !mistutils.IsSdkDataEmpty(d.Fwupdate) {
+	if d.Fwupdate != nil {
 		fwupdate = fwupdateSdkToTerraform(ctx, diags, d.Fwupdate)
 	}
 	if d.GpsStat != nil {
@@ -167,10 +167,10 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.Ip.Value() != nil {
 		ip = types.StringValue(*d.Ip.Value())
 	}
-	if !mistutils.IsSdkDataEmpty(d.IpConfig) {
+	if d.IpConfig != nil {
 		ipConfig = ipConfigSdkToTerraform(ctx, diags, d.IpConfig)
 	}
-	if !mistutils.IsSdkDataEmpty(d.IpStat) {
+	if d.IpStat != nil {
 		ipStat = ipStatsSdkToTerraform(ctx, diags, d.IpStat)
 	}
 	if len(d.L2tpStat) > 0 {
@@ -179,13 +179,13 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.LastSeen.Value() != nil {
 		lastSeen = types.Float64Value(*d.LastSeen.Value())
 	}
-	if !mistutils.IsSdkDataEmpty(d.LastTrouble) {
+	if d.LastTrouble != nil {
 		lastTrouble = lastTroubleSdkToTerraform(ctx, diags, d.LastTrouble)
 	}
-	if !mistutils.IsSdkDataEmpty(d.Led) {
+	if d.Led != nil {
 		led = ledSdkToTerraform(ctx, diags, d.Led)
 	}
-	if !mistutils.IsSdkDataEmpty(d.LldpStat) {
+	if d.LldpStat != nil {
 		lldpStat = lldpSdkToTerraform(ctx, diags, d.LldpStat)
 	}
 	if len(d.LldpStats) > 0 {
@@ -219,7 +219,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if len(d.MeshDownlinks) > 0 {
 		meshDownlinks = meshDownlinksSdkToTerraform(ctx, diags, d.MeshDownlinks)
 	}
-	if !mistutils.IsSdkDataEmpty(d.MeshUplink) {
+	if d.MeshUplink != nil {
 		meshUplink = meshUplinkSdkToTerraform(ctx, diags, d.MeshUplink)
 	}
 	if d.Model.Value() != nil {
@@ -261,7 +261,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.PowerSrc.Value() != nil {
 		powerSrc = types.StringValue(*d.PowerSrc.Value())
 	}
-	if !mistutils.IsSdkDataEmpty(d.RadioStat) {
+	if d.RadioStat != nil {
 		radioStat = radioStatSdkToTerraform(ctx, diags, d.RadioStat)
 	}
 	if d.RxBps.Value() != nil {
@@ -282,7 +282,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.Status.Value() != nil {
 		status = types.StringValue(*d.Status.Value())
 	}
-	if !mistutils.IsSdkDataEmpty(d.SwitchRedundancy) {
+	if d.SwitchRedundancy != nil {
 		switchRedundancy = SwitchRedundancySdkToTerraform(ctx, diags, d.SwitchRedundancy)
 	}
 	if d.TxBps.Value() != nil {
@@ -297,7 +297,7 @@ func deviceApStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 	if d.Uptime.Value() != nil {
 		uptime = types.NumberValue(big.NewFloat(*d.Uptime.Value()))
 	}
-	if !mistutils.IsSdkDataEmpty(d.UsbStat) {
+	if d.UsbStat != nil {
 		usbStat = usbStatsSdkToTerraform(ctx, diags, d.UsbStat)
 	}
 	if d.Version.Value() != nil {

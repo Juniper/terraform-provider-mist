@@ -126,7 +126,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		acctServers = radiusServersAcctSdkToTerraform(ctx, &diags, data.AcctServers)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Airwatch) {
+	if data.Airwatch != nil {
 		airwatch = airwatchSdkToTerraform(ctx, &diags, data.Airwatch)
 	}
 
@@ -146,11 +146,11 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		apIds = mistutils.ListOfUuidSdkToTerraform(*data.ApIds.Value())
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.AppLimit) {
+	if data.AppLimit != nil {
 		appLimit = appLimitSdkToTerraform(ctx, &diags, data.AppLimit)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.AppQos) {
+	if data.AppQos != nil {
 		appQos = appQosSdkToTerraform(ctx, &diags, *data.AppQos)
 	}
 
@@ -162,7 +162,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		arpFilter = types.BoolValue(*data.ArpFilter)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Auth) {
+	if data.Auth != nil {
 		auth = authSdkToTerraform(ctx, &diags, data.Auth)
 	}
 
@@ -206,11 +206,11 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		blockBlacklistClients = types.BoolValue(*data.BlockBlacklistClients)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Bonjour) {
+	if data.Bonjour != nil {
 		bonjour = bonjourSdkToTerraform(ctx, &diags, data.Bonjour)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.CiscoCwa) {
+	if data.CiscoCwa != nil {
 		ciscoCwa = ciscoCwaSdkToTerraform(ctx, &diags, data.CiscoCwa)
 	}
 
@@ -318,7 +318,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		hostnameIe = types.BoolValue(*data.HostnameIe)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Hotspot20) {
+	if data.Hotspot20 != nil {
 		hotspot20 = hotspot20SdkToTerraform(ctx, &diags, data.Hotspot20)
 	}
 
@@ -326,7 +326,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		id = types.StringValue(data.Id.String())
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.InjectDhcpOption82) {
+	if data.InjectDhcpOption82 != nil {
 		injectDhcpOption82 = injectDhcpOption82dkToTerraform(ctx, &diags, data.InjectDhcpOption82)
 	}
 
@@ -362,7 +362,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		maxNumClients = types.Int64Value(int64(*data.MaxNumClients))
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.MistNac) {
+	if data.MistNac != nil {
 		mistNac = mistNacSkToTerraform(ctx, &diags, data.MistNac)
 	}
 
@@ -390,7 +390,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		orgId = types.StringValue(data.OrgId.String())
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Portal) {
+	if data.Portal != nil {
 		portal = portalSkToTerraform(ctx, &diags, data.Portal)
 	}
 
@@ -419,11 +419,11 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		portalSsoUrl = types.StringValue(*data.PortalSsoUrl.Value())
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Qos) {
+	if data.Qos != nil {
 		qos = qosSkToTerraform(ctx, &diags, data.Qos)
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Radsec) {
+	if data.Radsec != nil {
 		radsec = radsecSkToTerraform(ctx, &diags, data.Radsec)
 	}
 
@@ -447,7 +447,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 		}
 	}
 
-	if !mistutils.IsSdkDataEmpty(data.Schedule) {
+	if data.Schedule != nil {
 		schedule = scheduleSkToTerraform(ctx, &diags, data.Schedule)
 	}
 

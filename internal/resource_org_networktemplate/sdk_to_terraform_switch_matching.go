@@ -239,13 +239,13 @@ func switchMatchingRulesSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		if len(d.PortMirroring) > 0 {
 			portMirroring = portMirroringSdkToTerraform(ctx, diags, d.PortMirroring)
 		}
-		if !mistutils.IsSdkDataEmpty(d.StpConfig) {
+		if d.StpConfig != nil {
 			stpConfig = switchMatchingRulesStpConfigSdkToTerraform(ctx, diags, d.StpConfig)
 		}
-		if !mistutils.IsSdkDataEmpty(d.IpConfig) {
+		if d.IpConfig != nil {
 			ipConfig = switchMatchingRulesIpConfigSdkToTerraform(ctx, diags, d.IpConfig)
 		}
-		if !mistutils.IsSdkDataEmpty(d.OobIpConfig) {
+		if d.OobIpConfig != nil {
 			oobIpConfig = switchMatchingRulesOobIpConfigSdkToTerraform(ctx, diags, d.OobIpConfig)
 		}
 

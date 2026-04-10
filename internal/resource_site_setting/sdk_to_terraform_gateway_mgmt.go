@@ -231,13 +231,13 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if len(d.AdminSshkeys) > 0 {
 		adminSshkeys = mistutils.ListOfStringSdkToTerraform(d.AdminSshkeys)
 	}
-	if !mistutils.IsSdkDataEmpty(d.AppProbing) {
+	if d.AppProbing != nil {
 		appProbing = gatewayMgmtAppProbingSdkToTerraform(ctx, diags, d.AppProbing)
 	}
 	if d.AppUsage != nil {
 		appUsage = types.BoolValue(*d.AppUsage)
 	}
-	if !mistutils.IsSdkDataEmpty(d.AutoSignatureUpdate) {
+	if d.AutoSignatureUpdate != nil {
 		autoSignatureUpdate = gatewayMgmtAutoSignatureUpdateSdkToTerraform(ctx, diags, d.AutoSignatureUpdate)
 	}
 	if d.ConfigRevertTimer != nil {
@@ -261,7 +261,7 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	if len(d.ProbeHostsv6) > 0 {
 		probeHostsv6 = mistutils.ListOfStringSdkToTerraform(d.ProbeHostsv6)
 	}
-	if !mistutils.IsSdkDataEmpty(d.ProtectRe) {
+	if d.ProtectRe != nil {
 		protectRe = gatewayMgmtProtectReSdkToTerraform(ctx, diags, d.ProtectRe)
 	}
 	if d.RootPassword != nil {

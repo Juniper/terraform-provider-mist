@@ -46,13 +46,13 @@ func SdkToTerraform(ctx context.Context, data *models.Mxcluster) (OrgMxclusterMo
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
 	}
-	if !mistutils.IsSdkDataEmpty(data.MistDas) {
+	if data.MistDas != nil {
 		mistDas = mistDasSdkToTerraform(ctx, &diags, data.MistDas)
 	}
-	if !mistutils.IsSdkDataEmpty(data.MistNac) {
+	if data.MistNac != nil {
 		mistNac = mistNacSdkToTerraform(ctx, &diags, data.MistNac)
 	}
-	if !mistutils.IsSdkDataEmpty(data.MxedgeMgmt) {
+	if data.MxedgeMgmt != nil {
 		mxedgeMgmt = mxedgeMgmtSdkToTerraform(ctx, &diags, data.MxedgeMgmt)
 	}
 	if data.Name != nil {
@@ -61,13 +61,13 @@ func SdkToTerraform(ctx context.Context, data *models.Mxcluster) (OrgMxclusterMo
 	if data.OrgId != nil {
 		orgId = types.StringValue(data.OrgId.String())
 	}
-	if !mistutils.IsSdkDataEmpty(data.Proxy) {
+	if data.Proxy != nil {
 		proxy = proxySdkToTerraform(ctx, &diags, data.Proxy)
 	}
-	if !mistutils.IsSdkDataEmpty(data.Radsec) {
+	if data.Radsec != nil {
 		radsec = radsecSdkToTerraform(ctx, &diags, data.Radsec)
 	}
-	if !mistutils.IsSdkDataEmpty(data.RadsecTls) {
+	if data.RadsecTls != nil {
 		radsecTls = radsecTlsSdkToTerraform(ctx, &diags, data.RadsecTls)
 	}
 	if data.SiteId != nil && data.SiteId.String() != "00000000-0000-0000-0000-000000000000" {

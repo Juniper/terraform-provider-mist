@@ -60,9 +60,6 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "SRX only",
 				MarkdownDescription: "SRX only",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"action": schema.StringAttribute{
 				Optional:            true,
@@ -103,9 +100,6 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "For SRX-only",
 				MarkdownDescription: "For SRX-only",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"appqoe": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -123,9 +117,6 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "SRX only",
 				MarkdownDescription: "SRX only",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"ewf": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -201,9 +192,6 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"local_routing": schema.BoolAttribute{
 				Optional:            true,
@@ -228,6 +216,7 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 				ElementType: types.StringType,
 				Optional:    true,
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					listvalidator.UniqueValues(),
 				},
 			},
@@ -262,14 +251,12 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "For SRX-only",
 				MarkdownDescription: "For SRX-only",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"tenants": schema.ListAttribute{
 				ElementType: types.StringType,
 				Optional:    true,
 				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
 					listvalidator.UniqueValues(),
 				},
 			},

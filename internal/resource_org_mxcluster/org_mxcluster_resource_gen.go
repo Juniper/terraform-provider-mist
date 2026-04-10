@@ -5,8 +5,6 @@ package resource_org_mxcluster
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -19,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -79,6 +78,9 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Dynamic authorization clients configured to send CoA|DM to mist edges on port 3799",
 						MarkdownDescription: "Dynamic authorization clients configured to send CoA|DM to mist edges on port 3799",
+						Validators: []validator.List{
+							listvalidator.SizeAtLeast(1),
+						},
 					},
 					"enabled": schema.BoolAttribute{
 						Optional: true,

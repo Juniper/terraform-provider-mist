@@ -368,7 +368,7 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		if d.CpldVersion.Value() != nil {
 			cpldVersion = types.StringValue(*d.CpldVersion.Value())
 		}
-		if !mistutils.IsSdkDataEmpty(d.CpuStat) {
+		if d.CpuStat != nil {
 			cpuStat = moduleStatCpuSdkToTerraform(ctx, diags, d.CpuStat)
 		}
 		if d.Errors != nil {
@@ -392,7 +392,7 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		if d.Mac != nil {
 			mac = types.StringValue(*d.Mac)
 		}
-		if !mistutils.IsSdkDataEmpty(d.MemoryStat) {
+		if d.MemoryStat != nil {
 			memoryStat = memoryStatSdkToTerraform(ctx, diags, d.MemoryStat)
 		}
 		if d.Model.Value() != nil {
@@ -407,7 +407,7 @@ func moduleStatSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []
 		if d.Pics != nil {
 			pics = moduleStatPicSdkToTerraform(ctx, diags, d.Pics)
 		}
-		if !mistutils.IsSdkDataEmpty(d.Poe) {
+		if d.Poe != nil {
 			poe = moduleStatPoeSdkToTerraform(ctx, diags, d.Poe)
 		}
 		if d.PoeVersion.Value() != nil {

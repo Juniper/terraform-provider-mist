@@ -545,9 +545,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"dns_override": schema.BoolAttribute{
 				Optional: true,
@@ -692,9 +689,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 										Optional: true,
-										Validators: []validator.Object{
-											mistvalidator.AtLeastNAttributes(1),
-										},
 									},
 									"name": schema.StringAttribute{
 										Optional: true,
@@ -841,9 +835,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"internet_access": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -975,9 +966,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Whether this network has direct internet access",
 							MarkdownDescription: "Whether this network has direct internet access",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"isolation": schema.BoolAttribute{
 							Optional:            true,
@@ -1029,9 +1017,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Whether to enable multicast support (only PIM-sparse mode is supported)",
 							MarkdownDescription: "Whether to enable multicast support (only PIM-sparse mode is supported)",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"name": schema.StringAttribute{
 							Required: true,
@@ -1158,9 +1143,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Computed:            true,
 										Description:         "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
 										MarkdownDescription: "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
-										Validators: []validator.Object{
-											mistvalidator.AtLeastNAttributes(1),
-										},
 										Default: objectdefault.StaticValue(
 											types.ObjectValueMust(
 												SourceNatValue{}.AttributeTypes(ctx),
@@ -1424,9 +1406,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "For HA Cluster, node1 can have different IP Config",
 						MarkdownDescription: "For HA Cluster, node1 can have different IP Config",
-						Validators: []validator.Object{
-							mistvalidator.AtLeastNAttributes(1),
-						},
 						Default: objectdefault.StaticValue(
 							types.ObjectValueMust(
 								Node1Value{}.AttributeTypes(ctx),
@@ -1482,9 +1461,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Out-of-band (vme/em0/fxp0) IP config",
 				MarkdownDescription: "Out-of-band (vme/em0/fxp0) IP config",
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						OobIpConfigValue{}.AttributeTypes(ctx),
@@ -1927,9 +1903,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Junos IP Config",
 							MarkdownDescription: "Junos IP Config",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"port_network": schema.StringAttribute{
 							Optional:            true,
@@ -2017,9 +1990,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional: true,
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"usage": schema.StringAttribute{
 							Required:            true,
@@ -2102,9 +2072,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 										Optional: true,
-										Validators: []validator.Object{
-											mistvalidator.AtLeastNAttributes(1),
-										},
 									},
 								},
 								CustomType: VpnPathsType{
@@ -2409,9 +2376,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Optional:            true,
 										Description:         "When used as import policy",
 										MarkdownDescription: "When used as import policy",
-										Validators: []validator.Object{
-											mistvalidator.AtLeastNAttributes(1),
-										},
 									},
 									"matching": schema.SingleNestedAttribute{
 										Attributes: map[string]schema.Attribute{
@@ -2492,9 +2456,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 													},
 												},
 												Optional: true,
-												Validators: []validator.Object{
-													mistvalidator.AtLeastNAttributes(1),
-												},
 											},
 											"vpn_neighbor_mac": schema.ListAttribute{
 												ElementType:         types.StringType,
@@ -2532,9 +2493,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 													},
 												},
 												Optional: true,
-												Validators: []validator.Object{
-													mistvalidator.AtLeastNAttributes(1),
-												},
 											},
 										},
 										CustomType: RoutingPolicyTermMatchingType{
@@ -2545,9 +2503,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Optional:            true,
 										Description:         "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
 										MarkdownDescription: "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
-										Validators: []validator.Object{
-											mistvalidator.AtLeastNAttributes(1),
-										},
 									},
 								},
 								CustomType: TermsType{
@@ -2617,9 +2572,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "For SRX-only",
 							MarkdownDescription: "For SRX-only",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"appqoe": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -2635,9 +2587,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "SRX only",
 							MarkdownDescription: "SRX only",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"ewf": schema.ListNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -2772,9 +2721,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional: true,
-									Validators: []validator.Object{
-										mistvalidator.AtLeastNAttributes(1),
-									},
 								},
 								"dns_tunnel_detection": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
@@ -2801,9 +2747,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional: true,
-									Validators: []validator.Object{
-										mistvalidator.AtLeastNAttributes(1),
-									},
 								},
 								"http_inspection": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
@@ -2829,9 +2772,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional: true,
-									Validators: []validator.Object{
-										mistvalidator.AtLeastNAttributes(1),
-									},
 								},
 								"iot_device_policy": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
@@ -2845,9 +2785,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional: true,
-									Validators: []validator.Object{
-										mistvalidator.AtLeastNAttributes(1),
-									},
 								},
 							},
 							CustomType: SkyatpType{
@@ -2858,9 +2795,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "SRX only",
 							MarkdownDescription: "SRX only",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"ssl_proxy": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -2889,9 +2823,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "For SRX-only",
 							MarkdownDescription: "For SRX-only",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"syslog": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -2916,9 +2847,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Required for syslog logging",
 							MarkdownDescription: "Required for syslog logging",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"tenants": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -2983,9 +2911,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional: true,
-									Validators: []validator.Object{
-										mistvalidator.AtLeastNAttributes(1),
-									},
 								},
 								"secondary": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
@@ -3013,9 +2938,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional: true,
-									Validators: []validator.Object{
-										mistvalidator.AtLeastNAttributes(1),
-									},
 								},
 								"enabled": schema.BoolAttribute{
 									Optional:            true,
@@ -3039,9 +2961,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "API override for POP selection",
 									MarkdownDescription: "API override for POP selection",
-									Validators: []validator.Object{
-										mistvalidator.AtLeastNAttributes(1),
-									},
 								},
 								"provider": schema.StringAttribute{
 									Required:            true,
@@ -3074,9 +2993,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Auto Provisioning configuration for the tunne. This takes precedence over the `primary` and `secondary` nodes.",
 							MarkdownDescription: "Auto Provisioning configuration for the tunne. This takes precedence over the `primary` and `secondary` nodes.",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"ike_lifetime": schema.Int64Attribute{
 							Optional:            true,
@@ -3335,9 +3251,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 							MarkdownDescription: "Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"probe": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -3379,9 +3292,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Only if `provider`==`custom-ipsec`",
 							MarkdownDescription: "Only if `provider`==`custom-ipsec`",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"protocol": schema.StringAttribute{
 							Optional:            true,
@@ -3482,9 +3392,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 							MarkdownDescription: "Only if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
-							Validators: []validator.Object{
-								mistvalidator.AtLeastNAttributes(1),
-							},
 						},
 						"version": schema.StringAttribute{
 							Optional:            true,
@@ -3533,9 +3440,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "For jse-ipsec, this allows provisioning of adequate resource on JSE. Make sure adequate licenses are added",
 						MarkdownDescription: "For jse-ipsec, this allows provisioning of adequate resource on JSE. Make sure adequate licenses are added",
-						Validators: []validator.Object{
-							mistvalidator.AtLeastNAttributes(1),
-						},
 					},
 					"prisma": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -3551,9 +3455,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
-						Validators: []validator.Object{
-							mistvalidator.AtLeastNAttributes(1),
-						},
 					},
 					"zscaler": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -3761,9 +3662,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "For zscaler-ipsec and zscaler-gre",
 						MarkdownDescription: "For zscaler-ipsec and zscaler-gre",
-						Validators: []validator.Object{
-							mistvalidator.AtLeastNAttributes(1),
-						},
 					},
 				},
 				CustomType: TunnelProviderOptionsType{
@@ -3772,9 +3670,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"type": schema.StringAttribute{
 				Computed:            true,
@@ -3810,9 +3705,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional: true,
-				Validators: []validator.Object{
-					mistvalidator.AtLeastNAttributes(1),
-				},
 			},
 			"vrf_instances": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
