@@ -132,6 +132,12 @@ func TerraformToSdk(plan *OrgNacidpModel) (*models.Sso, diag.Diagnostics) {
 		unset["-oauth_ping_identity_region"] = ""
 	}
 
+	if !plan.OauthProviderDomain.IsNull() && !plan.OauthProviderDomain.IsUnknown() {
+		data.OauthProviderDomain = (*models.OauthProviderDomainEnum)(plan.OauthProviderDomain.ValueStringPointer())
+	} else {
+		unset["-oauth_provider_domain"] = ""
+	}
+
 	if !plan.OauthRopcClientId.IsNull() && !plan.OauthRopcClientId.IsUnknown() {
 		data.OauthRopcClientId = plan.OauthRopcClientId.ValueStringPointer()
 	} else {

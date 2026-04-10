@@ -33,6 +33,7 @@ func SdkToTerraform(data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
 	var oauthCcClientSecret types.String
 	var oauthDiscoveryUrl types.String
 	var oauthPingIdentityRegion types.String
+	var oauthProviderDomain types.String
 	var oauthRopcClientId types.String
 	var oauthRopcClientSecret types.String
 	var oauthTenantId types.String
@@ -104,6 +105,9 @@ func SdkToTerraform(data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
 	if data.OauthPingIdentityRegion != nil {
 		oauthPingIdentityRegion = types.StringValue(string(*data.OauthPingIdentityRegion))
 	}
+	if data.OauthProviderDomain != nil {
+		oauthProviderDomain = types.StringValue(string(*data.OauthProviderDomain))
+	}
 	if data.OauthRopcClientId != nil {
 		oauthRopcClientId = types.StringValue(*data.OauthRopcClientId)
 	}
@@ -152,6 +156,7 @@ func SdkToTerraform(data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
 	state.OauthCcClientSecret = oauthCcClientSecret
 	state.OauthDiscoveryUrl = oauthDiscoveryUrl
 	state.OauthPingIdentityRegion = oauthPingIdentityRegion
+	state.OauthProviderDomain = oauthProviderDomain
 	state.OauthRopcClientId = oauthRopcClientId
 	state.OauthRopcClientSecret = oauthRopcClientSecret
 	state.OauthTenantId = oauthTenantId
