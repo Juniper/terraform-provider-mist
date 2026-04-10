@@ -90,6 +90,9 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 					},
 					"per_vlan_vga_v4_mac": schema.BoolAttribute{
 						Optional:            true,
@@ -157,6 +160,9 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional: true,
+						Validators: []validator.Object{
+							mistvalidator.AtLeastNAttributes(1),
+						},
 					},
 					"vs_instances": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -165,7 +171,6 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 									ElementType: types.StringType,
 									Optional:    true,
 									Validators: []validator.List{
-										listvalidator.SizeAtLeast(1),
 										listvalidator.UniqueValues(),
 									},
 								},
@@ -192,6 +197,9 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "EVPN Options",
 				MarkdownDescription: "EVPN Options",
+				Validators: []validator.Object{
+					mistvalidator.AtLeastNAttributes(1),
+				},
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
