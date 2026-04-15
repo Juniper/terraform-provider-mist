@@ -7,6 +7,17 @@ description: |-
 
 # Release Notes for v0.7.xx
 
+## Release Notes for v0.7.2
+**Release Date**: April 14th, 2026
+
+### Bug Fixes
+
+#### Resources fixed
+
+- **`mist_org_mxedge` resource**:
+  - Fixed `mxcluster_id` not being cleared when set to null or excluded from the configuration
+  - Fixed provider error "was `""`, but now `null`" when `mxcluster_id` is explicitly set to an empty string
+
 ## Release Notes for v0.7.1
 **Release Date**: April 1st, 2026
 
