@@ -3,7 +3,7 @@ name: Feature request
 about: Suggest an idea for this project
 title: ''
 labels: enhancement
-assignees: wprins-JNPR
+assignees: Kevin-DeJong, tmunzer-AIDE, wprins-JNPR
 
 ---
 
