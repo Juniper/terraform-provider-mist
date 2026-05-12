@@ -175,6 +175,19 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 											),
 										},
 									},
+									"tunnel_via": schema.StringAttribute{
+										Optional:            true,
+										Computed:            true,
+										Description:         "If `via`==`tunnel`, specifies which tunnel (primary/secondary) this neighbor is associated with. enum: `primary`, `secondary`",
+										MarkdownDescription: "If `via`==`tunnel`, specifies which tunnel (primary/secondary) this neighbor is associated with. enum: `primary`, `secondary`",
+										Validators: []validator.String{
+											stringvalidator.OneOf(
+												"",
+												"primary",
+												"secondary",
+											),
+										},
+									},
 								},
 								CustomType: NeighborsType{
 									ObjectType: types.ObjectType{
@@ -1345,7 +1358,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										"static",
 									),
 								},
-								Default: stringdefault.StaticString("dhcp"),
 							},
 							"use_mgmt_vrf": schema.BoolAttribute{
 								Optional:            true,
@@ -1400,7 +1412,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"static",
 							),
 						},
-						Default: stringdefault.StaticString("dhcp"),
 					},
 					"use_mgmt_vrf": schema.BoolAttribute{
 						Optional:            true,
@@ -1737,6 +1748,12 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"poe_disabled": schema.BoolAttribute{
 							Optional: true,
+						},
+						"poe_keep_state_when_reboot": schema.BoolAttribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "Whether Perpetual PoE capabilities are enabled for a port",
+							MarkdownDescription: "Whether Perpetual PoE capabilities are enabled for a port",
 						},
 						"ip_config": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
@@ -3044,8 +3061,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Only if  `provider`==`custom-ipsec`",
-							MarkdownDescription: "Only if  `provider`==`custom-ipsec`",
+							Description:         "Only if `provider`==`custom-ipsec`",
+							MarkdownDescription: "Only if `provider`==`custom-ipsec`",
 							Validators: []validator.List{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("provider"), types.StringValue("custom-ipsec")),
 							},
@@ -3115,8 +3132,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"remote_ids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
-									MarkdownDescription: "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+									Description:         "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+									MarkdownDescription: "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 								},
 								"wan_names": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -3240,8 +3257,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"remote_ids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
-									MarkdownDescription: "Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+									Description:         "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
+									MarkdownDescription: "Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`",
 								},
 								"wan_names": schema.ListAttribute{
 									ElementType: types.StringType,
@@ -5323,6 +5340,24 @@ func (t NeighborsType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`neighbor_as expected to be basetypes.StringValue, was: %T`, neighborAsAttribute))
 	}
 
+	tunnelViaAttribute, ok := attributes["tunnel_via"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tunnel_via is missing from object`)
+
+		return nil, diags
+	}
+
+	tunnelViaVal, ok := tunnelViaAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tunnel_via expected to be basetypes.StringValue, was: %T`, tunnelViaAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -5334,6 +5369,7 @@ func (t NeighborsType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		ImportPolicy: importPolicyVal,
 		MultihopTtl:  multihopTtlVal,
 		NeighborAs:   neighborAsVal,
+		TunnelVia:    tunnelViaVal,
 		state:        attr.ValueStateKnown,
 	}, diags
 }
@@ -5509,6 +5545,24 @@ func NewNeighborsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`neighbor_as expected to be basetypes.StringValue, was: %T`, neighborAsAttribute))
 	}
 
+	tunnelViaAttribute, ok := attributes["tunnel_via"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`tunnel_via is missing from object`)
+
+		return NewNeighborsValueUnknown(), diags
+	}
+
+	tunnelViaVal, ok := tunnelViaAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`tunnel_via expected to be basetypes.StringValue, was: %T`, tunnelViaAttribute))
+	}
+
 	if diags.HasError() {
 		return NewNeighborsValueUnknown(), diags
 	}
@@ -5520,6 +5574,7 @@ func NewNeighborsValue(attributeTypes map[string]attr.Type, attributes map[strin
 		ImportPolicy: importPolicyVal,
 		MultihopTtl:  multihopTtlVal,
 		NeighborAs:   neighborAsVal,
+		TunnelVia:    tunnelViaVal,
 		state:        attr.ValueStateKnown,
 	}, diags
 }
@@ -5598,11 +5653,12 @@ type NeighborsValue struct {
 	ImportPolicy basetypes.StringValue `tfsdk:"import_policy"`
 	MultihopTtl  basetypes.Int64Value  `tfsdk:"multihop_ttl"`
 	NeighborAs   basetypes.StringValue `tfsdk:"neighbor_as"`
+	TunnelVia    basetypes.StringValue `tfsdk:"tunnel_via"`
 	state        attr.ValueState
 }
 
 func (v NeighborsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 6)
+	attrTypes := make(map[string]tftypes.Type, 7)
 
 	var val tftypes.Value
 	var err error
@@ -5613,12 +5669,13 @@ func (v NeighborsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	attrTypes["import_policy"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["multihop_ttl"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["neighbor_as"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["tunnel_via"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 6)
+		vals := make(map[string]tftypes.Value, 7)
 
 		val, err = v.Disabled.ToTerraformValue(ctx)
 
@@ -5668,6 +5725,14 @@ func (v NeighborsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 		vals["neighbor_as"] = val
 
+		val, err = v.TunnelVia.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["tunnel_via"] = val
+
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
@@ -5704,6 +5769,7 @@ func (v NeighborsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		"import_policy": basetypes.StringType{},
 		"multihop_ttl":  basetypes.Int64Type{},
 		"neighbor_as":   basetypes.StringType{},
+		"tunnel_via":    basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -5723,6 +5789,7 @@ func (v NeighborsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"import_policy": v.ImportPolicy,
 			"multihop_ttl":  v.MultihopTtl,
 			"neighbor_as":   v.NeighborAs,
+			"tunnel_via":    v.TunnelVia,
 		})
 
 	return objVal, diags
@@ -5767,6 +5834,10 @@ func (v NeighborsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.TunnelVia.Equal(other.TunnelVia) {
+		return false
+	}
+
 	return true
 }
 
@@ -5786,6 +5857,7 @@ func (v NeighborsValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"import_policy": basetypes.StringType{},
 		"multihop_ttl":  basetypes.Int64Type{},
 		"neighbor_as":   basetypes.StringType{},
+		"tunnel_via":    basetypes.StringType{},
 	}
 }
 
@@ -21332,6 +21404,24 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`poe_disabled expected to be basetypes.BoolValue, was: %T`, poeDisabledAttribute))
 	}
 
+	poeKeepStateWhenRebootAttribute, ok := attributes["poe_keep_state_when_reboot"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`poe_keep_state_when_reboot is missing from object`)
+
+		return nil, diags
+	}
+
+	poeKeepStateWhenRebootVal, ok := poeKeepStateWhenRebootAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`poe_keep_state_when_reboot expected to be basetypes.BoolValue, was: %T`, poeKeepStateWhenRebootAttribute))
+	}
+
 	portIpConfigAttribute, ok := attributes["ip_config"]
 
 	if !ok {
@@ -21787,54 +21877,55 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 	}
 
 	return PortConfigValue{
-		AeDisableLacp:    aeDisableLacpVal,
-		AeIdx:            aeIdxVal,
-		AeLacpForceUp:    aeLacpForceUpVal,
-		Aggregated:       aggregatedVal,
-		Critical:         criticalVal,
-		Description:      descriptionVal,
-		DisableAutoneg:   disableAutonegVal,
-		Disabled:         disabledVal,
-		DslType:          dslTypeVal,
-		DslVci:           dslVciVal,
-		DslVpi:           dslVpiVal,
-		Duplex:           duplexVal,
-		LteApn:           lteApnVal,
-		LteAuth:          lteAuthVal,
-		LteBackup:        lteBackupVal,
-		LtePassword:      ltePasswordVal,
-		LteUsername:      lteUsernameVal,
-		Mtu:              mtuVal,
-		Name:             nameVal,
-		Networks:         networksVal,
-		OuterVlanId:      outerVlanIdVal,
-		PoeDisabled:      poeDisabledVal,
-		PortIpConfig:     portIpConfigVal,
-		PortNetwork:      portNetworkVal,
-		PreserveDscp:     preserveDscpVal,
-		Redundant:        redundantVal,
-		RedundantGroup:   redundantGroupVal,
-		RethIdx:          rethIdxVal,
-		RethNode:         rethNodeVal,
-		RethNodes:        rethNodesVal,
-		Speed:            speedVal,
-		SsrNoVirtualMac:  ssrNoVirtualMacVal,
-		SvrPortRange:     svrPortRangeVal,
-		TrafficShaping:   trafficShapingVal,
-		Usage:            usageVal,
-		VlanId:           vlanIdVal,
-		VpnPaths:         vpnPathsVal,
-		WanArpPolicer:    wanArpPolicerVal,
-		WanExtIp:         wanExtIpVal,
-		WanExtIp6:        wanExtIp6Val,
-		WanExtraRoutes:   wanExtraRoutesVal,
-		WanExtraRoutes6:  wanExtraRoutes6Val,
-		WanNetworks:      wanNetworksVal,
-		WanProbeOverride: wanProbeOverrideVal,
-		WanSourceNat:     wanSourceNatVal,
-		WanSpeedtestMode: wanSpeedtestModeVal,
-		WanType:          wanTypeVal,
-		state:            attr.ValueStateKnown,
+		AeDisableLacp:          aeDisableLacpVal,
+		AeIdx:                  aeIdxVal,
+		AeLacpForceUp:          aeLacpForceUpVal,
+		Aggregated:             aggregatedVal,
+		Critical:               criticalVal,
+		Description:            descriptionVal,
+		DisableAutoneg:         disableAutonegVal,
+		Disabled:               disabledVal,
+		DslType:                dslTypeVal,
+		DslVci:                 dslVciVal,
+		DslVpi:                 dslVpiVal,
+		Duplex:                 duplexVal,
+		LteApn:                 lteApnVal,
+		LteAuth:                lteAuthVal,
+		LteBackup:              lteBackupVal,
+		LtePassword:            ltePasswordVal,
+		LteUsername:            lteUsernameVal,
+		Mtu:                    mtuVal,
+		Name:                   nameVal,
+		Networks:               networksVal,
+		OuterVlanId:            outerVlanIdVal,
+		PoeDisabled:            poeDisabledVal,
+		PoeKeepStateWhenReboot: poeKeepStateWhenRebootVal,
+		PortIpConfig:           portIpConfigVal,
+		PortNetwork:            portNetworkVal,
+		PreserveDscp:           preserveDscpVal,
+		Redundant:              redundantVal,
+		RedundantGroup:         redundantGroupVal,
+		RethIdx:                rethIdxVal,
+		RethNode:               rethNodeVal,
+		RethNodes:              rethNodesVal,
+		Speed:                  speedVal,
+		SsrNoVirtualMac:        ssrNoVirtualMacVal,
+		SvrPortRange:           svrPortRangeVal,
+		TrafficShaping:         trafficShapingVal,
+		Usage:                  usageVal,
+		VlanId:                 vlanIdVal,
+		VpnPaths:               vpnPathsVal,
+		WanArpPolicer:          wanArpPolicerVal,
+		WanExtIp:               wanExtIpVal,
+		WanExtIp6:              wanExtIp6Val,
+		WanExtraRoutes:         wanExtraRoutesVal,
+		WanExtraRoutes6:        wanExtraRoutes6Val,
+		WanNetworks:            wanNetworksVal,
+		WanProbeOverride:       wanProbeOverrideVal,
+		WanSourceNat:           wanSourceNatVal,
+		WanSpeedtestMode:       wanSpeedtestModeVal,
+		WanType:                wanTypeVal,
+		state:                  attr.ValueStateKnown,
 	}, diags
 }
 
@@ -22297,6 +22388,24 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`poe_disabled expected to be basetypes.BoolValue, was: %T`, poeDisabledAttribute))
 	}
 
+	poeKeepStateWhenRebootAttribute, ok := attributes["poe_keep_state_when_reboot"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`poe_keep_state_when_reboot is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	poeKeepStateWhenRebootVal, ok := poeKeepStateWhenRebootAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`poe_keep_state_when_reboot expected to be basetypes.BoolValue, was: %T`, poeKeepStateWhenRebootAttribute))
+	}
+
 	portIpConfigAttribute, ok := attributes["ip_config"]
 
 	if !ok {
@@ -22752,54 +22861,55 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 	}
 
 	return PortConfigValue{
-		AeDisableLacp:    aeDisableLacpVal,
-		AeIdx:            aeIdxVal,
-		AeLacpForceUp:    aeLacpForceUpVal,
-		Aggregated:       aggregatedVal,
-		Critical:         criticalVal,
-		Description:      descriptionVal,
-		DisableAutoneg:   disableAutonegVal,
-		Disabled:         disabledVal,
-		DslType:          dslTypeVal,
-		DslVci:           dslVciVal,
-		DslVpi:           dslVpiVal,
-		Duplex:           duplexVal,
-		LteApn:           lteApnVal,
-		LteAuth:          lteAuthVal,
-		LteBackup:        lteBackupVal,
-		LtePassword:      ltePasswordVal,
-		LteUsername:      lteUsernameVal,
-		Mtu:              mtuVal,
-		Name:             nameVal,
-		Networks:         networksVal,
-		OuterVlanId:      outerVlanIdVal,
-		PoeDisabled:      poeDisabledVal,
-		PortIpConfig:     portIpConfigVal,
-		PortNetwork:      portNetworkVal,
-		PreserveDscp:     preserveDscpVal,
-		Redundant:        redundantVal,
-		RedundantGroup:   redundantGroupVal,
-		RethIdx:          rethIdxVal,
-		RethNode:         rethNodeVal,
-		RethNodes:        rethNodesVal,
-		Speed:            speedVal,
-		SsrNoVirtualMac:  ssrNoVirtualMacVal,
-		SvrPortRange:     svrPortRangeVal,
-		TrafficShaping:   trafficShapingVal,
-		Usage:            usageVal,
-		VlanId:           vlanIdVal,
-		VpnPaths:         vpnPathsVal,
-		WanArpPolicer:    wanArpPolicerVal,
-		WanExtIp:         wanExtIpVal,
-		WanExtIp6:        wanExtIp6Val,
-		WanExtraRoutes:   wanExtraRoutesVal,
-		WanExtraRoutes6:  wanExtraRoutes6Val,
-		WanNetworks:      wanNetworksVal,
-		WanProbeOverride: wanProbeOverrideVal,
-		WanSourceNat:     wanSourceNatVal,
-		WanSpeedtestMode: wanSpeedtestModeVal,
-		WanType:          wanTypeVal,
-		state:            attr.ValueStateKnown,
+		AeDisableLacp:          aeDisableLacpVal,
+		AeIdx:                  aeIdxVal,
+		AeLacpForceUp:          aeLacpForceUpVal,
+		Aggregated:             aggregatedVal,
+		Critical:               criticalVal,
+		Description:            descriptionVal,
+		DisableAutoneg:         disableAutonegVal,
+		Disabled:               disabledVal,
+		DslType:                dslTypeVal,
+		DslVci:                 dslVciVal,
+		DslVpi:                 dslVpiVal,
+		Duplex:                 duplexVal,
+		LteApn:                 lteApnVal,
+		LteAuth:                lteAuthVal,
+		LteBackup:              lteBackupVal,
+		LtePassword:            ltePasswordVal,
+		LteUsername:            lteUsernameVal,
+		Mtu:                    mtuVal,
+		Name:                   nameVal,
+		Networks:               networksVal,
+		OuterVlanId:            outerVlanIdVal,
+		PoeDisabled:            poeDisabledVal,
+		PoeKeepStateWhenReboot: poeKeepStateWhenRebootVal,
+		PortIpConfig:           portIpConfigVal,
+		PortNetwork:            portNetworkVal,
+		PreserveDscp:           preserveDscpVal,
+		Redundant:              redundantVal,
+		RedundantGroup:         redundantGroupVal,
+		RethIdx:                rethIdxVal,
+		RethNode:               rethNodeVal,
+		RethNodes:              rethNodesVal,
+		Speed:                  speedVal,
+		SsrNoVirtualMac:        ssrNoVirtualMacVal,
+		SvrPortRange:           svrPortRangeVal,
+		TrafficShaping:         trafficShapingVal,
+		Usage:                  usageVal,
+		VlanId:                 vlanIdVal,
+		VpnPaths:               vpnPathsVal,
+		WanArpPolicer:          wanArpPolicerVal,
+		WanExtIp:               wanExtIpVal,
+		WanExtIp6:              wanExtIp6Val,
+		WanExtraRoutes:         wanExtraRoutesVal,
+		WanExtraRoutes6:        wanExtraRoutes6Val,
+		WanNetworks:            wanNetworksVal,
+		WanProbeOverride:       wanProbeOverrideVal,
+		WanSourceNat:           wanSourceNatVal,
+		WanSpeedtestMode:       wanSpeedtestModeVal,
+		WanType:                wanTypeVal,
+		state:                  attr.ValueStateKnown,
 	}, diags
 }
 
@@ -22871,58 +22981,59 @@ func (t PortConfigType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = PortConfigValue{}
 
 type PortConfigValue struct {
-	AeDisableLacp    basetypes.BoolValue   `tfsdk:"ae_disable_lacp"`
-	AeIdx            basetypes.StringValue `tfsdk:"ae_idx"`
-	AeLacpForceUp    basetypes.BoolValue   `tfsdk:"ae_lacp_force_up"`
-	Aggregated       basetypes.BoolValue   `tfsdk:"aggregated"`
-	Critical         basetypes.BoolValue   `tfsdk:"critical"`
-	Description      basetypes.StringValue `tfsdk:"description"`
-	DisableAutoneg   basetypes.BoolValue   `tfsdk:"disable_autoneg"`
-	Disabled         basetypes.BoolValue   `tfsdk:"disabled"`
-	DslType          basetypes.StringValue `tfsdk:"dsl_type"`
-	DslVci           basetypes.Int64Value  `tfsdk:"dsl_vci"`
-	DslVpi           basetypes.Int64Value  `tfsdk:"dsl_vpi"`
-	Duplex           basetypes.StringValue `tfsdk:"duplex"`
-	LteApn           basetypes.StringValue `tfsdk:"lte_apn"`
-	LteAuth          basetypes.StringValue `tfsdk:"lte_auth"`
-	LteBackup        basetypes.BoolValue   `tfsdk:"lte_backup"`
-	LtePassword      basetypes.StringValue `tfsdk:"lte_password"`
-	LteUsername      basetypes.StringValue `tfsdk:"lte_username"`
-	Mtu              basetypes.Int64Value  `tfsdk:"mtu"`
-	Name             basetypes.StringValue `tfsdk:"name"`
-	Networks         basetypes.ListValue   `tfsdk:"networks"`
-	OuterVlanId      basetypes.Int64Value  `tfsdk:"outer_vlan_id"`
-	PoeDisabled      basetypes.BoolValue   `tfsdk:"poe_disabled"`
-	PortIpConfig     basetypes.ObjectValue `tfsdk:"ip_config"`
-	PortNetwork      basetypes.StringValue `tfsdk:"port_network"`
-	PreserveDscp     basetypes.BoolValue   `tfsdk:"preserve_dscp"`
-	Redundant        basetypes.BoolValue   `tfsdk:"redundant"`
-	RedundantGroup   basetypes.Int64Value  `tfsdk:"redundant_group"`
-	RethIdx          basetypes.StringValue `tfsdk:"reth_idx"`
-	RethNode         basetypes.StringValue `tfsdk:"reth_node"`
-	RethNodes        basetypes.ListValue   `tfsdk:"reth_nodes"`
-	Speed            basetypes.StringValue `tfsdk:"speed"`
-	SsrNoVirtualMac  basetypes.BoolValue   `tfsdk:"ssr_no_virtual_mac"`
-	SvrPortRange     basetypes.StringValue `tfsdk:"svr_port_range"`
-	TrafficShaping   basetypes.ObjectValue `tfsdk:"traffic_shaping"`
-	Usage            basetypes.StringValue `tfsdk:"usage"`
-	VlanId           basetypes.StringValue `tfsdk:"vlan_id"`
-	VpnPaths         basetypes.MapValue    `tfsdk:"vpn_paths"`
-	WanArpPolicer    basetypes.StringValue `tfsdk:"wan_arp_policer"`
-	WanExtIp         basetypes.StringValue `tfsdk:"wan_ext_ip"`
-	WanExtIp6        basetypes.StringValue `tfsdk:"wan_ext_ip6"`
-	WanExtraRoutes   basetypes.MapValue    `tfsdk:"wan_extra_routes"`
-	WanExtraRoutes6  basetypes.MapValue    `tfsdk:"wan_extra_routes6"`
-	WanNetworks      basetypes.ListValue   `tfsdk:"wan_networks"`
-	WanProbeOverride basetypes.ObjectValue `tfsdk:"wan_probe_override"`
-	WanSourceNat     basetypes.ObjectValue `tfsdk:"wan_source_nat"`
-	WanSpeedtestMode basetypes.StringValue `tfsdk:"wan_speedtest_mode"`
-	WanType          basetypes.StringValue `tfsdk:"wan_type"`
-	state            attr.ValueState
+	AeDisableLacp          basetypes.BoolValue   `tfsdk:"ae_disable_lacp"`
+	AeIdx                  basetypes.StringValue `tfsdk:"ae_idx"`
+	AeLacpForceUp          basetypes.BoolValue   `tfsdk:"ae_lacp_force_up"`
+	Aggregated             basetypes.BoolValue   `tfsdk:"aggregated"`
+	Critical               basetypes.BoolValue   `tfsdk:"critical"`
+	Description            basetypes.StringValue `tfsdk:"description"`
+	DisableAutoneg         basetypes.BoolValue   `tfsdk:"disable_autoneg"`
+	Disabled               basetypes.BoolValue   `tfsdk:"disabled"`
+	DslType                basetypes.StringValue `tfsdk:"dsl_type"`
+	DslVci                 basetypes.Int64Value  `tfsdk:"dsl_vci"`
+	DslVpi                 basetypes.Int64Value  `tfsdk:"dsl_vpi"`
+	Duplex                 basetypes.StringValue `tfsdk:"duplex"`
+	LteApn                 basetypes.StringValue `tfsdk:"lte_apn"`
+	LteAuth                basetypes.StringValue `tfsdk:"lte_auth"`
+	LteBackup              basetypes.BoolValue   `tfsdk:"lte_backup"`
+	LtePassword            basetypes.StringValue `tfsdk:"lte_password"`
+	LteUsername            basetypes.StringValue `tfsdk:"lte_username"`
+	Mtu                    basetypes.Int64Value  `tfsdk:"mtu"`
+	Name                   basetypes.StringValue `tfsdk:"name"`
+	Networks               basetypes.ListValue   `tfsdk:"networks"`
+	OuterVlanId            basetypes.Int64Value  `tfsdk:"outer_vlan_id"`
+	PoeDisabled            basetypes.BoolValue   `tfsdk:"poe_disabled"`
+	PoeKeepStateWhenReboot basetypes.BoolValue   `tfsdk:"poe_keep_state_when_reboot"`
+	PortIpConfig           basetypes.ObjectValue `tfsdk:"ip_config"`
+	PortNetwork            basetypes.StringValue `tfsdk:"port_network"`
+	PreserveDscp           basetypes.BoolValue   `tfsdk:"preserve_dscp"`
+	Redundant              basetypes.BoolValue   `tfsdk:"redundant"`
+	RedundantGroup         basetypes.Int64Value  `tfsdk:"redundant_group"`
+	RethIdx                basetypes.StringValue `tfsdk:"reth_idx"`
+	RethNode               basetypes.StringValue `tfsdk:"reth_node"`
+	RethNodes              basetypes.ListValue   `tfsdk:"reth_nodes"`
+	Speed                  basetypes.StringValue `tfsdk:"speed"`
+	SsrNoVirtualMac        basetypes.BoolValue   `tfsdk:"ssr_no_virtual_mac"`
+	SvrPortRange           basetypes.StringValue `tfsdk:"svr_port_range"`
+	TrafficShaping         basetypes.ObjectValue `tfsdk:"traffic_shaping"`
+	Usage                  basetypes.StringValue `tfsdk:"usage"`
+	VlanId                 basetypes.StringValue `tfsdk:"vlan_id"`
+	VpnPaths               basetypes.MapValue    `tfsdk:"vpn_paths"`
+	WanArpPolicer          basetypes.StringValue `tfsdk:"wan_arp_policer"`
+	WanExtIp               basetypes.StringValue `tfsdk:"wan_ext_ip"`
+	WanExtIp6              basetypes.StringValue `tfsdk:"wan_ext_ip6"`
+	WanExtraRoutes         basetypes.MapValue    `tfsdk:"wan_extra_routes"`
+	WanExtraRoutes6        basetypes.MapValue    `tfsdk:"wan_extra_routes6"`
+	WanNetworks            basetypes.ListValue   `tfsdk:"wan_networks"`
+	WanProbeOverride       basetypes.ObjectValue `tfsdk:"wan_probe_override"`
+	WanSourceNat           basetypes.ObjectValue `tfsdk:"wan_source_nat"`
+	WanSpeedtestMode       basetypes.StringValue `tfsdk:"wan_speedtest_mode"`
+	WanType                basetypes.StringValue `tfsdk:"wan_type"`
+	state                  attr.ValueState
 }
 
 func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 47)
+	attrTypes := make(map[string]tftypes.Type, 48)
 
 	var val tftypes.Value
 	var err error
@@ -22951,6 +23062,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	}.TerraformType(ctx)
 	attrTypes["outer_vlan_id"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["poe_disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["poe_keep_state_when_reboot"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["ip_config"] = basetypes.ObjectType{
 		AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -22999,7 +23111,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 47)
+		vals := make(map[string]tftypes.Value, 48)
 
 		val, err = v.AeDisableLacp.ToTerraformValue(ctx)
 
@@ -23176,6 +23288,14 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["poe_disabled"] = val
+
+		val, err = v.PoeKeepStateWhenReboot.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["poe_keep_state_when_reboot"] = val
 
 		val, err = v.PortIpConfig.ToTerraformValue(ctx)
 
@@ -23613,8 +23733,9 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"outer_vlan_id": basetypes.Int64Type{},
-			"poe_disabled":  basetypes.BoolType{},
+			"outer_vlan_id":              basetypes.Int64Type{},
+			"poe_disabled":               basetypes.BoolType{},
+			"poe_keep_state_when_reboot": basetypes.BoolType{},
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 			},
@@ -23697,8 +23818,9 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"outer_vlan_id": basetypes.Int64Type{},
-			"poe_disabled":  basetypes.BoolType{},
+			"outer_vlan_id":              basetypes.Int64Type{},
+			"poe_disabled":               basetypes.BoolType{},
+			"poe_keep_state_when_reboot": basetypes.BoolType{},
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 			},
@@ -23781,8 +23903,9 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"outer_vlan_id": basetypes.Int64Type{},
-			"poe_disabled":  basetypes.BoolType{},
+			"outer_vlan_id":              basetypes.Int64Type{},
+			"poe_disabled":               basetypes.BoolType{},
+			"poe_keep_state_when_reboot": basetypes.BoolType{},
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 			},
@@ -23852,8 +23975,9 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"outer_vlan_id": basetypes.Int64Type{},
-		"poe_disabled":  basetypes.BoolType{},
+		"outer_vlan_id":              basetypes.Int64Type{},
+		"poe_disabled":               basetypes.BoolType{},
+		"poe_keep_state_when_reboot": basetypes.BoolType{},
 		"ip_config": basetypes.ObjectType{
 			AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 		},
@@ -23910,53 +24034,54 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"ae_disable_lacp":    v.AeDisableLacp,
-			"ae_idx":             v.AeIdx,
-			"ae_lacp_force_up":   v.AeLacpForceUp,
-			"aggregated":         v.Aggregated,
-			"critical":           v.Critical,
-			"description":        v.Description,
-			"disable_autoneg":    v.DisableAutoneg,
-			"disabled":           v.Disabled,
-			"dsl_type":           v.DslType,
-			"dsl_vci":            v.DslVci,
-			"dsl_vpi":            v.DslVpi,
-			"duplex":             v.Duplex,
-			"lte_apn":            v.LteApn,
-			"lte_auth":           v.LteAuth,
-			"lte_backup":         v.LteBackup,
-			"lte_password":       v.LtePassword,
-			"lte_username":       v.LteUsername,
-			"mtu":                v.Mtu,
-			"name":               v.Name,
-			"networks":           networksVal,
-			"outer_vlan_id":      v.OuterVlanId,
-			"poe_disabled":       v.PoeDisabled,
-			"ip_config":          portIpConfig,
-			"port_network":       v.PortNetwork,
-			"preserve_dscp":      v.PreserveDscp,
-			"redundant":          v.Redundant,
-			"redundant_group":    v.RedundantGroup,
-			"reth_idx":           v.RethIdx,
-			"reth_node":          v.RethNode,
-			"reth_nodes":         rethNodesVal,
-			"speed":              v.Speed,
-			"ssr_no_virtual_mac": v.SsrNoVirtualMac,
-			"svr_port_range":     v.SvrPortRange,
-			"traffic_shaping":    trafficShaping,
-			"usage":              v.Usage,
-			"vlan_id":            v.VlanId,
-			"vpn_paths":          vpnPaths,
-			"wan_arp_policer":    v.WanArpPolicer,
-			"wan_ext_ip":         v.WanExtIp,
-			"wan_ext_ip6":        v.WanExtIp6,
-			"wan_extra_routes":   wanExtraRoutes,
-			"wan_extra_routes6":  wanExtraRoutes6,
-			"wan_networks":       wanNetworksVal,
-			"wan_probe_override": wanProbeOverride,
-			"wan_source_nat":     wanSourceNat,
-			"wan_speedtest_mode": v.WanSpeedtestMode,
-			"wan_type":           v.WanType,
+			"ae_disable_lacp":            v.AeDisableLacp,
+			"ae_idx":                     v.AeIdx,
+			"ae_lacp_force_up":           v.AeLacpForceUp,
+			"aggregated":                 v.Aggregated,
+			"critical":                   v.Critical,
+			"description":                v.Description,
+			"disable_autoneg":            v.DisableAutoneg,
+			"disabled":                   v.Disabled,
+			"dsl_type":                   v.DslType,
+			"dsl_vci":                    v.DslVci,
+			"dsl_vpi":                    v.DslVpi,
+			"duplex":                     v.Duplex,
+			"lte_apn":                    v.LteApn,
+			"lte_auth":                   v.LteAuth,
+			"lte_backup":                 v.LteBackup,
+			"lte_password":               v.LtePassword,
+			"lte_username":               v.LteUsername,
+			"mtu":                        v.Mtu,
+			"name":                       v.Name,
+			"networks":                   networksVal,
+			"outer_vlan_id":              v.OuterVlanId,
+			"poe_disabled":               v.PoeDisabled,
+			"poe_keep_state_when_reboot": v.PoeKeepStateWhenReboot,
+			"ip_config":                  portIpConfig,
+			"port_network":               v.PortNetwork,
+			"preserve_dscp":              v.PreserveDscp,
+			"redundant":                  v.Redundant,
+			"redundant_group":            v.RedundantGroup,
+			"reth_idx":                   v.RethIdx,
+			"reth_node":                  v.RethNode,
+			"reth_nodes":                 rethNodesVal,
+			"speed":                      v.Speed,
+			"ssr_no_virtual_mac":         v.SsrNoVirtualMac,
+			"svr_port_range":             v.SvrPortRange,
+			"traffic_shaping":            trafficShaping,
+			"usage":                      v.Usage,
+			"vlan_id":                    v.VlanId,
+			"vpn_paths":                  vpnPaths,
+			"wan_arp_policer":            v.WanArpPolicer,
+			"wan_ext_ip":                 v.WanExtIp,
+			"wan_ext_ip6":                v.WanExtIp6,
+			"wan_extra_routes":           wanExtraRoutes,
+			"wan_extra_routes6":          wanExtraRoutes6,
+			"wan_networks":               wanNetworksVal,
+			"wan_probe_override":         wanProbeOverride,
+			"wan_source_nat":             wanSourceNat,
+			"wan_speedtest_mode":         v.WanSpeedtestMode,
+			"wan_type":                   v.WanType,
 		})
 
 	return objVal, diags
@@ -24062,6 +24187,10 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.PoeDisabled.Equal(other.PoeDisabled) {
+		return false
+	}
+
+	if !v.PoeKeepStateWhenReboot.Equal(other.PoeKeepStateWhenReboot) {
 		return false
 	}
 
@@ -24200,8 +24329,9 @@ func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"outer_vlan_id": basetypes.Int64Type{},
-		"poe_disabled":  basetypes.BoolType{},
+		"outer_vlan_id":              basetypes.Int64Type{},
+		"poe_disabled":               basetypes.BoolType{},
+		"poe_keep_state_when_reboot": basetypes.BoolType{},
 		"ip_config": basetypes.ObjectType{
 			AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 		},

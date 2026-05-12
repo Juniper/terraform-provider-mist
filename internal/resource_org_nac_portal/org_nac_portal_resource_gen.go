@@ -5,18 +5,18 @@ package resource_org_nac_portal
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -26,7 +26,6 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"access_type": schema.StringAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "if `type`==`marvis_client`. enum: `wireless`, `wireless+wired`",
 				MarkdownDescription: "if `type`==`marvis_client`. enum: `wireless`, `wireless+wired`",
 				Validators: []validator.String{
@@ -56,7 +55,6 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"eap_type": schema.StringAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "enum: `wpa2`, `wpa3`",
 				MarkdownDescription: "enum: `wpa2`, `wpa3`",
 				Validators: []validator.String{
@@ -145,6 +143,7 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.Int64{
 							int64validator.Between(0, 100),
 						},
+						Default: int64default.StaticInt64(0),
 					},
 					"privacy": schema.BoolAttribute{
 						Optional:            true,
@@ -171,7 +170,6 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"idp_sign_algo": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`.",
 						MarkdownDescription: "Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`.",
 						Validators: []validator.String{

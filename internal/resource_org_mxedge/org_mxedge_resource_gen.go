@@ -5,9 +5,7 @@ package resource_org_mxedge
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -15,16 +13,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -48,6 +45,10 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"claim_code": schema.StringAttribute{
 				Optional: true,
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"model": schema.StringAttribute{
 				Optional: true,
@@ -72,12 +73,10 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					"config_auto_revert": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"fips_enabled": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"mist_password": schema.StringAttribute{
 						Optional:  true,
@@ -96,7 +95,6 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 								"static",
 							),
 						},
-						Default: stringdefault.StaticString("dhcp"),
 					},
 					"oob_ip_type6": schema.StringAttribute{
 						Optional:            true,
@@ -112,7 +110,6 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 								"static",
 							),
 						},
-						Default: stringdefault.StaticString("autoconf"),
 					},
 					"root_password": schema.StringAttribute{
 						Optional:  true,
@@ -149,12 +146,10 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					"autoconf6": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  booldefault.StaticBool(true),
 					},
 					"dhcp6": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  booldefault.StaticBool(true),
 					},
 					"dns": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -201,7 +196,6 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 								"static",
 							),
 						},
-						Default: stringdefault.StaticString("dhcp"),
 					},
 					"type6": schema.StringAttribute{
 						Optional:            true,
@@ -215,7 +209,6 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 								"static",
 							),
 						},
-						Default: stringdefault.StaticString("dhcp"),
 					},
 				},
 				CustomType: OobIpConfigType{
@@ -235,7 +228,6 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					"disabled": schema.BoolAttribute{
 						Optional: true,
 						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"url": schema.StringAttribute{
 						Optional: true,
@@ -249,14 +241,6 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Proxy Configuration to talk to Mist",
 				MarkdownDescription: "Proxy Configuration to talk to Mist",
-			},
-			"registration_code": schema.StringAttribute{
-				Computed:            true,
-				Description:         "Registration code for the MxEdge",
-				MarkdownDescription: "Registration code for the MxEdge",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
 			},
 			"services": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -279,7 +263,6 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						"enabled": schema.BoolAttribute{
 							Optional: true,
 							Computed: true,
-							Default:  booldefault.StaticBool(false),
 						},
 						"servers": schema.ListAttribute{
 							ElementType:         types.StringType,
@@ -301,7 +284,6 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 									"relay",
 								),
 							},
-							Default: stringdefault.StaticString("relay"),
 						},
 					},
 					CustomType: TuntermDhcpdConfigType{
@@ -339,10 +321,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"tunterm_igmp_snooping_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
-					"enabled": schema.BoolAttribute{
+					"enabled": schema.StringAttribute{
 						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
 					},
 					"querier": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -539,7 +519,6 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether to separate upstream / downstream ports. default is false where all ports will be used.",
 						MarkdownDescription: "Whether to separate upstream / downstream ports. default is false where all ports will be used.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"upstream_port_vlan_id": schema.StringAttribute{
 						Optional: true,
@@ -636,7 +615,6 @@ type OrgMxedgeModel struct {
 	OobIpConfig               OobIpConfigValue               `tfsdk:"oob_ip_config"`
 	OrgId                     types.String                   `tfsdk:"org_id"`
 	Proxy                     ProxyValue                     `tfsdk:"proxy"`
-	RegistrationCode          types.String                   `tfsdk:"registration_code"`
 	Services                  types.List                     `tfsdk:"services"`
 	SiteId                    types.String                   `tfsdk:"site_id"`
 	TuntermDhcpdConfig        types.Map                      `tfsdk:"tunterm_dhcpd_config"`
@@ -3361,12 +3339,12 @@ func (t TuntermIgmpSnoopingConfigType) ValueFromObject(ctx context.Context, in b
 		return nil, diags
 	}
 
-	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+	enabledVal, ok := enabledAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+			fmt.Sprintf(`enabled expected to be basetypes.StringValue, was: %T`, enabledAttribute))
 	}
 
 	querierAttribute, ok := attributes["querier"]
@@ -3490,12 +3468,12 @@ func NewTuntermIgmpSnoopingConfigValue(attributeTypes map[string]attr.Type, attr
 		return NewTuntermIgmpSnoopingConfigValueUnknown(), diags
 	}
 
-	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+	enabledVal, ok := enabledAttribute.(basetypes.StringValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+			fmt.Sprintf(`enabled expected to be basetypes.StringValue, was: %T`, enabledAttribute))
 	}
 
 	querierAttribute, ok := attributes["querier"]
@@ -3614,7 +3592,7 @@ func (t TuntermIgmpSnoopingConfigType) ValueType(ctx context.Context) attr.Value
 var _ basetypes.ObjectValuable = TuntermIgmpSnoopingConfigValue{}
 
 type TuntermIgmpSnoopingConfigValue struct {
-	Enabled basetypes.BoolValue   `tfsdk:"enabled"`
+	Enabled basetypes.StringValue `tfsdk:"enabled"`
 	Querier basetypes.ObjectValue `tfsdk:"querier"`
 	VlanIds basetypes.ListValue   `tfsdk:"vlan_ids"`
 	state   attr.ValueState
@@ -3626,7 +3604,7 @@ func (v TuntermIgmpSnoopingConfigValue) ToTerraformValue(ctx context.Context) (t
 	var val tftypes.Value
 	var err error
 
-	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["querier"] = basetypes.ObjectType{
 		AttrTypes: QuerierValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -3728,7 +3706,7 @@ func (v TuntermIgmpSnoopingConfigValue) ToObjectValue(ctx context.Context) (base
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"enabled": basetypes.BoolType{},
+			"enabled": basetypes.StringType{},
 			"querier": basetypes.ObjectType{
 				AttrTypes: QuerierValue{}.AttributeTypes(ctx),
 			},
@@ -3739,7 +3717,7 @@ func (v TuntermIgmpSnoopingConfigValue) ToObjectValue(ctx context.Context) (base
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"enabled": basetypes.BoolType{},
+		"enabled": basetypes.StringType{},
 		"querier": basetypes.ObjectType{
 			AttrTypes: QuerierValue{}.AttributeTypes(ctx),
 		},
@@ -3807,7 +3785,7 @@ func (v TuntermIgmpSnoopingConfigValue) Type(ctx context.Context) attr.Type {
 
 func (v TuntermIgmpSnoopingConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"enabled": basetypes.BoolType{},
+		"enabled": basetypes.StringType{},
 		"querier": basetypes.ObjectType{
 			AttrTypes: QuerierValue{}.AttributeTypes(ctx),
 		},

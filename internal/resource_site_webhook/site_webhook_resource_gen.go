@@ -129,8 +129,8 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"secret": schema.StringAttribute{
 				Optional:            true,
 				Sensitive:           true,
-				Description:         "Only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
-				MarkdownDescription: "Only if `type`=`http-post` \n\nwhen `secret` is provided, two  HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
+				Description:         "Only if `type`=`http-post` \n\nwhen `secret` is provided, two HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
+				MarkdownDescription: "Only if `type`=`http-post` \n\nwhen `secret` is provided, two HTTP headers will be added: \n  * X-Mist-Signature-v2: HMAC_SHA256(secret, body)\n  * X-Mist-Signature: HMAC_SHA1(secret, body)",
 			},
 			"single_event_per_message": schema.BoolAttribute{
 				Optional:            true,
