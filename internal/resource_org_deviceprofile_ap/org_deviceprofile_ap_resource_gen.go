@@ -2040,13 +2040,11 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"channel": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Zigbee channel (2.4 GHz). `0` means auto; valid fixed values are 11–26",
 						MarkdownDescription: "Zigbee channel (2.4 GHz). `0` means auto; valid fixed values are 11–26",
 						Validators: []validator.Int64{
 							int64validator.Between(0, 26),
 						},
-						Default: int64default.StaticInt64(0),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
