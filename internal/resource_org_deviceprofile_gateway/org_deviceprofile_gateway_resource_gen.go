@@ -177,7 +177,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"tunnel_via": schema.StringAttribute{
 										Optional:            true,
-										Computed:            true,
 										Description:         "If `via`==`tunnel`, specifies which tunnel (primary/secondary) this neighbor is associated with. enum: `primary`, `secondary`",
 										MarkdownDescription: "If `via`==`tunnel`, specifies which tunnel (primary/secondary) this neighbor is associated with. enum: `primary`, `secondary`",
 										Validators: []validator.String{
@@ -1348,7 +1347,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"type": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "enum: `dhcp`, `static`",
 								MarkdownDescription: "enum: `dhcp`, `static`",
 								Validators: []validator.String{
@@ -1402,7 +1400,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "enum: `dhcp`, `static`",
 						MarkdownDescription: "enum: `dhcp`, `static`",
 						Validators: []validator.String{
@@ -1751,7 +1748,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"poe_keep_state_when_reboot": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Whether Perpetual PoE capabilities are enabled for a port",
 							MarkdownDescription: "Whether Perpetual PoE capabilities are enabled for a port",
 						},

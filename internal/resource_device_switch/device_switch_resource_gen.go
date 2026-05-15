@@ -1798,7 +1798,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"ae_lacp_force_up": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only",
 							MarkdownDescription: "If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only",
 						},
@@ -1951,7 +1950,6 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"poe_keep_state_when_reboot": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Whether Perpetual PoE is enabled; keeps PoE state across reboots",
 							MarkdownDescription: "Whether Perpetual PoE is enabled; keeps PoE state across reboots",
 						},

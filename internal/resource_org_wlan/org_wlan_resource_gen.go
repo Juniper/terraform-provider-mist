@@ -407,13 +407,11 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"enable_beacon_protection": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Enable Beacon Protection; default is false for better compatibility",
 						MarkdownDescription: "Enable Beacon Protection; default is false for better compatibility",
 					},
 					"enable_gcmp256": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Enable GCMP-256 encryption suite; default is false for better compatibility",
 						MarkdownDescription: "Enable GCMP-256 encryption suite; default is false for better compatibility",
 					},
@@ -887,7 +885,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "To disable ht or vht rates",
 			},
 			"disable_message_authenticator_check": schema.BoolAttribute{
-				Computed:            true,
+				Optional:            true,
 				Description:         "whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)",
 				MarkdownDescription: "whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)",
 			},
@@ -2266,7 +2264,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 							"mxcluster_ids":   types.ListNull(types.StringType),
 							"proxy_hosts":     types.ListNull(types.StringType),
 							"server_name":     types.StringValue(""),
-							"servers":         types.ListValueMust(ServersValue{}.Type(ctx), []attr.Value{}),
+							"servers":         types.ListNull(ServersValue{}.Type(ctx)),
 							"use_mxedge":      types.BoolNull(),
 							"use_site_mxedge": types.BoolNull(),
 						},

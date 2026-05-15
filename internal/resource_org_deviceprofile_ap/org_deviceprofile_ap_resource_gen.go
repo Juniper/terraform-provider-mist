@@ -696,7 +696,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"use_wpa3_on_5": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Whether to use WPA3 on the 5 GHz band for mesh links",
 						MarkdownDescription: "Whether to use WPA3 on the 5 GHz band for mesh links",
 					},
@@ -2029,7 +2028,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"allow_join": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Controls whether new Zigbee devices are allowed to join the network. enum: `always`, `manual`",
 						MarkdownDescription: "Controls whether new Zigbee devices are allowed to join the network. enum: `always`, `manual`",
 						Validators: []validator.String{
@@ -2052,7 +2050,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Whether to enable Zigbee on this AP",
 						MarkdownDescription: "Whether to enable Zigbee on this AP",
 					},

@@ -152,8 +152,8 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"topics": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Required:            true,
-				Description:         "enum:  `alarms `, `asset-raw `, `asset-raw-rssi `, `audits `, `client-info `, `client-join `, `client-latency `, `client-sessions `, `device-events `, `device-updowns `, `discovered-raw-rssi `, `guest-authorizations `, `location `, `location-asset `, `location-centrak `, `location-client `, `location-sdk `, `location-unclient `, `mxedge-events `, `nac-accounting `, `nac-events `, `occupancy-alerts `, `rssizone `, `sdkclient-scan-data `, `vbeacon `, `wifi-conn-raw `, `wifi-unconn-raw `, `zone `",
-				MarkdownDescription: "enum:  `alarms `, `asset-raw `, `asset-raw-rssi `, `audits `, `client-info `, `client-join `, `client-latency `, `client-sessions `, `device-events `, `device-updowns `, `discovered-raw-rssi `, `guest-authorizations `, `location `, `location-asset `, `location-centrak `, `location-client `, `location-sdk `, `location-unclient `, `mxedge-events `, `nac-accounting `, `nac-events `, `occupancy-alerts `, `rssizone `, `sdkclient-scan-data `, `vbeacon `, `wifi-conn-raw `, `wifi-unconn-raw `, `zone `",
+				Description:         "enum: `alarms`, `asset-raw`, `asset-raw-rssi`, `audits`, `client-info`, `client-join`, `client-latency`, `client-sessions`, `device-events`, `device-updowns`, `discovered-raw-rssi`, `guest-authorizations`, `location`, `location-asset`, `location-centrak`, `location-client`, `location-sdk`, `location-unclient`, `mxedge-events`, `minis-application`, `minis-reachability`, `nac-accounting`, `nac-events`, `occupancy-alerts`, `rssizone`, `sdkclient-scan-data`, `vbeacon`, `wifi-conn-raw`, `wifi-unconn-raw`, `zone`",
+				MarkdownDescription: "enum: `alarms`, `asset-raw`, `asset-raw-rssi`, `audits`, `client-info`, `client-join`, `client-latency`, `client-sessions`, `device-events`, `device-updowns`, `discovered-raw-rssi`, `guest-authorizations`, `location`, `location-asset`, `location-centrak`, `location-client`, `location-sdk`, `location-unclient`, `mxedge-events`, `minis-application`, `minis-reachability`, `nac-accounting`, `nac-events`, `occupancy-alerts`, `rssizone`, `sdkclient-scan-data`, `vbeacon`, `wifi-conn-raw`, `wifi-unconn-raw`, `zone`",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(
@@ -177,6 +177,8 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 							"location-sdk",
 							"location-unclient",
 							"mxedge-events",
+							"minis-application",
+							"minis-reachability",
 							"nac-accounting",
 							"nac-events",
 							"occupancy-alerts",

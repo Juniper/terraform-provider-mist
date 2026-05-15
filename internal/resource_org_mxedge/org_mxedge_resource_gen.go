@@ -321,7 +321,7 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"tunterm_igmp_snooping_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
-					"enabled": schema.StringAttribute{
+					"enabled": schema.BoolAttribute{
 						Optional: true,
 					},
 					"querier": schema.SingleNestedAttribute{
@@ -3339,12 +3339,12 @@ func (t TuntermIgmpSnoopingConfigType) ValueFromObject(ctx context.Context, in b
 		return nil, diags
 	}
 
-	enabledVal, ok := enabledAttribute.(basetypes.StringValue)
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.StringValue, was: %T`, enabledAttribute))
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
 	querierAttribute, ok := attributes["querier"]
@@ -3468,12 +3468,12 @@ func NewTuntermIgmpSnoopingConfigValue(attributeTypes map[string]attr.Type, attr
 		return NewTuntermIgmpSnoopingConfigValueUnknown(), diags
 	}
 
-	enabledVal, ok := enabledAttribute.(basetypes.StringValue)
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.StringValue, was: %T`, enabledAttribute))
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
 	}
 
 	querierAttribute, ok := attributes["querier"]
@@ -3592,7 +3592,7 @@ func (t TuntermIgmpSnoopingConfigType) ValueType(ctx context.Context) attr.Value
 var _ basetypes.ObjectValuable = TuntermIgmpSnoopingConfigValue{}
 
 type TuntermIgmpSnoopingConfigValue struct {
-	Enabled basetypes.StringValue `tfsdk:"enabled"`
+	Enabled basetypes.BoolValue   `tfsdk:"enabled"`
 	Querier basetypes.ObjectValue `tfsdk:"querier"`
 	VlanIds basetypes.ListValue   `tfsdk:"vlan_ids"`
 	state   attr.ValueState
@@ -3604,7 +3604,7 @@ func (v TuntermIgmpSnoopingConfigValue) ToTerraformValue(ctx context.Context) (t
 	var val tftypes.Value
 	var err error
 
-	attrTypes["enabled"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["querier"] = basetypes.ObjectType{
 		AttrTypes: QuerierValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -3706,7 +3706,7 @@ func (v TuntermIgmpSnoopingConfigValue) ToObjectValue(ctx context.Context) (base
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"enabled": basetypes.StringType{},
+			"enabled": basetypes.BoolType{},
 			"querier": basetypes.ObjectType{
 				AttrTypes: QuerierValue{}.AttributeTypes(ctx),
 			},
@@ -3717,7 +3717,7 @@ func (v TuntermIgmpSnoopingConfigValue) ToObjectValue(ctx context.Context) (base
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"enabled": basetypes.StringType{},
+		"enabled": basetypes.BoolType{},
 		"querier": basetypes.ObjectType{
 			AttrTypes: QuerierValue{}.AttributeTypes(ctx),
 		},
@@ -3785,7 +3785,7 @@ func (v TuntermIgmpSnoopingConfigValue) Type(ctx context.Context) attr.Type {
 
 func (v TuntermIgmpSnoopingConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"enabled": basetypes.StringType{},
+		"enabled": basetypes.BoolType{},
 		"querier": basetypes.ObjectType{
 			AttrTypes: QuerierValue{}.AttributeTypes(ctx),
 		},

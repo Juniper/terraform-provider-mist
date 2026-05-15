@@ -143,8 +143,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"topics": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Required:            true,
-				Description:         "enum: `alarms`, `audits`, `client-info`, `client-join`, `client-sessions`, `device-events`, `device-updowns`, `guest-authorizations`, `mxedge-events`, `nac-accounting`, `nac-events`",
-				MarkdownDescription: "enum: `alarms`, `audits`, `client-info`, `client-join`, `client-sessions`, `device-events`, `device-updowns`, `guest-authorizations`, `mxedge-events`, `nac-accounting`, `nac-events`",
+				Description:         "enum: `alarms`, `audits`, `client-info`, `client-join`, `client-sessions`, `device-events`, `device-updowns`, `guest-authorizations`, `mxedge-events`, `minis-application`, `minis-reachability`, `nac-accounting`, `nac-events`",
+				MarkdownDescription: "enum: `alarms`, `audits`, `client-info`, `client-join`, `client-sessions`, `device-events`, `device-updowns`, `guest-authorizations`, `mxedge-events`, `minis-application`, `minis-reachability`, `nac-accounting`, `nac-events`",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(
@@ -158,6 +158,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 							"device-updowns",
 							"guest-authorizations",
 							"mxedge-events",
+							"minis-application",
+							"minis-reachability",
 							"nac-accounting",
 							"nac-events",
 						),
