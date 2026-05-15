@@ -151,8 +151,12 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		serverCert = mistNacServerCertSdkToTerraform(ctx, diags, d.ServerCert)
 	}
 	if d.Mdm != nil {
+		var coaType basetypes.StringValue
+		if d.Mdm.CoaType != nil {
+			coaType = types.StringValue(string(*d.Mdm.CoaType))
+		}
 		mdmMapValue := map[string]attr.Value{
-			"coa_type": types.StringValue(string(*d.Mdm.CoaType)),
+			"coa_type": coaType,
 		}
 		mdmObj, e := basetypes.NewObjectValue(MdmValue{}.AttributeTypes(ctx), mdmMapValue)
 		diags.Append(e...)
