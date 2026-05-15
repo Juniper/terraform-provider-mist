@@ -139,18 +139,20 @@ type SiteWlanOthersValue struct {
 }
 
 type SiteWlanAuthValue struct {
-	AnticlogThreshold  *int64   `cty:"anticlog_threshold" hcl:"anticlog_threshold"`
-	EapReauth          *bool    `cty:"eap_reauth" hcl:"eap_reauth"`
-	EnableMacAuth      *bool    `cty:"enable_mac_auth" hcl:"enable_mac_auth"`
-	KeyIdx             *int64   `cty:"key_idx" hcl:"key_idx"`
-	Keys               []string `cty:"keys" hcl:"keys"`
-	MultiPskOnly       *bool    `cty:"multi_psk_only" hcl:"multi_psk_only"`
-	Owe                *string  `cty:"owe" hcl:"owe"`
-	Pairwise           []string `cty:"pairwise" hcl:"pairwise"`
-	PrivateWlan        *bool    `cty:"private_wlan" hcl:"private_wlan"`
-	Psk                *string  `cty:"psk" hcl:"psk"`
-	AuthType           *string  `cty:"type" hcl:"type"`
-	WepAsSecondaryAuth *bool    `cty:"wep_as_secondary_auth" hcl:"wep_as_secondary_auth"`
+	AnticlogThreshold      *int64   `cty:"anticlog_threshold" hcl:"anticlog_threshold"`
+	EapReauth              *bool    `cty:"eap_reauth" hcl:"eap_reauth"`
+	EnableMacAuth          *bool    `cty:"enable_mac_auth" hcl:"enable_mac_auth"`
+	KeyIdx                 *int64   `cty:"key_idx" hcl:"key_idx"`
+	Keys                   []string `cty:"keys" hcl:"keys"`
+	MultiPskOnly           *bool    `cty:"multi_psk_only" hcl:"multi_psk_only"`
+	Owe                    *string  `cty:"owe" hcl:"owe"`
+	Pairwise               []string `cty:"pairwise" hcl:"pairwise"`
+	PrivateWlan            *bool    `cty:"private_wlan" hcl:"private_wlan"`
+	Psk                    *string  `cty:"psk" hcl:"psk"`
+	AuthType               *string  `cty:"type" hcl:"type"`
+	WepAsSecondaryAuth     *bool    `cty:"wep_as_secondary_auth" hcl:"wep_as_secondary_auth"`
+	EnableBeaconProtection *bool    `cty:"enable_beacon_protection" hcl:"enable_beacon_protection"`
+	EnableGcmp256          *bool    `cty:"enable_gcmp256" hcl:"enable_gcmp256"`
 }
 
 type SiteWlanAuthServersValue struct {

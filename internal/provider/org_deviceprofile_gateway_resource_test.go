@@ -172,6 +172,9 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, tName str
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.neighbors.%s.multihop_ttl", key, neighborKey), fmt.Sprintf("%d", *neighbor.MultihopTtl))
 					}
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.neighbors.%s.neighbor_as", key, neighborKey), neighbor.NeighborAs)
+					if neighbor.TunnelVia != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.neighbors.%s.tunnel_via", key, neighborKey), *neighbor.TunnelVia)
+					}
 				}
 			}
 			if len(bgpConfig.Networks) > 0 {
@@ -716,6 +719,9 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, tName str
 			}
 			if portConfig.PoeDisabled != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.poe_disabled", key), fmt.Sprintf("%t", *portConfig.PoeDisabled))
+			}
+			if portConfig.PoeKeepStateWhenReboot != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.poe_keep_state_when_reboot", key), fmt.Sprintf("%t", *portConfig.PoeKeepStateWhenReboot))
 			}
 			if portConfig.PortIpConfig != nil {
 				if len(portConfig.PortIpConfig.Dns) > 0 {

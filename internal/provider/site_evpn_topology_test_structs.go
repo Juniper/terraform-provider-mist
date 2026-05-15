@@ -14,6 +14,7 @@ type SiteEvpnTopologyEvpnOptionsValue struct {
 	AutoRouterIdSubnet  *string                                     `cty:"auto_router_id_subnet" hcl:"auto_router_id_subnet"`
 	AutoRouterIdSubnet6 *string                                     `cty:"auto_router_id_subnet6" hcl:"auto_router_id_subnet6"`
 	CoreAsBorder        *bool                                       `cty:"core_as_border" hcl:"core_as_border"`
+	EnableInbandMgmt    *bool                                       `cty:"enable_inband_mgmt" hcl:"enable_inband_mgmt"`
 	EnableInbandZtp     *bool                                       `cty:"enable_inband_ztp" hcl:"enable_inband_ztp"`
 	Overlay             *SiteEvpnTopologyOverlayValue               `cty:"overlay" hcl:"overlay"`
 	PerVlanVgaV4Mac     *bool                                       `cty:"per_vlan_vga_v4_mac" hcl:"per_vlan_vga_v4_mac"`

@@ -157,19 +157,20 @@
   }
   port_config = {
     "ge-0/0/0" = {
-      usage         = "inet"
-      description   = "Internet port"
-      networks      = ["wan", "internet"]
-      mtu           = 9000
-      speed         = "1g"
-      duplex        = "full"
+      usage              = "inet"
+      description        = "Internet port"
+      networks           = ["wan", "internet"]
+      mtu                = 9000
+      speed              = "1g"
+      duplex             = "full"
+      ae_lacp_force_up   = true
     }
     "ge-0/0/1" = {
-      usage         = "inet"
-      description   = "LAN port"
-      networks      = ["lan"]
-      poe_disabled  = true
-      speed         = "10g"
+      usage              = "inet"
+      description        = "LAN port"
+      networks           = ["lan"]
+      poe_disabled       = true
+      speed              = "10g"
     }
   }
   port_usages = {
@@ -183,9 +184,10 @@
       mac_limit        = "5"
       mode             = "access"
       networks         = ["lan"]
-      poe_priority     = "high"
-      port_network     = "lan"
-      speed            = "auto"
+      poe_priority                = "high"
+      poe_keep_state_when_reboot  = true
+      port_network                = "lan"
+      speed                       = "auto"
       stp_disable      = false
       stp_required     = true
       rules = [
@@ -344,6 +346,14 @@
           name = "test_static"
         }
       ]
+    }
+  }
+  port_config_overwrite = {
+    "ge-0/0/2" = {
+      description             = "Overwrite port"
+      poe_disabled            = false
+      poe_keep_state_when_reboot = true
+      speed                   = "1g"
     }
   }
   image_url = "https://example.com/switch.png"

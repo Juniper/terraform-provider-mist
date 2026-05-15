@@ -28,6 +28,7 @@
           import_policy = "import-neighbor"
           multihop_ttl = 5
           neighbor_as = 65003
+          tunnel_via = "primary"
         }
       }
       networks = ["lan", "guest"]
@@ -308,6 +309,8 @@
       description = "LAN port"
       networks = ["lan"]
       disabled = false
+      ae_lacp_force_up = false
+      poe_keep_state_when_reboot = false
       port_network = "lan"
     }
   }

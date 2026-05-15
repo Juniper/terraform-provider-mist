@@ -39,6 +39,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	var uplinkPortConfig = NewUplinkPortConfigValueNull()
 	var usbConfig = NewUsbConfigValueNull()
 	var vars = types.MapNull(types.StringType)
+	var zigbeeConfig = NewZigbeeConfigValueNull()
 
 	var profileType types.String
 
@@ -115,6 +116,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	if data.Vars != nil {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
+	if data.ZigbeeConfig != nil {
+		zigbeeConfig = zigbeeConfigSdkToTerraform(ctx, &diags, data.ZigbeeConfig)
+	}
 
 	profileType = types.StringValue(data.Type)
 
@@ -142,6 +146,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	state.UplinkPortConfig = uplinkPortConfig
 	state.UsbConfig = usbConfig
 	state.Vars = vars
+	state.ZigbeeConfig = zigbeeConfig
 	state.Type = profileType
 
 	return state, diags

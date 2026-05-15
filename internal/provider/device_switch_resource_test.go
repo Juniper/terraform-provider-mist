@@ -39,7 +39,7 @@ func TestDeviceSwitchModel(t *testing.T) {
 		},
 	}
 
-	b, err := os.ReadFile("fixtures/site_setting_resource/site_setting_config.tf")
+	b, err := os.ReadFile("fixtures/device_switch_resource/device_switch_config.tf")
 	if err != nil {
 		fmt.Print(err)
 	}
@@ -727,6 +727,9 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, tName string, tracke
 			if port.AeLacpSlow != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.ae_lacp_slow", key), fmt.Sprintf("%t", *port.AeLacpSlow))
 			}
+			if port.AeLacpForceUp != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.ae_lacp_force_up", key), fmt.Sprintf("%t", *port.AeLacpForceUp))
+			}
 			if port.Aggregated != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.aggregated", key), fmt.Sprintf("%t", *port.Aggregated))
 			}
@@ -787,6 +790,9 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, tName string, tracke
 			}
 			if port.PoeDisabled != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config_overwrite.%s.poe_disabled", key), fmt.Sprintf("%t", *port.PoeDisabled))
+			}
+			if port.PoeKeepStateWhenReboot != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config_overwrite.%s.poe_keep_state_when_reboot", key), fmt.Sprintf("%t", *port.PoeKeepStateWhenReboot))
 			}
 			if port.PortNetwork != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config_overwrite.%s.port_network", key), *port.PortNetwork)
@@ -872,6 +878,9 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, tName string, tracke
 			}
 			if usage.PoePriority != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.poe_priority", key), *usage.PoePriority)
+			}
+			if usage.PoeKeepStateWhenReboot != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.poe_keep_state_when_reboot", key), fmt.Sprintf("%t", *usage.PoeKeepStateWhenReboot))
 			}
 			if usage.Speed != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.speed", key), *usage.Speed)

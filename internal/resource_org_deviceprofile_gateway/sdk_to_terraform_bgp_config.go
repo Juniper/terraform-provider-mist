@@ -23,6 +23,7 @@ func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		var importPolicy basetypes.StringValue
 		var multihopTtl basetypes.Int64Value
 		var neighborAs basetypes.StringValue
+		var tunnelVia basetypes.StringValue
 
 		if d.Disabled != nil {
 			disabled = types.BoolValue(*d.Disabled)
@@ -42,6 +43,10 @@ func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 
 		neighborAs = mistutils.BgpAsAsString(&d.NeighborAs)
 
+		if d.TunnelVia != nil {
+			tunnelVia = types.StringValue(string(*d.TunnelVia))
+		}
+
 		dataMapValue := map[string]attr.Value{
 			"disabled":      disabled,
 			"export_policy": exportPolicy,
@@ -49,6 +54,7 @@ func bgpConfigNeighborsSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 			"import_policy": importPolicy,
 			"multihop_ttl":  multihopTtl,
 			"neighbor_as":   neighborAs,
+			"tunnel_via":    tunnelVia,
 		}
 		data, e := NewNeighborsValue(NeighborsValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)

@@ -196,5 +196,10 @@ func (o *OrgPskModel) testChecks(t testing.TB, rType, tName string, tracker *val
 		checks.append(t, "TestCheckResourceAttr", "vlan_id", *o.VlanId)
 	}
 
+	// 19. VlanName (optional)
+	if o.VlanName != nil {
+		checks.append(t, "TestCheckResourceAttr", "vlan_name", *o.VlanName)
+	}
+
 	return checks
 }

@@ -11,77 +11,64 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func marvisAutoOperationsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.MarvisAutoOperations) basetypes.ObjectValue {
-	var apInsufficientCapacity basetypes.BoolValue
-	var apLoop basetypes.BoolValue
-	var apNonCompliant basetypes.BoolValue
-	var bouncePortForAbnormalPoeClient basetypes.BoolValue
-	var disablePortWhenDdosProtocolViolation basetypes.BoolValue
-	var disablePortWhenRogueDhcpServerDetected basetypes.BoolValue
-	var gatewayNonCompliant basetypes.BoolValue
-	var switchMisconfiguredPort basetypes.BoolValue
-	var switchPortStuck basetypes.BoolValue
-
-	if d.ApInsufficientCapacity != nil {
-		apInsufficientCapacity = types.BoolValue(*d.ApInsufficientCapacity)
+func marvisSelfDrivingDomainSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.MarvisSelfDrivingDomain, newValue func(map[string]attr.Type, map[string]attr.Value) (basetypes.ObjectValuable, diag.Diagnostics), attrTypes map[string]attr.Type) basetypes.ObjectValue {
+	var enabled = types.BoolNull()
+	if d != nil && d.Enabled != nil {
+		enabled = types.BoolValue(*d.Enabled)
 	}
-	if d.ApLoop != nil {
-		apLoop = types.BoolValue(*d.ApLoop)
-	}
-	if d.ApNonCompliant != nil {
-		apNonCompliant = types.BoolValue(*d.ApNonCompliant)
-	}
-	if d.BouncePortForAbnormalPoeClient != nil {
-		bouncePortForAbnormalPoeClient = types.BoolValue(*d.BouncePortForAbnormalPoeClient)
-	}
-	if d.DisablePortWhenDdosProtocolViolation != nil {
-		disablePortWhenDdosProtocolViolation = types.BoolValue(*d.DisablePortWhenDdosProtocolViolation)
-	}
-	if d.DisablePortWhenRogueDhcpServerDetected != nil {
-		disablePortWhenRogueDhcpServerDetected = types.BoolValue(*d.DisablePortWhenRogueDhcpServerDetected)
-	}
-	if d.GatewayNonCompliant != nil {
-		gatewayNonCompliant = types.BoolValue(*d.GatewayNonCompliant)
-	}
-	if d.SwitchMisconfiguredPort != nil {
-		switchMisconfiguredPort = types.BoolValue(*d.SwitchMisconfiguredPort)
-	}
-	if d.SwitchPortStuck != nil {
-		switchPortStuck = types.BoolValue(*d.SwitchPortStuck)
-	}
-
-	dataMapValue := map[string]attr.Value{
-		"ap_insufficient_capacity":                     apInsufficientCapacity,
-		"ap_loop":                                      apLoop,
-		"ap_non_compliant":                             apNonCompliant,
-		"bounce_port_for_abnormal_poe_client":          bouncePortForAbnormalPoeClient,
-		"disable_port_when_ddos_protocol_violation":    disablePortWhenDdosProtocolViolation,
-		"disable_port_when_rogue_dhcp_server_detected": disablePortWhenRogueDhcpServerDetected,
-		"gateway_non_compliant":                        gatewayNonCompliant,
-		"switch_misconfigured_port":                    switchMisconfiguredPort,
-		"switch_port_stuck":                            switchPortStuck,
-	}
-	data, e := NewAutoOperationsValue(AutoOperationsValue{}.AttributeTypes(ctx), dataMapValue)
+	data, e := newValue(attrTypes, map[string]attr.Value{
+		"enabled": enabled,
+	})
 	diags.Append(e...)
-
 	o, e := data.ToObjectValue(ctx)
 	diags.Append(e...)
 	return o
 }
 
-func marvisSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.Marvis) MarvisValue {
+func marvisSelfDrivingSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.MarvisSelfDriving) basetypes.ObjectValue {
+	var wan = types.ObjectNull(WanValue{}.AttributeTypes(ctx))
+	var wired = types.ObjectNull(WiredValue{}.AttributeTypes(ctx))
+	var wireless = types.ObjectNull(WirelessValue{}.AttributeTypes(ctx))
 
-	var autoOperations = types.ObjectNull(AutoOperationsValue{}.AttributeTypes(ctx))
-
-	if d.AutoOperations != nil {
-		autoOperations = marvisAutoOperationsSdkToTerraform(ctx, diags, d.AutoOperations)
+	if d != nil {
+		if d.Wan != nil {
+			wan = marvisSelfDrivingDomainSdkToTerraform(ctx, diags, d.Wan, func(at map[string]attr.Type, av map[string]attr.Value) (basetypes.ObjectValuable, diag.Diagnostics) {
+				return NewWanValue(at, av)
+			}, WanValue{}.AttributeTypes(ctx))
+		}
+		if d.Wired != nil {
+			wired = marvisSelfDrivingDomainSdkToTerraform(ctx, diags, d.Wired, func(at map[string]attr.Type, av map[string]attr.Value) (basetypes.ObjectValuable, diag.Diagnostics) {
+				return NewWiredValue(at, av)
+			}, WiredValue{}.AttributeTypes(ctx))
+		}
+		if d.Wireless != nil {
+			wireless = marvisSelfDrivingDomainSdkToTerraform(ctx, diags, d.Wireless, func(at map[string]attr.Type, av map[string]attr.Value) (basetypes.ObjectValuable, diag.Diagnostics) {
+				return NewWirelessValue(at, av)
+			}, WirelessValue{}.AttributeTypes(ctx))
+		}
 	}
 
-	dataMapValue := map[string]attr.Value{
-		"auto_operations": autoOperations,
-	}
-	data, e := NewMarvisValue(MarvisValue{}.AttributeTypes(ctx), dataMapValue)
+	data, e := NewSelfDrivingValue(SelfDrivingValue{}.AttributeTypes(ctx), map[string]attr.Value{
+		"wan":      wan,
+		"wired":    wired,
+		"wireless": wireless,
+	})
 	diags.Append(e...)
+	o, e := data.ToObjectValue(ctx)
+	diags.Append(e...)
+	return o
+}
 
+func marvisSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingMarvis) MarvisValue {
+	var selfDriving = types.ObjectNull(SelfDrivingValue{}.AttributeTypes(ctx))
+
+	if d.SelfDriving != nil {
+		selfDriving = marvisSelfDrivingSdkToTerraform(ctx, diags, d.SelfDriving)
+	}
+
+	data, e := NewMarvisValue(MarvisValue{}.AttributeTypes(ctx), map[string]attr.Value{
+		"self_driving": selfDriving,
+	})
+	diags.Append(e...)
 	return data
 }

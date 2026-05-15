@@ -323,6 +323,7 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
 						Optional: true,
+						Computed: true,
 					},
 					"querier": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{

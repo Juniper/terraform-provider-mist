@@ -13,7 +13,7 @@ func tuntermIgmpSnoopingConfigTerraformToSdk(ctx context.Context, diags *diag.Di
 	data := models.MxedgeTuntermIgmpSnoopingConfig{}
 
 	if !d.Enabled.IsNull() && !d.Enabled.IsUnknown() {
-		data.Enabled = d.Enabled.ValueBoolPointer()
+		data.Enabled = models.ToPointer(models.MxedgeTuntermIgmpSnoopingConfigEnabledContainer.FromBoolean(d.Enabled.ValueBool()))
 	}
 
 	if !d.Querier.IsNull() && !d.Querier.IsUnknown() {
@@ -25,7 +25,7 @@ func tuntermIgmpSnoopingConfigTerraformToSdk(ctx context.Context, diags *diag.Di
 	if !d.VlanIds.IsNull() && !d.VlanIds.IsUnknown() {
 		var vlanIds []int
 		d.VlanIds.ElementsAs(ctx, &vlanIds, false)
-		data.VlanIds = vlanIds
+		data.VlanIds = models.ToPointer(models.MxedgeTuntermIgmpSnoopingConfigVlanIdsContainer.FromArrayOfNumber(vlanIds))
 	}
 
 	return &data

@@ -1,7 +1,13 @@
   analytic = {
     enabled = true
   }
-  
+
+  allow_mist = true
+
+  ap_synthetic_test = {
+    additional_vlan_ids = ["100", "200"]
+  }
+
   ap_updown_threshold = 5
   
   auto_upgrade = {
@@ -248,11 +254,32 @@
     keep_wlans_up_if_down = false
   }
   
-  uses_description_from_port_usage = true
-  
   vars = {
     "custom_var1" = "value1"
     "custom_var2" = "value2"
+  }
+
+  vars_annotations = {
+    "mxtunnel1" = {
+      note = "Primary MX tunnel"
+      type = "mxtunnel_id"
+    }
+    "generic1" = {
+      note = "Generic annotation"
+      type = "generic"
+    }
+  }
+
+  iotproxy = {
+    enabled = true
+    visionline = {
+      access_id = "access-001"
+      enabled   = true
+      host      = "visionline.example.com"
+      password  = "visionline-pass"
+      port      = 8443
+      username  = "visionline-user"
+    }
   }
   
   vna = {

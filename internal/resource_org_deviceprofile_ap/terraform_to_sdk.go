@@ -135,6 +135,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileApModel) (models.
 		unset["-vars"] = ""
 	}
 
+	if !plan.ZigbeeConfig.IsNull() && !plan.ZigbeeConfig.IsUnknown() {
+		data.ZigbeeConfig = zigbeeConfigTerraformToSdk(plan.ZigbeeConfig)
+	} else {
+		unset["-zigbee_config"] = ""
+	}
+
 	data.Type = string(models.ConstDeviceTypeApEnum_AP)
 
 	data.AdditionalProperties = unset

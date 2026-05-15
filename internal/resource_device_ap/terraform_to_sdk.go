@@ -186,6 +186,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 		unset["-vars"] = ""
 	}
 
+	if !plan.ZigbeeConfig.IsNull() && !plan.ZigbeeConfig.IsUnknown() {
+		data.ZigbeeConfig = zigbeeConfigTerraformToSdk(plan.ZigbeeConfig)
+	} else {
+		unset["-zigbee_config"] = ""
+	}
+
 	if !plan.X.IsNull() && !plan.X.IsUnknown() {
 		data.X = plan.X.ValueFloat64Pointer()
 	} else {

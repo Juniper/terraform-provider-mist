@@ -2,6 +2,7 @@ package resource_org_deviceprofile_gateway
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -39,7 +40,11 @@ func oobIpConfigsNode1SdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 		useMgmtVrfForHostOut = types.BoolValue(*d.UseMgmtVrfForHostOut)
 	}
 	if d != nil && d.VlanId != nil {
-		vlanId = types.StringValue(*d.VlanId)
+		if strVal, ok := d.VlanId.AsString(); ok && strVal != nil {
+			vlanId = types.StringValue(*strVal)
+		} else if numVal, ok := d.VlanId.AsNumber(); ok && numVal != nil {
+			vlanId = types.StringValue(fmt.Sprintf("%d", *numVal))
+		}
 	}
 
 	dataMapValue := map[string]attr.Value{
@@ -89,7 +94,11 @@ func oobIpConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d 
 		useMgmtVrfForHostOut = types.BoolValue(*d.UseMgmtVrfForHostOut)
 	}
 	if d != nil && d.VlanId != nil {
-		vlanId = types.StringValue(*d.VlanId)
+		if strVal, ok := d.VlanId.AsString(); ok && strVal != nil {
+			vlanId = types.StringValue(*strVal)
+		} else if numVal, ok := d.VlanId.AsNumber(); ok && numVal != nil {
+			vlanId = types.StringValue(fmt.Sprintf("%d", *numVal))
+		}
 	}
 
 	dataMapValue := map[string]attr.Value{

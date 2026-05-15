@@ -112,8 +112,8 @@ func gatewayMgmtAppProbingTerraformToSdk(ctx context.Context, diags *diag.Diagno
 	return &data
 }
 
-func gatewayMgmtAutoSignatureUpdateTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SiteSettingGatewayMgmtAutoSignatureUpdate {
-	data := models.SiteSettingGatewayMgmtAutoSignatureUpdate{}
+func gatewayMgmtAutoSignatureUpdateTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.GatewayMgmtAutoSignatureUpdate {
+	data := models.GatewayMgmtAutoSignatureUpdate{}
 	if !d.IsNull() && !d.IsUnknown() {
 		v, e := NewAutoSignatureUpdateValue(d.AttributeTypes(ctx), d.Attributes())
 		if e != nil {
@@ -127,8 +127,8 @@ func gatewayMgmtAutoSignatureUpdateTerraformToSdk(ctx context.Context, diags *di
 	return &data
 }
 
-func gatewayMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d GatewayMgmtValue) *models.SiteSettingGatewayMgmt {
-	data := models.SiteSettingGatewayMgmt{}
+func gatewayMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d GatewayMgmtValue) *models.GatewayMgmt {
+	data := models.GatewayMgmt{}
 
 	if !d.AdminSshkeys.IsNull() && !d.AdminSshkeys.IsUnknown() {
 		data.AdminSshkeys = mistutils.ListOfStringTerraformToSdk(d.AdminSshkeys)

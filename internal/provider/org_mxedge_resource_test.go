@@ -133,9 +133,6 @@ func (o *OrgMxedgeModel) testChecks(t testing.TB, rType, tName string, tracker *
 	if o.SiteId != nil {
 		checks.append(t, "TestCheckResourceAttrSet", "site_id")
 	}
-	if o.TuntermRegistered != nil {
-		checks.append(t, "TestCheckResourceAttr", "tunterm_registered", fmt.Sprintf("%t", *o.TuntermRegistered))
-	}
 	if o.MxclusterId != nil {
 		checks.append(t, "TestCheckResourceAttr", "mxcluster_id", *o.MxclusterId)
 	}

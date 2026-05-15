@@ -41,6 +41,7 @@
           hold_time       = 180
           import_policy   = "neighbor-import"
           multihop_ttl    = 2
+          tunnel_via      = "primary"
         }
       }
     }
@@ -113,6 +114,49 @@
     "2001:db8::/32" = {
       via = "2001:db8::1"
     }
+  }
+
+  gateway_mgmt = {
+    admin_sshkeys = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC test-key"]
+    app_probing = {
+      apps    = ["office365"]
+      custom_apps = [
+        {
+          name     = "custom-http-probe"
+          protocol = "http"
+          url      = "https://example.com/health"
+        }
+      ]
+      enabled = true
+    }
+    app_usage = false
+    auto_signature_update = {
+      day_of_week = "sun"
+      enable      = true
+      time_of_day = "02:00"
+    }
+    config_revert_timer = 16
+    disable_console     = false
+    disable_oob         = false
+    disable_usb         = false
+    fips_enabled        = false
+    probe_hosts         = ["8.8.8.8", "1.1.1.1"]
+    probe_hostsv6       = ["2001:4860:4860::8888"]
+    protect_re = {
+      allowed_services = ["icmp"]
+      custom = [
+        {
+          port_range = "22"
+          protocol   = "tcp"
+          subnets    = ["10.0.0.0/8"]
+        }
+      ]
+      enabled       = true
+      hit_count     = false
+      trusted_hosts = ["192.168.0.0/16"]
+    }
+    security_log_source_address   = "192.168.1.1"
+    security_log_source_interface = "ge-0/0/0"
   }
 
   idp_profiles = {
@@ -297,8 +341,9 @@
       ae_lacp_force_up         = false
       outer_vlan_id            = 100
       vlan_id                  = "10"
-      poe_disabled             = false
-      preserve_dscp            = false
+      poe_disabled                = false
+      poe_keep_state_when_reboot  = false
+      preserve_dscp               = false
       redundant                = false
       redundant_group          = 1
       reth_idx                 = "0"
@@ -448,10 +493,21 @@
         }
       ]
       skyatp = {
-        dns_dga_detection = "strict"
-        dns_tunnel_detection = "strict"
-        http_inspection = "standard"
-        iot_device_policy = "enabled"
+        dns_dga_detection = {
+          enabled = true
+          profile = "strict"
+        }
+        dns_tunnel_detection = {
+          enabled = true
+          profile = "strict"
+        }
+        http_inspection = {
+          enabled = true
+          profile = "standard"
+        }
+        iot_device_policy = {
+          enabled = true
+        }
       }
       syslog = {
         enabled = true

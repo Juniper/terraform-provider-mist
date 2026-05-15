@@ -34,6 +34,7 @@ type DeviceApModel struct {
 	Vars             map[string]string                  `hcl:"vars"`
 	X                *float64                           `hcl:"x"`
 	Y                *float64                           `hcl:"y"`
+	ZigbeeConfig     *DeviceApZigbeeConfigValue         `hcl:"zigbee_config"`
 }
 
 type DeviceApAeroscoutValue struct {
@@ -130,10 +131,11 @@ type DeviceApLedValue struct {
 }
 
 type DeviceApMeshValue struct {
-	Bands   []string `cty:"bands" hcl:"bands"`
-	Enabled *bool    `cty:"enabled" hcl:"enabled"`
-	Group   *int64   `cty:"group" hcl:"group"`
-	Role    *string  `cty:"role" hcl:"role"`
+	Bands      []string `cty:"bands" hcl:"bands"`
+	Enabled    *bool    `cty:"enabled" hcl:"enabled"`
+	Group      *int64   `cty:"group" hcl:"group"`
+	Role       *string  `cty:"role" hcl:"role"`
+	UseWpa3On5 *bool    `cty:"use_wpa3_on_5" hcl:"use_wpa3_on_5"`
 }
 
 type DeviceApPortConfigValue struct {
@@ -322,4 +324,12 @@ type DeviceApUsbConfigValue struct {
 	UsbConfigType *string `cty:"type" hcl:"type"`
 	VerifyCert    *bool   `cty:"verify_cert" hcl:"verify_cert"`
 	VlanId        *int64  `cty:"vlan_id" hcl:"vlan_id"`
+}
+
+type DeviceApZigbeeConfigValue struct {
+	AllowJoin     *string `cty:"allow_join" hcl:"allow_join"`
+	Channel       *int64  `cty:"channel" hcl:"channel"`
+	Enabled       *bool   `cty:"enabled" hcl:"enabled"`
+	ExtendedPanId *string `cty:"extended_pan_id" hcl:"extended_pan_id"`
+	PanId         *string `cty:"pan_id" hcl:"pan_id"`
 }

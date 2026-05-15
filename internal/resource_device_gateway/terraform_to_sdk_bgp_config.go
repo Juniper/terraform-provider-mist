@@ -33,6 +33,9 @@ func bgpConfigNeighborsTerraformToSdk(d basetypes.MapValue) map[string]models.Bg
 		if plan.NeighborAs.ValueStringPointer() != nil {
 			data.NeighborAs = models.BgpAsContainer.FromString(plan.NeighborAs.ValueString())
 		}
+		if plan.TunnelVia.ValueStringPointer() != nil {
+			data.TunnelVia = models.ToPointer(models.TunnelViaEnum(plan.TunnelVia.ValueString()))
+		}
 
 		dataMap[k] = data
 	}

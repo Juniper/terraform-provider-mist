@@ -21,6 +21,7 @@ func SdkToTerraform(data *models.Sso) (OrgSsoModel, diag.Diagnostics) {
 	var issuer types.String
 	var name types.String
 	var nameidFormat types.String
+	var oauthProviderDomain types.String
 	var orgId types.String
 	var roleAttrExtraction types.String
 	var roleAttrFrom types.String
@@ -58,6 +59,9 @@ func SdkToTerraform(data *models.Sso) (OrgSsoModel, diag.Diagnostics) {
 	if data.NameidFormat != nil {
 		nameidFormat = types.StringValue(string(*data.NameidFormat))
 	}
+	if data.OauthProviderDomain != nil {
+		oauthProviderDomain = types.StringValue(string(*data.OauthProviderDomain))
+	}
 	if data.OrgId != nil {
 		orgId = types.StringValue(data.OrgId.String())
 	}
@@ -79,6 +83,7 @@ func SdkToTerraform(data *models.Sso) (OrgSsoModel, diag.Diagnostics) {
 	state.Issuer = issuer
 	state.Name = name
 	state.NameidFormat = nameidFormat
+	state.OauthProviderDomain = oauthProviderDomain
 	state.OrgId = orgId
 	state.RoleAttrExtraction = roleAttrExtraction
 	state.RoleAttrFrom = roleAttrFrom

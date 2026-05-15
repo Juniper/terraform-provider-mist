@@ -19,9 +19,26 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		return SiteSettingModel{}, diags
 	}
 
+	var allowMist types.Bool
+	if data.AllowMist != nil {
+		allowMist = types.BoolValue(*data.AllowMist)
+	}
+
 	var analytic = NewAnalyticValueNull()
 	if data.Analytic != nil {
 		analytic = analyticSdkToTerraform(ctx, &diags, data.Analytic)
+	}
+
+	var apSyntheticTest = NewApSyntheticTestValueNull()
+	if data.ApSyntheticTest != nil {
+		var additionalVlanIds = types.ListNull(types.StringType)
+		if data.ApSyntheticTest.AdditionalVlanIds != nil {
+			additionalVlanIds = mistlist.WlanBonjourAdditionalVlanIdsAsArrayOfString(&diags, *data.ApSyntheticTest.AdditionalVlanIds)
+		}
+		apSyntheticTest = ApSyntheticTestValue{
+			AdditionalVlanIds: additionalVlanIds,
+			state:             attr.ValueStateKnown,
+		}
 	}
 
 	var apUpdownThreshold types.Int64
@@ -92,6 +109,11 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var juniperSrx = NewJuniperSrxValueNull()
 	if data.JuniperSrx != nil {
 		juniperSrx = juniperSrxSdkToTerraform(ctx, &diags, data.JuniperSrx)
+	}
+
+	var iotproxy = NewIotproxyValueNull()
+	if data.Iotproxy != nil {
+		iotproxy = iotproxySdkToTerraform(ctx, &diags, data.Iotproxy)
 	}
 
 	var led = NewLedValueNull()
@@ -189,11 +211,6 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		uplinkPortConfig = uplinkPortConfigValueSdkToTerraform(ctx, &diags, data.UplinkPortConfig)
 	}
 
-	var usesDescriptionFromPortUsage types.Bool
-	if data.UsesDescriptionFromPortUsage != nil {
-		usesDescriptionFromPortUsage = types.BoolValue(*data.UsesDescriptionFromPortUsage)
-	}
-
 	var vars = types.MapNull(types.StringType)
 	if len(data.Vars) > 0 {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
@@ -217,6 +234,11 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var vsInstance = types.MapNull(VsInstanceValue{}.Type(ctx))
 	if data.VsInstance != nil {
 		vsInstance = vsInstanceSdkToTerraform(ctx, &diags, data.VsInstance)
+	}
+
+	var varsAnnotations = types.MapNull(VarsAnnotationsValue{}.Type(ctx))
+	if data.VarsAnnotations != nil {
+		varsAnnotations = varsAnnotationsSdkToTerraform(ctx, &diags, data.VarsAnnotations)
 	}
 
 	var wanVan = NewWanVnaValueNull()
@@ -255,54 +277,57 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	state := SiteSettingModel{
-		SiteId:                       types.StringValue(data.SiteId.String()),
-		Analytic:                     analytic,
-		ApUpdownThreshold:            apUpdownThreshold,
-		AutoUpgrade:                  autoUpgrade,
-		BgpNeighborUpdownThreshold:   bgpNeighborUpdownThreshold,
-		BleConfig:                    bleConfig,
-		BlacklistUrl:                 blacklistUrl,
-		ConfigAutoRevert:             configAutoRevert,
-		ConfigPushPolicy:             configPushPolicy,
-		CriticalUrlMonitoring:        criticalUrlMonitoring,
-		DeviceUpdownThreshold:        deviceUpdownThreshold,
-		EnableUnii4:                  enableUnii4,
-		Engagement:                   engagement,
-		GatewayMgmt:                  gatewayMgmt,
-		GatewayUpdownThreshold:       gatewayUpdownThreshold,
-		JuniperSrx:                   juniperSrx,
-		Led:                          led,
-		Marvis:                       marvis,
-		Occupancy:                    occupancy,
-		PersistConfigOnDevice:        persistConfigOnDevice,
-		Proxy:                        proxy,
-		RemoveExistingConfigs:        removeExistingConfigs,
-		ReportGatt:                   reportGatt,
-		Rogue:                        rogue,
-		Rtsa:                         rtsa,
-		SimpleAlert:                  simpleAlert,
-		Skyatp:                       skyatp,
-		SrxApp:                       srxApp,
-		SleThresholds:                sleThresholds,
-		SshKeys:                      sshKeys,
-		Ssr:                          ssr,
-		SwitchUpdownThreshold:        switchUpdownThreshold,
-		SyntheticTest:                syntheticTest,
-		TrackAnonymousDevices:        trackAnonymousDevices,
-		UplinkPortConfig:             uplinkPortConfig,
-		UsesDescriptionFromPortUsage: usesDescriptionFromPortUsage,
-		Vars:                         vars,
-		Vna:                          vna,
-		VpnPathUpdownThreshold:       vpnPathUpdownThreshold,
-		VpnPeerUpdownThreshold:       vpnPeerUpdownThreshold,
-		VsInstance:                   vsInstance,
-		WanVna:                       wanVan,
-		WatchedStationUrl:            watchedStationUrl,
-		WhitelistUrl:                 whitelistUrl,
-		Wids:                         wids,
-		Wifi:                         wifi,
-		WiredVna:                     wiredVna,
-		ZoneOccupancyAlert:           zoneOccupancyAlert,
+		SiteId:                     types.StringValue(data.SiteId.String()),
+		AllowMist:                  allowMist,
+		Analytic:                   analytic,
+		ApSyntheticTest:            apSyntheticTest,
+		ApUpdownThreshold:          apUpdownThreshold,
+		AutoUpgrade:                autoUpgrade,
+		BgpNeighborUpdownThreshold: bgpNeighborUpdownThreshold,
+		BleConfig:                  bleConfig,
+		BlacklistUrl:               blacklistUrl,
+		ConfigAutoRevert:           configAutoRevert,
+		ConfigPushPolicy:           configPushPolicy,
+		CriticalUrlMonitoring:      criticalUrlMonitoring,
+		DeviceUpdownThreshold:      deviceUpdownThreshold,
+		EnableUnii4:                enableUnii4,
+		Engagement:                 engagement,
+		GatewayMgmt:                gatewayMgmt,
+		GatewayUpdownThreshold:     gatewayUpdownThreshold,
+		JuniperSrx:                 juniperSrx,
+		Iotproxy:                   iotproxy,
+		Led:                        led,
+		Marvis:                     marvis,
+		Occupancy:                  occupancy,
+		PersistConfigOnDevice:      persistConfigOnDevice,
+		Proxy:                      proxy,
+		RemoveExistingConfigs:      removeExistingConfigs,
+		ReportGatt:                 reportGatt,
+		Rogue:                      rogue,
+		Rtsa:                       rtsa,
+		SimpleAlert:                simpleAlert,
+		Skyatp:                     skyatp,
+		SrxApp:                     srxApp,
+		SleThresholds:              sleThresholds,
+		SshKeys:                    sshKeys,
+		Ssr:                        ssr,
+		SwitchUpdownThreshold:      switchUpdownThreshold,
+		SyntheticTest:              syntheticTest,
+		TrackAnonymousDevices:      trackAnonymousDevices,
+		UplinkPortConfig:           uplinkPortConfig,
+		Vars:                       vars,
+		Vna:                        vna,
+		VpnPathUpdownThreshold:     vpnPathUpdownThreshold,
+		VpnPeerUpdownThreshold:     vpnPeerUpdownThreshold,
+		VsInstance:                 vsInstance,
+		VarsAnnotations:            varsAnnotations,
+		WanVna:                     wanVan,
+		WatchedStationUrl:          watchedStationUrl,
+		WhitelistUrl:               whitelistUrl,
+		Wids:                       wids,
+		Wifi:                       wifi,
+		WiredVna:                   wiredVna,
+		ZoneOccupancyAlert:         zoneOccupancyAlert,
 	}
 
 	return state, diags

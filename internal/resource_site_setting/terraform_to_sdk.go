@@ -2,8 +2,10 @@ package resource_site_setting
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
@@ -15,10 +17,30 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	var diags diag.Diagnostics
 	unset := make(map[string]interface{})
 
+	if plan.AllowMist.ValueBoolPointer() != nil {
+		data.AllowMist = plan.AllowMist.ValueBoolPointer()
+	} else {
+		unset["-allow_mist"] = ""
+	}
+
 	if !plan.Analytic.IsNull() && !plan.Analytic.IsUnknown() {
 		data.Analytic = analyticTerraformToSdk(plan.Analytic)
 	} else {
 		unset["-analytic"] = ""
+	}
+
+	if !plan.ApSyntheticTest.IsNull() && !plan.ApSyntheticTest.IsUnknown() {
+		var tmp models.SiteSettingApSyntheticTest
+		if !plan.ApSyntheticTest.AdditionalVlanIds.IsNull() && !plan.ApSyntheticTest.AdditionalVlanIds.IsUnknown() {
+			var vlanIdsList []string
+			for _, v := range plan.ApSyntheticTest.AdditionalVlanIds.Elements() {
+				vlanIdsList = append(vlanIdsList, v.(types.String).ValueString())
+			}
+			tmp.AdditionalVlanIds = models.ToPointer(models.AdditionalVlanIdsContainer.FromString(strings.Join(vlanIdsList, ",")))
+		}
+		data.ApSyntheticTest = &tmp
+	} else {
+		unset["-ap_synthetic_test"] = ""
 	}
 
 	if plan.ApUpdownThreshold.ValueInt64Pointer() != nil {
@@ -97,6 +119,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		data.JuniperSrx = juniperSrxTerraformToSdk(ctx, &diags, plan.JuniperSrx)
 	} else {
 		unset["-juniper_srx"] = ""
+	}
+
+	if !plan.Iotproxy.IsNull() && !plan.Iotproxy.IsUnknown() {
+		data.Iotproxy = iotproxyTerraformToSdk(ctx, &diags, plan.Iotproxy)
+	} else {
+		unset["-iotproxy"] = ""
 	}
 
 	if !plan.Led.IsNull() && !plan.Led.IsUnknown() {
@@ -214,16 +242,16 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-uplink_port_config"] = ""
 	}
 
-	if plan.UsesDescriptionFromPortUsage.ValueBoolPointer() != nil {
-		data.UsesDescriptionFromPortUsage = plan.UsesDescriptionFromPortUsage.ValueBoolPointer()
-	} else {
-		unset["-uses_description_from_port_usage"] = ""
-	}
-
 	if !plan.Vars.IsNull() && !plan.Vars.IsUnknown() {
 		data.Vars = varsTerraformToSdk(plan.Vars)
 	} else {
 		unset["-vars"] = ""
+	}
+
+	if !plan.VarsAnnotations.IsNull() && !plan.VarsAnnotations.IsUnknown() {
+		data.VarsAnnotations = varsAnnotationsTerraformToSdk(plan.VarsAnnotations)
+	} else {
+		unset["-vars_annotations"] = ""
 	}
 
 	if !plan.Vna.IsNull() && !plan.Vna.IsUnknown() {

@@ -81,6 +81,9 @@ func evpnOptionsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d E
 	if !d.CoreAsBorder.IsNull() && !d.CoreAsBorder.IsUnknown() {
 		data.CoreAsBorder = d.CoreAsBorder.ValueBoolPointer()
 	}
+	if d.EnableInbandMgmt.ValueBoolPointer() != nil {
+		data.EnableInbandMgmt = d.EnableInbandMgmt.ValueBoolPointer()
+	}
 	if d.EnableInbandZtp.ValueBoolPointer() != nil {
 		data.EnableInbandZtp = d.EnableInbandZtp.ValueBoolPointer()
 	}

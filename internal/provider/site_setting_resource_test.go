@@ -102,10 +102,22 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")
 
+	if s.AllowMist != nil {
+		checks.append(t, "TestCheckResourceAttr", "allow_mist", fmt.Sprintf("%t", *s.AllowMist))
+	}
+
 	// Conditional checks for optional parameters
 	if s.Analytic != nil {
 		if s.Analytic.Enabled != nil {
 			checks.append(t, "TestCheckResourceAttr", "analytic.enabled", fmt.Sprintf("%t", *s.Analytic.Enabled))
+		}
+	}
+	if s.ApSyntheticTest != nil {
+		if len(s.ApSyntheticTest.AdditionalVlanIds) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "ap_synthetic_test.additional_vlan_ids.#", fmt.Sprintf("%d", len(s.ApSyntheticTest.AdditionalVlanIds)))
+			for i, vlanId := range s.ApSyntheticTest.AdditionalVlanIds {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ap_synthetic_test.additional_vlan_ids.%d", i), vlanId)
+			}
 		}
 	}
 	if s.ApUpdownThreshold != nil {
@@ -787,12 +799,19 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 			checks.append(t, "TestCheckResourceAttr", "uplink_port_config.keep_wlans_up_if_down", fmt.Sprintf("%t", *s.UplinkPortConfig.KeepWlansUpIfDown))
 		}
 	}
-	if s.UsesDescriptionFromPortUsage != nil {
-		checks.append(t, "TestCheckResourceAttr", "uses_description_from_port_usage", fmt.Sprintf("%t", *s.UsesDescriptionFromPortUsage))
-	}
 	if len(s.Vars) > 0 {
 		for key, value := range s.Vars {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vars.%s", key), value)
+		}
+	}
+	if len(s.VarsAnnotations) > 0 {
+		for key, annotation := range s.VarsAnnotations {
+			if annotation.Note != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vars_annotations.%s.note", key), *annotation.Note)
+			}
+			if annotation.VarsAnnotationsType != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vars_annotations.%s.type", key), *annotation.VarsAnnotationsType)
+			}
 		}
 	}
 	if s.Vna != nil && s.Vna.Enabled != nil {
@@ -879,6 +898,31 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 		}
 		if s.ZoneOccupancyAlert.Threshold != nil {
 			checks.append(t, "TestCheckResourceAttr", "zone_occupancy_alert.threshold", fmt.Sprintf("%d", *s.ZoneOccupancyAlert.Threshold))
+		}
+	}
+	if s.Iotproxy != nil {
+		if s.Iotproxy.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "iotproxy.enabled", fmt.Sprintf("%t", *s.Iotproxy.Enabled))
+		}
+		if s.Iotproxy.Visionline != nil {
+			if s.Iotproxy.Visionline.AccessId != nil {
+				checks.append(t, "TestCheckResourceAttr", "iotproxy.visionline.access_id", *s.Iotproxy.Visionline.AccessId)
+			}
+			if s.Iotproxy.Visionline.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "iotproxy.visionline.enabled", fmt.Sprintf("%t", *s.Iotproxy.Visionline.Enabled))
+			}
+			if s.Iotproxy.Visionline.Host != nil {
+				checks.append(t, "TestCheckResourceAttr", "iotproxy.visionline.host", *s.Iotproxy.Visionline.Host)
+			}
+			if s.Iotproxy.Visionline.Password != nil {
+				checks.append(t, "TestCheckResourceAttr", "iotproxy.visionline.password", *s.Iotproxy.Visionline.Password)
+			}
+			if s.Iotproxy.Visionline.Port != nil {
+				checks.append(t, "TestCheckResourceAttr", "iotproxy.visionline.port", fmt.Sprintf("%d", *s.Iotproxy.Visionline.Port))
+			}
+			if s.Iotproxy.Visionline.Username != nil {
+				checks.append(t, "TestCheckResourceAttr", "iotproxy.visionline.username", *s.Iotproxy.Visionline.Username)
+			}
 		}
 	}
 

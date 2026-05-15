@@ -144,6 +144,12 @@ func TerraformToSdk(plan *OrgNacidpModel) (*models.Sso, diag.Diagnostics) {
 		unset["-oauth_ropc_client_secret"] = ""
 	}
 
+	if !plan.OauthProviderDomain.IsNull() && !plan.OauthProviderDomain.IsUnknown() {
+		data.OauthProviderDomain = (*models.OauthProviderDomainEnum)(plan.OauthProviderDomain.ValueStringPointer())
+	} else {
+		unset["-oauth_provider_domain"] = ""
+	}
+
 	if !plan.OauthTenantId.IsNull() && !plan.OauthTenantId.IsUnknown() {
 		data.OauthTenantId = plan.OauthTenantId.ValueStringPointer()
 	} else {

@@ -26,6 +26,7 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"access_type": schema.StringAttribute{
 				Optional:            true,
+				Computed:            true,
 				Description:         "if `type`==`marvis_client`. enum: `wireless`, `wireless+wired`",
 				MarkdownDescription: "if `type`==`marvis_client`. enum: `wireless`, `wireless+wired`",
 				Validators: []validator.String{
@@ -55,6 +56,7 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"eap_type": schema.StringAttribute{
 				Optional:            true,
+				Computed:            true,
 				Description:         "enum: `wpa2`, `wpa3`",
 				MarkdownDescription: "enum: `wpa2`, `wpa3`",
 				Validators: []validator.String{
@@ -170,6 +172,7 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"idp_sign_algo": schema.StringAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`.",
 						MarkdownDescription: "Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`.",
 						Validators: []validator.String{

@@ -15,6 +15,8 @@ func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 
 	var anticlogThreshold basetypes.Int64Value
 	var eapReauth basetypes.BoolValue
+	var enableBeaconProtection basetypes.BoolValue
+	var enableGcmp256 basetypes.BoolValue
 	var enableMacAuth basetypes.BoolValue
 	var keyIdx basetypes.Int64Value
 	var keys = types.ListNull(types.StringType)
@@ -31,6 +33,12 @@ func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	}
 	if d != nil && d.EapReauth != nil {
 		eapReauth = types.BoolValue(*d.EapReauth)
+	}
+	if d != nil && d.EnableBeaconProtection != nil {
+		enableBeaconProtection = types.BoolValue(*d.EnableBeaconProtection)
+	}
+	if d != nil && d.EnableGcmp256 != nil {
+		enableGcmp256 = types.BoolValue(*d.EnableGcmp256)
 	}
 	if d != nil && d.EnableMacAuth != nil {
 		enableMacAuth = types.BoolValue(*d.EnableMacAuth)
@@ -76,18 +84,20 @@ func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"anticlog_threshold":    anticlogThreshold,
-		"eap_reauth":            eapReauth,
-		"enable_mac_auth":       enableMacAuth,
-		"key_idx":               keyIdx,
-		"keys":                  keys,
-		"multi_psk_only":        multiPskOnly,
-		"owe":                   owe,
-		"pairwise":              pairwise,
-		"private_wlan":          privateWlan,
-		"psk":                   psk,
-		"type":                  typeAuth,
-		"wep_as_secondary_auth": wepAsSecondaryAuth,
+		"anticlog_threshold":       anticlogThreshold,
+		"eap_reauth":               eapReauth,
+		"enable_beacon_protection": enableBeaconProtection,
+		"enable_gcmp256":           enableGcmp256,
+		"enable_mac_auth":          enableMacAuth,
+		"key_idx":                  keyIdx,
+		"keys":                     keys,
+		"multi_psk_only":           multiPskOnly,
+		"owe":                      owe,
+		"pairwise":                 pairwise,
+		"private_wlan":             privateWlan,
+		"psk":                      psk,
+		"type":                     typeAuth,
+		"wep_as_secondary_auth":    wepAsSecondaryAuth,
 	}
 	data, e := NewAuthValue(AuthValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

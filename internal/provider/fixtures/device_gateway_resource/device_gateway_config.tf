@@ -100,6 +100,7 @@
           import_policy = "neighbor-import-policy"
           multihop_ttl = 5
           neighbor_as = "65003"
+          tunnel_via  = "primary"
         }
       }
       networks = ["10.0.0.0/8", "192.168.0.0/16"]
@@ -126,7 +127,46 @@
   }
 
   gateway_mgmt = {
+    admin_sshkeys = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC test-key"]
+    app_probing = {
+      apps    = ["office365"]
+      custom_apps = [
+        {
+          name     = "custom-http-probe"
+          protocol = "http"
+          url      = "https://example.com/health"
+        }
+      ]
+      enabled = true
+    }
+    app_usage = false
+    auto_signature_update = {
+      day_of_week = "sun"
+      enable      = true
+      time_of_day = "02:00"
+    }
     config_revert_timer = 16
+    disable_console     = false
+    disable_oob         = false
+    disable_usb         = false
+    fips_enabled        = false
+    probe_hosts         = ["8.8.8.8", "1.1.1.1"]
+    probe_hostsv6       = ["2001:4860:4860::8888"]
+    protect_re = {
+      allowed_services = ["icmp"]
+      custom = [
+        {
+          port_range = "22"
+          protocol   = "tcp"
+          subnets    = ["10.0.0.0/8"]
+        }
+      ]
+      enabled       = true
+      hit_count     = false
+      trusted_hosts = ["192.168.0.0/16"]
+    }
+    security_log_source_address   = "192.168.1.1"
+    security_log_source_interface = "ge-0/0/0"
   }
 
   # idp_profiles section temporarily removed due to provider framework issue with missing id field
@@ -295,7 +335,8 @@
       mtu = 1500
       networks = ["corporate-lan"]
       outer_vlan_id = 200
-      poe_disabled = false
+      poe_disabled             = false
+      poe_keep_state_when_reboot = false
       ip_config = {
         # dns = ["8.8.8.8", "8.8.4.4"]  # commented out due to provider inconsistency
         # dns_suffix = ["example.com"]  # commented out due to provider inconsistency

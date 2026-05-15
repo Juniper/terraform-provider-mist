@@ -251,6 +251,7 @@
       persist_mac            = true
       poe_disabled           = false
       poe_priority           = "high"
+      poe_keep_state_when_reboot = true
       speed                  = "auto"
       duplex                 = "auto"
       disable_autoneg        = false
