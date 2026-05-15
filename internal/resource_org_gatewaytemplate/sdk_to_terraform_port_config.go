@@ -289,6 +289,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var networks = types.ListNull(types.StringType)
 		var outerVlanId basetypes.Int64Value
 		var poeDisabled basetypes.BoolValue
+		var poeKeepStateWhenReboot basetypes.BoolValue
 		var portNetwork basetypes.StringValue
 		var preserveDscp basetypes.BoolValue
 		var redundant basetypes.BoolValue
@@ -383,6 +384,9 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.PoeDisabled != nil {
 			poeDisabled = types.BoolValue(*v.PoeDisabled)
 		}
+		if v.PoeKeepStateWhenReboot != nil {
+			poeKeepStateWhenReboot = types.BoolValue(*v.PoeKeepStateWhenReboot)
+		}
 		if v.PortNetwork != nil {
 			portNetwork = types.StringValue(*v.PortNetwork)
 		}
@@ -451,30 +455,29 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		}
 
 		var portUsageState = map[string]attr.Value{
-			"ae_disable_lacp":    aeDisableLacp,
-			"ae_idx":             aeIdx,
-			"ae_lacp_force_up":   aeLacpForceUp,
-			"aggregated":         aggregated,
-			"critical":           critical,
-			"description":        description,
-			"disable_autoneg":    disableAutoneg,
-			"disabled":           disabled,
-			"dsl_type":           dslType,
-			"dsl_vci":            dslVci,
-			"dsl_vpi":            dslVpi,
-			"duplex":             duplex,
-			"ip_config":          ipConfig,
-			"lte_apn":            lteApn,
-			"lte_auth":           lteAuth,
-			"lte_backup":         lteBackup,
-			"lte_password":       ltePassword,
-			"lte_username":       lteUsername,
-			"mtu":                mtu,
-			"name":               name,
-			"networks":           networks,
-			"outer_vlan_id":      outerVlanId,
-			"poe_disabled":       poeDisabled,
-			"port_network":       portNetwork,
+			"ae_disable_lacp":  aeDisableLacp,
+			"ae_idx":           aeIdx,
+			"ae_lacp_force_up": aeLacpForceUp,
+			"aggregated":       aggregated,
+			"critical":         critical,
+			"description":      description,
+			"disable_autoneg":  disableAutoneg,
+			"disabled":         disabled,
+			"dsl_type":         dslType,
+			"dsl_vci":          dslVci,
+			"dsl_vpi":          dslVpi,
+			"duplex":           duplex,
+			"ip_config":        ipConfig,
+			"lte_apn":          lteApn,
+			"lte_auth":         lteAuth,
+			"lte_backup":       lteBackup,
+			"lte_password":     ltePassword,
+			"lte_username":     lteUsername,
+			"mtu":              mtu,
+			"name":             name,
+			"networks":         networks,
+			"outer_vlan_id":    outerVlanId,
+			"poe_disabled":     poeDisabled, "poe_keep_state_when_reboot": poeKeepStateWhenReboot, "port_network": portNetwork,
 			"preserve_dscp":      preserveDscp,
 			"redundant":          redundant,
 			"redundant_group":    redundantGroup,

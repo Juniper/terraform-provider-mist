@@ -60,6 +60,8 @@
     private_wlan = true
     psk = "MySecurePassword123!"
     wep_as_secondary_auth = true
+    enable_beacon_protection = true
+    enable_gcmp256 = true
   }
   
   # Dynamic VLAN configuration

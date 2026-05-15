@@ -19,6 +19,7 @@ func meshSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	bands := types.ListNull(types.StringType)
 	var group basetypes.Int64Value
 	var role basetypes.StringValue
+	var useWpa3On5 basetypes.BoolValue
 
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
@@ -32,12 +33,16 @@ func meshSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	if d.Role != nil {
 		role = types.StringValue(string(*d.Role))
 	}
+	if d.UseWpa3On5 != nil {
+		useWpa3On5 = types.BoolValue(*d.UseWpa3On5)
+	}
 
 	dataMapValue := map[string]attr.Value{
-		"enabled": enabled,
-		"bands":   bands,
-		"group":   group,
-		"role":    role,
+		"enabled":       enabled,
+		"bands":         bands,
+		"group":         group,
+		"role":          role,
+		"use_wpa3_on_5": useWpa3On5,
 	}
 	data, e := NewMeshValue(MeshValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

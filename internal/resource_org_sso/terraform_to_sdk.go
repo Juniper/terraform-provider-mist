@@ -65,6 +65,12 @@ func TerraformToSdk(plan *OrgSsoModel) (*models.Sso, diag.Diagnostics) {
 		unset["-nameid_format"] = ""
 	}
 
+	if !plan.OauthProviderDomain.IsNull() && !plan.OauthProviderDomain.IsUnknown() {
+		data.OauthProviderDomain = (*models.OauthProviderDomainEnum)(plan.OauthProviderDomain.ValueStringPointer())
+	} else {
+		unset["-oauth_provider_domain"] = ""
+	}
+
 	if !plan.RoleAttrExtraction.IsNull() && !plan.RoleAttrExtraction.IsUnknown() {
 		data.RoleAttrExtraction = plan.RoleAttrExtraction.ValueStringPointer()
 	} else {

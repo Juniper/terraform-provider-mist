@@ -104,6 +104,9 @@ func TerraformToSdk(plan *OrgPskModel) (models.Psk, diag.Diagnostics) {
 	} else {
 		unset["-vlan_id"] = ""
 	}
+	if plan.VlanName.ValueStringPointer() != nil {
+		data.VlanName = plan.VlanName.ValueStringPointer()
+	}
 
 	data.AdditionalProperties = unset
 

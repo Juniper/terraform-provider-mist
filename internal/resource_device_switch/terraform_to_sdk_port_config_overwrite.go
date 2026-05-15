@@ -28,6 +28,9 @@ func portConfigOverwriteTerraformToSdk(d basetypes.MapValue) map[string]models.S
 		if planObj.PoeDisabled.ValueBoolPointer() != nil {
 			itemObj.PoeDisabled = models.ToPointer(planObj.PoeDisabled.ValueBool())
 		}
+		if planObj.PoeKeepStateWhenReboot.ValueBoolPointer() != nil {
+			itemObj.PoeKeepStateWhenReboot = models.ToPointer(planObj.PoeKeepStateWhenReboot.ValueBool())
+		}
 		if planObj.PortNetwork.ValueStringPointer() != nil {
 			itemObj.PortNetwork = models.ToPointer(planObj.PortNetwork.ValueString())
 		}

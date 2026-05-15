@@ -22,6 +22,7 @@ func portConfigOverwriteSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		var duplex basetypes.StringValue
 		var macLimit basetypes.StringValue
 		var poeDisabled basetypes.BoolValue
+		var poeKeepStateWhenReboot basetypes.BoolValue
 		var portNetwork basetypes.StringValue
 		var speed basetypes.StringValue
 
@@ -40,6 +41,9 @@ func portConfigOverwriteSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		if d.PoeDisabled != nil {
 			poeDisabled = types.BoolValue(*d.PoeDisabled)
 		}
+		if d.PoeKeepStateWhenReboot != nil {
+			poeKeepStateWhenReboot = types.BoolValue(*d.PoeKeepStateWhenReboot)
+		}
 		if d.PortNetwork != nil {
 			portNetwork = types.StringValue(*d.PortNetwork)
 		}
@@ -48,13 +52,14 @@ func portConfigOverwriteSdkToTerraform(ctx context.Context, diags *diag.Diagnost
 		}
 
 		dataMapValue := map[string]attr.Value{
-			"description":  description,
-			"disabled":     disabled,
-			"duplex":       duplex,
-			"mac_limit":    macLimit,
-			"poe_disabled": poeDisabled,
-			"port_network": portNetwork,
-			"speed":        speed,
+			"description":                description,
+			"disabled":                   disabled,
+			"duplex":                     duplex,
+			"mac_limit":                  macLimit,
+			"poe_disabled":               poeDisabled,
+			"poe_keep_state_when_reboot": poeKeepStateWhenReboot,
+			"port_network":               portNetwork,
+			"speed":                      speed,
 		}
 		data, e := NewPortConfigOverwriteValue(PortConfigOverwriteValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)

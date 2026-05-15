@@ -35,6 +35,7 @@ func SdkToTerraform(data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
 	var oauthPingIdentityRegion types.String
 	var oauthRopcClientId types.String
 	var oauthRopcClientSecret types.String
+	var oauthProviderDomain types.String
 	var oauthTenantId types.String
 	var oauthType types.String
 	var orgId types.String
@@ -110,6 +111,9 @@ func SdkToTerraform(data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
 	if data.OauthRopcClientSecret != nil {
 		oauthRopcClientSecret = types.StringValue(*data.OauthRopcClientSecret)
 	}
+	if data.OauthProviderDomain != nil {
+		oauthProviderDomain = types.StringValue(string(*data.OauthProviderDomain))
+	}
 	if data.OauthTenantId != nil {
 		oauthTenantId = types.StringValue(*data.OauthTenantId)
 	}
@@ -154,6 +158,7 @@ func SdkToTerraform(data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
 	state.OauthPingIdentityRegion = oauthPingIdentityRegion
 	state.OauthRopcClientId = oauthRopcClientId
 	state.OauthRopcClientSecret = oauthRopcClientSecret
+	state.OauthProviderDomain = oauthProviderDomain
 	state.OauthTenantId = oauthTenantId
 	state.OauthType = oauthType
 	state.OrgId = orgId

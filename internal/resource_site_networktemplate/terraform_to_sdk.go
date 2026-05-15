@@ -156,6 +156,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteNetworktemplateModel) (*model
 		data.SwitchMgmt = switchMgmtTerraformToSdk(ctx, &diags, plan.SwitchMgmt)
 	}
 
+	if plan.UsesDescriptionFromPortUsage.IsNull() || plan.UsesDescriptionFromPortUsage.IsUnknown() {
+		unset["-uses_description_from_port_usage"] = ""
+	} else {
+		data.UsesDescriptionFromPortUsage = plan.UsesDescriptionFromPortUsage.ValueBoolPointer()
+	}
+
 	if plan.VrfConfig.IsNull() || plan.VrfConfig.IsUnknown() {
 		unset["-vrf_config"] = ""
 	} else {

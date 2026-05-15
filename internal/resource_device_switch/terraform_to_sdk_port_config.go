@@ -22,6 +22,9 @@ func portConfigTerraformToSdk(d basetypes.MapValue) map[string]models.JunosPortC
 		if planObj.AeIdx.ValueInt64Pointer() != nil {
 			itemObj.AeIdx = models.ToPointer(int(planObj.AeIdx.ValueInt64()))
 		}
+		if planObj.AeLacpForceUp.ValueBoolPointer() != nil {
+			itemObj.AeLacpForceUp = models.ToPointer(planObj.AeLacpForceUp.ValueBool())
+		}
 		if planObj.AeLacpSlow.ValueBoolPointer() != nil {
 			itemObj.AeLacpSlow = models.ToPointer(planObj.AeLacpSlow.ValueBool())
 		}

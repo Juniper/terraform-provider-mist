@@ -1,7 +1,6 @@
 package provider
 
 type OrgMxedgeModel struct {
-	Mac                       *string                                        `hcl:"mac"`
 	Magic                     *string                                        `hcl:"claim_code"`
 	Model                     *string                                        `hcl:"model"`
 	MxclusterId               *string                                        `hcl:"mxcluster_id"`
@@ -21,7 +20,6 @@ type OrgMxedgeModel struct {
 	TuntermMulticastConfig    *OrgMxedgeTuntermMulticastConfigValue          `hcl:"tunterm_multicast_config"`
 	TuntermOtherIpConfigs     map[string]OrgMxedgeTuntermOtherIpConfigsValue `hcl:"tunterm_other_ip_configs"`
 	TuntermPortConfig         *OrgMxedgeTuntermPortConfigValue               `hcl:"tunterm_port_config"`
-	TuntermRegistered         *bool                                          `hcl:"tunterm_registered"`
 	TuntermSwitchConfig       map[string]OrgMxedgeTuntermSwitchConfigValue   `hcl:"tunterm_switch_config"`
 	Versions                  *OrgMxedgeVersionsValue                        `hcl:"versions"`
 }

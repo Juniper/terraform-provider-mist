@@ -1,7 +1,6 @@
 package provider
 
 type OrgSettingModel struct {
-	AllowMist                    *bool                                     `hcl:"allow_mist"`
 	ApUpdownThreshold            *int64                                    `hcl:"ap_updown_threshold"`
 	ApiPolicy                    *OrgSettingApiPolicyValue                 `hcl:"api_policy"`
 	Cacerts                      []string                                  `hcl:"cacerts"`
@@ -105,19 +104,25 @@ type OrgSettingJunosShellAccessValue struct {
 }
 
 type OrgSettingMarvisValue struct {
-	AutoOperations *OrgSettingAutoOperationsValue `cty:"auto_operations" hcl:"auto_operations"`
+	SelfDriving *OrgSettingSelfDrivingValue `cty:"self_driving" hcl:"self_driving"`
 }
 
-type OrgSettingAutoOperationsValue struct {
-	ApInsufficientCapacity                 *bool `cty:"ap_insufficient_capacity" hcl:"ap_insufficient_capacity"`
-	ApLoop                                 *bool `cty:"ap_loop" hcl:"ap_loop"`
-	ApNonCompliant                         *bool `cty:"ap_non_compliant" hcl:"ap_non_compliant"`
-	BouncePortForAbnormalPoeClient         *bool `cty:"bounce_port_for_abnormal_poe_client" hcl:"bounce_port_for_abnormal_poe_client"`
-	DisablePortWhenDdosProtocolViolation   *bool `cty:"disable_port_when_ddos_protocol_violation" hcl:"disable_port_when_ddos_protocol_violation"`
-	DisablePortWhenRogueDhcpServerDetected *bool `cty:"disable_port_when_rogue_dhcp_server_detected" hcl:"disable_port_when_rogue_dhcp_server_detected"`
-	GatewayNonCompliant                    *bool `cty:"gateway_non_compliant" hcl:"gateway_non_compliant"`
-	SwitchMisconfiguredPort                *bool `cty:"switch_misconfigured_port" hcl:"switch_misconfigured_port"`
-	SwitchPortStuck                        *bool `cty:"switch_port_stuck" hcl:"switch_port_stuck"`
+type OrgSettingSelfDrivingValue struct {
+	Wan      *OrgSettingWanValue      `cty:"wan" hcl:"wan"`
+	Wired    *OrgSettingWiredValue    `cty:"wired" hcl:"wired"`
+	Wireless *OrgSettingWirelessValue `cty:"wireless" hcl:"wireless"`
+}
+
+type OrgSettingWanValue struct {
+	Enabled *bool `cty:"enabled" hcl:"enabled"`
+}
+
+type OrgSettingWiredValue struct {
+	Enabled *bool `cty:"enabled" hcl:"enabled"`
+}
+
+type OrgSettingWirelessValue struct {
+	Enabled *bool `cty:"enabled" hcl:"enabled"`
 }
 
 type OrgSettingMgmtValue struct {
@@ -127,6 +132,7 @@ type OrgSettingMgmtValue struct {
 }
 
 type OrgSettingMistNacValue struct {
+	AllowTeapMachineAuthOnly  *bool                          `cty:"allow_teap_machine_auth_only" hcl:"allow_teap_machine_auth_only"`
 	Cacerts                   []string                       `cty:"cacerts" hcl:"cacerts"`
 	DefaultIdpId              *string                        `cty:"default_idp_id" hcl:"default_idp_id"`
 	DisableRsaeAlgorithms     *bool                          `cty:"disable_rsae_algorithms" hcl:"disable_rsae_algorithms"`
@@ -136,6 +142,7 @@ type OrgSettingMistNacValue struct {
 	IdpMachineCertLookupField *string                        `cty:"idp_machine_cert_lookup_field" hcl:"idp_machine_cert_lookup_field"`
 	IdpUserCertLookupField    *string                        `cty:"idp_user_cert_lookup_field" hcl:"idp_user_cert_lookup_field"`
 	Idps                      []OrgSettingIdpsValue          `cty:"idps" hcl:"idps"`
+	Mdm                       *OrgSettingMdmValue            `cty:"mdm" hcl:"mdm"`
 	ServerCert                *OrgSettingServerCertValue     `cty:"server_cert" hcl:"server_cert"`
 	UseIpVersion              *string                        `cty:"use_ip_version" hcl:"use_ip_version"`
 	UseSslPort                *bool                          `cty:"use_ssl_port" hcl:"use_ssl_port"`
@@ -153,6 +160,10 @@ type OrgSettingIdpsValue struct {
 	ExcludeRealms []string `cty:"exclude_realms" hcl:"exclude_realms"`
 	Id            string   `cty:"id" hcl:"id"`
 	UserRealms    []string `cty:"user_realms" hcl:"user_realms"`
+}
+
+type OrgSettingMdmValue struct {
+	CoaType *string `cty:"coa_type" hcl:"coa_type"`
 }
 
 type OrgSettingServerCertValue struct {

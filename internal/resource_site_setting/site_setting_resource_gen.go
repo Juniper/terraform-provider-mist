@@ -2193,13 +2193,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					),
 				),
 			},
-			"uses_description_from_port_usage": schema.BoolAttribute{
-				Optional:            true,
-				Computed:            true,
-				Description:         "by default, we only honor description provided in port_config. This allows fallback to those defined in port_usages",
-				MarkdownDescription: "by default, we only honor description provided in port_config. This allows fallback to those defined in port_usages",
-				Default:             booldefault.StaticBool(false),
-			},
 			"vars": schema.MapAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
@@ -2585,7 +2578,6 @@ type SiteSettingModel struct {
 	SyntheticTest                SyntheticTestValue         `tfsdk:"synthetic_test"`
 	TrackAnonymousDevices        types.Bool                 `tfsdk:"track_anonymous_devices"`
 	UplinkPortConfig             UplinkPortConfigValue      `tfsdk:"uplink_port_config"`
-	UsesDescriptionFromPortUsage types.Bool                 `tfsdk:"uses_description_from_port_usage"`
 	Vars                         types.Map                  `tfsdk:"vars"`
 	VarsAnnotations              types.Map                  `tfsdk:"vars_annotations"`
 	Vna                          VnaValue                   `tfsdk:"vna"`

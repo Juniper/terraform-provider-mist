@@ -2,6 +2,8 @@ package resource_org_mxedge
 
 import (
 	"context"
+	"strconv"
+	"strings"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -17,7 +19,9 @@ func tuntermIgmpSnoopingConfigSdkToTerraform(ctx context.Context, diags *diag.Di
 	var vlanIds = types.ListNull(types.Int64Type)
 
 	if d.Enabled != nil {
-		enabled = types.BoolValue(*d.Enabled)
+		if b, ok := d.Enabled.AsBoolean(); ok && b != nil {
+			enabled = types.BoolValue(*b)
+		}
 	}
 	if d.Querier != nil {
 		querierValue := querierSdkToTerraform(ctx, diags, d.Querier)
@@ -26,9 +30,20 @@ func tuntermIgmpSnoopingConfigSdkToTerraform(ctx context.Context, diags *diag.Di
 		querier = querierObj
 	}
 	if d.VlanIds != nil {
-		vlanIds_list := make([]attr.Value, len(d.VlanIds))
-		for i, v := range d.VlanIds {
-			vlanIds_list[i] = types.Int64Value(int64(v))
+		var vlanIds_list []attr.Value
+		if arrayOfNumber, ok := d.VlanIds.AsArrayOfNumber(); ok && arrayOfNumber != nil {
+			for _, v := range *arrayOfNumber {
+				vlanIds_list = append(vlanIds_list, types.Int64Value(int64(v)))
+			}
+		} else if str, ok := d.VlanIds.AsString(); ok && str != nil {
+			for _, s := range strings.Split(*str, ",") {
+				s = strings.TrimSpace(s)
+				if s != "" {
+					if v, err := strconv.ParseInt(s, 10, 64); err == nil {
+						vlanIds_list = append(vlanIds_list, types.Int64Value(v))
+					}
+				}
+			}
 		}
 		vlanIds_result, e := types.ListValue(types.Int64Type, vlanIds_list)
 		diags.Append(e...)

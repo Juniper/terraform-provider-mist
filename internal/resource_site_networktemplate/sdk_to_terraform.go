@@ -21,6 +21,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	var aclTags = types.MapNull(AclTagsValue{}.Type(ctx))
 	var additionalConfigCmds = types.ListNull(types.StringType)
 	var autoUpgradeLinecard basetypes.BoolValue
+	var usesDescriptionFromPortUsage basetypes.BoolValue
 	var dhcpSnooping = NewDhcpSnoopingValueNull()
 	var dnsServers = types.ListValueMust(types.StringType, []attr.Value{})
 	var dnsSuffix = types.ListValueMust(types.StringType, []attr.Value{})
@@ -54,6 +55,9 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	}
 	if data.AutoUpgradeLinecard != nil {
 		autoUpgradeLinecard = types.BoolValue(*data.AutoUpgradeLinecard)
+	}
+	if data.UsesDescriptionFromPortUsage != nil {
+		usesDescriptionFromPortUsage = types.BoolValue(*data.UsesDescriptionFromPortUsage)
 	}
 	if data.DhcpSnooping != nil {
 		dhcpSnooping = dhcpSnoopingSdkToTerraform(ctx, &diags, data.DhcpSnooping)
@@ -145,6 +149,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	state.SiteId = siteId
 	state.SwitchMatching = switchMatching
 	state.SwitchMgmt = switchMgmt
+	state.UsesDescriptionFromPortUsage = usesDescriptionFromPortUsage
 	state.VrfConfig = vrfConfig
 	state.VrfInstances = vrfInstances
 

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"strconv"
 	"strings"
 
 	mistapierror "github.com/Juniper/terraform-provider-mist/internal/commons/api_response_error"
@@ -161,10 +160,8 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 			return
 		}
 
-		// Now retrieve the claimed device details using ListOrgMxEdges
-		// Retrieve the claimed device details using pagination
 		tflog.Info(ctx, "Retrieving claimed MxEdge details: "+mxedgeId.String())
-		foundDevice, err := r.findMxEdgeByIdWithPagination(ctx, orgId, mxedgeId)
+		claimedData, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error retrieving claimed \"mist_org_mxedge\" resource",
@@ -172,7 +169,7 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 			)
 			return
 		}
-		mistMxedge = *foundDevice
+		mistMxedge = claimedData.Data
 
 		// If additional fields from plan need to be updated (name, site_id, etc.), do it now
 		if !plan.Name.IsNull() || !plan.SiteId.IsNull() || !plan.MxclusterId.IsNull() {
@@ -264,70 +261,6 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 	}
 }
 
-// findMxEdgeByIdWithPagination searches for an MxEdge device by ID across all pages
-// Returns the device if found, or an error if not found or if pagination fails
-func (r *orgMxedgeResource) findMxEdgeByIdWithPagination(ctx context.Context, orgId uuid.UUID, mxedgeId uuid.UUID) (*models.Mxedge, error) {
-	var limit = 1000
-	var page = 1
-	var total = 0
-	var found bool
-	var mistMxedge models.Mxedge
-	forSite := models.MxedgeForSiteEnum_ANY
-
-	// Continue while: we're on first page (before knowing total) OR there are more pages to check
-	for !found && (page == 1 || (page-1)*limit < total) {
-		listResp, listErr := r.client.OrgsMxEdges().ListOrgMxEdges(ctx, orgId, &forSite, &limit, &page)
-		if listErr != nil {
-			return nil, fmt.Errorf("unable to list MxEdges: %s", listErr.Error())
-		}
-		if listResp.Response == nil {
-			return nil, fmt.Errorf("list API response is nil")
-		}
-		if listResp.Response.StatusCode != 200 {
-			apiErr := mistapierror.ProcessApiError(listResp.Response.StatusCode, listResp.Response.Body, listErr)
-			if apiErr != "" {
-				return nil, fmt.Errorf("unable to list MxEdges: %s", apiErr)
-			}
-			return nil, fmt.Errorf("list API returned status %d", listResp.Response.StatusCode)
-		}
-
-		// Extract pagination info from headers on first page
-		if page == 1 {
-			limitHeader := listResp.Response.Header.Get("X-Page-Limit")
-			if parsedLimit, err := strconv.Atoi(limitHeader); err != nil {
-				return nil, fmt.Errorf("unable to convert X-Page-Limit value into int: %s", err.Error())
-			} else {
-				limit = parsedLimit
-			}
-
-			totalHeader := listResp.Response.Header.Get("X-Page-Total")
-			if parsedTotal, err := strconv.Atoi(totalHeader); err != nil {
-				return nil, fmt.Errorf("unable to convert X-Page-Total value into int: %s", err.Error())
-			} else {
-				total = parsedTotal
-			}
-		}
-
-		// Search for the device in this page
-		for _, device := range listResp.Data {
-			if device.Id != nil && *device.Id == mxedgeId {
-				mistMxedge = device
-				found = true
-				tflog.Debug(ctx, fmt.Sprintf("Found MxEdge %s in list on page %d", mxedgeId.String(), page))
-				break
-			}
-		}
-
-		page++
-	}
-
-	if !found {
-		return nil, fmt.Errorf("device %s not found in organization (searched %d devices across %d pages)", mxedgeId.String(), total, page-1)
-	}
-
-	return &mistMxedge, nil
-}
-
 func (r *orgMxedgeResource) Read(ctx context.Context, _ resource.ReadRequest, resp *resource.ReadResponse) {
 	var state resource_org_mxedge.OrgMxedgeModel
 
@@ -358,21 +291,27 @@ func (r *orgMxedgeResource) Read(ctx context.Context, _ resource.ReadRequest, re
 		return
 	}
 
-	// Use pagination to find the device across all pages
-	tflog.Debug(ctx, fmt.Sprintf("Searching for MxEdge %s in organization", mxedgeId.String()))
-	foundDevice, err := r.findMxEdgeByIdWithPagination(ctx, orgId, mxedgeId)
+	mxedgeResp, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
 	if err != nil {
-		tflog.Warn(ctx, fmt.Sprintf("MxEdge not found: %s, removing from state", err.Error()))
-		resp.State.RemoveResource(ctx)
+		if mxedgeResp.Response != nil && mxedgeResp.Response.StatusCode == 404 {
+			tflog.Warn(ctx, fmt.Sprintf("MxEdge %s not found (404), removing from state", mxedgeId.String()))
+			resp.State.RemoveResource(ctx)
+			return
+		}
+		resp.Diagnostics.AddError(
+			"Error reading \"mist_org_mxedge\" resource",
+			err.Error(),
+		)
 		return
 	}
+	foundDevice := mxedgeResp.Data
 
 	// Preserve org_id, claim_code and mxcluster_id from existing state before overwriting
 	existingOrgId := state.OrgId
 	existingClaimCode := state.Magic
 	existingMxclusterId := state.MxclusterId
 
-	state, diags = resource_org_mxedge.SdkToTerraform(ctx, foundDevice)
+	state, diags = resource_org_mxedge.SdkToTerraform(ctx, &foundDevice)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -560,7 +499,7 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 		}
 
 		// Refresh state after assignment
-		foundDevice, err := r.findMxEdgeByIdWithPagination(ctx, orgId, mxedgeId)
+		postAssignResp, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error retrieving \"mist_org_mxedge\" after site assignment",
@@ -568,7 +507,7 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 			)
 			return
 		}
-		mistMxedge = *foundDevice
+		mistMxedge = postAssignResp.Data
 	}
 
 	// Convert API response to Terraform state

@@ -20,6 +20,9 @@ func meshTerraformToSdk(d MeshValue) *models.ApMesh {
 	if d.Role.ValueStringPointer() != nil {
 		data.Role = models.ToPointer(models.ApMeshRoleEnum(d.Role.ValueString()))
 	}
+	if d.UseWpa3On5.ValueBoolPointer() != nil {
+		data.UseWpa3On5 = d.UseWpa3On5.ValueBoolPointer()
+	}
 
 	return &data
 }

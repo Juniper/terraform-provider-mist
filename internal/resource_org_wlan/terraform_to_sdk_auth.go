@@ -41,6 +41,12 @@ func authTerraformToSdk(plan AuthValue) *models.WlanAuth {
 	if plan.EapReauth.ValueBoolPointer() != nil {
 		data.EapReauth = plan.EapReauth.ValueBoolPointer()
 	}
+	if plan.EnableBeaconProtection.ValueBoolPointer() != nil {
+		data.EnableBeaconProtection = plan.EnableBeaconProtection.ValueBoolPointer()
+	}
+	if plan.EnableGcmp256.ValueBoolPointer() != nil {
+		data.EnableGcmp256 = plan.EnableGcmp256.ValueBoolPointer()
+	}
 	if plan.EnableMacAuth.ValueBoolPointer() != nil {
 		data.EnableMacAuth = plan.EnableMacAuth.ValueBoolPointer()
 	}

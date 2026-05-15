@@ -24,6 +24,7 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	var dnsSuffix = types.ListNull(types.StringType)
 	var extraRoutes = types.MapNull(ExtraRoutesValue{}.Type(ctx))
 	var extraRoutes6 = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
+	var gatewayMgmt = NewGatewayMgmtValueNull()
 	var id types.String
 	var idpProfiles = types.MapNull(IdpProfilesValue{}.Type(ctx))
 	var ipConfigs = types.MapNull(IpConfigsValue{}.Type(ctx))
@@ -69,6 +70,9 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	}
 	if len(data.ExtraRoutes6) > 0 {
 		extraRoutes6 = extraRoutes6SdkToTerraform(ctx, &diags, data.ExtraRoutes6)
+	}
+	if data.GatewayMgmt != nil {
+		gatewayMgmt = gatewayMgmtSdkToTerraform(ctx, &diags, data.GatewayMgmt)
 	}
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
@@ -141,6 +145,7 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	state.DnsSuffix = dnsSuffix
 	state.ExtraRoutes = extraRoutes
 	state.ExtraRoutes6 = extraRoutes6
+	state.GatewayMgmt = gatewayMgmt
 	state.Id = id
 	state.IdpProfiles = idpProfiles
 	state.IpConfigs = ipConfigs

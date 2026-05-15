@@ -130,6 +130,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var networks = types.ListNull(types.StringType)
 		var persistMac basetypes.BoolValue
 		var poeDisabled basetypes.BoolValue
+		var poeKeepStateWhenReboot basetypes.BoolValue
 		var poePriority basetypes.StringValue
 		var portAuth basetypes.StringValue
 		var portNetwork basetypes.StringValue
@@ -227,6 +228,9 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.PoeDisabled != nil {
 			poeDisabled = types.BoolValue(*d.PoeDisabled)
 		}
+		if d.PoeKeepStateWhenReboot != nil {
+			poeKeepStateWhenReboot = types.BoolValue(*d.PoeKeepStateWhenReboot)
+		}
 		if d.PoePriority != nil {
 			poePriority = types.StringValue(string(*d.PoePriority))
 		}
@@ -309,6 +313,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"networks":                                        networks,
 			"persist_mac":                                     persistMac,
 			"poe_disabled":                                    poeDisabled,
+			"poe_keep_state_when_reboot":                      poeKeepStateWhenReboot,
 			"poe_priority":                                    poePriority,
 			"port_auth":                                       portAuth,
 			"port_network":                                    portNetwork,

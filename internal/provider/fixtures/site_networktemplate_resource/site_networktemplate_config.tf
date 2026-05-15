@@ -116,6 +116,7 @@ port_usages = {
     persist_mac = false
     poe_disabled = false
     poe_priority = "low"
+    poe_keep_state_when_reboot = true
     enable_qos = true
     storm_control = {
       no_broadcast = false
@@ -441,6 +442,7 @@ switch_matching = {
       port_config = {
         "ge-0/0/0-23" = {
           usage = "lan"
+          ae_lacp_force_up = true
         }
         "ge-0/0/24-47" = {
           usage    = "inet"
@@ -491,6 +493,7 @@ switch_mgmt = {
   }
   use_mxedge_proxy = false
 }
+uses_description_from_port_usage = true
 vrf_config = {
   enabled = true
 }
@@ -575,4 +578,25 @@ acl_tags = {
   }
 }
 
+iotproxy = {
+  enabled = true
+  visionline = {
+    access_id = "acl-001"
+    enabled   = true
+    host      = "visionline.example.com"
+    password  = "SecureVisionlinePass123!"
+    port      = 8443
+    username  = "vl-admin"
+  }
+}
+vars_annotations = {
+  "my_tunnel" = {
+    note = "Primary MX tunnel"
+    type = "mxtunnel_id"
+  }
+  "env_tag" = {
+    note = "Environment label"
+    type = "generic"
+  }
+}
 

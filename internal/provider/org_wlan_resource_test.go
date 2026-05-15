@@ -676,6 +676,12 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string, tracker *va
 		if s.Auth.PrivateWlan != nil {
 			checks.append(t, "TestCheckResourceAttr", "auth.private_wlan", fmt.Sprintf("%t", *s.Auth.PrivateWlan))
 		}
+		if s.Auth.EnableBeaconProtection != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.enable_beacon_protection", fmt.Sprintf("%t", *s.Auth.EnableBeaconProtection))
+		}
+		if s.Auth.EnableGcmp256 != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.enable_gcmp256", fmt.Sprintf("%t", *s.Auth.EnableGcmp256))
+		}
 	}
 
 	// Airwatch object validation

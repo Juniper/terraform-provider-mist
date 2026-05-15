@@ -55,9 +55,9 @@ func TerraformToSdk(ctx context.Context, plan *OrgMxedgeModel) (*models.Mxedge, 
 	data.Name = plan.Name.ValueString()
 
 	if !plan.Notes.IsNull() && !plan.Notes.IsUnknown() {
-		data.Note = plan.Notes.ValueStringPointer()
+		data.Notes = plan.Notes.ValueStringPointer()
 	} else {
-		unset["-note"] = ""
+		unset["-notes"] = ""
 	}
 
 	if !plan.NtpServers.IsNull() && !plan.NtpServers.IsUnknown() {
@@ -149,12 +149,6 @@ func TerraformToSdk(ctx context.Context, plan *OrgMxedgeModel) (*models.Mxedge, 
 		data.TuntermPortConfig = tuntermPortConfigTerraformToSdk(ctx, &diags, plan.TuntermPortConfig)
 	} else {
 		unset["-tunterm_port_config"] = ""
-	}
-
-	if !plan.TuntermRegistered.IsNull() && !plan.TuntermRegistered.IsUnknown() {
-		data.TuntermRegistered = plan.TuntermRegistered.ValueBoolPointer()
-	} else {
-		unset["-tunterm_registered"] = ""
 	}
 
 	if !plan.TuntermSwitchConfig.IsNull() && !plan.TuntermSwitchConfig.IsUnknown() {

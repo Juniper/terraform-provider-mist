@@ -155,6 +155,9 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if puAttrValue.PoeDisabled.ValueBoolPointer() != nil {
 			newPu.PoeDisabled = models.ToPointer(puAttrValue.PoeDisabled.ValueBool())
 		}
+		if puAttrValue.PoeKeepStateWhenReboot.ValueBoolPointer() != nil {
+			newPu.PoeKeepStateWhenReboot = models.ToPointer(puAttrValue.PoeKeepStateWhenReboot.ValueBool())
+		}
 		if puAttrValue.PoePriority.ValueStringPointer() != nil {
 			newPu.PoePriority = (*models.PoePriorityEnum)(puAttrValue.PoePriority.ValueStringPointer())
 		}

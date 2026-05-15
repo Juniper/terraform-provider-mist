@@ -101,6 +101,7 @@ func mistNacServerCertSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 }
 
 func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingMistNac) MistNacValue {
+	var allowTeapMachineAuthOnly basetypes.BoolValue
 	var cacerts = mistutils.ListOfStringSdkToTerraformEmpty()
 	var defaultIdpId basetypes.StringValue
 	var disableRsaeAlgorithms basetypes.BoolValue
@@ -110,11 +111,15 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var idps = types.ListNull(IdpsValue{}.Type(ctx))
 	var idpMachineCertLookupField basetypes.StringValue
 	var idpUserCertLookupField basetypes.StringValue
+	var mdm = types.ObjectNull(MdmValue{}.AttributeTypes(ctx))
 	var serverCert = types.ObjectNull(ServerCertValue{}.AttributeTypes(ctx))
 	var useIpVersion basetypes.StringValue
 	var useSslPort basetypes.BoolValue
 	var usermacExpiry basetypes.Int64Value
 
+	if d.AllowTeapMachineAuthOnly != nil {
+		allowTeapMachineAuthOnly = types.BoolValue(*d.AllowTeapMachineAuthOnly)
+	}
 	if d.Cacerts != nil {
 		cacerts = mistutils.ListOfStringSdkToTerraform(d.Cacerts)
 	}
@@ -145,6 +150,14 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	if d.ServerCert != nil {
 		serverCert = mistNacServerCertSdkToTerraform(ctx, diags, d.ServerCert)
 	}
+	if d.Mdm != nil {
+		mdmMapValue := map[string]attr.Value{
+			"coa_type": types.StringValue(string(*d.Mdm.CoaType)),
+		}
+		mdmObj, e := basetypes.NewObjectValue(MdmValue{}.AttributeTypes(ctx), mdmMapValue)
+		diags.Append(e...)
+		mdm = mdmObj
+	}
 	if d.UseIpVersion != nil {
 		useIpVersion = types.StringValue(string(*d.UseIpVersion))
 	}
@@ -156,6 +169,7 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	}
 
 	dataMapValue := map[string]attr.Value{
+		"allow_teap_machine_auth_only":  allowTeapMachineAuthOnly,
 		"cacerts":                       cacerts,
 		"default_idp_id":                defaultIdpId,
 		"disable_rsae_algorithms":       disableRsaeAlgorithms,
@@ -165,6 +179,7 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		"idps":                          idps,
 		"idp_machine_cert_lookup_field": idpMachineCertLookupField,
 		"idp_user_cert_lookup_field":    idpUserCertLookupField,
+		"mdm":                           mdm,
 		"server_cert":                   serverCert,
 		"use_ip_version":                useIpVersion,
 		"use_ssl_port":                  useSslPort,

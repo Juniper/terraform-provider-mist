@@ -1577,6 +1577,9 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, tName string, 
 			if usage.PoePriority != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".poe_priority", *usage.PoePriority)
 			}
+			if usage.PoeKeepStateWhenReboot != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".poe_keep_state_when_reboot", fmt.Sprintf("%t", *usage.PoeKeepStateWhenReboot))
+			}
 			if usage.PortAuth != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".port_auth", *usage.PortAuth)
 			}

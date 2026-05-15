@@ -887,7 +887,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "To disable ht or vht rates",
 			},
 			"disable_message_authenticator_check": schema.BoolAttribute{
-				Computed:            true,
+				Optional:            true,
 				Description:         "whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)",
 				MarkdownDescription: "whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)",
 			},
@@ -2269,7 +2269,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							"mxcluster_ids":   types.ListNull(types.StringType),
 							"proxy_hosts":     types.ListNull(types.StringType),
 							"server_name":     types.StringValue(""),
-							"servers":         types.ListValueMust(ServersValue{}.Type(ctx), []attr.Value{}),
+							"servers":         types.ListNull(ServersValue{}.Type(ctx)),
 							"use_mxedge":      types.BoolNull(),
 							"use_site_mxedge": types.BoolNull(),
 						},

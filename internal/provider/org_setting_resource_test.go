@@ -303,6 +303,14 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, tName string, tracker 
 		if o.MistNac.UsermacExpiry != nil {
 			checks.append(t, "TestCheckResourceAttr", "mist_nac.usermac_expiry", fmt.Sprintf("%d", *o.MistNac.UsermacExpiry))
 		}
+		if o.MistNac.AllowTeapMachineAuthOnly != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nac.allow_teap_machine_auth_only", fmt.Sprintf("%t", *o.MistNac.AllowTeapMachineAuthOnly))
+		}
+		if o.MistNac.Mdm != nil {
+			if o.MistNac.Mdm.CoaType != nil {
+				checks.append(t, "TestCheckResourceAttr", "mist_nac.mdm.coa_type", *o.MistNac.Mdm.CoaType)
+			}
+		}
 	}
 
 	// Check MxedgeMgmt nested object
@@ -329,33 +337,21 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, tName string, tracker 
 
 	// Check Marvis nested object
 	if o.Marvis != nil {
-		if o.Marvis.AutoOperations != nil {
-			if o.Marvis.AutoOperations.ApInsufficientCapacity != nil {
-				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.ap_insufficient_capacity", fmt.Sprintf("%t", *o.Marvis.AutoOperations.ApInsufficientCapacity))
+		if o.Marvis.SelfDriving != nil {
+			if o.Marvis.SelfDriving.Wan != nil {
+				if o.Marvis.SelfDriving.Wan.Enabled != nil {
+					checks.append(t, "TestCheckResourceAttr", "marvis.self_driving.wan.enabled", fmt.Sprintf("%t", *o.Marvis.SelfDriving.Wan.Enabled))
+				}
 			}
-			if o.Marvis.AutoOperations.ApLoop != nil {
-				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.ap_loop", fmt.Sprintf("%t", *o.Marvis.AutoOperations.ApLoop))
+			if o.Marvis.SelfDriving.Wired != nil {
+				if o.Marvis.SelfDriving.Wired.Enabled != nil {
+					checks.append(t, "TestCheckResourceAttr", "marvis.self_driving.wired.enabled", fmt.Sprintf("%t", *o.Marvis.SelfDriving.Wired.Enabled))
+				}
 			}
-			if o.Marvis.AutoOperations.ApNonCompliant != nil {
-				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.ap_non_compliant", fmt.Sprintf("%t", *o.Marvis.AutoOperations.ApNonCompliant))
-			}
-			if o.Marvis.AutoOperations.BouncePortForAbnormalPoeClient != nil {
-				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.bounce_port_for_abnormal_poe_client", fmt.Sprintf("%t", *o.Marvis.AutoOperations.BouncePortForAbnormalPoeClient))
-			}
-			if o.Marvis.AutoOperations.DisablePortWhenDdosProtocolViolation != nil {
-				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.disable_port_when_ddos_protocol_violation", fmt.Sprintf("%t", *o.Marvis.AutoOperations.DisablePortWhenDdosProtocolViolation))
-			}
-			if o.Marvis.AutoOperations.DisablePortWhenRogueDhcpServerDetected != nil {
-				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.disable_port_when_rogue_dhcp_server_detected", fmt.Sprintf("%t", *o.Marvis.AutoOperations.DisablePortWhenRogueDhcpServerDetected))
-			}
-			if o.Marvis.AutoOperations.GatewayNonCompliant != nil {
-				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.gateway_non_compliant", fmt.Sprintf("%t", *o.Marvis.AutoOperations.GatewayNonCompliant))
-			}
-			if o.Marvis.AutoOperations.SwitchMisconfiguredPort != nil {
-				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.switch_misconfigured_port", fmt.Sprintf("%t", *o.Marvis.AutoOperations.SwitchMisconfiguredPort))
-			}
-			if o.Marvis.AutoOperations.SwitchPortStuck != nil {
-				checks.append(t, "TestCheckResourceAttr", "marvis.auto_operations.switch_port_stuck", fmt.Sprintf("%t", *o.Marvis.AutoOperations.SwitchPortStuck))
+			if o.Marvis.SelfDriving.Wireless != nil {
+				if o.Marvis.SelfDriving.Wireless.Enabled != nil {
+					checks.append(t, "TestCheckResourceAttr", "marvis.self_driving.wireless.enabled", fmt.Sprintf("%t", *o.Marvis.SelfDriving.Wireless.Enabled))
+				}
 			}
 		}
 	}

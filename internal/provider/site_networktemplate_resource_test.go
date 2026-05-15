@@ -188,6 +188,7 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("additional_config_cmds.%d", i), cmd)
 		}
 	}
+
 	if s.AutoUpgradeLinecard != nil {
 		checks.append(t, "TestCheckResourceAttr", "auto_upgrade_linecard", fmt.Sprintf("%t", *s.AutoUpgradeLinecard))
 	}
@@ -524,6 +525,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 			}
 			if usage.PoePriority != nil {
 				checks.append(t, "TestCheckResourceAttr", prefix+".poe_priority", *usage.PoePriority)
+			}
+			if usage.PoeKeepStateWhenReboot != nil {
+				checks.append(t, "TestCheckResourceAttr", prefix+".poe_keep_state_when_reboot", fmt.Sprintf("%t", *usage.PoeKeepStateWhenReboot))
 			}
 			if usage.PortAuth != nil {
 				checks.append(t, "TestCheckResourceAttr", prefix+".port_auth", *usage.PortAuth)
@@ -1205,6 +1209,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 					for portName, portCfg := range rule.PortConfig {
 						portPrefix := prefix + ".port_config." + portName
 						checks.append(t, "TestCheckResourceAttr", portPrefix+".usage", portCfg.Usage)
+						if portCfg.AeLacpForceUp != nil {
+							checks.append(t, "TestCheckResourceAttr", portPrefix+".ae_lacp_force_up", fmt.Sprintf("%t", *portCfg.AeLacpForceUp))
+						}
 						if len(portCfg.Networks) > 0 {
 							checks.append(t, "TestCheckResourceAttr", portPrefix+".networks.#", fmt.Sprintf("%d", len(portCfg.Networks)))
 							for i, network := range portCfg.Networks {
@@ -1360,6 +1367,10 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 		if s.SwitchMgmt.UseMxedgeProxy != nil {
 			checks.append(t, "TestCheckResourceAttr", "switch_mgmt.use_mxedge_proxy", fmt.Sprintf("%t", *s.SwitchMgmt.UseMxedgeProxy))
 		}
+	}
+
+	if s.UsesDescriptionFromPortUsage != nil {
+		checks.append(t, "TestCheckResourceAttr", "uses_description_from_port_usage", fmt.Sprintf("%t", *s.UsesDescriptionFromPortUsage))
 	}
 
 	// Check vrf_config if present

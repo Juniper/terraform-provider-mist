@@ -185,7 +185,7 @@ func gatewayMgmtAppProbingSdkToTerraform(ctx context.Context, diags *diag.Diagno
 	return data
 }
 
-func gatewayMgmtAutoSignatureUpdateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingGatewayMgmtAutoSignatureUpdate) basetypes.ObjectValue {
+func gatewayMgmtAutoSignatureUpdateSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.GatewayMgmtAutoSignatureUpdate) basetypes.ObjectValue {
 	var dayOfWeek basetypes.StringValue
 	var enable basetypes.BoolValue
 	var timeOfDay basetypes.StringValue
@@ -211,7 +211,7 @@ func gatewayMgmtAutoSignatureUpdateSdkToTerraform(ctx context.Context, diags *di
 	return data
 }
 
-func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingGatewayMgmt) GatewayMgmtValue {
+func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.GatewayMgmt) GatewayMgmtValue {
 	var adminSshkeys = types.ListValueMust(types.StringType, []attr.Value{})
 	var appProbing = types.ObjectNull(AppProbingValue{}.AttributeTypes(ctx))
 	var appUsage basetypes.BoolValue
