@@ -578,25 +578,4 @@ acl_tags = {
   }
 }
 
-iotproxy = {
-  enabled = true
-  visionline = {
-    access_id = "acl-001"
-    enabled   = true
-    host      = "visionline.example.com"
-    password  = "SecureVisionlinePass123!"
-    port      = 8443
-    username  = "vl-admin"
-  }
-}
-vars_annotations = {
-  "my_tunnel" = {
-    note = "Primary MX tunnel"
-    type = "mxtunnel_id"
-  }
-  "env_tag" = {
-    note = "Environment label"
-    type = "generic"
-  }
-}
 
