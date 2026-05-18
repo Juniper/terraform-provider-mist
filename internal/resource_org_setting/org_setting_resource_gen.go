@@ -410,7 +410,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"enabled": schema.BoolAttribute{
 										Optional: true,
-										Computed: true,
 									},
 								},
 								CustomType: WanType{
@@ -424,7 +423,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"enabled": schema.BoolAttribute{
 										Optional: true,
-										Computed: true,
 									},
 								},
 								CustomType: WiredType{
@@ -438,7 +436,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"enabled": schema.BoolAttribute{
 										Optional: true,
-										Computed: true,
 									},
 								},
 								CustomType: WirelessType{
@@ -501,7 +498,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"allow_teap_machine_auth_only": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "allow clients to connect even when the user cert failed. TEAP authenticates both Machine Cert and User Cert. When enabled, clients who only succeed Machine Cert authentication will be accepted.",
 						MarkdownDescription: "allow clients to connect even when the user cert failed. TEAP authenticates both Machine Cert and User Cert. When enabled, clients who only succeed Machine Cert authentication will be accepted.",
 					},
@@ -542,13 +538,11 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "enable/disable writes to NAC DDB fingerprint table",
 								MarkdownDescription: "enable/disable writes to NAC DDB fingerprint table",
 							},
 							"generate_coa": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "enable/disable CoA triggers on fingerprint change for wired clients, always port-bounce",
 								MarkdownDescription: "enable/disable CoA triggers on fingerprint change for wired clients, always port-bounce",
 							},
@@ -650,7 +644,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"coa_type": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "CoA type to send. enum: `reauth`, `disconnect`",
 								MarkdownDescription: "CoA type to send. enum: `reauth`, `disconnect`",
 								Validators: []validator.String{
@@ -710,7 +703,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"use_ssl_port": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled",
 						MarkdownDescription: "By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled",
 					},
@@ -789,7 +781,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"channelized": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Enable channelization",
 							MarkdownDescription: "Enable channelization",
 						},
