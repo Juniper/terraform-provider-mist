@@ -479,13 +479,11 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"use_mxtunnel": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Whether to use Mist Tunnel for mgmt connectivity, this takes precedence over use_wxtunnel",
 						MarkdownDescription: "Whether to use Mist Tunnel for mgmt connectivity, this takes precedence over use_wxtunnel",
 					},
 					"use_wxtunnel": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Whether to use wxtunnel for mgmt connectivity",
 						MarkdownDescription: "Whether to use wxtunnel for mgmt connectivity",
 					},

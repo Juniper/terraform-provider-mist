@@ -407,13 +407,11 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"enable_beacon_protection": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Enable Beacon Protection; default is false for better compatibility",
 						MarkdownDescription: "Enable Beacon Protection; default is false for better compatibility",
 					},
 					"enable_gcmp256": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Enable GCMP-256 encryption suite; default is false for better compatibility",
 						MarkdownDescription: "Enable GCMP-256 encryption suite; default is false for better compatibility",
 					},

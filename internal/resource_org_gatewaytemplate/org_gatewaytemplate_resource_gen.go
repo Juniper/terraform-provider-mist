@@ -179,7 +179,6 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"tunnel_via": schema.StringAttribute{
 										Optional:            true,
-										Computed:            true,
 										Description:         "If `via`==`tunnel`, specifies which tunnel (primary/secondary) this neighbor is associated with. enum: `primary`, `secondary`",
 										MarkdownDescription: "If `via`==`tunnel`, specifies which tunnel (primary/secondary) this neighbor is associated with. enum: `primary`, `secondary`",
 										Validators: []validator.String{
@@ -675,7 +674,6 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"protocol": schema.StringAttribute{
 											Optional:            true,
-											Computed:            true,
 											Description:         "enum: `http`, `icmp`",
 											MarkdownDescription: "enum: `http`, `icmp`",
 											Validators: []validator.String{
@@ -741,7 +739,6 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"enable": schema.BoolAttribute{
 								Optional: true,
-								Computed: true,
 							},
 							"time_of_day": schema.StringAttribute{
 								Optional:            true,
@@ -768,25 +765,21 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"disable_console": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "For SSR and SRX, disable console port",
 						MarkdownDescription: "For SSR and SRX, disable console port",
 					},
 					"disable_oob": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "For SSR and SRX, disable management interface",
 						MarkdownDescription: "For SSR and SRX, disable management interface",
 					},
 					"disable_usb": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "For SSR and SRX, disable usb interface",
 						MarkdownDescription: "For SSR and SRX, disable usb interface",
 					},
 					"fips_enabled": schema.BoolAttribute{
 						Optional: true,
-						Computed: true,
 					},
 					"probe_hosts": schema.ListAttribute{
 						ElementType: types.StringType,
@@ -809,13 +802,11 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									Attributes: map[string]schema.Attribute{
 										"port_range": schema.StringAttribute{
 											Optional:            true,
-											Computed:            true,
 											Description:         "Matched dst port, \"0\" means any",
 											MarkdownDescription: "Matched dst port, \"0\" means any",
 										},
 										"protocol": schema.StringAttribute{
 											Optional:            true,
-											Computed:            true,
 											Description:         "enum: `any`, `icmp`, `tcp`, `udp`",
 											MarkdownDescription: "enum: `any`, `icmp`, `tcp`, `udp`",
 											Validators: []validator.String{
@@ -843,7 +834,6 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "When enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
 								MarkdownDescription: "When enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
 							},
@@ -2019,7 +2009,6 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"poe_keep_state_when_reboot": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Whether Perpetual PoE capabilities are enabled for a port",
 							MarkdownDescription: "Whether Perpetual PoE capabilities are enabled for a port",
 						},
