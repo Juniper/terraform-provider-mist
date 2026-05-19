@@ -207,7 +207,7 @@
   }
   zigbee_config = {
     enabled         = true
-    allow_join      = "any"
+    allow_join      = "always"
     channel         = 15
     extended_pan_id = "0xabcdef1234567890"
     pan_id          = "0x1234"

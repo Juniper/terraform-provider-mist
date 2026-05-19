@@ -718,6 +718,7 @@
             usage              = "access"
             ae_disable_lacp    = false
             ae_idx             = "0"
+            ae_lacp_force_up   = true
             ae_lacp_slow       = false
             aggregated         = false
             critical           = false

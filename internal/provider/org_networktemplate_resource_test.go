@@ -964,6 +964,9 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, tName string, 
 						if portCfg.AeIdx != nil {
 							checks.append(t, "TestCheckResourceAttr", portPath+".ae_idx", fmt.Sprintf("%d", *portCfg.AeIdx))
 						}
+						if portCfg.AeLacpForceUp != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".ae_lacp_force_up", fmt.Sprintf("%t", *portCfg.AeLacpForceUp))
+						}
 						if portCfg.AeLacpSlow != nil {
 							checks.append(t, "TestCheckResourceAttr", portPath+".ae_lacp_slow", fmt.Sprintf("%t", *portCfg.AeLacpSlow))
 						}
