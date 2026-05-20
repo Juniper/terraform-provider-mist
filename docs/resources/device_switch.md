@@ -148,7 +148,7 @@ resource "mist_device_switch" "switch_one" {
 - `routing_policies` (Attributes Map) Property key is the routing policy name (see [below for nested schema](#nestedatt--routing_policies))
 - `snmp_config` (Attributes) (see [below for nested schema](#nestedatt--snmp_config))
 - `stp_config` (Attributes) (see [below for nested schema](#nestedatt--stp_config))
-- `switch_mgmt` (Attributes) Switch settings (see [below for nested schema](#nestedatt--switch_mgmt))
+- `switch_mgmt` (Attributes) Switch Management settings (see [below for nested schema](#nestedatt--switch_mgmt))
 - `use_router_id_as_source_ip` (Boolean) Whether to use it for snmp / syslog / tacplus / radius
 - `vars` (Map of String) Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
 - `virtual_chassis` (Attributes) Required for preprovisioned Virtual Chassis (see [below for nested schema](#nestedatt--virtual_chassis))
@@ -311,7 +311,7 @@ Optional:
 - `dns_servers` (List of String) If `type`==`server` or `type6`==`server` - optional, if not defined, system one will be used
 - `dns_suffix` (List of String) If `type`==`server` or `type6`==`server` - optional, if not defined, system one will be used
 - `fixed_bindings` (Attributes Map) If `type`==`server` or `type6`==`server`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
-- `gateway` (String) If `type`==`server`  - optional, `ip` will be used if not provided
+- `gateway` (String) If `type`==`server` - optional, `ip` will be used if not provided
 - `ip_end` (String) If `type`==`server`
 - `ip_end6` (String) If `type6`==`server`
 - `ip_start` (String) If `type`==`server`
@@ -363,7 +363,7 @@ Optional:
 
 Required:
 
-- `via` (String) Next-hop IP Address
+- `via` (String) Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.
 
 Optional:
 
@@ -388,7 +388,7 @@ Optional:
 
 Required:
 
-- `via` (String) Next-hop IP Address
+- `via` (String) Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.
 
 Optional:
 
@@ -599,7 +599,8 @@ Optional:
 
 - `ae_disable_lacp` (Boolean) To disable LACP support for the AE interface
 - `ae_idx` (Number) Users could force to use the designated AE name
-- `ae_lacp_slow` (Boolean) To use fast timeout
+- `ae_lacp_force_up` (Boolean) If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only
+- `ae_lacp_slow` (Boolean) To use slow timeout
 - `aggregated` (Boolean)
 - `critical` (Boolean) To generate port up/down alarm
 - `description` (String)
@@ -625,6 +626,7 @@ Optional:
 - `duplex` (String) Link connection mode. enum: `auto`, `full`, `half`
 - `mac_limit` (String)
 - `poe_disabled` (Boolean) Whether PoE capabilities are disabled for a port
+- `poe_keep_state_when_reboot` (Boolean) Whether Perpetual PoE is enabled; keeps PoE state across reboots
 - `port_network` (String) Native network/vlan for untagged traffic
 - `speed` (String) Port Speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
 
@@ -673,6 +675,7 @@ Optional:
 - `networks` (List of String) Only if `mode`==`trunk`, the list of network/vlans
 - `persist_mac` (Boolean) Only if `mode`==`access` and `port_auth`!=`dot1x`. Whether the port should retain dynamically learned MAC addresses
 - `poe_disabled` (Boolean) Only if `mode`!=`dynamic`. Whether PoE capabilities are disabled for a port
+- `poe_keep_state_when_reboot` (Boolean) Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots
 - `poe_priority` (String) PoE priority. enum: `low`, `high`
 - `port_auth` (String) Only if `mode`!=`dynamic`. If dot1x is desired, set to dot1x. enum: `dot1x`
 - `port_network` (String) Only if `mode`!=`dynamic`. Native network/vlan for untagged traffic

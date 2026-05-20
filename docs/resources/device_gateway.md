@@ -56,7 +56,7 @@ resource "mist_device_gateway" "gateway_one" {
 - `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
 - `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8"), the destination Network name or a variable (e.g. "{{myvar}}") (see [below for nested schema](#nestedatt--extra_routes))
 - `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64"), the destination Network name or a variable (e.g. "{{myvar}}") (see [below for nested schema](#nestedatt--extra_routes6))
-- `gateway_mgmt` (Attributes) Gateway settings (see [below for nested schema](#nestedatt--gateway_mgmt))
+- `gateway_mgmt` (Attributes) Gateway Management settings (see [below for nested schema](#nestedatt--gateway_mgmt))
 - `idp_profiles` (Attributes Map) Property key is the profile name (see [below for nested schema](#nestedatt--idp_profiles))
 - `ip_configs` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--ip_configs))
 - `managed` (Boolean, Deprecated) Whether the device is managed by Mist. Deprecated in favour of mist_configured.
@@ -141,6 +141,7 @@ Optional:
 - `hold_time` (Number)
 - `import_policy` (String)
 - `multihop_ttl` (Number) Assuming BGP neighbor is directly connected
+- `tunnel_via` (String) If `via`==`tunnel`, specifies which tunnel (primary/secondary) this neighbor is associated with. enum: `primary`, `secondary`
 
 
 
@@ -228,7 +229,84 @@ Required:
 
 Optional:
 
+- `admin_sshkeys` (List of String) For SSR only, as direct root access is not allowed
+- `app_probing` (Attributes) (see [below for nested schema](#nestedatt--gateway_mgmt--app_probing))
+- `app_usage` (Boolean) Consumes uplink bandwidth, requires WA license
+- `auto_signature_update` (Attributes) (see [below for nested schema](#nestedatt--gateway_mgmt--auto_signature_update))
 - `config_revert_timer` (Number) Rollback timer for commit confirmed
+- `disable_console` (Boolean) For SSR and SRX, disable console port
+- `disable_oob` (Boolean) For SSR and SRX, disable management interface
+- `disable_usb` (Boolean) For SSR and SRX, disable usb interface
+- `fips_enabled` (Boolean)
+- `probe_hosts` (List of String)
+- `probe_hostsv6` (List of String)
+- `protect_re` (Attributes) Restrict inbound-traffic to host
+when enabled, all traffic that is not essential to our operation will be dropped 
+e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works (see [below for nested schema](#nestedatt--gateway_mgmt--protect_re))
+- `root_password` (String, Sensitive) SRX only
+- `security_log_source_address` (String)
+- `security_log_source_interface` (String)
+
+<a id="nestedatt--gateway_mgmt--app_probing"></a>
+### Nested Schema for `gateway_mgmt.app_probing`
+
+Optional:
+
+- `apps` (List of String) APp-keys from [List Applications]($e/Constants%20Definitions/listApplications)
+- `custom_apps` (Attributes List) (see [below for nested schema](#nestedatt--gateway_mgmt--app_probing--custom_apps))
+- `enabled` (Boolean)
+
+<a id="nestedatt--gateway_mgmt--app_probing--custom_apps"></a>
+### Nested Schema for `gateway_mgmt.app_probing.custom_apps`
+
+Optional:
+
+- `address` (String) Required if `protocol`==`icmp`
+- `app_type` (String)
+- `hostnames` (List of String) If `protocol`==`http`
+- `key` (String, Sensitive)
+- `name` (String)
+- `network` (String)
+- `packet_size` (Number) If `protocol`==`icmp`
+- `protocol` (String) enum: `http`, `icmp`
+- `url` (String) If `protocol`==`http`
+- `vrf` (String)
+
+
+
+<a id="nestedatt--gateway_mgmt--auto_signature_update"></a>
+### Nested Schema for `gateway_mgmt.auto_signature_update`
+
+Optional:
+
+- `day_of_week` (String) enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`
+- `enable` (Boolean)
+- `time_of_day` (String) Optional, Mist will decide the timing
+
+
+<a id="nestedatt--gateway_mgmt--protect_re"></a>
+### Nested Schema for `gateway_mgmt.protect_re`
+
+Optional:
+
+- `allowed_services` (List of String) Optionally, services we'll allow
+- `custom` (Attributes List) (see [below for nested schema](#nestedatt--gateway_mgmt--protect_re--custom))
+- `enabled` (Boolean) When enabled, all traffic that is not essential to our operation will be dropped
+e.g. ntp / dns / traffic to mist will be allowed by default
+     if dhcpd is enabled, we'll make sure it works
+- `hit_count` (Boolean) Whether to enable hit count for Protect_RE policy
+- `trusted_hosts` (List of String) host/subnets we'll allow traffic to/from
+
+<a id="nestedatt--gateway_mgmt--protect_re--custom"></a>
+### Nested Schema for `gateway_mgmt.protect_re.custom`
+
+Optional:
+
+- `port_range` (String) Matched dst port, "0" means any
+- `protocol` (String) enum: `any`, `icmp`, `tcp`, `udp`
+- `subnets` (List of String)
+
+
 
 
 <a id="nestedatt--idp_profiles"></a>
@@ -513,6 +591,7 @@ Optional:
 - `networks` (List of String) if `usage`==`lan`, name of the `mist_org_network` resource
 - `outer_vlan_id` (Number) For Q-in-Q
 - `poe_disabled` (Boolean)
+- `poe_keep_state_when_reboot` (Boolean) Whether Perpetual PoE capabilities are enabled for a port
 - `port_network` (String) Only for SRX and if `usage`==`lan`, the name of the Network to be used as the Untagged VLAN
 - `preserve_dscp` (Boolean) Whether to preserve dscp when sending traffic over VPN (SSR-only)
 - `redundant` (Boolean) If HA mode
@@ -850,7 +929,7 @@ Optional:
 - `ike_mode` (String) Only if `provider`==`custom-ipsec`. enum: `aggressive`, `main`
 - `ike_proposals` (Attributes List) If `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ike_proposals))
 - `ipsec_lifetime` (Number) Only if `provider`==`custom-ipsec`. Must be between 180 and 86400
-- `ipsec_proposals` (Attributes List) Only if  `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ipsec_proposals))
+- `ipsec_proposals` (Attributes List) Only if `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ipsec_proposals))
 - `local_id` (String) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 - `local_subnets` (List of String) List of Local protected subnet for policy-based IPSec negotiation
 - `mode` (String) Required if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`. enum: `active-active`, `active-standby`
@@ -960,7 +1039,7 @@ Optional:
 
 - `internal_ips` (List of String) Only if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`, `provider`==`custom-ipsec` or `provider`==`custom-gre`
 - `probe_ips` (List of String)
-- `remote_ids` (List of String) Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
+- `remote_ids` (List of String) Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 
 
 <a id="nestedatt--tunnel_configs--probe"></a>
@@ -986,7 +1065,7 @@ Optional:
 
 - `internal_ips` (List of String) Only if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`, `provider`==`custom-ipsec` or `provider`==`custom-gre`
 - `probe_ips` (List of String)
-- `remote_ids` (List of String) Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
+- `remote_ids` (List of String) Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 
 
 
