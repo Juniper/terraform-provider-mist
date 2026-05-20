@@ -31,7 +31,7 @@ description: |-
 #### Attributes added
 
 - **`mist_device_ap` and `mist_org_deviceprofile_ap` resources**:
-  - `zigbee_config` — Zigbee radio configuration (enabled, channel, allow_join, pan_id, extended_pan_id, power)
+  - `zigbee_config` — Zigbee radio configuration (enabled, channel, allow_join, pan_id, extended_pan_id)
   - `mesh.use_wpa3_on_5` — Enable WPA3 on the 5 GHz mesh link
 
 - **`mist_device_switch` resource**:
