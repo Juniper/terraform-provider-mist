@@ -5,9 +5,7 @@ package resource_site_networktemplate
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -27,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -374,8 +373,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"via": schema.StringAttribute{
 							Required:            true,
-							Description:         "Next-hop IP Address",
-							MarkdownDescription: "Next-hop IP Address",
+							Description:         "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
+							MarkdownDescription: "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 							},
@@ -440,8 +439,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"via": schema.StringAttribute{
 							Required:            true,
-							Description:         "Next-hop IP Address",
-							MarkdownDescription: "Next-hop IP Address",
+							Description:         "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
+							MarkdownDescription: "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
 							},
@@ -1001,6 +1000,11 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.Bool{
 								mistvalidator.ForbiddenWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic"), types.BoolValue(false)),
 							},
+						},
+						"poe_keep_state_when_reboot": schema.BoolAttribute{
+							Optional:            true,
+							Description:         "Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots",
 						},
 						"poe_priority": schema.StringAttribute{
 							Optional:            true,
@@ -2814,10 +2818,15 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												Description:         "Users could force to use the designated AE name",
 												MarkdownDescription: "Users could force to use the designated AE name",
 											},
+											"ae_lacp_force_up": schema.BoolAttribute{
+												Optional:            true,
+												Description:         "If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only",
+												MarkdownDescription: "If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only",
+											},
 											"ae_lacp_slow": schema.BoolAttribute{
 												Optional:            true,
-												Description:         "To use fast timeout",
-												MarkdownDescription: "To use fast timeout",
+												Description:         "To use slow timeout",
+												MarkdownDescription: "To use slow timeout",
 											},
 											"aggregated": schema.BoolAttribute{
 												Optional: true,
@@ -3348,11 +3357,11 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Switch settings",
-				MarkdownDescription: "Switch settings",
+				Description:         "Switch Management settings",
+				MarkdownDescription: "Switch Management settings",
 			},
 			"uses_description_from_port_usage": schema.BoolAttribute{
-				Computed:            true,
+				Optional:            true,
 				Description:         "by default, we only honor description provided in port_config. This allows fallback to those defined in port_usages",
 				MarkdownDescription: "by default, we only honor description provided in port_config. This allows fallback to those defined in port_usages",
 			},
@@ -11543,6 +11552,24 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`poe_disabled expected to be basetypes.BoolValue, was: %T`, poeDisabledAttribute))
 	}
 
+	poeKeepStateWhenRebootAttribute, ok := attributes["poe_keep_state_when_reboot"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`poe_keep_state_when_reboot is missing from object`)
+
+		return nil, diags
+	}
+
+	poeKeepStateWhenRebootVal, ok := poeKeepStateWhenRebootAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`poe_keep_state_when_reboot expected to be basetypes.BoolValue, was: %T`, poeKeepStateWhenRebootAttribute))
+	}
+
 	poePriorityAttribute, ok := attributes["poe_priority"]
 
 	if !ok {
@@ -11898,6 +11925,7 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		Networks:                                 networksVal,
 		PersistMac:                               persistMacVal,
 		PoeDisabled:                              poeDisabledVal,
+		PoeKeepStateWhenReboot:                   poeKeepStateWhenRebootVal,
 		PoePriority:                              poePriorityVal,
 		PortAuth:                                 portAuthVal,
 		PortNetwork:                              portNetworkVal,
@@ -12451,6 +12479,24 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`poe_disabled expected to be basetypes.BoolValue, was: %T`, poeDisabledAttribute))
 	}
 
+	poeKeepStateWhenRebootAttribute, ok := attributes["poe_keep_state_when_reboot"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`poe_keep_state_when_reboot is missing from object`)
+
+		return NewPortUsagesValueUnknown(), diags
+	}
+
+	poeKeepStateWhenRebootVal, ok := poeKeepStateWhenRebootAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`poe_keep_state_when_reboot expected to be basetypes.BoolValue, was: %T`, poeKeepStateWhenRebootAttribute))
+	}
+
 	poePriorityAttribute, ok := attributes["poe_priority"]
 
 	if !ok {
@@ -12806,6 +12852,7 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		Networks:                                 networksVal,
 		PersistMac:                               persistMacVal,
 		PoeDisabled:                              poeDisabledVal,
+		PoeKeepStateWhenReboot:                   poeKeepStateWhenRebootVal,
 		PoePriority:                              poePriorityVal,
 		PortAuth:                                 portAuthVal,
 		PortNetwork:                              portNetworkVal,
@@ -12922,6 +12969,7 @@ type PortUsagesValue struct {
 	Networks                                 basetypes.ListValue   `tfsdk:"networks"`
 	PersistMac                               basetypes.BoolValue   `tfsdk:"persist_mac"`
 	PoeDisabled                              basetypes.BoolValue   `tfsdk:"poe_disabled"`
+	PoeKeepStateWhenReboot                   basetypes.BoolValue   `tfsdk:"poe_keep_state_when_reboot"`
 	PoePriority                              basetypes.StringValue `tfsdk:"poe_priority"`
 	PortAuth                                 basetypes.StringValue `tfsdk:"port_auth"`
 	PortNetwork                              basetypes.StringValue `tfsdk:"port_network"`
@@ -12944,7 +12992,7 @@ type PortUsagesValue struct {
 }
 
 func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 44)
+	attrTypes := make(map[string]tftypes.Type, 45)
 
 	var val tftypes.Value
 	var err error
@@ -12979,6 +13027,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	}.TerraformType(ctx)
 	attrTypes["persist_mac"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["poe_disabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["poe_keep_state_when_reboot"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["poe_priority"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["port_auth"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["port_network"] = basetypes.StringType{}.TerraformType(ctx)
@@ -13006,7 +13055,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 44)
+		vals := make(map[string]tftypes.Value, 45)
 
 		val, err = v.AllNetworks.ToTerraformValue(ctx)
 
@@ -13215,6 +13264,14 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["poe_disabled"] = val
+
+		val, err = v.PoeKeepStateWhenReboot.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["poe_keep_state_when_reboot"] = val
 
 		val, err = v.PoePriority.ToTerraformValue(ctx)
 
@@ -13481,13 +13538,14 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"persist_mac":        basetypes.BoolType{},
-			"poe_disabled":       basetypes.BoolType{},
-			"poe_priority":       basetypes.StringType{},
-			"port_auth":          basetypes.StringType{},
-			"port_network":       basetypes.StringType{},
-			"reauth_interval":    basetypes.StringType{},
-			"reset_default_when": basetypes.StringType{},
+			"persist_mac":                basetypes.BoolType{},
+			"poe_disabled":               basetypes.BoolType{},
+			"poe_keep_state_when_reboot": basetypes.BoolType{},
+			"poe_priority":               basetypes.StringType{},
+			"port_auth":                  basetypes.StringType{},
+			"port_network":               basetypes.StringType{},
+			"reauth_interval":            basetypes.StringType{},
+			"reset_default_when":         basetypes.StringType{},
 			"rules": basetypes.ListType{
 				ElemType: RulesValue{}.Type(ctx),
 			},
@@ -13550,13 +13608,14 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"persist_mac":        basetypes.BoolType{},
-			"poe_disabled":       basetypes.BoolType{},
-			"poe_priority":       basetypes.StringType{},
-			"port_auth":          basetypes.StringType{},
-			"port_network":       basetypes.StringType{},
-			"reauth_interval":    basetypes.StringType{},
-			"reset_default_when": basetypes.StringType{},
+			"persist_mac":                basetypes.BoolType{},
+			"poe_disabled":               basetypes.BoolType{},
+			"poe_keep_state_when_reboot": basetypes.BoolType{},
+			"poe_priority":               basetypes.StringType{},
+			"port_auth":                  basetypes.StringType{},
+			"port_network":               basetypes.StringType{},
+			"reauth_interval":            basetypes.StringType{},
+			"reset_default_when":         basetypes.StringType{},
 			"rules": basetypes.ListType{
 				ElemType: RulesValue{}.Type(ctx),
 			},
@@ -13606,13 +13665,14 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"persist_mac":        basetypes.BoolType{},
-		"poe_disabled":       basetypes.BoolType{},
-		"poe_priority":       basetypes.StringType{},
-		"port_auth":          basetypes.StringType{},
-		"port_network":       basetypes.StringType{},
-		"reauth_interval":    basetypes.StringType{},
-		"reset_default_when": basetypes.StringType{},
+		"persist_mac":                basetypes.BoolType{},
+		"poe_disabled":               basetypes.BoolType{},
+		"poe_keep_state_when_reboot": basetypes.BoolType{},
+		"poe_priority":               basetypes.StringType{},
+		"port_auth":                  basetypes.StringType{},
+		"port_network":               basetypes.StringType{},
+		"reauth_interval":            basetypes.StringType{},
+		"reset_default_when":         basetypes.StringType{},
 		"rules": basetypes.ListType{
 			ElemType: RulesValue{}.Type(ctx),
 		},
@@ -13669,6 +13729,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"networks":                                        networksVal,
 			"persist_mac":                                     v.PersistMac,
 			"poe_disabled":                                    v.PoeDisabled,
+			"poe_keep_state_when_reboot":                      v.PoeKeepStateWhenReboot,
 			"poe_priority":                                    v.PoePriority,
 			"port_auth":                                       v.PortAuth,
 			"port_network":                                    v.PortNetwork,
@@ -13811,6 +13872,10 @@ func (v PortUsagesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.PoeKeepStateWhenReboot.Equal(other.PoeKeepStateWhenReboot) {
+		return false
+	}
+
 	if !v.PoePriority.Equal(other.PoePriority) {
 		return false
 	}
@@ -13924,13 +13989,14 @@ func (v PortUsagesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"persist_mac":        basetypes.BoolType{},
-		"poe_disabled":       basetypes.BoolType{},
-		"poe_priority":       basetypes.StringType{},
-		"port_auth":          basetypes.StringType{},
-		"port_network":       basetypes.StringType{},
-		"reauth_interval":    basetypes.StringType{},
-		"reset_default_when": basetypes.StringType{},
+		"persist_mac":                basetypes.BoolType{},
+		"poe_disabled":               basetypes.BoolType{},
+		"poe_keep_state_when_reboot": basetypes.BoolType{},
+		"poe_priority":               basetypes.StringType{},
+		"port_auth":                  basetypes.StringType{},
+		"port_network":               basetypes.StringType{},
+		"reauth_interval":            basetypes.StringType{},
+		"reset_default_when":         basetypes.StringType{},
 		"rules": basetypes.ListType{
 			ElemType: RulesValue{}.Type(ctx),
 		},
@@ -35900,6 +35966,24 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`ae_idx expected to be basetypes.Int64Value, was: %T`, aeIdxAttribute))
 	}
 
+	aeLacpForceUpAttribute, ok := attributes["ae_lacp_force_up"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ae_lacp_force_up is missing from object`)
+
+		return nil, diags
+	}
+
+	aeLacpForceUpVal, ok := aeLacpForceUpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ae_lacp_force_up expected to be basetypes.BoolValue, was: %T`, aeLacpForceUpAttribute))
+	}
+
 	aeLacpSlowAttribute, ok := attributes["ae_lacp_slow"]
 
 	if !ok {
@@ -36177,6 +36261,7 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 	return PortConfigValue{
 		AeDisableLacp:    aeDisableLacpVal,
 		AeIdx:            aeIdxVal,
+		AeLacpForceUp:    aeLacpForceUpVal,
 		AeLacpSlow:       aeLacpSlowVal,
 		Aggregated:       aggregatedVal,
 		Critical:         criticalVal,
@@ -36295,6 +36380,24 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`ae_idx expected to be basetypes.Int64Value, was: %T`, aeIdxAttribute))
 	}
 
+	aeLacpForceUpAttribute, ok := attributes["ae_lacp_force_up"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ae_lacp_force_up is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	aeLacpForceUpVal, ok := aeLacpForceUpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ae_lacp_force_up expected to be basetypes.BoolValue, was: %T`, aeLacpForceUpAttribute))
+	}
+
 	aeLacpSlowAttribute, ok := attributes["ae_lacp_slow"]
 
 	if !ok {
@@ -36572,6 +36675,7 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 	return PortConfigValue{
 		AeDisableLacp:    aeDisableLacpVal,
 		AeIdx:            aeIdxVal,
+		AeLacpForceUp:    aeLacpForceUpVal,
 		AeLacpSlow:       aeLacpSlowVal,
 		Aggregated:       aggregatedVal,
 		Critical:         criticalVal,
@@ -36661,6 +36765,7 @@ var _ basetypes.ObjectValuable = PortConfigValue{}
 type PortConfigValue struct {
 	AeDisableLacp    basetypes.BoolValue   `tfsdk:"ae_disable_lacp"`
 	AeIdx            basetypes.Int64Value  `tfsdk:"ae_idx"`
+	AeLacpForceUp    basetypes.BoolValue   `tfsdk:"ae_lacp_force_up"`
 	AeLacpSlow       basetypes.BoolValue   `tfsdk:"ae_lacp_slow"`
 	Aggregated       basetypes.BoolValue   `tfsdk:"aggregated"`
 	Critical         basetypes.BoolValue   `tfsdk:"critical"`
@@ -36680,13 +36785,14 @@ type PortConfigValue struct {
 }
 
 func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 17)
+	attrTypes := make(map[string]tftypes.Type, 18)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["ae_disable_lacp"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["ae_idx"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["ae_lacp_force_up"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["ae_lacp_slow"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["aggregated"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["critical"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -36709,7 +36815,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 17)
+		vals := make(map[string]tftypes.Value, 18)
 
 		val, err = v.AeDisableLacp.ToTerraformValue(ctx)
 
@@ -36726,6 +36832,14 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["ae_idx"] = val
+
+		val, err = v.AeLacpForceUp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ae_lacp_force_up"] = val
 
 		val, err = v.AeLacpSlow.ToTerraformValue(ctx)
 
@@ -36890,17 +37004,18 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"ae_disable_lacp": basetypes.BoolType{},
-			"ae_idx":          basetypes.Int64Type{},
-			"ae_lacp_slow":    basetypes.BoolType{},
-			"aggregated":      basetypes.BoolType{},
-			"critical":        basetypes.BoolType{},
-			"description":     basetypes.StringType{},
-			"disable_autoneg": basetypes.BoolType{},
-			"duplex":          basetypes.StringType{},
-			"dynamic_usage":   basetypes.StringType{},
-			"esilag":          basetypes.BoolType{},
-			"mtu":             basetypes.Int64Type{},
+			"ae_disable_lacp":  basetypes.BoolType{},
+			"ae_idx":           basetypes.Int64Type{},
+			"ae_lacp_force_up": basetypes.BoolType{},
+			"ae_lacp_slow":     basetypes.BoolType{},
+			"aggregated":       basetypes.BoolType{},
+			"critical":         basetypes.BoolType{},
+			"description":      basetypes.StringType{},
+			"disable_autoneg":  basetypes.BoolType{},
+			"duplex":           basetypes.StringType{},
+			"dynamic_usage":    basetypes.StringType{},
+			"esilag":           basetypes.BoolType{},
+			"mtu":              basetypes.Int64Type{},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -36913,17 +37028,18 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"ae_disable_lacp": basetypes.BoolType{},
-		"ae_idx":          basetypes.Int64Type{},
-		"ae_lacp_slow":    basetypes.BoolType{},
-		"aggregated":      basetypes.BoolType{},
-		"critical":        basetypes.BoolType{},
-		"description":     basetypes.StringType{},
-		"disable_autoneg": basetypes.BoolType{},
-		"duplex":          basetypes.StringType{},
-		"dynamic_usage":   basetypes.StringType{},
-		"esilag":          basetypes.BoolType{},
-		"mtu":             basetypes.Int64Type{},
+		"ae_disable_lacp":  basetypes.BoolType{},
+		"ae_idx":           basetypes.Int64Type{},
+		"ae_lacp_force_up": basetypes.BoolType{},
+		"ae_lacp_slow":     basetypes.BoolType{},
+		"aggregated":       basetypes.BoolType{},
+		"critical":         basetypes.BoolType{},
+		"description":      basetypes.StringType{},
+		"disable_autoneg":  basetypes.BoolType{},
+		"duplex":           basetypes.StringType{},
+		"dynamic_usage":    basetypes.StringType{},
+		"esilag":           basetypes.BoolType{},
+		"mtu":              basetypes.Int64Type{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -36947,6 +37063,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		map[string]attr.Value{
 			"ae_disable_lacp":    v.AeDisableLacp,
 			"ae_idx":             v.AeIdx,
+			"ae_lacp_force_up":   v.AeLacpForceUp,
 			"ae_lacp_slow":       v.AeLacpSlow,
 			"aggregated":         v.Aggregated,
 			"critical":           v.Critical,
@@ -36987,6 +37104,10 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.AeIdx.Equal(other.AeIdx) {
+		return false
+	}
+
+	if !v.AeLacpForceUp.Equal(other.AeLacpForceUp) {
 		return false
 	}
 
@@ -37063,17 +37184,18 @@ func (v PortConfigValue) Type(ctx context.Context) attr.Type {
 
 func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"ae_disable_lacp": basetypes.BoolType{},
-		"ae_idx":          basetypes.Int64Type{},
-		"ae_lacp_slow":    basetypes.BoolType{},
-		"aggregated":      basetypes.BoolType{},
-		"critical":        basetypes.BoolType{},
-		"description":     basetypes.StringType{},
-		"disable_autoneg": basetypes.BoolType{},
-		"duplex":          basetypes.StringType{},
-		"dynamic_usage":   basetypes.StringType{},
-		"esilag":          basetypes.BoolType{},
-		"mtu":             basetypes.Int64Type{},
+		"ae_disable_lacp":  basetypes.BoolType{},
+		"ae_idx":           basetypes.Int64Type{},
+		"ae_lacp_force_up": basetypes.BoolType{},
+		"ae_lacp_slow":     basetypes.BoolType{},
+		"aggregated":       basetypes.BoolType{},
+		"critical":         basetypes.BoolType{},
+		"description":      basetypes.StringType{},
+		"disable_autoneg":  basetypes.BoolType{},
+		"duplex":           basetypes.StringType{},
+		"dynamic_usage":    basetypes.StringType{},
+		"esilag":           basetypes.BoolType{},
+		"mtu":              basetypes.Int64Type{},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},

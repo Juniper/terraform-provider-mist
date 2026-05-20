@@ -12,6 +12,7 @@ notify_on_create_or_edit   = true
 role                       = "guest"
 usage                      = "macs"
 vlan_id                    = "100"
+vlan_name                  = "vlan-100"
 ␞
 name                       = "test-psk-single-mac"
 passphrase                 = "testpassphrase456"

@@ -257,6 +257,9 @@ func portConfigTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d ba
 		if plan.PoeDisabled.ValueBoolPointer() != nil {
 			data.PoeDisabled = plan.PoeDisabled.ValueBoolPointer()
 		}
+		if plan.PoeKeepStateWhenReboot.ValueBoolPointer() != nil {
+			data.PoeKeepStateWhenReboot = plan.PoeKeepStateWhenReboot.ValueBoolPointer()
+		}
 		if plan.PortNetwork.ValueStringPointer() != nil {
 			data.PortNetwork = plan.PortNetwork.ValueStringPointer()
 		}

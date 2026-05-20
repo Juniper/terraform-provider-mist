@@ -1,56 +1,64 @@
 package provider
 
 type SiteSettingModel struct {
-	Analytic                     *SiteSettingAnalyticValue              `hcl:"analytic"`
-	ApUpdownThreshold            *int64                                 `hcl:"ap_updown_threshold"`
-	AutoUpgrade                  *SiteSettingAutoUpgradeValue           `hcl:"auto_upgrade"`
-	AutoUpgradeEsl               *SiteSettingAutoUpgradeEslValue        `hcl:"auto_upgrade_esl"`
-	BgpNeighborUpdownThreshold   *int64                                 `hcl:"bgp_neighbor_updown_threshold"`
-	BleConfig                    *SiteSettingBleConfigValue             `hcl:"ble_config"`
-	ConfigAutoRevert             *bool                                  `hcl:"config_auto_revert"`
-	ConfigPushPolicy             *SiteSettingConfigPushPolicyValue      `hcl:"config_push_policy"`
-	CriticalUrlMonitoring        *SiteSettingCriticalUrlMonitoringValue `hcl:"critical_url_monitoring"`
-	DeviceUpdownThreshold        *int64                                 `hcl:"device_updown_threshold"`
-	EnableUnii4                  *bool                                  `hcl:"enable_unii_4"`
-	Engagement                   *SiteSettingEngagementValue            `hcl:"engagement"`
-	GatewayMgmt                  *SiteSettingGatewayMgmtValue           `hcl:"gateway_mgmt"`
-	GatewayUpdownThreshold       *int64                                 `hcl:"gateway_updown_threshold"`
-	JuniperSrx                   *SiteSettingJuniperSrxValue            `hcl:"juniper_srx"`
-	Led                          *SiteSettingLedValue                   `hcl:"led"`
-	Marvis                       *SiteSettingMarvisValue                `hcl:"marvis"`
-	Occupancy                    *SiteSettingOccupancyValue             `hcl:"occupancy"`
-	PersistConfigOnDevice        *bool                                  `hcl:"persist_config_on_device"`
-	Proxy                        *SiteSettingProxyValue                 `hcl:"proxy"`
-	RemoveExistingConfigs        *bool                                  `hcl:"remove_existing_configs"`
-	ReportGatt                   *bool                                  `hcl:"report_gatt"`
-	Rogue                        *SiteSettingRogueValue                 `hcl:"rogue"`
-	Rtsa                         *SiteSettingRtsaValue                  `hcl:"rtsa"`
-	SimpleAlert                  *SiteSettingSimpleAlertValue           `hcl:"simple_alert"`
-	SiteId                       string                                 `hcl:"site_id"`
-	Skyatp                       *SiteSettingSkyatpValue                `hcl:"skyatp"`
-	SleThresholds                *SiteSettingSleThresholdsValue         `hcl:"sle_thresholds"`
-	SrxApp                       *SiteSettingSrxAppValue                `hcl:"srx_app"`
-	SshKeys                      []string                               `hcl:"ssh_keys"`
-	Ssr                          *SiteSettingSsrValue                   `hcl:"ssr"`
-	SwitchUpdownThreshold        *int64                                 `hcl:"switch_updown_threshold"`
-	SyntheticTest                *SiteSettingSyntheticTestValue         `hcl:"synthetic_test"`
-	TrackAnonymousDevices        *bool                                  `hcl:"track_anonymous_devices"`
-	UplinkPortConfig             *SiteSettingUplinkPortConfigValue      `hcl:"uplink_port_config"`
-	UsesDescriptionFromPortUsage *bool                                  `hcl:"uses_description_from_port_usage"`
-	Vars                         map[string]string                      `hcl:"vars"`
-	Vna                          *SiteSettingVnaValue                   `hcl:"vna"`
-	VpnPathUpdownThreshold       *int64                                 `hcl:"vpn_path_updown_threshold"`
-	VpnPeerUpdownThreshold       *int64                                 `hcl:"vpn_peer_updown_threshold"`
-	VsInstance                   map[string]SiteSettingVsInstanceValue  `hcl:"vs_instance"`
-	WanVna                       *SiteSettingWanVnaValue                `hcl:"wan_vna"`
-	Wids                         *SiteSettingWidsValue                  `hcl:"wids"`
-	Wifi                         *SiteSettingWifiValue                  `hcl:"wifi"`
-	WiredVna                     *SiteSettingWiredVnaValue              `hcl:"wired_vna"`
-	ZoneOccupancyAlert           *SiteSettingZoneOccupancyAlertValue    `hcl:"zone_occupancy_alert"`
+	AllowMist                    *bool                                      `hcl:"allow_mist"`
+	Analytic                     *SiteSettingAnalyticValue                  `hcl:"analytic"`
+	ApSyntheticTest              *SiteSettingApSyntheticTestValue           `hcl:"ap_synthetic_test"`
+	ApUpdownThreshold            *int64                                     `hcl:"ap_updown_threshold"`
+	AutoUpgrade                  *SiteSettingAutoUpgradeValue               `hcl:"auto_upgrade"`
+	AutoUpgradeEsl               *SiteSettingAutoUpgradeEslValue            `hcl:"auto_upgrade_esl"`
+	BgpNeighborUpdownThreshold   *int64                                     `hcl:"bgp_neighbor_updown_threshold"`
+	BleConfig                    *SiteSettingBleConfigValue                 `hcl:"ble_config"`
+	ConfigAutoRevert             *bool                                      `hcl:"config_auto_revert"`
+	ConfigPushPolicy             *SiteSettingConfigPushPolicyValue          `hcl:"config_push_policy"`
+	CriticalUrlMonitoring        *SiteSettingCriticalUrlMonitoringValue     `hcl:"critical_url_monitoring"`
+	DeviceUpdownThreshold        *int64                                     `hcl:"device_updown_threshold"`
+	EnableUnii4                  *bool                                      `hcl:"enable_unii_4"`
+	Engagement                   *SiteSettingEngagementValue                `hcl:"engagement"`
+	GatewayMgmt                  *SiteSettingGatewayMgmtValue               `hcl:"gateway_mgmt"`
+	GatewayTunnelUpdownThreshold *int64                                     `hcl:"gateway_tunnel_updown_threshold"`
+	GatewayUpdownThreshold       *int64                                     `hcl:"gateway_updown_threshold"`
+	Iotproxy                     *SiteSettingIotproxyValue                  `hcl:"iotproxy"`
+	JuniperSrx                   *SiteSettingJuniperSrxValue                `hcl:"juniper_srx"`
+	Led                          *SiteSettingLedValue                       `hcl:"led"`
+	Marvis                       *SiteSettingMarvisValue                    `hcl:"marvis"`
+	Occupancy                    *SiteSettingOccupancyValue                 `hcl:"occupancy"`
+	PersistConfigOnDevice        *bool                                      `hcl:"persist_config_on_device"`
+	Proxy                        *SiteSettingProxyValue                     `hcl:"proxy"`
+	RemoveExistingConfigs        *bool                                      `hcl:"remove_existing_configs"`
+	ReportGatt                   *bool                                      `hcl:"report_gatt"`
+	Rogue                        *SiteSettingRogueValue                     `hcl:"rogue"`
+	Rtsa                         *SiteSettingRtsaValue                      `hcl:"rtsa"`
+	SimpleAlert                  *SiteSettingSimpleAlertValue               `hcl:"simple_alert"`
+	SiteId                       string                                     `hcl:"site_id"`
+	Skyatp                       *SiteSettingSkyatpValue                    `hcl:"skyatp"`
+	SleThresholds                *SiteSettingSleThresholdsValue             `hcl:"sle_thresholds"`
+	SrxApp                       *SiteSettingSrxAppValue                    `hcl:"srx_app"`
+	SshKeys                      []string                                   `hcl:"ssh_keys"`
+	Ssr                          *SiteSettingSsrValue                       `hcl:"ssr"`
+	SwitchUpdownThreshold        *int64                                     `hcl:"switch_updown_threshold"`
+	SyntheticTest                *SiteSettingSyntheticTestValue             `hcl:"synthetic_test"`
+	TrackAnonymousDevices        *bool                                      `hcl:"track_anonymous_devices"`
+	UplinkPortConfig             *SiteSettingUplinkPortConfigValue          `hcl:"uplink_port_config"`
+	Vars                         map[string]string                          `hcl:"vars"`
+	VarsAnnotations              map[string]SiteSettingVarsAnnotationsValue `hcl:"vars_annotations"`
+	Vna                          *SiteSettingVnaValue                       `hcl:"vna"`
+	VpnPathUpdownThreshold       *int64                                     `hcl:"vpn_path_updown_threshold"`
+	VpnPeerUpdownThreshold       *int64                                     `hcl:"vpn_peer_updown_threshold"`
+	VsInstance                   map[string]SiteSettingVsInstanceValue      `hcl:"vs_instance"`
+	WanVna                       *SiteSettingWanVnaValue                    `hcl:"wan_vna"`
+	Wids                         *SiteSettingWidsValue                      `hcl:"wids"`
+	Wifi                         *SiteSettingWifiValue                      `hcl:"wifi"`
+	WiredVna                     *SiteSettingWiredVnaValue                  `hcl:"wired_vna"`
+	ZoneOccupancyAlert           *SiteSettingZoneOccupancyAlertValue        `hcl:"zone_occupancy_alert"`
 }
 
 type SiteSettingAnalyticValue struct {
 	Enabled *bool `cty:"enabled" hcl:"enabled"`
+}
+
+type SiteSettingApSyntheticTestValue struct {
+	AdditionalVlanIds []string `cty:"additional_vlan_ids" hcl:"additional_vlan_ids"`
 }
 
 type SiteSettingAutoUpgradeValue struct {
@@ -204,6 +212,20 @@ type SiteSettingCustomValue struct {
 	PortRange *string  `cty:"port_range" hcl:"port_range"`
 	Protocol  *string  `cty:"protocol" hcl:"protocol"`
 	Subnets   []string `cty:"subnets" hcl:"subnets"`
+}
+
+type SiteSettingIotproxyValue struct {
+	Enabled    *bool                       `cty:"enabled" hcl:"enabled"`
+	Visionline *SiteSettingVisionlineValue `cty:"visionline" hcl:"visionline"`
+}
+
+type SiteSettingVisionlineValue struct {
+	AccessId *string `cty:"access_id" hcl:"access_id"`
+	Enabled  *bool   `cty:"enabled" hcl:"enabled"`
+	Host     *string `cty:"host" hcl:"host"`
+	Password *string `cty:"password" hcl:"password"`
+	Port     *int64  `cty:"port" hcl:"port"`
+	Username *string `cty:"username" hcl:"username"`
 }
 
 type SiteSettingJuniperSrxValue struct {
@@ -370,6 +392,11 @@ type SiteSettingWanSpeedtestValue struct {
 type SiteSettingUplinkPortConfigValue struct {
 	Dot1x             *bool `cty:"dot1x" hcl:"dot1x"`
 	KeepWlansUpIfDown *bool `cty:"keep_wlans_up_if_down" hcl:"keep_wlans_up_if_down"`
+}
+
+type SiteSettingVarsAnnotationsValue struct {
+	Note                *string `cty:"note" hcl:"note"`
+	VarsAnnotationsType *string `cty:"type" hcl:"type"`
 }
 
 type SiteSettingVnaValue struct {

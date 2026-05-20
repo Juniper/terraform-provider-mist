@@ -93,10 +93,11 @@
     brightness = 75
   }
   mesh = {
-    enabled = true
-    role    = "base"
-    bands   = ["5", "6"]
-    group   = 1
+    enabled     = true
+    role        = "base"
+    bands       = ["5", "6"]
+    group       = 1
+    use_wpa3_on_5 = true
   }
   port_config = {
     "ge-0/0/0" = {
@@ -248,4 +249,11 @@
     channel = 2
     cacert = "-----BEGIN CERTIFICATE-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...\n-----END CERTIFICATE-----"
     verify_cert = true
+  }
+  zigbee_config = {
+    enabled        = true
+    allow_join     = "any"
+    channel        = 15
+    extended_pan_id = "0xabcdef1234567890"
+    pan_id         = "0x1234"
   }

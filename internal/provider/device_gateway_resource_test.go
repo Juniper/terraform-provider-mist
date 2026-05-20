@@ -186,7 +186,9 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, tName string, track
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.neighbors.%s.multihop_ttl", k, neighborKey), fmt.Sprintf("%d", *neighbor.MultihopTtl))
 					}
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.neighbors.%s.neighbor_as", k, neighborKey), neighbor.NeighborAs)
-
+					if neighbor.TunnelVia != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("bgp_config.%s.neighbors.%s.tunnel_via", k, neighborKey), *neighbor.TunnelVia)
+					}
 				}
 			}
 			if len(v.Networks) > 0 {
@@ -368,8 +370,96 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, tName string, track
 		}
 	}
 	if s.GatewayMgmt != nil {
-		if s.GatewayMgmt.ConfigRevertTimer != nil {
-			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.config_revert_timer", fmt.Sprintf("%d", *s.GatewayMgmt.ConfigRevertTimer))
+		gm := s.GatewayMgmt
+		if len(gm.AdminSshkeys) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.admin_sshkeys.#", fmt.Sprintf("%d", len(gm.AdminSshkeys)))
+		}
+		if gm.AppProbing != nil {
+			if gm.AppProbing.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.app_probing.enabled", fmt.Sprintf("%t", *gm.AppProbing.Enabled))
+			}
+			if len(gm.AppProbing.Apps) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.app_probing.apps.#", fmt.Sprintf("%d", len(gm.AppProbing.Apps)))
+			}
+			for i, ca := range gm.AppProbing.CustomApps {
+				caPath := fmt.Sprintf("gateway_mgmt.app_probing.custom_apps.%d", i)
+				if ca.Name != nil {
+					checks.append(t, "TestCheckResourceAttr", caPath+".name", *ca.Name)
+				}
+				if ca.Protocol != nil {
+					checks.append(t, "TestCheckResourceAttr", caPath+".protocol", *ca.Protocol)
+				}
+				if ca.Address != nil {
+					checks.append(t, "TestCheckResourceAttr", caPath+".address", *ca.Address)
+				}
+			}
+		}
+		if gm.AppUsage != nil {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.app_usage", fmt.Sprintf("%t", *gm.AppUsage))
+		}
+		if gm.AutoSignatureUpdate != nil {
+			if gm.AutoSignatureUpdate.Enable != nil {
+				checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.auto_signature_update.enable", fmt.Sprintf("%t", *gm.AutoSignatureUpdate.Enable))
+			}
+			if gm.AutoSignatureUpdate.DayOfWeek != nil {
+				checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.auto_signature_update.day_of_week", *gm.AutoSignatureUpdate.DayOfWeek)
+			}
+			if gm.AutoSignatureUpdate.TimeOfDay != nil {
+				checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.auto_signature_update.time_of_day", *gm.AutoSignatureUpdate.TimeOfDay)
+			}
+		}
+		if gm.ConfigRevertTimer != nil {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.config_revert_timer", fmt.Sprintf("%d", *gm.ConfigRevertTimer))
+		}
+		if gm.DisableConsole != nil {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.disable_console", fmt.Sprintf("%t", *gm.DisableConsole))
+		}
+		if gm.DisableOob != nil {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.disable_oob", fmt.Sprintf("%t", *gm.DisableOob))
+		}
+		if gm.DisableUsb != nil {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.disable_usb", fmt.Sprintf("%t", *gm.DisableUsb))
+		}
+		if gm.FipsEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.fips_enabled", fmt.Sprintf("%t", *gm.FipsEnabled))
+		}
+		if len(gm.ProbeHosts) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.probe_hosts.#", fmt.Sprintf("%d", len(gm.ProbeHosts)))
+		}
+		if len(gm.ProbeHostsv6) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.probe_hostsv6.#", fmt.Sprintf("%d", len(gm.ProbeHostsv6)))
+		}
+		if gm.ProtectRe != nil {
+			if gm.ProtectRe.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.protect_re.enabled", fmt.Sprintf("%t", *gm.ProtectRe.Enabled))
+			}
+			if gm.ProtectRe.HitCount != nil {
+				checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.protect_re.hit_count", fmt.Sprintf("%t", *gm.ProtectRe.HitCount))
+			}
+			if len(gm.ProtectRe.AllowedServices) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.protect_re.allowed_services.#", fmt.Sprintf("%d", len(gm.ProtectRe.AllowedServices)))
+			}
+			if len(gm.ProtectRe.TrustedHosts) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.protect_re.trusted_hosts.#", fmt.Sprintf("%d", len(gm.ProtectRe.TrustedHosts)))
+			}
+			for i, c := range gm.ProtectRe.Custom {
+				cPath := fmt.Sprintf("gateway_mgmt.protect_re.custom.%d", i)
+				if c.Protocol != nil {
+					checks.append(t, "TestCheckResourceAttr", cPath+".protocol", *c.Protocol)
+				}
+				if c.PortRange != nil {
+					checks.append(t, "TestCheckResourceAttr", cPath+".port_range", *c.PortRange)
+				}
+				if len(c.Subnets) > 0 {
+					checks.append(t, "TestCheckResourceAttr", cPath+".subnets.#", fmt.Sprintf("%d", len(c.Subnets)))
+				}
+			}
+		}
+		if gm.SecurityLogSourceAddress != nil {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.security_log_source_address", *gm.SecurityLogSourceAddress)
+		}
+		if gm.SecurityLogSourceInterface != nil {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.security_log_source_interface", *gm.SecurityLogSourceInterface)
 		}
 	}
 	if len(s.IdpProfiles) > 0 {
@@ -807,6 +897,9 @@ func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, tName string, track
 			}
 			if v.PoeDisabled != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.poe_disabled", k), fmt.Sprintf("%t", *v.PoeDisabled))
+			}
+			if v.PoeKeepStateWhenReboot != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.poe_keep_state_when_reboot", k), fmt.Sprintf("%t", *v.PoeKeepStateWhenReboot))
 			}
 			if v.PortNetwork != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.port_network", k), *v.PortNetwork)

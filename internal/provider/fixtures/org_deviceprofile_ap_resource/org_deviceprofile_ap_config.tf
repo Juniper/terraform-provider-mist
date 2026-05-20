@@ -59,10 +59,11 @@
     brightness = 200
   }
   mesh {
-    enabled = true
-    role = "base"
-    group = 1
-    bands = ["24", "5"]
+    enabled       = true
+    role          = "base"
+    group         = 1
+    bands         = ["24", "5"]
+    use_wpa3_on_5 = true
   }
   ntp_servers = ["pool.ntp.org", "time.google.com"]
   poe_passthrough = true
@@ -203,4 +204,11 @@
       preamble             = "auto"
       standard_power       = true
     }
+  }
+  zigbee_config = {
+    enabled         = true
+    allow_join      = "always"
+    channel         = 15
+    extended_pan_id = "0xabcdef1234567890"
+    pan_id          = "0x1234"
   }

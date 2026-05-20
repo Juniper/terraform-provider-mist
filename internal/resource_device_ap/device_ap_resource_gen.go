@@ -810,6 +810,11 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 							),
 						},
 					},
+					"use_wpa3_on_5": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "Whether to use WPA3 on the 5 GHz band for mesh links",
+						MarkdownDescription: "Whether to use WPA3 on the 5 GHz band for mesh links",
+					},
 				},
 				CustomType: MeshType{
 					ObjectType: types.ObjectType{
@@ -2167,6 +2172,53 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Y in pixel",
 				MarkdownDescription: "Y in pixel",
 			},
+			"zigbee_config": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"allow_join": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Controls whether new Zigbee devices are allowed to join the network. enum: `always`, `manual`",
+						MarkdownDescription: "Controls whether new Zigbee devices are allowed to join the network. enum: `always`, `manual`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"always",
+								"manual",
+							),
+						},
+					},
+					"channel": schema.Int64Attribute{
+						Optional:            true,
+						Description:         "Zigbee channel (2.4 GHz). `0` means auto; valid fixed values are 11–26",
+						MarkdownDescription: "Zigbee channel (2.4 GHz). `0` means auto; valid fixed values are 11–26",
+						Validators: []validator.Int64{
+							int64validator.Between(0, 26),
+						},
+					},
+					"enabled": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "Whether to enable Zigbee on this AP",
+						MarkdownDescription: "Whether to enable Zigbee on this AP",
+					},
+					"extended_pan_id": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Extended PAN ID in hex string format; only applicable when `pan_id` is also specified",
+						MarkdownDescription: "Extended PAN ID in hex string format; only applicable when `pan_id` is also specified",
+					},
+					"pan_id": schema.StringAttribute{
+						Optional:            true,
+						Description:         "PAN ID in hex string format; if not specified, assigned automatically",
+						MarkdownDescription: "PAN ID in hex string format; if not specified, assigned automatically",
+					},
+				},
+				CustomType: ZigbeeConfigType{
+					ObjectType: types.ObjectType{
+						AttrTypes: ZigbeeConfigValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "Zigbee AP settings",
+				MarkdownDescription: "Zigbee AP settings",
+			},
 		},
 	}
 }
@@ -2213,6 +2265,7 @@ type DeviceApModel struct {
 	Vars             types.Map             `tfsdk:"vars"`
 	X                types.Float64         `tfsdk:"x"`
 	Y                types.Float64         `tfsdk:"y"`
+	ZigbeeConfig     ZigbeeConfigValue     `tfsdk:"zigbee_config"`
 }
 
 var _ basetypes.ObjectTypable = AeroscoutType{}
@@ -8624,16 +8677,35 @@ func (t MeshType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue)
 			fmt.Sprintf(`role expected to be basetypes.StringValue, was: %T`, roleAttribute))
 	}
 
+	useWpa3On5Attribute, ok := attributes["use_wpa3_on_5"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`use_wpa3_on_5 is missing from object`)
+
+		return nil, diags
+	}
+
+	useWpa3On5Val, ok := useWpa3On5Attribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`use_wpa3_on_5 expected to be basetypes.BoolValue, was: %T`, useWpa3On5Attribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return MeshValue{
-		Bands:   bandsVal,
-		Enabled: enabledVal,
-		Group:   groupVal,
-		Role:    roleVal,
-		state:   attr.ValueStateKnown,
+		Bands:      bandsVal,
+		Enabled:    enabledVal,
+		Group:      groupVal,
+		Role:       roleVal,
+		UseWpa3On5: useWpa3On5Val,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -8772,16 +8844,35 @@ func NewMeshValue(attributeTypes map[string]attr.Type, attributes map[string]att
 			fmt.Sprintf(`role expected to be basetypes.StringValue, was: %T`, roleAttribute))
 	}
 
+	useWpa3On5Attribute, ok := attributes["use_wpa3_on_5"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`use_wpa3_on_5 is missing from object`)
+
+		return NewMeshValueUnknown(), diags
+	}
+
+	useWpa3On5Val, ok := useWpa3On5Attribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`use_wpa3_on_5 expected to be basetypes.BoolValue, was: %T`, useWpa3On5Attribute))
+	}
+
 	if diags.HasError() {
 		return NewMeshValueUnknown(), diags
 	}
 
 	return MeshValue{
-		Bands:   bandsVal,
-		Enabled: enabledVal,
-		Group:   groupVal,
-		Role:    roleVal,
-		state:   attr.ValueStateKnown,
+		Bands:      bandsVal,
+		Enabled:    enabledVal,
+		Group:      groupVal,
+		Role:       roleVal,
+		UseWpa3On5: useWpa3On5Val,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -8853,15 +8944,16 @@ func (t MeshType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = MeshValue{}
 
 type MeshValue struct {
-	Bands   basetypes.ListValue   `tfsdk:"bands"`
-	Enabled basetypes.BoolValue   `tfsdk:"enabled"`
-	Group   basetypes.Int64Value  `tfsdk:"group"`
-	Role    basetypes.StringValue `tfsdk:"role"`
-	state   attr.ValueState
+	Bands      basetypes.ListValue   `tfsdk:"bands"`
+	Enabled    basetypes.BoolValue   `tfsdk:"enabled"`
+	Group      basetypes.Int64Value  `tfsdk:"group"`
+	Role       basetypes.StringValue `tfsdk:"role"`
+	UseWpa3On5 basetypes.BoolValue   `tfsdk:"use_wpa3_on_5"`
+	state      attr.ValueState
 }
 
 func (v MeshValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 4)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
@@ -8872,12 +8964,13 @@ func (v MeshValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) 
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["group"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["role"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["use_wpa3_on_5"] = basetypes.BoolType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 4)
+		vals := make(map[string]tftypes.Value, 5)
 
 		val, err = v.Bands.ToTerraformValue(ctx)
 
@@ -8910,6 +9003,14 @@ func (v MeshValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) 
 		}
 
 		vals["role"] = val
+
+		val, err = v.UseWpa3On5.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["use_wpa3_on_5"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -8957,9 +9058,10 @@ func (v MeshValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, di
 			"bands": basetypes.ListType{
 				ElemType: types.StringType,
 			},
-			"enabled": basetypes.BoolType{},
-			"group":   basetypes.Int64Type{},
-			"role":    basetypes.StringType{},
+			"enabled":       basetypes.BoolType{},
+			"group":         basetypes.Int64Type{},
+			"role":          basetypes.StringType{},
+			"use_wpa3_on_5": basetypes.BoolType{},
 		}), diags
 	}
 
@@ -8967,9 +9069,10 @@ func (v MeshValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, di
 		"bands": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"enabled": basetypes.BoolType{},
-		"group":   basetypes.Int64Type{},
-		"role":    basetypes.StringType{},
+		"enabled":       basetypes.BoolType{},
+		"group":         basetypes.Int64Type{},
+		"role":          basetypes.StringType{},
+		"use_wpa3_on_5": basetypes.BoolType{},
 	}
 
 	if v.IsNull() {
@@ -8983,10 +9086,11 @@ func (v MeshValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, di
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"bands":   bandsVal,
-			"enabled": v.Enabled,
-			"group":   v.Group,
-			"role":    v.Role,
+			"bands":         bandsVal,
+			"enabled":       v.Enabled,
+			"group":         v.Group,
+			"role":          v.Role,
+			"use_wpa3_on_5": v.UseWpa3On5,
 		})
 
 	return objVal, diags
@@ -9023,6 +9127,10 @@ func (v MeshValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.UseWpa3On5.Equal(other.UseWpa3On5) {
+		return false
+	}
+
 	return true
 }
 
@@ -9039,9 +9147,10 @@ func (v MeshValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"bands": basetypes.ListType{
 			ElemType: types.StringType,
 		},
-		"enabled": basetypes.BoolType{},
-		"group":   basetypes.Int64Type{},
-		"role":    basetypes.StringType{},
+		"enabled":       basetypes.BoolType{},
+		"group":         basetypes.Int64Type{},
+		"role":          basetypes.StringType{},
+		"use_wpa3_on_5": basetypes.BoolType{},
 	}
 }
 
@@ -21620,5 +21729,549 @@ func (v UsbConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"type":        basetypes.StringType{},
 		"verify_cert": basetypes.BoolType{},
 		"vlan_id":     basetypes.Int64Type{},
+	}
+}
+
+var _ basetypes.ObjectTypable = ZigbeeConfigType{}
+
+type ZigbeeConfigType struct {
+	basetypes.ObjectType
+}
+
+func (t ZigbeeConfigType) Equal(o attr.Type) bool {
+	other, ok := o.(ZigbeeConfigType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t ZigbeeConfigType) String() string {
+	return "ZigbeeConfigType"
+}
+
+func (t ZigbeeConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	allowJoinAttribute, ok := attributes["allow_join"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_join is missing from object`)
+
+		return nil, diags
+	}
+
+	allowJoinVal, ok := allowJoinAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_join expected to be basetypes.StringValue, was: %T`, allowJoinAttribute))
+	}
+
+	channelAttribute, ok := attributes["channel"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channel is missing from object`)
+
+		return nil, diags
+	}
+
+	channelVal, ok := channelAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channel expected to be basetypes.Int64Value, was: %T`, channelAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	extendedPanIdAttribute, ok := attributes["extended_pan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`extended_pan_id is missing from object`)
+
+		return nil, diags
+	}
+
+	extendedPanIdVal, ok := extendedPanIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`extended_pan_id expected to be basetypes.StringValue, was: %T`, extendedPanIdAttribute))
+	}
+
+	panIdAttribute, ok := attributes["pan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`pan_id is missing from object`)
+
+		return nil, diags
+	}
+
+	panIdVal, ok := panIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`pan_id expected to be basetypes.StringValue, was: %T`, panIdAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return ZigbeeConfigValue{
+		AllowJoin:     allowJoinVal,
+		Channel:       channelVal,
+		Enabled:       enabledVal,
+		ExtendedPanId: extendedPanIdVal,
+		PanId:         panIdVal,
+		state:         attr.ValueStateKnown,
+	}, diags
+}
+
+func NewZigbeeConfigValueNull() ZigbeeConfigValue {
+	return ZigbeeConfigValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewZigbeeConfigValueUnknown() ZigbeeConfigValue {
+	return ZigbeeConfigValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewZigbeeConfigValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (ZigbeeConfigValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing ZigbeeConfigValue Attribute Value",
+				"While creating a ZigbeeConfigValue value, a missing attribute value was detected. "+
+					"A ZigbeeConfigValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("ZigbeeConfigValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid ZigbeeConfigValue Attribute Type",
+				"While creating a ZigbeeConfigValue value, an invalid attribute value was detected. "+
+					"A ZigbeeConfigValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("ZigbeeConfigValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("ZigbeeConfigValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra ZigbeeConfigValue Attribute Value",
+				"While creating a ZigbeeConfigValue value, an extra attribute value was detected. "+
+					"A ZigbeeConfigValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra ZigbeeConfigValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewZigbeeConfigValueUnknown(), diags
+	}
+
+	allowJoinAttribute, ok := attributes["allow_join"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`allow_join is missing from object`)
+
+		return NewZigbeeConfigValueUnknown(), diags
+	}
+
+	allowJoinVal, ok := allowJoinAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`allow_join expected to be basetypes.StringValue, was: %T`, allowJoinAttribute))
+	}
+
+	channelAttribute, ok := attributes["channel"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`channel is missing from object`)
+
+		return NewZigbeeConfigValueUnknown(), diags
+	}
+
+	channelVal, ok := channelAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`channel expected to be basetypes.Int64Value, was: %T`, channelAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewZigbeeConfigValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	extendedPanIdAttribute, ok := attributes["extended_pan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`extended_pan_id is missing from object`)
+
+		return NewZigbeeConfigValueUnknown(), diags
+	}
+
+	extendedPanIdVal, ok := extendedPanIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`extended_pan_id expected to be basetypes.StringValue, was: %T`, extendedPanIdAttribute))
+	}
+
+	panIdAttribute, ok := attributes["pan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`pan_id is missing from object`)
+
+		return NewZigbeeConfigValueUnknown(), diags
+	}
+
+	panIdVal, ok := panIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`pan_id expected to be basetypes.StringValue, was: %T`, panIdAttribute))
+	}
+
+	if diags.HasError() {
+		return NewZigbeeConfigValueUnknown(), diags
+	}
+
+	return ZigbeeConfigValue{
+		AllowJoin:     allowJoinVal,
+		Channel:       channelVal,
+		Enabled:       enabledVal,
+		ExtendedPanId: extendedPanIdVal,
+		PanId:         panIdVal,
+		state:         attr.ValueStateKnown,
+	}, diags
+}
+
+func NewZigbeeConfigValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) ZigbeeConfigValue {
+	object, diags := NewZigbeeConfigValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewZigbeeConfigValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t ZigbeeConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewZigbeeConfigValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewZigbeeConfigValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewZigbeeConfigValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewZigbeeConfigValueMust(ZigbeeConfigValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t ZigbeeConfigType) ValueType(ctx context.Context) attr.Value {
+	return ZigbeeConfigValue{}
+}
+
+var _ basetypes.ObjectValuable = ZigbeeConfigValue{}
+
+type ZigbeeConfigValue struct {
+	AllowJoin     basetypes.StringValue `tfsdk:"allow_join"`
+	Channel       basetypes.Int64Value  `tfsdk:"channel"`
+	Enabled       basetypes.BoolValue   `tfsdk:"enabled"`
+	ExtendedPanId basetypes.StringValue `tfsdk:"extended_pan_id"`
+	PanId         basetypes.StringValue `tfsdk:"pan_id"`
+	state         attr.ValueState
+}
+
+func (v ZigbeeConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 5)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["allow_join"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["channel"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["extended_pan_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["pan_id"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 5)
+
+		val, err = v.AllowJoin.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["allow_join"] = val
+
+		val, err = v.Channel.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["channel"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.ExtendedPanId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["extended_pan_id"] = val
+
+		val, err = v.PanId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["pan_id"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v ZigbeeConfigValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v ZigbeeConfigValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v ZigbeeConfigValue) String() string {
+	return "ZigbeeConfigValue"
+}
+
+func (v ZigbeeConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"allow_join":      basetypes.StringType{},
+		"channel":         basetypes.Int64Type{},
+		"enabled":         basetypes.BoolType{},
+		"extended_pan_id": basetypes.StringType{},
+		"pan_id":          basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"allow_join":      v.AllowJoin,
+			"channel":         v.Channel,
+			"enabled":         v.Enabled,
+			"extended_pan_id": v.ExtendedPanId,
+			"pan_id":          v.PanId,
+		})
+
+	return objVal, diags
+}
+
+func (v ZigbeeConfigValue) Equal(o attr.Value) bool {
+	other, ok := o.(ZigbeeConfigValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AllowJoin.Equal(other.AllowJoin) {
+		return false
+	}
+
+	if !v.Channel.Equal(other.Channel) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.ExtendedPanId.Equal(other.ExtendedPanId) {
+		return false
+	}
+
+	if !v.PanId.Equal(other.PanId) {
+		return false
+	}
+
+	return true
+}
+
+func (v ZigbeeConfigValue) Type(ctx context.Context) attr.Type {
+	return ZigbeeConfigType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v ZigbeeConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"allow_join":      basetypes.StringType{},
+		"channel":         basetypes.Int64Type{},
+		"enabled":         basetypes.BoolType{},
+		"extended_pan_id": basetypes.StringType{},
+		"pan_id":          basetypes.StringType{},
 	}
 }

@@ -85,6 +85,9 @@ func SdkToTerraform(d *models.Psk) (OrgPskModel, diag.Diagnostics) {
 	if d.VlanId != nil {
 		vlanId = mistutils.PskVlanAsString(*d.VlanId)
 	}
+	if d.VlanName != nil {
+		state.VlanName = types.StringValue(*d.VlanName)
+	}
 
 	state.Email = email
 	state.ExpireTime = expireTime

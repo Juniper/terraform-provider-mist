@@ -24,6 +24,7 @@ type SiteNetworktemplateModel struct {
 	SnmpConfig                      *SiteNetworktemplateSnmpConfigValue                `hcl:"snmp_config"`
 	SwitchMatching                  *SiteNetworktemplateSwitchMatchingValue            `hcl:"switch_matching"`
 	SwitchMgmt                      *SiteNetworktemplateSwitchMgmtValue                `hcl:"switch_mgmt"`
+	UsesDescriptionFromPortUsage    *bool                                              `hcl:"uses_description_from_port_usage"`
 	VrfConfig                       *SiteNetworktemplateVrfConfigValue                 `hcl:"vrf_config"`
 	VrfInstances                    map[string]SiteNetworktemplateVrfInstancesValue    `hcl:"vrf_instances"`
 }
@@ -159,6 +160,7 @@ type SiteNetworktemplatePortUsagesValue struct {
 	Networks                                 []string                              `cty:"networks" hcl:"networks"`
 	PersistMac                               *bool                                 `cty:"persist_mac" hcl:"persist_mac"`
 	PoeDisabled                              *bool                                 `cty:"poe_disabled" hcl:"poe_disabled"`
+	PoeKeepStateWhenReboot                   *bool                                 `cty:"poe_keep_state_when_reboot" hcl:"poe_keep_state_when_reboot"`
 	PoePriority                              *string                               `cty:"poe_priority" hcl:"poe_priority"`
 	PortAuth                                 *string                               `cty:"port_auth" hcl:"port_auth"`
 	PortNetwork                              *string                               `cty:"port_network" hcl:"port_network"`
@@ -478,6 +480,7 @@ type SiteNetworktemplateOobIpConfigValue struct {
 type SiteNetworktemplatePortConfigValue struct {
 	AeDisableLacp    *bool    `cty:"ae_disable_lacp" hcl:"ae_disable_lacp"`
 	AeIdx            *int64   `cty:"ae_idx" hcl:"ae_idx"`
+	AeLacpForceUp    *bool    `cty:"ae_lacp_force_up" hcl:"ae_lacp_force_up"`
 	AeLacpSlow       *bool    `cty:"ae_lacp_slow" hcl:"ae_lacp_slow"`
 	Aggregated       *bool    `cty:"aggregated" hcl:"aggregated"`
 	Critical         *bool    `cty:"critical" hcl:"critical"`

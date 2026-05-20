@@ -53,16 +53,16 @@
   }
 
   marvis {
-    auto_operations {
-      ap_insufficient_capacity                     = true
-      ap_loop                                      = true
-      ap_non_compliant                            = true
-      bounce_port_for_abnormal_poe_client         = true
-      disable_port_when_ddos_protocol_violation   = true
-      disable_port_when_rogue_dhcp_server_detected = true
-      gateway_non_compliant                       = true
-      switch_misconfigured_port                   = true
-      switch_port_stuck                           = true
+    self_driving {
+      wan {
+        enabled = true
+      }
+      wired {
+        enabled = true
+      }
+      wireless {
+        enabled = true
+      }
     }
   }
 
@@ -87,8 +87,12 @@
       }
     ]
     # servier_cert
-    use_ip_version = "v4"
-    use_ssl_port   = false
+    use_ip_version               = "v4"
+    use_ssl_port                 = false
+    allow_teap_machine_auth_only = true
+    mdm {
+      coa_type = "reauth"
+    }
   }
 
   mxedge_mgmt {

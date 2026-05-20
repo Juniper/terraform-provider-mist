@@ -251,6 +251,7 @@
       persist_mac            = true
       poe_disabled           = false
       poe_priority           = "high"
+      poe_keep_state_when_reboot = true
       speed                  = "auto"
       duplex                 = "auto"
       disable_autoneg        = false
@@ -717,6 +718,7 @@
             usage              = "access"
             ae_disable_lacp    = false
             ae_idx             = "0"
+            ae_lacp_force_up   = true
             ae_lacp_slow       = false
             aggregated         = false
             critical           = false

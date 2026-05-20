@@ -127,6 +127,11 @@ func SitePskResourceSchema(ctx context.Context) schema.Schema {
 					),
 				},
 			},
+			"vlan_name": schema.StringAttribute{
+				Optional:            true,
+				Description:         "VLAN name to be assigned. Optional, `vlan_id` takes precedence if both are provided",
+				MarkdownDescription: "VLAN name to be assigned. Optional, `vlan_id` takes precedence if both are provided",
+			},
 		},
 	}
 }
@@ -149,4 +154,5 @@ type SitePskModel struct {
 	Ssid                   types.String `tfsdk:"ssid"`
 	Usage                  types.String `tfsdk:"usage"`
 	VlanId                 types.String `tfsdk:"vlan_id"`
+	VlanName               types.String `tfsdk:"vlan_name"`
 }

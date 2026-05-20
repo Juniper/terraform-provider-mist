@@ -83,7 +83,7 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 	if plan.GatewayMgmt.IsNull() || plan.GatewayMgmt.IsUnknown() {
 		unset["-gateway_mgmt"] = ""
 	} else {
-		data.GatewayMgmt = gatewayMgmtTerraformToSdk(plan.GatewayMgmt)
+		data.GatewayMgmt = gatewayMgmtTerraformToSdk(ctx, &diags, plan.GatewayMgmt)
 	}
 
 	if plan.IdpProfiles.IsNull() || plan.IdpProfiles.IsUnknown() {

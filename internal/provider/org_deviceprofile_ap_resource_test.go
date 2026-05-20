@@ -321,6 +321,9 @@ func (s *OrgDeviceprofileApModel) testChecks(t testing.TB, rType, tName string, 
 		if s.Mesh.Role != nil {
 			checks.append(t, "TestCheckResourceAttr", "mesh.role", *s.Mesh.Role)
 		}
+		if s.Mesh.UseWpa3On5 != nil {
+			checks.append(t, "TestCheckResourceAttr", "mesh.use_wpa3_on_5", fmt.Sprintf("%t", *s.Mesh.UseWpa3On5))
+		}
 	}
 	if len(s.NtpServers) > 0 {
 		checks.append(t, "TestCheckResourceAttr", "ntp_servers.#", fmt.Sprintf("%d", len(s.NtpServers)))
@@ -834,6 +837,24 @@ func (s *OrgDeviceprofileApModel) testChecks(t testing.TB, rType, tName string, 
 		checks.append(t, "TestCheckResourceAttr", "vars.%", fmt.Sprintf("%d", len(s.Vars)))
 		for key, value := range s.Vars {
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vars.%s", key), value)
+		}
+	}
+
+	if s.ZigbeeConfig != nil {
+		if s.ZigbeeConfig.AllowJoin != nil {
+			checks.append(t, "TestCheckResourceAttr", "zigbee_config.allow_join", *s.ZigbeeConfig.AllowJoin)
+		}
+		if s.ZigbeeConfig.Channel != nil {
+			checks.append(t, "TestCheckResourceAttr", "zigbee_config.channel", fmt.Sprintf("%d", *s.ZigbeeConfig.Channel))
+		}
+		if s.ZigbeeConfig.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "zigbee_config.enabled", fmt.Sprintf("%t", *s.ZigbeeConfig.Enabled))
+		}
+		if s.ZigbeeConfig.ExtendedPanId != nil {
+			checks.append(t, "TestCheckResourceAttr", "zigbee_config.extended_pan_id", *s.ZigbeeConfig.ExtendedPanId)
+		}
+		if s.ZigbeeConfig.PanId != nil {
+			checks.append(t, "TestCheckResourceAttr", "zigbee_config.pan_id", *s.ZigbeeConfig.PanId)
 		}
 	}
 

@@ -460,6 +460,12 @@ func (s *SiteWlanModel) testChecks(t testing.TB, rType, tName string, tracker *v
 		if s.Auth.WepAsSecondaryAuth != nil {
 			checks.append(t, "TestCheckResourceAttr", "auth.wep_as_secondary_auth", fmt.Sprintf("%t", *s.Auth.WepAsSecondaryAuth))
 		}
+		if s.Auth.EnableBeaconProtection != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.enable_beacon_protection", fmt.Sprintf("%t", *s.Auth.EnableBeaconProtection))
+		}
+		if s.Auth.EnableGcmp256 != nil {
+			checks.append(t, "TestCheckResourceAttr", "auth.enable_gcmp256", fmt.Sprintf("%t", *s.Auth.EnableGcmp256))
+		}
 	}
 	if s.Bonjour != nil {
 		if len(s.Bonjour.AdditionalVlanIds) > 0 {

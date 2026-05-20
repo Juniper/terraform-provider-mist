@@ -93,6 +93,10 @@ func mistNacServerCertTerraformToSdk(ctx context.Context, diags *diag.Diagnostic
 func mistNacTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d MistNacValue) *models.OrgSettingMistNac {
 	data := models.OrgSettingMistNac{}
 
+	if d.AllowTeapMachineAuthOnly.ValueBoolPointer() != nil {
+		data.AllowTeapMachineAuthOnly = d.AllowTeapMachineAuthOnly.ValueBoolPointer()
+	}
+
 	if !d.Cacerts.IsNull() && !d.Cacerts.IsUnknown() {
 		data.Cacerts = mistutils.ListOfStringTerraformToSdk(d.Cacerts)
 	}
@@ -131,6 +135,17 @@ func mistNacTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d MistN
 
 	if !d.ServerCert.IsNull() && !d.ServerCert.IsUnknown() {
 		data.ServerCert = mistNacServerCertTerraformToSdk(ctx, diags, d.ServerCert)
+	}
+
+	if !d.Mdm.IsNull() && !d.Mdm.IsUnknown() {
+		mdmPlan, e := NewMdmValue(d.Mdm.AttributeTypes(ctx), d.Mdm.Attributes())
+		if e != nil {
+			diags.Append(e...)
+		} else if mdmPlan.CoaType.ValueStringPointer() != nil {
+			data.Mdm = &models.OrgSettingMistNacMdm{
+				CoaType: (*models.NacCoaTypeEnum)(mdmPlan.CoaType.ValueStringPointer()),
+			}
+		}
 	}
 
 	if d.UseIpVersion.ValueStringPointer() != nil {

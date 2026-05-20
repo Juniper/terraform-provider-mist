@@ -26,6 +26,16 @@ func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mode
 		eapReauth = types.BoolValue(*data.EapReauth)
 	}
 
+	var enableBeaconProtection basetypes.BoolValue
+	if data.EnableBeaconProtection != nil {
+		enableBeaconProtection = types.BoolValue(*data.EnableBeaconProtection)
+	}
+
+	var enableGcmp256 basetypes.BoolValue
+	if data.EnableGcmp256 != nil {
+		enableGcmp256 = types.BoolValue(*data.EnableGcmp256)
+	}
+
 	var enableMacAuth basetypes.BoolValue
 	if data.EnableMacAuth != nil {
 		enableMacAuth = types.BoolValue(*data.EnableMacAuth)
@@ -81,18 +91,20 @@ func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mode
 	}
 
 	dataMap := map[string]attr.Value{
-		"anticlog_threshold":    anticlogThreshold,
-		"eap_reauth":            eapReauth,
-		"enable_mac_auth":       enableMacAuth,
-		"key_idx":               keyIdx,
-		"keys":                  keys,
-		"multi_psk_only":        multiPskOnly,
-		"owe":                   owe,
-		"pairwise":              pairwise,
-		"private_wlan":          privateWlan,
-		"psk":                   psk,
-		"type":                  typeAuth,
-		"wep_as_secondary_auth": wepAsSecondaryAuth,
+		"anticlog_threshold":       anticlogThreshold,
+		"eap_reauth":               eapReauth,
+		"enable_beacon_protection": enableBeaconProtection,
+		"enable_gcmp256":           enableGcmp256,
+		"enable_mac_auth":          enableMacAuth,
+		"key_idx":                  keyIdx,
+		"keys":                     keys,
+		"multi_psk_only":           multiPskOnly,
+		"owe":                      owe,
+		"pairwise":                 pairwise,
+		"private_wlan":             privateWlan,
+		"psk":                      psk,
+		"type":                     typeAuth,
+		"wep_as_secondary_auth":    wepAsSecondaryAuth,
 	}
 	result, err := NewAuthValue(AuthValue{}.AttributeTypes(ctx), dataMap)
 	diags.Append(err...)

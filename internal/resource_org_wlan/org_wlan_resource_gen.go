@@ -405,6 +405,16 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						},
 						Default: booldefault.StaticBool(false),
 					},
+					"enable_beacon_protection": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "Enable Beacon Protection; default is false for better compatibility",
+						MarkdownDescription: "Enable Beacon Protection; default is false for better compatibility",
+					},
+					"enable_gcmp256": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "Enable GCMP-256 encryption suite; default is false for better compatibility",
+						MarkdownDescription: "Enable GCMP-256 encryption suite; default is false for better compatibility",
+					},
 					"enable_mac_auth": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
@@ -614,8 +624,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"auth_servers_retries": schema.Int64Attribute{
 				Optional:            true,
-				Description:         "Radius auth session retries. Following fast timers are set if \"fast_dot1x_timers\" knob is enabled. ‘retries’  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
-				MarkdownDescription: "Radius auth session retries. Following fast timers are set if \"fast_dot1x_timers\" knob is enabled. ‘retries’  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
+				Description:         "Radius auth session retries. Following fast timers are set if \"fast_dot1x_timers\" knob is enabled. ‘retries’ are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
+				MarkdownDescription: "Radius auth session retries. Following fast timers are set if \"fast_dot1x_timers\" knob is enabled. ‘retries’ are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.",
 			},
 			"auth_servers_timeout": schema.Int64Attribute{
 				Optional:            true,
@@ -875,7 +885,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "To disable ht or vht rates",
 			},
 			"disable_message_authenticator_check": schema.BoolAttribute{
-				Computed:            true,
+				Optional:            true,
 				Description:         "whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)",
 				MarkdownDescription: "whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)",
 			},
@@ -1803,6 +1813,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"smsglobal_api_secret": schema.StringAttribute{
 						Optional:            true,
+						Sensitive:           true,
 						Description:         "Required if `sms_provider`==`smsglobal`, Client secret",
 						MarkdownDescription: "Required if `sms_provider`==`smsglobal`, Client secret",
 					},
@@ -1941,6 +1952,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"telstra_client_secret": schema.StringAttribute{
 						Optional:            true,
+						Sensitive:           true,
 						Description:         "Required if `sms_provider`==`telstra`, Client secret provided by Telstra",
 						MarkdownDescription: "Required if `sms_provider`==`telstra`, Client secret provided by Telstra",
 					},
@@ -2252,7 +2264,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 							"mxcluster_ids":   types.ListNull(types.StringType),
 							"proxy_hosts":     types.ListNull(types.StringType),
 							"server_name":     types.StringValue(""),
-							"servers":         types.ListValueMust(ServersValue{}.Type(ctx), []attr.Value{}),
+							"servers":         types.ListNull(ServersValue{}.Type(ctx)),
 							"use_mxedge":      types.BoolNull(),
 							"use_site_mxedge": types.BoolNull(),
 						},
@@ -5944,6 +5956,42 @@ func (t AuthType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue)
 			fmt.Sprintf(`eap_reauth expected to be basetypes.BoolValue, was: %T`, eapReauthAttribute))
 	}
 
+	enableBeaconProtectionAttribute, ok := attributes["enable_beacon_protection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable_beacon_protection is missing from object`)
+
+		return nil, diags
+	}
+
+	enableBeaconProtectionVal, ok := enableBeaconProtectionAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable_beacon_protection expected to be basetypes.BoolValue, was: %T`, enableBeaconProtectionAttribute))
+	}
+
+	enableGcmp256Attribute, ok := attributes["enable_gcmp256"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable_gcmp256 is missing from object`)
+
+		return nil, diags
+	}
+
+	enableGcmp256Val, ok := enableGcmp256Attribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable_gcmp256 expected to be basetypes.BoolValue, was: %T`, enableGcmp256Attribute))
+	}
+
 	enableMacAuthAttribute, ok := attributes["enable_mac_auth"]
 
 	if !ok {
@@ -6129,19 +6177,21 @@ func (t AuthType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue)
 	}
 
 	return AuthValue{
-		AnticlogThreshold:  anticlogThresholdVal,
-		EapReauth:          eapReauthVal,
-		EnableMacAuth:      enableMacAuthVal,
-		KeyIdx:             keyIdxVal,
-		Keys:               keysVal,
-		MultiPskOnly:       multiPskOnlyVal,
-		Owe:                oweVal,
-		Pairwise:           pairwiseVal,
-		PrivateWlan:        privateWlanVal,
-		Psk:                pskVal,
-		AuthType:           typeVal,
-		WepAsSecondaryAuth: wepAsSecondaryAuthVal,
-		state:              attr.ValueStateKnown,
+		AnticlogThreshold:      anticlogThresholdVal,
+		EapReauth:              eapReauthVal,
+		EnableBeaconProtection: enableBeaconProtectionVal,
+		EnableGcmp256:          enableGcmp256Val,
+		EnableMacAuth:          enableMacAuthVal,
+		KeyIdx:                 keyIdxVal,
+		Keys:                   keysVal,
+		MultiPskOnly:           multiPskOnlyVal,
+		Owe:                    oweVal,
+		Pairwise:               pairwiseVal,
+		PrivateWlan:            privateWlanVal,
+		Psk:                    pskVal,
+		AuthType:               typeVal,
+		WepAsSecondaryAuth:     wepAsSecondaryAuthVal,
+		state:                  attr.ValueStateKnown,
 	}, diags
 }
 
@@ -6244,6 +6294,42 @@ func NewAuthValue(attributeTypes map[string]attr.Type, attributes map[string]att
 			fmt.Sprintf(`eap_reauth expected to be basetypes.BoolValue, was: %T`, eapReauthAttribute))
 	}
 
+	enableBeaconProtectionAttribute, ok := attributes["enable_beacon_protection"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable_beacon_protection is missing from object`)
+
+		return NewAuthValueUnknown(), diags
+	}
+
+	enableBeaconProtectionVal, ok := enableBeaconProtectionAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable_beacon_protection expected to be basetypes.BoolValue, was: %T`, enableBeaconProtectionAttribute))
+	}
+
+	enableGcmp256Attribute, ok := attributes["enable_gcmp256"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable_gcmp256 is missing from object`)
+
+		return NewAuthValueUnknown(), diags
+	}
+
+	enableGcmp256Val, ok := enableGcmp256Attribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable_gcmp256 expected to be basetypes.BoolValue, was: %T`, enableGcmp256Attribute))
+	}
+
 	enableMacAuthAttribute, ok := attributes["enable_mac_auth"]
 
 	if !ok {
@@ -6429,19 +6515,21 @@ func NewAuthValue(attributeTypes map[string]attr.Type, attributes map[string]att
 	}
 
 	return AuthValue{
-		AnticlogThreshold:  anticlogThresholdVal,
-		EapReauth:          eapReauthVal,
-		EnableMacAuth:      enableMacAuthVal,
-		KeyIdx:             keyIdxVal,
-		Keys:               keysVal,
-		MultiPskOnly:       multiPskOnlyVal,
-		Owe:                oweVal,
-		Pairwise:           pairwiseVal,
-		PrivateWlan:        privateWlanVal,
-		Psk:                pskVal,
-		AuthType:           typeVal,
-		WepAsSecondaryAuth: wepAsSecondaryAuthVal,
-		state:              attr.ValueStateKnown,
+		AnticlogThreshold:      anticlogThresholdVal,
+		EapReauth:              eapReauthVal,
+		EnableBeaconProtection: enableBeaconProtectionVal,
+		EnableGcmp256:          enableGcmp256Val,
+		EnableMacAuth:          enableMacAuthVal,
+		KeyIdx:                 keyIdxVal,
+		Keys:                   keysVal,
+		MultiPskOnly:           multiPskOnlyVal,
+		Owe:                    oweVal,
+		Pairwise:               pairwiseVal,
+		PrivateWlan:            privateWlanVal,
+		Psk:                    pskVal,
+		AuthType:               typeVal,
+		WepAsSecondaryAuth:     wepAsSecondaryAuthVal,
+		state:                  attr.ValueStateKnown,
 	}, diags
 }
 
@@ -6513,29 +6601,33 @@ func (t AuthType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = AuthValue{}
 
 type AuthValue struct {
-	AnticlogThreshold  basetypes.Int64Value  `tfsdk:"anticlog_threshold"`
-	EapReauth          basetypes.BoolValue   `tfsdk:"eap_reauth"`
-	EnableMacAuth      basetypes.BoolValue   `tfsdk:"enable_mac_auth"`
-	KeyIdx             basetypes.Int64Value  `tfsdk:"key_idx"`
-	Keys               basetypes.ListValue   `tfsdk:"keys"`
-	MultiPskOnly       basetypes.BoolValue   `tfsdk:"multi_psk_only"`
-	Owe                basetypes.StringValue `tfsdk:"owe"`
-	Pairwise           basetypes.ListValue   `tfsdk:"pairwise"`
-	PrivateWlan        basetypes.BoolValue   `tfsdk:"private_wlan"`
-	Psk                basetypes.StringValue `tfsdk:"psk"`
-	AuthType           basetypes.StringValue `tfsdk:"type"`
-	WepAsSecondaryAuth basetypes.BoolValue   `tfsdk:"wep_as_secondary_auth"`
-	state              attr.ValueState
+	AnticlogThreshold      basetypes.Int64Value  `tfsdk:"anticlog_threshold"`
+	EapReauth              basetypes.BoolValue   `tfsdk:"eap_reauth"`
+	EnableBeaconProtection basetypes.BoolValue   `tfsdk:"enable_beacon_protection"`
+	EnableGcmp256          basetypes.BoolValue   `tfsdk:"enable_gcmp256"`
+	EnableMacAuth          basetypes.BoolValue   `tfsdk:"enable_mac_auth"`
+	KeyIdx                 basetypes.Int64Value  `tfsdk:"key_idx"`
+	Keys                   basetypes.ListValue   `tfsdk:"keys"`
+	MultiPskOnly           basetypes.BoolValue   `tfsdk:"multi_psk_only"`
+	Owe                    basetypes.StringValue `tfsdk:"owe"`
+	Pairwise               basetypes.ListValue   `tfsdk:"pairwise"`
+	PrivateWlan            basetypes.BoolValue   `tfsdk:"private_wlan"`
+	Psk                    basetypes.StringValue `tfsdk:"psk"`
+	AuthType               basetypes.StringValue `tfsdk:"type"`
+	WepAsSecondaryAuth     basetypes.BoolValue   `tfsdk:"wep_as_secondary_auth"`
+	state                  attr.ValueState
 }
 
 func (v AuthValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 12)
+	attrTypes := make(map[string]tftypes.Type, 14)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["anticlog_threshold"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["eap_reauth"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["enable_beacon_protection"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["enable_gcmp256"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["enable_mac_auth"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["key_idx"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["keys"] = basetypes.ListType{
@@ -6555,7 +6647,7 @@ func (v AuthValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 12)
+		vals := make(map[string]tftypes.Value, 14)
 
 		val, err = v.AnticlogThreshold.ToTerraformValue(ctx)
 
@@ -6572,6 +6664,22 @@ func (v AuthValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) 
 		}
 
 		vals["eap_reauth"] = val
+
+		val, err = v.EnableBeaconProtection.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enable_beacon_protection"] = val
+
+		val, err = v.EnableGcmp256.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enable_gcmp256"] = val
 
 		val, err = v.EnableMacAuth.ToTerraformValue(ctx)
 
@@ -6696,10 +6804,12 @@ func (v AuthValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, di
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"anticlog_threshold": basetypes.Int64Type{},
-			"eap_reauth":         basetypes.BoolType{},
-			"enable_mac_auth":    basetypes.BoolType{},
-			"key_idx":            basetypes.Int64Type{},
+			"anticlog_threshold":       basetypes.Int64Type{},
+			"eap_reauth":               basetypes.BoolType{},
+			"enable_beacon_protection": basetypes.BoolType{},
+			"enable_gcmp256":           basetypes.BoolType{},
+			"enable_mac_auth":          basetypes.BoolType{},
+			"key_idx":                  basetypes.Int64Type{},
 			"keys": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -6729,10 +6839,12 @@ func (v AuthValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, di
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"anticlog_threshold": basetypes.Int64Type{},
-			"eap_reauth":         basetypes.BoolType{},
-			"enable_mac_auth":    basetypes.BoolType{},
-			"key_idx":            basetypes.Int64Type{},
+			"anticlog_threshold":       basetypes.Int64Type{},
+			"eap_reauth":               basetypes.BoolType{},
+			"enable_beacon_protection": basetypes.BoolType{},
+			"enable_gcmp256":           basetypes.BoolType{},
+			"enable_mac_auth":          basetypes.BoolType{},
+			"key_idx":                  basetypes.Int64Type{},
 			"keys": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -6749,10 +6861,12 @@ func (v AuthValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, di
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"anticlog_threshold": basetypes.Int64Type{},
-		"eap_reauth":         basetypes.BoolType{},
-		"enable_mac_auth":    basetypes.BoolType{},
-		"key_idx":            basetypes.Int64Type{},
+		"anticlog_threshold":       basetypes.Int64Type{},
+		"eap_reauth":               basetypes.BoolType{},
+		"enable_beacon_protection": basetypes.BoolType{},
+		"enable_gcmp256":           basetypes.BoolType{},
+		"enable_mac_auth":          basetypes.BoolType{},
+		"key_idx":                  basetypes.Int64Type{},
 		"keys": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -6778,18 +6892,20 @@ func (v AuthValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, di
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"anticlog_threshold":    v.AnticlogThreshold,
-			"eap_reauth":            v.EapReauth,
-			"enable_mac_auth":       v.EnableMacAuth,
-			"key_idx":               v.KeyIdx,
-			"keys":                  keysVal,
-			"multi_psk_only":        v.MultiPskOnly,
-			"owe":                   v.Owe,
-			"pairwise":              pairwiseVal,
-			"private_wlan":          v.PrivateWlan,
-			"psk":                   v.Psk,
-			"type":                  v.AuthType,
-			"wep_as_secondary_auth": v.WepAsSecondaryAuth,
+			"anticlog_threshold":       v.AnticlogThreshold,
+			"eap_reauth":               v.EapReauth,
+			"enable_beacon_protection": v.EnableBeaconProtection,
+			"enable_gcmp256":           v.EnableGcmp256,
+			"enable_mac_auth":          v.EnableMacAuth,
+			"key_idx":                  v.KeyIdx,
+			"keys":                     keysVal,
+			"multi_psk_only":           v.MultiPskOnly,
+			"owe":                      v.Owe,
+			"pairwise":                 pairwiseVal,
+			"private_wlan":             v.PrivateWlan,
+			"psk":                      v.Psk,
+			"type":                     v.AuthType,
+			"wep_as_secondary_auth":    v.WepAsSecondaryAuth,
 		})
 
 	return objVal, diags
@@ -6815,6 +6931,14 @@ func (v AuthValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.EapReauth.Equal(other.EapReauth) {
+		return false
+	}
+
+	if !v.EnableBeaconProtection.Equal(other.EnableBeaconProtection) {
+		return false
+	}
+
+	if !v.EnableGcmp256.Equal(other.EnableGcmp256) {
 		return false
 	}
 
@@ -6871,10 +6995,12 @@ func (v AuthValue) Type(ctx context.Context) attr.Type {
 
 func (v AuthValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"anticlog_threshold": basetypes.Int64Type{},
-		"eap_reauth":         basetypes.BoolType{},
-		"enable_mac_auth":    basetypes.BoolType{},
-		"key_idx":            basetypes.Int64Type{},
+		"anticlog_threshold":       basetypes.Int64Type{},
+		"eap_reauth":               basetypes.BoolType{},
+		"enable_beacon_protection": basetypes.BoolType{},
+		"enable_gcmp256":           basetypes.BoolType{},
+		"enable_mac_auth":          basetypes.BoolType{},
+		"key_idx":                  basetypes.Int64Type{},
 		"keys": basetypes.ListType{
 			ElemType: types.StringType,
 		},

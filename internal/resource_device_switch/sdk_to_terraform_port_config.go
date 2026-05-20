@@ -20,6 +20,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 
 		var aeDisableLacp basetypes.BoolValue
 		var aeIdx basetypes.Int64Value
+		var aeLacpForceUp basetypes.BoolValue
 		var aeLacpSlow basetypes.BoolValue
 		var aggregated basetypes.BoolValue
 		var critical basetypes.BoolValue
@@ -41,6 +42,9 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		}
 		if d.AeIdx != nil {
 			aeIdx = types.Int64Value(int64(*d.AeIdx))
+		}
+		if d.AeLacpForceUp != nil {
+			aeLacpForceUp = types.BoolValue(*d.AeLacpForceUp)
 		}
 		if d.AeLacpSlow != nil {
 			aeLacpSlow = types.BoolValue(*d.AeLacpSlow)
@@ -88,6 +92,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		dataMapValue := map[string]attr.Value{
 			"ae_disable_lacp":    aeDisableLacp,
 			"ae_idx":             aeIdx,
+			"ae_lacp_force_up":   aeLacpForceUp,
 			"ae_lacp_slow":       aeLacpSlow,
 			"aggregated":         aggregated,
 			"critical":           critical,

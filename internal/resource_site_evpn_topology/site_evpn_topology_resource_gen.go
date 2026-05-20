@@ -64,6 +64,11 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Optional, for ERB or CLOS, you can either use esilag to upstream routers or to also be the virtual-gateway. When `routed_at` != `core`, whether to do virtual-gateway at core as well",
 						Default:             booldefault.StaticBool(false),
 					},
+					"enable_inband_mgmt": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "Whether to route management traffic inband; routes will be propagated to downstream switches",
+						MarkdownDescription: "Whether to route management traffic inband; routes will be propagated to downstream switches",
+					},
 					"enable_inband_ztp": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
@@ -451,6 +456,24 @@ func (t EvpnOptionsType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`core_as_border expected to be basetypes.BoolValue, was: %T`, coreAsBorderAttribute))
 	}
 
+	enableInbandMgmtAttribute, ok := attributes["enable_inband_mgmt"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable_inband_mgmt is missing from object`)
+
+		return nil, diags
+	}
+
+	enableInbandMgmtVal, ok := enableInbandMgmtAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable_inband_mgmt expected to be basetypes.BoolValue, was: %T`, enableInbandMgmtAttribute))
+	}
+
 	enableInbandZtpAttribute, ok := attributes["enable_inband_ztp"]
 
 	if !ok {
@@ -587,6 +610,7 @@ func (t EvpnOptionsType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		AutoRouterIdSubnet:  autoRouterIdSubnetVal,
 		AutoRouterIdSubnet6: autoRouterIdSubnet6Val,
 		CoreAsBorder:        coreAsBorderVal,
+		EnableInbandMgmt:    enableInbandMgmtVal,
 		EnableInbandZtp:     enableInbandZtpVal,
 		Overlay:             overlayVal,
 		PerVlanVgaV4Mac:     perVlanVgaV4MacVal,
@@ -751,6 +775,24 @@ func NewEvpnOptionsValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`core_as_border expected to be basetypes.BoolValue, was: %T`, coreAsBorderAttribute))
 	}
 
+	enableInbandMgmtAttribute, ok := attributes["enable_inband_mgmt"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable_inband_mgmt is missing from object`)
+
+		return NewEvpnOptionsValueUnknown(), diags
+	}
+
+	enableInbandMgmtVal, ok := enableInbandMgmtAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable_inband_mgmt expected to be basetypes.BoolValue, was: %T`, enableInbandMgmtAttribute))
+	}
+
 	enableInbandZtpAttribute, ok := attributes["enable_inband_ztp"]
 
 	if !ok {
@@ -887,6 +929,7 @@ func NewEvpnOptionsValue(attributeTypes map[string]attr.Type, attributes map[str
 		AutoRouterIdSubnet:  autoRouterIdSubnetVal,
 		AutoRouterIdSubnet6: autoRouterIdSubnet6Val,
 		CoreAsBorder:        coreAsBorderVal,
+		EnableInbandMgmt:    enableInbandMgmtVal,
 		EnableInbandZtp:     enableInbandZtpVal,
 		Overlay:             overlayVal,
 		PerVlanVgaV4Mac:     perVlanVgaV4MacVal,
@@ -971,6 +1014,7 @@ type EvpnOptionsValue struct {
 	AutoRouterIdSubnet  basetypes.StringValue `tfsdk:"auto_router_id_subnet"`
 	AutoRouterIdSubnet6 basetypes.StringValue `tfsdk:"auto_router_id_subnet6"`
 	CoreAsBorder        basetypes.BoolValue   `tfsdk:"core_as_border"`
+	EnableInbandMgmt    basetypes.BoolValue   `tfsdk:"enable_inband_mgmt"`
 	EnableInbandZtp     basetypes.BoolValue   `tfsdk:"enable_inband_ztp"`
 	Overlay             basetypes.ObjectValue `tfsdk:"overlay"`
 	PerVlanVgaV4Mac     basetypes.BoolValue   `tfsdk:"per_vlan_vga_v4_mac"`
@@ -982,7 +1026,7 @@ type EvpnOptionsValue struct {
 }
 
 func (v EvpnOptionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 12)
+	attrTypes := make(map[string]tftypes.Type, 13)
 
 	var val tftypes.Value
 	var err error
@@ -992,6 +1036,7 @@ func (v EvpnOptionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["auto_router_id_subnet"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["auto_router_id_subnet6"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["core_as_border"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["enable_inband_mgmt"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["enable_inband_ztp"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["overlay"] = basetypes.ObjectType{
 		AttrTypes: OverlayValue{}.AttributeTypes(ctx),
@@ -1010,7 +1055,7 @@ func (v EvpnOptionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 12)
+		vals := make(map[string]tftypes.Value, 13)
 
 		val, err = v.AutoLoopbackSubnet.ToTerraformValue(ctx)
 
@@ -1051,6 +1096,14 @@ func (v EvpnOptionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["core_as_border"] = val
+
+		val, err = v.EnableInbandMgmt.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enable_inband_mgmt"] = val
 
 		val, err = v.EnableInbandZtp.ToTerraformValue(ctx)
 
@@ -1214,6 +1267,7 @@ func (v EvpnOptionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"auto_router_id_subnet":  basetypes.StringType{},
 		"auto_router_id_subnet6": basetypes.StringType{},
 		"core_as_border":         basetypes.BoolType{},
+		"enable_inband_mgmt":     basetypes.BoolType{},
 		"enable_inband_ztp":      basetypes.BoolType{},
 		"overlay": basetypes.ObjectType{
 			AttrTypes: OverlayValue{}.AttributeTypes(ctx),
@@ -1245,6 +1299,7 @@ func (v EvpnOptionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"auto_router_id_subnet":  v.AutoRouterIdSubnet,
 			"auto_router_id_subnet6": v.AutoRouterIdSubnet6,
 			"core_as_border":         v.CoreAsBorder,
+			"enable_inband_mgmt":     v.EnableInbandMgmt,
 			"enable_inband_ztp":      v.EnableInbandZtp,
 			"overlay":                overlay,
 			"per_vlan_vga_v4_mac":    v.PerVlanVgaV4Mac,
@@ -1289,6 +1344,10 @@ func (v EvpnOptionsValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.CoreAsBorder.Equal(other.CoreAsBorder) {
+		return false
+	}
+
+	if !v.EnableInbandMgmt.Equal(other.EnableInbandMgmt) {
 		return false
 	}
 
@@ -1338,6 +1397,7 @@ func (v EvpnOptionsValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"auto_router_id_subnet":  basetypes.StringType{},
 		"auto_router_id_subnet6": basetypes.StringType{},
 		"core_as_border":         basetypes.BoolType{},
+		"enable_inband_mgmt":     basetypes.BoolType{},
 		"enable_inband_ztp":      basetypes.BoolType{},
 		"overlay": basetypes.ObjectType{
 			AttrTypes: OverlayValue{}.AttributeTypes(ctx),
