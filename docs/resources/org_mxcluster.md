@@ -25,9 +25,10 @@ resource "mist_org_mxcluster" "existing_mxcluster" {
 
 
 resource "mist_org_mxedge" "mxedge" {
-  org_id       = mist_org_mxcluster.existing_mxcluster.org_id
-  claim_code = <claim_code>
-  name         = "me1"
+  org_id        = mist_org_mxcluster.existing_mxcluster.org_id
+  claim_code    = XXX4DSY7TZMDXXX
+  name          = "me1"
+  mxcluster_id  = mist_org_mxcluster.existing_mxcluster.id
 }
 ```
 

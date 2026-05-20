@@ -44,7 +44,8 @@ resource "mist_org_mxedge" "existing_mxedge" {
   org_id = "b3b6ad7a-de9e-438c-8cdf-3ddcc1e124e2"
   name    = "test-mxedge"
   model   = "ME-X5"
-  site_id = "{site_id}"
+  site_id = mist_site.primary_site.id
+  mxcluster_id = mist_org_mxcluster.existing_mxcluster.id
 
   # Optional attributes
   notes              = "Test MxEdge for comprehensive attribute testing"

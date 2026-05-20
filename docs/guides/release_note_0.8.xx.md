@@ -8,7 +8,7 @@ description: |-
 # Release Notes for v0.8.xx
 
 ## Release Notes for v0.8.0
-**Release Date**: May 26th, 2026
+**Release Date**: May 20th, 2026
 
 ### Bug Fixes
 
