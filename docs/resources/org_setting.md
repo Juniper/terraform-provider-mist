@@ -218,22 +218,40 @@ Optional:
 
 Optional:
 
-- `auto_operations` (Attributes) (see [below for nested schema](#nestedatt--marvis--auto_operations))
+- `self_driving` (Attributes) Self-driving network automation settings per domain (see [below for nested schema](#nestedatt--marvis--self_driving))
 
-<a id="nestedatt--marvis--auto_operations"></a>
-### Nested Schema for `marvis.auto_operations`
+<a id="nestedatt--marvis--self_driving"></a>
+### Nested Schema for `marvis.self_driving`
 
 Optional:
 
-- `ap_insufficient_capacity` (Boolean)
-- `ap_loop` (Boolean)
-- `ap_non_compliant` (Boolean)
-- `bounce_port_for_abnormal_poe_client` (Boolean)
-- `disable_port_when_ddos_protocol_violation` (Boolean)
-- `disable_port_when_rogue_dhcp_server_detected` (Boolean)
-- `gateway_non_compliant` (Boolean)
-- `switch_misconfigured_port` (Boolean)
-- `switch_port_stuck` (Boolean)
+- `wan` (Attributes) (see [below for nested schema](#nestedatt--marvis--self_driving--wan))
+- `wired` (Attributes) (see [below for nested schema](#nestedatt--marvis--self_driving--wired))
+- `wireless` (Attributes) (see [below for nested schema](#nestedatt--marvis--self_driving--wireless))
+
+<a id="nestedatt--marvis--self_driving--wan"></a>
+### Nested Schema for `marvis.self_driving.wan`
+
+Optional:
+
+- `enabled` (Boolean)
+
+
+<a id="nestedatt--marvis--self_driving--wired"></a>
+### Nested Schema for `marvis.self_driving.wired`
+
+Optional:
+
+- `enabled` (Boolean)
+
+
+<a id="nestedatt--marvis--self_driving--wireless"></a>
+### Nested Schema for `marvis.self_driving.wireless`
+
+Optional:
+
+- `enabled` (Boolean)
+
 
 
 
@@ -252,6 +270,7 @@ Optional:
 
 Optional:
 
+- `allow_teap_machine_auth_only` (Boolean) allow clients to connect even when the user cert failed. TEAP authenticates both Machine Cert and User Cert. When enabled, clients who only succeed Machine Cert authentication will be accepted.
 - `cacerts` (List of String) List of PEM-encoded ca certs
 - `default_idp_id` (String) use this IDP when no explicit realm present in the incoming username/CN OR when no IDP is explicitly mapped to the incoming realm.
 - `disable_rsae_algorithms` (Boolean) to disable RSAE_PSS_SHA256, RSAE_PSS_SHA384, RSAE_PSS_SHA512 from server side. see https://www.openssl.org/docs/man3.0/man1/openssl-ciphers.html
@@ -261,6 +280,7 @@ Optional:
 - `idp_machine_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup. enum: `automatic`, `cn`, `dns`
 - `idp_user_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field. To use for IDP User Groups lookup. enum: `automatic`, `cn`, `email`, `upn`
 - `idps` (Attributes List) (see [below for nested schema](#nestedatt--mist_nac--idps))
+- `mdm` (Attributes) MDM (Mobile Device Management) CoA configuration (see [below for nested schema](#nestedatt--mist_nac--mdm))
 - `server_cert` (Attributes) radius server cert to be presented in EAP TLS (see [below for nested schema](#nestedatt--mist_nac--server_cert))
 - `use_ip_version` (String) by default, NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`
 - `use_ssl_port` (Boolean) By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled
@@ -290,6 +310,14 @@ Required:
 Optional:
 
 - `exclude_realms` (List of String) When the IDP of mxedge_proxy type, exclude the following realms from proxying in addition to other valid home realms in this org
+
+
+<a id="nestedatt--mist_nac--mdm"></a>
+### Nested Schema for `mist_nac.mdm`
+
+Optional:
+
+- `coa_type` (String) CoA type to send. enum: `reauth`, `disconnect`
 
 
 <a id="nestedatt--mist_nac--server_cert"></a>

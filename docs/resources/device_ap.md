@@ -66,6 +66,7 @@ resource "mist_device_ap" "ap_one" {
 - `vars` (Map of String) Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
 - `x` (Number) X in pixel
 - `y` (Number) Y in pixel
+- `zigbee_config` (Attributes) Zigbee AP settings (see [below for nested schema](#nestedatt--zigbee_config))
 
 ### Read-Only
 
@@ -222,6 +223,7 @@ Optional:
 - `enabled` (Boolean) Whether mesh is enabled on this AP
 - `group` (Number) Mesh group, base AP(s) will only allow remote AP(s) in the same mesh group to join, 1-9, optional
 - `role` (String) enum: `base`, `remote`
+- `use_wpa3_on_5` (Boolean) Whether to use WPA3 on the 5 GHz band for mesh links
 
 
 <a id="nestedatt--port_config"></a>
@@ -493,6 +495,18 @@ Optional:
 - `type` (String) usb config type. enum: `hanshow`, `imagotag`, `solum`
 - `verify_cert` (Boolean) Only if `type`==`imagotag`, whether to turn on SSL verification
 - `vlan_id` (Number) Only if `type`==`solum` or `type`==`hanshow`
+
+
+<a id="nestedatt--zigbee_config"></a>
+### Nested Schema for `zigbee_config`
+
+Optional:
+
+- `allow_join` (String) Controls whether new Zigbee devices are allowed to join the network. enum: `always`, `manual`
+- `channel` (Number) Zigbee channel (2.4 GHz). `0` means auto; valid fixed values are 11–26
+- `enabled` (Boolean) Whether to enable Zigbee on this AP
+- `extended_pan_id` (String) Extended PAN ID in hex string format; only applicable when `pan_id` is also specified
+- `pan_id` (String) PAN ID in hex string format; if not specified, assigned automatically
 
 
 

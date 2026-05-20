@@ -57,6 +57,7 @@ resource "mist_site_psk" "psk_one" {
 - `role` (String)
 - `usage` (String) enum: `multi`, `single`
 - `vlan_id` (String)
+- `vlan_name` (String) VLAN name to be assigned. Optional, `vlan_id` takes precedence if both are provided
 
 ### Read-Only
 

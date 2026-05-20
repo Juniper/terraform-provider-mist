@@ -195,7 +195,6 @@ resource "mist_org_mxedge" "existing_mxedge" {
 - `id` (String) Unique ID of the object instance in the Mist Organization
 - `mac` (String)
 - `mxagent_registered` (Boolean)
-- `registration_code` (String) Registration code for the MxEdge
 - `services` (List of String) List of services to run, tunterm only for now
 - `tunterm_registered` (Boolean)
 
