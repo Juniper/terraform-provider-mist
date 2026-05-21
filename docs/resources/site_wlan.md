@@ -60,7 +60,7 @@ resource "mist_site_wlan" "wlan_one" {
 - `auth_servers` (Attributes List) List of RADIUS authentication servers, at least one is needed if `auth type`==`eap`, order matters where the first one is treated as primary (see [below for nested schema](#nestedatt--auth_servers))
 - `auth_servers_nas_id` (String) Optional, up to 48 bytes, will be dynamically generated if not provided. used only for authentication servers
 - `auth_servers_nas_ip` (String) Optional, NAS-IP-ADDRESS to use
-- `auth_servers_retries` (Number) Radius auth session retries. Following fast timers are set if "fast_dot1x_timers" knob is enabled. ‘retries’  are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.
+- `auth_servers_retries` (Number) Radius auth session retries. Following fast timers are set if "fast_dot1x_timers" knob is enabled. ‘retries’ are set to value of auth_servers_retries. ‘max-requests’ is also set when setting auth_servers_retries and is set to default value to 3.
 - `auth_servers_timeout` (Number) Radius auth session timeout. Following fast timers are set if "fast_dot1x_timers" knob is enabled. ‘quite-period’  and ‘transmit-period’ are set to half the value of auth_servers_timeout. ‘supplicant-timeout’ is also set when setting auth_servers_timeout and is set to default value of 10.
 - `band_steer` (Boolean) Whether to enable band_steering, this works only when band==both
 - `band_steer_force_band5` (Boolean) Force dual_band capable client to connect to 5G
@@ -76,6 +76,7 @@ resource "mist_site_wlan" "wlan_one" {
 - `disable_11ax` (Boolean) Some old WLAN drivers may not be compatible
 - `disable_11be` (Boolean) To disable Wi-Fi 7 EHT IEs
 - `disable_ht_vht_rates` (Boolean) To disable ht or vht rates
+- `disable_message_authenticator_check` (Boolean) whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)
 - `disable_uapsd` (Boolean) Whether to disable U-APSD
 - `disable_v1_roam_notify` (Boolean) Disable sending v2 roam notification messages
 - `disable_v2_roam_notify` (Boolean) Disable sending v2 roam notification messages
@@ -145,7 +146,6 @@ resource "mist_site_wlan" "wlan_one" {
 
 ### Read-Only
 
-- `disable_message_authenticator_check` (Boolean) whether to disable Message-Authenticator Check, which is used to verify the integrity of RADIUS messages, default is false (i.e. for better security)
 - `id` (String) Unique ID of the object instance in the Mist Organization
 - `msp_id` (String)
 - `org_id` (String)
@@ -232,6 +232,8 @@ Optional:
 
 - `anticlog_threshold` (Number) SAE anti-clogging token threshold
 - `eap_reauth` (Boolean) Whether to trigger EAP reauth when the session ends
+- `enable_beacon_protection` (Boolean) Enable Beacon Protection; default is false for better compatibility
+- `enable_gcmp256` (Boolean) Enable GCMP-256 encryption suite; default is false for better compatibility
 - `enable_mac_auth` (Boolean) Whether to enable MAC Auth, uses the same auth_servers
 - `key_idx` (Number) When `type`==`wep`
 - `keys` (List of String) When type=wep, four 10-character or 26-character hex string, null can be used. All keys, if provided, have to be in the same length
@@ -454,7 +456,7 @@ Optional:
 - `sms_message_format` (String) Optional if `sms_enabled`==`true`. SMS Message format
 - `sms_provider` (String) Optional if `sms_enabled`==`true`. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `smsglobal`, `telstra`, `twilio`
 - `smsglobal_api_key` (String) Required if `sms_provider`==`smsglobal`, Client API Key
-- `smsglobal_api_secret` (String) Required if `sms_provider`==`smsglobal`, Client secret
+- `smsglobal_api_secret` (String, Sensitive) Required if `sms_provider`==`smsglobal`, Client secret
 - `sponsor_auto_approve` (Boolean) Optional if `sponsor_enabled`==`true`. Whether to automatically approve guest and allow sponsor to revoke guest access, needs predefined_sponsors_enabled enabled and sponsor_notify_all disabled
 - `sponsor_email_domains` (List of String) List of domain allowed for sponsor email. Required if `sponsor_enabled` is `true` and `sponsors` is empty.
 - `sponsor_enabled` (Boolean) Whether sponsor is enabled
@@ -474,7 +476,7 @@ Optional:
 - `sso_issuer` (String) Required if `wlan_portal_auth`==`sso`, IDP issuer URL
 - `sso_nameid_format` (String) Optional if `wlan_portal_auth`==`sso`. enum: `email`, `unspecified`
 - `telstra_client_id` (String) Required if `sms_provider`==`telstra`, Client ID provided by Telstra
-- `telstra_client_secret` (String) Required if `sms_provider`==`telstra`, Client secret provided by Telstra
+- `telstra_client_secret` (String, Sensitive) Required if `sms_provider`==`telstra`, Client secret provided by Telstra
 - `twilio_auth_token` (String) Required if `sms_provider`==`twilio`, Auth token account with twilio account
 - `twilio_phone_number` (String) Required if `sms_provider`==`twilio`, Twilio phone number associated with the account. See example for accepted format.
 - `twilio_sid` (String) Required if `sms_provider`==`twilio`, Account SID provided by Twilio

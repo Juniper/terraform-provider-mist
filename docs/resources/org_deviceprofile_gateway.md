@@ -191,6 +191,7 @@ Optional:
 - `hold_time` (Number)
 - `import_policy` (String)
 - `multihop_ttl` (Number) Assuming BGP neighbor is directly connected
+- `tunnel_via` (String) If `via`==`tunnel`, specifies which tunnel (primary/secondary) this neighbor is associated with. enum: `primary`, `secondary`
 
 
 
@@ -554,6 +555,7 @@ Optional:
 - `networks` (List of String) if `usage`==`lan`, name of the `mist_org_network` resource
 - `outer_vlan_id` (Number) For Q-in-Q
 - `poe_disabled` (Boolean)
+- `poe_keep_state_when_reboot` (Boolean) Whether Perpetual PoE capabilities are enabled for a port
 - `port_network` (String) Only for SRX and if `usage`==`lan`, the name of the Network to be used as the Untagged VLAN
 - `preserve_dscp` (Boolean) Whether to preserve dscp when sending traffic over VPN (SSR-only)
 - `redundant` (Boolean) If HA mode
@@ -871,7 +873,7 @@ Optional:
 - `ike_mode` (String) Only if `provider`==`custom-ipsec`. enum: `aggressive`, `main`
 - `ike_proposals` (Attributes List) If `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ike_proposals))
 - `ipsec_lifetime` (Number) Only if `provider`==`custom-ipsec`. Must be between 180 and 86400
-- `ipsec_proposals` (Attributes List) Only if  `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ipsec_proposals))
+- `ipsec_proposals` (Attributes List) Only if `provider`==`custom-ipsec` (see [below for nested schema](#nestedatt--tunnel_configs--ipsec_proposals))
 - `local_id` (String) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 - `local_subnets` (List of String) List of Local protected subnet for policy-based IPSec negotiation
 - `mode` (String) Required if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`. enum: `active-active`, `active-standby`
@@ -981,7 +983,7 @@ Optional:
 
 - `internal_ips` (List of String) Only if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`, `provider`==`custom-ipsec` or `provider`==`custom-gre`
 - `probe_ips` (List of String)
-- `remote_ids` (List of String) Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
+- `remote_ids` (List of String) Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 
 
 <a id="nestedatt--tunnel_configs--probe"></a>
@@ -1007,7 +1009,7 @@ Optional:
 
 - `internal_ips` (List of String) Only if `provider`==`zscaler-gre`, `provider`==`jse-ipsec`, `provider`==`custom-ipsec` or `provider`==`custom-gre`
 - `probe_ips` (List of String)
-- `remote_ids` (List of String) Only if  `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
+- `remote_ids` (List of String) Only if `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 
 
 

@@ -54,7 +54,9 @@ resource "mist_site_setting" "site_one" {
 
 ### Optional
 
+- `allow_mist` (Boolean) whether to allow Mist to look at this org
 - `analytic` (Attributes) (see [below for nested schema](#nestedatt--analytic))
+- `ap_synthetic_test` (Attributes) AP Synthetic Test configuration (see [below for nested schema](#nestedatt--ap_synthetic_test))
 - `ap_updown_threshold` (Number) Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.
 - `auto_upgrade` (Attributes) Auto Upgrade Settings (see [below for nested schema](#nestedatt--auto_upgrade))
 - `auto_upgrade_esl` (Attributes) auto upgrade AP ESL. When both firmware and ESL auto-upgrade are enabled, ESL upgrade will be done only after firmware upgrade (see [below for nested schema](#nestedatt--auto_upgrade_esl))
@@ -66,8 +68,10 @@ resource "mist_site_setting" "site_one" {
 - `device_updown_threshold` (Number) By default, device_updown_threshold, if set, will apply to all devices types if different values for specific device type is desired, use the following
 - `enable_unii_4` (Boolean)
 - `engagement` (Attributes) **Note**: if hours does not exist, it's treated as everyday of the week, 00:00-23:59. Currently, we don't allow multiple ranges for the same day (see [below for nested schema](#nestedatt--engagement))
-- `gateway_mgmt` (Attributes) Gateway Site settings (see [below for nested schema](#nestedatt--gateway_mgmt))
+- `gateway_mgmt` (Attributes) Gateway Management settings (see [below for nested schema](#nestedatt--gateway_mgmt))
+- `gateway_tunnel_updown_threshold` (Number) enable threshold-based gateway tunnel (secure edge tunnels) up-down delivery.
 - `gateway_updown_threshold` (Number) Enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
+- `iotproxy` (Attributes) IoT proxy configuration for the site (see [below for nested schema](#nestedatt--iotproxy))
 - `juniper_srx` (Attributes) (see [below for nested schema](#nestedatt--juniper_srx))
 - `led` (Attributes) LED AP settings (see [below for nested schema](#nestedatt--led))
 - `marvis` (Attributes) (see [below for nested schema](#nestedatt--marvis))
@@ -88,8 +92,8 @@ resource "mist_site_setting" "site_one" {
 - `synthetic_test` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test))
 - `track_anonymous_devices` (Boolean) Whether to track anonymous BLE assets (requires ‘track_asset’  enabled)
 - `uplink_port_config` (Attributes) AP Uplink port configuration (see [below for nested schema](#nestedatt--uplink_port_config))
-- `uses_description_from_port_usage` (Boolean) by default, we only honor description provided in port_config. This allows fallback to those defined in port_usages
 - `vars` (Map of String) Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
+- `vars_annotations` (Attributes Map) Optional annotations for vars defined in this site. Keys match var names; values describe the var purpose and type for UI auto-complete. (see [below for nested schema](#nestedatt--vars_annotations))
 - `vna` (Attributes) (see [below for nested schema](#nestedatt--vna))
 - `vpn_path_updown_threshold` (Number) enable threshold-based vpn path down delivery.
 - `vpn_peer_updown_threshold` (Number) enable threshold-based vpn peer down delivery.
@@ -112,6 +116,14 @@ resource "mist_site_setting" "site_one" {
 Optional:
 
 - `enabled` (Boolean) Enable Advanced Analytic feature (using SUB-ANA license)
+
+
+<a id="nestedatt--ap_synthetic_test"></a>
+### Nested Schema for `ap_synthetic_test`
+
+Optional:
+
+- `additional_vlan_ids` (List of String) List or Comma separated list of additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses
 
 
 <a id="nestedatt--auto_upgrade"></a>
@@ -299,7 +311,7 @@ e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled
 
 Optional:
 
-- `apps` (List of String) APp-keys from [List Applications]($e/Constants%20Definitions/listApplications)
+- `apps` (List of String) App-keys from [List Applications]($e/Constants%20Definitions/listApplications)
 - `custom_apps` (Attributes List) (see [below for nested schema](#nestedatt--gateway_mgmt--app_probing--custom_apps))
 - `enabled` (Boolean)
 
@@ -364,6 +376,28 @@ Optional:
 - `port_range` (String) matched dst port, "0" means any. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead
 - `protocol` (String) enum: `any`, `icmp`, `tcp`, `udp`. Note: For `protocol`==`any` and  `port_range`==`any`, configure `trusted_hosts` instead
 
+
+
+
+<a id="nestedatt--iotproxy"></a>
+### Nested Schema for `iotproxy`
+
+Optional:
+
+- `enabled` (Boolean)
+- `visionline` (Attributes) Visionline integration settings for IoT proxy (see [below for nested schema](#nestedatt--iotproxy--visionline))
+
+<a id="nestedatt--iotproxy--visionline"></a>
+### Nested Schema for `iotproxy.visionline`
+
+Optional:
+
+- `access_id` (String) Access ID for the Visionline service
+- `enabled` (Boolean)
+- `host` (String) Hostname or IP of the Visionline collector
+- `password` (String, Sensitive) Password for the Visionline service
+- `port` (Number) TCP port of the Visionline collector
+- `username` (String) Username for the Visionline service
 
 
 
@@ -640,6 +674,17 @@ Optional:
 
 - `dot1x` (Boolean) Whether to do 802.1x against uplink switch. When enabled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch
 - `keep_wlans_up_if_down` (Boolean) By default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.
+
+
+<a id="nestedatt--vars_annotations"></a>
+### Nested Schema for `vars_annotations`
+
+Optional:
+
+- `note` (String) User-provided note to describe what this var was created for
+- `type` (String) Used to identify where to enumerate / auto-complete the field from. Default is `generic` (plain string, no special handling).
+
+enum: `generic`, `mxtunnel_id`
 
 
 <a id="nestedatt--vna"></a>

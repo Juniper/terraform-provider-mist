@@ -114,13 +114,10 @@ resource "mist_site_networktemplate" "networktemplate_one" {
 - `routing_policies` (Attributes Map) Property key is the routing policy name (see [below for nested schema](#nestedatt--routing_policies))
 - `snmp_config` (Attributes) (see [below for nested schema](#nestedatt--snmp_config))
 - `switch_matching` (Attributes) Defines custom switch configuration based on different criteria (see [below for nested schema](#nestedatt--switch_matching))
-- `switch_mgmt` (Attributes) Switch settings (see [below for nested schema](#nestedatt--switch_mgmt))
+- `switch_mgmt` (Attributes) Switch Management settings (see [below for nested schema](#nestedatt--switch_mgmt))
+- `uses_description_from_port_usage` (Boolean) by default, we only honor description provided in port_config. This allows fallback to those defined in port_usages
 - `vrf_config` (Attributes) (see [below for nested schema](#nestedatt--vrf_config))
 - `vrf_instances` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--vrf_instances))
-
-### Read-Only
-
-- `uses_description_from_port_usage` (Boolean) by default, we only honor description provided in port_config. This allows fallback to those defined in port_usages
 
 <a id="nestedatt--acl_policies"></a>
 ### Nested Schema for `acl_policies`
@@ -219,7 +216,7 @@ Optional:
 
 Required:
 
-- `via` (String) Next-hop IP Address
+- `via` (String) Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.
 
 Optional:
 
@@ -244,7 +241,7 @@ Optional:
 
 Required:
 
-- `via` (String) Next-hop IP Address
+- `via` (String) Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.
 
 Optional:
 
@@ -366,6 +363,7 @@ Optional:
 - `networks` (List of String) Only if `mode`==`trunk`, the list of network/vlans
 - `persist_mac` (Boolean) Only if `mode`==`access` and `port_auth`!=`dot1x`. Whether the port should retain dynamically learned MAC addresses
 - `poe_disabled` (Boolean) Only if `mode`!=`dynamic`. Whether PoE capabilities are disabled for a port
+- `poe_keep_state_when_reboot` (Boolean) Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots
 - `poe_priority` (String) PoE priority. enum: `low`, `high`
 - `port_auth` (String) Only if `mode`!=`dynamic`. If dot1x is desired, set to dot1x. enum: `dot1x`
 - `port_network` (String) Only if `mode`!=`dynamic`. Native network/vlan for untagged traffic
@@ -905,7 +903,8 @@ Optional:
 
 - `ae_disable_lacp` (Boolean) To disable LACP support for the AE interface
 - `ae_idx` (Number) Users could force to use the designated AE name
-- `ae_lacp_slow` (Boolean) To use fast timeout
+- `ae_lacp_force_up` (Boolean) If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only
+- `ae_lacp_slow` (Boolean) To use slow timeout
 - `aggregated` (Boolean)
 - `critical` (Boolean) To generate port up/down alarm
 - `description` (String)

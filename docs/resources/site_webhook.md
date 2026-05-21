@@ -47,7 +47,7 @@ resource "mist_site_webhook" "webhook_one" {
 
 - `name` (String) Name of the webhook
 - `site_id` (String)
-- `topics` (List of String) enum:  `alarms `, `asset-raw `, `asset-raw-rssi `, `audits `, `client-info `, `client-join `, `client-latency `, `client-sessions `, `device-events `, `device-updowns `, `discovered-raw-rssi `, `guest-authorizations `, `location `, `location-asset `, `location-centrak `, `location-client `, `location-sdk `, `location-unclient `, `mxedge-events `, `nac-accounting `, `nac-events `, `occupancy-alerts `, `rssizone `, `sdkclient-scan-data `, `vbeacon `, `wifi-conn-raw `, `wifi-unconn-raw `, `zone `
+- `topics` (List of String) enum: `alarms`, `asset-raw`, `asset-raw-rssi`, `audits`, `client-info`, `client-join`, `client-latency`, `client-sessions`, `device-events`, `device-updowns`, `discovered-raw-rssi`, `guest-authorizations`, `location`, `location-asset`, `location-centrak`, `location-client`, `location-sdk`, `location-unclient`, `mxedge-events`, `minis-application`, `minis-reachability`, `nac-accounting`, `nac-events`, `occupancy-alerts`, `rssizone`, `sdkclient-scan-data`, `vbeacon`, `wifi-conn-raw`, `wifi-unconn-raw`, `zone`
 - `url` (String)
 
 ### Optional
@@ -64,7 +64,7 @@ resource "mist_site_webhook" "webhook_one" {
 - `oauth2_username` (String) Required when `oauth2_grant_type`==`password`
 - `secret` (String, Sensitive) Only if `type`=`http-post` 
 
-when `secret` is provided, two  HTTP headers will be added: 
+when `secret` is provided, two HTTP headers will be added: 
   * X-Mist-Signature-v2: HMAC_SHA256(secret, body)
   * X-Mist-Signature: HMAC_SHA1(secret, body)
 - `single_event_per_message` (Boolean) Some solutions may not be able to parse multiple events from a single message (e.g. IBM Qradar, DSM). When set to `true`, only a single event will be sent per message. this feature is only available on certain topics (see [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics))
