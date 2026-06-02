@@ -43,7 +43,7 @@ func (o ParseImageTypeValidator) ValidateString(_ context.Context, req validator
 		return
 	}
 
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	fileData, err := io.ReadAll(file)
 	if err != nil {
 		resp.Diagnostics.Append(validatordiag.InvalidAttributeValueDiagnostic(

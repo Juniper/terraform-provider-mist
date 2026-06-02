@@ -164,7 +164,10 @@ func (d *deviceSwitchStatsDataSource) Read(ctx context.Context, req datasource.R
 
 		body, _ := io.ReadAll(data.Response.Body)
 		var mistStats []models.StatsSwitch
-		json.Unmarshal(body, &mistStats)
+		if err = json.Unmarshal(body, &mistStats); err != nil {
+			resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+			return
+		}
 
 		diags = datasource_device_switch_stats.SdkToTerraform(ctx, &mistStats, &elements)
 		resp.Diagnostics.Append(diags...)

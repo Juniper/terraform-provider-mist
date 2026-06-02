@@ -219,14 +219,14 @@ func main() {
 						fmt.Println("Found a list type:", varName)
 						fmt.Println("Element Type:", attrParam.ElemType)
 
-						switch {
-						case attrParam.ElemType == "types.StringType":
+						switch attrParam.ElemType {
+						case "types.StringType":
 							line = fmt.Sprintf("\t%s []string %s\n", varName, fullTag)
-						case attrParam.ElemType == "types.Bool":
+						case "types.Bool":
 							line = fmt.Sprintf("\t%s []bool %s\n", varName, fullTag)
-						case attrParam.ElemType == "types.Float64":
+						case "types.Float64":
 							line = fmt.Sprintf("\t%s []float64 %s\n", varName, fullTag)
-						case attrParam.ElemType == "types.Int64Type":
+						case "types.Int64Type":
 							line = fmt.Sprintf("\t%s []int64 %s\n", varName, fullTag)
 						default:
 							line = fmt.Sprintf("\t%s []%s%sValue %s\n", varName, resourceModel, varName, fullTag)
@@ -262,14 +262,14 @@ func main() {
 							line = fmt.Sprintf("\t%s %s%sValue %s\n", varName, resourceModel, varName, fullTag)
 						}
 					} else if strings.Contains(varType, "types.Map") {
-						switch {
-						case attrParam.ElemType == "types.StringType":
+						switch attrParam.ElemType {
+						case "types.StringType":
 							line = fmt.Sprintf("\t%s map[string]string %s\n", varName, fullTag)
-						case attrParam.ElemType == "types.Bool":
+						case "types.Bool":
 							line = fmt.Sprintf("\t%s map[string]bool %s\n", varName, fullTag)
-						case attrParam.ElemType == "types.Float64":
+						case "types.Float64":
 							line = fmt.Sprintf("\t%s map[string]float64 %s\n", varName, fullTag)
-						case attrParam.ElemType == "types.Int64Type":
+						case "types.Int64Type":
 							line = fmt.Sprintf("\t%s map[string]int64 %s\n", varName, fullTag)
 						default:
 							line = fmt.Sprintf("\t%s map[string]%s%sValue %s\n", varName, resourceModel, varName, fullTag)

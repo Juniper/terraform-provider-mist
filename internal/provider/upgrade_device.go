@@ -240,11 +240,11 @@ func (r *upgradeDeviceResource) refreshFwUpdate(
 	var startTime = time.Now()
 	var retry = 0
 	var maxRetry = 3
-	var deviceUptime = -1
+	var deviceUptime int
 	var upgradeStarted = false
-	var uploadDone = false
-	var upgradeDone = false
-	var rebootDone = false
+	var uploadDone bool
+	var upgradeDone bool
+	var rebootDone bool
 
 	siteId, err := uuid.Parse(state.SiteId.ValueString())
 	if err != nil {
@@ -273,6 +273,7 @@ func (r *upgradeDeviceResource) refreshFwUpdate(
 			if retry < maxRetry {
 				retry += 1
 				time.Sleep(5 * time.Second)
+				continue
 			} else {
 				diags.AddError(
 					"Error reading device status for the \"mist_upgrade_device\" resource",

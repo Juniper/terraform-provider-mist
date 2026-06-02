@@ -19,10 +19,10 @@ func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	var enableGcmp256 basetypes.BoolValue
 	var enableMacAuth basetypes.BoolValue
 	var keyIdx basetypes.Int64Value
-	var keys = types.ListNull(types.StringType)
+	var keys basetypes.ListValue
 	var multiPskOnly basetypes.BoolValue
 	var owe basetypes.StringValue
-	var pairwise = types.ListNull(types.StringType)
+	var pairwise basetypes.ListValue
 	var privateWlan basetypes.BoolValue
 	var psk = types.StringValue("")
 	var typeAuth basetypes.StringValue

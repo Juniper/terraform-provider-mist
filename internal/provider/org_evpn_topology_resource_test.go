@@ -69,8 +69,8 @@ func TestOrgEvpnTopologyModel(t *testing.T) {
 	}
 
 	resourceType := "org_evpn_topology"
-	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_evpn_topology.OrgEvpnTopologyResourceSchema(t.Context()).Attributes)
 	t.Skipf("Skipping %s tests, as they require a real device.", resourceType)
+	tracker := validators.FieldCoverageTrackerWithSchema(resourceType, resource_org_evpn_topology.OrgEvpnTopologyResourceSchema(t.Context()).Attributes)
 	for tName, tCase := range testCases {
 		t.Run(tName, func(t *testing.T) {
 

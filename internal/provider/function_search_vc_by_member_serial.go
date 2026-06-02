@@ -86,7 +86,7 @@ func (f *SearchVcByMemberSerialFunction) Run(ctx context.Context, req function.R
 					vc, err := f.genVirtualChassisFromInventory(ctx, vcMember)
 					if err != nil {
 						for _, e := range err.Errors() {
-							function.NewFuncError(e.Detail())
+							resp.Error = function.NewFuncError(e.Detail())
 						}
 					}
 					resp.Error = resp.Result.Set(ctx, &vc)

@@ -242,20 +242,20 @@ func CreateTestPNGFile(t *testing.T) string {
 	// Write PNG data
 	_, err = tmpFile.Write(pngData)
 	if err != nil {
-		tmpFile.Close()
-		os.Remove(tmpFile.Name())
+		_ = tmpFile.Close()
+		_ = os.Remove(tmpFile.Name())
 		t.Fatalf("Failed to write PNG data: %v", err)
 	}
 
 	err = tmpFile.Close()
 	if err != nil {
-		os.Remove(tmpFile.Name())
+		_ = os.Remove(tmpFile.Name())
 		t.Fatalf("Failed to close temp file: %v", err)
 	}
 
 	// Clean up on test completion
 	t.Cleanup(func() {
-		os.Remove(tmpFile.Name())
+		_ = os.Remove(tmpFile.Name())
 	})
 
 	return tmpFile.Name()

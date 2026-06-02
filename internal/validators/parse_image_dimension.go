@@ -45,7 +45,7 @@ func (o ParseImageDimensionValidator) ValidateString(_ context.Context, req vali
 		return
 	}
 
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	config, _, err := image.DecodeConfig((io.Reader)(file))
 	if err != nil {

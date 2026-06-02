@@ -200,7 +200,10 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 			}
 
 			body, _ := io.ReadAll(data.Response.Body)
-			json.Unmarshal(body, &mistMxedge)
+			if err = json.Unmarshal(body, &mistMxedge); err != nil {
+				resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+				return
+			}
 		}
 
 	} else {
@@ -233,7 +236,10 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 		}
 
 		body, _ := io.ReadAll(data.Response.Body)
-		json.Unmarshal(body, &mistMxedge)
+		if err = json.Unmarshal(body, &mistMxedge); err != nil {
+			resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+			return
+		}
 	}
 
 	state, diags = resource_org_mxedge.SdkToTerraform(ctx, &mistMxedge)
@@ -452,7 +458,10 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 
 	body, _ := io.ReadAll(data.Response.Body)
 	mistMxedge := models.Mxedge{}
-	json.Unmarshal(body, &mistMxedge)
+	if err = json.Unmarshal(body, &mistMxedge); err != nil {
+		resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+		return
+	}
 
 	// Step 3: If plan includes site assignment, assign/re-assign device to site AFTER updating
 	// Skip reassignment if site_id is Unknown (preserves current state)

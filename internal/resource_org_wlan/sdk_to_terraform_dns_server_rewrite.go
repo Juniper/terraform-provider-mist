@@ -14,7 +14,7 @@ import (
 func dnsServerRewriteSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.WlanDnsServerRewrite) DnsServerRewriteValue {
 
 	var enabled basetypes.BoolValue
-	var radiusGroups = types.MapNull(types.StringType)
+	var radiusGroups basetypes.MapValue
 
 	if d != nil && d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
