@@ -307,7 +307,7 @@ func (r *orgInventoryResource) refreshInventory(
 	tflog.Info(ctx, "Starting Inventory state refresh: org_id  "+orgId.String())
 	var serial string
 	var model string
-	var mType models.DeviceTypeEnum
+	var mType string
 	var mac string
 	var siteId *uuid.UUID
 	var vcMac string

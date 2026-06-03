@@ -83,9 +83,9 @@ func (d *deviceApStatsDataSource) Read(ctx context.Context, req datasource.ReadR
 	var fields = "*"
 	var mac string
 	var siteId string
-	var status models.DeviceStatusEnum
+	var status string
 	var start string
-	var mType = string(models.DeviceTypeEnum_AP)
+	var mType = models.DeviceEnumWithAllEnum_AP
 
 	if !ds.Duration.IsNull() && !ds.Duration.IsUnknown() {
 		duration = ds.Duration.ValueString()
@@ -100,7 +100,7 @@ func (d *deviceApStatsDataSource) Read(ctx context.Context, req datasource.ReadR
 		siteId = ds.SiteId.ValueString()
 	}
 	if !ds.Status.IsNull() && !ds.Status.IsUnknown() {
-		status = (models.DeviceStatusEnum)(ds.Status.ValueString())
+		status = ds.Status.ValueString()
 	}
 	if !ds.Start.IsNull() && !ds.Start.IsUnknown() {
 		start = ds.Start.ValueString()
