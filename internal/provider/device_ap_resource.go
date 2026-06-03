@@ -112,10 +112,14 @@ func (r *deviceApResource) Create(ctx context.Context, req resource.CreateReques
 		}
 	}
 
-	body, _ := io.ReadAll(data.Response.Body)
+	body, err := io.ReadAll(data.Response.Body)
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+		return
+	}
 	mistAp := models.DeviceAp{}
 	if err = json.Unmarshal(body, &mistAp); err != nil {
-		resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+		resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
 		return
 	}
 	state, diags = resource_device_ap.SdkToTerraform(ctx, &mistAp)
@@ -172,10 +176,14 @@ func (r *deviceApResource) Read(ctx context.Context, _ resource.ReadRequest, res
 		)
 		return
 	}
-	body, _ := io.ReadAll(httpr.Response.Body)
+	body, err := io.ReadAll(httpr.Response.Body)
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+		return
+	}
 	mistAp := models.DeviceAp{}
 	if err = json.Unmarshal(body, &mistAp); err != nil {
-		resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+		resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
 		return
 	}
 
@@ -246,10 +254,14 @@ func (r *deviceApResource) Update(ctx context.Context, req resource.UpdateReques
 		}
 	}
 
-	body, _ := io.ReadAll(data.Response.Body)
+	body, err := io.ReadAll(data.Response.Body)
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+		return
+	}
 	mistAp := models.DeviceAp{}
 	if err = json.Unmarshal(body, &mistAp); err != nil {
-		resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+		resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
 		return
 	}
 	state, diags = resource_device_ap.SdkToTerraform(ctx, &mistAp)

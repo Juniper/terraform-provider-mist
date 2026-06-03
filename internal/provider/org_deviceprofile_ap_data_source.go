@@ -124,10 +124,14 @@ func (d *orgDeviceprofilesApDataSource) Read(ctx context.Context, req datasource
 			return
 		}
 
-		body, _ := io.ReadAll(data.Response.Body)
+		body, err := io.ReadAll(data.Response.Body)
+		if err != nil {
+			resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+			return
+		}
 		var mistDeviceprofiles []models.DeviceprofileAp
 		if err = json.Unmarshal(body, &mistDeviceprofiles); err != nil {
-			resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+			resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
 			return
 		}
 

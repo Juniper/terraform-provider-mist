@@ -162,10 +162,14 @@ func (d *deviceGatewayStatsDataSource) Read(ctx context.Context, req datasource.
 			return
 		}
 
-		body, _ := io.ReadAll(data.Response.Body)
+		body, err := io.ReadAll(data.Response.Body)
+		if err != nil {
+			resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+			return
+		}
 		var mistStats []models.StatsGateway
 		if err = json.Unmarshal(body, &mistStats); err != nil {
-			resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+			resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
 			return
 		}
 

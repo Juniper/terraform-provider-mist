@@ -199,9 +199,13 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 				}
 			}
 
-			body, _ := io.ReadAll(data.Response.Body)
+			body, err := io.ReadAll(data.Response.Body)
+			if err != nil {
+				resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+				return
+			}
 			if err = json.Unmarshal(body, &mistMxedge); err != nil {
-				resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+				resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
 				return
 			}
 		}
@@ -235,9 +239,13 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 			}
 		}
 
-		body, _ := io.ReadAll(data.Response.Body)
+		body, err := io.ReadAll(data.Response.Body)
+		if err != nil {
+			resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+			return
+		}
 		if err = json.Unmarshal(body, &mistMxedge); err != nil {
-			resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+			resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
 			return
 		}
 	}
@@ -414,7 +422,10 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 					)
 				} else {
 					// Fallback when ProcessApiError returns empty string
-					body, _ := io.ReadAll(unassignResponse.Response.Body)
+					body, readErr := io.ReadAll(unassignResponse.Response.Body)
+					if readErr != nil {
+						body = []byte(fmt.Sprintf("(unable to read response body: %s)", readErr.Error()))
+					}
 					resp.Diagnostics.AddError(
 						"Error unassigning \"mist_org_mxedge\" from site",
 						fmt.Sprintf("Unable to unassign the MxEdge from site. HTTP %d: %s", unassignResponse.Response.StatusCode, string(body)),
@@ -456,10 +467,14 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 		}
 	}
 
-	body, _ := io.ReadAll(data.Response.Body)
+	body, err := io.ReadAll(data.Response.Body)
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+		return
+	}
 	mistMxedge := models.Mxedge{}
 	if err = json.Unmarshal(body, &mistMxedge); err != nil {
-		resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+		resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
 		return
 	}
 
@@ -492,7 +507,10 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 					)
 				} else {
 					// Fallback when ProcessApiError returns empty string
-					body, _ := io.ReadAll(assignResponse.Response.Body)
+					body, readErr := io.ReadAll(assignResponse.Response.Body)
+					if readErr != nil {
+						body = []byte(fmt.Sprintf("(unable to read response body: %s)", readErr.Error()))
+					}
 					resp.Diagnostics.AddError(
 						"Error assigning \"mist_org_mxedge\" to site",
 						fmt.Sprintf("Unable to assign the MxEdge to site. HTTP %d: %s", assignResponse.Response.StatusCode, string(body)),
@@ -593,7 +611,10 @@ func (r *orgMxedgeResource) Delete(ctx context.Context, _ resource.DeleteRequest
 					)
 				} else {
 					// Fallback when ProcessApiError returns empty string
-					body, _ := io.ReadAll(unassignResponse.Response.Body)
+					body, readErr := io.ReadAll(unassignResponse.Response.Body)
+					if readErr != nil {
+						body = []byte(fmt.Sprintf("(unable to read response body: %s)", readErr.Error()))
+					}
 					resp.Diagnostics.AddError(
 						"Error unassigning \"mist_org_mxedge\" from site before deletion",
 						fmt.Sprintf("Unable to unassign the MxEdge from site. HTTP %d: %s", unassignResponse.Response.StatusCode, string(body)),

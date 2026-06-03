@@ -103,10 +103,14 @@ func (r *orgMxclusterResource) Create(ctx context.Context, req resource.CreateRe
 		}
 	}
 
-	body, _ := io.ReadAll(data.Response.Body)
+	body, err := io.ReadAll(data.Response.Body)
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+		return
+	}
 	mistMxcluster := models.Mxcluster{}
 	if err = json.Unmarshal(body, &mistMxcluster); err != nil {
-		resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+		resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
 		return
 	}
 
@@ -164,10 +168,14 @@ func (r *orgMxclusterResource) Read(ctx context.Context, _ resource.ReadRequest,
 		return
 	}
 
-	body, _ := io.ReadAll(httpr.Response.Body)
+	body, err := io.ReadAll(httpr.Response.Body)
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+		return
+	}
 	mistMxcluster := models.Mxcluster{}
 	if err = json.Unmarshal(body, &mistMxcluster); err != nil {
-		resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+		resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
 		return
 	}
 
@@ -239,10 +247,14 @@ func (r *orgMxclusterResource) Update(ctx context.Context, req resource.UpdateRe
 		}
 	}
 
-	body, _ := io.ReadAll(data.Response.Body)
+	body, err := io.ReadAll(data.Response.Body)
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+		return
+	}
 	mistMxcluster := models.Mxcluster{}
 	if err = json.Unmarshal(body, &mistMxcluster); err != nil {
-		resp.Diagnostics.AddError("Unable to unMarshal API response", err.Error())
+		resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
 		return
 	}
 
