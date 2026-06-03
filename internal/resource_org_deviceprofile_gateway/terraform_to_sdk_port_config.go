@@ -26,15 +26,15 @@ func wanExtraRoutesPortVpnPathTerraformToSdk(data basetypes.MapValue) map[string
 	return dataMap
 }
 
-func wanExtraRoutes6PortVpnPathTerraformToSdk(data basetypes.MapValue) map[string]models.WanExtraRoutes {
-	dataMap := make(map[string]models.WanExtraRoutes)
+func wanExtraRoutes6PortVpnPathTerraformToSdk(data basetypes.MapValue) map[string]models.WanExtraRoutes6 {
+	dataMap := make(map[string]models.WanExtraRoutes6)
 	for key, val := range data.Elements() {
 		plan := val.(WanExtraRoutes6Value)
 		if plan.Via.ValueStringPointer() == nil {
 			continue
 		}
 
-		dataMap[key] = models.WanExtraRoutes{
+		dataMap[key] = models.WanExtraRoutes6{
 			Via: plan.Via.ValueStringPointer(),
 		}
 	}

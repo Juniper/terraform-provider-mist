@@ -53,7 +53,7 @@ func vrfInstanceExtraRouteSdkToTerraform(ctx context.Context, diags *diag.Diagno
 	return stateResult
 }
 
-func vrfInstanceExtraRoute6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.VrfExtraRoute) basetypes.MapValue {
+func vrfInstanceExtraRoute6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.VrfExtraRoute6) basetypes.MapValue {
 	mapItemValue := make(map[string]attr.Value)
 	for k, d := range m {
 		var via basetypes.StringValue
