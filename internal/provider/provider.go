@@ -132,7 +132,7 @@ func csrfTokenFromSetCookie(headers http.Header) string {
 	for _, rawCookie := range headers.Values("Set-Cookie") {
 		for _, part := range strings.Split(rawCookie, ";") {
 			part = strings.TrimSpace(part)
-			if !strings.HasPrefix(part, "csrftoken") {
+			if !strings.HasPrefix(part, "csrftoken=") {
 				continue
 			}
 			pieces := strings.SplitN(part, "=", 2)
