@@ -20,6 +20,14 @@ import (
 // can be customized.
 //go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate -provider-name scaffolding
 
+//nolint:unused
+var (
+	// These values are set at build time (e.g. by GoReleaser via -ldflags).
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 func main() {
 	var debug bool
 
