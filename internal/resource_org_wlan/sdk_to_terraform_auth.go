@@ -22,7 +22,7 @@ func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.
 	var keys basetypes.ListValue
 	var multiPskOnly basetypes.BoolValue
 	var owe basetypes.StringValue
-	var pairwise basetypes.ListValue
+	var pairwise = types.ListNull(types.StringType)
 	var privateWlan basetypes.BoolValue
 	var psk = types.StringValue("")
 	var typeAuth basetypes.StringValue

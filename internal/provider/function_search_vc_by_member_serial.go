@@ -83,24 +83,29 @@ func (f *SearchVcByMemberSerialFunction) Run(ctx context.Context, req function.R
 			vcMember := vi.(resource_org_inventory.InventoryValue)
 			if strings.EqualFold(vcMember.Serial.ValueString(), serial) {
 				if vcMember.InventoryType.ValueString() == "switch" {
-					vc, err := f.genVirtualChassisFromInventory(ctx, vcMember)
-					if err != nil {
-						for _, e := range err.Errors() {
-							resp.Error = function.NewFuncError(e.Detail())
-						}
+					vc, diags := f.genVirtualChassisFromInventory(ctx, vcMember)
+					for _, e := range diags.Errors() {
+						resp.Error = function.ConcatFuncErrors(resp.Error, function.NewFuncError(e.Detail()))
 					}
-					resp.Error = resp.Result.Set(ctx, &vc)
+					if resp.Error != nil {
+						return
+					}
+					resp.Error = function.ConcatFuncErrors(resp.Error, resp.Result.Set(ctx, &vc))
 					return
 				} else {
 					resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("The provided Serial Number \"%s\" does not belong to a switch (%s)", serial, vcMember.InventoryType.ValueString()))
+					return
 				}
 			}
 		}
 	} else {
 		resp.Error = function.NewArgumentFuncError(0, "The provided inventory is empty")
+		return
 	}
 
-	resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("Unable to find a device with Serial \"%s\" in the provided inventory", serial))
+	if resp.Error == nil {
+		resp.Error = function.NewArgumentFuncError(1, fmt.Sprintf("Unable to find a device with Serial \"%s\" in the provided inventory", serial))
+	}
 }
 
 func (f *SearchVcByMemberSerialFunction) genVirtualChassisFromInventory(
