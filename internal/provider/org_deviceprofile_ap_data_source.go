@@ -124,9 +124,16 @@ func (d *orgDeviceprofilesApDataSource) Read(ctx context.Context, req datasource
 			return
 		}
 
-		body, _ := io.ReadAll(data.Response.Body)
+		body, err := io.ReadAll(data.Response.Body)
+		if err != nil {
+			resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+			return
+		}
 		var mistDeviceprofiles []models.DeviceprofileAp
-		json.Unmarshal(body, &mistDeviceprofiles)
+		if err = json.Unmarshal(body, &mistDeviceprofiles); err != nil {
+			resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
+			return
+		}
 
 		diags = datasource_org_deviceprofiles_ap.SdkToTerraform(ctx, &mistDeviceprofiles, &elements)
 		resp.Diagnostics.Append(diags...)

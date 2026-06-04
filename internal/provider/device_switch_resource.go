@@ -113,9 +113,16 @@ func (r *deviceSwitchResource) Create(ctx context.Context, req resource.CreateRe
 		}
 	}
 
-	body, _ := io.ReadAll(data.Response.Body)
+	body, err := io.ReadAll(data.Response.Body)
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+		return
+	}
 	mistSwitch := models.DeviceSwitch{}
-	json.Unmarshal(body, &mistSwitch)
+	if err = json.Unmarshal(body, &mistSwitch); err != nil {
+		resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
+		return
+	}
 	state, diags = resource_device_switch.SdkToTerraform(ctx, &mistSwitch)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -170,9 +177,16 @@ func (r *deviceSwitchResource) Read(ctx context.Context, _ resource.ReadRequest,
 		return
 	}
 
-	body, _ := io.ReadAll(httpr.Response.Body)
+	body, err := io.ReadAll(httpr.Response.Body)
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+		return
+	}
 	mistSwitch := models.DeviceSwitch{}
-	json.Unmarshal(body, &mistSwitch)
+	if err = json.Unmarshal(body, &mistSwitch); err != nil {
+		resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
+		return
+	}
 
 	state, diags = resource_device_switch.SdkToTerraform(ctx, &mistSwitch)
 	resp.Diagnostics.Append(diags...)
@@ -242,9 +256,16 @@ func (r *deviceSwitchResource) Update(ctx context.Context, req resource.UpdateRe
 		}
 	}
 
-	body, _ := io.ReadAll(data.Response.Body)
+	body, err := io.ReadAll(data.Response.Body)
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+		return
+	}
 	mistSwitch := models.DeviceSwitch{}
-	json.Unmarshal(body, &mistSwitch)
+	if err = json.Unmarshal(body, &mistSwitch); err != nil {
+		resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
+		return
+	}
 	state, diags = resource_device_switch.SdkToTerraform(ctx, &mistSwitch)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

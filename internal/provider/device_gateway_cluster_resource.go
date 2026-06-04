@@ -464,9 +464,9 @@ func (r *deviceGatewayClusterResource) checkClusterNode(
 ) (*models.GatewayCluster, bool) {
 	httpr, err := r.client.SitesDevicesWANCluster().GetSiteDeviceHaClusterNode(ctx, siteId, clusterId)
 
-	if err == nil && len(httpr.ApiResponse.Data.Nodes) > 0 {
+	if err == nil && len(httpr.Data.Nodes) > 0 {
 		sameNodes := true
-		for _, node := range httpr.ApiResponse.Data.Nodes {
+		for _, node := range httpr.Data.Nodes {
 			if node.Mac != primaryNodeMac && node.Mac != secondaryNodeMac {
 				sameNodes = false
 			}

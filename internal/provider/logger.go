@@ -74,7 +74,7 @@ func formatLog(message string, metadata map[string]interface{}) string {
 			if isJSON(strValue) {
 				strValue = formatJSON(strValue)
 			}
-			logBuilder.WriteString(fmt.Sprintf("  %s: %s\n", key, strValue))
+			_, _ = fmt.Fprintf(&logBuilder, "  %s: %s\n", key, strValue)
 		}
 	}
 

@@ -103,9 +103,16 @@ func (r *orgMxclusterResource) Create(ctx context.Context, req resource.CreateRe
 		}
 	}
 
-	body, _ := io.ReadAll(data.Response.Body)
+	body, err := io.ReadAll(data.Response.Body)
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+		return
+	}
 	mistMxcluster := models.Mxcluster{}
-	json.Unmarshal(body, &mistMxcluster)
+	if err = json.Unmarshal(body, &mistMxcluster); err != nil {
+		resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
+		return
+	}
 
 	state, diags = resource_org_mxcluster.SdkToTerraform(ctx, &mistMxcluster)
 	resp.Diagnostics.Append(diags...)
@@ -161,9 +168,16 @@ func (r *orgMxclusterResource) Read(ctx context.Context, _ resource.ReadRequest,
 		return
 	}
 
-	body, _ := io.ReadAll(httpr.Response.Body)
+	body, err := io.ReadAll(httpr.Response.Body)
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+		return
+	}
 	mistMxcluster := models.Mxcluster{}
-	json.Unmarshal(body, &mistMxcluster)
+	if err = json.Unmarshal(body, &mistMxcluster); err != nil {
+		resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
+		return
+	}
 
 	state, diags = resource_org_mxcluster.SdkToTerraform(ctx, &mistMxcluster)
 	resp.Diagnostics.Append(diags...)
@@ -233,9 +247,16 @@ func (r *orgMxclusterResource) Update(ctx context.Context, req resource.UpdateRe
 		}
 	}
 
-	body, _ := io.ReadAll(data.Response.Body)
+	body, err := io.ReadAll(data.Response.Body)
+	if err != nil {
+		resp.Diagnostics.AddError("Unable to read API response body", err.Error())
+		return
+	}
 	mistMxcluster := models.Mxcluster{}
-	json.Unmarshal(body, &mistMxcluster)
+	if err = json.Unmarshal(body, &mistMxcluster); err != nil {
+		resp.Diagnostics.AddError("Unable to unmarshal API response", err.Error())
+		return
+	}
 
 	state, diags = resource_org_mxcluster.SdkToTerraform(ctx, &mistMxcluster)
 	resp.Diagnostics.Append(diags...)

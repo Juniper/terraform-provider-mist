@@ -107,7 +107,7 @@ func (r *orgNacPortalResource) Create(ctx context.Context, req resource.CreateRe
 
 	// Check if ID needs to be extracted from response wrapper
 	// The SDK might have the ID at the response level rather than in Data
-	tflog.Debug(ctx, fmt.Sprintf("Created NAC Portal, checking for ID in response"))
+	tflog.Debug(ctx, "Created NAC Portal, checking for ID in response")
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)

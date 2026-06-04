@@ -39,7 +39,7 @@ func (o ParseImageSizeValidator) ValidateString(_ context.Context, req validator
 		return
 	}
 
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	state, err := file.Stat()
 	if err != nil {

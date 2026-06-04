@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
 func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, diag.Diagnostics) {
@@ -18,11 +19,11 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 
 	var id = types.StringNull()
 	var mac = types.StringNull()
-	var model = types.StringNull()
+	var model basetypes.StringValue
 	var mxagentRegistered = types.BoolNull()
 	var mxclusterId = types.StringNull()
 	var mxedgeMgmt = NewMxedgeMgmtValueNull()
-	var name = types.StringNull()
+	var name basetypes.StringValue
 	var notes = types.StringNull()
 	var ntpServers = types.ListNull(types.StringType)
 	var oobIpConfig = NewOobIpConfigValueNull()

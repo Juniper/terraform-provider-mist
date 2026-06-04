@@ -77,7 +77,7 @@ func TestFromEnvApiDebug(t *testing.T) {
 			if !tt.envIsUnset {
 				t.Setenv("MIST_API_DEBUG", tt.envValue)
 			} else {
-				os.Unsetenv("MIST_API_DEBUG")
+				_ = os.Unsetenv("MIST_API_DEBUG")
 			}
 
 			var p = mistProviderModel{

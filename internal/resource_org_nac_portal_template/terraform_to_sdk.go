@@ -23,7 +23,7 @@ func getLogo(diags *diag.Diagnostics, filepath string) string {
 		return filestring
 	}
 
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	fileData, err := io.ReadAll(file)
 	if err != nil {
 		diags.AddError(
