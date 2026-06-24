@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -27,8 +28,8 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 			"access_type": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "if `type`==`marvis_client`. enum: `wireless`, `wireless+wired`",
-				MarkdownDescription: "if `type`==`marvis_client`. enum: `wireless`, `wireless+wired`",
+				Description:         "If `type`==`marvis_client`, whether onboarding applies to wireless clients or both wireless and wired clients",
+				MarkdownDescription: "If `type`==`marvis_client`, whether onboarding applies to wireless clients or both wireless and wired clients",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -36,12 +37,13 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 						"wireless+wired",
 					),
 				},
+				Default: stringdefault.StaticString("wireless"),
 			},
 			"additional_cacerts": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "Optional list of additional CA certificates to be used",
-				MarkdownDescription: "Optional list of additional CA certificates to be used",
+				Description:         "Additional CA certificates trusted during NAC portal certificate onboarding",
+				MarkdownDescription: "Additional CA certificates trusted during NAC portal certificate onboarding",
 			},
 			"additional_nac_server_name": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -51,14 +53,14 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"cert_expire_time": schema.Int64Attribute{
 				Optional:            true,
-				Description:         "In days",
-				MarkdownDescription: "In days",
+				Description:         "Validity duration for portal-issued client certificates, in days",
+				MarkdownDescription: "Validity duration for portal-issued client certificates, in days",
 			},
 			"eap_type": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "enum: `wpa2`, `wpa3`",
-				MarkdownDescription: "enum: `wpa2`, `wpa3`",
+				Description:         "EAP mode used when onboarding wireless clients through the NAC portal",
+				MarkdownDescription: "EAP mode used when onboarding wireless clients through the NAC portal",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -66,6 +68,7 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 						"wpa3",
 					),
 				},
+				Default: stringdefault.StaticString("wpa2"),
 			},
 			"enable_telemetry": schema.BoolAttribute{
 				Optional:            true,
@@ -74,35 +77,41 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"expiry_notification_time": schema.Int64Attribute{
 				Optional:            true,
-				Description:         "In days",
-				MarkdownDescription: "In days",
+				Description:         "Number of days before certificate expiration to start sending reminder notifications",
+				MarkdownDescription: "Number of days before certificate expiration to start sending reminder notifications",
 			},
 			"id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Unique identifier of the NAC portal",
+				MarkdownDescription: "Unique identifier of the NAC portal",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Human-readable name of the NAC portal",
+				MarkdownDescription: "Human-readable name of the NAC portal",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(1, 128),
 				},
 			},
 			"notify_expiry": schema.BoolAttribute{
 				Optional:            true,
-				Description:         "phase 2",
-				MarkdownDescription: "phase 2",
+				Description:         "Whether to send reminder notifications before portal-issued certificates expire",
+				MarkdownDescription: "Whether to send reminder notifications before portal-issued certificates expire",
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Organization that owns this NAC portal",
+				MarkdownDescription: "Organization that owns this NAC portal",
 			},
 			"portal": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"auth": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Guest portal authentication type. enum: `external`, `multi`, `none`",
-						MarkdownDescription: "Guest portal authentication type. enum: `external`, `multi`, `none`",
+						Description:         "Mode presented by the NAC guest portal for user authentication",
+						MarkdownDescription: "Mode presented by the NAC guest portal for user authentication",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -159,22 +168,26 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Guest portal configuration when `type`==`guest_portal`. If \n  * `auth`==`none`, the user is presented with a terms of service and can click and continue.\n  * `auth`==`external`, the user is redirected to an external URL for authentication.\n  * `auth`==`multi`, the user is presented with a choice of authentication methods:\n    - social logins: facebook / google / amazon / microsoft / azure\n    - sponsor\n    - sms: supported provider: twillio\n    - email\n    - sso\n    - userpass: pre created guest list\n",
-				MarkdownDescription: "Guest portal configuration when `type`==`guest_portal`. If \n  * `auth`==`none`, the user is presented with a terms of service and can click and continue.\n  * `auth`==`external`, the user is redirected to an external URL for authentication.\n  * `auth`==`multi`, the user is presented with a choice of authentication methods:\n    - social logins: facebook / google / amazon / microsoft / azure\n    - sponsor\n    - sms: supported provider: twillio\n    - email\n    - sso\n    - userpass: pre created guest list\n",
+				Description:         "Guest portal settings used when `type`==`guest_portal`",
+				MarkdownDescription: "Guest portal settings used when `type`==`guest_portal`",
 			},
 			"ssid": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Wireless SSID associated with the NAC portal",
+				MarkdownDescription: "Wireless SSID associated with the NAC portal",
 			},
 			"sso": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"idp_cert": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Identity provider certificate used to verify signed SAML responses",
+						MarkdownDescription: "Identity provider certificate used to verify signed SAML responses",
 					},
 					"idp_sign_algo": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`.",
-						MarkdownDescription: "Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`.",
+						Description:         "Signing algorithm expected for SAML assertions from the identity provider",
+						MarkdownDescription: "Signing algorithm expected for SAML assertions from the identity provider",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -184,24 +197,35 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 								"sha512",
 							),
 						},
+						Default: stringdefault.StaticString("sha256"),
 					},
 					"idp_sso_url": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Identity provider Single Sign-On URL for SAML authentication",
+						MarkdownDescription: "Identity provider Single Sign-On URL for SAML authentication",
 					},
 					"issuer": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Identity provider issuer URL for SAML authentication",
+						MarkdownDescription: "Identity provider issuer URL for SAML authentication",
 					},
 					"nameid_format": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "SAML NameID format expected from the identity provider",
+						MarkdownDescription: "SAML NameID format expected from the identity provider",
 					},
 					"sso_role_matching": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"assigned": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "NAC portal role assigned when the SSO role value matches",
+									MarkdownDescription: "NAC portal role assigned when the SSO role value matches",
 								},
 								"match": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "SSO role value to match from the SAML assertion",
+									MarkdownDescription: "SSO role value to match from the SAML assertion",
 								},
 							},
 							CustomType: SsoRoleMatchingType{
@@ -210,12 +234,14 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "Rules that map SSO role values from the identity provider to NAC portal roles",
+						MarkdownDescription: "Rules that map SSO role values from the identity provider to NAC portal roles",
 					},
 					"use_sso_role_for_cert": schema.BoolAttribute{
 						Optional:            true,
-						Description:         "If it's desired to inject a role into Cert's Subject (so it can be used later on in policy)",
-						MarkdownDescription: "If it's desired to inject a role into Cert's Subject (so it can be used later on in policy)",
+						Description:         "Whether to include the matched SSO role in the issued certificate subject for later policy matching",
+						MarkdownDescription: "Whether to include the matched SSO role in the issued certificate subject for later policy matching",
 					},
 				},
 				CustomType: SsoType{
@@ -223,15 +249,19 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: SsoValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "SAML SSO settings for NAC portal authentication and role mapping",
+				MarkdownDescription: "SAML SSO settings for NAC portal authentication and role mapping",
 			},
 			"tos": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Terms of service text shown in the NAC portal",
+				MarkdownDescription: "Terms of service text shown in the NAC portal",
 			},
 			"type": schema.StringAttribute{
 				Optional:            true,
-				Description:         "enum: \n  * `guest_admin`: NAC-Based Portal Admin for Pre Created Guest Authentication\n  * `guest_portal`: NAC-Based Guest Portal\n  * `marvis_client`\n",
-				MarkdownDescription: "enum: \n  * `guest_admin`: NAC-Based Portal Admin for Pre Created Guest Authentication\n  * `guest_portal`: NAC-Based Guest Portal\n  * `marvis_client`\n",
+				Description:         "NAC portal mode, such as guest admin, guest portal, or Marvis client onboarding",
+				MarkdownDescription: "NAC portal mode, such as guest admin, guest portal, or Marvis client onboarding",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

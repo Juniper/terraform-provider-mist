@@ -49,8 +49,8 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique value identifying the site",
+				MarkdownDescription: "Unique value identifying the site",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -58,10 +58,14 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 			"latlng": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"lat": schema.Float64Attribute{
-						Required: true,
+						Required:            true,
+						Description:         "Geographic latitude in decimal degrees",
+						MarkdownDescription: "Geographic latitude in decimal degrees",
 					},
 					"lng": schema.Float64Attribute{
-						Required: true,
+						Required:            true,
+						Description:         "Geographic longitude in decimal degrees",
+						MarkdownDescription: "Geographic longitude in decimal degrees",
 					},
 				},
 				CustomType: LatlngType{
@@ -69,10 +73,14 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: LatlngValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Latitude and longitude for the site location",
+				MarkdownDescription: "Latitude and longitude for the site location",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the site",
+				MarkdownDescription: "Display name of the site",
 			},
 			"networktemplate_id": schema.StringAttribute{
 				Optional:            true,
@@ -87,7 +95,9 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 				Default:             stringdefault.StaticString(""),
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Organization identifier associated with the site",
+				MarkdownDescription: "Organization identifier associated with the site",
 			},
 			"rftemplate_id": schema.StringAttribute{
 				Optional:            true,
@@ -101,8 +111,8 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"secpolicy_id": schema.StringAttribute{
 				Optional:            true,
-				Description:         "SecPolicy ID",
-				MarkdownDescription: "SecPolicy ID",
+				Description:         "Security policy identifier applied to this site",
+				MarkdownDescription: "Security policy identifier applied to this site",
 			},
 			"sitegroup_ids": schema.ListAttribute{
 				ElementType:         types.StringType,
@@ -114,18 +124,20 @@ func SiteResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"sitetemplate_id": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Site Template ID",
-				MarkdownDescription: "Site Template ID",
+				Description:         "Site template identifier applied to this site",
+				MarkdownDescription: "Site template identifier applied to this site",
 			},
 			"timezone": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Timezone the site is at",
-				MarkdownDescription: "Timezone the site is at",
+				Description:         "IANA time zone name for the site",
+				MarkdownDescription: "IANA time zone name for the site",
 				Default:             stringdefault.StaticString("UTC"),
 			},
 			"tzoffset": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Time zone offset value derived from the site's timezone",
+				MarkdownDescription: "Time zone offset value derived from the site's timezone",
 			},
 		},
 	}

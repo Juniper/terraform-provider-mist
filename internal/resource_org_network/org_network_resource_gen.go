@@ -38,21 +38,25 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 				Default:             booldefault.StaticBool(false),
 			},
 			"gateway": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "IPv4 gateway address for this network",
+				MarkdownDescription: "IPv4 gateway address for this network",
 				Validators: []validator.String{
 					stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 				},
 			},
 			"gateway6": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "IPv6 gateway address for this network",
+				MarkdownDescription: "IPv6 gateway address for this network",
 				Validators: []validator.String{
 					stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
 				},
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the network",
+				MarkdownDescription: "Unique identifier of the network",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -60,7 +64,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 			"internal_access": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether internal access is enabled for this network",
+						MarkdownDescription: "Whether internal access is enabled for this network",
 					},
 				},
 				CustomType: InternalAccessType{
@@ -68,25 +74,31 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: InternalAccessValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Internal access settings for this network",
+				MarkdownDescription: "Internal access settings for this network",
 			},
 			"internet_access": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"create_simple_service_policy": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether Mist should create simple service policies for restricted internet access",
+						MarkdownDescription: "Whether Mist should create simple service policies for restricted internet access",
+						Default:             booldefault.StaticBool(false),
 					},
 					"enabled": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether direct internet access is enabled for this network",
+						MarkdownDescription: "Whether direct internet access is enabled for this network",
 					},
 					"destination_nat": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"internal_ip": schema.StringAttribute{
 									Optional:            true,
-									Description:         "The Destination NAT destination IP Address. Must be an IP (i.e. \"192.168.70.30\") or a Variable (i.e. \"{{myvar}}\")",
-									MarkdownDescription: "The Destination NAT destination IP Address. Must be an IP (i.e. \"192.168.70.30\") or a Variable (i.e. \"{{myvar}}\")",
+									Description:         "The Destination NAT destination IP address. Must be an IP (i.e. \"192.168.70.30\") or a Variable (i.e. \"{{myvar}}\")",
+									MarkdownDescription: "The Destination NAT destination IP address. Must be an IP (i.e. \"192.168.70.30\") or a Variable (i.e. \"{{myvar}}\")",
 									Validators: []validator.String{
 										stringvalidator.Any(
 											mistvalidator.ParseIp(false, false),
@@ -95,12 +107,14 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								"name": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Label for this direct internet destination NAT rule",
+									MarkdownDescription: "Label for this direct internet destination NAT rule",
 								},
 								"port": schema.StringAttribute{
 									Optional:            true,
-									Description:         "The Destination NAT destination IP Address. Must be a Port (i.e. \"443\") or a Variable (i.e. \"{{myvar}}\")",
-									MarkdownDescription: "The Destination NAT destination IP Address. Must be a Port (i.e. \"443\") or a Variable (i.e. \"{{myvar}}\")",
+									Description:         "The Destination NAT destination IP address. Must be a Port (i.e. \"443\") or a Variable (i.e. \"{{myvar}}\")",
+									MarkdownDescription: "The Destination NAT destination IP address. Must be a Port (i.e. \"443\") or a Variable (i.e. \"{{myvar}}\")",
 									Validators: []validator.String{
 										stringvalidator.Any(
 											mistvalidator.ParseInt(0, 65535),
@@ -127,8 +141,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Property key can be an External IP (i.e. \"63.16.0.3\"), an External IP:Port (i.e. \"63.16.0.3:443\"), an External Port (i.e. \":443\"), an External CIDR (i.e. \"63.16.0.0/30\"), an External CIDR:Port (i.e. \"63.16.0.0/30:443\") or a Variable (i.e. \"{{myvar}}\"). At least one of the `internal_ip` or `port` must be defined",
-						MarkdownDescription: "Property key can be an External IP (i.e. \"63.16.0.3\"), an External IP:Port (i.e. \"63.16.0.3:443\"), an External Port (i.e. \":443\"), an External CIDR (i.e. \"63.16.0.0/30\"), an External CIDR:Port (i.e. \"63.16.0.0/30:443\") or a Variable (i.e. \"{{myvar}}\"). At least one of the `internal_ip` or `port` must be defined",
+						Description:         "Destination NAT rules for direct internet access",
+						MarkdownDescription: "Destination NAT rules for direct internet access",
 						Validators: []validator.Map{
 							mapvalidator.KeysAre(
 								stringvalidator.Any(
@@ -146,8 +160,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"internal_ip": schema.StringAttribute{
 									Required:            true,
-									Description:         "The Static NAT destination IP Address. Must be an IP Address (i.e. \"192.168.70.3\") or a Variable (i.e. \"{{myvar}}\")",
-									MarkdownDescription: "The Static NAT destination IP Address. Must be an IP Address (i.e. \"192.168.70.3\") or a Variable (i.e. \"{{myvar}}\")",
+									Description:         "The Static NAT destination IP address. Must be an IP address (i.e. \"192.168.70.3\") or a Variable (i.e. \"{{myvar}}\")",
+									MarkdownDescription: "The Static NAT destination IP address. Must be an IP address (i.e. \"192.168.70.3\") or a Variable (i.e. \"{{myvar}}\")",
 									Validators: []validator.String{
 										stringvalidator.Any(
 											mistvalidator.ParseIp(false, false),
@@ -157,7 +171,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								"name": schema.StringAttribute{
-									Required: true,
+									Required:            true,
+									Description:         "Label for this direct internet static NAT rule",
+									MarkdownDescription: "Label for this direct internet static NAT rule",
 								},
 								"wan_name": schema.StringAttribute{
 									Optional:            true,
@@ -172,8 +188,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Property key may be an External IP Address (i.e. \"63.16.0.3\"), a CIDR (i.e. \"63.16.0.12/20\") or a Variable (i.e. \"{{myvar}}\")",
-						MarkdownDescription: "Property key may be an External IP Address (i.e. \"63.16.0.3\"), a CIDR (i.e. \"63.16.0.12/20\") or a Variable (i.e. \"{{myvar}}\")",
+						Description:         "Static NAT rules for direct internet access",
+						MarkdownDescription: "Static NAT rules for direct internet access",
 						Validators: []validator.Map{
 							mapvalidator.KeysAre(
 								stringvalidator.Any(
@@ -198,8 +214,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Whether this network has direct internet access",
-				MarkdownDescription: "Whether this network has direct internet access",
+				Description:         "Direct internet access and NAT settings for this network",
+				MarkdownDescription: "Direct internet access and NAT settings for this network",
 			},
 			"isolation": schema.BoolAttribute{
 				Optional:            true,
@@ -216,17 +232,19 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 						Default:             booldefault.StaticBool(false),
 					},
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether multicast support is enabled for this network",
+						MarkdownDescription: "Whether multicast support is enabled for this network",
+						Default:             booldefault.StaticBool(false),
 					},
 					"groups": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"rp_ip": schema.StringAttribute{
 									Optional:            true,
-									Description:         "RP (rendezvous point) IP Address",
-									MarkdownDescription: "RP (rendezvous point) IP Address",
+									Description:         "RP (rendezvous point) IP address",
+									MarkdownDescription: "RP (rendezvous point) IP address",
 								},
 							},
 							CustomType: GroupsType{
@@ -236,8 +254,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Group address to RP (rendezvous point) mapping. Property Key is the CIDR (example \"225.1.0.3/32\")",
-						MarkdownDescription: "Group address to RP (rendezvous point) mapping. Property Key is the CIDR (example \"225.1.0.3/32\")",
+						Description:         "Multicast group-to-RP mappings for this network",
+						MarkdownDescription: "Multicast group-to-RP mappings for this network",
 						Validators: []validator.Map{
 							mapvalidator.SizeAtLeast(1),
 						},
@@ -249,34 +267,42 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Whether to enable multicast support (only PIM-sparse mode is supported)",
-				MarkdownDescription: "Whether to enable multicast support (only PIM-sparse mode is supported)",
+				Description:         "Settings for multicast routing on this network",
+				MarkdownDescription: "Settings for multicast routing on this network",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the organization network",
+				MarkdownDescription: "Display name of the organization network",
 				Validators: []validator.String{
 					stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName()),
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Organization that owns this network",
+				MarkdownDescription: "Organization that owns this network",
 			},
 			"routed_for_networks": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
-				MarkdownDescription: "For a Network (usually LAN), it can be routable to other networks (e.g. OSPF)",
+				Description:         "Other network names this network can route to, for example through BGP, OSPF or static routes",
+				MarkdownDescription: "Other network names this network can route to, for example through BGP, OSPF or static routes",
 				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"subnet": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "IPv4 subnet CIDR for this network",
+				MarkdownDescription: "IPv4 subnet CIDR for this network",
 				Validators: []validator.String{
 					stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar()),
 				},
 			},
 			"subnet6": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "IPv6 subnet CIDR for this network",
+				MarkdownDescription: "IPv6 subnet CIDR for this network",
 				Validators: []validator.String{
 					stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar()),
 				},
@@ -285,8 +311,10 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"addresses": schema.ListAttribute{
-							ElementType: types.StringType,
-							Optional:    true,
+							ElementType:         types.StringType,
+							Optional:            true,
+							Description:         "IP addresses or subnets assigned to this tenant in the network",
+							MarkdownDescription: "IP addresses or subnets assigned to this tenant in the network",
 						},
 					},
 					CustomType: TenantsType{
@@ -296,14 +324,16 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key must be the user/tenant name (i.e. \"printer-1\") or a Variable (i.e. \"{{myvar}}\")",
-				MarkdownDescription: "Property key must be the user/tenant name (i.e. \"printer-1\") or a Variable (i.e. \"{{myvar}}\")",
+				Description:         "Tenant address mappings associated with this network",
+				MarkdownDescription: "Tenant address mappings associated with this network",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
 			},
 			"vlan_id": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "VLAN ID or variable associated with this network",
+				MarkdownDescription: "VLAN ID or variable associated with this network",
 				Validators: []validator.String{
 					stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
 				},
@@ -349,8 +379,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs",
-							MarkdownDescription: "By default, the routes are only readvertised toward the same vrf on spoke. To allow it to be leaked to other vrfs",
+							Description:         "Other VRFs that can receive leaked routes from this spoke network",
+							MarkdownDescription: "Other VRFs that can receive leaked routes from this spoke network",
 							Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 						},
 						"routed": schema.BoolAttribute{
@@ -361,7 +391,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 						"source_nat": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"external_ip": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "External source NAT IP or subnet used when spoke hosts must be reachable from the hub",
+									MarkdownDescription: "External source NAT IP or subnet used when spoke hosts must be reachable from the hub",
 								},
 							},
 							CustomType: SourceNatType{
@@ -371,8 +403,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							},
 							Optional:            true,
 							Computed:            true,
-							Description:         "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
-							MarkdownDescription: "If `routed`==`false` (usually at Spoke), but some hosts needs to be reachable from Hub",
+							Description:         "Source NAT settings used when non-routed spoke hosts must be reachable from the hub",
+							MarkdownDescription: "Source NAT settings used when non-routed spoke hosts must be reachable from the hub",
 							Default: objectdefault.StaticValue(
 								types.ObjectValueMust(
 									SourceNatValue{}.AttributeTypes(ctx),
@@ -402,8 +434,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"internal_ip": schema.StringAttribute{
 										Optional:            true,
-										Description:         "The Destination NAT destination IP Address. Must be an IP (i.e. \"192.168.70.30\") or a Variable (i.e. \"{{myvar}}\")",
-										MarkdownDescription: "The Destination NAT destination IP Address. Must be an IP (i.e. \"192.168.70.30\") or a Variable (i.e. \"{{myvar}}\")",
+										Description:         "The Destination NAT destination IP address. Must be an IP (i.e. \"192.168.70.30\") or a Variable (i.e. \"{{myvar}}\")",
+										MarkdownDescription: "The Destination NAT destination IP address. Must be an IP (i.e. \"192.168.70.30\") or a Variable (i.e. \"{{myvar}}\")",
 										Validators: []validator.String{
 											stringvalidator.Any(
 												mistvalidator.ParseIp(false, false),
@@ -412,10 +444,14 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									"name": schema.StringAttribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "Label for this VPN destination NAT rule",
+										MarkdownDescription: "Label for this VPN destination NAT rule",
 									},
 									"port": schema.StringAttribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "Destination port or variable for this VPN destination NAT rule",
+										MarkdownDescription: "Destination port or variable for this VPN destination NAT rule",
 										Validators: []validator.String{
 											stringvalidator.Any(
 												mistvalidator.ParseInt(0, 65535),
@@ -437,8 +473,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Property key can be an External IP (i.e. \"63.16.0.3\"), an External IP:Port (i.e. \"63.16.0.3:443\"), an External Port (i.e. \":443\"), an External CIDR (i.e. \"63.16.0.0/30\"), an External CIDR:Port (i.e. \"63.16.0.0/30:443\") or a Variable (i.e. \"{{myvar}}\"). At least one of the `internal_ip` or `port` must be defined",
-							MarkdownDescription: "Property key can be an External IP (i.e. \"63.16.0.3\"), an External IP:Port (i.e. \"63.16.0.3:443\"), an External Port (i.e. \":443\"), an External CIDR (i.e. \"63.16.0.0/30\"), an External CIDR:Port (i.e. \"63.16.0.0/30:443\") or a Variable (i.e. \"{{myvar}}\"). At least one of the `internal_ip` or `port` must be defined",
+							Description:         "Destination NAT rules applied for VPN access to this network",
+							MarkdownDescription: "Destination NAT rules applied for VPN access to this network",
 							Validators: []validator.Map{
 								mapvalidator.KeysAre(
 									stringvalidator.Any(
@@ -456,8 +492,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"internal_ip": schema.StringAttribute{
 										Required:            true,
-										Description:         "The Static NAT destination IP Address. Must be an IP Address (i.e. \"192.168.70.3\") or a Variable (i.e. \"{{myvar}}\")",
-										MarkdownDescription: "The Static NAT destination IP Address. Must be an IP Address (i.e. \"192.168.70.3\") or a Variable (i.e. \"{{myvar}}\")",
+										Description:         "The Static NAT destination IP address. Must be an IP address (i.e. \"192.168.70.3\") or a Variable (i.e. \"{{myvar}}\")",
+										MarkdownDescription: "The Static NAT destination IP address. Must be an IP address (i.e. \"192.168.70.3\") or a Variable (i.e. \"{{myvar}}\")",
 										Validators: []validator.String{
 											stringvalidator.Any(
 												mistvalidator.ParseIp(false, false),
@@ -467,7 +503,9 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									"name": schema.StringAttribute{
-										Required: true,
+										Required:            true,
+										Description:         "Label for this VPN static NAT rule",
+										MarkdownDescription: "Label for this VPN static NAT rule",
 									},
 								},
 								CustomType: VpnAccessStaticNatType{
@@ -478,8 +516,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 							},
 							Optional:            true,
 							Computed:            true,
-							Description:         "Property key may be an External IP Address (i.e. \"63.16.0.3\"), a CIDR (i.e. \"63.16.0.12/20\") or a Variable (i.e. \"{{myvar}}\")",
-							MarkdownDescription: "Property key may be an External IP Address (i.e. \"63.16.0.3\"), a CIDR (i.e. \"63.16.0.12/20\") or a Variable (i.e. \"{{myvar}}\")",
+							Description:         "Static NAT rules applied for VPN access to this network",
+							MarkdownDescription: "Static NAT rules applied for VPN access to this network",
 							Validators: []validator.Map{
 								mapvalidator.KeysAre(
 									stringvalidator.Any(
@@ -504,8 +542,8 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the VPN name. Whether this network can be accessed from vpn",
-				MarkdownDescription: "Property key is the VPN name. Whether this network can be accessed from vpn",
+				Description:         "VPN access settings keyed by VPN name for this network",
+				MarkdownDescription: "VPN access settings keyed by VPN name for this network",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},

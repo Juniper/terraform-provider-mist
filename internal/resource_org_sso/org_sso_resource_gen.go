@@ -34,8 +34,8 @@ func OrgSsoResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier for this SSO configuration",
+				MarkdownDescription: "Unique identifier for this SSO configuration",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -76,8 +76,8 @@ func OrgSsoResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
-				Description:         "Name",
-				MarkdownDescription: "Name",
+				Description:         "Display name of the SSO configuration",
+				MarkdownDescription: "Display name of the SSO configuration",
 			},
 			"nameid_format": schema.StringAttribute{
 				Optional:            true,
@@ -96,8 +96,8 @@ func OrgSsoResourceSchema(ctx context.Context) schema.Schema {
 			"oauth_provider_domain": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "If `oauth_type`==`okta`, specifies the region-specific OAuth provider domain. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`",
-				MarkdownDescription: "If `oauth_type`==`okta`, specifies the region-specific OAuth provider domain. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`",
+				Description:         "Provider domain for Okta OAuth SSO when `oauth_type`==`okta`",
+				MarkdownDescription: "Provider domain for Okta OAuth SSO when `oauth_type`==`okta`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -111,8 +111,28 @@ func OrgSsoResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Default: stringdefault.StaticString("okta.com"),
 			},
+			"openroaming_ssids": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "SSIDs that support OpenRoaming, used when `idp_type`==`openroaming`",
+				MarkdownDescription: "SSIDs that support OpenRoaming, used when `idp_type`==`openroaming`",
+			},
+			"openroaming_wba_client_cert": schema.StringAttribute{
+				Optional:            true,
+				Sensitive:           true,
+				Description:         "Optional WBA-issued client certificate for OpenRoaming. If not provided, the default WBA-issued certificate for Juniper will be used.",
+				MarkdownDescription: "Optional WBA-issued client certificate for OpenRoaming. If not provided, the default WBA-issued certificate for Juniper will be used.",
+			},
+			"openroaming_wba_client_key": schema.StringAttribute{
+				Optional:            true,
+				Sensitive:           true,
+				Description:         "Optional WBA-issued client private key for OpenRoaming. If not provided, the default WBA-issued key for Juniper will be used.",
+				MarkdownDescription: "Optional WBA-issued client private key for OpenRoaming. If not provided, the default WBA-issued key for Juniper will be used.",
+			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Owning organization identifier for this SSO configuration",
+				MarkdownDescription: "Owning organization identifier for this SSO configuration",
 			},
 			"role_attr_extraction": schema.StringAttribute{
 				Optional:            true,
@@ -130,19 +150,22 @@ func OrgSsoResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgSsoModel struct {
-	CustomLogoutUrl      types.String `tfsdk:"custom_logout_url"`
-	DefaultRole          types.String `tfsdk:"default_role"`
-	Domain               types.String `tfsdk:"domain"`
-	Id                   types.String `tfsdk:"id"`
-	IdpCert              types.String `tfsdk:"idp_cert"`
-	IdpSignAlgo          types.String `tfsdk:"idp_sign_algo"`
-	IdpSsoUrl            types.String `tfsdk:"idp_sso_url"`
-	IgnoreUnmatchedRoles types.Bool   `tfsdk:"ignore_unmatched_roles"`
-	Issuer               types.String `tfsdk:"issuer"`
-	Name                 types.String `tfsdk:"name"`
-	NameidFormat         types.String `tfsdk:"nameid_format"`
-	OauthProviderDomain  types.String `tfsdk:"oauth_provider_domain"`
-	OrgId                types.String `tfsdk:"org_id"`
-	RoleAttrExtraction   types.String `tfsdk:"role_attr_extraction"`
-	RoleAttrFrom         types.String `tfsdk:"role_attr_from"`
+	CustomLogoutUrl          types.String `tfsdk:"custom_logout_url"`
+	DefaultRole              types.String `tfsdk:"default_role"`
+	Domain                   types.String `tfsdk:"domain"`
+	Id                       types.String `tfsdk:"id"`
+	IdpCert                  types.String `tfsdk:"idp_cert"`
+	IdpSignAlgo              types.String `tfsdk:"idp_sign_algo"`
+	IdpSsoUrl                types.String `tfsdk:"idp_sso_url"`
+	IgnoreUnmatchedRoles     types.Bool   `tfsdk:"ignore_unmatched_roles"`
+	Issuer                   types.String `tfsdk:"issuer"`
+	Name                     types.String `tfsdk:"name"`
+	NameidFormat             types.String `tfsdk:"nameid_format"`
+	OauthProviderDomain      types.String `tfsdk:"oauth_provider_domain"`
+	OpenroamingSsids         types.List   `tfsdk:"openroaming_ssids"`
+	OpenroamingWbaClientCert types.String `tfsdk:"openroaming_wba_client_cert"`
+	OpenroamingWbaClientKey  types.String `tfsdk:"openroaming_wba_client_key"`
+	OrgId                    types.String `tfsdk:"org_id"`
+	RoleAttrExtraction       types.String `tfsdk:"role_attr_extraction"`
+	RoleAttrFrom             types.String `tfsdk:"role_attr_from"`
 }

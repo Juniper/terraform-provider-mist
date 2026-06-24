@@ -57,9 +57,11 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						Default:             booldefault.StaticBool(false),
 					},
 					"port": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
-						Default:  int64default.StaticInt64(1144),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Optional if enabled, Aeroscout server port. Defaults to 1144",
+						MarkdownDescription: "Optional if enabled, Aeroscout server port. Defaults to 1144",
+						Default:             int64default.StaticInt64(1144),
 					},
 				},
 				CustomType: AeroscoutType{
@@ -68,8 +70,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Aeroscout AP settings",
-				MarkdownDescription: "Aeroscout AP settings",
+				Description:         "Location integration defaults for AeroScout in this AP profile",
+				MarkdownDescription: "Location integration defaults for AeroScout in this AP profile",
 			},
 			"airista": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -87,7 +89,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"port": schema.Int64Attribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Optional if enabled, Airista server port. Defaults to 1144",
+						MarkdownDescription: "Optional if enabled, Airista server port. Defaults to 1144",
 					},
 				},
 				CustomType: AiristaType{
@@ -95,7 +99,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: AiristaValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Location integration defaults for Airista in this AP profile",
+				MarkdownDescription: "Location integration defaults for Airista in this AP profile",
 			},
 			"ble_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -116,8 +122,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"beacon_rate_mode": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `custom`, `default`",
-						MarkdownDescription: "enum: `custom`, `default`",
+						Description:         "Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate",
+						MarkdownDescription: "Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -129,8 +135,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					"beam_disabled": schema.ListAttribute{
 						ElementType:         types.Int64Type,
 						Optional:            true,
-						Description:         "List of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)",
-						MarkdownDescription: "List of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)",
+						Description:         "AP BLE beam numbers disabled for location advertisements",
+						MarkdownDescription: "AP BLE beam numbers disabled for location advertisements",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 							listvalidator.ValueInt64sAre(int64validator.Between(1, 8)),
@@ -169,7 +175,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"eddystone_uid_beams": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "BLE beams used to transmit Eddystone-UID advertisements, expressed as ranges such as `2-4,7`",
+						MarkdownDescription: "BLE beams used to transmit Eddystone-UID advertisements, expressed as ranges such as `2-4,7`",
 					},
 					"eddystone_uid_enabled": schema.BoolAttribute{
 						Optional:            true,
@@ -197,8 +205,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"eddystone_uid_namespace": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Eddystone-UID namespace",
-						MarkdownDescription: "Eddystone-UID namespace",
+						Description:         "Eddystone-UID namespace broadcast by the AP, as a 10-byte hex string",
+						MarkdownDescription: "Eddystone-UID namespace broadcast by the AP, as a 10-byte hex string",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_uid_enabled"), types.BoolValue(true)),
 						},
@@ -212,7 +220,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"eddystone_url_beams": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "BLE beams used to transmit Eddystone-URL advertisements, expressed as ranges such as `2-4,7`",
+						MarkdownDescription: "BLE beams used to transmit Eddystone-URL advertisements, expressed as ranges such as `2-4,7`",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_url_enabled"), types.BoolValue(true)),
 						},
@@ -227,8 +237,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"eddystone_url_freq_msec": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "Frequency (msec) of data emit by Eddystone-UID beacon",
-						MarkdownDescription: "Frequency (msec) of data emit by Eddystone-UID beacon",
+						Description:         "Frequency (msec) of data emitted by Eddystone-URL beacon",
+						MarkdownDescription: "Frequency (msec) of data emitted by Eddystone-URL beacon",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("eddystone_url_enabled"), types.BoolValue(true)),
 						},
@@ -250,7 +260,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"ibeacon_beams": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "BLE beams used to transmit iBeacon advertisements, expressed as ranges such as `2-4,7`",
+						MarkdownDescription: "BLE beams used to transmit iBeacon advertisements, expressed as ranges such as `2-4,7`",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
@@ -273,16 +285,16 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"ibeacon_major": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "Major number for iBeacon",
-						MarkdownDescription: "Major number for iBeacon",
+						Description:         "iBeacon major value broadcast by the AP",
+						MarkdownDescription: "iBeacon major value broadcast by the AP",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
 					},
 					"ibeacon_minor": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "Minor number for iBeacon",
-						MarkdownDescription: "Minor number for iBeacon",
+						Description:         "iBeacon minor value broadcast by the AP",
+						MarkdownDescription: "iBeacon minor value broadcast by the AP",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ibeacon_enabled"), types.BoolValue(true)),
 						},
@@ -305,8 +317,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"power_mode": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `custom`, `default`",
-						MarkdownDescription: "enum: `custom`, `default`",
+						Description:         "Transmit power mode for BLE beacons; use custom to set `power`",
+						MarkdownDescription: "Transmit power mode for BLE beacons; use custom to set `power`",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -322,8 +334,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "BLE AP settings",
-				MarkdownDescription: "BLE AP settings",
+				Description:         "Bluetooth Low Energy beacon and asset defaults in this AP profile",
+				MarkdownDescription: "Bluetooth Low Energy beacon and asset defaults in this AP profile",
 			},
 			"disable_eth1": schema.BoolAttribute{
 				Optional:            true,
@@ -424,8 +436,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					"type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "note: ble_config will be ignored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`",
-						MarkdownDescription: "note: ble_config will be ignored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`",
+						Description:         "ESL integration type to enable on the AP",
+						MarkdownDescription: "ESL integration type to enable on the AP",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -475,12 +487,14 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: EslConfigValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Electronic shelf label integration defaults in this AP profile",
+				MarkdownDescription: "Electronic shelf label integration defaults in this AP profile",
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the AP device profile",
+				MarkdownDescription: "Unique identifier of the AP device profile",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -490,8 +504,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					"dns": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Description:         "If `type`==`static`",
-						MarkdownDescription: "If `type`==`static`",
+						Description:         "If `type`==`static`. DNS server IP addresses for AP management traffic",
+						MarkdownDescription: "If `type`==`static`. DNS server IP addresses for AP management traffic",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -499,16 +513,16 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					"dns_suffix": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Description:         "Required if `type`==`static`",
-						MarkdownDescription: "Required if `type`==`static`",
+						Description:         "If `type`==`static`. DNS search suffixes applied to AP management lookups",
+						MarkdownDescription: "If `type`==`static`. DNS search suffixes applied to AP management lookups",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
 					},
 					"gateway": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Required if `type`==`static`",
-						MarkdownDescription: "Required if `type`==`static`",
+						Description:         "Required if `type`==`static`. IPv4 default gateway for AP management traffic",
+						MarkdownDescription: "Required if `type`==`static`. IPv4 default gateway for AP management traffic",
 						Validators: []validator.String{
 							stringvalidator.Any(
 								mistvalidator.ParseIp(true, false),
@@ -519,7 +533,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"gateway6": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Required if `type6`==`static`. IPv6 default gateway for AP management traffic when static IPv6 addressing is used",
+						MarkdownDescription: "Required if `type6`==`static`. IPv6 default gateway for AP management traffic when static IPv6 addressing is used",
 						Validators: []validator.String{
 							stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("static")),
@@ -529,8 +545,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"ip": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Required if `type`==`static`",
-						MarkdownDescription: "Required if `type`==`static`",
+						Description:         "Required if `type`==`static`. Static IPv4 address for the AP management interface",
+						MarkdownDescription: "Required if `type`==`static`. Static IPv4 address for the AP management interface",
 						Validators: []validator.String{
 							stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
@@ -538,7 +554,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"ip6": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Required if `type6`==`static`. Static IPv6 address for the AP management interface",
+						MarkdownDescription: "Required if `type6`==`static`. Static IPv6 address for the AP management interface",
 						Validators: []validator.String{
 							stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("static")),
@@ -547,14 +565,16 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"mtu": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
-						Default:  int64default.StaticInt64(0),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Maximum transmission unit for AP management traffic",
+						MarkdownDescription: "Maximum transmission unit for AP management traffic",
+						Default:             int64default.StaticInt64(0),
 					},
 					"netmask": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Required if `type`==`static`",
-						MarkdownDescription: "Required if `type`==`static`",
+						Description:         "Required if `type`==`static`. IPv4 netmask for the AP management interface",
+						MarkdownDescription: "Required if `type`==`static`. IPv4 netmask for the AP management interface",
 						Validators: []validator.String{
 							stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("static")),
@@ -562,7 +582,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"netmask6": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Required if `type6`==`static`. IPv6 prefix length for the AP management interface",
+						MarkdownDescription: "Required if `type6`==`static`. IPv6 prefix length for the AP management interface",
 						Validators: []validator.String{
 							stringvalidator.Any(mistvalidator.ParseNetmask(false, false), mistvalidator.ParseVar()),
 							mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type6"), types.StringValue("static")),
@@ -573,8 +595,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					"type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `dhcp`, `static`",
-						MarkdownDescription: "enum: `dhcp`, `static`",
+						Description:         "IPv4 address assignment mode for AP management traffic",
+						MarkdownDescription: "IPv4 address assignment mode for AP management traffic",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -586,8 +608,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"type6": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `autoconf`, `dhcp`, `disabled`, `static`",
-						MarkdownDescription: "enum: `autoconf`, `dhcp`, `disabled`, `static`",
+						Description:         "IPv6 address assignment mode for AP management traffic",
+						MarkdownDescription: "IPv6 address assignment mode for AP management traffic",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -600,8 +622,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"vlan_id": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "Management VLAN id, default is 1 (untagged)",
-						MarkdownDescription: "Management VLAN id, default is 1 (untagged)",
+						Description:         "Management VLAN ID, default is 1 (untagged)",
+						MarkdownDescription: "Management VLAN ID, default is 1 (untagged)",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 4094),
 						},
@@ -613,15 +635,17 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "IP AP settings",
-				MarkdownDescription: "IP AP settings",
+				Description:         "Management IP addressing defaults in this AP profile",
+				MarkdownDescription: "Management IP addressing defaults in this AP profile",
 			},
 			"lacp_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether to enable LACP on supported AP Ethernet uplinks",
+						MarkdownDescription: "Whether to enable LACP on supported AP Ethernet uplinks",
+						Default:             booldefault.StaticBool(false),
 					},
 				},
 				CustomType: LacpConfigType{
@@ -629,22 +653,28 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: LacpConfigValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Link aggregation defaults for supported AP Ethernet uplinks",
+				MarkdownDescription: "Link aggregation defaults for supported AP Ethernet uplinks",
 			},
 			"led": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"brightness": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Indicator LED brightness level from 0 to 255",
+						MarkdownDescription: "Indicator LED brightness level from 0 to 255",
 						Validators: []validator.Int64{
 							int64validator.Between(0, 255),
 						},
 						Default: int64default.StaticInt64(255),
 					},
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(true),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether the AP indicator LED is enabled",
+						MarkdownDescription: "Whether the AP indicator LED is enabled",
+						Default:             booldefault.StaticBool(true),
 					},
 				},
 				CustomType: LedType{
@@ -653,16 +683,16 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "LED AP settings",
-				MarkdownDescription: "LED AP settings",
+				Description:         "Indicator light behavior defaults in this AP profile",
+				MarkdownDescription: "Indicator light behavior defaults in this AP profile",
 			},
 			"mesh": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"bands": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Description:         "List of bands that the mesh should apply to. For relay, the first viable one will be picked. For relay, the first viable one will be picked. enum: `24`, `5`, `6`",
-						MarkdownDescription: "List of bands that the mesh should apply to. For relay, the first viable one will be picked. For relay, the first viable one will be picked. enum: `24`, `5`, `6`",
+						Description:         "Radio bands allowed for AP mesh links",
+						MarkdownDescription: "Radio bands allowed for AP mesh links",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -684,8 +714,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"role": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `base`, `remote`",
-						MarkdownDescription: "enum: `base`, `remote`",
+						Description:         "Mesh role for this AP, either base or remote",
+						MarkdownDescription: "Mesh role for this AP, either base or remote",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -696,8 +726,10 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"use_wpa3_on_5": schema.BoolAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Whether to use WPA3 on the 5 GHz band for mesh links",
 						MarkdownDescription: "Whether to use WPA3 on the 5 GHz band for mesh links",
+						Default:             booldefault.StaticBool(false),
 					},
 				},
 				CustomType: MeshType{
@@ -706,11 +738,81 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Mesh AP settings",
-				MarkdownDescription: "Mesh AP settings",
+				Description:         "Wireless mesh role and band defaults in this AP profile",
+				MarkdownDescription: "Wireless mesh role and band defaults in this AP profile",
+			},
+			"mqtt_config": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"broker_host": schema.StringAttribute{
+						Optional:            true,
+						Description:         "MQTT broker hostname or IP address; required when `enabled` is `true`",
+						MarkdownDescription: "MQTT broker hostname or IP address; required when `enabled` is `true`",
+					},
+					"broker_port": schema.Int64Attribute{
+						Optional:            true,
+						Description:         "MQTT broker port; defaults to `1883` for `tcp` and `8883` for `ssl`",
+						MarkdownDescription: "MQTT broker port; defaults to `1883` for `tcp` and `8883` for `ssl`",
+					},
+					"broker_proto": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "MQTT broker transport protocol",
+						MarkdownDescription: "MQTT broker transport protocol",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"ssl",
+								"tcp",
+							),
+						},
+						Default: stringdefault.StaticString("tcp"),
+					},
+					"enabled": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether to enable MQTT publishing",
+						MarkdownDescription: "Whether to enable MQTT publishing",
+						Default:             booldefault.StaticBool(false),
+					},
+					"format": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Payload format for published messages",
+						MarkdownDescription: "Payload format for published messages",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"json",
+								"raw",
+							),
+						},
+						Default: stringdefault.StaticString("raw"),
+					},
+					"password": schema.StringAttribute{
+						Optional:            true,
+						Sensitive:           true,
+						Description:         "Optional MQTT password; masked in GET responses",
+						MarkdownDescription: "Optional MQTT password; masked in GET responses",
+					},
+					"username": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Optional MQTT username",
+						MarkdownDescription: "Optional MQTT username",
+					},
+				},
+				CustomType: MqttConfigType{
+					ObjectType: types.ObjectType{
+						AttrTypes: MqttConfigValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "MQTT broker publishing settings for this AP profile",
+				MarkdownDescription: "MQTT broker publishing settings for this AP profile",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the AP device profile",
+				MarkdownDescription: "Display name of the AP device profile",
 				Validators: []validator.String{
 					stringvalidator.All(
 						stringvalidator.LengthBetween(2, 32),
@@ -719,15 +821,19 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"ntp_servers": schema.ListAttribute{
-				ElementType: types.StringType,
-				Optional:    true,
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "NTP servers configured by this AP profile",
+				MarkdownDescription: "NTP servers configured by this AP profile",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.UniqueValues(),
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Organization that owns this AP device profile",
+				MarkdownDescription: "Organization that owns this AP device profile",
 			},
 			"poe_passthrough": schema.BoolAttribute{
 				Optional:            true,
@@ -740,27 +846,44 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"disabled": schema.BoolAttribute{
-							Optional: true,
-							Computed: true,
-							Default:  booldefault.StaticBool(false),
+							Optional:            true,
+							Computed:            true,
+							Description:         "Whether this AP Ethernet port is disabled",
+							MarkdownDescription: "Whether this AP Ethernet port is disabled",
+							Default:             booldefault.StaticBool(false),
 						},
 						"dynamic_vlan": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"default_vlan_id": schema.Int64Attribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Fallback VLAN ID used when RADIUS does not return a dynamic VLAN match",
+									MarkdownDescription: "Fallback VLAN ID used when RADIUS does not return a dynamic VLAN match",
 									Validators: []validator.Int64{
 										int64validator.Between(1, 4094),
 									},
 								},
 								"enabled": schema.BoolAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Whether dynamic VLAN assignment is enabled for this AP port",
+									MarkdownDescription: "Whether dynamic VLAN assignment is enabled for this AP port",
 								},
 								"type": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Mapping mode for interpreting dynamic VLAN attributes returned by RADIUS",
+									MarkdownDescription: "Mapping mode for interpreting dynamic VLAN attributes returned by RADIUS",
+									Validators: []validator.String{
+										stringvalidator.OneOf(
+											"",
+											"airespace-interface-name",
+											"standard",
+										),
+									},
 								},
 								"vlans": schema.MapAttribute{
-									ElementType: types.StringType,
-									Optional:    true,
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "Mapping entries for RADIUS-assigned VLAN values on this AP port. For `type`==`airespace-interface-name`, the property key is the Airespace interface name returned by RADIUS (e.g. \"guest\"), and the value is the corresponding VLAN ID (e.g. 100). For `type`==`standard`, the property key is the VLAN ID number returned by RADIUS, and the value is ignored.",
+									MarkdownDescription: "Mapping entries for RADIUS-assigned VLAN values on this AP port. For `type`==`airespace-interface-name`, the property key is the Airespace interface name returned by RADIUS (e.g. \"guest\"), and the value is the corresponding VLAN ID (e.g. 100). For `type`==`standard`, the property key is the VLAN ID number returned by RADIUS, and the value is ignored.",
 								},
 							},
 							CustomType: DynamicVlanType{
@@ -769,19 +892,21 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Optional dynamic vlan",
-							MarkdownDescription: "Optional dynamic vlan",
+							Description:         "RADIUS-assigned VLAN settings for AP port authentication",
+							MarkdownDescription: "RADIUS-assigned VLAN settings for AP port authentication",
 						},
 						"enable_mac_auth": schema.BoolAttribute{
-							Optional: true,
-							Computed: true,
-							Default:  booldefault.StaticBool(false),
+							Optional:            true,
+							Computed:            true,
+							Description:         "Whether MAC authentication is enabled on this AP port",
+							MarkdownDescription: "Whether MAC authentication is enabled on this AP port",
+							Default:             booldefault.StaticBool(false),
 						},
 						"forwarding": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "enum: \n  * `all`: local breakout, All VLANs\n  * `limited`: local breakout, only the VLANs configured in `port_vlan_id` and `vlan_ids`\n  * `mxtunnel`: central breakout to an Org Mist Edge (requires `mxtunnel_id`)\n  * `site_mxedge`: central breakout to a Site Mist Edge (requires `mxtunnel_name`)\n  * `wxtunnel`': central breakout to an Org WxTunnel (requires `wxtunnel_id`)",
-							MarkdownDescription: "enum: \n  * `all`: local breakout, All VLANs\n  * `limited`: local breakout, only the VLANs configured in `port_vlan_id` and `vlan_ids`\n  * `mxtunnel`: central breakout to an Org Mist Edge (requires `mxtunnel_id`)\n  * `site_mxedge`: central breakout to a Site Mist Edge (requires `mxtunnel_name`)\n  * `wxtunnel`': central breakout to an Org WxTunnel (requires `wxtunnel_id`)",
+							Description:         "Traffic forwarding mode for this AP Ethernet port",
+							MarkdownDescription: "Traffic forwarding mode for this AP Ethernet port",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -804,8 +929,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						"mac_auth_protocol": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "if `enable_mac_auth`==`true`, allows user to select an authentication protocol. enum: `eap-md5`, `eap-peap`, `pap`",
-							MarkdownDescription: "if `enable_mac_auth`==`true`, allows user to select an authentication protocol. enum: `eap-md5`, `eap-peap`, `pap`",
+							Description:         "Protocol used for MAC authentication when `enable_mac_auth` is `true`",
+							MarkdownDescription: "Protocol used for MAC authentication when `enable_mac_auth` is `true`",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -820,24 +945,24 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"acct_interim_interval": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled.",
-									MarkdownDescription: "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled.",
+									Description:         "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the RADIUS server, 600 and up is recommended when enabled.",
+									MarkdownDescription: "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the RADIUS server, 600 and up is recommended when enabled.",
 									Validators: []validator.Int64{
 										int64validator.Between(0, 65535),
 									},
 								},
 								"auth_servers_retries": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "Radius auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"retries\" are set to value of `auth_servers_timeout`. \"max-requests\" is also set when setting `auth_servers_retries` is set to default value to 3.",
-									MarkdownDescription: "Radius auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"retries\" are set to value of `auth_servers_timeout`. \"max-requests\" is also set when setting `auth_servers_retries` is set to default value to 3.",
+									Description:         "RADIUS auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"retries\" are set to value of `auth_servers_timeout`. \"max-requests\" is also set when setting `auth_servers_retries` is set to default value to 3.",
+									MarkdownDescription: "RADIUS auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"retries\" are set to value of `auth_servers_timeout`. \"max-requests\" is also set when setting `auth_servers_retries` is set to default value to 3.",
 									Validators: []validator.Int64{
 										int64validator.Between(1, 10),
 									},
 								},
 								"auth_servers_timeout": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "Radius auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"quite-period\" and \"transmit-period\" are set to half the value of `auth_servers_timeout`. \"supplicant-timeout\" is also set when setting `auth_servers_timeout` is set to default value of 10.",
-									MarkdownDescription: "Radius auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"quite-period\" and \"transmit-period\" are set to half the value of `auth_servers_timeout`. \"supplicant-timeout\" is also set when setting `auth_servers_timeout` is set to default value of 10.",
+									Description:         "RADIUS auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"quite-period\" and \"transmit-period\" are set to half the value of `auth_servers_timeout`. \"supplicant-timeout\" is also set when setting `auth_servers_timeout` is set to default value of 10.",
+									MarkdownDescription: "RADIUS auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. \"quite-period\" and \"transmit-period\" are set to half the value of `auth_servers_timeout`. \"supplicant-timeout\" is also set when setting `auth_servers_timeout` is set to default value of 10.",
 									Validators: []validator.Int64{
 										int64validator.Between(1, 30),
 									},
@@ -883,7 +1008,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 									AttrTypes: MistNacValue{}.AttributeTypes(ctx),
 								},
 							},
-							Optional: true,
+							Optional:            true,
+							Description:         "Juniper Mist NAC settings used by AP port authentication",
+							MarkdownDescription: "Juniper Mist NAC settings used by AP port authentication",
 						},
 						"mx_tunnel_id": schema.StringAttribute{
 							Optional:            true,
@@ -902,8 +1029,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						"port_auth": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "When doing port auth. enum: `dot1x`, `none`",
-							MarkdownDescription: "When doing port auth. enum: `dot1x`, `none`",
+							Description:         "Authentication mode for this AP Ethernet port",
+							MarkdownDescription: "Authentication mode for this AP Ethernet port",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -915,8 +1042,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"port_vlan_id": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "If `forwarding`==`limited`",
-							MarkdownDescription: "If `forwarding`==`limited`",
+							Description:         "If `forwarding`==`limited`. VLAN ID allowed on this AP Ethernet port",
+							MarkdownDescription: "If `forwarding`==`limited`. VLAN ID allowed on this AP Ethernet port",
 							Validators: []validator.Int64{
 								int64validator.Between(1, 4094),
 							},
@@ -926,8 +1053,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								"acct_interim_interval": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled",
-									MarkdownDescription: "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled",
+									Description:         "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the RADIUS server, 600 and up is recommended when enabled",
+									MarkdownDescription: "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the RADIUS server, 600 and up is recommended when enabled",
 									Validators: []validator.Int64{
 										int64validator.Between(0, 65535),
 									},
@@ -938,16 +1065,18 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 										Attributes: map[string]schema.Attribute{
 											"host": schema.StringAttribute{
 												Required:            true,
-												Description:         "IP/ hostname of RADIUS server",
-												MarkdownDescription: "IP/ hostname of RADIUS server",
+												Description:         "Address or hostname of the RADIUS accounting server",
+												MarkdownDescription: "Address or hostname of the RADIUS accounting server",
 											},
 											"keywrap_enabled": schema.BoolAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "Whether RADIUS keywrap is enabled for messages sent to this accounting server",
+												MarkdownDescription: "Whether RADIUS keywrap is enabled for messages sent to this accounting server",
 											},
 											"keywrap_format": schema.StringAttribute{
 												Optional:            true,
-												Description:         "enum: `ascii`, `hex`",
-												MarkdownDescription: "enum: `ascii`, `hex`",
+												Description:         "Encoding format for RADIUS keywrap KEK and MACK values",
+												MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -957,19 +1086,25 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 												},
 											},
 											"keywrap_kek": schema.StringAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "RADIUS keywrap key encryption key (KEK)",
+												MarkdownDescription: "RADIUS keywrap key encryption key (KEK)",
 											},
 											"keywrap_mack": schema.StringAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "RADIUS keywrap message authentication code key (MACK)",
+												MarkdownDescription: "RADIUS keywrap message authentication code key (MACK)",
 											},
 											"port": schema.StringAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "UDP port used by the RADIUS accounting server",
+												MarkdownDescription: "UDP port used by the RADIUS accounting server",
 											},
 											"secret": schema.StringAttribute{
 												Required:            true,
 												Sensitive:           true,
-												Description:         "Secret of RADIUS server",
-												MarkdownDescription: "Secret of RADIUS server",
+												Description:         "Shared secret used with this RADIUS accounting server",
+												MarkdownDescription: "Shared secret used with this RADIUS accounting server",
 											},
 										},
 										CustomType: AcctServersType{
@@ -978,7 +1113,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 									},
-									Optional: true,
+									Optional:            true,
+									Description:         "RADIUS accounting servers used by this Junos configuration",
+									MarkdownDescription: "RADIUS accounting servers used by this Junos configuration",
 									Validators: []validator.List{
 										listvalidator.UniqueValues(),
 									},
@@ -988,16 +1125,18 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 										Attributes: map[string]schema.Attribute{
 											"host": schema.StringAttribute{
 												Required:            true,
-												Description:         "IP/ hostname of RADIUS server",
-												MarkdownDescription: "IP/ hostname of RADIUS server",
+												Description:         "Address or hostname of the RADIUS authentication server",
+												MarkdownDescription: "Address or hostname of the RADIUS authentication server",
 											},
 											"keywrap_enabled": schema.BoolAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "Whether RADIUS keywrap is enabled for messages sent to this authentication server",
+												MarkdownDescription: "Whether RADIUS keywrap is enabled for messages sent to this authentication server",
 											},
 											"keywrap_format": schema.StringAttribute{
 												Optional:            true,
-												Description:         "enum: `ascii`, `hex`",
-												MarkdownDescription: "enum: `ascii`, `hex`",
+												Description:         "Encoding format for RADIUS keywrap KEK and MACK values",
+												MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -1007,13 +1146,19 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 												},
 											},
 											"keywrap_kek": schema.StringAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "RADIUS keywrap key encryption key (KEK)",
+												MarkdownDescription: "RADIUS keywrap key encryption key (KEK)",
 											},
 											"keywrap_mack": schema.StringAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "RADIUS keywrap message authentication code key (MACK)",
+												MarkdownDescription: "RADIUS keywrap message authentication code key (MACK)",
 											},
 											"port": schema.StringAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "UDP port used by the RADIUS authentication server",
+												MarkdownDescription: "UDP port used by the RADIUS authentication server",
 											},
 											"require_message_authenticator": schema.BoolAttribute{
 												Optional:            true,
@@ -1025,8 +1170,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 											"secret": schema.StringAttribute{
 												Required:            true,
 												Sensitive:           true,
-												Description:         "Secret of RADIUS server",
-												MarkdownDescription: "Secret of RADIUS server",
+												Description:         "Shared secret used with this RADIUS authentication server",
+												MarkdownDescription: "Shared secret used with this RADIUS authentication server",
 											},
 										},
 										CustomType: AuthServersType{
@@ -1035,7 +1180,9 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 									},
-									Optional: true,
+									Optional:            true,
+									Description:         "RADIUS authentication servers used by this Junos configuration",
+									MarkdownDescription: "RADIUS authentication servers used by this Junos configuration",
 									Validators: []validator.List{
 										listvalidator.UniqueValues(),
 									},
@@ -1043,25 +1190,29 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								"auth_servers_retries": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "radius auth session retries",
-									MarkdownDescription: "radius auth session retries",
+									Description:         "Number of RADIUS authentication request retries before failover",
+									MarkdownDescription: "Number of RADIUS authentication request retries before failover",
 									Default:             int64default.StaticInt64(3),
 								},
 								"auth_servers_timeout": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "radius auth session timeout",
-									MarkdownDescription: "radius auth session timeout",
+									Description:         "RADIUS authentication server timeout, in seconds",
+									MarkdownDescription: "RADIUS authentication server timeout, in seconds",
 									Default:             int64default.StaticInt64(5),
 								},
 								"coa_enabled": schema.BoolAttribute{
-									Optional: true,
-									Computed: true,
-									Default:  booldefault.StaticBool(false),
+									Optional:            true,
+									Computed:            true,
+									Description:         "Whether RADIUS Change of Authorization (CoA) is enabled",
+									MarkdownDescription: "Whether RADIUS Change of Authorization (CoA) is enabled",
+									Default:             booldefault.StaticBool(false),
 								},
 								"coa_port": schema.Int64Attribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "UDP port used for RADIUS Change of Authorization (CoA)",
+									MarkdownDescription: "UDP port used for RADIUS Change of Authorization (CoA)",
 									Validators: []validator.Int64{
 										int64validator.Between(1, 65535),
 									},
@@ -1069,13 +1220,13 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"network": schema.StringAttribute{
 									Optional:            true,
-									Description:         "use `network`or `source_ip`, which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
-									MarkdownDescription: "use `network`or `source_ip`, which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip",
+									Description:         "Use `network` or `source_ip`. Network where the RADIUS server resides; if the network has a static IP, Mist uses it as the source IP",
+									MarkdownDescription: "Use `network` or `source_ip`. Network where the RADIUS server resides; if the network has a static IP, Mist uses it as the source IP",
 								},
 								"source_ip": schema.StringAttribute{
 									Optional:            true,
-									Description:         "use `network`or `source_ip`",
-									MarkdownDescription: "use `network`or `source_ip`",
+									Description:         "Use `network` or `source_ip`. Explicit source IP address for RADIUS traffic",
+									MarkdownDescription: "Use `network` or `source_ip`. Explicit source IP address for RADIUS traffic",
 								},
 							},
 							CustomType: RadiusConfigType{
@@ -1084,47 +1235,57 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Junos Radius config",
-							MarkdownDescription: "Junos Radius config",
+							Description:         "RADIUS authentication and accounting settings for this AP port",
+							MarkdownDescription: "RADIUS authentication and accounting settings for this AP port",
 						},
 						"radsec": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"coa_enabled": schema.BoolAttribute{
-									Optional: true,
-									Computed: true,
-									Default:  booldefault.StaticBool(false),
+									Optional:            true,
+									Computed:            true,
+									Description:         "Whether RADIUS Change of Authorization (CoA) is enabled for RadSec traffic",
+									MarkdownDescription: "Whether RADIUS Change of Authorization (CoA) is enabled for RadSec traffic",
+									Default:             booldefault.StaticBool(false),
 								},
 								"enabled": schema.BoolAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Whether RadSec is enabled",
+									MarkdownDescription: "Whether RadSec is enabled",
 								},
 								"idle_timeout": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Idle timeout, in seconds, for RadSec connections",
+									MarkdownDescription: "Idle timeout, in seconds, for RadSec connections",
 								},
 								"mxcluster_ids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org mxedge(s) identified by mxcluster_ids",
-									MarkdownDescription: "To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org mxedge(s) identified by mxcluster_ids",
+									Description:         "Mist Edge cluster IDs used as RadSec proxies when the WLAN does not use mxtunnel",
+									MarkdownDescription: "Mist Edge cluster IDs used as RadSec proxies when the WLAN does not use mxtunnel",
 								},
 								"proxy_hosts": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`",
-									MarkdownDescription: "Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`",
+									Description:         "RadSec proxy hostnames advertised to APs",
+									MarkdownDescription: "RadSec proxy hostnames advertised to APs",
 								},
 								"server_name": schema.StringAttribute{
 									Optional:            true,
-									Description:         "Name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.",
-									MarkdownDescription: "Name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.",
+									Description:         "TLS server name to verify against the CA certificates in Org Setting. Only if not Mist Edge.",
+									MarkdownDescription: "TLS server name to verify against the CA certificates in Org Setting. Only if not Mist Edge.",
 								},
 								"servers": schema.ListNestedAttribute{
 									NestedObject: schema.NestedAttributeObject{
 										Attributes: map[string]schema.Attribute{
 											"host": schema.StringAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "Address or hostname of the RadSec server",
+												MarkdownDescription: "Address or hostname of the RadSec server",
 											},
 											"port": schema.Int64Attribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "TCP port used by the RadSec server",
+												MarkdownDescription: "TCP port used by the RadSec server",
 												Validators: []validator.Int64{
 													int64validator.Between(1, 65535),
 												},
@@ -1137,22 +1298,22 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "List of RadSec Servers. Only if not Mist Edge.",
-									MarkdownDescription: "List of RadSec Servers. Only if not Mist Edge.",
+									Description:         "External RadSec servers. Only if not Mist Edge.",
+									MarkdownDescription: "External RadSec servers. Only if not Mist Edge.",
 									Validators: []validator.List{
 										listvalidator.UniqueValues(),
 									},
 								},
 								"use_mxedge": schema.BoolAttribute{
 									Optional:            true,
-									Description:         "use mxedge(s) as RadSec Proxy",
-									MarkdownDescription: "use mxedge(s) as RadSec Proxy",
+									Description:         "Whether to use organization Mist Edge instances as RadSec proxies",
+									MarkdownDescription: "Whether to use organization Mist Edge instances as RadSec proxies",
 								},
 								"use_site_mxedge": schema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "To use Site mxedges when this WLAN does not use mxtunnel",
-									MarkdownDescription: "To use Site mxedges when this WLAN does not use mxtunnel",
+									Description:         "Whether to use site Mist Edge instances when this WLAN does not use mxtunnel",
+									MarkdownDescription: "Whether to use site Mist Edge instances when this WLAN does not use mxtunnel",
 									Default:             booldefault.StaticBool(false),
 								},
 							},
@@ -1162,21 +1323,21 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "RadSec settings",
-							MarkdownDescription: "RadSec settings",
+							Description:         "TLS-secured RADIUS settings for this AP port",
+							MarkdownDescription: "TLS-secured RADIUS settings for this AP port",
 						},
 						"vlan_id": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "Optional to specify the vlan id for a tunnel if forwarding is for `wxtunnel`, `mxtunnel` or `site_mxedge`.\n  * if vlan_id is not specified then it will use first one in vlan_ids[] of the mxtunnel.\n  * if forwarding == site_mxedge, vlan_ids comes from site_mxedge (`mxtunnels` under site setting)",
-							MarkdownDescription: "Optional to specify the vlan id for a tunnel if forwarding is for `wxtunnel`, `mxtunnel` or `site_mxedge`.\n  * if vlan_id is not specified then it will use first one in vlan_ids[] of the mxtunnel.\n  * if forwarding == site_mxedge, vlan_ids comes from site_mxedge (`mxtunnels` under site setting)",
+							Description:         "Optional to specify the VLAN ID for a tunnel if forwarding is for `wxtunnel`, `mxtunnel` or `site_mxedge`.\n  * if vlan_id is not specified then it will use first one in vlan_ids[] of the mxtunnel.\n  * if forwarding == site_mxedge, vlan_ids comes from site_mxedge (`mxtunnels` under site setting)",
+							MarkdownDescription: "Optional to specify the VLAN ID for a tunnel if forwarding is for `wxtunnel`, `mxtunnel` or `site_mxedge`.\n  * if vlan_id is not specified then it will use first one in vlan_ids[] of the mxtunnel.\n  * if forwarding == site_mxedge, vlan_ids comes from site_mxedge (`mxtunnels` under site setting)",
 							Validators: []validator.Int64{
 								int64validator.Between(1, 4094),
 							},
 						},
 						"vlan_ids": schema.StringAttribute{
 							Optional:            true,
-							Description:         "If `forwarding`==`limited`, comma separated list of additional vlan ids allowed on this port",
-							MarkdownDescription: "If `forwarding`==`limited`, comma separated list of additional vlan ids allowed on this port",
+							Description:         "If `forwarding`==`limited`, comma separated list of additional VLAN IDs allowed on this port",
+							MarkdownDescription: "If `forwarding`==`limited`, comma separated list of additional VLAN IDs allowed on this port",
 						},
 						"wxtunnel_id": schema.StringAttribute{
 							Optional:            true,
@@ -1229,13 +1390,15 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Power related configs",
-				MarkdownDescription: "Power related configs",
+				Description:         "Power negotiation and peripheral power defaults in this AP profile",
+				MarkdownDescription: "Power negotiation and peripheral power defaults in this AP profile",
 			},
 			"radio_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"allow_rrm_disable": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether RRM can be disabled for individual radio-band settings",
+						MarkdownDescription: "Whether RRM can be disabled for individual radio-band settings",
 					},
 					"ant_gain_24": schema.Int64Attribute{
 						Optional:            true,
@@ -1263,8 +1426,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"antenna_mode": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
-						MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+						Description:         "Selected radio chain mode for AP models that support antenna mode control",
+						MarkdownDescription: "Selected radio chain mode for AP models that support antenna mode control",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1278,8 +1441,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"antenna_select": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Antenna Mode for AP which supports selectable antennas. enum: `\"\"` (default), `external`, `internal`",
-						MarkdownDescription: "Antenna Mode for AP which supports selectable antennas. enum: `\"\"` (default), `external`, `internal`",
+						Description:         "Internal or external antenna selection for AP models with selectable antennas",
+						MarkdownDescription: "Internal or external antenna selection for AP models with selectable antennas",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1291,13 +1454,17 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					"band_24": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"allow_rrm_disable": schema.BoolAttribute{
-								Optional: true,
-								Computed: true,
-								Default:  booldefault.StaticBool(false),
+								Optional:            true,
+								Computed:            true,
+								Description:         "Whether RRM may disable the 2.4 GHz radio when optimizing RF settings",
+								MarkdownDescription: "Whether RRM may disable the 2.4 GHz radio when optimizing RF settings",
+								Default:             booldefault.StaticBool(false),
 							},
 							"ant_gain": schema.Int64Attribute{
-								Optional: true,
-								Computed: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "External antenna gain for the 2.4 GHz radio",
+								MarkdownDescription: "External antenna gain for the 2.4 GHz radio",
 								Validators: []validator.Int64{
 									int64validator.Between(0, 10),
 								},
@@ -1306,8 +1473,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"antenna_mode": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
-								MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+								Description:         "Radio chain mode for the 2.4 GHz radio",
+								MarkdownDescription: "Radio chain mode for the 2.4 GHz radio",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1323,8 +1490,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`",
-								MarkdownDescription: "channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`",
+								Description:         "Channel width configured for the 2.4 GHz radio",
+								MarkdownDescription: "Channel width configured for the 2.4 GHz radio",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
 										0,
@@ -1347,8 +1514,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"channels": schema.ListAttribute{
 								ElementType:         types.Int64Type,
 								Optional:            true,
-								Description:         "For RFTemplates. List of channels, null or empty array means auto",
-								MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+								Description:         "Allowed channel list for the 2.4 GHz radio; null or an empty array uses automatic selection",
+								MarkdownDescription: "Allowed channel list for the 2.4 GHz radio; null or an empty array uses automatic selection",
 							},
 							"disabled": schema.BoolAttribute{
 								Optional:            true,
@@ -1360,38 +1527,34 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"power": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-								MarkdownDescription: "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+								Description:         "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
+								MarkdownDescription: "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
 								Validators: []validator.Int64{
-									int64validator.Between(3, 25),
+									int64validator.Between(0, 25),
 								},
 								Default: int64default.StaticInt64(0),
 							},
 							"power_max": schema.Int64Attribute{
 								Optional:            true,
-								Computed:            true,
-								Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(3, 18),
 								},
-								Default: int64default.StaticInt64(17),
 							},
 							"power_min": schema.Int64Attribute{
 								Optional:            true,
-								Computed:            true,
-								Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(3, 18),
 								},
-								Default: int64default.StaticInt64(8),
 							},
 							"preamble": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "enum: `auto`, `long`, `short`",
-								MarkdownDescription: "enum: `auto`, `long`, `short`",
+								Description:         "802.11 preamble mode used by the 2.4 GHz radio",
+								MarkdownDescription: "802.11 preamble mode used by the 2.4 GHz radio",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1409,13 +1572,13 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Radio Band AP settings",
-						MarkdownDescription: "Radio Band AP settings",
+						Description:         "2.4 GHz radio settings for this access point",
+						MarkdownDescription: "2.4 GHz radio settings for this access point",
 					},
 					"band_24_usage": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `24`, `5`, `6`, `auto`",
-						MarkdownDescription: "enum: `24`, `5`, `6`, `auto`",
+						Description:         "Radio usage mode for the 2.4 GHz-capable radio",
+						MarkdownDescription: "Radio usage mode for the 2.4 GHz-capable radio",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1429,13 +1592,17 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					"band_5": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"allow_rrm_disable": schema.BoolAttribute{
-								Optional: true,
-								Computed: true,
-								Default:  booldefault.StaticBool(false),
+								Optional:            true,
+								Computed:            true,
+								Description:         "Whether RRM may disable the 5 GHz radio when optimizing RF settings",
+								MarkdownDescription: "Whether RRM may disable the 5 GHz radio when optimizing RF settings",
+								Default:             booldefault.StaticBool(false),
 							},
 							"ant_gain": schema.Int64Attribute{
-								Optional: true,
-								Computed: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "External antenna gain for the 5 GHz radio",
+								MarkdownDescription: "External antenna gain for the 5 GHz radio",
 								Validators: []validator.Int64{
 									int64validator.Between(0, 10),
 								},
@@ -1443,8 +1610,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"antenna_beam_pattern": schema.StringAttribute{
 								Optional:            true,
-								Description:         "enum: `narrow`, `medium`, `wide`",
-								MarkdownDescription: "enum: `narrow`, `medium`, `wide`",
+								Description:         "Beam pattern used by the 5 GHz radio antenna",
+								MarkdownDescription: "Beam pattern used by the 5 GHz radio antenna",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1457,8 +1624,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"antenna_mode": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
-								MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+								Description:         "Radio chain mode for the 5 GHz radio",
+								MarkdownDescription: "Radio chain mode for the 5 GHz radio",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1474,8 +1641,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
-								MarkdownDescription: "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
+								Description:         "Channel width configured for the 5 GHz radio",
+								MarkdownDescription: "Channel width configured for the 5 GHz radio",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
 										0,
@@ -1496,8 +1663,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"channels": schema.ListAttribute{
 								ElementType:         types.Int64Type,
 								Optional:            true,
-								Description:         "For RFTemplates. List of channels, null or empty array means auto",
-								MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+								Description:         "Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection",
+								MarkdownDescription: "Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection",
 							},
 							"disabled": schema.BoolAttribute{
 								Optional:            true,
@@ -1509,38 +1676,34 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"power": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-								MarkdownDescription: "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+								Description:         "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
+								MarkdownDescription: "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
 								Validators: []validator.Int64{
-									int64validator.Between(5, 25),
+									int64validator.Between(0, 25),
 								},
 								Default: int64default.StaticInt64(0),
 							},
 							"power_max": schema.Int64Attribute{
 								Optional:            true,
-								Computed:            true,
-								Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(5, 17),
 								},
-								Default: int64default.StaticInt64(17),
 							},
 							"power_min": schema.Int64Attribute{
 								Optional:            true,
-								Computed:            true,
-								Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(5, 17),
 								},
-								Default: int64default.StaticInt64(8),
 							},
 							"preamble": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "enum: `auto`, `long`, `short`",
-								MarkdownDescription: "enum: `auto`, `long`, `short`",
+								Description:         "802.11 preamble mode used by the 5 GHz radio",
+								MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1558,19 +1721,23 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Radio Band AP settings",
-						MarkdownDescription: "Radio Band AP settings",
+						Description:         "5 GHz radio settings for this access point",
+						MarkdownDescription: "5 GHz radio settings for this access point",
 					},
 					"band_5_on_24_radio": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"allow_rrm_disable": schema.BoolAttribute{
-								Optional: true,
-								Computed: true,
-								Default:  booldefault.StaticBool(false),
+								Optional:            true,
+								Computed:            true,
+								Description:         "Whether RRM may disable the 5 GHz radio when optimizing RF settings",
+								MarkdownDescription: "Whether RRM may disable the 5 GHz radio when optimizing RF settings",
+								Default:             booldefault.StaticBool(false),
 							},
 							"ant_gain": schema.Int64Attribute{
-								Optional: true,
-								Computed: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "External antenna gain for the 5 GHz radio",
+								MarkdownDescription: "External antenna gain for the 5 GHz radio",
 								Validators: []validator.Int64{
 									int64validator.Between(0, 10),
 								},
@@ -1578,8 +1745,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"antenna_beam_pattern": schema.StringAttribute{
 								Optional:            true,
-								Description:         "enum: `narrow`, `medium`, `wide`",
-								MarkdownDescription: "enum: `narrow`, `medium`, `wide`",
+								Description:         "Beam pattern used by the 5 GHz radio antenna",
+								MarkdownDescription: "Beam pattern used by the 5 GHz radio antenna",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1592,8 +1759,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"antenna_mode": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
-								MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+								Description:         "Radio chain mode for the 5 GHz radio",
+								MarkdownDescription: "Radio chain mode for the 5 GHz radio",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1609,8 +1776,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
-								MarkdownDescription: "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
+								Description:         "Channel width configured for the 5 GHz radio",
+								MarkdownDescription: "Channel width configured for the 5 GHz radio",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
 										0,
@@ -1631,8 +1798,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"channels": schema.ListAttribute{
 								ElementType:         types.Int64Type,
 								Optional:            true,
-								Description:         "For RFTemplates. List of channels, null or empty array means auto",
-								MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+								Description:         "Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection",
+								MarkdownDescription: "Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection",
 							},
 							"disabled": schema.BoolAttribute{
 								Optional:            true,
@@ -1644,38 +1811,34 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"power": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-								MarkdownDescription: "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+								Description:         "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
+								MarkdownDescription: "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
 								Validators: []validator.Int64{
-									int64validator.Between(5, 25),
+									int64validator.Between(0, 25),
 								},
 								Default: int64default.StaticInt64(0),
 							},
 							"power_max": schema.Int64Attribute{
 								Optional:            true,
-								Computed:            true,
-								Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(5, 17),
 								},
-								Default: int64default.StaticInt64(17),
 							},
 							"power_min": schema.Int64Attribute{
 								Optional:            true,
-								Computed:            true,
-								Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(5, 17),
 								},
-								Default: int64default.StaticInt64(8),
 							},
 							"preamble": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "enum: `auto`, `long`, `short`",
-								MarkdownDescription: "enum: `auto`, `long`, `short`",
+								Description:         "802.11 preamble mode used by the 5 GHz radio",
+								MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1693,19 +1856,23 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Radio Band AP settings",
-						MarkdownDescription: "Radio Band AP settings",
+						Description:         "5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode",
+						MarkdownDescription: "5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode",
 					},
 					"band_6": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"allow_rrm_disable": schema.BoolAttribute{
-								Optional: true,
-								Computed: true,
-								Default:  booldefault.StaticBool(false),
+								Optional:            true,
+								Computed:            true,
+								Description:         "Whether RRM may disable the 6 GHz radio when optimizing RF settings",
+								MarkdownDescription: "Whether RRM may disable the 6 GHz radio when optimizing RF settings",
+								Default:             booldefault.StaticBool(false),
 							},
 							"ant_gain": schema.Int64Attribute{
-								Optional: true,
-								Computed: true,
+								Optional:            true,
+								Computed:            true,
+								Description:         "External antenna gain for the 6 GHz radio",
+								MarkdownDescription: "External antenna gain for the 6 GHz radio",
 								Validators: []validator.Int64{
 									int64validator.Between(0, 10),
 								},
@@ -1713,8 +1880,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"antenna_beam_pattern": schema.StringAttribute{
 								Optional:            true,
-								Description:         "enum: `narrow`, `medium`, `wide`",
-								MarkdownDescription: "enum: `narrow`, `medium`, `wide`",
+								Description:         "Beam pattern used by the 6 GHz radio antenna",
+								MarkdownDescription: "Beam pattern used by the 6 GHz radio antenna",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1727,8 +1894,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"antenna_mode": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
-								MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+								Description:         "Radio chain mode for the 6 GHz radio",
+								MarkdownDescription: "Radio chain mode for the 6 GHz radio",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1744,8 +1911,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`",
-								MarkdownDescription: "channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`",
+								Description:         "Channel width configured for the 6 GHz radio",
+								MarkdownDescription: "Channel width configured for the 6 GHz radio",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
 										0,
@@ -1767,8 +1934,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"channels": schema.ListAttribute{
 								ElementType:         types.Int64Type,
 								Optional:            true,
-								Description:         "For RFTemplates. List of channels, null or empty array means auto",
-								MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+								Description:         "Allowed channel list for the 6 GHz radio; null or an empty array uses automatic selection",
+								MarkdownDescription: "Allowed channel list for the 6 GHz radio; null or an empty array uses automatic selection",
 							},
 							"disabled": schema.BoolAttribute{
 								Optional:            true,
@@ -1780,38 +1947,34 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"power": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-								MarkdownDescription: "TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+								Description:         "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
+								MarkdownDescription: "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
 								Validators: []validator.Int64{
-									int64validator.Between(5, 25),
+									int64validator.Between(0, 25),
 								},
 								Default: int64default.StaticInt64(0),
 							},
 							"power_max": schema.Int64Attribute{
 								Optional:            true,
-								Computed:            true,
-								Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(5, 18),
 								},
-								Default: int64default.StaticInt64(18),
 							},
 							"power_min": schema.Int64Attribute{
 								Optional:            true,
-								Computed:            true,
-								Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
-								MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+								Description:         "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
+								MarkdownDescription: "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
 								Validators: []validator.Int64{
 									int64validator.Between(5, 18),
 								},
-								Default: int64default.StaticInt64(8),
 							},
 							"preamble": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "enum: `auto`, `long`, `short`",
-								MarkdownDescription: "enum: `auto`, `long`, `short`",
+								Description:         "802.11 preamble mode used by the 6 GHz radio",
+								MarkdownDescription: "802.11 preamble mode used by the 6 GHz radio",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1836,8 +1999,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Radio Band AP settings",
-						MarkdownDescription: "Radio Band AP settings",
+						Description:         "6 GHz radio settings for this access point",
+						MarkdownDescription: "6 GHz radio settings for this access point",
 					},
 					"full_automatic_rrm": schema.BoolAttribute{
 						Optional:            true,
@@ -1868,16 +2031,18 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Radio AP settings",
-				MarkdownDescription: "Radio AP settings",
+				Description:         "Radio configuration defaults in this AP profile",
+				MarkdownDescription: "Radio configuration defaults in this AP profile",
 			},
 			"site_id": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Site where this AP device profile is defined, when scoped to a site",
+				MarkdownDescription: "Site where this AP device profile is defined, when scoped to a site",
 			},
 			"type": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Device Type. enum: `ap`",
-				MarkdownDescription: "Device Type. enum: `ap`",
+				Description:         "Device type discriminator for AP device profiles",
+				MarkdownDescription: "Device type discriminator for AP device profiles",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -1910,16 +2075,16 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "AP Uplink port configuration",
-				MarkdownDescription: "AP Uplink port configuration",
+				Description:         "Authentication and failover defaults for AP uplink ports",
+				MarkdownDescription: "Authentication and failover defaults for AP uplink ports",
 			},
 			"usb_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"cacert": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Only if `type`==`imagotag`",
-						MarkdownDescription: "Only if `type`==`imagotag`",
+						Description:         "Only if `type`==`imagotag`. CA certificate used to validate the Imagotag service certificate",
+						MarkdownDescription: "Only if `type`==`imagotag`. CA certificate used to validate the Imagotag service certificate",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(
 								path.MatchRelative().AtParent().AtName("type"),
@@ -1947,8 +2112,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					"host": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Only if `type`==`imagotag`",
-						MarkdownDescription: "Only if `type`==`imagotag`",
+						Description:         "Only if `type`==`imagotag`. Imagotag service host or IP address contacted by the AP",
+						MarkdownDescription: "Only if `type`==`imagotag`. Imagotag service host or IP address contacted by the AP",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIs(
 								path.MatchRelative().AtParent().AtName("type"),
@@ -1959,8 +2124,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"port": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "Only if `type`==`imagotag`",
-						MarkdownDescription: "Only if `type`==`imagotag`",
+						Description:         "Only if `type`==`imagotag`. TCP port used to reach the Imagotag service",
+						MarkdownDescription: "Only if `type`==`imagotag`. TCP port used to reach the Imagotag service",
 						Validators: []validator.Int64{
 							mistvalidator.AllowedWhenValueIs(
 								path.MatchRelative().AtParent().AtName("type"),
@@ -1971,8 +2136,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "usb config type. enum: `hanshow`, `imagotag`, `solum`",
-						MarkdownDescription: "usb config type. enum: `hanshow`, `imagotag`, `solum`",
+						Description:         "USB integration type for this legacy AP USB configuration",
+						MarkdownDescription: "USB integration type for this legacy AP USB configuration",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -2015,21 +2180,22 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "USB AP settings\n  - Note: if native imagotag is enabled, BLE will be disabled automatically\n  - Note: legacy, new config moved to ESL Config.",
-				MarkdownDescription: "USB AP settings\n  - Note: if native imagotag is enabled, BLE will be disabled automatically\n  - Note: legacy, new config moved to ESL Config.",
+				Description:         "Legacy USB integration defaults in this AP profile",
+				MarkdownDescription: "Legacy USB integration defaults in this AP profile",
 			},
 			"vars": schema.MapAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars",
-				MarkdownDescription: "Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars",
+				Description:         "Variable values provided by this AP device profile",
+				MarkdownDescription: "Variable values provided by this AP device profile",
 			},
 			"zigbee_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"allow_join": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Controls whether new Zigbee devices are allowed to join the network. enum: `always`, `manual`",
-						MarkdownDescription: "Controls whether new Zigbee devices are allowed to join the network. enum: `always`, `manual`",
+						Computed:            true,
+						Description:         "Join policy for new Zigbee devices on this AP",
+						MarkdownDescription: "Join policy for new Zigbee devices on this AP",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -2037,19 +2203,24 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								"manual",
 							),
 						},
+						Default: stringdefault.StaticString("manual"),
 					},
 					"channel": schema.Int64Attribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Zigbee channel (2.4 GHz). `0` means auto; valid fixed values are 11–26",
 						MarkdownDescription: "Zigbee channel (2.4 GHz). `0` means auto; valid fixed values are 11–26",
 						Validators: []validator.Int64{
 							int64validator.Between(0, 26),
 						},
+						Default: int64default.StaticInt64(0),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Whether to enable Zigbee on this AP",
 						MarkdownDescription: "Whether to enable Zigbee on this AP",
+						Default:             booldefault.StaticBool(false),
 					},
 					"extended_pan_id": schema.StringAttribute{
 						Optional:            true,
@@ -2068,8 +2239,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Zigbee AP settings",
-				MarkdownDescription: "Zigbee AP settings",
+				Description:         "Zigbee radio and network defaults in this AP profile",
+				MarkdownDescription: "Zigbee radio and network defaults in this AP profile",
 			},
 		},
 	}
@@ -2089,6 +2260,7 @@ type OrgDeviceprofileApModel struct {
 	LacpConfig       LacpConfigValue       `tfsdk:"lacp_config"`
 	Led              LedValue              `tfsdk:"led"`
 	Mesh             MeshValue             `tfsdk:"mesh"`
+	MqttConfig       MqttConfigValue       `tfsdk:"mqtt_config"`
 	Name             types.String          `tfsdk:"name"`
 	NtpServers       types.List            `tfsdk:"ntp_servers"`
 	OrgId            types.String          `tfsdk:"org_id"`
@@ -7823,6 +7995,660 @@ func (v MeshValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"group":         basetypes.Int64Type{},
 		"role":          basetypes.StringType{},
 		"use_wpa3_on_5": basetypes.BoolType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = MqttConfigType{}
+
+type MqttConfigType struct {
+	basetypes.ObjectType
+}
+
+func (t MqttConfigType) Equal(o attr.Type) bool {
+	other, ok := o.(MqttConfigType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t MqttConfigType) String() string {
+	return "MqttConfigType"
+}
+
+func (t MqttConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	brokerHostAttribute, ok := attributes["broker_host"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`broker_host is missing from object`)
+
+		return nil, diags
+	}
+
+	brokerHostVal, ok := brokerHostAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`broker_host expected to be basetypes.StringValue, was: %T`, brokerHostAttribute))
+	}
+
+	brokerPortAttribute, ok := attributes["broker_port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`broker_port is missing from object`)
+
+		return nil, diags
+	}
+
+	brokerPortVal, ok := brokerPortAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`broker_port expected to be basetypes.Int64Value, was: %T`, brokerPortAttribute))
+	}
+
+	brokerProtoAttribute, ok := attributes["broker_proto"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`broker_proto is missing from object`)
+
+		return nil, diags
+	}
+
+	brokerProtoVal, ok := brokerProtoAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`broker_proto expected to be basetypes.StringValue, was: %T`, brokerProtoAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	formatAttribute, ok := attributes["format"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`format is missing from object`)
+
+		return nil, diags
+	}
+
+	formatVal, ok := formatAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`format expected to be basetypes.StringValue, was: %T`, formatAttribute))
+	}
+
+	passwordAttribute, ok := attributes["password"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`password is missing from object`)
+
+		return nil, diags
+	}
+
+	passwordVal, ok := passwordAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`password expected to be basetypes.StringValue, was: %T`, passwordAttribute))
+	}
+
+	usernameAttribute, ok := attributes["username"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`username is missing from object`)
+
+		return nil, diags
+	}
+
+	usernameVal, ok := usernameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`username expected to be basetypes.StringValue, was: %T`, usernameAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return MqttConfigValue{
+		BrokerHost:  brokerHostVal,
+		BrokerPort:  brokerPortVal,
+		BrokerProto: brokerProtoVal,
+		Enabled:     enabledVal,
+		Format:      formatVal,
+		Password:    passwordVal,
+		Username:    usernameVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMqttConfigValueNull() MqttConfigValue {
+	return MqttConfigValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewMqttConfigValueUnknown() MqttConfigValue {
+	return MqttConfigValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewMqttConfigValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (MqttConfigValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing MqttConfigValue Attribute Value",
+				"While creating a MqttConfigValue value, a missing attribute value was detected. "+
+					"A MqttConfigValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MqttConfigValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid MqttConfigValue Attribute Type",
+				"While creating a MqttConfigValue value, an invalid attribute value was detected. "+
+					"A MqttConfigValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MqttConfigValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("MqttConfigValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra MqttConfigValue Attribute Value",
+				"While creating a MqttConfigValue value, an extra attribute value was detected. "+
+					"A MqttConfigValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra MqttConfigValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewMqttConfigValueUnknown(), diags
+	}
+
+	brokerHostAttribute, ok := attributes["broker_host"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`broker_host is missing from object`)
+
+		return NewMqttConfigValueUnknown(), diags
+	}
+
+	brokerHostVal, ok := brokerHostAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`broker_host expected to be basetypes.StringValue, was: %T`, brokerHostAttribute))
+	}
+
+	brokerPortAttribute, ok := attributes["broker_port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`broker_port is missing from object`)
+
+		return NewMqttConfigValueUnknown(), diags
+	}
+
+	brokerPortVal, ok := brokerPortAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`broker_port expected to be basetypes.Int64Value, was: %T`, brokerPortAttribute))
+	}
+
+	brokerProtoAttribute, ok := attributes["broker_proto"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`broker_proto is missing from object`)
+
+		return NewMqttConfigValueUnknown(), diags
+	}
+
+	brokerProtoVal, ok := brokerProtoAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`broker_proto expected to be basetypes.StringValue, was: %T`, brokerProtoAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewMqttConfigValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	formatAttribute, ok := attributes["format"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`format is missing from object`)
+
+		return NewMqttConfigValueUnknown(), diags
+	}
+
+	formatVal, ok := formatAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`format expected to be basetypes.StringValue, was: %T`, formatAttribute))
+	}
+
+	passwordAttribute, ok := attributes["password"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`password is missing from object`)
+
+		return NewMqttConfigValueUnknown(), diags
+	}
+
+	passwordVal, ok := passwordAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`password expected to be basetypes.StringValue, was: %T`, passwordAttribute))
+	}
+
+	usernameAttribute, ok := attributes["username"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`username is missing from object`)
+
+		return NewMqttConfigValueUnknown(), diags
+	}
+
+	usernameVal, ok := usernameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`username expected to be basetypes.StringValue, was: %T`, usernameAttribute))
+	}
+
+	if diags.HasError() {
+		return NewMqttConfigValueUnknown(), diags
+	}
+
+	return MqttConfigValue{
+		BrokerHost:  brokerHostVal,
+		BrokerPort:  brokerPortVal,
+		BrokerProto: brokerProtoVal,
+		Enabled:     enabledVal,
+		Format:      formatVal,
+		Password:    passwordVal,
+		Username:    usernameVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMqttConfigValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) MqttConfigValue {
+	object, diags := NewMqttConfigValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewMqttConfigValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t MqttConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewMqttConfigValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewMqttConfigValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewMqttConfigValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewMqttConfigValueMust(MqttConfigValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t MqttConfigType) ValueType(ctx context.Context) attr.Value {
+	return MqttConfigValue{}
+}
+
+var _ basetypes.ObjectValuable = MqttConfigValue{}
+
+type MqttConfigValue struct {
+	BrokerHost  basetypes.StringValue `tfsdk:"broker_host"`
+	BrokerPort  basetypes.Int64Value  `tfsdk:"broker_port"`
+	BrokerProto basetypes.StringValue `tfsdk:"broker_proto"`
+	Enabled     basetypes.BoolValue   `tfsdk:"enabled"`
+	Format      basetypes.StringValue `tfsdk:"format"`
+	Password    basetypes.StringValue `tfsdk:"password"`
+	Username    basetypes.StringValue `tfsdk:"username"`
+	state       attr.ValueState
+}
+
+func (v MqttConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 7)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["broker_host"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["broker_port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["broker_proto"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["format"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["password"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["username"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 7)
+
+		val, err = v.BrokerHost.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["broker_host"] = val
+
+		val, err = v.BrokerPort.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["broker_port"] = val
+
+		val, err = v.BrokerProto.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["broker_proto"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.Format.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["format"] = val
+
+		val, err = v.Password.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["password"] = val
+
+		val, err = v.Username.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["username"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v MqttConfigValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v MqttConfigValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v MqttConfigValue) String() string {
+	return "MqttConfigValue"
+}
+
+func (v MqttConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"broker_host":  basetypes.StringType{},
+		"broker_port":  basetypes.Int64Type{},
+		"broker_proto": basetypes.StringType{},
+		"enabled":      basetypes.BoolType{},
+		"format":       basetypes.StringType{},
+		"password":     basetypes.StringType{},
+		"username":     basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"broker_host":  v.BrokerHost,
+			"broker_port":  v.BrokerPort,
+			"broker_proto": v.BrokerProto,
+			"enabled":      v.Enabled,
+			"format":       v.Format,
+			"password":     v.Password,
+			"username":     v.Username,
+		})
+
+	return objVal, diags
+}
+
+func (v MqttConfigValue) Equal(o attr.Value) bool {
+	other, ok := o.(MqttConfigValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.BrokerHost.Equal(other.BrokerHost) {
+		return false
+	}
+
+	if !v.BrokerPort.Equal(other.BrokerPort) {
+		return false
+	}
+
+	if !v.BrokerProto.Equal(other.BrokerProto) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.Format.Equal(other.Format) {
+		return false
+	}
+
+	if !v.Password.Equal(other.Password) {
+		return false
+	}
+
+	if !v.Username.Equal(other.Username) {
+		return false
+	}
+
+	return true
+}
+
+func (v MqttConfigValue) Type(ctx context.Context) attr.Type {
+	return MqttConfigType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v MqttConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"broker_host":  basetypes.StringType{},
+		"broker_port":  basetypes.Int64Type{},
+		"broker_proto": basetypes.StringType{},
+		"enabled":      basetypes.BoolType{},
+		"format":       basetypes.StringType{},
+		"password":     basetypes.StringType{},
+		"username":     basetypes.StringType{},
 	}
 }
 

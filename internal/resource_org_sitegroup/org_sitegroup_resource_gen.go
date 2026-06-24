@@ -16,17 +16,21 @@ func OrgSitegroupResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique value identifying the site group",
+				MarkdownDescription: "Unique value identifying the site group",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the site group",
+				MarkdownDescription: "Display name of the site group",
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Identifier of the org that owns the site group",
+				MarkdownDescription: "Identifier of the org that owns the site group",
 			},
 		},
 	}

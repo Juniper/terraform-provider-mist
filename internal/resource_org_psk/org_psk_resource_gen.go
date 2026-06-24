@@ -24,8 +24,8 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"email": schema.StringAttribute{
 				Optional:            true,
-				Description:         "email to send psk expiring notifications to",
-				MarkdownDescription: "email to send psk expiring notifications to",
+				Description:         "Notification recipient email address for PSK creation notification and expiration reminders",
+				MarkdownDescription: "Notification recipient email address for PSK creation notification and expiration reminders",
 			},
 			"expire_time": schema.Int64Attribute{
 				Optional:            true,
@@ -41,16 +41,16 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the PSK",
+				MarkdownDescription: "Unique identifier of the PSK",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"mac": schema.StringAttribute{
 				Optional:            true,
-				Description:         "If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
-				MarkdownDescription: "If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`",
+				Description:         "If `usage`==`single`, client MAC address this PSK is bound to; empty when auto-binding is used",
+				MarkdownDescription: "If `usage`==`single`, client MAC address this PSK is bound to; empty when auto-binding is used",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("single")),
 					mistvalidator.ParseMac(),
@@ -59,8 +59,8 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 			"macs": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "If `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(1122*) or both. This list is capped at 5000",
-				MarkdownDescription: "If `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(1122*) or both. This list is capped at 5000",
+				Description:         "Client MAC addresses or MAC patterns allowed when `usage`==`macs`",
+				MarkdownDescription: "Client MAC addresses or MAC patterns allowed when `usage`==`macs`",
 				Validators: []validator.List{
 					listvalidator.SizeAtMost(5000),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("usage"), types.StringValue("macs")),
@@ -74,10 +74,14 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "For Org PSK Only. Max concurrent users for this PSK key. Default is 0 (unlimited)",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the PSK",
+				MarkdownDescription: "Display name of the PSK",
 			},
 			"note": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Admin note or description stored with the PSK",
+				MarkdownDescription: "Admin note or description stored with the PSK",
 			},
 			"notify_expiry": schema.BoolAttribute{
 				Optional:            true,
@@ -98,33 +102,37 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "previous passphrase of the PSK if it has been rotated",
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Organization that owns the org-level PSK",
+				MarkdownDescription: "Organization that owns the org-level PSK",
 			},
 			"passphrase": schema.StringAttribute{
 				Required:            true,
 				Sensitive:           true,
-				Description:         "passphrase of the PSK (8-63 character or 64 in hex)",
-				MarkdownDescription: "passphrase of the PSK (8-63 character or 64 in hex)",
+				Description:         "PSK passphrase, 8-63 characters or 64 hexadecimal characters",
+				MarkdownDescription: "PSK passphrase, 8-63 characters or 64 hexadecimal characters",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(8, 64),
 				},
 			},
 			"role": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Client role applied to users authenticated with this PSK",
+				MarkdownDescription: "Client role applied to users authenticated with this PSK",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(0, 32),
 				},
 			},
 			"ssid": schema.StringAttribute{
 				Required:            true,
-				Description:         "SSID this PSK should be applicable to",
-				MarkdownDescription: "SSID this PSK should be applicable to",
+				Description:         "WLAN SSID where this PSK can be used",
+				MarkdownDescription: "WLAN SSID where this PSK can be used",
 			},
 			"usage": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "enum: `macs`, `multi`, `single`",
-				MarkdownDescription: "enum: `macs`, `multi`, `single`",
+				Description:         "Binding mode for this PSK, enum: `macs`, `multi`, `single`",
+				MarkdownDescription: "Binding mode for this PSK, enum: `macs`, `multi`, `single`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -136,7 +144,9 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 				Default: stringdefault.StaticString("multi"),
 			},
 			"vlan_id": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "VLAN ID returned for clients using this PSK",
+				MarkdownDescription: "VLAN ID returned for clients using this PSK",
 				Validators: []validator.String{
 					stringvalidator.Any(
 						mistvalidator.ParseInt(1, 4094),

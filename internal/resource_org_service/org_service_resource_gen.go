@@ -32,8 +32,8 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)",
-				MarkdownDescription: "If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)",
+				Description:         "Custom IPv4 or IPv6 subnets matched by this service when `type`==`custom`",
+				MarkdownDescription: "Custom IPv4 or IPv6 subnets matched by this service when `type`==`custom`",
 				Validators: []validator.List{
 					listvalidator.ValueStringsAre(stringvalidator.Any(mistvalidator.ParseCidrSubnetOnly(false, false), mistvalidator.ParseVar())),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
@@ -44,8 +44,8 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "When `type`==`app_categories`, list of application categories are available through [List App Category Definitions]($e/Constants%20Definitions/listAppCategoryDefinitions)",
-				MarkdownDescription: "When `type`==`app_categories`, list of application categories are available through [List App Category Definitions]($e/Constants%20Definitions/listAppCategoryDefinitions)",
+				Description:         "Categories of applications matched by this service when `type`==`app_categories`",
+				MarkdownDescription: "Categories of applications matched by this service when `type`==`app_categories`",
 				Validators: []validator.List{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("app_categories")),
 				},
@@ -55,8 +55,8 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "When `type`==`app_categories`, list of application categories are available through [List App Sub Category Definitions]($e/Constants%20Definitions/listAppSubCategoryDefinitions)",
-				MarkdownDescription: "When `type`==`app_categories`, list of application categories are available through [List App Sub Category Definitions]($e/Constants%20Definitions/listAppSubCategoryDefinitions)",
+				Description:         "Application subcategories matched by this service when `type`==`app_categories`",
+				MarkdownDescription: "Application subcategories matched by this service when `type`==`app_categories`",
 				Validators: []validator.List{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("app_categories")),
 				},
@@ -66,8 +66,8 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "When `type`==`apps`, list of applications are available through:\n  * [List Applications]($e/Constants%20Definitions/listApplications)\n  * [List Gateway Applications]($e/Constants%20Definitions/listGatewayApplications)\n  * /insight/top_app_by-bytes?wired=true",
-				MarkdownDescription: "When `type`==`apps`, list of applications are available through:\n  * [List Applications]($e/Constants%20Definitions/listApplications)\n  * [List Gateway Applications]($e/Constants%20Definitions/listGatewayApplications)\n  * /insight/top_app_by-bytes?wired=true",
+				Description:         "Application identifiers matched by this service when `type`==`apps`",
+				MarkdownDescription: "Application identifiers matched by this service when `type`==`apps`",
 				Validators: []validator.List{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("apps")),
 				},
@@ -90,10 +90,14 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"description": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Free-form description of the service definition",
+				MarkdownDescription: "Free-form description of the service definition",
 			},
 			"dscp": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "QoS DSCP value used for custom SSR traffic classification",
+				MarkdownDescription: "QoS DSCP value used for custom SSR traffic classification",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
 					stringvalidator.Any(
@@ -104,8 +108,8 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"failover_policy": schema.StringAttribute{
 				Optional:            true,
-				Description:         "enum: `non_revertible`, `none`, `revertible`",
-				MarkdownDescription: "enum: `non_revertible`, `none`, `revertible`",
+				Description:         "Failover behavior for traffic matched by this service",
+				MarkdownDescription: "Failover behavior for traffic matched by this service",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -119,8 +123,8 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "If `type`==`custom`, web filtering",
-				MarkdownDescription: "If `type`==`custom`, web filtering",
+				Description:         "Domain hostnames matched by this custom service for web filtering",
+				MarkdownDescription: "Domain hostnames matched by this custom service for web filtering",
 				Validators: []validator.List{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
 				},
@@ -128,14 +132,16 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique value identifying the service definition",
+				MarkdownDescription: "Unique value identifying the service definition",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"max_jitter": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Maximum jitter threshold used for SSR uplink selection when `traffic_type`==`custom`",
+				MarkdownDescription: "Maximum jitter threshold used for SSR uplink selection when `traffic_type`==`custom`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("traffic_type"), types.StringValue("custom")),
 					stringvalidator.Any(
@@ -145,7 +151,9 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"max_latency": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Maximum latency threshold used for SSR uplink selection when `traffic_type`==`custom`",
+				MarkdownDescription: "Maximum latency threshold used for SSR uplink selection when `traffic_type`==`custom`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("traffic_type"), types.StringValue("custom")),
 					stringvalidator.Any(
@@ -155,7 +163,9 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"max_loss": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Maximum packet loss threshold used for SSR uplink selection when `traffic_type`==`custom`",
+				MarkdownDescription: "Maximum packet loss threshold used for SSR uplink selection when `traffic_type`==`custom`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("traffic_type"), types.StringValue("custom")),
 					stringvalidator.Any(
@@ -165,13 +175,17 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the service definition",
+				MarkdownDescription: "Display name of the service definition",
 				Validators: []validator.String{
 					stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName()),
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Organization identifier associated with the service definition",
+				MarkdownDescription: "Organization identifier associated with the service definition",
 			},
 			"service_limit_down": schema.Int64Attribute{
 				Optional:            true,
@@ -233,20 +247,22 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "When `type`==`custom`, optional, if it doesn't exist, http and https is assumed",
-				MarkdownDescription: "When `type`==`custom`, optional, if it doesn't exist, http and https is assumed",
+				Description:         "Protocol and port match rules used when `type`==`custom`",
+				MarkdownDescription: "Protocol and port match rules used when `type`==`custom`",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("custom")),
 				},
 			},
 			"ssr_relaxed_tcp_state_enforcement": schema.BoolAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Whether SSR relaxes TCP state enforcement for this service",
+				MarkdownDescription: "Whether SSR relaxes TCP state enforcement for this service",
 			},
 			"traffic_class": schema.StringAttribute{
 				Optional:            true,
-				Description:         "when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`",
-				MarkdownDescription: "when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`",
+				Description:         "Traffic class applied when `traffic_type`==`custom`",
+				MarkdownDescription: "Traffic class applied when `traffic_type`==`custom`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIsWithDefault(
 						path.MatchRelative().AtParent().AtName("type"),
@@ -272,8 +288,8 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			"type": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "enum: `app_categories`, `apps`, `custom`, `urls`",
-				MarkdownDescription: "enum: `app_categories`, `apps`, `custom`, `urls`",
+				Description:         "Matching mode that determines which app, URL, or custom fields are used",
+				MarkdownDescription: "Matching mode that determines which app, URL, or custom fields are used",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -289,8 +305,8 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "When `type`==`urls`, no need for spec as URL can encode the ports being used",
-				MarkdownDescription: "When `type`==`urls`, no need for spec as URL can encode the ports being used",
+				Description:         "URL patterns matched by this service when `type`==`urls`",
+				MarkdownDescription: "URL patterns matched by this service when `type`==`urls`",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					mistvalidator.AllowedWhenValueIsIn(path.MatchRelative().AtParent().AtName("type"), []attr.Value{types.StringValue("custom"), types.StringValue("urls")}),

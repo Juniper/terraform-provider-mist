@@ -27,8 +27,8 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"base_profile": schema.StringAttribute{
 				Required:            true,
-				Description:         "enum: `critical`, `standard`, `strict`",
-				MarkdownDescription: "enum: `critical`, `standard`, `strict`",
+				Description:         "Built-in IDP baseline profile inherited before applying overwrites",
+				MarkdownDescription: "Built-in IDP baseline profile inherited before applying overwrites",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -40,20 +40,24 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the IDP profile",
+				MarkdownDescription: "Unique identifier of the IDP profile",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the IDP profile",
+				MarkdownDescription: "Display name of the IDP profile",
 				Validators: []validator.String{
 					stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName()),
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Owning organization for the IDP profile",
+				MarkdownDescription: "Owning organization for the IDP profile",
 			},
 			"overwrites": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -61,8 +65,8 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 						"action": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "enum:\n  * alert (default)\n  * drop: silently dropping packets\n  * close: notify client/server to close connection",
-							MarkdownDescription: "enum:\n  * alert (default)\n  * drop: silently dropping packets\n  * close: notify client/server to close connection",
+							Description:         "Enforcement action applied when this overwrite rule matches",
+							MarkdownDescription: "Enforcement action applied when this overwrite rule matches",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -76,22 +80,28 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 						"matching": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"attack_name": schema.ListAttribute{
-									ElementType: types.StringType,
-									Optional:    true,
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "Signature names matched by the IDP profile overwrite",
+									MarkdownDescription: "Signature names matched by the IDP profile overwrite",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
 								},
 								"dst_subnet": schema.ListAttribute{
-									ElementType: types.StringType,
-									Optional:    true,
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "Destination subnets matched by the IDP profile overwrite",
+									MarkdownDescription: "Destination subnets matched by the IDP profile overwrite",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
 								},
 								"severity": schema.ListAttribute{
-									ElementType: types.StringType,
-									Optional:    true,
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "Threat levels matched by the IDP profile overwrite",
+									MarkdownDescription: "Threat levels matched by the IDP profile overwrite",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
@@ -102,10 +112,14 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 									AttrTypes: MatchingValue{}.AttributeTypes(ctx),
 								},
 							},
-							Optional: true,
+							Optional:            true,
+							Description:         "Criteria that select signatures for this overwrite rule",
+							MarkdownDescription: "Criteria that select signatures for this overwrite rule",
 						},
 						"name": schema.StringAttribute{
-							Required: true,
+							Required:            true,
+							Description:         "Display name for this IDP profile overwrite rule",
+							MarkdownDescription: "Display name for this IDP profile overwrite rule",
 						},
 					},
 					CustomType: OverwritesType{
@@ -114,7 +128,9 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "IDP signature override rules applied on top of the base profile",
+				MarkdownDescription: "IDP signature override rules applied on top of the base profile",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},

@@ -27,7 +27,9 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 			"auto_upgrade_stat": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"lastcheck": schema.Int64Attribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Time when the AP last checked for auto-upgrade, in epoch seconds",
+						MarkdownDescription: "Time when the AP last checked for auto-upgrade, in epoch seconds",
 					},
 				},
 				CustomType: AutoUpgradeStatType{
@@ -35,13 +37,19 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: AutoUpgradeStatValue{}.AttributeTypes(ctx),
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "Automatic firmware upgrade status for the switch",
+				MarkdownDescription: "Automatic firmware upgrade status for the switch",
 			},
 			"config_timestamp": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Time when the switch configuration status was last updated, in epoch seconds",
+				MarkdownDescription: "Time when the switch configuration status was last updated, in epoch seconds",
 			},
 			"config_version": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Currently applied configuration version for the switch",
+				MarkdownDescription: "Currently applied configuration version for the switch",
 			},
 			"device_id": schema.StringAttribute{
 				Required: true,
@@ -52,28 +60,36 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "current device firmware version",
 			},
 			"ext_ip": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Public IP address observed for the switch",
+				MarkdownDescription: "Public IP address observed for the switch",
 			},
 			"fwupdate": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"progress": schema.Int64Attribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Firmware update progress percentage, or null when unavailable",
+						MarkdownDescription: "Firmware update progress percentage, or null when unavailable",
 					},
 					"status": schema.StringAttribute{
 						Computed:            true,
-						Description:         "enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`",
-						MarkdownDescription: "enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`",
+						Description:         "Current firmware update status",
+						MarkdownDescription: "Current firmware update status",
 					},
 					"status_id": schema.Int64Attribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Numeric firmware update status identifier",
+						MarkdownDescription: "Numeric firmware update status identifier",
 					},
 					"timestamp": schema.Float64Attribute{
 						Computed:            true,
-						Description:         "Epoch (seconds)",
-						MarkdownDescription: "Epoch (seconds)",
+						Description:         "Time when the firmware update status was last updated",
+						MarkdownDescription: "Time when the firmware update status was last updated",
 					},
 					"will_retry": schema.BoolAttribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Whether the firmware update process will retry after the current status",
+						MarkdownDescription: "Whether the firmware update process will retry after the current status",
 					},
 				},
 				CustomType: FwupdateType{
@@ -81,7 +97,9 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: FwupdateValue{}.AttributeTypes(ctx),
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "Firmware update status for the switch",
+				MarkdownDescription: "Firmware update status for the switch",
 			},
 			"reboot": schema.BoolAttribute{
 				Optional:            true,
@@ -99,7 +117,9 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"site_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Associated site identifier for the switch statistics record",
+				MarkdownDescription: "Associated site identifier for the switch statistics record",
 			},
 			"snapshot": schema.BoolAttribute{
 				Optional:            true,
@@ -115,8 +135,8 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"status": schema.StringAttribute{
 				Computed:            true,
-				Description:         "enum: `error`, `inprogress`, `scheduled`, `starting`, `success`",
-				MarkdownDescription: "enum: `error`, `inprogress`, `scheduled`, `starting`, `success`",
+				Description:         "Current status of the requested device upgrade",
+				MarkdownDescription: "Current status of the requested device upgrade",
 			},
 			"sync_upgrade": schema.BoolAttribute{
 				Optional:            true,
@@ -153,10 +173,14 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 				Default:             int64default.StaticInt64(1800),
 			},
 			"tag_id": schema.Int64Attribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Numeric inventory tag identifier associated with the switch",
+				MarkdownDescription: "Numeric inventory tag identifier associated with the switch",
 			},
 			"tag_uuid": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Inventory tag UUID associated with the switch",
+				MarkdownDescription: "Inventory tag UUID associated with the switch",
 			},
 			"target_version": schema.StringAttribute{
 				Required:            true,
@@ -165,8 +189,8 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"timestamp": schema.Float64Attribute{
 				Computed:            true,
-				Description:         "Epoch (seconds)",
-				MarkdownDescription: "Epoch (seconds)",
+				Description:         "Epoch timestamp when the device upgrade status was reported",
+				MarkdownDescription: "Epoch timestamp when the device upgrade status was reported",
 			},
 		},
 	}

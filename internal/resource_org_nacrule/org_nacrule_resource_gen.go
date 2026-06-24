@@ -28,8 +28,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"action": schema.StringAttribute{
 				Required:            true,
-				Description:         "enum: `allow`, `block`",
-				MarkdownDescription: "enum: `allow`, `block`",
+				Description:         "Allow or block decision applied when the NAC rule matches",
+				MarkdownDescription: "Allow or block decision applied when the NAC rule matches",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -42,21 +42,26 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "All optional, this goes into Access-Accept",
-				MarkdownDescription: "All optional, this goes into Access-Accept",
+				Description:         "NAC tag IDs to include in the Access-Accept when the rule allows access",
+				MarkdownDescription: "NAC tag IDs to include in the Access-Accept when the rule allows access",
 				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
+			},
+			"dry_run": schema.BoolAttribute{
+				Optional:            true,
+				Description:         "Whether the NAC rule is in dry-run mode, where matches are logged but the action is not enforced",
+				MarkdownDescription: "Whether the NAC rule is in dry-run mode, where matches are logged but the action is not enforced",
 			},
 			"enabled": schema.BoolAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Enabled or not",
-				MarkdownDescription: "Enabled or not",
+				Description:         "Whether the NAC rule is evaluated during policy matching",
+				MarkdownDescription: "Whether the NAC rule is evaluated during policy matching",
 				Default:             booldefault.StaticBool(true),
 			},
 			"guest_auth_state": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Guest portal authorization state. enum: `authorized`, `unknown`",
-				MarkdownDescription: "Guest portal authorization state. enum: `authorized`, `unknown`",
+				Description:         "Guest portal authorization state condition for the rule",
+				MarkdownDescription: "Guest portal authorization state condition for the rule",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -67,8 +72,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the NAC rule",
+				MarkdownDescription: "Unique identifier of the NAC rule",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -77,8 +82,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"auth_type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`",
-						MarkdownDescription: "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`",
+						Description:         "NAC authentication method that must match the request",
+						MarkdownDescription: "NAC authentication method that must match the request",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -97,8 +102,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of client device families to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed family values",
-						MarkdownDescription: "List of client device families to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed family values",
+						Description:         "Client device family values that must match the request",
+						MarkdownDescription: "Client device family values that must match the request",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -108,8 +113,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of client device models to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed model values",
-						MarkdownDescription: "List of client device models to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed model values",
+						Description:         "Client device manufacturer values that must match the request",
+						MarkdownDescription: "Client device manufacturer values that must match the request",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -119,17 +124,19 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of client device manufacturers to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed mfg values",
-						MarkdownDescription: "List of client device manufacturers to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed mfg values",
+						Description:         "Client device model values that must match the request",
+						MarkdownDescription: "Client device model values that must match the request",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
 						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"nactags": schema.ListAttribute{
-						ElementType: types.StringType,
-						Optional:    true,
-						Computed:    true,
+						ElementType:         types.StringType,
+						Optional:            true,
+						Computed:            true,
+						Description:         "NAC tag IDs whose match criteria must be satisfied by the request",
+						MarkdownDescription: "NAC tag IDs whose match criteria must be satisfied by the request",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -139,17 +146,19 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of client device os types to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed os_type values",
-						MarkdownDescription: "List of client device os types to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed os_type values",
+						Description:         "Client OS type values that must match the request",
+						MarkdownDescription: "Client OS type values that must match the request",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
 						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"port_types": schema.ListAttribute{
-						ElementType: types.StringType,
-						Optional:    true,
-						Computed:    true,
+						ElementType:         types.StringType,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Wired or wireless access types that must match the request",
+						MarkdownDescription: "Wired or wireless access types that must match the request",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -159,8 +168,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of site ids to match",
-						MarkdownDescription: "List of site ids to match",
+						Description:         "Site IDs where the rule criteria apply",
+						MarkdownDescription: "Site IDs where the rule criteria apply",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -170,8 +179,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of sitegroup ids to match",
-						MarkdownDescription: "List of sitegroup ids to match",
+						Description:         "Site group IDs where the rule criteria apply",
+						MarkdownDescription: "Site group IDs where the rule criteria apply",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -181,8 +190,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of vendors to match",
-						MarkdownDescription: "List of vendors to match",
+						Description:         "Client device vendor values that must match the request",
+						MarkdownDescription: "Client device vendor values that must match the request",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -194,10 +203,14 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: MatchingValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Criteria that must match for the NAC rule to apply",
+				MarkdownDescription: "Criteria that must match for the NAC rule to apply",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Human-readable name of the NAC rule",
+				MarkdownDescription: "Human-readable name of the NAC rule",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(1, 64),
 				},
@@ -206,8 +219,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"auth_type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`",
-						MarkdownDescription: "enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`",
+						Description:         "NAC authentication method that must match the request",
+						MarkdownDescription: "NAC authentication method that must match the request",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -226,8 +239,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of client device families to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed family values",
-						MarkdownDescription: "List of client device families to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed family values",
+						Description:         "Client device family values that must match the request",
+						MarkdownDescription: "Client device family values that must match the request",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -237,8 +250,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of client device models to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed model values",
-						MarkdownDescription: "List of client device models to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed model values",
+						Description:         "Client device manufacturer values that must match the request",
+						MarkdownDescription: "Client device manufacturer values that must match the request",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -248,17 +261,19 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of client device manufacturers to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed mfg values",
-						MarkdownDescription: "List of client device manufacturers to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed mfg values",
+						Description:         "Client device model values that must match the request",
+						MarkdownDescription: "Client device model values that must match the request",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
 						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"nactags": schema.ListAttribute{
-						ElementType: types.StringType,
-						Optional:    true,
-						Computed:    true,
+						ElementType:         types.StringType,
+						Optional:            true,
+						Computed:            true,
+						Description:         "NAC tag IDs whose match criteria must be satisfied by the request",
+						MarkdownDescription: "NAC tag IDs whose match criteria must be satisfied by the request",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -268,17 +283,19 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of client device os types to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed os_type values",
-						MarkdownDescription: "List of client device os types to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed os_type values",
+						Description:         "Client OS type values that must match the request",
+						MarkdownDescription: "Client OS type values that must match the request",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
 						Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 					},
 					"port_types": schema.ListAttribute{
-						ElementType: types.StringType,
-						Optional:    true,
-						Computed:    true,
+						ElementType:         types.StringType,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Wired or wireless access types that must match the request",
+						MarkdownDescription: "Wired or wireless access types that must match the request",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -288,8 +305,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of site ids to match",
-						MarkdownDescription: "List of site ids to match",
+						Description:         "Site IDs where the rule criteria apply",
+						MarkdownDescription: "Site IDs where the rule criteria apply",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -299,8 +316,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of sitegroup ids to match",
-						MarkdownDescription: "List of sitegroup ids to match",
+						Description:         "Site group IDs where the rule criteria apply",
+						MarkdownDescription: "Site group IDs where the rule criteria apply",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -310,8 +327,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of vendors to match",
-						MarkdownDescription: "List of vendors to match",
+						Description:         "Client device vendor values that must match the request",
+						MarkdownDescription: "Client device vendor values that must match the request",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -323,18 +340,22 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: NotMatchingValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Criteria that must not match for the NAC rule to apply",
+				MarkdownDescription: "Criteria that must not match for the NAC rule to apply",
 			},
 			"order": schema.Int64Attribute{
 				Required:            true,
-				Description:         "Order of the rule, lower value implies higher priority",
-				MarkdownDescription: "Order of the rule, lower value implies higher priority",
+				Description:         "Rule priority; lower values are evaluated with higher priority",
+				MarkdownDescription: "Rule priority; lower values are evaluated with higher priority",
 				Validators: []validator.Int64{
 					int64validator.AtLeast(0),
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Org identifier that owns the NAC rule",
+				MarkdownDescription: "Org identifier that owns the NAC rule",
 			},
 		},
 	}
@@ -343,6 +364,7 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 type OrgNacruleModel struct {
 	Action         types.String     `tfsdk:"action"`
 	ApplyTags      types.List       `tfsdk:"apply_tags"`
+	DryRun         types.Bool       `tfsdk:"dry_run"`
 	Enabled        types.Bool       `tfsdk:"enabled"`
 	GuestAuthState types.String     `tfsdk:"guest_auth_state"`
 	Id             types.String     `tfsdk:"id"`

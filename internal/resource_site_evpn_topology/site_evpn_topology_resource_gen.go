@@ -66,8 +66,10 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"enable_inband_mgmt": schema.BoolAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Whether to route management traffic inband; routes will be propagated to downstream switches",
 						MarkdownDescription: "Whether to route management traffic inband; routes will be propagated to downstream switches",
+						Default:             booldefault.StaticBool(false),
 					},
 					"enable_inband_ztp": schema.BoolAttribute{
 						Optional:            true,
@@ -94,7 +96,9 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 								AttrTypes: OverlayValue{}.AttributeTypes(ctx),
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "EVPN overlay BGP settings for the topology",
+						MarkdownDescription: "EVPN overlay BGP settings for the topology",
 					},
 					"per_vlan_vga_v4_mac": schema.BoolAttribute{
 						Optional:            true,
@@ -113,8 +117,8 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 					"routed_at": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "optional, where virtual-gateway should reside. enum: `core`, `distribution`, `edge`",
-						MarkdownDescription: "optional, where virtual-gateway should reside. enum: `core`, `distribution`, `edge`",
+						Description:         "Topology tier where EVPN virtual gateway routing is placed",
+						MarkdownDescription: "Topology tier where EVPN virtual gateway routing is placed",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -138,7 +142,9 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 								Default: int64default.StaticInt64(65001),
 							},
 							"routed_id_prefix": schema.StringAttribute{
-								Optional: true,
+								Optional:            true,
+								Description:         "Prefix length used for automatically derived underlay router identifiers",
+								MarkdownDescription: "Prefix length used for automatically derived underlay router identifiers",
 							},
 							"subnet": schema.StringAttribute{
 								Optional:            true,
@@ -161,14 +167,18 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 								AttrTypes: UnderlayValue{}.AttributeTypes(ctx),
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "EVPN underlay BGP and subnet settings for the topology",
+						MarkdownDescription: "EVPN underlay BGP and subnet settings for the topology",
 					},
 					"vs_instances": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"networks": schema.ListAttribute{
-									ElementType: types.StringType,
-									Optional:    true,
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "List of network names included in this virtual-switch instance",
+									MarkdownDescription: "List of network names included in this virtual-switch instance",
 									Validators: []validator.List{
 										listvalidator.UniqueValues(),
 									},
@@ -181,8 +191,8 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Optional, for EX9200 only to segregate virtual-switches",
-						MarkdownDescription: "Optional, for EX9200 only to segregate virtual-switches",
+						Description:         "Virtual-switch instance mappings used to segregate EVPN networks",
+						MarkdownDescription: "Virtual-switch instance mappings used to segregate EVPN networks",
 						Validators: []validator.Map{
 							mapvalidator.SizeAtLeast(1),
 						},
@@ -194,25 +204,29 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "EVPN Options",
-				MarkdownDescription: "EVPN Options",
+				Description:         "Generation options applied to the EVPN topology",
+				MarkdownDescription: "Generation options applied to the EVPN topology",
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the EVPN topology",
+				MarkdownDescription: "Unique identifier of the EVPN topology",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name for the EVPN topology",
+				MarkdownDescription: "Display name for the EVPN topology",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(1, 64),
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Organization that owns the EVPN topology",
+				MarkdownDescription: "Organization that owns the EVPN topology",
 			},
 			"pod_names": schema.MapAttribute{
 				ElementType:         types.StringType,
@@ -222,40 +236,56 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Property key is the pod number",
 			},
 			"site_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Site associated with the EVPN topology",
+				MarkdownDescription: "Site associated with the EVPN topology",
 			},
 			"switches": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"deviceprofile_id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Associated device profile identifier for the switch. Use the [Assign Org Device Profile]($e/Orgs%20Device%20Profiles/assignOrgDeviceProfile) endpoint to assign a Device Profile to the switch.",
+							MarkdownDescription: "Associated device profile identifier for the switch. Use the [Assign Org Device Profile]($e/Orgs%20Device%20Profiles/assignOrgDeviceProfile) endpoint to assign a Device Profile to the switch.",
 						},
 						"downlink_ips": schema.ListAttribute{
-							ElementType: types.StringType,
-							Computed:    true,
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "IP addresses used by this switch for EVPN downlinks",
+							MarkdownDescription: "IP addresses used by this switch for EVPN downlinks",
 						},
 						"downlinks": schema.ListAttribute{
-							ElementType: types.StringType,
-							Computed:    true,
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "Switch MAC addresses connected as downlinks from this topology member",
+							MarkdownDescription: "Switch MAC addresses connected as downlinks from this topology member",
 						},
 						"esilaglinks": schema.ListAttribute{
-							ElementType: types.StringType,
-							Computed:    true,
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "Switch MAC addresses connected through ESI-LAG from this topology member",
+							MarkdownDescription: "Switch MAC addresses connected through ESI-LAG from this topology member",
 						},
 						"evpn_id": schema.Int64Attribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Topology identifier number for this EVPN switch member",
+							MarkdownDescription: "Topology identifier number for this EVPN switch member",
 							Validators: []validator.Int64{
 								int64validator.AtLeast(1),
 							},
 						},
 						"mac": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Switch MAC address used to identify the topology member",
+							MarkdownDescription: "Switch MAC address used to identify the topology member",
 							Validators: []validator.String{
 								stringvalidator.LengthAtLeast(1),
 							},
 						},
 						"model": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Switch model for this topology member",
+							MarkdownDescription: "Switch model for this topology member",
 						},
 						"pod": schema.Int64Attribute{
 							Optional:            true,
@@ -271,13 +301,13 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 							ElementType:         types.Int64Type,
 							Optional:            true,
 							Computed:            true,
-							Description:         "By default, core switches are assumed to be connecting all pods. \nif you want to limit the pods, you can specify pods.",
-							MarkdownDescription: "By default, core switches are assumed to be connecting all pods. \nif you want to limit the pods, you can specify pods.",
+							Description:         "List of pod numbers this switch participates in",
+							MarkdownDescription: "List of pod numbers this switch participates in",
 						},
 						"role": schema.StringAttribute{
 							Required:            true,
-							Description:         "use `role`==`none` to remove a switch from the topology. enum: `access`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`",
-							MarkdownDescription: "use `role`==`none` to remove a switch from the topology. enum: `access`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`",
+							Description:         "EVPN topology role for this switch",
+							MarkdownDescription: "EVPN topology role for this switch",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -292,26 +322,38 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						"router_id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Routing identifier used by this switch for EVPN routing",
+							MarkdownDescription: "Routing identifier used by this switch for EVPN routing",
 						},
 						"site_id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Associated site for this EVPN topology switch",
+							MarkdownDescription: "Associated site for this EVPN topology switch",
 						},
 						"suggested_downlinks": schema.ListAttribute{
-							ElementType: types.StringType,
-							Computed:    true,
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "Builder-suggested downlink switch MAC addresses",
+							MarkdownDescription: "Builder-suggested downlink switch MAC addresses",
 						},
 						"suggested_esilaglinks": schema.ListAttribute{
-							ElementType: types.StringType,
-							Computed:    true,
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "Builder-suggested ESI-LAG switch MAC addresses",
+							MarkdownDescription: "Builder-suggested ESI-LAG switch MAC addresses",
 						},
 						"suggested_uplinks": schema.ListAttribute{
-							ElementType: types.StringType,
-							Computed:    true,
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "Builder-suggested uplink switch MAC addresses",
+							MarkdownDescription: "Builder-suggested uplink switch MAC addresses",
 						},
 						"uplinks": schema.ListAttribute{
-							ElementType: types.StringType,
-							Computed:    true,
+							ElementType:         types.StringType,
+							Computed:            true,
+							Description:         "Switch MAC addresses connected as uplinks from this topology member",
+							MarkdownDescription: "Switch MAC addresses connected as uplinks from this topology member",
 						},
 					},
 					CustomType: SwitchesType{
@@ -321,8 +363,8 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Required:            true,
-				Description:         "Property key can be the switch MAC Address",
-				MarkdownDescription: "Property key can be the switch MAC Address",
+				Description:         "Topology member switches, roles, and links",
+				MarkdownDescription: "Topology member switches, roles, and links",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},

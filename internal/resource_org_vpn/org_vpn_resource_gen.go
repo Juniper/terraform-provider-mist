@@ -28,28 +28,32 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the VPN configuration",
+				MarkdownDescription: "Unique identifier of the VPN configuration",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the VPN configuration",
+				MarkdownDescription: "Display name of the VPN configuration",
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Organization that owns the VPN configuration",
+				MarkdownDescription: "Organization that owns the VPN configuration",
 			},
 			"path_selection": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"strategy": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `disabled`, `simple`, `manual`",
-						MarkdownDescription: "enum: `disabled`, `simple`, `manual`",
+						Description:         "Path selection strategy for a hub-and-spoke VPN",
+						MarkdownDescription: "Path selection strategy for a hub-and-spoke VPN",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -67,16 +71,16 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Only if `type`==`hub_spoke`",
-				MarkdownDescription: "Only if `type`==`hub_spoke`",
+				Description:         "Path selection settings used when `type`==`hub_spoke`",
+				MarkdownDescription: "Path selection settings used when `type`==`hub_spoke`",
 			},
 			"paths": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"bfd_profile": schema.StringAttribute{
 							Optional:            true,
-							Description:         "enum: `broadband`, `lte`",
-							MarkdownDescription: "enum: `broadband`, `lte`",
+							Description:         "BFD profile used for this VPN path",
+							MarkdownDescription: "BFD profile used for this VPN path",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -92,14 +96,16 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"ip": schema.StringAttribute{
 							Optional:            true,
-							Description:         "If different from the wan port",
-							MarkdownDescription: "If different from the wan port",
+							Description:         "Source IP address for this VPN path, if different from the WAN port IP",
+							MarkdownDescription: "Source IP address for this VPN path, if different from the WAN port IP",
 						},
 						"peer_paths": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"preference": schema.Int64Attribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "Lower numeric value makes this outgoing WAN path more preferred",
+										MarkdownDescription: "Lower numeric value makes this outgoing WAN path more preferred",
 									},
 								},
 								CustomType: PeerPathsType{
@@ -109,14 +115,16 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "If `type`==`mesh`, Property key is the Peer Interface name",
-							MarkdownDescription: "If `type`==`mesh`, Property key is the Peer Interface name",
+							Description:         "Peer path preferences used when `type`==`mesh`",
+							MarkdownDescription: "Peer path preferences used when `type`==`mesh`",
 							Validators: []validator.Map{
 								mapvalidator.SizeAtLeast(1),
 							},
 						},
 						"pod": schema.Int64Attribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Grouping index used to place this VPN path into a pod",
+							MarkdownDescription: "Grouping index used to place this VPN path into a pod",
 							Validators: []validator.Int64{
 								int64validator.Between(1, 128),
 							},
@@ -126,17 +134,21 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 								"class_percentage": schema.ListAttribute{
 									ElementType:         types.Int64Type,
 									Optional:            true,
-									Description:         "percentages for different class of traffic: high / medium / low / best-effort adding up to 100",
-									MarkdownDescription: "percentages for different class of traffic: high / medium / low / best-effort adding up to 100",
+									Description:         "Bandwidth percentages for high, medium, low, and best-effort traffic classes",
+									MarkdownDescription: "Bandwidth percentages for high, medium, low, and best-effort traffic classes",
 									Validators: []validator.List{
 										listvalidator.SizeBetween(4, 4),
 									},
 								},
 								"enabled": schema.BoolAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Whether traffic shaping is enabled for this VPN path",
+									MarkdownDescription: "Whether traffic shaping is enabled for this VPN path",
 								},
 								"max_tx_kbps": schema.Int64Attribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Maximum transmit rate for this VPN path, in Kbps; `null` means no explicit limit",
+									MarkdownDescription: "Maximum transmit rate for this VPN path, in Kbps; `null` means no explicit limit",
 								},
 							},
 							CustomType: TrafficShapingType{
@@ -144,7 +156,9 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 									AttrTypes: TrafficShapingValue{}.AttributeTypes(ctx),
 								},
 							},
-							Optional: true,
+							Optional:            true,
+							Description:         "Traffic shaping settings applied to this VPN path",
+							MarkdownDescription: "Traffic shaping settings applied to this VPN path",
 						},
 					},
 					CustomType: PathsType{
@@ -154,16 +168,16 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Required:            true,
-				Description:         "For `type`==`hub_spoke`, Property key is the VPN name. For `type`==`mesh`, Property key is the Interface name",
-				MarkdownDescription: "For `type`==`hub_spoke`, Property key is the VPN name. For `type`==`mesh`, Property key is the Interface name",
+				Description:         "VPN path definitions keyed by VPN name for `hub_spoke` mode or interface name for `mesh` mode",
+				MarkdownDescription: "VPN path definitions keyed by VPN name for `hub_spoke` mode or interface name for `mesh` mode",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
 			},
 			"type": schema.StringAttribute{
 				Optional:            true,
-				Description:         "enum: `hub_spoke`, `mesh`",
-				MarkdownDescription: "enum: `hub_spoke`, `mesh`",
+				Description:         "VPN topology mode for this configuration",
+				MarkdownDescription: "VPN topology mode for this configuration",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

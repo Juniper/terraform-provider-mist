@@ -130,7 +130,7 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("claim_code")),
 				},
 			},
-			"notes": schema.StringAttribute{
+			"notess": schema.StringAttribute{
 				Optional: true,
 			},
 			"ntp_servers": schema.ListAttribute{
@@ -611,7 +611,7 @@ type OrgMxedgeModel struct {
 	MxclusterId               types.String                   `tfsdk:"mxcluster_id"`
 	MxedgeMgmt                MxedgeMgmtValue                `tfsdk:"mxedge_mgmt"`
 	Name                      types.String                   `tfsdk:"name"`
-	Notes                     types.String                   `tfsdk:"notes"`
+	Notes                     types.String                   `tfsdk:"notess"`
 	NtpServers                types.List                     `tfsdk:"ntp_servers"`
 	OobIpConfig               OobIpConfigValue               `tfsdk:"oob_ip_config"`
 	OrgId                     types.String                   `tfsdk:"org_id"`

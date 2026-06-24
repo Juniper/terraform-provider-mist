@@ -24,8 +24,8 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"action": schema.StringAttribute{
 				Required:            true,
-				Description:         "type of action, allow / block. enum: `allow`, `block`",
-				MarkdownDescription: "type of action, allow / block. enum: `allow`, `block`",
+				Description:         "Allow or block behavior applied by this WxLAN rule",
+				MarkdownDescription: "Allow or block behavior applied by this WxLAN rule",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -35,8 +35,10 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"apply_tags": schema.ListAttribute{
-				ElementType: types.StringType,
-				Optional:    true,
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "WxLAN tag identifiers applied when this rule matches",
+				MarkdownDescription: "WxLAN tag identifiers applied when this rule matches",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
@@ -44,8 +46,8 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 			"blocked_apps": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "Blocked apps (always blocking, ignoring action), the key of Get Application List",
-				MarkdownDescription: "Blocked apps (always blocking, ignoring action), the key of Get Application List",
+				Description:         "Application keys always blocked by this rule, regardless of the rule action",
+				MarkdownDescription: "Application keys always blocked by this rule, regardless of the rule action",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
@@ -54,43 +56,45 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "List of WxTag UUID to indicate these tags are allowed access",
-				MarkdownDescription: "List of WxTag UUID to indicate these tags are allowed access",
+				Description:         "Destination WxLAN tag identifiers explicitly allowed by this rule",
+				MarkdownDescription: "Destination WxLAN tag identifiers explicitly allowed by this rule",
 				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"dst_deny_wxtags": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "List of WxTag UUID to indicate these tags are blocked access",
-				MarkdownDescription: "List of WxTag UUID to indicate these tags are blocked access",
+				Description:         "Destination WxLAN tag identifiers explicitly denied by this rule",
+				MarkdownDescription: "Destination WxLAN tag identifiers explicitly denied by this rule",
 				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"dst_wxtags": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "List of WxTag UUID",
-				MarkdownDescription: "List of WxTag UUID",
+				Description:         "Destination WxLAN tag identifiers matched by this rule",
+				MarkdownDescription: "Destination WxLAN tag identifiers matched by this rule",
 				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"enabled": schema.BoolAttribute{
-				Optional: true,
-				Computed: true,
-				Default:  booldefault.StaticBool(true),
+				Optional:            true,
+				Computed:            true,
+				Description:         "Whether this WxLAN rule is enabled",
+				MarkdownDescription: "Whether this WxLAN rule is enabled",
+				Default:             booldefault.StaticBool(true),
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier for this WxLAN rule",
+				MarkdownDescription: "Unique identifier for this WxLAN rule",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"order": schema.Int64Attribute{
 				Required:            true,
-				Description:         "Order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked",
-				MarkdownDescription: "Order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked",
+				Description:         "Lookup priority for WxLAN rules; larger positive values match first, and -1 means LAST. Uniqueness is not checked",
+				MarkdownDescription: "Lookup priority for WxLAN rules; larger positive values match first, and -1 means LAST. Uniqueness is not checked",
 				Validators: []validator.Int64{
 					int64validator.Any(
 						int64validator.Between(-1, -1),
@@ -99,14 +103,16 @@ func SiteWxruleResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"site_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Mist site associated with this WxLAN rule, when site-scoped",
+				MarkdownDescription: "Mist site associated with this WxLAN rule, when site-scoped",
 			},
 			"src_wxtags": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "List of WxTag UUID to determine if this rule would match",
-				MarkdownDescription: "List of WxTag UUID to determine if this rule would match",
+				Description:         "Source WxLAN tag identifiers that must match for this rule to apply",
+				MarkdownDescription: "Source WxLAN tag identifiers that must match for this rule to apply",
 				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 		},

@@ -5,20 +5,21 @@ package resource_org_mxcluster
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -28,8 +29,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the Mist Edge cluster",
+				MarkdownDescription: "Unique identifier of the Mist Edge cluster",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -46,18 +47,20 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "Whether to disable Event-Timestamp Check",
 								},
 								"enabled": schema.BoolAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Whether this DAS CoA or Disconnect-Message client is enabled",
+									MarkdownDescription: "Whether this DAS CoA or Disconnect-Message client is enabled",
 								},
 								"host": schema.StringAttribute{
 									Optional:            true,
-									Description:         "This server configured to send CoA|DM to mist edges",
-									MarkdownDescription: "This server configured to send CoA|DM to mist edges",
+									Description:         "Server host allowed to send CoA or Disconnect-Message requests to Mist Edges",
+									MarkdownDescription: "Server host allowed to send CoA or Disconnect-Message requests to Mist Edges",
 								},
 								"port": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Mist edges will allow this host on this port",
-									MarkdownDescription: "Mist edges will allow this host on this port",
+									Description:         "UDP port where Mist Edges accept CoA or Disconnect-Message requests from this host",
+									MarkdownDescription: "UDP port where Mist Edges accept CoA or Disconnect-Message requests from this host",
 								},
 								"require_message_authenticator": schema.BoolAttribute{
 									Optional:            true,
@@ -66,8 +69,10 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "Whether to require Message-Authenticator in requests",
 								},
 								"secret": schema.StringAttribute{
-									Optional:  true,
-									Sensitive: true,
+									Optional:            true,
+									Sensitive:           true,
+									Description:         "Shared secret used by this DAS CoA or Disconnect-Message client",
+									MarkdownDescription: "Shared secret used by this DAS CoA or Disconnect-Message client",
 								},
 							},
 							CustomType: CoaServersType{
@@ -77,12 +82,14 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Dynamic authorization clients configured to send CoA|DM to mist edges on port 3799",
-						MarkdownDescription: "Dynamic authorization clients configured to send CoA|DM to mist edges on port 3799",
+						Description:         "Dynamic authorization clients allowed to send CoA or Disconnect-Message requests",
+						MarkdownDescription: "Dynamic authorization clients allowed to send CoA or Disconnect-Message requests",
 					},
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether cloud-assisted DAS is enabled for the Mist Edge cluster",
+						MarkdownDescription: "Whether cloud-assisted DAS is enabled for the Mist Edge cluster",
 					},
 				},
 				CustomType: MistDasType{
@@ -91,18 +98,22 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Configure cloud-assisted dynamic authorization service on this cluster of mist edges",
-				MarkdownDescription: "Configure cloud-assisted dynamic authorization service on this cluster of mist edges",
+				Description:         "Dynamic authorization service settings for the cluster",
+				MarkdownDescription: "Dynamic authorization service settings for the cluster",
 			},
 			"mist_nac": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"acct_server_port": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "RADIUS accounting port used by Mist NAC on the cluster",
+						MarkdownDescription: "RADIUS accounting port used by Mist NAC on the cluster",
 					},
 					"auth_server_port": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "RADIUS authentication port used by Mist NAC on the cluster",
+						MarkdownDescription: "RADIUS authentication port used by Mist NAC on the cluster",
 					},
 					"client_ips": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -121,12 +132,16 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether Mist NAC is enabled on the cluster",
+						MarkdownDescription: "Whether Mist NAC is enabled on the cluster",
 					},
 					"secret": schema.StringAttribute{
-						Optional:  true,
-						Sensitive: true,
+						Optional:            true,
+						Sensitive:           true,
+						Description:         "Shared RADIUS secret used by Mist NAC clients",
+						MarkdownDescription: "Shared RADIUS secret used by Mist NAC clients",
 					},
 				},
 				CustomType: MistNacType{
@@ -134,27 +149,86 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: MistNacValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "NAC settings for the Mist Edge cluster",
+				MarkdownDescription: "NAC settings for the Mist Edge cluster",
+			},
+			"mist_nacedge": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"auth_ttl": schema.Int64Attribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Cache TTL for last auth result in seconds",
+						MarkdownDescription: "Cache TTL for last auth result in seconds",
+						Validators: []validator.Int64{
+							int64validator.Between(60, 2592000),
+						},
+						Default: int64default.StaticInt64(604800),
+					},
+					"caching_site_ids": schema.ListAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						Description:         "List of site UUIDs whose auth requests should be cached by NAC Edges in this cluster",
+						MarkdownDescription: "List of site UUIDs whose auth requests should be cached by NAC Edges in this cluster",
+					},
+					"default_dot1x_vlan": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Default VLAN for all dot1x devices, if different from default_vlan",
+						MarkdownDescription: "Default VLAN for all dot1x devices, if different from default_vlan",
+					},
+					"default_vlan": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Default VLAN to assign for devices not in the cache",
+						MarkdownDescription: "Default VLAN to assign for devices not in the cache",
+					},
+					"enabled": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether NAC Edge survivability is enabled for this cluster",
+						MarkdownDescription: "Whether NAC Edge survivability is enabled for this cluster",
+						Default:             booldefault.StaticBool(false),
+					},
+					"nac_edge_hosts": schema.ListAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						Description:         "NAC Edge hostnames used by APs for survivability authentication",
+						MarkdownDescription: "NAC Edge hostnames used by APs for survivability authentication",
+					},
+				},
+				CustomType: MistNacedgeType{
+					ObjectType: types.ObjectType{
+						AttrTypes: MistNacedgeValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "NAC Edge survivability settings for the cluster; requires `mist_nac` to be enabled",
+				MarkdownDescription: "NAC Edge survivability settings for the cluster; requires `mist_nac` to be enabled",
 			},
 			"mxedge_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"config_auto_revert": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether the Mist Edge automatically reverts configuration changes if connectivity is lost",
+						MarkdownDescription: "Whether the Mist Edge automatically reverts configuration changes if connectivity is lost",
 					},
 					"fips_enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether FIPS mode is enabled on the Mist Edge",
+						MarkdownDescription: "Whether FIPS mode is enabled on the Mist Edge",
 					},
 					"mist_password": schema.StringAttribute{
-						Optional:  true,
-						Sensitive: true,
+						Optional:            true,
+						Sensitive:           true,
+						Description:         "Password for the Mist service account on the Mist Edge",
+						MarkdownDescription: "Password for the Mist service account on the Mist Edge",
 					},
 					"oob_ip_type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `dhcp`, `disabled`, `static`",
-						MarkdownDescription: "enum: `dhcp`, `disabled`, `static`",
+						Description:         "IPv4 address assignment mode for out-of-band management",
+						MarkdownDescription: "IPv4 address assignment mode for out-of-band management",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -167,8 +241,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"oob_ip_type6": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `autoconf`, `dhcp`, `disabled`, `static`",
-						MarkdownDescription: "enum: `autoconf`, `dhcp`, `disabled`, `static`",
+						Description:         "IPv6 address assignment mode for out-of-band management",
+						MarkdownDescription: "IPv6 address assignment mode for out-of-band management",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -180,8 +254,10 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"root_password": schema.StringAttribute{
-						Optional:  true,
-						Sensitive: true,
+						Optional:            true,
+						Sensitive:           true,
+						Description:         "Root account password for the Mist Edge",
+						MarkdownDescription: "Root account password for the Mist Edge",
 					},
 				},
 				CustomType: MxedgeMgmtType{
@@ -189,22 +265,32 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: MxedgeMgmtValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Out-of-band management settings for Mist Edges in the cluster",
+				MarkdownDescription: "Out-of-band management settings for Mist Edges in the cluster",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the Mist Edge cluster",
+				MarkdownDescription: "Display name of the Mist Edge cluster",
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Identifier of the org that owns the Mist Edge cluster",
+				MarkdownDescription: "Identifier of the org that owns the Mist Edge cluster",
 			},
 			"proxy": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"disabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether this proxy configuration is disabled",
+						MarkdownDescription: "Whether this proxy configuration is disabled",
 					},
 					"url": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Proxy URL used to reach Mist",
+						MarkdownDescription: "Proxy URL used to reach Mist",
 					},
 				},
 				CustomType: ProxyType{
@@ -213,8 +299,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Proxy Configuration to talk to Mist",
-				MarkdownDescription: "Proxy Configuration to talk to Mist",
+				Description:         "Network proxy settings used by Mist Edges in the cluster to communicate with the Mist Cloud",
+				MarkdownDescription: "Network proxy settings used by Mist Edges in the cluster to communicate with the Mist Cloud",
 			},
 			"radsec": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -235,14 +321,14 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 								"secret": schema.StringAttribute{
 									Optional:            true,
 									Sensitive:           true,
-									Description:         "Secret of RADIUS server",
-									MarkdownDescription: "Secret of RADIUS server",
+									Description:         "Shared secret used with this RADIUS accounting server",
+									MarkdownDescription: "Shared secret used with this RADIUS accounting server",
 								},
 								"ssids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "List of ssids that will use this server if match_ssid is true and match is found",
-									MarkdownDescription: "List of ssids that will use this server if match_ssid is true and match is found",
+									Description:         "WLAN SSID filters that use this accounting server when matching is enabled",
+									MarkdownDescription: "WLAN SSID filters that use this accounting server when matching is enabled",
 								},
 							},
 							CustomType: AcctServersType{
@@ -252,8 +338,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "List of RADIUS accounting servers, optional, order matters where the first one is treated as primary",
-						MarkdownDescription: "List of RADIUS accounting servers, optional, order matters where the first one is treated as primary",
+						Description:         "RADIUS accounting servers used by the RadSec proxy",
+						MarkdownDescription: "RADIUS accounting servers used by the RadSec proxy",
 						Validators: []validator.List{
 							listvalidator.UniqueValues(),
 						},
@@ -289,8 +375,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 								"keywrap_format": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "if used for Mist APs. enum: `ascii`, `hex`",
-									MarkdownDescription: "if used for Mist APs. enum: `ascii`, `hex`",
+									Description:         "Encoding format for Mist AP RADIUS keywrap keys",
+									MarkdownDescription: "Encoding format for Mist AP RADIUS keywrap keys",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -318,20 +404,20 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 								"retry": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Authentication request retry",
-									MarkdownDescription: "Authentication request retry",
+									Description:         "Number of authentication request retries before failing over",
+									MarkdownDescription: "Number of authentication request retries before failing over",
 								},
 								"secret": schema.StringAttribute{
 									Optional:            true,
 									Sensitive:           true,
-									Description:         "Secret of RADIUS server",
-									MarkdownDescription: "Secret of RADIUS server",
+									Description:         "Shared secret used with this RADIUS authentication server",
+									MarkdownDescription: "Shared secret used with this RADIUS authentication server",
 								},
 								"ssids": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "List of ssids that will use this server if match_ssid is true and match is found",
-									MarkdownDescription: "List of ssids that will use this server if match_ssid is true and match is found",
+									Description:         "WLAN SSID filters that use this authentication server when matching is enabled",
+									MarkdownDescription: "WLAN SSID filters that use this authentication server when matching is enabled",
 								},
 								"timeout": schema.Int64Attribute{
 									Optional:            true,
@@ -347,8 +433,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "List of RADIUS authentication servers, order matters where the first one is treated as primary",
-						MarkdownDescription: "List of RADIUS authentication servers, order matters where the first one is treated as primary",
+						Description:         "RADIUS authentication servers used by the RadSec proxy",
+						MarkdownDescription: "RADIUS authentication servers used by the RadSec proxy",
 						Validators: []validator.List{
 							listvalidator.UniqueValues(),
 						},
@@ -366,8 +452,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"nas_ip_source": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "SSpecify NAS-IP-ADDRESS, NAS-IPv6-ADDRESS to use with auth_servers. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`",
-						MarkdownDescription: "SSpecify NAS-IP-ADDRESS, NAS-IPv6-ADDRESS to use with auth_servers. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`",
+						Description:         "Source used to populate NAS-IP-Address and NAS-IPv6-Address attributes",
+						MarkdownDescription: "Source used to populate NAS-IP-Address and NAS-IPv6-Address attributes",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -382,8 +468,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"proxy_hosts": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Description:         "Hostnames or IPs for Mist AP to use as the TLS Server (i.e. they are reachable from AP) in addition to `tunterm_hosts`",
-						MarkdownDescription: "Hostnames or IPs for Mist AP to use as the TLS Server (i.e. they are reachable from AP) in addition to `tunterm_hosts`",
+						Description:         "AP-reachable hostnames or IP addresses advertised as RadSec TLS servers",
+						MarkdownDescription: "AP-reachable hostnames or IP addresses advertised as RadSec TLS servers",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 							listvalidator.UniqueValues(),
@@ -392,8 +478,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"server_selection": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "When ordered, Mist Edge will prefer and go back to the first radius server if possible. enum: `ordered`, `unordered`",
-						MarkdownDescription: "When ordered, Mist Edge will prefer and go back to the first radius server if possible. enum: `ordered`, `unordered`",
+						Description:         "RADIUS server selection strategy for RadSec failover",
+						MarkdownDescription: "RADIUS server selection strategy for RadSec failover",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -405,8 +491,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"src_ip_source": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Specify IP address to connect to auth_servers and acct_servers. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`",
-						MarkdownDescription: "Specify IP address to connect to auth_servers and acct_servers. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`",
+						Description:         "Connection source interface or address used when reaching RADIUS servers",
+						MarkdownDescription: "Connection source interface or address used when reaching RADIUS servers",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -425,13 +511,15 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "MxEdge RadSec Configuration",
-				MarkdownDescription: "MxEdge RadSec Configuration",
+				Description:         "TLS RADIUS proxy settings for the Mist Edge cluster",
+				MarkdownDescription: "TLS RADIUS proxy settings for the Mist Edge cluster",
 			},
 			"radsec_tls": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"keypair": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Name or identifier of the TLS keypair used by RadSec",
+						MarkdownDescription: "Name or identifier of the TLS keypair used by RadSec",
 					},
 				},
 				CustomType: RadsecTlsType{
@@ -439,16 +527,20 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: RadsecTlsValue{}.AttributeTypes(ctx),
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "TLS keypair settings for RadSec on the Mist Edge cluster",
+				MarkdownDescription: "TLS keypair settings for RadSec on the Mist Edge cluster",
 			},
 			"site_id": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Identifier of the site when the Mist Edge cluster is site-scoped",
+				MarkdownDescription: "Identifier of the site when the Mist Edge cluster is site-scoped",
 			},
 			"tunterm_ap_subnets": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "List of subnets where we allow AP to establish Mist Tunnels from",
-				MarkdownDescription: "List of subnets where we allow AP to establish Mist Tunnels from",
+				Description:         "AP source subnets allowed to establish Mist tunnels",
+				MarkdownDescription: "AP source subnets allowed to establish Mist tunnels",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.UniqueValues(),
@@ -458,12 +550,16 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"enabled": schema.BoolAttribute{
-							Optional: true,
-							Computed: true,
+							Optional:            true,
+							Computed:            true,
+							Description:         "Whether DHCP relay is enabled for this tunneled VLAN",
+							MarkdownDescription: "Whether DHCP relay is enabled for this tunneled VLAN",
 						},
 						"servers": schema.ListAttribute{
-							ElementType: types.StringType,
-							Optional:    true,
+							ElementType:         types.StringType,
+							Optional:            true,
+							Description:         "DHCP server IP addresses used as relay targets for this VLAN",
+							MarkdownDescription: "DHCP server IP addresses used as relay targets for this VLAN",
 							Validators: []validator.List{
 								listvalidator.UniqueValues(),
 							},
@@ -471,8 +567,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 						"type": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "enum: `relay`",
-							MarkdownDescription: "enum: `relay`",
+							Description:         "DHCP forwarding mode for this tunneled VLAN",
+							MarkdownDescription: "DHCP forwarding mode for this tunneled VLAN",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -488,8 +584,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "DHCP server/relay configuration of Mist Tunneled VLANs. Property key is the VLAN ID",
-				MarkdownDescription: "DHCP server/relay configuration of Mist Tunneled VLANs. Property key is the VLAN ID",
+				Description:         "DHCP relay or server settings for tunneled VLANs",
+				MarkdownDescription: "DHCP relay or server settings for tunneled VLANs",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
@@ -498,7 +594,9 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"via": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Next-hop IP address for this extra route",
+							MarkdownDescription: "Next-hop IP address for this extra route",
 						},
 					},
 					CustomType: TuntermExtraRoutesType{
@@ -508,8 +606,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Extra routes for Mist Tunneled VLANs. Property key is a CIDR",
-				MarkdownDescription: "Extra routes for Mist Tunneled VLANs. Property key is a CIDR",
+				Description:         "Extra routes for Mist Tunnel VLAN traffic",
+				MarkdownDescription: "Extra routes for Mist Tunnel VLAN traffic",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
@@ -517,8 +615,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 			"tunterm_hosts": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "Hostnames or IPs where a Mist Tunnel will use as the Peer (i.e. they are reachable from AP)",
-				MarkdownDescription: "Hostnames or IPs where a Mist Tunnel will use as the Peer (i.e. they are reachable from AP)",
+				Description:         "Hostnames or IP addresses used as Mist Tunnel peers",
+				MarkdownDescription: "Hostnames or IP addresses used as Mist Tunnel peers",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.UniqueValues(),
@@ -527,8 +625,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 			"tunterm_hosts_order": schema.ListAttribute{
 				ElementType:         types.Int64Type,
 				Optional:            true,
-				Description:         "List of index of tunterm_hosts",
-				MarkdownDescription: "List of index of tunterm_hosts",
+				Description:         "Explicit host ordering indexes used when ordered selection is configured",
+				MarkdownDescription: "Explicit host ordering indexes used when ordered selection is configured",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.UniqueValues(),
@@ -537,8 +635,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 			"tunterm_hosts_selection": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Ordering of tunterm_hosts for mxedge within the same mxcluster. enum:\n  * `shuffle`: the ordering of tunterm_hosts is randomized by the device''s MAC\n  * `shuffle-by-site`: shuffle by site_id+tunnel_id (so when client connects to a specific Tunnel, it will go to the same (order of) mxedge, and we load-balancing between tunnels)\n  * `ordered`: order decided by tunterm_hosts_order",
-				MarkdownDescription: "Ordering of tunterm_hosts for mxedge within the same mxcluster. enum:\n  * `shuffle`: the ordering of tunterm_hosts is randomized by the device''s MAC\n  * `shuffle-by-site`: shuffle by site_id+tunnel_id (so when client connects to a specific Tunnel, it will go to the same (order of) mxedge, and we load-balancing between tunnels)\n  * `ordered`: order decided by tunterm_hosts_order",
+				Description:         "Selection strategy for ordering tunnel termination hosts",
+				MarkdownDescription: "Selection strategy for ordering tunnel termination hosts",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -560,38 +658,43 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Monitoring checks for tunnel termination reachability",
+				MarkdownDescription: "Monitoring checks for tunnel termination reachability",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.UniqueValues(),
 				},
 			},
 			"tunterm_monitoring_disabled": schema.BoolAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Whether tunnel termination monitoring is disabled for the cluster",
+				MarkdownDescription: "Whether tunnel termination monitoring is disabled for the cluster",
 			},
 		},
 	}
 }
 
 type OrgMxclusterModel struct {
-	Id                        types.String    `tfsdk:"id"`
-	MistDas                   MistDasValue    `tfsdk:"mist_das"`
-	MistNac                   MistNacValue    `tfsdk:"mist_nac"`
-	MxedgeMgmt                MxedgeMgmtValue `tfsdk:"mxedge_mgmt"`
-	Name                      types.String    `tfsdk:"name"`
-	OrgId                     types.String    `tfsdk:"org_id"`
-	Proxy                     ProxyValue      `tfsdk:"proxy"`
-	Radsec                    RadsecValue     `tfsdk:"radsec"`
-	RadsecTls                 RadsecTlsValue  `tfsdk:"radsec_tls"`
-	SiteId                    types.String    `tfsdk:"site_id"`
-	TuntermApSubnets          types.List      `tfsdk:"tunterm_ap_subnets"`
-	TuntermDhcpdConfig        types.Map       `tfsdk:"tunterm_dhcpd_config"`
-	TuntermExtraRoutes        types.Map       `tfsdk:"tunterm_extra_routes"`
-	TuntermHosts              types.List      `tfsdk:"tunterm_hosts"`
-	TuntermHostsOrder         types.List      `tfsdk:"tunterm_hosts_order"`
-	TuntermHostsSelection     types.String    `tfsdk:"tunterm_hosts_selection"`
-	TuntermMonitoring         types.List      `tfsdk:"tunterm_monitoring"`
-	TuntermMonitoringDisabled types.Bool      `tfsdk:"tunterm_monitoring_disabled"`
+	Id                        types.String     `tfsdk:"id"`
+	MistDas                   MistDasValue     `tfsdk:"mist_das"`
+	MistNac                   MistNacValue     `tfsdk:"mist_nac"`
+	MistNacedge               MistNacedgeValue `tfsdk:"mist_nacedge"`
+	MxedgeMgmt                MxedgeMgmtValue  `tfsdk:"mxedge_mgmt"`
+	Name                      types.String     `tfsdk:"name"`
+	OrgId                     types.String     `tfsdk:"org_id"`
+	Proxy                     ProxyValue       `tfsdk:"proxy"`
+	Radsec                    RadsecValue      `tfsdk:"radsec"`
+	RadsecTls                 RadsecTlsValue   `tfsdk:"radsec_tls"`
+	SiteId                    types.String     `tfsdk:"site_id"`
+	TuntermApSubnets          types.List       `tfsdk:"tunterm_ap_subnets"`
+	TuntermDhcpdConfig        types.Map        `tfsdk:"tunterm_dhcpd_config"`
+	TuntermExtraRoutes        types.Map        `tfsdk:"tunterm_extra_routes"`
+	TuntermHosts              types.List       `tfsdk:"tunterm_hosts"`
+	TuntermHostsOrder         types.List       `tfsdk:"tunterm_hosts_order"`
+	TuntermHostsSelection     types.String     `tfsdk:"tunterm_hosts_selection"`
+	TuntermMonitoring         types.List       `tfsdk:"tunterm_monitoring"`
+	TuntermMonitoringDisabled types.Bool       `tfsdk:"tunterm_monitoring_disabled"`
 }
 
 var _ basetypes.ObjectTypable = MistDasType{}
@@ -2444,6 +2547,671 @@ func (v ClientIpsValue) Type(ctx context.Context) attr.Type {
 
 func (v ClientIpsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{}
+}
+
+var _ basetypes.ObjectTypable = MistNacedgeType{}
+
+type MistNacedgeType struct {
+	basetypes.ObjectType
+}
+
+func (t MistNacedgeType) Equal(o attr.Type) bool {
+	other, ok := o.(MistNacedgeType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t MistNacedgeType) String() string {
+	return "MistNacedgeType"
+}
+
+func (t MistNacedgeType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	authTtlAttribute, ok := attributes["auth_ttl"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_ttl is missing from object`)
+
+		return nil, diags
+	}
+
+	authTtlVal, ok := authTtlAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_ttl expected to be basetypes.Int64Value, was: %T`, authTtlAttribute))
+	}
+
+	cachingSiteIdsAttribute, ok := attributes["caching_site_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`caching_site_ids is missing from object`)
+
+		return nil, diags
+	}
+
+	cachingSiteIdsVal, ok := cachingSiteIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`caching_site_ids expected to be basetypes.ListValue, was: %T`, cachingSiteIdsAttribute))
+	}
+
+	defaultDot1xVlanAttribute, ok := attributes["default_dot1x_vlan"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`default_dot1x_vlan is missing from object`)
+
+		return nil, diags
+	}
+
+	defaultDot1xVlanVal, ok := defaultDot1xVlanAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`default_dot1x_vlan expected to be basetypes.StringValue, was: %T`, defaultDot1xVlanAttribute))
+	}
+
+	defaultVlanAttribute, ok := attributes["default_vlan"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`default_vlan is missing from object`)
+
+		return nil, diags
+	}
+
+	defaultVlanVal, ok := defaultVlanAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`default_vlan expected to be basetypes.StringValue, was: %T`, defaultVlanAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	nacEdgeHostsAttribute, ok := attributes["nac_edge_hosts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`nac_edge_hosts is missing from object`)
+
+		return nil, diags
+	}
+
+	nacEdgeHostsVal, ok := nacEdgeHostsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`nac_edge_hosts expected to be basetypes.ListValue, was: %T`, nacEdgeHostsAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return MistNacedgeValue{
+		AuthTtl:          authTtlVal,
+		CachingSiteIds:   cachingSiteIdsVal,
+		DefaultDot1xVlan: defaultDot1xVlanVal,
+		DefaultVlan:      defaultVlanVal,
+		Enabled:          enabledVal,
+		NacEdgeHosts:     nacEdgeHostsVal,
+		state:            attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMistNacedgeValueNull() MistNacedgeValue {
+	return MistNacedgeValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewMistNacedgeValueUnknown() MistNacedgeValue {
+	return MistNacedgeValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewMistNacedgeValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (MistNacedgeValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing MistNacedgeValue Attribute Value",
+				"While creating a MistNacedgeValue value, a missing attribute value was detected. "+
+					"A MistNacedgeValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MistNacedgeValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid MistNacedgeValue Attribute Type",
+				"While creating a MistNacedgeValue value, an invalid attribute value was detected. "+
+					"A MistNacedgeValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MistNacedgeValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("MistNacedgeValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra MistNacedgeValue Attribute Value",
+				"While creating a MistNacedgeValue value, an extra attribute value was detected. "+
+					"A MistNacedgeValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra MistNacedgeValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewMistNacedgeValueUnknown(), diags
+	}
+
+	authTtlAttribute, ok := attributes["auth_ttl"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_ttl is missing from object`)
+
+		return NewMistNacedgeValueUnknown(), diags
+	}
+
+	authTtlVal, ok := authTtlAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_ttl expected to be basetypes.Int64Value, was: %T`, authTtlAttribute))
+	}
+
+	cachingSiteIdsAttribute, ok := attributes["caching_site_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`caching_site_ids is missing from object`)
+
+		return NewMistNacedgeValueUnknown(), diags
+	}
+
+	cachingSiteIdsVal, ok := cachingSiteIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`caching_site_ids expected to be basetypes.ListValue, was: %T`, cachingSiteIdsAttribute))
+	}
+
+	defaultDot1xVlanAttribute, ok := attributes["default_dot1x_vlan"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`default_dot1x_vlan is missing from object`)
+
+		return NewMistNacedgeValueUnknown(), diags
+	}
+
+	defaultDot1xVlanVal, ok := defaultDot1xVlanAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`default_dot1x_vlan expected to be basetypes.StringValue, was: %T`, defaultDot1xVlanAttribute))
+	}
+
+	defaultVlanAttribute, ok := attributes["default_vlan"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`default_vlan is missing from object`)
+
+		return NewMistNacedgeValueUnknown(), diags
+	}
+
+	defaultVlanVal, ok := defaultVlanAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`default_vlan expected to be basetypes.StringValue, was: %T`, defaultVlanAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewMistNacedgeValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	nacEdgeHostsAttribute, ok := attributes["nac_edge_hosts"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`nac_edge_hosts is missing from object`)
+
+		return NewMistNacedgeValueUnknown(), diags
+	}
+
+	nacEdgeHostsVal, ok := nacEdgeHostsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`nac_edge_hosts expected to be basetypes.ListValue, was: %T`, nacEdgeHostsAttribute))
+	}
+
+	if diags.HasError() {
+		return NewMistNacedgeValueUnknown(), diags
+	}
+
+	return MistNacedgeValue{
+		AuthTtl:          authTtlVal,
+		CachingSiteIds:   cachingSiteIdsVal,
+		DefaultDot1xVlan: defaultDot1xVlanVal,
+		DefaultVlan:      defaultVlanVal,
+		Enabled:          enabledVal,
+		NacEdgeHosts:     nacEdgeHostsVal,
+		state:            attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMistNacedgeValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) MistNacedgeValue {
+	object, diags := NewMistNacedgeValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewMistNacedgeValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t MistNacedgeType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewMistNacedgeValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewMistNacedgeValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewMistNacedgeValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewMistNacedgeValueMust(MistNacedgeValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t MistNacedgeType) ValueType(ctx context.Context) attr.Value {
+	return MistNacedgeValue{}
+}
+
+var _ basetypes.ObjectValuable = MistNacedgeValue{}
+
+type MistNacedgeValue struct {
+	AuthTtl          basetypes.Int64Value  `tfsdk:"auth_ttl"`
+	CachingSiteIds   basetypes.ListValue   `tfsdk:"caching_site_ids"`
+	DefaultDot1xVlan basetypes.StringValue `tfsdk:"default_dot1x_vlan"`
+	DefaultVlan      basetypes.StringValue `tfsdk:"default_vlan"`
+	Enabled          basetypes.BoolValue   `tfsdk:"enabled"`
+	NacEdgeHosts     basetypes.ListValue   `tfsdk:"nac_edge_hosts"`
+	state            attr.ValueState
+}
+
+func (v MistNacedgeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 6)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["auth_ttl"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["caching_site_ids"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["default_dot1x_vlan"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["default_vlan"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["nac_edge_hosts"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 6)
+
+		val, err = v.AuthTtl.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_ttl"] = val
+
+		val, err = v.CachingSiteIds.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["caching_site_ids"] = val
+
+		val, err = v.DefaultDot1xVlan.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["default_dot1x_vlan"] = val
+
+		val, err = v.DefaultVlan.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["default_vlan"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.NacEdgeHosts.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["nac_edge_hosts"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v MistNacedgeValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v MistNacedgeValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v MistNacedgeValue) String() string {
+	return "MistNacedgeValue"
+}
+
+func (v MistNacedgeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var cachingSiteIdsVal basetypes.ListValue
+	switch {
+	case v.CachingSiteIds.IsUnknown():
+		cachingSiteIdsVal = types.ListUnknown(types.StringType)
+	case v.CachingSiteIds.IsNull():
+		cachingSiteIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		cachingSiteIdsVal, d = types.ListValue(types.StringType, v.CachingSiteIds.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_ttl": basetypes.Int64Type{},
+			"caching_site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"default_dot1x_vlan": basetypes.StringType{},
+			"default_vlan":       basetypes.StringType{},
+			"enabled":            basetypes.BoolType{},
+			"nac_edge_hosts": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var nacEdgeHostsVal basetypes.ListValue
+	switch {
+	case v.NacEdgeHosts.IsUnknown():
+		nacEdgeHostsVal = types.ListUnknown(types.StringType)
+	case v.NacEdgeHosts.IsNull():
+		nacEdgeHostsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		nacEdgeHostsVal, d = types.ListValue(types.StringType, v.NacEdgeHosts.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"auth_ttl": basetypes.Int64Type{},
+			"caching_site_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"default_dot1x_vlan": basetypes.StringType{},
+			"default_vlan":       basetypes.StringType{},
+			"enabled":            basetypes.BoolType{},
+			"nac_edge_hosts": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"auth_ttl": basetypes.Int64Type{},
+		"caching_site_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"default_dot1x_vlan": basetypes.StringType{},
+		"default_vlan":       basetypes.StringType{},
+		"enabled":            basetypes.BoolType{},
+		"nac_edge_hosts": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"auth_ttl":           v.AuthTtl,
+			"caching_site_ids":   cachingSiteIdsVal,
+			"default_dot1x_vlan": v.DefaultDot1xVlan,
+			"default_vlan":       v.DefaultVlan,
+			"enabled":            v.Enabled,
+			"nac_edge_hosts":     nacEdgeHostsVal,
+		})
+
+	return objVal, diags
+}
+
+func (v MistNacedgeValue) Equal(o attr.Value) bool {
+	other, ok := o.(MistNacedgeValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AuthTtl.Equal(other.AuthTtl) {
+		return false
+	}
+
+	if !v.CachingSiteIds.Equal(other.CachingSiteIds) {
+		return false
+	}
+
+	if !v.DefaultDot1xVlan.Equal(other.DefaultDot1xVlan) {
+		return false
+	}
+
+	if !v.DefaultVlan.Equal(other.DefaultVlan) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.NacEdgeHosts.Equal(other.NacEdgeHosts) {
+		return false
+	}
+
+	return true
+}
+
+func (v MistNacedgeValue) Type(ctx context.Context) attr.Type {
+	return MistNacedgeType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v MistNacedgeValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"auth_ttl": basetypes.Int64Type{},
+		"caching_site_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"default_dot1x_vlan": basetypes.StringType{},
+		"default_vlan":       basetypes.StringType{},
+		"enabled":            basetypes.BoolType{},
+		"nac_edge_hosts": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
 }
 
 var _ basetypes.ObjectTypable = MxedgeMgmtType{}

@@ -29,30 +29,40 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"ant_gain_24": schema.Int64Attribute{
-				Optional: true,
-				Computed: true,
-				Default:  int64default.StaticInt64(0),
+				Optional:            true,
+				Computed:            true,
+				Description:         "External antenna gain for the 2.4 GHz radio",
+				MarkdownDescription: "External antenna gain for the 2.4 GHz radio",
+				Default:             int64default.StaticInt64(0),
 			},
 			"ant_gain_5": schema.Int64Attribute{
-				Optional: true,
-				Computed: true,
-				Default:  int64default.StaticInt64(0),
+				Optional:            true,
+				Computed:            true,
+				Description:         "External antenna gain for the 5 GHz radio",
+				MarkdownDescription: "External antenna gain for the 5 GHz radio",
+				Default:             int64default.StaticInt64(0),
 			},
 			"ant_gain_6": schema.Int64Attribute{
-				Optional: true,
-				Computed: true,
-				Default:  int64default.StaticInt64(0),
+				Optional:            true,
+				Computed:            true,
+				Description:         "External antenna gain for the 6 GHz radio",
+				MarkdownDescription: "External antenna gain for the 6 GHz radio",
+				Default:             int64default.StaticInt64(0),
 			},
 			"band_24": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"allow_rrm_disable": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether RRM may disable the 2.4 GHz radio when optimizing RF settings",
+						MarkdownDescription: "Whether RRM may disable the 2.4 GHz radio when optimizing RF settings",
+						Default:             booldefault.StaticBool(false),
 					},
 					"ant_gain": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "External antenna gain for the 2.4 GHz radio",
+						MarkdownDescription: "External antenna gain for the 2.4 GHz radio",
 						Validators: []validator.Int64{
 							int64validator.Between(0, 10),
 						},
@@ -60,8 +70,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"antenna_mode": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
-						MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+						Description:         "Radio chain mode for the 2.4 GHz radio",
+						MarkdownDescription: "Radio chain mode for the 2.4 GHz radio",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -76,8 +86,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`",
-						MarkdownDescription: "channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`",
+						Description:         "Channel width configured for the 2.4 GHz radio",
+						MarkdownDescription: "Channel width configured for the 2.4 GHz radio",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
 								0,
@@ -90,8 +100,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"channels": schema.ListAttribute{
 						ElementType:         types.Int64Type,
 						Optional:            true,
-						Description:         "For RFTemplates. List of channels, null or empty array means auto",
-						MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+						Description:         "Allowed channel list for the 2.4 GHz radio; null or an empty array uses automatic selection",
+						MarkdownDescription: "Allowed channel list for the 2.4 GHz radio; null or an empty array uses automatic selection",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -105,32 +115,32 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"power": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0",
-						MarkdownDescription: "tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0",
+						Description:         "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
+						MarkdownDescription: "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
 						Validators: []validator.Int64{
-							int64validator.Between(3, 25),
+							int64validator.Between(0, 25),
 						},
 					},
 					"power_max": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(3, 18),
 						},
 					},
 					"power_min": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(3, 18),
 						},
 					},
 					"preamble": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `auto`, `long`, `short`",
-						MarkdownDescription: "enum: `auto`, `long`, `short`",
+						Description:         "802.11 preamble mode used by the 2.4 GHz radio",
+						MarkdownDescription: "802.11 preamble mode used by the 2.4 GHz radio",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -147,13 +157,13 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Radio Band AP settings",
-				MarkdownDescription: "Radio Band AP settings",
+				Description:         "2.4 GHz radio settings in this RF template",
+				MarkdownDescription: "2.4 GHz radio settings in this RF template",
 			},
 			"band_24_usage": schema.StringAttribute{
 				Optional:            true,
-				Description:         "enum: `24`, `5`, `6`, `auto`",
-				MarkdownDescription: "enum: `24`, `5`, `6`, `auto`",
+				Description:         "Radio usage mode for the 2.4 GHz-capable radio in this RF template",
+				MarkdownDescription: "Radio usage mode for the 2.4 GHz-capable radio in this RF template",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -167,13 +177,17 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 			"band_5": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"allow_rrm_disable": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether RRM may disable the 5 GHz radio when optimizing RF settings",
+						MarkdownDescription: "Whether RRM may disable the 5 GHz radio when optimizing RF settings",
+						Default:             booldefault.StaticBool(false),
 					},
 					"ant_gain": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "External antenna gain for the 5 GHz radio",
+						MarkdownDescription: "External antenna gain for the 5 GHz radio",
 						Validators: []validator.Int64{
 							int64validator.Between(0, 10),
 						},
@@ -181,8 +195,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"antenna_mode": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
-						MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+						Description:         "Radio chain mode for the 5 GHz radio",
+						MarkdownDescription: "Radio chain mode for the 5 GHz radio",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -197,8 +211,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
-						MarkdownDescription: "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
+						Description:         "Channel width configured for the 5 GHz radio",
+						MarkdownDescription: "Channel width configured for the 5 GHz radio",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
 								0,
@@ -212,8 +226,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"channels": schema.ListAttribute{
 						ElementType:         types.Int64Type,
 						Optional:            true,
-						Description:         "For RFTemplates. List of channels, null or empty array means auto",
-						MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+						Description:         "Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection",
+						MarkdownDescription: "Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -227,32 +241,32 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"power": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-						MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+						Description:         "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
+						MarkdownDescription: "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
 						Validators: []validator.Int64{
-							int64validator.Between(5, 25),
+							int64validator.Between(0, 25),
 						},
 					},
 					"power_max": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(5, 17),
 						},
 					},
 					"power_min": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(5, 17),
 						},
 					},
 					"preamble": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `auto`, `long`, `short`",
-						MarkdownDescription: "enum: `auto`, `long`, `short`",
+						Description:         "802.11 preamble mode used by the 5 GHz radio",
+						MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -269,19 +283,23 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Radio Band AP settings",
-				MarkdownDescription: "Radio Band AP settings",
+				Description:         "5 GHz radio settings in this RF template",
+				MarkdownDescription: "5 GHz radio settings in this RF template",
 			},
 			"band_5_on_24_radio": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"allow_rrm_disable": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether RRM may disable the 5 GHz radio when optimizing RF settings",
+						MarkdownDescription: "Whether RRM may disable the 5 GHz radio when optimizing RF settings",
+						Default:             booldefault.StaticBool(false),
 					},
 					"ant_gain": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "External antenna gain for the 5 GHz radio",
+						MarkdownDescription: "External antenna gain for the 5 GHz radio",
 						Validators: []validator.Int64{
 							int64validator.Between(0, 10),
 						},
@@ -290,8 +308,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"antenna_mode": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
-						MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+						Description:         "Radio chain mode for the 5 GHz radio",
+						MarkdownDescription: "Radio chain mode for the 5 GHz radio",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -307,8 +325,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
-						MarkdownDescription: "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
+						Description:         "Channel width configured for the 5 GHz radio",
+						MarkdownDescription: "Channel width configured for the 5 GHz radio",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
 								0,
@@ -322,8 +340,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"channels": schema.ListAttribute{
 						ElementType:         types.Int64Type,
 						Optional:            true,
-						Description:         "For RFTemplates. List of channels, null or empty array means auto",
-						MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+						Description:         "Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection",
+						MarkdownDescription: "Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection",
 					},
 					"disabled": schema.BoolAttribute{
 						Optional:            true,
@@ -335,38 +353,34 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"power": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-						MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+						Description:         "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
+						MarkdownDescription: "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
 						Validators: []validator.Int64{
-							int64validator.Between(5, 25),
+							int64validator.Between(0, 25),
 						},
 						Default: int64default.StaticInt64(0),
 					},
 					"power_max": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(5, 17),
 						},
-						Default: int64default.StaticInt64(17),
 					},
 					"power_min": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
-						Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(5, 17),
 						},
-						Default: int64default.StaticInt64(8),
 					},
 					"preamble": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `auto`, `long`, `short`",
-						MarkdownDescription: "enum: `auto`, `long`, `short`",
+						Description:         "802.11 preamble mode used by the 5 GHz radio",
+						MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -384,19 +398,23 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Radio Band AP settings",
-				MarkdownDescription: "Radio Band AP settings",
+				Description:         "5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode",
+				MarkdownDescription: "5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode",
 			},
 			"band_6": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"allow_rrm_disable": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether RRM may disable the 6 GHz radio when optimizing RF settings",
+						MarkdownDescription: "Whether RRM may disable the 6 GHz radio when optimizing RF settings",
+						Default:             booldefault.StaticBool(false),
 					},
 					"ant_gain": schema.Int64Attribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "External antenna gain for the 6 GHz radio",
+						MarkdownDescription: "External antenna gain for the 6 GHz radio",
 						Validators: []validator.Int64{
 							int64validator.Between(0, 10),
 						},
@@ -404,8 +422,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"antenna_mode": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
-						MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+						Description:         "Radio chain mode for the 6 GHz radio",
+						MarkdownDescription: "Radio chain mode for the 6 GHz radio",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -420,8 +438,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`",
-						MarkdownDescription: "channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`",
+						Description:         "Channel width configured for the 6 GHz radio",
+						MarkdownDescription: "Channel width configured for the 6 GHz radio",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
 								0,
@@ -436,8 +454,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"channels": schema.ListAttribute{
 						ElementType:         types.Int64Type,
 						Optional:            true,
-						Description:         "For RFTemplates. List of channels, null or empty array means auto",
-						MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+						Description:         "Allowed channel list for the 6 GHz radio; null or an empty array uses automatic selection",
+						MarkdownDescription: "Allowed channel list for the 6 GHz radio; null or an empty array uses automatic selection",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -451,32 +469,32 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"power": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-						MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+						Description:         "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
+						MarkdownDescription: "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
 						Validators: []validator.Int64{
-							int64validator.Between(5, 25),
+							int64validator.Between(0, 25),
 						},
 					},
 					"power_max": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
-							int64validator.Between(5, 18),
+							int64validator.Between(5, 17),
 						},
 					},
 					"power_min": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
-						MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+						Description:         "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
+						MarkdownDescription: "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
 						Validators: []validator.Int64{
 							int64validator.Between(5, 18),
 						},
 					},
 					"preamble": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `auto`, `long`, `short`",
-						MarkdownDescription: "enum: `auto`, `long`, `short`",
+						Description:         "802.11 preamble mode used by the 6 GHz radio",
+						MarkdownDescription: "802.11 preamble mode used by the 6 GHz radio",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -498,8 +516,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Radio Band AP settings",
-				MarkdownDescription: "Radio Band AP settings",
+				Description:         "6 GHz radio settings in this RF template",
+				MarkdownDescription: "6 GHz radio settings in this RF template",
 			},
 			"country_code": schema.StringAttribute{
 				Optional:            true,
@@ -508,8 +526,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the RF template",
+				MarkdownDescription: "Unique identifier of the RF template",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -518,31 +536,41 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"ant_gain_24": schema.Int64Attribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Model-specific external antenna gain for the 2.4 GHz radio",
+							MarkdownDescription: "Model-specific external antenna gain for the 2.4 GHz radio",
 						},
 						"ant_gain_5": schema.Int64Attribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Model-specific external antenna gain for the 5 GHz radio",
+							MarkdownDescription: "Model-specific external antenna gain for the 5 GHz radio",
 						},
 						"ant_gain_6": schema.Int64Attribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Model-specific external antenna gain for the 6 GHz radio",
+							MarkdownDescription: "Model-specific external antenna gain for the 6 GHz radio",
 						},
 						"band_24": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"allow_rrm_disable": schema.BoolAttribute{
-									Optional: true,
-									Computed: true,
-									Default:  booldefault.StaticBool(false),
+									Optional:            true,
+									Computed:            true,
+									Description:         "Whether RRM may disable the 2.4 GHz radio when optimizing RF settings",
+									MarkdownDescription: "Whether RRM may disable the 2.4 GHz radio when optimizing RF settings",
+									Default:             booldefault.StaticBool(false),
 								},
 								"ant_gain": schema.Int64Attribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "External antenna gain for the 2.4 GHz radio",
+									MarkdownDescription: "External antenna gain for the 2.4 GHz radio",
 									Validators: []validator.Int64{
 										int64validator.Between(0, 10),
 									},
 								},
 								"antenna_mode": schema.StringAttribute{
 									Optional:            true,
-									Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
-									MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+									Description:         "Radio chain mode for the 2.4 GHz radio",
+									MarkdownDescription: "Radio chain mode for the 2.4 GHz radio",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -556,8 +584,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`",
-									MarkdownDescription: "channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`",
+									Description:         "Channel width configured for the 2.4 GHz radio",
+									MarkdownDescription: "Channel width configured for the 2.4 GHz radio",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
 											0,
@@ -569,8 +597,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"channels": schema.ListAttribute{
 									ElementType:         types.Int64Type,
 									Optional:            true,
-									Description:         "For RFTemplates. List of channels, null or empty array means auto",
-									MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+									Description:         "Allowed channel list for the 2.4 GHz radio; null or an empty array uses automatic selection",
+									MarkdownDescription: "Allowed channel list for the 2.4 GHz radio; null or an empty array uses automatic selection",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
@@ -582,32 +610,32 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"power": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0",
-									MarkdownDescription: "tx power of the radio, null or 0 means auto, when power_min=power_max=power=0 to indicate power=0",
+									Description:         "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
+									MarkdownDescription: "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
 									Validators: []validator.Int64{
-										int64validator.Between(3, 25),
+										int64validator.Between(0, 25),
 									},
 								},
 								"power_max": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(3, 18),
 									},
 								},
 								"power_min": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(3, 18),
 									},
 								},
 								"preamble": schema.StringAttribute{
 									Optional:            true,
-									Description:         "enum: `auto`, `long`, `short`",
-									MarkdownDescription: "enum: `auto`, `long`, `short`",
+									Description:         "802.11 preamble mode used by the 2.4 GHz radio",
+									MarkdownDescription: "802.11 preamble mode used by the 2.4 GHz radio",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -624,13 +652,13 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Radio Band AP settings",
-							MarkdownDescription: "Radio Band AP settings",
+							Description:         "Model-specific 2.4 GHz radio settings that override RF template defaults",
+							MarkdownDescription: "Model-specific 2.4 GHz radio settings that override RF template defaults",
 						},
 						"band_24_usage": schema.StringAttribute{
 							Optional:            true,
-							Description:         "enum: `24`, `5`, `6`, `auto`",
-							MarkdownDescription: "enum: `24`, `5`, `6`, `auto`",
+							Description:         "Model-specific radio usage mode for the 2.4 GHz-capable radio",
+							MarkdownDescription: "Model-specific radio usage mode for the 2.4 GHz-capable radio",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -644,20 +672,24 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 						"band_5": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"allow_rrm_disable": schema.BoolAttribute{
-									Optional: true,
-									Computed: true,
-									Default:  booldefault.StaticBool(false),
+									Optional:            true,
+									Computed:            true,
+									Description:         "Whether RRM may disable the 5 GHz radio when optimizing RF settings",
+									MarkdownDescription: "Whether RRM may disable the 5 GHz radio when optimizing RF settings",
+									Default:             booldefault.StaticBool(false),
 								},
 								"ant_gain": schema.Int64Attribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "External antenna gain for the 5 GHz radio",
+									MarkdownDescription: "External antenna gain for the 5 GHz radio",
 									Validators: []validator.Int64{
 										int64validator.Between(0, 10),
 									},
 								},
 								"antenna_mode": schema.StringAttribute{
 									Optional:            true,
-									Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
-									MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+									Description:         "Radio chain mode for the 5 GHz radio",
+									MarkdownDescription: "Radio chain mode for the 5 GHz radio",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -671,8 +703,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
-									MarkdownDescription: "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
+									Description:         "Channel width configured for the 5 GHz radio",
+									MarkdownDescription: "Channel width configured for the 5 GHz radio",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
 											0,
@@ -685,8 +717,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"channels": schema.ListAttribute{
 									ElementType:         types.Int64Type,
 									Optional:            true,
-									Description:         "For RFTemplates. List of channels, null or empty array means auto",
-									MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+									Description:         "Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection",
+									MarkdownDescription: "Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
@@ -698,32 +730,32 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"power": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-									MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									Description:         "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
+									MarkdownDescription: "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
 									Validators: []validator.Int64{
-										int64validator.Between(5, 25),
+										int64validator.Between(0, 25),
 									},
 								},
 								"power_max": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(5, 17),
 									},
 								},
 								"power_min": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(5, 17),
 									},
 								},
 								"preamble": schema.StringAttribute{
 									Optional:            true,
-									Description:         "enum: `auto`, `long`, `short`",
-									MarkdownDescription: "enum: `auto`, `long`, `short`",
+									Description:         "802.11 preamble mode used by the 5 GHz radio",
+									MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -740,19 +772,23 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Radio Band AP settings",
-							MarkdownDescription: "Radio Band AP settings",
+							Description:         "Model-specific 5 GHz radio settings that override RF template defaults",
+							MarkdownDescription: "Model-specific 5 GHz radio settings that override RF template defaults",
 						},
 						"band_5_on_24_radio": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"allow_rrm_disable": schema.BoolAttribute{
-									Optional: true,
-									Computed: true,
-									Default:  booldefault.StaticBool(false),
+									Optional:            true,
+									Computed:            true,
+									Description:         "Whether RRM may disable the 5 GHz radio when optimizing RF settings",
+									MarkdownDescription: "Whether RRM may disable the 5 GHz radio when optimizing RF settings",
+									Default:             booldefault.StaticBool(false),
 								},
 								"ant_gain": schema.Int64Attribute{
-									Optional: true,
-									Computed: true,
+									Optional:            true,
+									Computed:            true,
+									Description:         "External antenna gain for the 5 GHz radio",
+									MarkdownDescription: "External antenna gain for the 5 GHz radio",
 									Validators: []validator.Int64{
 										int64validator.Between(0, 10),
 									},
@@ -761,8 +797,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"antenna_mode": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
-									MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+									Description:         "Radio chain mode for the 5 GHz radio",
+									MarkdownDescription: "Radio chain mode for the 5 GHz radio",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -778,8 +814,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
-									MarkdownDescription: "channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`",
+									Description:         "Channel width configured for the 5 GHz radio",
+									MarkdownDescription: "Channel width configured for the 5 GHz radio",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
 											0,
@@ -793,8 +829,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"channels": schema.ListAttribute{
 									ElementType:         types.Int64Type,
 									Optional:            true,
-									Description:         "For RFTemplates. List of channels, null or empty array means auto",
-									MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+									Description:         "Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection",
+									MarkdownDescription: "Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection",
 								},
 								"disabled": schema.BoolAttribute{
 									Optional:            true,
@@ -806,38 +842,34 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"power": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-									MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									Description:         "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
+									MarkdownDescription: "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
 									Validators: []validator.Int64{
-										int64validator.Between(5, 25),
+										int64validator.Between(0, 25),
 									},
 									Default: int64default.StaticInt64(0),
 								},
 								"power_max": schema.Int64Attribute{
 									Optional:            true,
-									Computed:            true,
-									Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(5, 17),
 									},
-									Default: int64default.StaticInt64(17),
 								},
 								"power_min": schema.Int64Attribute{
 									Optional:            true,
-									Computed:            true,
-									Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(5, 17),
 									},
-									Default: int64default.StaticInt64(8),
 								},
 								"preamble": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "enum: `auto`, `long`, `short`",
-									MarkdownDescription: "enum: `auto`, `long`, `short`",
+									Description:         "802.11 preamble mode used by the 5 GHz radio",
+									MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -855,26 +887,30 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Radio Band AP settings",
-							MarkdownDescription: "Radio Band AP settings",
+							Description:         "Model-specific 5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode",
+							MarkdownDescription: "Model-specific 5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode",
 						},
 						"band_6": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
 								"allow_rrm_disable": schema.BoolAttribute{
-									Optional: true,
-									Computed: true,
-									Default:  booldefault.StaticBool(false),
+									Optional:            true,
+									Computed:            true,
+									Description:         "Whether RRM may disable the 6 GHz radio when optimizing RF settings",
+									MarkdownDescription: "Whether RRM may disable the 6 GHz radio when optimizing RF settings",
+									Default:             booldefault.StaticBool(false),
 								},
 								"ant_gain": schema.Int64Attribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "External antenna gain for the 6 GHz radio",
+									MarkdownDescription: "External antenna gain for the 6 GHz radio",
 									Validators: []validator.Int64{
 										int64validator.Between(0, 10),
 									},
 								},
 								"antenna_mode": schema.StringAttribute{
 									Optional:            true,
-									Description:         "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
-									MarkdownDescription: "enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`",
+									Description:         "Radio chain mode for the 6 GHz radio",
+									MarkdownDescription: "Radio chain mode for the 6 GHz radio",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -888,8 +924,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`",
-									MarkdownDescription: "channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`",
+									Description:         "Channel width configured for the 6 GHz radio",
+									MarkdownDescription: "Channel width configured for the 6 GHz radio",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
 											0,
@@ -903,8 +939,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"channels": schema.ListAttribute{
 									ElementType:         types.Int64Type,
 									Optional:            true,
-									Description:         "For RFTemplates. List of channels, null or empty array means auto",
-									MarkdownDescription: "For RFTemplates. List of channels, null or empty array means auto",
+									Description:         "Allowed channel list for the 6 GHz radio; null or an empty array uses automatic selection",
+									MarkdownDescription: "Allowed channel list for the 6 GHz radio; null or an empty array uses automatic selection",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
@@ -916,32 +952,32 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"power": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
-									MarkdownDescription: "Tx power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …",
+									Description:         "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
+									MarkdownDescription: "Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode",
 									Validators: []validator.Int64{
-										int64validator.Between(5, 25),
+										int64validator.Between(0, 25),
 									},
 								},
 								"power_max": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "When power=0, max tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "When power=0, max tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=null/unset, max tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
-										int64validator.Between(5, 18),
+										int64validator.Between(5, 17),
 									},
 								},
 								"power_min": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "When power=0, min tx power to use, HW-specific values will be used if not set",
-									MarkdownDescription: "When power=0, min tx power to use, HW-specific values will be used if not set",
+									Description:         "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
+									MarkdownDescription: "When power=null/unset, min tx power to use, HW-specific values will be used if not set",
 									Validators: []validator.Int64{
 										int64validator.Between(5, 18),
 									},
 								},
 								"preamble": schema.StringAttribute{
 									Optional:            true,
-									Description:         "enum: `auto`, `long`, `short`",
-									MarkdownDescription: "enum: `auto`, `long`, `short`",
+									Description:         "802.11 preamble mode used by the 6 GHz radio",
+									MarkdownDescription: "802.11 preamble mode used by the 6 GHz radio",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -965,8 +1001,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Radio Band AP settings",
-							MarkdownDescription: "Radio Band AP settings",
+							Description:         "Model-specific 6 GHz radio settings that override RF template defaults",
+							MarkdownDescription: "Model-specific 6 GHz radio settings that override RF template defaults",
 						},
 					},
 					CustomType: ModelSpecificType{
@@ -991,7 +1027,9 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Organization that owns this RF template",
+				MarkdownDescription: "Organization that owns this RF template",
 			},
 			"scanning_enabled": schema.BoolAttribute{
 				Optional:            true,

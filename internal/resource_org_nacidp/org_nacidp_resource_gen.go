@@ -30,8 +30,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier for this SSO configuration",
+				MarkdownDescription: "Unique identifier for this SSO configuration",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -75,8 +75,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			"ldap_cacerts": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "Required if `idp_type`==`ldap`, list of CA certificates to validate the LDAP certificate",
-				MarkdownDescription: "Required if `idp_type`==`ldap`, list of CA certificates to validate the LDAP certificate",
+				Description:         "CA certificates used to validate LDAP or LDAPS server certificates. Required if `idp_type`==`ldap`",
+				MarkdownDescription: "CA certificates used to validate LDAP or LDAPS server certificates. Required if `idp_type`==`ldap`",
 				Validators: []validator.List{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("ldap")),
 				},
@@ -99,16 +99,16 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"ldap_group_attr": schema.StringAttribute{
 				Optional:            true,
-				Description:         "If `ldap_type`==`custom`",
-				MarkdownDescription: "If `ldap_type`==`custom`",
+				Description:         "Group attribute used to resolve LDAP memberships. If `ldap_type`==`custom`",
+				MarkdownDescription: "Group attribute used to resolve LDAP memberships. If `ldap_type`==`custom`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ldap_type"), types.StringValue("custom")),
 				},
 			},
 			"ldap_group_dn": schema.StringAttribute{
 				Optional:            true,
-				Description:         "If `ldap_type`==`custom`",
-				MarkdownDescription: "If `ldap_type`==`custom`",
+				Description:         "Group search base used for custom LDAP group lookup. If `ldap_type`==`custom`",
+				MarkdownDescription: "Group search base used for custom LDAP group lookup. If `ldap_type`==`custom`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("ldap_type"), types.StringValue("custom")),
 				},
@@ -125,16 +125,16 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			"ldap_server_hosts": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "If `idp_type`==`ldap`, list of LDAP/LDAPS server IP Addresses or Hostnames",
-				MarkdownDescription: "If `idp_type`==`ldap`, list of LDAP/LDAPS server IP Addresses or Hostnames",
+				Description:         "Server hostnames or IP addresses for LDAP or LDAPS when `idp_type`==`ldap`",
+				MarkdownDescription: "Server hostnames or IP addresses for LDAP or LDAPS when `idp_type`==`ldap`",
 				Validators: []validator.List{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("ldap")),
 				},
 			},
 			"ldap_type": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `idp_type`==`ldap`. enum: `azure`, `custom`, `google`, `okta`, `ping_identity`",
-				MarkdownDescription: "if `idp_type`==`ldap`. enum: `azure`, `custom`, `google`, `okta`, `ping_identity`",
+				Description:         "Provider template for LDAP SSO when `idp_type`==`ldap`",
+				MarkdownDescription: "Provider template for LDAP SSO when `idp_type`==`ldap`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"azure",
@@ -164,8 +164,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
-				Description:         "Name",
-				MarkdownDescription: "Name",
+				Description:         "Display name of the SSO configuration",
+				MarkdownDescription: "Display name of the SSO configuration",
 			},
 			"oauth_cc_client_id": schema.StringAttribute{
 				Optional:            true,
@@ -186,8 +186,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"oauth_discovery_url": schema.StringAttribute{
 				Optional:            true,
-				Description:         "If `idp_type`==`oauth`",
-				MarkdownDescription: "If `idp_type`==`oauth`",
+				Description:         "OAuth discovery document URL used when `idp_type`==`oauth`",
+				MarkdownDescription: "OAuth discovery document URL used when `idp_type`==`oauth`",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("oauth")),
 				},
@@ -195,8 +195,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			"oauth_ping_identity_region": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "enum: `us` (United States, default), `ca` (Canada), `eu` (Europe), `asia` (Asia), `au` (Australia)",
-				MarkdownDescription: "enum: `us` (United States, default), `ca` (Canada), `eu` (Europe), `asia` (Asia), `au` (Australia)",
+				Description:         "Ping Identity region for OAuth SSO when `oauth_type`==`ping_identity`",
+				MarkdownDescription: "Ping Identity region for OAuth SSO when `oauth_type`==`ping_identity`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -212,8 +212,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			"oauth_provider_domain": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "If `oauth_type`==`okta`, specifies the region-specific OAuth provider domain. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`",
-				MarkdownDescription: "If `oauth_type`==`okta`, specifies the region-specific OAuth provider domain. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`",
+				Description:         "Provider domain for Okta OAuth SSO when `oauth_type`==`okta`",
+				MarkdownDescription: "Provider domain for Okta OAuth SSO when `oauth_type`==`okta`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -258,8 +258,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			"oauth_type": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "if `idp_type`==`oauth`. enum: `azure`, `azure-gov`, `okta`, `ping_identity`",
-				MarkdownDescription: "if `idp_type`==`oauth`. enum: `azure`, `azure-gov`, `okta`, `ping_identity`",
+				Description:         "Provider type for OAuth SSO when `idp_type`==`oauth`",
+				MarkdownDescription: "Provider type for OAuth SSO when `idp_type`==`oauth`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"azure",
@@ -270,8 +270,28 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("idp_type"), types.StringValue("oauth")),
 				},
 			},
+			"openroaming_ssids": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "SSIDs that support OpenRoaming, used when `idp_type`==`openroaming`",
+				MarkdownDescription: "SSIDs that support OpenRoaming, used when `idp_type`==`openroaming`",
+			},
+			"openroaming_wba_client_cert": schema.StringAttribute{
+				Optional:            true,
+				Sensitive:           true,
+				Description:         "Optional WBA-issued client certificate for OpenRoaming. If not provided, the default WBA-issued certificate for Juniper will be used.",
+				MarkdownDescription: "Optional WBA-issued client certificate for OpenRoaming. If not provided, the default WBA-issued certificate for Juniper will be used.",
+			},
+			"openroaming_wba_client_key": schema.StringAttribute{
+				Optional:            true,
+				Sensitive:           true,
+				Description:         "Optional WBA-issued client private key for OpenRoaming. If not provided, the default WBA-issued key for Juniper will be used.",
+				MarkdownDescription: "Optional WBA-issued client private key for OpenRoaming. If not provided, the default WBA-issued key for Juniper will be used.",
+			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Owning organization identifier for this SSO configuration",
+				MarkdownDescription: "Owning organization identifier for this SSO configuration",
 			},
 			"scim_enabled": schema.BoolAttribute{
 				Optional:            true,
@@ -299,33 +319,36 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgNacidpModel struct {
-	GroupFilter             types.String `tfsdk:"group_filter"`
-	Id                      types.String `tfsdk:"id"`
-	IdpType                 types.String `tfsdk:"idp_type"`
-	LdapBaseDn              types.String `tfsdk:"ldap_base_dn"`
-	LdapBindDn              types.String `tfsdk:"ldap_bind_dn"`
-	LdapBindPassword        types.String `tfsdk:"ldap_bind_password"`
-	LdapCacerts             types.List   `tfsdk:"ldap_cacerts"`
-	LdapClientCert          types.String `tfsdk:"ldap_client_cert"`
-	LdapClientKey           types.String `tfsdk:"ldap_client_key"`
-	LdapGroupAttr           types.String `tfsdk:"ldap_group_attr"`
-	LdapGroupDn             types.String `tfsdk:"ldap_group_dn"`
-	LdapResolveGroups       types.Bool   `tfsdk:"ldap_resolve_groups"`
-	LdapServerHosts         types.List   `tfsdk:"ldap_server_hosts"`
-	LdapType                types.String `tfsdk:"ldap_type"`
-	LdapUserFilter          types.String `tfsdk:"ldap_user_filter"`
-	MemberFilter            types.String `tfsdk:"member_filter"`
-	Name                    types.String `tfsdk:"name"`
-	OauthCcClientId         types.String `tfsdk:"oauth_cc_client_id"`
-	OauthCcClientSecret     types.String `tfsdk:"oauth_cc_client_secret"`
-	OauthDiscoveryUrl       types.String `tfsdk:"oauth_discovery_url"`
-	OauthPingIdentityRegion types.String `tfsdk:"oauth_ping_identity_region"`
-	OauthProviderDomain     types.String `tfsdk:"oauth_provider_domain"`
-	OauthRopcClientId       types.String `tfsdk:"oauth_ropc_client_id"`
-	OauthRopcClientSecret   types.String `tfsdk:"oauth_ropc_client_secret"`
-	OauthTenantId           types.String `tfsdk:"oauth_tenant_id"`
-	OauthType               types.String `tfsdk:"oauth_type"`
-	OrgId                   types.String `tfsdk:"org_id"`
-	ScimEnabled             types.Bool   `tfsdk:"scim_enabled"`
-	ScimSecretToken         types.String `tfsdk:"scim_secret_token"`
+	GroupFilter              types.String `tfsdk:"group_filter"`
+	Id                       types.String `tfsdk:"id"`
+	IdpType                  types.String `tfsdk:"idp_type"`
+	LdapBaseDn               types.String `tfsdk:"ldap_base_dn"`
+	LdapBindDn               types.String `tfsdk:"ldap_bind_dn"`
+	LdapBindPassword         types.String `tfsdk:"ldap_bind_password"`
+	LdapCacerts              types.List   `tfsdk:"ldap_cacerts"`
+	LdapClientCert           types.String `tfsdk:"ldap_client_cert"`
+	LdapClientKey            types.String `tfsdk:"ldap_client_key"`
+	LdapGroupAttr            types.String `tfsdk:"ldap_group_attr"`
+	LdapGroupDn              types.String `tfsdk:"ldap_group_dn"`
+	LdapResolveGroups        types.Bool   `tfsdk:"ldap_resolve_groups"`
+	LdapServerHosts          types.List   `tfsdk:"ldap_server_hosts"`
+	LdapType                 types.String `tfsdk:"ldap_type"`
+	LdapUserFilter           types.String `tfsdk:"ldap_user_filter"`
+	MemberFilter             types.String `tfsdk:"member_filter"`
+	Name                     types.String `tfsdk:"name"`
+	OauthCcClientId          types.String `tfsdk:"oauth_cc_client_id"`
+	OauthCcClientSecret      types.String `tfsdk:"oauth_cc_client_secret"`
+	OauthDiscoveryUrl        types.String `tfsdk:"oauth_discovery_url"`
+	OauthPingIdentityRegion  types.String `tfsdk:"oauth_ping_identity_region"`
+	OauthProviderDomain      types.String `tfsdk:"oauth_provider_domain"`
+	OauthRopcClientId        types.String `tfsdk:"oauth_ropc_client_id"`
+	OauthRopcClientSecret    types.String `tfsdk:"oauth_ropc_client_secret"`
+	OauthTenantId            types.String `tfsdk:"oauth_tenant_id"`
+	OauthType                types.String `tfsdk:"oauth_type"`
+	OpenroamingSsids         types.List   `tfsdk:"openroaming_ssids"`
+	OpenroamingWbaClientCert types.String `tfsdk:"openroaming_wba_client_cert"`
+	OpenroamingWbaClientKey  types.String `tfsdk:"openroaming_wba_client_key"`
+	OrgId                    types.String `tfsdk:"org_id"`
+	ScimEnabled              types.Bool   `tfsdk:"scim_enabled"`
+	ScimSecretToken          types.String `tfsdk:"scim_secret_token"`
 }
