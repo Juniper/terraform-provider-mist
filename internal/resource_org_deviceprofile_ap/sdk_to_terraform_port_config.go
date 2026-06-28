@@ -33,7 +33,7 @@ func dynamicVlanPortConfigSdkToTerraform(ctx context.Context, diags *diag.Diagno
 		enabled = types.BoolValue(*d.Enabled)
 	}
 	if d.Type != nil {
-		typeDynamicVlan = types.StringValue(*d.Type)
+		typeDynamicVlan = types.StringValue(string(*d.Type))
 	}
 	if d != nil && d.Vlans != nil {
 		vlansAttr := make(map[string]attr.Value)

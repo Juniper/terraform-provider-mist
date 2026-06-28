@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/apimatic/go-core-runtime/logger"
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -45,6 +46,104 @@ func New() func() provider.Provider {
 
 type mistProvider struct {
 	version string
+}
+
+type sessionTransport struct {
+	base    http.RoundTripper
+	mu      sync.Mutex
+	cookies map[string]string
+}
+
+func newSessionTransport(base http.RoundTripper) *sessionTransport {
+	if base == nil {
+		base = http.DefaultTransport
+	}
+	return &sessionTransport{
+		base:    base,
+		cookies: make(map[string]string),
+	}
+}
+
+func (s *sessionTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	clonedReq := req.Clone(req.Context())
+	s.applyCookies(clonedReq)
+
+	resp, err := s.base.RoundTrip(clonedReq)
+	if err != nil {
+		return nil, err
+	}
+	s.captureCookies(resp)
+	return resp, nil
+}
+
+func (s *sessionTransport) applyCookies(req *http.Request) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if len(s.cookies) == 0 {
+		return
+	}
+	parts := make([]string, 0, len(s.cookies))
+	for name, value := range s.cookies {
+		parts = append(parts, fmt.Sprintf("%s=%s", name, value))
+	}
+	req.Header.Set("Cookie", strings.Join(parts, "; "))
+}
+
+func (s *sessionTransport) captureCookies(resp *http.Response) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for _, cookie := range resp.Cookies() {
+		if cookie.Value == "" || cookie.MaxAge < 0 {
+			delete(s.cookies, cookie.Name)
+			continue
+		}
+		s.cookies[cookie.Name] = cookie.Value
+	}
+
+	// Fallback to raw Set-Cookie parsing to handle cookie formats that may not
+	// be returned by resp.Cookies().
+	for _, rawCookie := range resp.Header.Values("Set-Cookie") {
+		for _, part := range strings.Split(rawCookie, ";") {
+			part = strings.TrimSpace(part)
+			if !strings.HasPrefix(part, "csrftoken=") {
+				continue
+			}
+			pieces := strings.SplitN(part, "=", 2)
+			if len(pieces) != 2 || pieces[1] == "" {
+				continue
+			}
+			s.cookies["csrftoken"] = pieces[1]
+		}
+	}
+}
+
+func (s *sessionTransport) csrfToken() string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if token := s.cookies["csrftoken"]; token != "" {
+		return token
+	}
+	return ""
+}
+
+func csrfTokenFromSetCookie(headers http.Header) string {
+	for _, rawCookie := range headers.Values("Set-Cookie") {
+		for _, part := range strings.Split(rawCookie, ";") {
+			part = strings.TrimSpace(part)
+			if !strings.HasPrefix(part, "csrftoken=") {
+				continue
+			}
+			pieces := strings.SplitN(part, "=", 2)
+			if len(pieces) != 2 || pieces[1] == "" {
+				continue
+			}
+			return pieces[1]
+		}
+	}
+
+	return ""
 }
 
 type mistProviderModel struct {
@@ -316,12 +415,13 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 		return
 	}
 
-	var DefaultTransport = http.DefaultTransport
+	var baseTransport http.RoundTripper = http.DefaultTransport
 	if proxyUrl != nil {
-		DefaultTransport = &http.Transport{
+		baseTransport = &http.Transport{
 			Proxy: http.ProxyURL(proxyUrl),
 		}
 	}
+	session := newSessionTransport(baseTransport)
 
 	var clientConfig mistapi.Configuration
 
@@ -349,7 +449,7 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 	var httpConfig = mistapi.WithHttpConfiguration(
 		mistapi.CreateHttpConfiguration(
 			mistapi.WithTimeout(config.ApiTimeout.ValueFloat64()),
-			mistapi.WithTransport(DefaultTransport),
+			mistapi.WithTransport(session),
 		),
 	)
 	configOptions = append(configOptions, httpConfig)
@@ -364,13 +464,9 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 
 		clientConfig = mistapi.CreateConfiguration(configOptions...)
 
-		// configure the client for Basic Auth + CSRF
+		// Configure the client with session transport, authenticate via login
+		// endpoint, then set CSRF credentials for mutating requests.
 	} else {
-		// Initiate the login API Call
-		var basicAuthConfig = mistapi.WithBasicAuthCredentials(
-			mistapi.NewBasicAuthCredentials(config.Username.ValueString(), config.Password.ValueString()),
-		)
-		configOptions = append(configOptions, basicAuthConfig)
 		tmpClient := mistapi.NewClient(
 			mistapi.CreateConfiguration(configOptions...),
 		)
@@ -387,30 +483,34 @@ func (p *mistProvider) Configure(ctx context.Context, req provider.ConfigureRequ
 			return
 		}
 
-		// Process the Response Headers to extract the CSRF Token
-		csrfTokenSet := false
-		for hNAme, hVal := range apiResponse.Response.Header {
-			if hNAme == "Set-Cookie" {
-				for _, cookie := range hVal {
-					for _, cVal := range strings.Split(cookie, ";") {
-						if strings.HasPrefix(cVal, "csrftoken") {
-							csrftokenString := strings.Split(cVal, "=")[1]
-							csrfTokenConfig := mistapi.WithCsrfTokenCredentials(
-								mistapi.NewCsrfTokenCredentials(csrftokenString),
-							)
-							configOptions = append(configOptions, csrfTokenConfig)
-							clientConfig = mistapi.CreateConfiguration(configOptions...)
-							csrfTokenSet = true
-						}
-					}
-				}
+		if apiResponse.Data.TwoFactorRequired != nil && *apiResponse.Data.TwoFactorRequired {
+			if apiResponse.Data.TwoFactorPassed == nil || !*apiResponse.Data.TwoFactorPassed {
+				resp.Diagnostics.AddError(
+					"Authentication Error",
+					"Two-factor authentication is required for this account and is not supported in non-interactive Terraform provider authentication. Use an API token or disable 2FA for username/password authentication.",
+				)
+				return
 			}
 		}
-		// IF CSRF Token not set, raise an error and exit
-		if !csrfTokenSet {
+
+		csrfToken := session.csrfToken()
+		if csrfToken == "" {
+			csrfToken = csrfTokenFromSetCookie(apiResponse.Response.Header)
+		}
+		if csrfToken == "" {
+			resp.Diagnostics.AddWarning(
+				"Authentication Debug",
+				fmt.Sprintf("No CSRF token found after login. Response contained %d Set-Cookie headers.", len(apiResponse.Response.Header.Values("Set-Cookie"))),
+			)
 			resp.Diagnostics.AddError("Authentication Error", "Unable to extract the CSRF Token from the Authentication response")
 			return
 		}
+
+		csrfTokenConfig := mistapi.WithCsrfTokenCredentials(
+			mistapi.NewCsrfTokenCredentials(csrfToken),
+		)
+		configOptions = append(configOptions, csrfTokenConfig)
+		clientConfig = mistapi.CreateConfiguration(configOptions...)
 	}
 
 	// Use the configuration to create the client and test the credentials

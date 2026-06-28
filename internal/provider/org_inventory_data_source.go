@@ -8,7 +8,6 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/datasource_org_inventory"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
-	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -85,7 +84,7 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 	var modifiedAfter int
 	var vc bool
 	var vcMac string
-	var deviceType models.DeviceTypeEnum
+	var deviceType string
 
 	if !ds.Mac.IsNull() && !ds.Mac.IsUnknown() {
 		mac = ds.Mac.ValueString()
@@ -117,7 +116,7 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 		vc = ds.Vc.ValueBool()
 	}
 	if !ds.Type.IsNull() && !ds.Type.IsUnknown() {
-		deviceType = models.DeviceTypeEnum(ds.Type.ValueString())
+		deviceType = ds.Type.ValueString()
 	}
 
 	var limit = 1000

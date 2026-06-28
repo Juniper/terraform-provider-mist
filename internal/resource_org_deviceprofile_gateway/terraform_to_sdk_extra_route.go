@@ -22,13 +22,13 @@ func extraRoutesTerraformToSdk(d basetypes.MapValue) map[string]models.GatewayEx
 	return dataMap
 }
 
-func extraRoutes6TerraformToSdk(d basetypes.MapValue) map[string]models.GatewayExtraRoute {
-	dataMap := make(map[string]models.GatewayExtraRoute)
+func extraRoutes6TerraformToSdk(d basetypes.MapValue) map[string]models.GatewayExtraRoute6 {
+	dataMap := make(map[string]models.GatewayExtraRoute6)
 	for k, v := range d.Elements() {
 		var vInterface interface{} = v
 		plan := vInterface.(ExtraRoutes6Value)
 
-		data := models.GatewayExtraRoute{}
+		data := models.GatewayExtraRoute6{}
 		if plan.Via.ValueStringPointer() != nil {
 			data.Via = plan.Via.ValueStringPointer()
 		}

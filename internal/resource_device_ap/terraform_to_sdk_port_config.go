@@ -27,7 +27,7 @@ func dynamicVlanTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d b
 				data.Enabled = plan.Enabled.ValueBoolPointer()
 			}
 			if plan.DynamicVlanType.ValueStringPointer() != nil {
-				data.Type = plan.DynamicVlanType.ValueStringPointer()
+				data.Type = models.ToPointer(models.ApPortConfigDynamicVlanTypeEnum(plan.DynamicVlanType.ValueString()))
 			}
 
 			if !plan.Vlans.IsNull() && !plan.Vlans.IsUnknown() {
