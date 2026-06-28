@@ -28,7 +28,7 @@ func bgpConfigNeighborsTerraformToSdk(d basetypes.MapValue) map[string]models.Sw
 			data.MultihopTtl = models.ToPointer(int(plan.MultihopTtl.ValueInt64()))
 		}
 		if plan.NeighborAs.ValueStringPointer() != nil {
-			data.NeighborAs = models.SwitchBgpConfigNeighborNeighborAsContainer.FromString(plan.NeighborAs.ValueString())
+			data.NeighborAs = models.BgpAsContainer.FromString(plan.NeighborAs.ValueString())
 		}
 
 		dataMap[k] = data

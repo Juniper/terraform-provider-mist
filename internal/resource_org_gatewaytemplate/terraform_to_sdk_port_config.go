@@ -25,12 +25,12 @@ func wanExtraRoutesPortVpnPathTerraformToSdk(d basetypes.MapValue) map[string]mo
 	}
 	return dataMap
 }
-func wanExtraRoutes6PortVpnPathTerraformToSdk(d basetypes.MapValue) map[string]models.WanExtraRoutes {
-	dataMap := make(map[string]models.WanExtraRoutes)
+func wanExtraRoutes6PortVpnPathTerraformToSdk(d basetypes.MapValue) map[string]models.WanExtraRoutes6 {
+	dataMap := make(map[string]models.WanExtraRoutes6)
 	for k, v := range d.Elements() {
 		var vInterface interface{} = v
 		plan := vInterface.(WanExtraRoutes6Value)
-		data := models.WanExtraRoutes{}
+		data := models.WanExtraRoutes6{}
 		if plan.Via.ValueStringPointer() != nil {
 			data.Via = plan.Via.ValueStringPointer()
 		}

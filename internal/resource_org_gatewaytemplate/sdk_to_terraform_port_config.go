@@ -34,7 +34,7 @@ func wanExtraRoutesPortConfigIpConfigSdkToTerraform(ctx context.Context, diags *
 	diags.Append(e...)
 	return stateResult
 }
-func wanExtraRoutes6PortConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.WanExtraRoutes) basetypes.MapValue {
+func wanExtraRoutes6PortConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.WanExtraRoutes6) basetypes.MapValue {
 	stateValueMap := make(map[string]attr.Value)
 	for k, d := range m {
 

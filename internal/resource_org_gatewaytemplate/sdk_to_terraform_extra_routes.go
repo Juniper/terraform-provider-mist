@@ -35,7 +35,7 @@ func extraRoutesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m m
 	return stateResultMap
 }
 
-func extraRoutes6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.GatewayExtraRoute) basetypes.MapValue {
+func extraRoutes6SdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.GatewayExtraRoute6) basetypes.MapValue {
 
 	stateValueMapValue := make(map[string]attr.Value)
 	for k, d := range m {
