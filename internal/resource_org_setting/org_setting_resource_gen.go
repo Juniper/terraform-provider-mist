@@ -1215,15 +1215,13 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"snapshot": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Whether to create a recovery snapshot during the upgrade process",
 								MarkdownDescription: "Whether to create a recovery snapshot during the upgrade process",
-								Default:             booldefault.StaticBool(false),
 							},
 						},
-						CustomType: AutoUpgradeType{
+						CustomType: SwitchAutoUpgradeType{
 							ObjectType: types.ObjectType{
-								AttrTypes: AutoUpgradeValue{}.AttributeTypes(ctx),
+								AttrTypes: SwitchAutoUpgradeValue{}.AttributeTypes(ctx),
 							},
 						},
 						Optional:            true,
@@ -17012,7 +17010,7 @@ func (t SwitchType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 
 	attributes := in.Attributes()
 
-	autoUpgradeAttribute, ok := attributes["auto_upgrade"]
+	switchAutoUpgradeAttribute, ok := attributes["auto_upgrade"]
 
 	if !ok {
 		diags.AddError(
@@ -17022,12 +17020,12 @@ func (t SwitchType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	autoUpgradeVal, ok := autoUpgradeAttribute.(basetypes.ObjectValue)
+	switchAutoUpgradeVal, ok := switchAutoUpgradeAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`auto_upgrade expected to be basetypes.ObjectValue, was: %T`, autoUpgradeAttribute))
+			fmt.Sprintf(`auto_upgrade expected to be basetypes.ObjectValue, was: %T`, switchAutoUpgradeAttribute))
 	}
 
 	if diags.HasError() {
@@ -17035,8 +17033,8 @@ func (t SwitchType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 	}
 
 	return SwitchValue{
-		AutoUpgrade: autoUpgradeVal,
-		state:       attr.ValueStateKnown,
+		SwitchAutoUpgrade: switchAutoUpgradeVal,
+		state:             attr.ValueStateKnown,
 	}, diags
 }
 
@@ -17103,7 +17101,7 @@ func NewSwitchValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewSwitchValueUnknown(), diags
 	}
 
-	autoUpgradeAttribute, ok := attributes["auto_upgrade"]
+	switchAutoUpgradeAttribute, ok := attributes["auto_upgrade"]
 
 	if !ok {
 		diags.AddError(
@@ -17113,12 +17111,12 @@ func NewSwitchValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewSwitchValueUnknown(), diags
 	}
 
-	autoUpgradeVal, ok := autoUpgradeAttribute.(basetypes.ObjectValue)
+	switchAutoUpgradeVal, ok := switchAutoUpgradeAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`auto_upgrade expected to be basetypes.ObjectValue, was: %T`, autoUpgradeAttribute))
+			fmt.Sprintf(`auto_upgrade expected to be basetypes.ObjectValue, was: %T`, switchAutoUpgradeAttribute))
 	}
 
 	if diags.HasError() {
@@ -17126,8 +17124,8 @@ func NewSwitchValue(attributeTypes map[string]attr.Type, attributes map[string]a
 	}
 
 	return SwitchValue{
-		AutoUpgrade: autoUpgradeVal,
-		state:       attr.ValueStateKnown,
+		SwitchAutoUpgrade: switchAutoUpgradeVal,
+		state:             attr.ValueStateKnown,
 	}, diags
 }
 
@@ -17199,8 +17197,8 @@ func (t SwitchType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SwitchValue{}
 
 type SwitchValue struct {
-	AutoUpgrade basetypes.ObjectValue `tfsdk:"auto_upgrade"`
-	state       attr.ValueState
+	SwitchAutoUpgrade basetypes.ObjectValue `tfsdk:"auto_upgrade"`
+	state             attr.ValueState
 }
 
 func (v SwitchValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
@@ -17210,7 +17208,7 @@ func (v SwitchValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	var err error
 
 	attrTypes["auto_upgrade"] = basetypes.ObjectType{
-		AttrTypes: AutoUpgradeValue{}.AttributeTypes(ctx),
+		AttrTypes: SwitchAutoUpgradeValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -17219,7 +17217,7 @@ func (v SwitchValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 1)
 
-		val, err = v.AutoUpgrade.ToTerraformValue(ctx)
+		val, err = v.SwitchAutoUpgrade.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -17256,30 +17254,30 @@ func (v SwitchValue) String() string {
 func (v SwitchValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	var autoUpgrade basetypes.ObjectValue
+	var switchAutoUpgrade basetypes.ObjectValue
 
-	if v.AutoUpgrade.IsNull() {
-		autoUpgrade = types.ObjectNull(
-			AutoUpgradeValue{}.AttributeTypes(ctx),
+	if v.SwitchAutoUpgrade.IsNull() {
+		switchAutoUpgrade = types.ObjectNull(
+			SwitchAutoUpgradeValue{}.AttributeTypes(ctx),
 		)
 	}
 
-	if v.AutoUpgrade.IsUnknown() {
-		autoUpgrade = types.ObjectUnknown(
-			AutoUpgradeValue{}.AttributeTypes(ctx),
+	if v.SwitchAutoUpgrade.IsUnknown() {
+		switchAutoUpgrade = types.ObjectUnknown(
+			SwitchAutoUpgradeValue{}.AttributeTypes(ctx),
 		)
 	}
 
-	if !v.AutoUpgrade.IsNull() && !v.AutoUpgrade.IsUnknown() {
-		autoUpgrade = types.ObjectValueMust(
-			AutoUpgradeValue{}.AttributeTypes(ctx),
-			v.AutoUpgrade.Attributes(),
+	if !v.SwitchAutoUpgrade.IsNull() && !v.SwitchAutoUpgrade.IsUnknown() {
+		switchAutoUpgrade = types.ObjectValueMust(
+			SwitchAutoUpgradeValue{}.AttributeTypes(ctx),
+			v.SwitchAutoUpgrade.Attributes(),
 		)
 	}
 
 	attributeTypes := map[string]attr.Type{
 		"auto_upgrade": basetypes.ObjectType{
-			AttrTypes: AutoUpgradeValue{}.AttributeTypes(ctx),
+			AttrTypes: SwitchAutoUpgradeValue{}.AttributeTypes(ctx),
 		},
 	}
 
@@ -17294,7 +17292,7 @@ func (v SwitchValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"auto_upgrade": autoUpgrade,
+			"auto_upgrade": switchAutoUpgrade,
 		})
 
 	return objVal, diags
@@ -17315,7 +17313,7 @@ func (v SwitchValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.AutoUpgrade.Equal(other.AutoUpgrade) {
+	if !v.SwitchAutoUpgrade.Equal(other.SwitchAutoUpgrade) {
 		return false
 	}
 
@@ -17333,17 +17331,19 @@ func (v SwitchValue) Type(ctx context.Context) attr.Type {
 func (v SwitchValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"auto_upgrade": basetypes.ObjectType{
-			AttrTypes: AutoUpgradeValue{}.AttributeTypes(ctx),
+			AttrTypes: SwitchAutoUpgradeValue{}.AttributeTypes(ctx),
 		},
 	}
 }
 
-type AutoUpgradeType struct {
+var _ basetypes.ObjectTypable = SwitchAutoUpgradeType{}
+
+type SwitchAutoUpgradeType struct {
 	basetypes.ObjectType
 }
 
-func (t AutoUpgradeType) Equal(o attr.Type) bool {
-	other, ok := o.(AutoUpgradeType)
+func (t SwitchAutoUpgradeType) Equal(o attr.Type) bool {
+	other, ok := o.(SwitchAutoUpgradeType)
 
 	if !ok {
 		return false
@@ -17352,11 +17352,11 @@ func (t AutoUpgradeType) Equal(o attr.Type) bool {
 	return t.ObjectType.Equal(other.ObjectType)
 }
 
-func (t AutoUpgradeType) String() string {
-	return "AutoUpgradeType"
+func (t SwitchAutoUpgradeType) String() string {
+	return "SwitchAutoUpgradeType"
 }
 
-func (t AutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+func (t SwitchAutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
@@ -17419,7 +17419,7 @@ func (t AutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	return AutoUpgradeValue{
+	return SwitchAutoUpgradeValue{
 		CustomVersions: customVersionsVal,
 		Enabled:        enabledVal,
 		Snapshot:       snapshotVal,
@@ -17427,19 +17427,19 @@ func (t AutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.Objec
 	}, diags
 }
 
-func NewAutoUpgradeValueNull() AutoUpgradeValue {
-	return AutoUpgradeValue{
+func NewSwitchAutoUpgradeValueNull() SwitchAutoUpgradeValue {
+	return SwitchAutoUpgradeValue{
 		state: attr.ValueStateNull,
 	}
 }
 
-func NewAutoUpgradeValueUnknown() AutoUpgradeValue {
-	return AutoUpgradeValue{
+func NewSwitchAutoUpgradeValueUnknown() SwitchAutoUpgradeValue {
+	return SwitchAutoUpgradeValue{
 		state: attr.ValueStateUnknown,
 	}
 }
 
-func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AutoUpgradeValue, diag.Diagnostics) {
+func NewSwitchAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (SwitchAutoUpgradeValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
@@ -17450,11 +17450,11 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 
 		if !ok {
 			diags.AddError(
-				"Missing AutoUpgradeValue Attribute Value",
-				"While creating a AutoUpgradeValue value, a missing attribute value was detected. "+
-					"A AutoUpgradeValue must contain values for all attributes, even if null or unknown. "+
+				"Missing SwitchAutoUpgradeValue Attribute Value",
+				"While creating a SwitchAutoUpgradeValue value, a missing attribute value was detected. "+
+					"A SwitchAutoUpgradeValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("AutoUpgradeValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("SwitchAutoUpgradeValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -17462,12 +17462,12 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid AutoUpgradeValue Attribute Type",
-				"While creating a AutoUpgradeValue value, an invalid attribute value was detected. "+
-					"A AutoUpgradeValue must use a matching attribute type for the value. "+
+				"Invalid SwitchAutoUpgradeValue Attribute Type",
+				"While creating a SwitchAutoUpgradeValue value, an invalid attribute value was detected. "+
+					"A SwitchAutoUpgradeValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("AutoUpgradeValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("AutoUpgradeValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("SwitchAutoUpgradeValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("SwitchAutoUpgradeValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -17477,17 +17477,17 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 
 		if !ok {
 			diags.AddError(
-				"Extra AutoUpgradeValue Attribute Value",
-				"While creating a AutoUpgradeValue value, an extra attribute value was detected. "+
-					"A AutoUpgradeValue must not contain values beyond the expected attribute types. "+
+				"Extra SwitchAutoUpgradeValue Attribute Value",
+				"While creating a SwitchAutoUpgradeValue value, an extra attribute value was detected. "+
+					"A SwitchAutoUpgradeValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra AutoUpgradeValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra SwitchAutoUpgradeValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewAutoUpgradeValueUnknown(), diags
+		return NewSwitchAutoUpgradeValueUnknown(), diags
 	}
 
 	customVersionsAttribute, ok := attributes["custom_versions"]
@@ -17497,7 +17497,7 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 			"Attribute Missing",
 			`custom_versions is missing from object`)
 
-		return NewAutoUpgradeValueUnknown(), diags
+		return NewSwitchAutoUpgradeValueUnknown(), diags
 	}
 
 	customVersionsVal, ok := customVersionsAttribute.(basetypes.MapValue)
@@ -17515,7 +17515,7 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 			"Attribute Missing",
 			`enabled is missing from object`)
 
-		return NewAutoUpgradeValueUnknown(), diags
+		return NewSwitchAutoUpgradeValueUnknown(), diags
 	}
 
 	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
@@ -17533,7 +17533,7 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 			"Attribute Missing",
 			`snapshot is missing from object`)
 
-		return NewAutoUpgradeValueUnknown(), diags
+		return NewSwitchAutoUpgradeValueUnknown(), diags
 	}
 
 	snapshotVal, ok := snapshotAttribute.(basetypes.BoolValue)
@@ -17545,10 +17545,10 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 	}
 
 	if diags.HasError() {
-		return NewAutoUpgradeValueUnknown(), diags
+		return NewSwitchAutoUpgradeValueUnknown(), diags
 	}
 
-	return AutoUpgradeValue{
+	return SwitchAutoUpgradeValue{
 		CustomVersions: customVersionsVal,
 		Enabled:        enabledVal,
 		Snapshot:       snapshotVal,
@@ -17556,8 +17556,8 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 	}, diags
 }
 
-func NewAutoUpgradeValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AutoUpgradeValue {
-	object, diags := NewAutoUpgradeValue(attributeTypes, attributes)
+func NewSwitchAutoUpgradeValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) SwitchAutoUpgradeValue {
+	object, diags := NewSwitchAutoUpgradeValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -17571,15 +17571,15 @@ func NewAutoUpgradeValueMust(attributeTypes map[string]attr.Type, attributes map
 				diagnostic.Detail()))
 		}
 
-		panic("NewAutoUpgradeValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewSwitchAutoUpgradeValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t AutoUpgradeType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t SwitchAutoUpgradeType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewAutoUpgradeValueNull(), nil
+		return NewSwitchAutoUpgradeValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -17587,11 +17587,11 @@ func (t AutoUpgradeType) ValueFromTerraform(ctx context.Context, in tftypes.Valu
 	}
 
 	if !in.IsKnown() {
-		return NewAutoUpgradeValueUnknown(), nil
+		return NewSwitchAutoUpgradeValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewAutoUpgradeValueNull(), nil
+		return NewSwitchAutoUpgradeValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -17614,21 +17614,23 @@ func (t AutoUpgradeType) ValueFromTerraform(ctx context.Context, in tftypes.Valu
 		attributes[k] = a
 	}
 
-	return NewAutoUpgradeValueMust(AutoUpgradeValue{}.AttributeTypes(ctx), attributes), nil
+	return NewSwitchAutoUpgradeValueMust(SwitchAutoUpgradeValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t AutoUpgradeType) ValueType(ctx context.Context) attr.Value {
-	return AutoUpgradeValue{}
+func (t SwitchAutoUpgradeType) ValueType(ctx context.Context) attr.Value {
+	return SwitchAutoUpgradeValue{}
 }
 
-type AutoUpgradeValue struct {
+var _ basetypes.ObjectValuable = SwitchAutoUpgradeValue{}
+
+type SwitchAutoUpgradeValue struct {
 	CustomVersions basetypes.MapValue  `tfsdk:"custom_versions"`
 	Enabled        basetypes.BoolValue `tfsdk:"enabled"`
 	Snapshot       basetypes.BoolValue `tfsdk:"snapshot"`
 	state          attr.ValueState
 }
 
-func (v AutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+func (v SwitchAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
@@ -17684,19 +17686,19 @@ func (v AutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	}
 }
 
-func (v AutoUpgradeValue) IsNull() bool {
+func (v SwitchAutoUpgradeValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v AutoUpgradeValue) IsUnknown() bool {
+func (v SwitchAutoUpgradeValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v AutoUpgradeValue) String() string {
-	return "AutoUpgradeValue"
+func (v SwitchAutoUpgradeValue) String() string {
+	return "SwitchAutoUpgradeValue"
 }
 
-func (v AutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v SwitchAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	var customVersionsVal basetypes.MapValue
@@ -17748,8 +17750,8 @@ func (v AutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	return objVal, diags
 }
 
-func (v AutoUpgradeValue) Equal(o attr.Value) bool {
-	other, ok := o.(AutoUpgradeValue)
+func (v SwitchAutoUpgradeValue) Equal(o attr.Value) bool {
+	other, ok := o.(SwitchAutoUpgradeValue)
 
 	if !ok {
 		return false
@@ -17778,15 +17780,15 @@ func (v AutoUpgradeValue) Equal(o attr.Value) bool {
 	return true
 }
 
-func (v AutoUpgradeValue) Type(ctx context.Context) attr.Type {
-	return AutoUpgradeType{
+func (v SwitchAutoUpgradeValue) Type(ctx context.Context) attr.Type {
+	return SwitchAutoUpgradeType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v AutoUpgradeValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v SwitchAutoUpgradeValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"custom_versions": basetypes.MapType{
 			ElemType: types.StringType,

@@ -12,7 +12,7 @@ func switchAutoUpgradeTerraformToSdk(ctx context.Context, o basetypes.ObjectValu
 	if o.IsNull() || o.IsUnknown() {
 		return &data
 	} else {
-		d := NewAutoUpgradeValueMust(o.AttributeTypes(ctx), o.Attributes())
+		d := NewSwitchAutoUpgradeValueMust(o.AttributeTypes(ctx), o.Attributes())
 
 		if !d.CustomVersions.IsNull() && !d.CustomVersions.IsUnknown() {
 			var customVersions = make(map[string]string)
@@ -36,8 +36,8 @@ func switchAutoUpgradeTerraformToSdk(ctx context.Context, o basetypes.ObjectValu
 
 func switchTerraformToSdk(ctx context.Context, d SwitchValue) *models.OrgSettingSwitch {
 	data := models.OrgSettingSwitch{}
-	if !d.AutoUpgrade.IsNull() && !d.AutoUpgrade.IsUnknown() {
-		data.AutoUpgrade = switchAutoUpgradeTerraformToSdk(ctx, d.AutoUpgrade)
+	if !d.SwitchAutoUpgrade.IsNull() && !d.SwitchAutoUpgrade.IsUnknown() {
+		data.AutoUpgrade = switchAutoUpgradeTerraformToSdk(ctx, d.SwitchAutoUpgrade)
 	}
 	return &data
 }
