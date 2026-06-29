@@ -160,6 +160,9 @@ func (s *SiteWlanModel) testChecks(t testing.TB, rType, tName string, tracker *v
 	if s.DisableWmm != nil {
 		checks.append(t, "TestCheckResourceAttr", "disable_wmm", fmt.Sprintf("%t", *s.DisableWmm))
 	}
+	if s.EnableFtm != nil {
+		checks.append(t, "TestCheckResourceAttr", "enable_ftm", fmt.Sprintf("%t", *s.EnableFtm))
+	}
 	if s.EnableLocalKeycaching != nil {
 		checks.append(t, "TestCheckResourceAttr", "enable_local_keycaching", fmt.Sprintf("%t", *s.EnableLocalKeycaching))
 	}
@@ -756,6 +759,15 @@ func (s *SiteWlanModel) testChecks(t testing.TB, rType, tName string, tracker *v
 		}
 		if s.Portal.SmsProvider != nil {
 			checks.append(t, "TestCheckResourceAttr", "portal.sms_provider", *s.Portal.SmsProvider)
+		}
+		if s.Portal.SmsglobalApiKey != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.smsglobal_api_key", *s.Portal.SmsglobalApiKey)
+		}
+		if s.Portal.SmsglobalApiSecret != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.smsglobal_api_secret", *s.Portal.SmsglobalApiSecret)
+		}
+		if s.Portal.SmsglobalSender != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.smsglobal_sender", *s.Portal.SmsglobalSender)
 		}
 		if s.Portal.SponsorEnabled != nil {
 			checks.append(t, "TestCheckResourceAttr", "portal.sponsor_enabled", fmt.Sprintf("%t", *s.Portal.SponsorEnabled))

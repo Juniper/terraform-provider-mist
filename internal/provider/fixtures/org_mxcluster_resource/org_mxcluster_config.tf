@@ -175,3 +175,11 @@
   # Tunterm monitoring disabled flag
   tunterm_monitoring_disabled = false
 
+  # NAC Edge survivability configuration (requires mist_nac to be enabled)
+  mist_nacedge = {
+    enabled           = true
+    auth_ttl          = 3600
+    default_vlan      = "corp"
+    default_dot1x_vlan = "dot1x-corp"
+    nac_edge_hosts    = ["nacedge1.example.com", "nacedge2.example.com"]
+  }

@@ -162,10 +162,11 @@ func (r *orgDeviceprofileAssignResource) Read(ctx context.Context, _ resource.Re
 	var vc = false
 	var unassigned bool
 	var modifiedAfter int
+	var disconnectedBefore int
 	var limit = 1000
 	var page int
 	tflog.Info(ctx, "Starting Inventory Read: org_id  "+orgId.String())
-	data, err := r.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, &mType, &mac, siteId, &vcMac, &vc, &unassigned, &modifiedAfter, &limit, &page)
+	data, err := r.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, &mType, &mac, siteId, &vcMac, &vc, &unassigned, &modifiedAfter, &disconnectedBefore, &limit, &page)
 	if err != nil {
 		diags.AddError(
 			"Error refreshing Inventory",

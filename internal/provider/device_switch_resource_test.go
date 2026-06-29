@@ -730,6 +730,9 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, tName string, tracke
 			if port.AeLacpForceUp != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.ae_lacp_force_up", key), fmt.Sprintf("%t", *port.AeLacpForceUp))
 			}
+			if port.AeLacpPassive != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.ae_lacp_passive", key), fmt.Sprintf("%t", *port.AeLacpPassive))
+			}
 			if port.Aggregated != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.aggregated", key), fmt.Sprintf("%t", *port.Aggregated))
 			}
@@ -910,6 +913,9 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, tName string, tracke
 			}
 			if usage.StpDisable != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.stp_disable", key), fmt.Sprintf("%t", *usage.StpDisable))
+			}
+			if usage.ServerFailRetryInterval != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.server_fail_retry_interval", key), fmt.Sprintf("%d", *usage.ServerFailRetryInterval))
 			}
 			if usage.StpRequired != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.stp_required", key), fmt.Sprintf("%t", *usage.StpRequired))

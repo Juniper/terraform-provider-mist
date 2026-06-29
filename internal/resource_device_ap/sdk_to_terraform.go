@@ -37,6 +37,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	var locked types.Bool
 	var mapId types.String
 	var mesh = NewMeshValueNull()
+	var mqttConfig = NewMqttConfigValueNull()
 	var name types.String
 	var notes types.String
 	var ntpServers = types.ListNull(types.StringType)
@@ -125,6 +126,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	if data.Mesh != nil {
 		mesh = meshSdkToTerraform(ctx, &diags, data.Mesh)
 	}
+	if data.MqttConfig != nil {
+		mqttConfig = mqttConfigSdkToTerraform(ctx, &diags, data.MqttConfig)
+	}
 	if data.Name != nil {
 		name = types.StringValue(*data.Name)
 	}
@@ -209,6 +213,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	state.Locked = locked
 	state.MapId = mapId
 	state.Mesh = mesh
+	state.MqttConfig = mqttConfig
 	state.Name = name
 	state.NtpServers = ntpServers
 	state.Notes = notes

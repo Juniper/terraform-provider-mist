@@ -1,11 +1,12 @@
 package provider
 
 type OrgInventoryModel struct {
-	Inventory map[string]InventoryValue `hcl:"inventory"`
-	OrgId     string                    `hcl:"org_id"`
+	DisconnectedBefore *int64                                `hcl:"disconnected_before"`
+	Inventory          map[string]OrgInventoryInventoryValue `hcl:"inventory"`
+	OrgId              string                                `hcl:"org_id"`
 }
 
-type InventoryValue struct {
+type OrgInventoryInventoryValue struct {
 	SiteId               *string `cty:"site_id" hcl:"site_id"`
 	UnclaimWhenDestroyed *bool   `cty:"unclaim_when_destroyed" hcl:"unclaim_when_destroyed"`
 }

@@ -186,6 +186,9 @@ func portalTerraformToSdk(plan PortalValue) *models.WlanPortal {
 	if plan.SmsglobalApiSecret.ValueStringPointer() != nil {
 		data.SmsglobalApiSecret = plan.SmsglobalApiSecret.ValueStringPointer()
 	}
+	if plan.SmsglobalSender.ValueStringPointer() != nil {
+		data.SmsglobalSender = plan.SmsglobalSender.ValueStringPointer()
+	}
 	if plan.SponsorAutoApprove.ValueBoolPointer() != nil {
 		data.SponsorAutoApprove = plan.SponsorAutoApprove.ValueBoolPointer()
 	}

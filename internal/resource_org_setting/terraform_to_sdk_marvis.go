@@ -41,6 +41,9 @@ func marvisSelfDrivingTerraformToSdk(ctx context.Context, o basetypes.ObjectValu
 
 func marvisTerraformToSdk(ctx context.Context, d MarvisValue) *models.OrgSettingMarvis {
 	data := models.OrgSettingMarvis{}
+	if !d.DisableProactiveMonitoring.IsNull() && !d.DisableProactiveMonitoring.IsUnknown() {
+		data.DisableProactiveMonitoring = d.DisableProactiveMonitoring.ValueBoolPointer()
+	}
 	if !d.SelfDriving.IsNull() && !d.SelfDriving.IsUnknown() {
 		data.SelfDriving = marvisSelfDrivingTerraformToSdk(ctx, d.SelfDriving)
 	}

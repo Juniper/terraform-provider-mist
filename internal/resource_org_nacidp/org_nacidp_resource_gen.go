@@ -38,13 +38,14 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"idp_type": schema.StringAttribute{
 				Required:            true,
-				Description:         "enum: `ldap`, `mxedge_proxy`, `oauth`",
-				MarkdownDescription: "enum: `ldap`, `mxedge_proxy`, `oauth`",
+				Description:         "enum: `ldap`, `mxedge_proxy`, `oauth`, `openroaming`",
+				MarkdownDescription: "enum: `ldap`, `mxedge_proxy`, `oauth`, `openroaming`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"ldap",
 						"mxedge_proxy",
 						"oauth",
+						"openroaming",
 					),
 				},
 			},

@@ -5,7 +5,9 @@ package resource_org_deviceprofile_ap
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -22,7 +24,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -815,7 +816,7 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Display name of the AP device profile",
 				Validators: []validator.String{
 					stringvalidator.All(
-						stringvalidator.LengthBetween(2, 32),
+						stringvalidator.LengthBetween(2, 64),
 						mistvalidator.ParseNameWithSpaces(),
 					),
 				},

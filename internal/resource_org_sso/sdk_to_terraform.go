@@ -1,6 +1,8 @@
 package resource_org_sso
 
 import (
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -22,6 +24,9 @@ func SdkToTerraform(data *models.Sso) (OrgSsoModel, diag.Diagnostics) {
 	var name types.String
 	var nameidFormat types.String
 	var oauthProviderDomain types.String
+	var openroamingSsids = types.ListNull(types.StringType)
+	var openroamingWbaClientCert types.String
+	var openroamingWbaClientKey types.String
 	var orgId types.String
 	var roleAttrExtraction types.String
 	var roleAttrFrom types.String
@@ -62,6 +67,15 @@ func SdkToTerraform(data *models.Sso) (OrgSsoModel, diag.Diagnostics) {
 	if data.OauthProviderDomain != nil {
 		oauthProviderDomain = types.StringValue(string(*data.OauthProviderDomain))
 	}
+	if data.OpenroamingSsids != nil {
+		openroamingSsids = mistutils.ListOfStringSdkToTerraform(data.OpenroamingSsids)
+	}
+	if data.OpenroamingWbaClientCert != nil {
+		openroamingWbaClientCert = types.StringValue(*data.OpenroamingWbaClientCert)
+	}
+	if data.OpenroamingWbaClientKey != nil {
+		openroamingWbaClientKey = types.StringValue(*data.OpenroamingWbaClientKey)
+	}
 	if data.OrgId != nil {
 		orgId = types.StringValue(data.OrgId.String())
 	}
@@ -84,6 +98,9 @@ func SdkToTerraform(data *models.Sso) (OrgSsoModel, diag.Diagnostics) {
 	state.Name = name
 	state.NameidFormat = nameidFormat
 	state.OauthProviderDomain = oauthProviderDomain
+	state.OpenroamingSsids = openroamingSsids
+	state.OpenroamingWbaClientCert = openroamingWbaClientCert
+	state.OpenroamingWbaClientKey = openroamingWbaClientKey
 	state.OrgId = orgId
 	state.RoleAttrExtraction = roleAttrExtraction
 	state.RoleAttrFrom = roleAttrFrom

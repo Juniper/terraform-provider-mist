@@ -5,7 +5,9 @@ package resource_site_wlan
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -26,7 +28,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -2162,6 +2163,7 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 							"twilio_auth_token":              types.StringNull(),
 							"twilio_phone_number":            types.StringNull(),
 							"twilio_sid":                     types.StringNull(),
+							"smsglobal_sender":               types.StringNull(),
 						},
 					),
 				),

@@ -60,14 +60,19 @@ func marvisSelfDrivingSdkToTerraform(ctx context.Context, diags *diag.Diagnostic
 }
 
 func marvisSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingMarvis) MarvisValue {
+	var disableProactiveMonitoring types.Bool
 	var selfDriving = types.ObjectNull(SelfDrivingValue{}.AttributeTypes(ctx))
 
+	if d.DisableProactiveMonitoring != nil {
+		disableProactiveMonitoring = types.BoolValue(*d.DisableProactiveMonitoring)
+	}
 	if d.SelfDriving != nil {
 		selfDriving = marvisSelfDrivingSdkToTerraform(ctx, diags, d.SelfDriving)
 	}
 
 	data, e := NewMarvisValue(MarvisValue{}.AttributeTypes(ctx), map[string]attr.Value{
-		"self_driving": selfDriving,
+		"disable_proactive_monitoring": disableProactiveMonitoring,
+		"self_driving":                 selfDriving,
 	})
 	diags.Append(e...)
 	return data

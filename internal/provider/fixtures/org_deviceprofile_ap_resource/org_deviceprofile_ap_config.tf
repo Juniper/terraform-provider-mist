@@ -212,3 +212,11 @@
     extended_pan_id = "0xabcdef1234567890"
     pan_id          = "0x1234"
   }
+  mqtt_config = {
+    enabled      = true
+    broker_host  = "mqtt.example.com"
+    broker_port  = 1883
+    broker_proto = "tcp"
+    username     = "ap_publisher"
+    format       = "json"
+  }

@@ -199,6 +199,21 @@ func (o *OrgNacidpModel) testChecks(t testing.TB, rType, tName string, tracker *
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ldap_server_hosts.%d", i), host)
 		}
 	}
+	if o.OauthProviderDomain != nil {
+		checks.append(t, "TestCheckResourceAttr", "oauth_provider_domain", *o.OauthProviderDomain)
+	}
+	if o.OpenroamingWbaClientCert != nil {
+		checks.append(t, "TestCheckResourceAttr", "openroaming_wba_client_cert", *o.OpenroamingWbaClientCert)
+	}
+	if o.OpenroamingWbaClientKey != nil {
+		checks.append(t, "TestCheckResourceAttr", "openroaming_wba_client_key", *o.OpenroamingWbaClientKey)
+	}
+	if len(o.OpenroamingSsids) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "openroaming_ssids.#", fmt.Sprintf("%d", len(o.OpenroamingSsids)))
+		for i, ssid := range o.OpenroamingSsids {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("openroaming_ssids.%d", i), ssid)
+		}
+	}
 
 	return checks
 }

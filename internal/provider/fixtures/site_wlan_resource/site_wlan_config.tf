@@ -18,6 +18,7 @@ max_num_clients = 20
 max_idletime = 1800
 dtim = 2
 fast_dot1x_timers = true
+enable_ftm = true
 enable_local_keycaching = true
 enable_wireless_bridging = true
 enable_wireless_bridging_dhcp_tracking = true

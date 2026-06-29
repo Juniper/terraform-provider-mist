@@ -315,6 +315,10 @@ func (r *orgInventoryResource) refreshInventory(
 	var unassigned bool
 	var modifiedAfter int
 
+	var disconnectedBefore int
+	if refInventory.DisconnectedBefore.ValueInt64Pointer() != nil {
+		disconnectedBefore = int(refInventory.DisconnectedBefore.ValueInt64())
+	}
 	var limit = 1000
 	var page = 0
 	var total = 9999
@@ -330,7 +334,7 @@ func (r *orgInventoryResource) refreshInventory(
 			"total": total,
 		})
 		// Read API call logic
-		data, err := r.client.OrgsInventory().GetOrgInventory(ctx, *orgId, &serial, &model, &mType, &mac, siteId, &vcMac, &vc, &unassigned, &modifiedAfter, &limit, &page)
+		data, err := r.client.OrgsInventory().GetOrgInventory(ctx, *orgId, &serial, &model, &mType, &mac, siteId, &vcMac, &vc, &unassigned, &modifiedAfter, &disconnectedBefore, &limit, &page)
 		if err != nil {
 			diags.AddError(
 				"Error refreshing Inventory",

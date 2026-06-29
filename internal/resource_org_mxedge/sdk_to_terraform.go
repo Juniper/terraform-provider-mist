@@ -65,8 +65,8 @@ func SdkToTerraform(ctx context.Context, data *models.Mxedge) (OrgMxedgeModel, d
 	if data.MxagentRegistered != nil {
 		mxagentRegistered = types.BoolValue(*data.MxagentRegistered)
 	}
-	if data.MxclusterId != nil && data.MxclusterId.String() != "00000000-0000-0000-0000-000000000000" {
-		mxclusterId = types.StringValue(data.MxclusterId.String())
+	if data.MxclusterId.Value() != nil && data.MxclusterId.Value().String() != "00000000-0000-0000-0000-000000000000" {
+		mxclusterId = types.StringValue(data.MxclusterId.Value().String())
 	}
 	if data.MxedgeMgmt != nil {
 		mxedgeMgmt = mxedgeMgmtSdkToTerraform(ctx, &diags, data.MxedgeMgmt)

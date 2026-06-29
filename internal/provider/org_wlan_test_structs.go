@@ -45,6 +45,7 @@ type OrgWlanModel struct {
 	Dtim                                 *int64                          `hcl:"dtim"`
 	DynamicPsk                           *OrgWlanDynamicPskValue         `hcl:"dynamic_psk"`
 	DynamicVlan                          *OrgWlanDynamicVlanValue        `hcl:"dynamic_vlan"`
+	EnableFtm                            *bool                           `hcl:"enable_ftm"`
 	EnableLocalKeycaching                *bool                           `hcl:"enable_local_keycaching"`
 	EnableWirelessBridging               *bool                           `hcl:"enable_wireless_bridging"`
 	EnableWirelessBridgingDhcpTracking   *bool                           `hcl:"enable_wireless_bridging_dhcp_tracking"`
@@ -298,6 +299,7 @@ type OrgWlanPortalValue struct {
 	SmsProvider                 *string           `cty:"sms_provider" hcl:"sms_provider"`
 	SmsglobalApiKey             *string           `cty:"smsglobal_api_key" hcl:"smsglobal_api_key"`
 	SmsglobalApiSecret          *string           `cty:"smsglobal_api_secret" hcl:"smsglobal_api_secret"`
+	SmsglobalSender             *string           `cty:"smsglobal_sender" hcl:"smsglobal_sender"`
 	SponsorAutoApprove          *bool             `cty:"sponsor_auto_approve" hcl:"sponsor_auto_approve"`
 	SponsorEmailDomains         []string          `cty:"sponsor_email_domains" hcl:"sponsor_email_domains"`
 	SponsorEnabled              *bool             `cty:"sponsor_enabled" hcl:"sponsor_enabled"`

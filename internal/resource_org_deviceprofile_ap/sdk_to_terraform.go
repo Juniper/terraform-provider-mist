@@ -27,6 +27,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	var lacpConfig = NewLacpConfigValueNull()
 	var led = NewLedValueNull()
 	var mesh = NewMeshValueNull()
+	var mqttConfig = NewMqttConfigValueNull()
 	var name types.String
 	var ntpServers = types.ListNull(types.StringType)
 	var orgId types.String
@@ -82,6 +83,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	if data.Mesh != nil {
 		mesh = meshSdkToTerraform(ctx, &diags, data.Mesh)
 	}
+	if data.MqttConfig != nil {
+		mqttConfig = mqttConfigSdkToTerraform(ctx, &diags, data.MqttConfig)
+	}
 	if data.Name.Value() != nil {
 		name = types.StringValue(*data.Name.Value())
 	}
@@ -135,6 +139,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	state.LacpConfig = lacpConfig
 	state.Led = led
 	state.Mesh = mesh
+	state.MqttConfig = mqttConfig
 	state.Name = name
 	state.NtpServers = ntpServers
 	state.OrgId = orgId
