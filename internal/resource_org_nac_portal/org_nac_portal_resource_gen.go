@@ -197,7 +197,6 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 								"sha512",
 							),
 						},
-						Default: stringdefault.StaticString("sha256"),
 					},
 					"idp_sso_url": schema.StringAttribute{
 						Optional:            true,

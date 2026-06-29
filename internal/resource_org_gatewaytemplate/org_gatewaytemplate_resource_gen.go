@@ -914,14 +914,12 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "When enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
 								MarkdownDescription: "When enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
-								Default:             booldefault.StaticBool(false),
 							},
 							"hit_count": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
 								Description:         "Whether to enable hit count for Protect_RE policy",
 								MarkdownDescription: "Whether to enable hit count for Protect_RE policy",
-								Default:             booldefault.StaticBool(false),
 							},
 							"trusted_hosts": schema.ListAttribute{
 								ElementType:         types.StringType,
@@ -1161,7 +1159,7 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Display name of the gateway template",
 				MarkdownDescription: "Display name of the gateway template",
 				Validators: []validator.String{
-					stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName()),
+					stringvalidator.All(stringvalidator.LengthBetween(2, 64), mistvalidator.ParseName()),
 				},
 			},
 			"networks": schema.ListNestedAttribute{
@@ -1365,7 +1363,6 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									Computed:            true,
 									Description:         "Whether multicast support is enabled for this network",
 									MarkdownDescription: "Whether multicast support is enabled for this network",
-									Default:             booldefault.StaticBool(false),
 								},
 								"groups": schema.MapNestedAttribute{
 									NestedObject: schema.NestedAttributeObject{
@@ -2189,7 +2186,6 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							Computed:            true,
 							Description:         "Whether Perpetual PoE capabilities are enabled for a port",
 							MarkdownDescription: "Whether Perpetual PoE capabilities are enabled for a port",
-							Default:             booldefault.StaticBool(false),
 						},
 						"ip_config": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{

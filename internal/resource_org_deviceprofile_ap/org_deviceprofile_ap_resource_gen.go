@@ -5,9 +5,7 @@ package resource_org_deviceprofile_ap
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -24,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -730,7 +729,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether to use WPA3 on the 5 GHz band for mesh links",
 						MarkdownDescription: "Whether to use WPA3 on the 5 GHz band for mesh links",
-						Default:             booldefault.StaticBool(false),
 					},
 				},
 				CustomType: MeshType{
@@ -766,14 +764,12 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								"tcp",
 							),
 						},
-						Default: stringdefault.StaticString("tcp"),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Whether to enable MQTT publishing",
 						MarkdownDescription: "Whether to enable MQTT publishing",
-						Default:             booldefault.StaticBool(false),
 					},
 					"format": schema.StringAttribute{
 						Optional:            true,
@@ -787,7 +783,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								"raw",
 							),
 						},
-						Default: stringdefault.StaticString("raw"),
 					},
 					"password": schema.StringAttribute{
 						Optional:            true,

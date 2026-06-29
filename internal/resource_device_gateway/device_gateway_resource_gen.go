@@ -792,7 +792,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "Whether automatic security signature updates are enabled",
 								MarkdownDescription: "Whether automatic security signature updates are enabled",
-								Default:             booldefault.StaticBool(true),
 							},
 							"time_of_day": schema.StringAttribute{
 								Optional:            true,
@@ -822,28 +821,24 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "For SSR and SRX, disable console port",
 						MarkdownDescription: "For SSR and SRX, disable console port",
-						Default:             booldefault.StaticBool(false),
 					},
 					"disable_oob": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "For SSR and SRX, disable management interface",
 						MarkdownDescription: "For SSR and SRX, disable management interface",
-						Default:             booldefault.StaticBool(false),
 					},
 					"disable_usb": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "For SSR and SRX, disable usb interface",
 						MarkdownDescription: "For SSR and SRX, disable usb interface",
-						Default:             booldefault.StaticBool(false),
 					},
 					"fips_enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Whether FIPS mode is enabled on the gateway",
 						MarkdownDescription: "Whether FIPS mode is enabled on the gateway",
-						Default:             booldefault.StaticBool(false),
 					},
 					"probe_hosts": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -873,7 +868,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											Computed:            true,
 											Description:         "Matched dst port, \"0\" means any",
 											MarkdownDescription: "Matched dst port, \"0\" means any",
-											Default:             stringdefault.StaticString("0"),
 										},
 										"protocol": schema.StringAttribute{
 											Optional:            true,
@@ -913,14 +907,12 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								Computed:            true,
 								Description:         "When enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
 								MarkdownDescription: "When enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
-								Default:             booldefault.StaticBool(false),
 							},
 							"hit_count": schema.BoolAttribute{
 								Optional:            true,
 								Computed:            true,
 								Description:         "Whether to enable hit count for Protect_RE policy",
 								MarkdownDescription: "Whether to enable hit count for Protect_RE policy",
-								Default:             booldefault.StaticBool(false),
 							},
 							"trusted_hosts": schema.ListAttribute{
 								ElementType:         types.StringType,
@@ -1830,7 +1822,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 										"static",
 									),
 								},
-								Default: stringdefault.StaticString("dhcp"),
 							},
 							"use_mgmt_vrf": schema.BoolAttribute{
 								Optional:            true,
@@ -1887,7 +1878,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 								"static",
 							),
 						},
-						Default: stringdefault.StaticString("dhcp"),
 					},
 					"use_mgmt_vrf": schema.BoolAttribute{
 						Optional:            true,

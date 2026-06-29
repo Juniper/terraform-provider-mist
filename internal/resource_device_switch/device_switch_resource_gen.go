@@ -1914,17 +1914,13 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"ae_lacp_force_up": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only",
 							MarkdownDescription: "If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only",
-							Default:             booldefault.StaticBool(false),
 						},
 						"ae_lacp_passive": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "If `aggregated`==`true`, sets LACP to passive mode on this AE interface; by default, active (fast) mode is used",
 							MarkdownDescription: "If `aggregated`==`true`, sets LACP to passive mode on this AE interface; by default, active (fast) mode is used",
-							Default:             booldefault.StaticBool(false),
 						},
 						"ae_lacp_slow": schema.BoolAttribute{
 							Optional:            true,
@@ -2435,10 +2431,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"poe_keep_state_when_reboot": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots",
 							MarkdownDescription: "Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots",
-							Default:             booldefault.StaticBool(false),
 						},
 						"poe_priority": schema.StringAttribute{
 							Optional:            true,
@@ -2572,13 +2566,11 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"server_fail_retry_interval": schema.Int64Attribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Interval, in seconds. Sets the wait time before retrying authentication after RADIUS failure to reduce client flapping. Range 120-65535",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Interval, in seconds. Sets the wait time before retrying authentication after RADIUS failure to reduce client flapping. Range 120-65535",
 							Validators: []validator.Int64{
 								int64validator.Between(120, 65535),
 							},
-							Default: int64default.StaticInt64(120),
 						},
 						"server_reject_network": schema.StringAttribute{
 							Optional:            true,

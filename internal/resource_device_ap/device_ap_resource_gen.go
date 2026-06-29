@@ -863,7 +863,6 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether to use WPA3 on the 5 GHz band for mesh links",
 						MarkdownDescription: "Whether to use WPA3 on the 5 GHz band for mesh links",
-						Default:             booldefault.StaticBool(false),
 					},
 				},
 				CustomType: MeshType{
@@ -904,14 +903,12 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 								"tcp",
 							),
 						},
-						Default: stringdefault.StaticString("tcp"),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
 						Description:         "Whether to enable MQTT publishing",
 						MarkdownDescription: "Whether to enable MQTT publishing",
-						Default:             booldefault.StaticBool(false),
 					},
 					"format": schema.StringAttribute{
 						Optional:            true,
@@ -925,7 +922,6 @@ func DeviceApResourceSchema(ctx context.Context) schema.Schema {
 								"raw",
 							),
 						},
-						Default: stringdefault.StaticString("raw"),
 					},
 					"password": schema.StringAttribute{
 						Optional:            true,

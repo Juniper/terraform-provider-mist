@@ -11,8 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -163,7 +161,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 						Validators: []validator.Int64{
 							int64validator.Between(60, 2592000),
 						},
-						Default: int64default.StaticInt64(604800),
 					},
 					"caching_site_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
@@ -186,7 +183,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 						Computed:            true,
 						Description:         "Whether NAC Edge survivability is enabled for this cluster",
 						MarkdownDescription: "Whether NAC Edge survivability is enabled for this cluster",
-						Default:             booldefault.StaticBool(false),
 					},
 					"nac_edge_hosts": schema.ListAttribute{
 						ElementType:         types.StringType,
