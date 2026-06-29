@@ -34,6 +34,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Whether this Mist Edge is scoped to a site",
 				MarkdownDescription: "Whether this Mist Edge is scoped to a site",
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,

@@ -67,7 +67,6 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"enable_inband_mgmt": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Whether to route management traffic inband; routes will be propagated to downstream switches",
 						MarkdownDescription: "Whether to route management traffic inband; routes will be propagated to downstream switches",
 					},

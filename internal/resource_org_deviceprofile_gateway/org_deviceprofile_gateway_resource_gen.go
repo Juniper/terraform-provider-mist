@@ -1049,10 +1049,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"enabled": schema.BoolAttribute{
 									Optional:            true,
-									Computed:            true,
 									Description:         "Whether multicast support is enabled for this network",
 									MarkdownDescription: "Whether multicast support is enabled for this network",
-									Default:             booldefault.StaticBool(false),
 								},
 								"groups": schema.MapNestedAttribute{
 									NestedObject: schema.NestedAttributeObject{
@@ -1873,10 +1871,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"poe_keep_state_when_reboot": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Whether Perpetual PoE capabilities are enabled for a port",
 							MarkdownDescription: "Whether Perpetual PoE capabilities are enabled for a port",
-							Default:             booldefault.StaticBool(false),
 						},
 						"ip_config": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{

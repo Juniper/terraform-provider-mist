@@ -789,7 +789,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"enable": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Whether automatic security signature updates are enabled",
 								MarkdownDescription: "Whether automatic security signature updates are enabled",
 							},
@@ -818,25 +817,21 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"disable_console": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "For SSR and SRX, disable console port",
 						MarkdownDescription: "For SSR and SRX, disable console port",
 					},
 					"disable_oob": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "For SSR and SRX, disable management interface",
 						MarkdownDescription: "For SSR and SRX, disable management interface",
 					},
 					"disable_usb": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "For SSR and SRX, disable usb interface",
 						MarkdownDescription: "For SSR and SRX, disable usb interface",
 					},
 					"fips_enabled": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Whether FIPS mode is enabled on the gateway",
 						MarkdownDescription: "Whether FIPS mode is enabled on the gateway",
 					},
@@ -865,7 +860,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Attributes: map[string]schema.Attribute{
 										"port_range": schema.StringAttribute{
 											Optional:            true,
-											Computed:            true,
 											Description:         "Matched dst port, \"0\" means any",
 											MarkdownDescription: "Matched dst port, \"0\" means any",
 										},
@@ -904,13 +898,11 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "When enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
 								MarkdownDescription: "When enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
 							},
 							"hit_count": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Whether to enable hit count for Protect_RE policy",
 								MarkdownDescription: "Whether to enable hit count for Protect_RE policy",
 							},
@@ -1812,7 +1804,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"type": schema.StringAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "IP assignment mode for the node1 out-of-band management interface",
 								MarkdownDescription: "IP assignment mode for the node1 out-of-band management interface",
 								Validators: []validator.String{
@@ -1868,7 +1859,6 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "IP assignment mode for the out-of-band management interface",
 						MarkdownDescription: "IP assignment mode for the out-of-band management interface",
 						Validators: []validator.String{

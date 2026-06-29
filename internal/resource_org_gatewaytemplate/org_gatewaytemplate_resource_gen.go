@@ -911,13 +911,11 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "When enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
 								MarkdownDescription: "When enabled, all traffic that is not essential to our operation will be dropped\ne.g. ntp / dns / traffic to mist will be allowed by default\n     if dhcpd is enabled, we'll make sure it works",
 							},
 							"hit_count": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
 								Description:         "Whether to enable hit count for Protect_RE policy",
 								MarkdownDescription: "Whether to enable hit count for Protect_RE policy",
 							},
@@ -1360,7 +1358,6 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"enabled": schema.BoolAttribute{
 									Optional:            true,
-									Computed:            true,
 									Description:         "Whether multicast support is enabled for this network",
 									MarkdownDescription: "Whether multicast support is enabled for this network",
 								},
@@ -2183,7 +2180,6 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"poe_keep_state_when_reboot": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Whether Perpetual PoE capabilities are enabled for a port",
 							MarkdownDescription: "Whether Perpetual PoE capabilities are enabled for a port",
 						},

@@ -155,7 +155,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"auth_ttl": schema.Int64Attribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Cache TTL for last auth result in seconds",
 						MarkdownDescription: "Cache TTL for last auth result in seconds",
 						Validators: []validator.Int64{
@@ -180,7 +179,6 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Whether NAC Edge survivability is enabled for this cluster",
 						MarkdownDescription: "Whether NAC Edge survivability is enabled for this cluster",
 					},

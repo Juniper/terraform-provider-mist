@@ -726,7 +726,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"use_wpa3_on_5": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Whether to use WPA3 on the 5 GHz band for mesh links",
 						MarkdownDescription: "Whether to use WPA3 on the 5 GHz band for mesh links",
 					},
@@ -754,7 +753,6 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"broker_proto": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "MQTT broker transport protocol",
 						MarkdownDescription: "MQTT broker transport protocol",
 						Validators: []validator.String{
@@ -767,13 +765,11 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Whether to enable MQTT publishing",
 						MarkdownDescription: "Whether to enable MQTT publishing",
 					},
 					"format": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Payload format for published messages",
 						MarkdownDescription: "Payload format for published messages",
 						Validators: []validator.String{

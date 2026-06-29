@@ -185,7 +185,6 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"idp_sign_algo": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Signing algorithm expected for SAML assertions from the identity provider",
 						MarkdownDescription: "Signing algorithm expected for SAML assertions from the identity provider",
 						Validators: []validator.String{
