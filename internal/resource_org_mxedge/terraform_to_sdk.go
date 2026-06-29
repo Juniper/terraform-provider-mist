@@ -94,6 +94,7 @@ func TerraformToSdk(ctx context.Context, plan *OrgMxedgeModel) (*models.Mxedge, 
 		siteId, e := uuid.Parse(plan.SiteId.ValueString())
 		if e == nil {
 			data.SiteId = &siteId
+			data.ForSite = models.ToPointer(true)
 		} else {
 			diags.AddError("Bad value for site_id", e.Error())
 		}
