@@ -27,25 +27,29 @@ func OrgSsoRoleResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier for this organization SSO role",
+				MarkdownDescription: "Unique identifier for this organization SSO role",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the organization SSO role",
+				MarkdownDescription: "Display name of the organization SSO role",
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Owning organization identifier for this SSO role",
+				MarkdownDescription: "Owning organization identifier for this SSO role",
 			},
 			"privileges": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"role": schema.StringAttribute{
 							Required:            true,
-							Description:         "access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`",
-							MarkdownDescription: "access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`",
+							Description:         "Access role granted by this organization privilege",
+							MarkdownDescription: "Access role granted by this organization privilege",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -59,8 +63,8 @@ func OrgSsoRoleResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"scope": schema.StringAttribute{
 							Required:            true,
-							Description:         "enum: `org`, `site`, `sitegroup`, `orgsites`",
-							MarkdownDescription: "enum: `org`, `site`, `sitegroup`, `orgsites`",
+							Description:         "Organization hierarchy level where this privilege applies",
+							MarkdownDescription: "Organization hierarchy level where this privilege applies",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -93,8 +97,8 @@ func OrgSsoRoleResourceSchema(ctx context.Context) schema.Schema {
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  \nYou can define custom roles by adding the `views` attribute along with `role` when assigning privileges.  \nBelow are the list of supported UI views. Note that this is UI only feature.  \n\n  | UI View | Required Role | Description |\n  | --- | --- | --- |\n  | `reporting` | `read` | full access to all analytics tools |\n  | `marketing` | `read` | can view analytics and location maps |\n  | `super_observer` | `read` | can view all the organization except the subscription page |\n  | `location` | `write` | can view and manage location maps, can view analytics |\n  | `security` | `write` | can view and manage site labels, policies and security |\n  | `switch_admin` | `helpdesk` | can view and manage Switch ports, can view wired clients |\n  | `mxedge_admin` | `admin` | can view and manage Mist edges and Mist tunnels |\n  | `lobby_admin` | `admin` | full access to Org and Site Pre-shared keys |",
-							MarkdownDescription: "Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  \nYou can define custom roles by adding the `views` attribute along with `role` when assigning privileges.  \nBelow are the list of supported UI views. Note that this is UI only feature.  \n\n  | UI View | Required Role | Description |\n  | --- | --- | --- |\n  | `reporting` | `read` | full access to all analytics tools |\n  | `marketing` | `read` | can view analytics and location maps |\n  | `super_observer` | `read` | can view all the organization except the subscription page |\n  | `location` | `write` | can view and manage location maps, can view analytics |\n  | `security` | `write` | can view and manage site labels, policies and security |\n  | `switch_admin` | `helpdesk` | can view and manage Switch ports, can view wired clients |\n  | `mxedge_admin` | `admin` | can view and manage Mist edges and Mist tunnels |\n  | `lobby_admin` | `admin` | full access to Org and Site Pre-shared keys |",
+							Description:         "UI views allowed by custom role restrictions",
+							MarkdownDescription: "UI views allowed by custom role restrictions",
 						},
 					},
 					CustomType: PrivilegesType{
@@ -103,7 +107,9 @@ func OrgSsoRoleResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Required: true,
+				Required:            true,
+				Description:         "Access privileges granted by this organization SSO role",
+				MarkdownDescription: "Access privileges granted by this organization SSO role",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},

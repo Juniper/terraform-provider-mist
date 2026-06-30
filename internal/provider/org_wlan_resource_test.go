@@ -222,6 +222,9 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string, tracker *va
 	}
 
 	// Wireless features
+	if s.EnableFtm != nil {
+		checks.append(t, "TestCheckResourceAttr", "enable_ftm", fmt.Sprintf("%t", *s.EnableFtm))
+	}
 	if s.EnableLocalKeycaching != nil {
 		checks.append(t, "TestCheckResourceAttr", "enable_local_keycaching", fmt.Sprintf("%t", *s.EnableLocalKeycaching))
 	}
@@ -992,6 +995,9 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string, tracker *va
 		}
 		if s.Portal.SmsglobalApiSecret != nil {
 			checks.append(t, "TestCheckResourceAttr", "portal.smsglobal_api_secret", *s.Portal.SmsglobalApiSecret)
+		}
+		if s.Portal.SmsglobalSender != nil {
+			checks.append(t, "TestCheckResourceAttr", "portal.smsglobal_sender", *s.Portal.SmsglobalSender)
 		}
 
 		// Twilio settings

@@ -186,7 +186,6 @@ func TestIntegrationConfigureAPIToken(t *testing.T) {
 
 	testProvider.Configure(context.Background(), req, &resp)
 	assert.NotEmpty(t, resp.ResourceData.(mistapi.ClientInterface).Configuration().ApiTokenCredentials())
-	assert.Empty(t, resp.ResourceData.(mistapi.ClientInterface).Configuration().BasicAuthCredentials())
 	assert.Empty(t, resp.ResourceData.(mistapi.ClientInterface).Configuration().CsrfTokenCredentials())
 }
 
@@ -228,7 +227,6 @@ func TestIntegrationConfigureBasicAuth(t *testing.T) {
 
 	testProvider.Configure(context.Background(), req, &resp)
 	assert.Empty(t, resp.ResourceData.(mistapi.ClientInterface).Configuration().ApiTokenCredentials())
-	assert.NotEmpty(t, resp.ResourceData.(mistapi.ClientInterface).Configuration().BasicAuthCredentials())
 	assert.NotEmpty(t, resp.ResourceData.(mistapi.ClientInterface).Configuration().CsrfTokenCredentials())
 }
 

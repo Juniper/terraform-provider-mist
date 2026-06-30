@@ -48,20 +48,94 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "By default, API hides password/secrets when the user doesn't have write access\n  * `true`: API will hide passwords/secrets for all users\n  * `false`: API will hide passwords/secrets for read-only users",
 						MarkdownDescription: "By default, API hides password/secrets when the user doesn't have write access\n  * `true`: API will hide passwords/secrets for all users\n  * `false`: API will hide passwords/secrets for read-only users",
 					},
+					"src_ips": schema.ListAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						Description:         "Optional list of IP addresses or CIDR subnets from which org API access is allowed. At most 10 entries. The source IP of the request making this update must be within one of the specified subnets.",
+						MarkdownDescription: "Optional list of IP addresses or CIDR subnets from which org API access is allowed. At most 10 entries. The source IP of the request making this update must be within one of the specified subnets.",
+						Validators: []validator.List{
+							listvalidator.SizeAtMost(10),
+						},
+					},
 				},
 				CustomType: ApiPolicyType{
 					ObjectType: types.ObjectType{
 						AttrTypes: ApiPolicyValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Policy for hiding API secrets and passwords in responses",
+				MarkdownDescription: "Policy for hiding API secrets and passwords in responses",
+			},
+			"auto_upgrade": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"custom_versions": schema.MapAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						Description:         "Per-AP-model firmware versions or channels used for auto-upgrade",
+						MarkdownDescription: "Per-AP-model firmware versions or channels used for auto-upgrade",
+					},
+					"day_of_week": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Day of the week for the AP auto-upgrade maintenance window",
+						MarkdownDescription: "Day of the week for the AP auto-upgrade maintenance window",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"any",
+								"fri",
+								"mon",
+								"sat",
+								"sun",
+								"thu",
+								"tue",
+								"wed",
+							),
+						},
+					},
+					"enabled": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether AP auto-upgrade is enabled. Note that Mist may auto-upgrade APs if the running version is no longer supported.",
+						MarkdownDescription: "Whether AP auto-upgrade is enabled. Note that Mist may auto-upgrade APs if the running version is no longer supported.",
+						Default:             booldefault.StaticBool(false),
+					},
+					"time_of_day": schema.StringAttribute{
+						Optional:            true,
+						Description:         "`any` or HH:MM (24-hour format). Upgrade will happen within up to 1 hour from this time.",
+						MarkdownDescription: "`any` or HH:MM (24-hour format). Upgrade will happen within up to 1 hour from this time.",
+					},
+					"version": schema.StringAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Firmware release channel or specific version used for AP auto-upgrade",
+						MarkdownDescription: "Firmware release channel or specific version used for AP auto-upgrade",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"beta",
+								"custom",
+								"stable",
+							),
+						},
+						Default: stringdefault.StaticString("stable"),
+					},
+				},
+				CustomType: AutoUpgradeType{
+					ObjectType: types.ObjectType{
+						AttrTypes: AutoUpgradeValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "AP automatic firmware upgrade policy for the organization",
+				MarkdownDescription: "AP automatic firmware upgrade policy for the organization",
 			},
 			"cacerts": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "RADSec certificates for AP",
-				MarkdownDescription: "RADSec certificates for AP",
+				Description:         "CA certificates used by organization-level RADIUS and RADSec settings",
+				MarkdownDescription: "CA certificates used by organization-level RADIUS and RADSec settings",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
@@ -69,10 +143,14 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			"celona": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"api_key": schema.StringAttribute{
-						Required: true,
+						Required:            true,
+						Description:         "Credential used by Mist for the Celona integration",
+						MarkdownDescription: "Credential used by Mist for the Celona integration",
 					},
 					"api_prefix": schema.StringAttribute{
-						Required: true,
+						Required:            true,
+						Description:         "Celona API prefix configured for the integration",
+						MarkdownDescription: "Celona API prefix configured for the integration",
 					},
 				},
 				CustomType: CelonaType{
@@ -80,21 +158,25 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: CelonaValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Integration settings for Celona",
+				MarkdownDescription: "Integration settings for Celona",
 			},
 			"cloudshark": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"apitoken": schema.StringAttribute{
-						Optional:  true,
-						Computed:  true,
-						Sensitive: true,
-						Default:   stringdefault.StaticString(""),
+						Optional:            true,
+						Computed:            true,
+						Sensitive:           true,
+						Description:         "Token used by Mist to access the CloudShark integration",
+						MarkdownDescription: "Token used by Mist to access the CloudShark integration",
+						Default:             stringdefault.StaticString(""),
 					},
 					"url": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "If using CS Enterprise",
-						MarkdownDescription: "If using CS Enterprise",
+						Description:         "CloudShark Enterprise URL, if using a self-hosted CS Enterprise instance",
+						MarkdownDescription: "CloudShark Enterprise URL, if using a self-hosted CS Enterprise instance",
 						Default:             stringdefault.StaticString(""),
 					},
 				},
@@ -103,26 +185,38 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: CloudsharkValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Packet capture integration settings for CloudShark",
+				MarkdownDescription: "Packet capture integration settings for CloudShark",
 			},
 			"cradlepoint": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"cp_api_id": schema.StringAttribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Cradlepoint API ID used by Mist for the integration",
+						MarkdownDescription: "Cradlepoint API ID used by Mist for the integration",
 					},
 					"cp_api_key": schema.StringAttribute{
-						Computed:  true,
-						Sensitive: true,
+						Computed:            true,
+						Sensitive:           true,
+						Description:         "Cradlepoint API key paired with the Cradlepoint API ID",
+						MarkdownDescription: "Cradlepoint API key paired with the Cradlepoint API ID",
 					},
 					"ecm_api_id": schema.StringAttribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Cradlepoint ECM API ID used by Mist for the integration",
+						MarkdownDescription: "Cradlepoint ECM API ID used by Mist for the integration",
 					},
 					"ecm_api_key": schema.StringAttribute{
-						Computed:  true,
-						Sensitive: true,
+						Computed:            true,
+						Sensitive:           true,
+						Description:         "Cradlepoint ECM API key paired with the ECM API ID",
+						MarkdownDescription: "Cradlepoint ECM API key paired with the ECM API ID",
 					},
 					"enable_lldp": schema.BoolAttribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Whether Mist uses Cradlepoint LLDP data to link routers to Mist sites and devices",
+						MarkdownDescription: "Whether Mist uses Cradlepoint LLDP data to link routers to Mist sites and devices",
 					},
 				},
 				CustomType: CradlepointType{
@@ -130,16 +224,22 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: CradlepointValue{}.AttributeTypes(ctx),
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "Integration settings for Cradlepoint devices",
+				MarkdownDescription: "Integration settings for Cradlepoint devices",
 			},
 			"device_cert": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"cert": schema.StringAttribute{
-						Required: true,
+						Required:            true,
+						Description:         "PEM-encoded common device certificate used by organization settings",
+						MarkdownDescription: "PEM-encoded common device certificate used by organization settings",
 					},
 					"key": schema.StringAttribute{
-						Required:  true,
-						Sensitive: true,
+						Required:            true,
+						Sensitive:           true,
+						Description:         "Private key paired with the common device certificate",
+						MarkdownDescription: "Private key paired with the common device certificate",
 					},
 				},
 				CustomType: DeviceCertType{
@@ -148,8 +248,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "common device cert, optional",
-				MarkdownDescription: "common device cert, optional",
+				Description:         "Common device certificate used by organization settings",
+				MarkdownDescription: "Common device certificate used by organization settings",
 			},
 			"device_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
@@ -188,20 +288,28 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			"installer": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"allow_all_devices": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether installers may work with all eligible devices",
+						MarkdownDescription: "Whether installers may work with all eligible devices",
 					},
 					"allow_all_sites": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether installers may work with all sites",
+						MarkdownDescription: "Whether installers may work with all sites",
 					},
 					"extra_site_ids": schema.ListAttribute{
-						ElementType: types.StringType,
-						Optional:    true,
+						ElementType:         types.StringType,
+						Optional:            true,
+						Description:         "Additional site IDs that installers may access",
+						MarkdownDescription: "Additional site IDs that installers may access",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
 					},
 					"grace_period": schema.Int64Attribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Grace period, in days, during which installers can modify recent sites or devices",
+						MarkdownDescription: "Grace period, in days, during which installers can modify recent sites or devices",
 					},
 				},
 				CustomType: InstallerType{
@@ -209,24 +317,26 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: InstallerValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Access settings for organization installer workflows",
+				MarkdownDescription: "Access settings for organization installer workflows",
 			},
 			"jcloud": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"org_apitoken": schema.StringAttribute{
 						Required:            true,
-						Description:         "JCloud Org Token",
-						MarkdownDescription: "JCloud Org Token",
+						Description:         "JCloud organization API token used by this Mist organization",
+						MarkdownDescription: "JCloud organization API token used by this Mist organization",
 					},
 					"org_apitoken_name": schema.StringAttribute{
 						Required:            true,
-						Description:         "JCloud Org Token Name",
-						MarkdownDescription: "JCloud Org Token Name",
+						Description:         "Display name for the JCloud organization API token",
+						MarkdownDescription: "Display name for the JCloud organization API token",
 					},
 					"org_id": schema.StringAttribute{
 						Required:            true,
-						Description:         "JCloud Org ID",
-						MarkdownDescription: "JCloud Org ID",
+						Description:         "JCloud organization identifier linked to this Mist organization",
+						MarkdownDescription: "JCloud organization identifier linked to this Mist organization",
 					},
 				},
 				CustomType: JcloudType{
@@ -234,7 +344,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: JcloudValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Integration settings for JCloud",
+				MarkdownDescription: "Integration settings for JCloud",
 			},
 			"jcloud_ra": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -260,8 +372,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "JCloud Routing Assurance connexion",
-				MarkdownDescription: "JCloud Routing Assurance connexion",
+				Description:         "Routing Assurance integration settings for JCloud",
+				MarkdownDescription: "Routing Assurance integration settings for JCloud",
 			},
 			"juniper": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -269,10 +381,14 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"linked_by": schema.StringAttribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "User who linked this Juniper account",
+									MarkdownDescription: "User who linked this Juniper account",
 								},
 								"name": schema.StringAttribute{
-									Computed: true,
+									Computed:            true,
+									Description:         "Display name of the linked Juniper account",
+									MarkdownDescription: "Display name of the linked Juniper account",
 								},
 							},
 							CustomType: AccountsType{
@@ -281,7 +397,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Computed: true,
+						Computed:            true,
+						Description:         "List of linked Juniper account records",
+						MarkdownDescription: "List of linked Juniper account records",
 					},
 				},
 				CustomType: JuniperType{
@@ -289,7 +407,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: JuniperValue{}.AttributeTypes(ctx),
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "Linked Juniper account information for this organization",
+				MarkdownDescription: "Linked Juniper account information for this organization",
 			},
 			"juniper_srx": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -298,14 +418,18 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							"custom_versions": schema.MapAttribute{
 								ElementType:         types.StringType,
 								Optional:            true,
-								Description:         "Property key is the SRX Hardware model (e.g. \"SRX4600\")",
-								MarkdownDescription: "Property key is the SRX Hardware model (e.g. \"SRX4600\")",
+								Description:         "Per-SRX-model firmware versions to deploy instead of the default version",
+								MarkdownDescription: "Per-SRX-model firmware versions to deploy instead of the default version",
 							},
 							"enabled": schema.BoolAttribute{
-								Optional: true,
+								Optional:            true,
+								Description:         "Whether SRX auto-upgrade is enabled for newly onboarded devices",
+								MarkdownDescription: "Whether SRX auto-upgrade is enabled for newly onboarded devices",
 							},
 							"snapshot": schema.BoolAttribute{
-								Optional: true,
+								Optional:            true,
+								Description:         "Whether to take a snapshot during the SRX upgrade process",
+								MarkdownDescription: "Whether to take a snapshot during the SRX upgrade process",
 							},
 							"version": schema.StringAttribute{
 								Optional:            true,
@@ -319,8 +443,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "auto_upgrade device first time it is onboarded",
-						MarkdownDescription: "auto_upgrade device first time it is onboarded",
+						Description:         "SRX auto-upgrade settings applied when Juniper SRX devices are first onboarded",
+						MarkdownDescription: "SRX auto-upgrade settings applied when Juniper SRX devices are first onboarded",
 					},
 				},
 				CustomType: JuniperSrxType{
@@ -328,15 +452,17 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: JuniperSrxValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "SRX integration settings for Juniper devices",
+				MarkdownDescription: "SRX integration settings for Juniper devices",
 			},
 			"junos_shell_access": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"admin": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `admin`, `viewer`, `none`",
-						MarkdownDescription: "enum: `admin`, `viewer`, `none`",
+						Description:         "Shell access level used for administrator web-shell sessions",
+						MarkdownDescription: "Shell access level used for administrator web-shell sessions",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -350,8 +476,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"helpdesk": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `admin`, `viewer`, `none`",
-						MarkdownDescription: "enum: `admin`, `viewer`, `none`",
+						Description:         "Shell access level used for helpdesk web-shell sessions",
+						MarkdownDescription: "Shell access level used for helpdesk web-shell sessions",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -365,8 +491,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"read": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `admin`, `viewer`, `none`",
-						MarkdownDescription: "enum: `admin`, `viewer`, `none`",
+						Description:         "Shell access level used for read-only web-shell sessions",
+						MarkdownDescription: "Shell access level used for read-only web-shell sessions",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -380,8 +506,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"write": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `admin`, `viewer`, `none`",
-						MarkdownDescription: "enum: `admin`, `viewer`, `none`",
+						Description:         "Shell access level used for write-role web-shell sessions",
+						MarkdownDescription: "Shell access level used for write-role web-shell sessions",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -399,17 +525,28 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "junos_shell_access: Manages role-based web-shell access.  \nWhen junos_shell access is not defined (Default) - No additional users are configured and web-shell uses default `mist` user to login.  \nWhen junos_shell_access is defined - Additional users mist-web-admin (admin permission), mist-web-viewer(viewer permission) are configured on the device and web-shell logs in with the mist-web-admin/mist-web-viewer user depending upon the shell access level. Setting the shell access level to \"none\", disables web-shell access for that specific role.\n",
-				MarkdownDescription: "junos_shell_access: Manages role-based web-shell access.  \nWhen junos_shell access is not defined (Default) - No additional users are configured and web-shell uses default `mist` user to login.  \nWhen junos_shell_access is defined - Additional users mist-web-admin (admin permission), mist-web-viewer(viewer permission) are configured on the device and web-shell logs in with the mist-web-admin/mist-web-viewer user depending upon the shell access level. Setting the shell access level to \"none\", disables web-shell access for that specific role.\n",
+				Description:         "Role-based Junos web-shell access settings",
+				MarkdownDescription: "Role-based Junos web-shell access settings",
 			},
 			"marvis": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
+					"disable_proactive_monitoring": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Disable proactive monitoring in Marvis. NOTE: support access must be enabled for the org (`allow_mist`=`true`) for proactive monitoring to function.",
+						MarkdownDescription: "Disable proactive monitoring in Marvis. NOTE: support access must be enabled for the org (`allow_mist`=`true`) for proactive monitoring to function.",
+						Default:             booldefault.StaticBool(false),
+					},
 					"self_driving": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"wan": schema.SingleNestedAttribute{
 								Attributes: map[string]schema.Attribute{
 									"enabled": schema.BoolAttribute{
-										Optional: true,
+										Optional:            true,
+										Computed:            true,
+										Description:         "Whether self-driving automation is enabled for this domain",
+										MarkdownDescription: "Whether self-driving automation is enabled for this domain",
+										Default:             booldefault.StaticBool(false),
 									},
 								},
 								CustomType: WanType{
@@ -417,12 +554,18 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 										AttrTypes: WanValue{}.AttributeTypes(ctx),
 									},
 								},
-								Optional: true,
+								Optional:            true,
+								Description:         "Self-driving automation settings for the WAN domain",
+								MarkdownDescription: "Self-driving automation settings for the WAN domain",
 							},
 							"wired": schema.SingleNestedAttribute{
 								Attributes: map[string]schema.Attribute{
 									"enabled": schema.BoolAttribute{
-										Optional: true,
+										Optional:            true,
+										Computed:            true,
+										Description:         "Whether self-driving automation is enabled for this domain",
+										MarkdownDescription: "Whether self-driving automation is enabled for this domain",
+										Default:             booldefault.StaticBool(false),
 									},
 								},
 								CustomType: WiredType{
@@ -430,12 +573,18 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 										AttrTypes: WiredValue{}.AttributeTypes(ctx),
 									},
 								},
-								Optional: true,
+								Optional:            true,
+								Description:         "Self-driving automation settings for the wired domain",
+								MarkdownDescription: "Self-driving automation settings for the wired domain",
 							},
 							"wireless": schema.SingleNestedAttribute{
 								Attributes: map[string]schema.Attribute{
 									"enabled": schema.BoolAttribute{
-										Optional: true,
+										Optional:            true,
+										Computed:            true,
+										Description:         "Whether self-driving automation is enabled for this domain",
+										MarkdownDescription: "Whether self-driving automation is enabled for this domain",
+										Default:             booldefault.StaticBool(false),
 									},
 								},
 								CustomType: WirelessType{
@@ -443,7 +592,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 										AttrTypes: WirelessValue{}.AttributeTypes(ctx),
 									},
 								},
-								Optional: true,
+								Optional:            true,
+								Description:         "Self-driving automation settings for the wireless domain",
+								MarkdownDescription: "Self-driving automation settings for the wireless domain",
 							},
 						},
 						CustomType: SelfDrivingType{
@@ -452,8 +603,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Self-driving network automation settings per domain",
-						MarkdownDescription: "Self-driving network automation settings per domain",
+						Description:         "Self-driving network automation settings by domain",
+						MarkdownDescription: "Self-driving network automation settings by domain",
 					},
 				},
 				CustomType: MarvisType{
@@ -461,28 +612,34 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: MarvisValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "AI assistant and self-driving feature settings for Marvis",
+				MarkdownDescription: "AI assistant and self-driving feature settings for Marvis",
 			},
 			"mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"mxtunnel_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Description:         "List of Mist Tunnels",
-						MarkdownDescription: "List of Mist Tunnels",
+						Description:         "Mist Tunnel IDs selected for management connectivity",
+						MarkdownDescription: "Mist Tunnel IDs selected for management connectivity",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
 					},
 					"use_mxtunnel": schema.BoolAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Whether to use Mist Tunnel for mgmt connectivity, this takes precedence over use_wxtunnel",
 						MarkdownDescription: "Whether to use Mist Tunnel for mgmt connectivity, this takes precedence over use_wxtunnel",
+						Default:             booldefault.StaticBool(false),
 					},
 					"use_wxtunnel": schema.BoolAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Whether to use wxtunnel for mgmt connectivity",
 						MarkdownDescription: "Whether to use wxtunnel for mgmt connectivity",
+						Default:             booldefault.StaticBool(false),
 					},
 				},
 				CustomType: MgmtType{
@@ -491,22 +648,24 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "management-related properties",
-				MarkdownDescription: "management-related properties",
+				Description:         "Tunnel settings for organization management connectivity",
+				MarkdownDescription: "Tunnel settings for organization management connectivity",
 			},
 			"mist_nac": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"allow_teap_machine_auth_only": schema.BoolAttribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "allow clients to connect even when the user cert failed. TEAP authenticates both Machine Cert and User Cert. When enabled, clients who only succeed Machine Cert authentication will be accepted.",
 						MarkdownDescription: "allow clients to connect even when the user cert failed. TEAP authenticates both Machine Cert and User Cert. When enabled, clients who only succeed Machine Cert authentication will be accepted.",
+						Default:             booldefault.StaticBool(false),
 					},
 					"cacerts": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of PEM-encoded ca certs",
-						MarkdownDescription: "List of PEM-encoded ca certs",
+						Description:         "CA certificates trusted by Mist NAC for certificate-based authentication",
+						MarkdownDescription: "CA certificates trusted by Mist NAC for certificate-based authentication",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -531,30 +690,38 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"eu_only": schema.BoolAttribute{
 						Optional:            true,
-						Description:         "By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliance NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled",
-						MarkdownDescription: "By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliance NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled",
+						Computed:            true,
+						Description:         "By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliance NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, Mist Edge clusters that have mist_nac enabled",
+						MarkdownDescription: "By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliance NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, Mist Edge clusters that have mist_nac enabled",
+						Default:             booldefault.StaticBool(false),
 					},
 					"fingerprinting": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
+								Computed:            true,
 								Description:         "enable/disable writes to NAC DDB fingerprint table",
 								MarkdownDescription: "enable/disable writes to NAC DDB fingerprint table",
+								Default:             booldefault.StaticBool(false),
 							},
 							"generate_coa": schema.BoolAttribute{
 								Optional:            true,
+								Computed:            true,
 								Description:         "enable/disable CoA triggers on fingerprint change for wired clients, always port-bounce",
 								MarkdownDescription: "enable/disable CoA triggers on fingerprint change for wired clients, always port-bounce",
+								Default:             booldefault.StaticBool(false),
 							},
 							"generate_wireless_coa": schema.BoolAttribute{
 								Optional:            true,
+								Computed:            true,
 								Description:         "enable/disable CoA triggers on fingerprint change for wireless clients",
 								MarkdownDescription: "enable/disable CoA triggers on fingerprint change for wireless clients",
+								Default:             booldefault.StaticBool(false),
 							},
 							"wireless_coa_type": schema.StringAttribute{
 								Optional:            true,
-								Description:         "enum: `reauth`, `disconnect`",
-								MarkdownDescription: "enum: `reauth`, `disconnect`",
+								Description:         "Change of Authorization action sent to wireless clients when fingerprints change",
+								MarkdownDescription: "Change of Authorization action sent to wireless clients when fingerprints change",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -570,13 +737,13 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Allows customer to enable client fingerprinting for policy enforcement",
-						MarkdownDescription: "Allows customer to enable client fingerprinting for policy enforcement",
+						Description:         "Client fingerprinting settings used by Mist NAC",
+						MarkdownDescription: "Client fingerprinting settings used by Mist NAC",
 					},
 					"idp_machine_cert_lookup_field": schema.StringAttribute{
 						Optional:            true,
-						Description:         "allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup. enum: `automatic`, `cn`, `dns`",
-						MarkdownDescription: "allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup. enum: `automatic`, `cn`, `dns`",
+						Description:         "Client certificate field used to look up machine groups in identity providers",
+						MarkdownDescription: "Client certificate field used to look up machine groups in identity providers",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -588,8 +755,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"idp_user_cert_lookup_field": schema.StringAttribute{
 						Optional:            true,
-						Description:         "allow customer to choose the EAP-TLS client certificate's field. To use for IDP User Groups lookup. enum: `automatic`, `cn`, `email`, `upn`",
-						MarkdownDescription: "allow customer to choose the EAP-TLS client certificate's field. To use for IDP User Groups lookup. enum: `automatic`, `cn`, `email`, `upn`",
+						Description:         "Client certificate field used to look up user groups in identity providers",
+						MarkdownDescription: "Client certificate field used to look up user groups in identity providers",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -606,8 +773,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"exclude_realms": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "When the IDP of mxedge_proxy type, exclude the following realms from proxying in addition to other valid home realms in this org",
-									MarkdownDescription: "When the IDP of mxedge_proxy type, exclude the following realms from proxying in addition to other valid home realms in this org",
+									Description:         "When the IDP is `mxedge_proxy` type, realms excluded from proxying in addition to other valid home realms in this org",
+									MarkdownDescription: "When the IDP is `mxedge_proxy` type, realms excluded from proxying in addition to other valid home realms in this org",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
@@ -620,8 +787,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"user_realms": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Required:            true,
-									Description:         "Which realm should trigger this IDP. User Realm is extracted from:\n  * Username-AVP (`mist.com` from john@mist.com)\n  * Cert CN",
-									MarkdownDescription: "Which realm should trigger this IDP. User Realm is extracted from:\n  * Username-AVP (`mist.com` from john@mist.com)\n  * Cert CN",
+									Description:         "User realms that select this identity provider",
+									MarkdownDescription: "User realms that select this identity provider",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
@@ -633,8 +800,10 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Identity provider mappings used by Mist NAC realm matching",
+						MarkdownDescription: "Identity provider mappings used by Mist NAC realm matching",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 							mistvalidator.RequiredWhenValueIsNotNull(path.MatchRelative().AtParent().AtName("default_idp_id")),
@@ -644,8 +813,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"coa_type": schema.StringAttribute{
 								Optional:            true,
-								Description:         "CoA type to send. enum: `reauth`, `disconnect`",
-								MarkdownDescription: "CoA type to send. enum: `reauth`, `disconnect`",
+								Computed:            true,
+								Description:         "Change of Authorization action sent for MDM posture changes",
+								MarkdownDescription: "Change of Authorization action sent for MDM posture changes",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -653,6 +823,7 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 										"disconnect",
 									),
 								},
+								Default: stringdefault.StaticString("reauth"),
 							},
 						},
 						CustomType: MdmType{
@@ -661,23 +832,27 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "MDM (Mobile Device Management) CoA configuration",
-						MarkdownDescription: "MDM (Mobile Device Management) CoA configuration",
+						Description:         "Mobile Device Management CoA settings for Mist NAC",
+						MarkdownDescription: "Mobile Device Management CoA settings for Mist NAC",
 					},
 					"server_cert": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"cert": schema.StringAttribute{
-								Optional: true,
+								Optional:            true,
+								Description:         "PEM-encoded RADIUS server certificate presented during EAP-TLS",
+								MarkdownDescription: "PEM-encoded RADIUS server certificate presented during EAP-TLS",
 							},
 							"key": schema.StringAttribute{
-								Optional:  true,
-								Sensitive: true,
+								Optional:            true,
+								Sensitive:           true,
+								Description:         "Private key paired with the Mist NAC RADIUS server certificate",
+								MarkdownDescription: "Private key paired with the Mist NAC RADIUS server certificate",
 							},
 							"password": schema.StringAttribute{
 								Optional:            true,
 								Sensitive:           true,
-								Description:         "private key password (optional)",
-								MarkdownDescription: "private key password (optional)",
+								Description:         "Optional password for the private key",
+								MarkdownDescription: "Optional password for the private key",
 							},
 						},
 						CustomType: ServerCertType{
@@ -686,13 +861,13 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "radius server cert to be presented in EAP TLS",
-						MarkdownDescription: "radius server cert to be presented in EAP TLS",
+						Description:         "RADIUS server certificate presented by Mist NAC during EAP-TLS",
+						MarkdownDescription: "RADIUS server certificate presented by Mist NAC during EAP-TLS",
 					},
 					"use_ip_version": schema.StringAttribute{
 						Optional:            true,
-						Description:         "by default, NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`",
-						MarkdownDescription: "by default, NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`",
+						Description:         "IP version used by NAS devices and Mist Edge proxies to reach Mist NAC",
+						MarkdownDescription: "IP version used by NAS devices and Mist Edge proxies to reach Mist NAC",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -722,25 +897,34 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: MistNacValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "NAC settings for Mist Access Assurance",
+				MarkdownDescription: "NAC settings for Mist Access Assurance",
 			},
 			"mxedge_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"config_auto_revert": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether the Mist Edge automatically reverts configuration changes if connectivity is lost",
+						MarkdownDescription: "Whether the Mist Edge automatically reverts configuration changes if connectivity is lost",
 					},
 					"fips_enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether FIPS mode is enabled on the Mist Edge",
+						MarkdownDescription: "Whether FIPS mode is enabled on the Mist Edge",
+						Default:             booldefault.StaticBool(false),
 					},
 					"mist_password": schema.StringAttribute{
-						Optional:  true,
-						Sensitive: true,
+						Optional:            true,
+						Sensitive:           true,
+						Description:         "Password for the Mist service account on the Mist Edge",
+						MarkdownDescription: "Password for the Mist service account on the Mist Edge",
 					},
 					"oob_ip_type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `dhcp`, `disabled`, `static`",
-						MarkdownDescription: "enum: `dhcp`, `disabled`, `static`",
+						Description:         "IPv4 address assignment mode for out-of-band management",
+						MarkdownDescription: "IPv4 address assignment mode for out-of-band management",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -752,8 +936,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"oob_ip_type6": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `autoconf`, `dhcp`, `disabled`, `static`",
-						MarkdownDescription: "enum: `autoconf`, `dhcp`, `disabled`, `static`",
+						Description:         "IPv6 address assignment mode for out-of-band management",
+						MarkdownDescription: "IPv6 address assignment mode for out-of-band management",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -765,8 +949,10 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"root_password": schema.StringAttribute{
-						Optional:  true,
-						Sensitive: true,
+						Optional:            true,
+						Sensitive:           true,
+						Description:         "Root account password for the Mist Edge",
+						MarkdownDescription: "Root account password for the Mist Edge",
 					},
 				},
 				CustomType: MxedgeMgmtType{
@@ -774,15 +960,19 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: MxedgeMgmtValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Management settings for Mist Edge devices",
+				MarkdownDescription: "Management settings for Mist Edge devices",
 			},
 			"optic_port_config": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"channelized": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "Enable channelization",
-							MarkdownDescription: "Enable channelization",
+							Computed:            true,
+							Description:         "Whether channelization is enabled on this optic port",
+							MarkdownDescription: "Whether channelization is enabled on this optic port",
+							Default:             booldefault.StaticBool(false),
 						},
 						"speed": schema.StringAttribute{
 							Optional:            true,
@@ -797,14 +987,16 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the interface name or range (e.g. `et-0/0/47`, `et-0/0/48-49`)",
-				MarkdownDescription: "Property key is the interface name or range (e.g. `et-0/0/47`, `et-0/0/48-49`)",
+				Description:         "Configuration defaults for optic ports",
+				MarkdownDescription: "Configuration defaults for optic ports",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Organization that owns these settings",
+				MarkdownDescription: "Organization that owns these settings",
 			},
 			"password_policy": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -826,8 +1018,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"min_length": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Required password length",
-						MarkdownDescription: "Required password length",
+						Description:         "Minimum number of characters required for passwords",
+						MarkdownDescription: "Minimum number of characters required for passwords",
 						Default:             int64default.StaticInt64(8),
 					},
 					"requires_special_char": schema.BoolAttribute{
@@ -851,18 +1043,20 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "password policy",
-				MarkdownDescription: "password policy",
+				Description:         "Admin credential policy settings for the organization",
+				MarkdownDescription: "Admin credential policy settings for the organization",
 			},
 			"pcap": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"bucket": schema.StringAttribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Storage bucket name used for organization packet capture files",
+						MarkdownDescription: "Storage bucket name used for organization packet capture files",
 					},
 					"max_pkt_len": schema.Int64Attribute{
 						Computed:            true,
-						Description:         "Max_len of non-management packets to capture",
-						MarkdownDescription: "Max_len of non-management packets to capture",
+						Description:         "Maximum length of non-management packets to capture, in bytes",
+						MarkdownDescription: "Maximum length of non-management packets to capture, in bytes",
 						Validators: []validator.Int64{
 							int64validator.AtMost(128),
 						},
@@ -873,7 +1067,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: PcapValue{}.AttributeTypes(ctx),
 					},
 				},
-				Computed: true,
+				Computed:            true,
+				Description:         "Packet capture settings for the organization",
+				MarkdownDescription: "Packet capture settings for the organization",
 			},
 			"security": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -901,15 +1097,17 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: SecurityValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Organization security controls such as local SSH restrictions",
+				MarkdownDescription: "Organization security controls such as local SSH restrictions",
 			},
 			"ssr": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"conductor_hosts": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Description:         "List of Conductor IP Addresses or Hosts to be used by the SSR Devices",
-						MarkdownDescription: "List of Conductor IP Addresses or Hosts to be used by the SSR Devices",
+						Description:         "IP addresses or hostnames of conductors used by SSR devices",
+						MarkdownDescription: "IP addresses or hostnames of conductors used by SSR devices",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -917,23 +1115,27 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"conductor_token": schema.StringAttribute{
 						Optional:            true,
 						Sensitive:           true,
-						Description:         "Token to be used by the SSR Devices to connect to the Conductor",
-						MarkdownDescription: "Token to be used by the SSR Devices to connect to the Conductor",
+						Description:         "Registration token used by SSR devices to connect to the conductor",
+						MarkdownDescription: "Registration token used by SSR devices to connect to the conductor",
 					},
 					"disable_stats": schema.BoolAttribute{
 						Optional:            true,
-						Description:         "Disable stats collection on SSR devices",
-						MarkdownDescription: "Disable stats collection on SSR devices",
+						Description:         "Whether stats collection is disabled on SSR devices",
+						MarkdownDescription: "Whether stats collection is disabled on SSR devices",
 					},
 					"proxy": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"disabled": schema.BoolAttribute{
-								Optional: true,
-								Computed: true,
-								Default:  booldefault.StaticBool(false),
+								Optional:            true,
+								Computed:            true,
+								Description:         "Whether the SSR proxy configuration is disabled",
+								MarkdownDescription: "Whether the SSR proxy configuration is disabled",
+								Default:             booldefault.StaticBool(false),
 							},
 							"url": schema.StringAttribute{
-								Optional: true,
+								Optional:            true,
+								Description:         "Proxy URL that SSR devices use to reach Mist",
+								MarkdownDescription: "Proxy URL that SSR devices use to reach Mist",
 							},
 						},
 						CustomType: ProxyType{
@@ -942,15 +1144,15 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "SSR proxy configuration to talk to Mist",
-						MarkdownDescription: "SSR proxy configuration to talk to Mist",
+						Description:         "Network proxy settings used by SSR devices to reach Mist",
+						MarkdownDescription: "Network proxy settings used by SSR devices to reach Mist",
 					},
 					"auto_upgrade": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"channel": schema.StringAttribute{
 								Optional:            true,
-								Description:         "upgrade channel to follow. enum: `alpha`, `beta`, `stable`",
-								MarkdownDescription: "upgrade channel to follow. enum: `alpha`, `beta`, `stable`",
+								Description:         "Firmware release channel used for SSR auto-upgrade",
+								MarkdownDescription: "Firmware release channel used for SSR auto-upgrade",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -963,11 +1165,13 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							"custom_versions": schema.MapAttribute{
 								ElementType:         types.StringType,
 								Optional:            true,
-								Description:         "Property key is the SSR model (e.g. \"SSR130\").",
-								MarkdownDescription: "Property key is the SSR model (e.g. \"SSR130\").",
+								Description:         "Per-model SSR firmware versions used for auto-upgrade",
+								MarkdownDescription: "Per-model SSR firmware versions used for auto-upgrade",
 							},
 							"enabled": schema.BoolAttribute{
-								Optional: true,
+								Optional:            true,
+								Description:         "Whether SSR auto-upgrade is enabled for newly onboarded devices",
+								MarkdownDescription: "Whether SSR auto-upgrade is enabled for newly onboarded devices",
 							},
 							"version": schema.StringAttribute{
 								Optional:            true,
@@ -981,8 +1185,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "auto_upgrade device first time it is onboarded",
-						MarkdownDescription: "auto_upgrade device first time it is onboarded",
+						Description:         "Automatic SSR firmware upgrade settings for newly onboarded devices",
+						MarkdownDescription: "Automatic SSR firmware upgrade settings for newly onboarded devices",
 					},
 				},
 				CustomType: SsrType{
@@ -990,7 +1194,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: SsrValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Session Smart Router settings for the organization",
+				MarkdownDescription: "Session Smart Router settings for the organization",
 			},
 			"switch": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -999,28 +1205,28 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							"custom_versions": schema.MapAttribute{
 								ElementType:         types.StringType,
 								Optional:            true,
-								Description:         "Custom version to be used. The Property Key is the switch hardware and the property value is the firmware version",
-								MarkdownDescription: "Custom version to be used. The Property Key is the switch hardware and the property value is the firmware version",
+								Description:         "Per-model switch firmware versions to use for auto-upgrade",
+								MarkdownDescription: "Per-model switch firmware versions to use for auto-upgrade",
 							},
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
-								Description:         "Enable auto upgrade for the switch",
-								MarkdownDescription: "Enable auto upgrade for the switch",
+								Description:         "Whether switch auto-upgrade is enabled",
+								MarkdownDescription: "Whether switch auto-upgrade is enabled",
 							},
 							"snapshot": schema.BoolAttribute{
 								Optional:            true,
-								Computed:            true,
-								Description:         "Enable snapshot during the upgrade process",
-								MarkdownDescription: "Enable snapshot during the upgrade process",
-								Default:             booldefault.StaticBool(false),
+								Description:         "Whether to create a recovery snapshot during the upgrade process",
+								MarkdownDescription: "Whether to create a recovery snapshot during the upgrade process",
 							},
 						},
-						CustomType: AutoUpgradeType{
+						CustomType: SwitchAutoUpgradeType{
 							ObjectType: types.ObjectType{
-								AttrTypes: AutoUpgradeValue{}.AttributeTypes(ctx),
+								AttrTypes: SwitchAutoUpgradeValue{}.AttributeTypes(ctx),
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "Auto-upgrade defaults for switches in this organization",
+						MarkdownDescription: "Auto-upgrade defaults for switches in this organization",
 					},
 				},
 				CustomType: SwitchType{
@@ -1028,7 +1234,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: SwitchValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Configuration defaults for switches in this organization",
+				MarkdownDescription: "Configuration defaults for switches in this organization",
 			},
 			"switch_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1045,7 +1253,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: SwitchMgmtValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Management settings for switches in this organization",
+				MarkdownDescription: "Management settings for switches in this organization",
 			},
 			"switch_updown_threshold": schema.Int64Attribute{
 				Optional:            true,
@@ -1057,8 +1267,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"aggressiveness": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `auto`, `high`, `low`",
-						MarkdownDescription: "enum: `auto`, `high`, `low`",
+						Description:         "Overall aggressiveness level for synthetic test probes",
+						MarkdownDescription: "Overall aggressiveness level for synthetic test probes",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1076,8 +1286,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"aggressiveness": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "enum: `auto`, `high`, `low`",
-									MarkdownDescription: "enum: `auto`, `high`, `low`",
+									Description:         "Probe aggressiveness level for this custom synthetic probe",
+									MarkdownDescription: "Probe aggressiveness level for this custom synthetic probe",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -1096,14 +1306,14 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"threshold": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "In milliseconds",
-									MarkdownDescription: "In milliseconds",
+									Description:         "Response-time threshold for this custom probe, in milliseconds",
+									MarkdownDescription: "Response-time threshold for this custom probe, in milliseconds",
 								},
 								"type": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "enum: `application`, `curl`, `icmp`, `reachability`, `tcp`",
-									MarkdownDescription: "enum: `application`, `curl`, `icmp`, `reachability`, `tcp`",
+									Description:         "Probe type used by this custom synthetic probe",
+									MarkdownDescription: "Probe type used by this custom synthetic probe",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -1124,16 +1334,18 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Custom probes to be used for synthetic tests",
-						MarkdownDescription: "Custom probes to be used for synthetic tests",
+						Description:         "Custom synthetic probe definitions keyed by probe name",
+						MarkdownDescription: "Custom synthetic probe definitions keyed by probe name",
 						Validators: []validator.Map{
 							mapvalidator.SizeAtLeast(1),
 						},
 					},
 					"disabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether synthetic tests are disabled",
+						MarkdownDescription: "Whether synthetic tests are disabled",
+						Default:             booldefault.StaticBool(false),
 					},
 					"lan_networks": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -1141,8 +1353,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"networks": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "List of networks to be used for synthetic tests",
-									MarkdownDescription: "List of networks to be used for synthetic tests",
+									Description:         "LAN network names where synthetic probes are run",
+									MarkdownDescription: "LAN network names where synthetic probes are run",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
@@ -1150,8 +1362,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"probes": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "app name comes from `custom_probes` above or /const/synthetic_test_probes",
-									MarkdownDescription: "app name comes from `custom_probes` above or /const/synthetic_test_probes",
+									Description:         "Synthetic probe names to run on the listed LAN networks",
+									MarkdownDescription: "Synthetic probe names to run on the listed LAN networks",
 								},
 							},
 							CustomType: LanNetworksType{
@@ -1161,17 +1373,19 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "List of networks to be used for synthetic tests",
-						MarkdownDescription: "List of networks to be used for synthetic tests",
+						Description:         "LAN network probe groups used by synthetic tests",
+						MarkdownDescription: "LAN network probe groups used by synthetic tests",
 					},
 					"vlans": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"custom_test_urls": schema.ListAttribute{
-									ElementType:        types.StringType,
-									Optional:           true,
-									Computed:           true,
-									DeprecationMessage: "This attribute is deprecated.",
+									ElementType:         types.StringType,
+									Optional:            true,
+									Computed:            true,
+									Description:         "Deprecated custom URLs tested by VLAN-based synthetic probes",
+									MarkdownDescription: "Deprecated custom URLs tested by VLAN-based synthetic probes",
+									DeprecationMessage:  "This attribute is deprecated.",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
@@ -1186,16 +1400,18 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"probes": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "app name comes from `custom_probes` above or /const/synthetic_test_probes",
-									MarkdownDescription: "app name comes from `custom_probes` above or /const/synthetic_test_probes",
+									Description:         "Synthetic probe names to run for the listed VLANs",
+									MarkdownDescription: "Synthetic probe names to run for the listed VLANs",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
 								},
 								"vlan_ids": schema.ListAttribute{
-									ElementType: types.StringType,
-									Optional:    true,
-									Computed:    true,
+									ElementType:         types.StringType,
+									Optional:            true,
+									Computed:            true,
+									Description:         "VLAN identifiers where synthetic probes are run",
+									MarkdownDescription: "VLAN identifiers where synthetic probes are run",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 										listvalidator.ValueStringsAre(
@@ -1213,8 +1429,10 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional:           true,
-						DeprecationMessage: "This attribute is deprecated.",
+						Optional:            true,
+						Description:         "Deprecated VLAN-based synthetic test settings",
+						MarkdownDescription: "Deprecated VLAN-based synthetic test settings",
+						DeprecationMessage:  "This attribute is deprecated.",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -1222,13 +1440,15 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"wan_speedtest": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"enabled": schema.BoolAttribute{
-								Optional: true,
+								Optional:            true,
+								Description:         "Whether scheduled WAN speedtests are enabled",
+								MarkdownDescription: "Whether scheduled WAN speedtests are enabled",
 							},
 							"time_of_day": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "`any` / HH:MM (24-hour format)",
-								MarkdownDescription: "`any` / HH:MM (24-hour format)",
+								Description:         "Scheduled time of day for WAN speedtests",
+								MarkdownDescription: "Scheduled time of day for WAN speedtests",
 								Default:             stringdefault.StaticString("any"),
 							},
 						},
@@ -1237,7 +1457,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								AttrTypes: WanSpeedtestValue{}.AttributeTypes(ctx),
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "WAN speedtest settings for synthetic tests",
+						MarkdownDescription: "WAN speedtest settings for synthetic tests",
 					},
 				},
 				CustomType: SyntheticTestType{
@@ -1245,7 +1467,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: SyntheticTestValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Configuration for organization synthetic tests",
+				MarkdownDescription: "Configuration for organization synthetic tests",
 			},
 			"ui_idle_timeout": schema.Int64Attribute{
 				Optional:            true,
@@ -1258,20 +1482,26 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				Default: int64default.StaticInt64(0),
 			},
 			"ui_no_tracking": schema.BoolAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Whether UI usage tracking is disabled for the organization",
+				MarkdownDescription: "Whether UI usage tracking is disabled for the organization",
 			},
 			"vpn_options": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"as_base": schema.Int64Attribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Base BGP autonomous system number used for generated VPN configurations",
+						MarkdownDescription: "Base BGP autonomous system number used for generated VPN configurations",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 2147483647),
 						},
 					},
 					"enable_ipv6": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether IPv6 is enabled for organization VPN configuration",
+						MarkdownDescription: "Whether IPv6 is enabled for organization VPN configuration",
+						Default:             booldefault.StaticBool(false),
 					},
 					"st_subnet": schema.StringAttribute{
 						Optional:            true,
@@ -1286,14 +1516,18 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: VpnOptionsValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Options for organization VPN behavior",
+				MarkdownDescription: "Options for organization VPN behavior",
 			},
 			"wan_pma": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether PMA is enabled for WAN Assurance",
+						MarkdownDescription: "Whether PMA is enabled for WAN Assurance",
+						Default:             booldefault.StaticBool(false),
 					},
 				},
 				CustomType: WanPmaType{
@@ -1301,14 +1535,18 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: WanPmaValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "PMA feature settings for WAN Assurance",
+				MarkdownDescription: "PMA feature settings for WAN Assurance",
 			},
 			"wired_pma": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether PMA is enabled for Wired Assurance",
+						MarkdownDescription: "Whether PMA is enabled for Wired Assurance",
+						Default:             booldefault.StaticBool(false),
 					},
 				},
 				CustomType: WiredPmaType{
@@ -1316,14 +1554,18 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: WiredPmaValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "PMA feature settings for Wired Assurance",
+				MarkdownDescription: "PMA feature settings for Wired Assurance",
 			},
 			"wireless_pma": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(true),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether PMA is enabled for Wireless Assurance",
+						MarkdownDescription: "Whether PMA is enabled for Wireless Assurance",
+						Default:             booldefault.StaticBool(true),
 					},
 				},
 				CustomType: WirelessPmaType{
@@ -1331,7 +1573,9 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: WirelessPmaValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "PMA feature settings for Wireless Assurance",
+				MarkdownDescription: "PMA feature settings for Wireless Assurance",
 			},
 		},
 	}
@@ -1341,6 +1585,7 @@ type OrgSettingModel struct {
 	AllowMist                    types.Bool            `tfsdk:"allow_mist"`
 	ApUpdownThreshold            types.Int64           `tfsdk:"ap_updown_threshold"`
 	ApiPolicy                    ApiPolicyValue        `tfsdk:"api_policy"`
+	AutoUpgrade                  AutoUpgradeValue      `tfsdk:"auto_upgrade"`
 	Cacerts                      types.List            `tfsdk:"cacerts"`
 	Celona                       CelonaValue           `tfsdk:"celona"`
 	Cloudshark                   CloudsharkValue       `tfsdk:"cloudshark"`
@@ -1422,12 +1667,31 @@ func (t ApiPolicyType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`no_reveal expected to be basetypes.BoolValue, was: %T`, noRevealAttribute))
 	}
 
+	srcIpsAttribute, ok := attributes["src_ips"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`src_ips is missing from object`)
+
+		return nil, diags
+	}
+
+	srcIpsVal, ok := srcIpsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`src_ips expected to be basetypes.ListValue, was: %T`, srcIpsAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return ApiPolicyValue{
 		NoReveal: noRevealVal,
+		SrcIps:   srcIpsVal,
 		state:    attr.ValueStateKnown,
 	}, diags
 }
@@ -1513,12 +1777,31 @@ func NewApiPolicyValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`no_reveal expected to be basetypes.BoolValue, was: %T`, noRevealAttribute))
 	}
 
+	srcIpsAttribute, ok := attributes["src_ips"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`src_ips is missing from object`)
+
+		return NewApiPolicyValueUnknown(), diags
+	}
+
+	srcIpsVal, ok := srcIpsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`src_ips expected to be basetypes.ListValue, was: %T`, srcIpsAttribute))
+	}
+
 	if diags.HasError() {
 		return NewApiPolicyValueUnknown(), diags
 	}
 
 	return ApiPolicyValue{
 		NoReveal: noRevealVal,
+		SrcIps:   srcIpsVal,
 		state:    attr.ValueStateKnown,
 	}, diags
 }
@@ -1592,22 +1875,26 @@ var _ basetypes.ObjectValuable = ApiPolicyValue{}
 
 type ApiPolicyValue struct {
 	NoReveal basetypes.BoolValue `tfsdk:"no_reveal"`
+	SrcIps   basetypes.ListValue `tfsdk:"src_ips"`
 	state    attr.ValueState
 }
 
 func (v ApiPolicyValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 1)
+	attrTypes := make(map[string]tftypes.Type, 2)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["no_reveal"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["src_ips"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 1)
+		vals := make(map[string]tftypes.Value, 2)
 
 		val, err = v.NoReveal.ToTerraformValue(ctx)
 
@@ -1616,6 +1903,14 @@ func (v ApiPolicyValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 		}
 
 		vals["no_reveal"] = val
+
+		val, err = v.SrcIps.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["src_ips"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -1646,8 +1941,32 @@ func (v ApiPolicyValue) String() string {
 func (v ApiPolicyValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var srcIpsVal basetypes.ListValue
+	switch {
+	case v.SrcIps.IsUnknown():
+		srcIpsVal = types.ListUnknown(types.StringType)
+	case v.SrcIps.IsNull():
+		srcIpsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		srcIpsVal, d = types.ListValue(types.StringType, v.SrcIps.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"no_reveal": basetypes.BoolType{},
+			"src_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
 		"no_reveal": basetypes.BoolType{},
+		"src_ips": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 	}
 
 	if v.IsNull() {
@@ -1662,6 +1981,7 @@ func (v ApiPolicyValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		attributeTypes,
 		map[string]attr.Value{
 			"no_reveal": v.NoReveal,
+			"src_ips":   srcIpsVal,
 		})
 
 	return objVal, diags
@@ -1686,6 +2006,10 @@ func (v ApiPolicyValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.SrcIps.Equal(other.SrcIps) {
+		return false
+	}
+
 	return true
 }
 
@@ -1700,6 +2024,583 @@ func (v ApiPolicyValue) Type(ctx context.Context) attr.Type {
 func (v ApiPolicyValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"no_reveal": basetypes.BoolType{},
+		"src_ips": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+}
+
+var _ basetypes.ObjectTypable = AutoUpgradeType{}
+
+type AutoUpgradeType struct {
+	basetypes.ObjectType
+}
+
+func (t AutoUpgradeType) Equal(o attr.Type) bool {
+	other, ok := o.(AutoUpgradeType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t AutoUpgradeType) String() string {
+	return "AutoUpgradeType"
+}
+
+func (t AutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	customVersionsAttribute, ok := attributes["custom_versions"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`custom_versions is missing from object`)
+
+		return nil, diags
+	}
+
+	customVersionsVal, ok := customVersionsAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`custom_versions expected to be basetypes.MapValue, was: %T`, customVersionsAttribute))
+	}
+
+	dayOfWeekAttribute, ok := attributes["day_of_week"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`day_of_week is missing from object`)
+
+		return nil, diags
+	}
+
+	dayOfWeekVal, ok := dayOfWeekAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`day_of_week expected to be basetypes.StringValue, was: %T`, dayOfWeekAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	timeOfDayAttribute, ok := attributes["time_of_day"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`time_of_day is missing from object`)
+
+		return nil, diags
+	}
+
+	timeOfDayVal, ok := timeOfDayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`time_of_day expected to be basetypes.StringValue, was: %T`, timeOfDayAttribute))
+	}
+
+	versionAttribute, ok := attributes["version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`version is missing from object`)
+
+		return nil, diags
+	}
+
+	versionVal, ok := versionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`version expected to be basetypes.StringValue, was: %T`, versionAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return AutoUpgradeValue{
+		CustomVersions: customVersionsVal,
+		DayOfWeek:      dayOfWeekVal,
+		Enabled:        enabledVal,
+		TimeOfDay:      timeOfDayVal,
+		Version:        versionVal,
+		state:          attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAutoUpgradeValueNull() AutoUpgradeValue {
+	return AutoUpgradeValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewAutoUpgradeValueUnknown() AutoUpgradeValue {
+	return AutoUpgradeValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AutoUpgradeValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing AutoUpgradeValue Attribute Value",
+				"While creating a AutoUpgradeValue value, a missing attribute value was detected. "+
+					"A AutoUpgradeValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AutoUpgradeValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid AutoUpgradeValue Attribute Type",
+				"While creating a AutoUpgradeValue value, an invalid attribute value was detected. "+
+					"A AutoUpgradeValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("AutoUpgradeValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("AutoUpgradeValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra AutoUpgradeValue Attribute Value",
+				"While creating a AutoUpgradeValue value, an extra attribute value was detected. "+
+					"A AutoUpgradeValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra AutoUpgradeValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewAutoUpgradeValueUnknown(), diags
+	}
+
+	customVersionsAttribute, ok := attributes["custom_versions"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`custom_versions is missing from object`)
+
+		return NewAutoUpgradeValueUnknown(), diags
+	}
+
+	customVersionsVal, ok := customVersionsAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`custom_versions expected to be basetypes.MapValue, was: %T`, customVersionsAttribute))
+	}
+
+	dayOfWeekAttribute, ok := attributes["day_of_week"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`day_of_week is missing from object`)
+
+		return NewAutoUpgradeValueUnknown(), diags
+	}
+
+	dayOfWeekVal, ok := dayOfWeekAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`day_of_week expected to be basetypes.StringValue, was: %T`, dayOfWeekAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewAutoUpgradeValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	timeOfDayAttribute, ok := attributes["time_of_day"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`time_of_day is missing from object`)
+
+		return NewAutoUpgradeValueUnknown(), diags
+	}
+
+	timeOfDayVal, ok := timeOfDayAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`time_of_day expected to be basetypes.StringValue, was: %T`, timeOfDayAttribute))
+	}
+
+	versionAttribute, ok := attributes["version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`version is missing from object`)
+
+		return NewAutoUpgradeValueUnknown(), diags
+	}
+
+	versionVal, ok := versionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`version expected to be basetypes.StringValue, was: %T`, versionAttribute))
+	}
+
+	if diags.HasError() {
+		return NewAutoUpgradeValueUnknown(), diags
+	}
+
+	return AutoUpgradeValue{
+		CustomVersions: customVersionsVal,
+		DayOfWeek:      dayOfWeekVal,
+		Enabled:        enabledVal,
+		TimeOfDay:      timeOfDayVal,
+		Version:        versionVal,
+		state:          attr.ValueStateKnown,
+	}, diags
+}
+
+func NewAutoUpgradeValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AutoUpgradeValue {
+	object, diags := NewAutoUpgradeValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewAutoUpgradeValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t AutoUpgradeType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewAutoUpgradeValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewAutoUpgradeValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewAutoUpgradeValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewAutoUpgradeValueMust(AutoUpgradeValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t AutoUpgradeType) ValueType(ctx context.Context) attr.Value {
+	return AutoUpgradeValue{}
+}
+
+var _ basetypes.ObjectValuable = AutoUpgradeValue{}
+
+type AutoUpgradeValue struct {
+	CustomVersions basetypes.MapValue    `tfsdk:"custom_versions"`
+	DayOfWeek      basetypes.StringValue `tfsdk:"day_of_week"`
+	Enabled        basetypes.BoolValue   `tfsdk:"enabled"`
+	TimeOfDay      basetypes.StringValue `tfsdk:"time_of_day"`
+	Version        basetypes.StringValue `tfsdk:"version"`
+	state          attr.ValueState
+}
+
+func (v AutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 5)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["custom_versions"] = basetypes.MapType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["day_of_week"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["time_of_day"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["version"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 5)
+
+		val, err = v.CustomVersions.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["custom_versions"] = val
+
+		val, err = v.DayOfWeek.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["day_of_week"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.TimeOfDay.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["time_of_day"] = val
+
+		val, err = v.Version.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["version"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v AutoUpgradeValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v AutoUpgradeValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v AutoUpgradeValue) String() string {
+	return "AutoUpgradeValue"
+}
+
+func (v AutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var customVersionsVal basetypes.MapValue
+	switch {
+	case v.CustomVersions.IsUnknown():
+		customVersionsVal = types.MapUnknown(types.StringType)
+	case v.CustomVersions.IsNull():
+		customVersionsVal = types.MapNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		customVersionsVal, d = types.MapValue(types.StringType, v.CustomVersions.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"custom_versions": basetypes.MapType{
+				ElemType: types.StringType,
+			},
+			"day_of_week": basetypes.StringType{},
+			"enabled":     basetypes.BoolType{},
+			"time_of_day": basetypes.StringType{},
+			"version":     basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"custom_versions": basetypes.MapType{
+			ElemType: types.StringType,
+		},
+		"day_of_week": basetypes.StringType{},
+		"enabled":     basetypes.BoolType{},
+		"time_of_day": basetypes.StringType{},
+		"version":     basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"custom_versions": customVersionsVal,
+			"day_of_week":     v.DayOfWeek,
+			"enabled":         v.Enabled,
+			"time_of_day":     v.TimeOfDay,
+			"version":         v.Version,
+		})
+
+	return objVal, diags
+}
+
+func (v AutoUpgradeValue) Equal(o attr.Value) bool {
+	other, ok := o.(AutoUpgradeValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.CustomVersions.Equal(other.CustomVersions) {
+		return false
+	}
+
+	if !v.DayOfWeek.Equal(other.DayOfWeek) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.TimeOfDay.Equal(other.TimeOfDay) {
+		return false
+	}
+
+	if !v.Version.Equal(other.Version) {
+		return false
+	}
+
+	return true
+}
+
+func (v AutoUpgradeValue) Type(ctx context.Context) attr.Type {
+	return AutoUpgradeType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v AutoUpgradeValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"custom_versions": basetypes.MapType{
+			ElemType: types.StringType,
+		},
+		"day_of_week": basetypes.StringType{},
+		"enabled":     basetypes.BoolType{},
+		"time_of_day": basetypes.StringType{},
+		"version":     basetypes.StringType{},
 	}
 }
 
@@ -6891,6 +7792,24 @@ func (t MarvisType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 
 	attributes := in.Attributes()
 
+	disableProactiveMonitoringAttribute, ok := attributes["disable_proactive_monitoring"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_proactive_monitoring is missing from object`)
+
+		return nil, diags
+	}
+
+	disableProactiveMonitoringVal, ok := disableProactiveMonitoringAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_proactive_monitoring expected to be basetypes.BoolValue, was: %T`, disableProactiveMonitoringAttribute))
+	}
+
 	selfDrivingAttribute, ok := attributes["self_driving"]
 
 	if !ok {
@@ -6914,8 +7833,9 @@ func (t MarvisType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 	}
 
 	return MarvisValue{
-		SelfDriving: selfDrivingVal,
-		state:       attr.ValueStateKnown,
+		DisableProactiveMonitoring: disableProactiveMonitoringVal,
+		SelfDriving:                selfDrivingVal,
+		state:                      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -6982,6 +7902,24 @@ func NewMarvisValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewMarvisValueUnknown(), diags
 	}
 
+	disableProactiveMonitoringAttribute, ok := attributes["disable_proactive_monitoring"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_proactive_monitoring is missing from object`)
+
+		return NewMarvisValueUnknown(), diags
+	}
+
+	disableProactiveMonitoringVal, ok := disableProactiveMonitoringAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_proactive_monitoring expected to be basetypes.BoolValue, was: %T`, disableProactiveMonitoringAttribute))
+	}
+
 	selfDrivingAttribute, ok := attributes["self_driving"]
 
 	if !ok {
@@ -7005,8 +7943,9 @@ func NewMarvisValue(attributeTypes map[string]attr.Type, attributes map[string]a
 	}
 
 	return MarvisValue{
-		SelfDriving: selfDrivingVal,
-		state:       attr.ValueStateKnown,
+		DisableProactiveMonitoring: disableProactiveMonitoringVal,
+		SelfDriving:                selfDrivingVal,
+		state:                      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -7078,16 +8017,18 @@ func (t MarvisType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = MarvisValue{}
 
 type MarvisValue struct {
-	SelfDriving basetypes.ObjectValue `tfsdk:"self_driving"`
-	state       attr.ValueState
+	DisableProactiveMonitoring basetypes.BoolValue   `tfsdk:"disable_proactive_monitoring"`
+	SelfDriving                basetypes.ObjectValue `tfsdk:"self_driving"`
+	state                      attr.ValueState
 }
 
 func (v MarvisValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 1)
+	attrTypes := make(map[string]tftypes.Type, 2)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["disable_proactive_monitoring"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["self_driving"] = basetypes.ObjectType{
 		AttrTypes: SelfDrivingValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
@@ -7096,7 +8037,15 @@ func (v MarvisValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 1)
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.DisableProactiveMonitoring.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disable_proactive_monitoring"] = val
 
 		val, err = v.SelfDriving.ToTerraformValue(ctx)
 
@@ -7157,6 +8106,7 @@ func (v MarvisValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	}
 
 	attributeTypes := map[string]attr.Type{
+		"disable_proactive_monitoring": basetypes.BoolType{},
 		"self_driving": basetypes.ObjectType{
 			AttrTypes: SelfDrivingValue{}.AttributeTypes(ctx),
 		},
@@ -7173,7 +8123,8 @@ func (v MarvisValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"self_driving": selfDriving,
+			"disable_proactive_monitoring": v.DisableProactiveMonitoring,
+			"self_driving":                 selfDriving,
 		})
 
 	return objVal, diags
@@ -7194,6 +8145,10 @@ func (v MarvisValue) Equal(o attr.Value) bool {
 		return true
 	}
 
+	if !v.DisableProactiveMonitoring.Equal(other.DisableProactiveMonitoring) {
+		return false
+	}
+
 	if !v.SelfDriving.Equal(other.SelfDriving) {
 		return false
 	}
@@ -7211,6 +8166,7 @@ func (v MarvisValue) Type(ctx context.Context) attr.Type {
 
 func (v MarvisValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"disable_proactive_monitoring": basetypes.BoolType{},
 		"self_driving": basetypes.ObjectType{
 			AttrTypes: SelfDrivingValue{}.AttributeTypes(ctx),
 		},
@@ -16054,7 +17010,7 @@ func (t SwitchType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 
 	attributes := in.Attributes()
 
-	autoUpgradeAttribute, ok := attributes["auto_upgrade"]
+	switchAutoUpgradeAttribute, ok := attributes["auto_upgrade"]
 
 	if !ok {
 		diags.AddError(
@@ -16064,12 +17020,12 @@ func (t SwitchType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 		return nil, diags
 	}
 
-	autoUpgradeVal, ok := autoUpgradeAttribute.(basetypes.ObjectValue)
+	switchAutoUpgradeVal, ok := switchAutoUpgradeAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`auto_upgrade expected to be basetypes.ObjectValue, was: %T`, autoUpgradeAttribute))
+			fmt.Sprintf(`auto_upgrade expected to be basetypes.ObjectValue, was: %T`, switchAutoUpgradeAttribute))
 	}
 
 	if diags.HasError() {
@@ -16077,8 +17033,8 @@ func (t SwitchType) ValueFromObject(ctx context.Context, in basetypes.ObjectValu
 	}
 
 	return SwitchValue{
-		AutoUpgrade: autoUpgradeVal,
-		state:       attr.ValueStateKnown,
+		SwitchAutoUpgrade: switchAutoUpgradeVal,
+		state:             attr.ValueStateKnown,
 	}, diags
 }
 
@@ -16145,7 +17101,7 @@ func NewSwitchValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewSwitchValueUnknown(), diags
 	}
 
-	autoUpgradeAttribute, ok := attributes["auto_upgrade"]
+	switchAutoUpgradeAttribute, ok := attributes["auto_upgrade"]
 
 	if !ok {
 		diags.AddError(
@@ -16155,12 +17111,12 @@ func NewSwitchValue(attributeTypes map[string]attr.Type, attributes map[string]a
 		return NewSwitchValueUnknown(), diags
 	}
 
-	autoUpgradeVal, ok := autoUpgradeAttribute.(basetypes.ObjectValue)
+	switchAutoUpgradeVal, ok := switchAutoUpgradeAttribute.(basetypes.ObjectValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`auto_upgrade expected to be basetypes.ObjectValue, was: %T`, autoUpgradeAttribute))
+			fmt.Sprintf(`auto_upgrade expected to be basetypes.ObjectValue, was: %T`, switchAutoUpgradeAttribute))
 	}
 
 	if diags.HasError() {
@@ -16168,8 +17124,8 @@ func NewSwitchValue(attributeTypes map[string]attr.Type, attributes map[string]a
 	}
 
 	return SwitchValue{
-		AutoUpgrade: autoUpgradeVal,
-		state:       attr.ValueStateKnown,
+		SwitchAutoUpgrade: switchAutoUpgradeVal,
+		state:             attr.ValueStateKnown,
 	}, diags
 }
 
@@ -16241,8 +17197,8 @@ func (t SwitchType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SwitchValue{}
 
 type SwitchValue struct {
-	AutoUpgrade basetypes.ObjectValue `tfsdk:"auto_upgrade"`
-	state       attr.ValueState
+	SwitchAutoUpgrade basetypes.ObjectValue `tfsdk:"auto_upgrade"`
+	state             attr.ValueState
 }
 
 func (v SwitchValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
@@ -16252,7 +17208,7 @@ func (v SwitchValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	var err error
 
 	attrTypes["auto_upgrade"] = basetypes.ObjectType{
-		AttrTypes: AutoUpgradeValue{}.AttributeTypes(ctx),
+		AttrTypes: SwitchAutoUpgradeValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -16261,7 +17217,7 @@ func (v SwitchValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 1)
 
-		val, err = v.AutoUpgrade.ToTerraformValue(ctx)
+		val, err = v.SwitchAutoUpgrade.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -16298,30 +17254,30 @@ func (v SwitchValue) String() string {
 func (v SwitchValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
-	var autoUpgrade basetypes.ObjectValue
+	var switchAutoUpgrade basetypes.ObjectValue
 
-	if v.AutoUpgrade.IsNull() {
-		autoUpgrade = types.ObjectNull(
-			AutoUpgradeValue{}.AttributeTypes(ctx),
+	if v.SwitchAutoUpgrade.IsNull() {
+		switchAutoUpgrade = types.ObjectNull(
+			SwitchAutoUpgradeValue{}.AttributeTypes(ctx),
 		)
 	}
 
-	if v.AutoUpgrade.IsUnknown() {
-		autoUpgrade = types.ObjectUnknown(
-			AutoUpgradeValue{}.AttributeTypes(ctx),
+	if v.SwitchAutoUpgrade.IsUnknown() {
+		switchAutoUpgrade = types.ObjectUnknown(
+			SwitchAutoUpgradeValue{}.AttributeTypes(ctx),
 		)
 	}
 
-	if !v.AutoUpgrade.IsNull() && !v.AutoUpgrade.IsUnknown() {
-		autoUpgrade = types.ObjectValueMust(
-			AutoUpgradeValue{}.AttributeTypes(ctx),
-			v.AutoUpgrade.Attributes(),
+	if !v.SwitchAutoUpgrade.IsNull() && !v.SwitchAutoUpgrade.IsUnknown() {
+		switchAutoUpgrade = types.ObjectValueMust(
+			SwitchAutoUpgradeValue{}.AttributeTypes(ctx),
+			v.SwitchAutoUpgrade.Attributes(),
 		)
 	}
 
 	attributeTypes := map[string]attr.Type{
 		"auto_upgrade": basetypes.ObjectType{
-			AttrTypes: AutoUpgradeValue{}.AttributeTypes(ctx),
+			AttrTypes: SwitchAutoUpgradeValue{}.AttributeTypes(ctx),
 		},
 	}
 
@@ -16336,7 +17292,7 @@ func (v SwitchValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, 
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"auto_upgrade": autoUpgrade,
+			"auto_upgrade": switchAutoUpgrade,
 		})
 
 	return objVal, diags
@@ -16357,7 +17313,7 @@ func (v SwitchValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.AutoUpgrade.Equal(other.AutoUpgrade) {
+	if !v.SwitchAutoUpgrade.Equal(other.SwitchAutoUpgrade) {
 		return false
 	}
 
@@ -16375,19 +17331,19 @@ func (v SwitchValue) Type(ctx context.Context) attr.Type {
 func (v SwitchValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"auto_upgrade": basetypes.ObjectType{
-			AttrTypes: AutoUpgradeValue{}.AttributeTypes(ctx),
+			AttrTypes: SwitchAutoUpgradeValue{}.AttributeTypes(ctx),
 		},
 	}
 }
 
-var _ basetypes.ObjectTypable = AutoUpgradeType{}
+var _ basetypes.ObjectTypable = SwitchAutoUpgradeType{}
 
-type AutoUpgradeType struct {
+type SwitchAutoUpgradeType struct {
 	basetypes.ObjectType
 }
 
-func (t AutoUpgradeType) Equal(o attr.Type) bool {
-	other, ok := o.(AutoUpgradeType)
+func (t SwitchAutoUpgradeType) Equal(o attr.Type) bool {
+	other, ok := o.(SwitchAutoUpgradeType)
 
 	if !ok {
 		return false
@@ -16396,11 +17352,11 @@ func (t AutoUpgradeType) Equal(o attr.Type) bool {
 	return t.ObjectType.Equal(other.ObjectType)
 }
 
-func (t AutoUpgradeType) String() string {
-	return "AutoUpgradeType"
+func (t SwitchAutoUpgradeType) String() string {
+	return "SwitchAutoUpgradeType"
 }
 
-func (t AutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+func (t SwitchAutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
@@ -16463,7 +17419,7 @@ func (t AutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		return nil, diags
 	}
 
-	return AutoUpgradeValue{
+	return SwitchAutoUpgradeValue{
 		CustomVersions: customVersionsVal,
 		Enabled:        enabledVal,
 		Snapshot:       snapshotVal,
@@ -16471,19 +17427,19 @@ func (t AutoUpgradeType) ValueFromObject(ctx context.Context, in basetypes.Objec
 	}, diags
 }
 
-func NewAutoUpgradeValueNull() AutoUpgradeValue {
-	return AutoUpgradeValue{
+func NewSwitchAutoUpgradeValueNull() SwitchAutoUpgradeValue {
+	return SwitchAutoUpgradeValue{
 		state: attr.ValueStateNull,
 	}
 }
 
-func NewAutoUpgradeValueUnknown() AutoUpgradeValue {
-	return AutoUpgradeValue{
+func NewSwitchAutoUpgradeValueUnknown() SwitchAutoUpgradeValue {
+	return SwitchAutoUpgradeValue{
 		state: attr.ValueStateUnknown,
 	}
 }
 
-func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (AutoUpgradeValue, diag.Diagnostics) {
+func NewSwitchAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (SwitchAutoUpgradeValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
@@ -16494,11 +17450,11 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 
 		if !ok {
 			diags.AddError(
-				"Missing AutoUpgradeValue Attribute Value",
-				"While creating a AutoUpgradeValue value, a missing attribute value was detected. "+
-					"A AutoUpgradeValue must contain values for all attributes, even if null or unknown. "+
+				"Missing SwitchAutoUpgradeValue Attribute Value",
+				"While creating a SwitchAutoUpgradeValue value, a missing attribute value was detected. "+
+					"A SwitchAutoUpgradeValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("AutoUpgradeValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("SwitchAutoUpgradeValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -16506,12 +17462,12 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid AutoUpgradeValue Attribute Type",
-				"While creating a AutoUpgradeValue value, an invalid attribute value was detected. "+
-					"A AutoUpgradeValue must use a matching attribute type for the value. "+
+				"Invalid SwitchAutoUpgradeValue Attribute Type",
+				"While creating a SwitchAutoUpgradeValue value, an invalid attribute value was detected. "+
+					"A SwitchAutoUpgradeValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("AutoUpgradeValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("AutoUpgradeValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("SwitchAutoUpgradeValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("SwitchAutoUpgradeValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -16521,17 +17477,17 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 
 		if !ok {
 			diags.AddError(
-				"Extra AutoUpgradeValue Attribute Value",
-				"While creating a AutoUpgradeValue value, an extra attribute value was detected. "+
-					"A AutoUpgradeValue must not contain values beyond the expected attribute types. "+
+				"Extra SwitchAutoUpgradeValue Attribute Value",
+				"While creating a SwitchAutoUpgradeValue value, an extra attribute value was detected. "+
+					"A SwitchAutoUpgradeValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra AutoUpgradeValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra SwitchAutoUpgradeValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewAutoUpgradeValueUnknown(), diags
+		return NewSwitchAutoUpgradeValueUnknown(), diags
 	}
 
 	customVersionsAttribute, ok := attributes["custom_versions"]
@@ -16541,7 +17497,7 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 			"Attribute Missing",
 			`custom_versions is missing from object`)
 
-		return NewAutoUpgradeValueUnknown(), diags
+		return NewSwitchAutoUpgradeValueUnknown(), diags
 	}
 
 	customVersionsVal, ok := customVersionsAttribute.(basetypes.MapValue)
@@ -16559,7 +17515,7 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 			"Attribute Missing",
 			`enabled is missing from object`)
 
-		return NewAutoUpgradeValueUnknown(), diags
+		return NewSwitchAutoUpgradeValueUnknown(), diags
 	}
 
 	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
@@ -16577,7 +17533,7 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 			"Attribute Missing",
 			`snapshot is missing from object`)
 
-		return NewAutoUpgradeValueUnknown(), diags
+		return NewSwitchAutoUpgradeValueUnknown(), diags
 	}
 
 	snapshotVal, ok := snapshotAttribute.(basetypes.BoolValue)
@@ -16589,10 +17545,10 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 	}
 
 	if diags.HasError() {
-		return NewAutoUpgradeValueUnknown(), diags
+		return NewSwitchAutoUpgradeValueUnknown(), diags
 	}
 
-	return AutoUpgradeValue{
+	return SwitchAutoUpgradeValue{
 		CustomVersions: customVersionsVal,
 		Enabled:        enabledVal,
 		Snapshot:       snapshotVal,
@@ -16600,8 +17556,8 @@ func NewAutoUpgradeValue(attributeTypes map[string]attr.Type, attributes map[str
 	}, diags
 }
 
-func NewAutoUpgradeValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) AutoUpgradeValue {
-	object, diags := NewAutoUpgradeValue(attributeTypes, attributes)
+func NewSwitchAutoUpgradeValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) SwitchAutoUpgradeValue {
+	object, diags := NewSwitchAutoUpgradeValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -16615,15 +17571,15 @@ func NewAutoUpgradeValueMust(attributeTypes map[string]attr.Type, attributes map
 				diagnostic.Detail()))
 		}
 
-		panic("NewAutoUpgradeValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewSwitchAutoUpgradeValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t AutoUpgradeType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t SwitchAutoUpgradeType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewAutoUpgradeValueNull(), nil
+		return NewSwitchAutoUpgradeValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -16631,11 +17587,11 @@ func (t AutoUpgradeType) ValueFromTerraform(ctx context.Context, in tftypes.Valu
 	}
 
 	if !in.IsKnown() {
-		return NewAutoUpgradeValueUnknown(), nil
+		return NewSwitchAutoUpgradeValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewAutoUpgradeValueNull(), nil
+		return NewSwitchAutoUpgradeValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -16658,23 +17614,23 @@ func (t AutoUpgradeType) ValueFromTerraform(ctx context.Context, in tftypes.Valu
 		attributes[k] = a
 	}
 
-	return NewAutoUpgradeValueMust(AutoUpgradeValue{}.AttributeTypes(ctx), attributes), nil
+	return NewSwitchAutoUpgradeValueMust(SwitchAutoUpgradeValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t AutoUpgradeType) ValueType(ctx context.Context) attr.Value {
-	return AutoUpgradeValue{}
+func (t SwitchAutoUpgradeType) ValueType(ctx context.Context) attr.Value {
+	return SwitchAutoUpgradeValue{}
 }
 
-var _ basetypes.ObjectValuable = AutoUpgradeValue{}
+var _ basetypes.ObjectValuable = SwitchAutoUpgradeValue{}
 
-type AutoUpgradeValue struct {
+type SwitchAutoUpgradeValue struct {
 	CustomVersions basetypes.MapValue  `tfsdk:"custom_versions"`
 	Enabled        basetypes.BoolValue `tfsdk:"enabled"`
 	Snapshot       basetypes.BoolValue `tfsdk:"snapshot"`
 	state          attr.ValueState
 }
 
-func (v AutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+func (v SwitchAutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
@@ -16730,19 +17686,19 @@ func (v AutoUpgradeValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	}
 }
 
-func (v AutoUpgradeValue) IsNull() bool {
+func (v SwitchAutoUpgradeValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v AutoUpgradeValue) IsUnknown() bool {
+func (v SwitchAutoUpgradeValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v AutoUpgradeValue) String() string {
-	return "AutoUpgradeValue"
+func (v SwitchAutoUpgradeValue) String() string {
+	return "SwitchAutoUpgradeValue"
 }
 
-func (v AutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v SwitchAutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	var customVersionsVal basetypes.MapValue
@@ -16794,8 +17750,8 @@ func (v AutoUpgradeValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 	return objVal, diags
 }
 
-func (v AutoUpgradeValue) Equal(o attr.Value) bool {
-	other, ok := o.(AutoUpgradeValue)
+func (v SwitchAutoUpgradeValue) Equal(o attr.Value) bool {
+	other, ok := o.(SwitchAutoUpgradeValue)
 
 	if !ok {
 		return false
@@ -16824,15 +17780,15 @@ func (v AutoUpgradeValue) Equal(o attr.Value) bool {
 	return true
 }
 
-func (v AutoUpgradeValue) Type(ctx context.Context) attr.Type {
-	return AutoUpgradeType{
+func (v SwitchAutoUpgradeValue) Type(ctx context.Context) attr.Type {
+	return SwitchAutoUpgradeType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v AutoUpgradeValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v SwitchAutoUpgradeValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"custom_versions": basetypes.MapType{
 			ElemType: types.StringType,

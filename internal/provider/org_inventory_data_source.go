@@ -119,6 +119,7 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 		deviceType = ds.Type.ValueString()
 	}
 
+	var disconnectedBefore int
 	var limit = 1000
 	var page = 0
 	var total = 9999
@@ -133,7 +134,7 @@ func (d *orgInventoryDataSource) Read(ctx context.Context, req datasource.ReadRe
 			"total": total,
 		})
 		// Read API call logic
-		data, err := d.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, &deviceType, &mac, siteId, &vcMac, &vc, &unassigned, &modifiedAfter, &limit, &page)
+		data, err := d.client.OrgsInventory().GetOrgInventory(ctx, orgId, &serial, &model, &deviceType, &mac, siteId, &vcMac, &vc, &unassigned, &modifiedAfter, &disconnectedBefore, &limit, &page)
 		if err != nil {
 			resp.Diagnostics.AddError(
 				"Error getting Org Inventory",

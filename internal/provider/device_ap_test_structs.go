@@ -20,6 +20,7 @@ type DeviceApModel struct {
 	Locked           *bool                              `hcl:"locked"`
 	MapId            *string                            `hcl:"map_id"`
 	Mesh             *DeviceApMeshValue                 `hcl:"mesh"`
+	MqttConfig       *DeviceApMqttConfigValue           `hcl:"mqtt_config"`
 	Name             string                             `hcl:"name"`
 	Notes            *string                            `hcl:"notes"`
 	NtpServers       []string                           `hcl:"ntp_servers"`
@@ -136,6 +137,16 @@ type DeviceApMeshValue struct {
 	Group      *int64   `cty:"group" hcl:"group"`
 	Role       *string  `cty:"role" hcl:"role"`
 	UseWpa3On5 *bool    `cty:"use_wpa3_on_5" hcl:"use_wpa3_on_5"`
+}
+
+type DeviceApMqttConfigValue struct {
+	BrokerHost  *string `cty:"broker_host" hcl:"broker_host"`
+	BrokerPort  *int64  `cty:"broker_port" hcl:"broker_port"`
+	BrokerProto *string `cty:"broker_proto" hcl:"broker_proto"`
+	Enabled     *bool   `cty:"enabled" hcl:"enabled"`
+	Format      *string `cty:"format" hcl:"format"`
+	Password    *string `cty:"password" hcl:"password"`
+	Username    *string `cty:"username" hcl:"username"`
 }
 
 type DeviceApPortConfigValue struct {

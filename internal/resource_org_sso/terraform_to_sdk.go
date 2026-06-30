@@ -1,6 +1,8 @@
 package resource_org_sso
 
 import (
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -81,6 +83,24 @@ func TerraformToSdk(plan *OrgSsoModel) (*models.Sso, diag.Diagnostics) {
 		data.RoleAttrFrom = plan.RoleAttrFrom.ValueStringPointer()
 	} else {
 		unset["-role_attr_from"] = ""
+	}
+
+	if !plan.OpenroamingSsids.IsNull() && !plan.OpenroamingSsids.IsUnknown() {
+		data.OpenroamingSsids = mistutils.ListOfStringTerraformToSdk(plan.OpenroamingSsids)
+	} else {
+		unset["-openroaming_ssids"] = ""
+	}
+
+	if !plan.OpenroamingWbaClientCert.IsNull() && !plan.OpenroamingWbaClientCert.IsUnknown() {
+		data.OpenroamingWbaClientCert = plan.OpenroamingWbaClientCert.ValueStringPointer()
+	} else {
+		unset["-openroaming_wba_client_cert"] = ""
+	}
+
+	if !plan.OpenroamingWbaClientKey.IsNull() && !plan.OpenroamingWbaClientKey.IsUnknown() {
+		data.OpenroamingWbaClientKey = plan.OpenroamingWbaClientKey.ValueStringPointer()
+	} else {
+		unset["-openroaming_wba_client_key"] = ""
 	}
 
 	data.AdditionalProperties = unset

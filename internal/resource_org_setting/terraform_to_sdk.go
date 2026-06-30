@@ -26,6 +26,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-api_policy"] = ""
 	}
 
+	if !plan.AutoUpgrade.IsNull() && !plan.AutoUpgrade.IsUnknown() {
+		data.AutoUpgrade = autoUpgradeTerraformToSdk(plan.AutoUpgrade)
+	} else {
+		unset["-auto_upgrade"] = ""
+	}
+
 	if !plan.Cacerts.IsNull() && !plan.Cacerts.IsUnknown() {
 		data.Cacerts = mistutils.ListOfStringTerraformToSdk(plan.Cacerts)
 	} else {

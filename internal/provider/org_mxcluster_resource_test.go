@@ -370,5 +370,33 @@ func (o *OrgMxclusterModel) testChecks(t testing.TB, rType, tName string, tracke
 		}
 	}
 
+	// Check mist_nacedge
+	if o.MistNacedge != nil {
+		if o.MistNacedge.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nacedge.enabled", fmt.Sprintf("%t", *o.MistNacedge.Enabled))
+		}
+		if o.MistNacedge.AuthTtl != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nacedge.auth_ttl", fmt.Sprintf("%d", *o.MistNacedge.AuthTtl))
+		}
+		if o.MistNacedge.DefaultVlan != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nacedge.default_vlan", *o.MistNacedge.DefaultVlan)
+		}
+		if o.MistNacedge.DefaultDot1xVlan != nil {
+			checks.append(t, "TestCheckResourceAttr", "mist_nacedge.default_dot1x_vlan", *o.MistNacedge.DefaultDot1xVlan)
+		}
+		if len(o.MistNacedge.CachingSiteIds) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "mist_nacedge.caching_site_ids.#", fmt.Sprintf("%d", len(o.MistNacedge.CachingSiteIds)))
+			for i, id := range o.MistNacedge.CachingSiteIds {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mist_nacedge.caching_site_ids.%d", i), id)
+			}
+		}
+		if len(o.MistNacedge.NacEdgeHosts) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "mist_nacedge.nac_edge_hosts.#", fmt.Sprintf("%d", len(o.MistNacedge.NacEdgeHosts)))
+			for i, host := range o.MistNacedge.NacEdgeHosts {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mist_nacedge.nac_edge_hosts.%d", i), host)
+			}
+		}
+	}
+
 	return checks
 }

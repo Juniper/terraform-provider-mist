@@ -26,6 +26,7 @@
   disable_wmm = true
   dtim = 3
   enable_local_keycaching = true
+  enable_ftm = true
   enable_wireless_bridging = true
   enable_wireless_bridging_dhcp_tracking = true
   fast_dot1x_timers = true

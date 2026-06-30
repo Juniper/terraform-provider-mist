@@ -18,8 +18,8 @@ func OrgNacPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 			"alignment": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "defines alignment on portal. enum: `center`, `left`, `right`",
-				MarkdownDescription: "defines alignment on portal. enum: `center`, `left`, `right`",
+				Description:         "Text and content alignment for the NAC portal page",
+				MarkdownDescription: "Text and content alignment for the NAC portal page",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -30,8 +30,10 @@ func OrgNacPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"color": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "Primary color used by the NAC portal template",
+				MarkdownDescription: "Primary color used by the NAC portal template",
 			},
 			"logo": schema.StringAttribute{
 				Optional:            true,

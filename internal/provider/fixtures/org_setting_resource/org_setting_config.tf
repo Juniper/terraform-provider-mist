@@ -17,6 +17,17 @@
     no_reveal = true
   }
 
+  auto_upgrade {
+    enabled     = true
+    day_of_week = "tue"
+    time_of_day = "03:00"
+    version     = "stable"
+    custom_versions = {
+      "AP41" = "stable"
+      "AP43" = "0.12.28140"
+    }
+  }
+
   celona {
     api_key    = "celona_api_key_example"
     api_prefix = "celona_api_prefix_example"
@@ -53,6 +64,7 @@
   }
 
   marvis {
+    disable_proactive_monitoring = true
     self_driving {
       wan {
         enabled = true

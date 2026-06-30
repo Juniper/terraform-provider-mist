@@ -5,7 +5,9 @@ package resource_org_mxedge
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -21,7 +23,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -29,64 +30,86 @@ import (
 func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"for_site": schema.BoolAttribute{
+				Computed:            true,
+				Description:         "Whether this Mist Edge is scoped to a site",
+				MarkdownDescription: "Whether this Mist Edge is scoped to a site",
+				PlanModifiers: []planmodifier.Bool{
+					boolplanmodifier.UseStateForUnknown(),
+				},
+			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the Mist Edge",
+				MarkdownDescription: "Unique identifier of the Mist Edge",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"mac": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Mist Edge MAC address",
+				MarkdownDescription: "Mist Edge MAC address",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"claim_code": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "Registration claim code for the Mist Edge",
+				MarkdownDescription: "Registration claim code for the Mist Edge",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"model": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "Mist Edge hardware or virtual appliance model",
+				MarkdownDescription: "Mist Edge hardware or virtual appliance model",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("claim_code")),
 				},
 			},
 			"mxagent_registered": schema.BoolAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Whether the Mist Edge agent has registered with Mist cloud",
+				MarkdownDescription: "Whether the Mist Edge agent has registered with Mist cloud",
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"mxcluster_id": schema.StringAttribute{
 				Optional:            true,
-				Description:         "MxCluster this MxEdge belongs to",
-				MarkdownDescription: "MxCluster this MxEdge belongs to",
+				Description:         "Mist Edge cluster identifier that this appliance belongs to",
+				MarkdownDescription: "Mist Edge cluster identifier that this appliance belongs to",
 			},
 			"mxedge_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"config_auto_revert": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether the Mist Edge automatically reverts configuration changes if connectivity is lost",
+						MarkdownDescription: "Whether the Mist Edge automatically reverts configuration changes if connectivity is lost",
 					},
 					"fips_enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether FIPS mode is enabled on the Mist Edge",
+						MarkdownDescription: "Whether FIPS mode is enabled on the Mist Edge",
 					},
 					"mist_password": schema.StringAttribute{
-						Optional:  true,
-						Sensitive: true,
+						Optional:            true,
+						Sensitive:           true,
+						Description:         "Password for the Mist service account on the Mist Edge",
+						MarkdownDescription: "Password for the Mist service account on the Mist Edge",
 					},
 					"oob_ip_type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `dhcp`, `disabled`, `static`",
-						MarkdownDescription: "enum: `dhcp`, `disabled`, `static`",
+						Description:         "IPv4 address assignment mode for out-of-band management",
+						MarkdownDescription: "IPv4 address assignment mode for out-of-band management",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -99,8 +122,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					"oob_ip_type6": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `autoconf`, `dhcp`, `disabled`, `static`",
-						MarkdownDescription: "enum: `autoconf`, `dhcp`, `disabled`, `static`",
+						Description:         "IPv6 address assignment mode for out-of-band management",
+						MarkdownDescription: "IPv6 address assignment mode for out-of-band management",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -112,8 +135,10 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 					"root_password": schema.StringAttribute{
-						Optional:  true,
-						Sensitive: true,
+						Optional:            true,
+						Sensitive:           true,
+						Description:         "Root account password for the Mist Edge",
+						MarkdownDescription: "Root account password for the Mist Edge",
 					},
 				},
 				CustomType: MxedgeMgmtType{
@@ -121,21 +146,29 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: MxedgeMgmtValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Management credentials and settings for the Mist Edge",
+				MarkdownDescription: "Management credentials and settings for the Mist Edge",
 			},
 			"name": schema.StringAttribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "Display name of the Mist Edge",
+				MarkdownDescription: "Display name of the Mist Edge",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIsNull(path.MatchRelative().AtParent().AtName("claim_code")),
 				},
 			},
 			"notes": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Free-form notes for the Mist Edge",
+				MarkdownDescription: "Free-form notes for the Mist Edge",
 			},
 			"ntp_servers": schema.ListAttribute{
-				ElementType: types.StringType,
-				Optional:    true,
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "Time synchronization servers used by the Mist Edge",
+				MarkdownDescription: "Time synchronization servers used by the Mist Edge",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.UniqueValues(),
@@ -144,51 +177,61 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			"oob_ip_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"autoconf6": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether IPv6 autoconfiguration is enabled on the out-of-band management interface",
+						MarkdownDescription: "Whether IPv6 autoconfiguration is enabled on the out-of-band management interface",
 					},
 					"dhcp6": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether DHCPv6 is enabled on the out-of-band management interface",
+						MarkdownDescription: "Whether DHCPv6 is enabled on the out-of-band management interface",
 					},
 					"dns": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Description:         "IPv4 ignored if `type`!=`static`, IPv6 ignored if `type6`!=`static`",
-						MarkdownDescription: "IPv4 ignored if `type`!=`static`, IPv6 ignored if `type6`!=`static`",
+						Description:         "Name server addresses for out-of-band management",
+						MarkdownDescription: "Name server addresses for out-of-band management",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
 					},
 					"gateway": schema.StringAttribute{
 						Optional:            true,
-						Description:         "If `type`=`static`",
-						MarkdownDescription: "If `type`=`static`",
+						Description:         "If `type`=`static`, IPv4 default gateway for the out-of-band management interface",
+						MarkdownDescription: "If `type`=`static`, IPv4 default gateway for the out-of-band management interface",
 					},
 					"gateway6": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "If `type6`=`static`, IPv6 default gateway for the out-of-band management interface",
+						MarkdownDescription: "If `type6`=`static`, IPv6 default gateway for the out-of-band management interface",
 					},
 					"ip": schema.StringAttribute{
 						Optional:            true,
-						Description:         "If `type`=`static`",
-						MarkdownDescription: "If `type`=`static`",
+						Description:         "If `type`=`static`, IPv4 address for the out-of-band management interface",
+						MarkdownDescription: "If `type`=`static`, IPv4 address for the out-of-band management interface",
 					},
 					"ip6": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "If `type6`=`static`, IPv6 address for the out-of-band management interface",
+						MarkdownDescription: "If `type6`=`static`, IPv6 address for the out-of-band management interface",
 					},
 					"netmask": schema.StringAttribute{
 						Optional:            true,
-						Description:         "If `type`=`static`",
-						MarkdownDescription: "If `type`=`static`",
+						Description:         "If `type`=`static`, IPv4 netmask for the out-of-band management interface",
+						MarkdownDescription: "If `type`=`static`, IPv4 netmask for the out-of-band management interface",
 					},
 					"netmask6": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "If `type6`=`static`, IPv6 prefix length for the out-of-band management interface",
+						MarkdownDescription: "If `type6`=`static`, IPv6 prefix length for the out-of-band management interface",
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `dhcp`, `static`",
-						MarkdownDescription: "enum: `dhcp`, `static`",
+						Description:         "IPv4 address assignment mode for out-of-band management",
+						MarkdownDescription: "IPv4 address assignment mode for out-of-band management",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -200,8 +243,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					"type6": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `dhcp`, `static`",
-						MarkdownDescription: "enum: `dhcp`, `static`",
+						Description:         "IPv6 address assignment mode for out-of-band management",
+						MarkdownDescription: "IPv6 address assignment mode for out-of-band management",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -217,20 +260,26 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "IPconfiguration of the Mist Edge out-of_band management interface",
-				MarkdownDescription: "IPconfiguration of the Mist Edge out-of_band management interface",
+				Description:         "Out-of-band management IP configuration for the Mist Edge",
+				MarkdownDescription: "Out-of-band management IP configuration for the Mist Edge",
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Identifier of the org that owns the Mist Edge",
+				MarkdownDescription: "Identifier of the org that owns the Mist Edge",
 			},
 			"proxy": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"disabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether this proxy configuration is disabled",
+						MarkdownDescription: "Whether this proxy configuration is disabled",
 					},
 					"url": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Proxy URL used to reach Mist",
+						MarkdownDescription: "Proxy URL used to reach Mist",
 					},
 				},
 				CustomType: ProxyType{
@@ -239,20 +288,22 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Proxy Configuration to talk to Mist",
-				MarkdownDescription: "Proxy Configuration to talk to Mist",
+				Description:         "Network proxy settings used by the Mist Edge",
+				MarkdownDescription: "Network proxy settings used by the Mist Edge",
 			},
 			"services": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Computed:            true,
-				Description:         "List of services to run, tunterm only for now",
-				MarkdownDescription: "List of services to run, tunterm only for now",
+				Description:         "List of services enabled to run on the Mist Edge",
+				MarkdownDescription: "List of services enabled to run on the Mist Edge",
 				PlanModifiers: []planmodifier.List{
 					listplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"site_id": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Identifier of the site when the Mist Edge is site-scoped",
+				MarkdownDescription: "Identifier of the site when the Mist Edge is site-scoped",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIsNull(path.MatchRelative().AtParent().AtName("mxcluster_id")),
 				},
@@ -261,14 +312,16 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"enabled": schema.BoolAttribute{
-							Optional: true,
-							Computed: true,
+							Optional:            true,
+							Computed:            true,
+							Description:         "Whether DHCP relay is enabled for this tunneled VLAN",
+							MarkdownDescription: "Whether DHCP relay is enabled for this tunneled VLAN",
 						},
 						"servers": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Description:         "List of DHCP servers; required if `type`==`relay`",
-							MarkdownDescription: "List of DHCP servers; required if `type`==`relay`",
+							Description:         "DHCP relay server addresses used by this tunneled VLAN",
+							MarkdownDescription: "DHCP relay server addresses used by this tunneled VLAN",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
@@ -276,8 +329,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						"type": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "enum: `relay`",
-							MarkdownDescription: "enum: `relay`",
+							Description:         "DHCP handling mode for this tunneled VLAN",
+							MarkdownDescription: "DHCP handling mode for this tunneled VLAN",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -293,8 +346,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Global and per-VLAN. Property key is the VLAN ID",
-				MarkdownDescription: "Global and per-VLAN. Property key is the VLAN ID",
+				Description:         "DHCP relay or server settings for Mist Tunneled VLANs",
+				MarkdownDescription: "DHCP relay or server settings for Mist Tunneled VLANs",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
@@ -303,7 +356,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"via": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Next-hop IP address for this Mist Tunnel extra route",
+							MarkdownDescription: "Next-hop IP address for this Mist Tunnel extra route",
 						},
 					},
 					CustomType: TuntermExtraRoutesType{
@@ -313,8 +368,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is a CIDR",
-				MarkdownDescription: "Property key is a CIDR",
+				Description:         "Extra routes for Mist Tunneled VLAN traffic; property key is a CIDR",
+				MarkdownDescription: "Extra routes for Mist Tunneled VLAN traffic; property key is a CIDR",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
@@ -322,8 +377,10 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			"tunterm_igmp_snooping_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether IGMP snooping is enabled for the configured VLANs",
+						MarkdownDescription: "Whether IGMP snooping is enabled for the configured VLANs",
 					},
 					"querier": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -344,8 +401,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"robustness": schema.Int64Attribute{
 								Optional:            true,
-								Description:         "Querier's robustness",
-								MarkdownDescription: "Querier's robustness",
+								Description:         "IGMP querier robustness variable",
+								MarkdownDescription: "IGMP querier robustness variable",
 								Validators: []validator.Int64{
 									int64validator.Between(1, 7),
 								},
@@ -361,13 +418,15 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 								AttrTypes: QuerierValue{}.AttributeTypes(ctx),
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "IGMP querier settings used with tunnel termination snooping",
+						MarkdownDescription: "IGMP querier settings used with tunnel termination snooping",
 					},
 					"vlan_ids": schema.ListAttribute{
 						ElementType:         types.Int64Type,
 						Optional:            true,
-						Description:         "List of vlans on which tunterm performs IGMP snooping",
-						MarkdownDescription: "List of vlans on which tunterm performs IGMP snooping",
+						Description:         "List of VLAN IDs where tunnel termination performs IGMP snooping",
+						MarkdownDescription: "List of VLAN IDs where tunnel termination performs IGMP snooping",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -378,29 +437,41 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: TuntermIgmpSnoopingConfigValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "IGMP snooping settings for Mist Tunneled VLANs",
+				MarkdownDescription: "IGMP snooping settings for Mist Tunneled VLANs",
 			},
 			"tunterm_ip_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"gateway": schema.StringAttribute{
-						Required: true,
+						Required:            true,
+						Description:         "IPv4 gateway for the Mist Tunnel interface",
+						MarkdownDescription: "IPv4 gateway for the Mist Tunnel interface",
 					},
 					"gateway6": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "IPv6 gateway for the Mist Tunnel interface",
+						MarkdownDescription: "IPv6 gateway for the Mist Tunnel interface",
 					},
 					"ip": schema.StringAttribute{
 						Required:            true,
-						Description:         "Untagged VLAN",
-						MarkdownDescription: "Untagged VLAN",
+						Description:         "Address on the untagged Mist Tunnel interface, in IPv4 format",
+						MarkdownDescription: "Address on the untagged Mist Tunnel interface, in IPv4 format",
 					},
 					"ip6": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Address on the Mist Tunnel interface, in IPv6 format",
+						MarkdownDescription: "Address on the Mist Tunnel interface, in IPv6 format",
 					},
 					"netmask": schema.StringAttribute{
-						Required: true,
+						Required:            true,
+						Description:         "Subnet mask for the Mist Tunnel IPv4 address",
+						MarkdownDescription: "Subnet mask for the Mist Tunnel IPv4 address",
 					},
 					"netmask6": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Prefix length for the Mist Tunnel IPv6 address",
+						MarkdownDescription: "Prefix length for the Mist Tunnel IPv6 address",
 					},
 				},
 				CustomType: TuntermIpConfigType{
@@ -409,8 +480,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "IPconfiguration of the Mist Tunnel interface",
-				MarkdownDescription: "IPconfiguration of the Mist Tunnel interface",
+				Description:         "Tunnel termination IP configuration for the Mist Edge",
+				MarkdownDescription: "Tunnel termination IP configuration for the Mist Edge",
 			},
 			"tunterm_monitoring": schema.ListAttribute{
 				ElementType: types.ListType{
@@ -424,7 +495,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Monitoring checks for tunnel termination reachability",
+				MarkdownDescription: "Monitoring checks for tunnel termination reachability",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
@@ -434,11 +507,15 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					"mdns": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"enabled": schema.BoolAttribute{
-								Optional: true,
+								Optional:            true,
+								Description:         "Whether mDNS forwarding is enabled for the configured VLANs",
+								MarkdownDescription: "Whether mDNS forwarding is enabled for the configured VLANs",
 							},
 							"vlan_ids": schema.ListAttribute{
-								ElementType: types.StringType,
-								Optional:    true,
+								ElementType:         types.StringType,
+								Optional:            true,
+								Description:         "List of VLAN IDs where mDNS forwarding is enabled",
+								MarkdownDescription: "List of VLAN IDs where mDNS forwarding is enabled",
 								Validators: []validator.List{
 									listvalidator.SizeAtLeast(1),
 									listvalidator.UniqueValues(),
@@ -450,16 +527,22 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 								AttrTypes: MdnsValue{}.AttributeTypes(ctx),
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "Settings for mDNS forwarding on tunnel termination VLANs",
+						MarkdownDescription: "Settings for mDNS forwarding on tunnel termination VLANs",
 					},
 					"ssdp": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"enabled": schema.BoolAttribute{
-								Optional: true,
+								Optional:            true,
+								Description:         "Whether SSDP forwarding is enabled for the configured VLANs",
+								MarkdownDescription: "Whether SSDP forwarding is enabled for the configured VLANs",
 							},
 							"vlan_ids": schema.ListAttribute{
-								ElementType: types.StringType,
-								Optional:    true,
+								ElementType:         types.StringType,
+								Optional:            true,
+								Description:         "List of VLAN IDs where SSDP forwarding is enabled",
+								MarkdownDescription: "List of VLAN IDs where SSDP forwarding is enabled",
 								Validators: []validator.List{
 									listvalidator.SizeAtLeast(1),
 									listvalidator.UniqueValues(),
@@ -471,7 +554,9 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 								AttrTypes: SsdpValue{}.AttributeTypes(ctx),
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "Settings for SSDP forwarding on tunnel termination VLANs",
+						MarkdownDescription: "Settings for SSDP forwarding on tunnel termination VLANs",
 					},
 				},
 				CustomType: TuntermMulticastConfigType{
@@ -479,16 +564,22 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: TuntermMulticastConfigValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Multicast forwarding settings for tunnel termination",
+				MarkdownDescription: "Multicast forwarding settings for tunnel termination",
 			},
 			"tunterm_other_ip_configs": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"ip": schema.StringAttribute{
-							Required: true,
+							Required:            true,
+							Description:         "Address for the additional Mist Tunnel interface, in IPv4 format",
+							MarkdownDescription: "Address for the additional Mist Tunnel interface, in IPv4 format",
 						},
 						"netmask": schema.StringAttribute{
-							Required: true,
+							Required:            true,
+							Description:         "Subnet mask for the additional Mist Tunnel IPv4 address",
+							MarkdownDescription: "Subnet mask for the additional Mist Tunnel IPv4 address",
 						},
 					},
 					CustomType: TuntermOtherIpConfigsType{
@@ -509,8 +600,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					"downstream_ports": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Description:         "List of ports to be used for downstream (to AP) purpose",
-						MarkdownDescription: "List of ports to be used for downstream (to AP) purpose",
+						Description:         "Ports connected downstream toward APs for tunnel termination",
+						MarkdownDescription: "Ports connected downstream toward APs for tunnel termination",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -522,13 +613,15 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Whether to separate upstream / downstream ports. default is false where all ports will be used.",
 					},
 					"upstream_port_vlan_id": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Native VLAN ID applied to upstream tunnel termination ports",
+						MarkdownDescription: "Native VLAN ID applied to upstream tunnel termination ports",
 					},
 					"upstream_ports": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Description:         "List of ports to be used for upstream purpose (to LAN)",
-						MarkdownDescription: "List of ports to be used for upstream purpose (to LAN)",
+						Description:         "Ports connected upstream toward the LAN for tunnel termination",
+						MarkdownDescription: "Ports connected upstream toward the LAN for tunnel termination",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -540,11 +633,13 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Ethernet port configurations",
-				MarkdownDescription: "Ethernet port configurations",
+				Description:         "Port configuration for tunnel termination traffic",
+				MarkdownDescription: "Port configuration for tunnel termination traffic",
 			},
 			"tunterm_registered": schema.BoolAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Whether the tunnel termination service has registered with Mist cloud",
+				MarkdownDescription: "Whether the tunnel termination service has registered with Mist cloud",
 				PlanModifiers: []planmodifier.Bool{
 					boolplanmodifier.UseStateForUnknown(),
 				},
@@ -553,11 +648,15 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"port_vlan_id": schema.Int64Attribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Untagged VLAN ID for this tunnel termination switch port",
+							MarkdownDescription: "Untagged VLAN ID for this tunnel termination switch port",
 						},
 						"vlan_ids": schema.ListAttribute{
-							ElementType: types.StringType,
-							Optional:    true,
+							ElementType:         types.StringType,
+							Optional:            true,
+							Description:         "List of tagged VLAN IDs allowed on this tunnel termination switch port",
+							MarkdownDescription: "List of tagged VLAN IDs allowed on this tunnel termination switch port",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
@@ -570,8 +669,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "If custom vlan settings are desired",
-				MarkdownDescription: "If custom vlan settings are desired",
+				Description:         "Switch VLAN settings for tunnel termination",
+				MarkdownDescription: "Switch VLAN settings for tunnel termination",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
@@ -579,13 +678,17 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 			"versions": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"mxagent": schema.StringAttribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Reported version of the mxagent service",
+						MarkdownDescription: "Reported version of the mxagent service",
 						PlanModifiers: []planmodifier.String{
 							stringplanmodifier.UseStateForUnknown(),
 						},
 					},
 					"tunterm": schema.StringAttribute{
-						Computed: true,
+						Computed:            true,
+						Description:         "Reported version of the tunnel termination service",
+						MarkdownDescription: "Reported version of the tunnel termination service",
 						PlanModifiers: []planmodifier.String{
 							stringplanmodifier.UseStateForUnknown(),
 						},
@@ -596,13 +699,16 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: VersionsValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Service version information reported by the Mist Edge",
+				MarkdownDescription: "Service version information reported by the Mist Edge",
 			},
 		},
 	}
 }
 
 type OrgMxedgeModel struct {
+	ForSite                   types.Bool                     `tfsdk:"for_site"`
 	Id                        types.String                   `tfsdk:"id"`
 	Mac                       types.String                   `tfsdk:"mac"`
 	Magic                     types.String                   `tfsdk:"claim_code"`

@@ -164,6 +164,7 @@
       speed              = "1g"
       duplex             = "full"
       ae_lacp_force_up   = true
+      ae_lacp_passive    = true
     }
     "ge-0/0/1" = {
       usage              = "inet"
@@ -190,6 +191,7 @@
       speed                       = "auto"
       stp_disable      = false
       stp_required     = true
+      server_fail_retry_interval = 300
       rules = [
         {
           description = "MAC-based access rule"

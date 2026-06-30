@@ -146,6 +146,34 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, tName string, tracker 
 		if o.ApiPolicy.NoReveal != nil {
 			checks.append(t, "TestCheckResourceAttr", "api_policy.no_reveal", fmt.Sprintf("%t", *o.ApiPolicy.NoReveal))
 		}
+		if len(o.ApiPolicy.SrcIps) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "api_policy.src_ips.#", fmt.Sprintf("%d", len(o.ApiPolicy.SrcIps)))
+			for i, ip := range o.ApiPolicy.SrcIps {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("api_policy.src_ips.%d", i), ip)
+			}
+		}
+	}
+
+	// Check AutoUpgrade nested object
+	if o.AutoUpgrade != nil {
+		if o.AutoUpgrade.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "auto_upgrade.enabled", fmt.Sprintf("%t", *o.AutoUpgrade.Enabled))
+		}
+		if o.AutoUpgrade.DayOfWeek != nil {
+			checks.append(t, "TestCheckResourceAttr", "auto_upgrade.day_of_week", *o.AutoUpgrade.DayOfWeek)
+		}
+		if o.AutoUpgrade.TimeOfDay != nil {
+			checks.append(t, "TestCheckResourceAttr", "auto_upgrade.time_of_day", *o.AutoUpgrade.TimeOfDay)
+		}
+		if o.AutoUpgrade.Version != nil {
+			checks.append(t, "TestCheckResourceAttr", "auto_upgrade.version", *o.AutoUpgrade.Version)
+		}
+		if len(o.AutoUpgrade.CustomVersions) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "auto_upgrade.custom_versions.%", fmt.Sprintf("%d", len(o.AutoUpgrade.CustomVersions)))
+			for key, ver := range o.AutoUpgrade.CustomVersions {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("auto_upgrade.custom_versions.%s", key), ver)
+			}
+		}
 	}
 
 	// Check Celona nested object
@@ -337,6 +365,9 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, tName string, tracker 
 
 	// Check Marvis nested object
 	if o.Marvis != nil {
+		if o.Marvis.DisableProactiveMonitoring != nil {
+			checks.append(t, "TestCheckResourceAttr", "marvis.disable_proactive_monitoring", fmt.Sprintf("%t", *o.Marvis.DisableProactiveMonitoring))
+		}
 		if o.Marvis.SelfDriving != nil {
 			if o.Marvis.SelfDriving.Wan != nil {
 				if o.Marvis.SelfDriving.Wan.Enabled != nil {
@@ -436,16 +467,16 @@ func (o *OrgSettingModel) testChecks(t testing.TB, rType, tName string, tracker 
 
 	// Check Switch nested object
 	if o.Switch != nil {
-		if o.Switch.AutoUpgrade != nil {
-			if o.Switch.AutoUpgrade.Enabled != nil {
-				checks.append(t, "TestCheckResourceAttr", "switch.auto_upgrade.enabled", fmt.Sprintf("%t", *o.Switch.AutoUpgrade.Enabled))
+		if o.Switch.SwitchAutoUpgrade != nil {
+			if o.Switch.SwitchAutoUpgrade.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "switch.auto_upgrade.enabled", fmt.Sprintf("%t", *o.Switch.SwitchAutoUpgrade.Enabled))
 			}
-			if o.Switch.AutoUpgrade.Snapshot != nil {
-				checks.append(t, "TestCheckResourceAttr", "switch.auto_upgrade.snapshot", fmt.Sprintf("%t", *o.Switch.AutoUpgrade.Snapshot))
+			if o.Switch.SwitchAutoUpgrade.Snapshot != nil {
+				checks.append(t, "TestCheckResourceAttr", "switch.auto_upgrade.snapshot", fmt.Sprintf("%t", *o.Switch.SwitchAutoUpgrade.Snapshot))
 			}
-			if len(o.Switch.AutoUpgrade.CustomVersions) > 0 {
-				checks.append(t, "TestCheckResourceAttr", "switch.auto_upgrade.custom_versions.%", fmt.Sprintf("%d", len(o.Switch.AutoUpgrade.CustomVersions)))
-				for key, version := range o.Switch.AutoUpgrade.CustomVersions {
+			if len(o.Switch.SwitchAutoUpgrade.CustomVersions) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "switch.auto_upgrade.custom_versions.%", fmt.Sprintf("%d", len(o.Switch.SwitchAutoUpgrade.CustomVersions)))
+				for key, version := range o.Switch.SwitchAutoUpgrade.CustomVersions {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("switch.auto_upgrade.custom_versions.%s", key), version)
 				}
 			}

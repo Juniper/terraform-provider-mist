@@ -45,6 +45,7 @@ type SiteWlanModel struct {
 	Dtim                                 *int64                           `hcl:"dtim"`
 	DynamicPsk                           *SiteWlanDynamicPskValue         `hcl:"dynamic_psk"`
 	DynamicVlan                          *SiteWlanDynamicVlanValue        `hcl:"dynamic_vlan"`
+	EnableFtm                            *bool                            `hcl:"enable_ftm"`
 	EnableLocalKeycaching                *bool                            `hcl:"enable_local_keycaching"`
 	EnableWirelessBridging               *bool                            `hcl:"enable_wireless_bridging"`
 	EnableWirelessBridgingDhcpTracking   *bool                            `hcl:"enable_wireless_bridging_dhcp_tracking"`
@@ -141,6 +142,8 @@ type SiteWlanOthersValue struct {
 type SiteWlanAuthValue struct {
 	AnticlogThreshold      *int64   `cty:"anticlog_threshold" hcl:"anticlog_threshold"`
 	EapReauth              *bool    `cty:"eap_reauth" hcl:"eap_reauth"`
+	EnableBeaconProtection *bool    `cty:"enable_beacon_protection" hcl:"enable_beacon_protection"`
+	EnableGcmp256          *bool    `cty:"enable_gcmp256" hcl:"enable_gcmp256"`
 	EnableMacAuth          *bool    `cty:"enable_mac_auth" hcl:"enable_mac_auth"`
 	KeyIdx                 *int64   `cty:"key_idx" hcl:"key_idx"`
 	Keys                   []string `cty:"keys" hcl:"keys"`
@@ -151,8 +154,6 @@ type SiteWlanAuthValue struct {
 	Psk                    *string  `cty:"psk" hcl:"psk"`
 	AuthType               *string  `cty:"type" hcl:"type"`
 	WepAsSecondaryAuth     *bool    `cty:"wep_as_secondary_auth" hcl:"wep_as_secondary_auth"`
-	EnableBeaconProtection *bool    `cty:"enable_beacon_protection" hcl:"enable_beacon_protection"`
-	EnableGcmp256          *bool    `cty:"enable_gcmp256" hcl:"enable_gcmp256"`
 }
 
 type SiteWlanAuthServersValue struct {
@@ -297,6 +298,7 @@ type SiteWlanPortalValue struct {
 	SmsProvider                 *string           `cty:"sms_provider" hcl:"sms_provider"`
 	SmsglobalApiKey             *string           `cty:"smsglobal_api_key" hcl:"smsglobal_api_key"`
 	SmsglobalApiSecret          *string           `cty:"smsglobal_api_secret" hcl:"smsglobal_api_secret"`
+	SmsglobalSender             *string           `cty:"smsglobal_sender" hcl:"smsglobal_sender"`
 	SponsorAutoApprove          *bool             `cty:"sponsor_auto_approve" hcl:"sponsor_auto_approve"`
 	SponsorEmailDomains         []string          `cty:"sponsor_email_domains" hcl:"sponsor_email_domains"`
 	SponsorEnabled              *bool             `cty:"sponsor_enabled" hcl:"sponsor_enabled"`

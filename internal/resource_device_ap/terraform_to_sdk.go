@@ -132,6 +132,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 		unset["-mesh"] = ""
 	}
 
+	if !plan.MqttConfig.IsNull() && !plan.MqttConfig.IsUnknown() {
+		data.MqttConfig = mqttConfigTerraformToSdk(plan.MqttConfig)
+	} else {
+		unset["-mqtt_config"] = ""
+	}
+
 	if !plan.NtpServers.IsNull() && !plan.NtpServers.IsUnknown() {
 		data.NtpServers = mistutils.ListOfStringTerraformToSdk(plan.NtpServers)
 	} else {

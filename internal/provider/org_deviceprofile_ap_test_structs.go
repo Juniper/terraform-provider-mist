@@ -13,6 +13,7 @@ type OrgDeviceprofileApModel struct {
 	LacpConfig       *OrgDeviceprofileApLacpConfigValue           `hcl:"lacp_config"`
 	Led              *OrgDeviceprofileApLedValue                  `hcl:"led"`
 	Mesh             *OrgDeviceprofileApMeshValue                 `hcl:"mesh"`
+	MqttConfig       *OrgDeviceprofileApMqttConfigValue           `hcl:"mqtt_config"`
 	Name             string                                       `hcl:"name"`
 	NtpServers       []string                                     `hcl:"ntp_servers"`
 	OrgId            string                                       `hcl:"org_id"`
@@ -111,6 +112,16 @@ type OrgDeviceprofileApMeshValue struct {
 	Group      *int64   `cty:"group" hcl:"group"`
 	Role       *string  `cty:"role" hcl:"role"`
 	UseWpa3On5 *bool    `cty:"use_wpa3_on_5" hcl:"use_wpa3_on_5"`
+}
+
+type OrgDeviceprofileApMqttConfigValue struct {
+	BrokerHost  *string `cty:"broker_host" hcl:"broker_host"`
+	BrokerPort  *int64  `cty:"broker_port" hcl:"broker_port"`
+	BrokerProto *string `cty:"broker_proto" hcl:"broker_proto"`
+	Enabled     *bool   `cty:"enabled" hcl:"enabled"`
+	Format      *string `cty:"format" hcl:"format"`
+	Password    *string `cty:"password" hcl:"password"`
+	Username    *string `cty:"username" hcl:"username"`
 }
 
 type OrgDeviceprofileApPortConfigValue struct {

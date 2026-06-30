@@ -26,22 +26,24 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 			"applies": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"org_id": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Organization included in the WLAN template application scope",
+						MarkdownDescription: "Organization included in the WLAN template application scope",
 					},
 					"site_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of site ids",
-						MarkdownDescription: "List of site ids",
+						Description:         "Sites included in the WLAN template application scope",
+						MarkdownDescription: "Sites included in the WLAN template application scope",
 						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 					"sitegroup_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of sitegroup ids",
-						MarkdownDescription: "List of sitegroup ids",
+						Description:         "Site groups included in the WLAN template application scope",
+						MarkdownDescription: "Site groups included in the WLAN template application scope",
 						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 				},
@@ -52,8 +54,8 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional:            true,
 				Computed:            true,
-				Description:         "Where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
-				MarkdownDescription: "Where this template should be applied to, can be org_id, site_ids, sitegroup_ids",
+				Description:         "Organizations, sites, or site groups targeted by this WLAN template",
+				MarkdownDescription: "Organizations, sites, or site groups targeted by this WLAN template",
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						AppliesValue{}.AttributeTypes(ctx),
@@ -69,8 +71,8 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "List of Device Profile ids",
-				MarkdownDescription: "List of Device Profile ids",
+				Description:         "Device profile IDs that further limit where this WLAN template applies",
+				MarkdownDescription: "Device profile IDs that further limit where this WLAN template applies",
 				Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"exceptions": schema.SingleNestedAttribute{
@@ -79,16 +81,16 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of site ids",
-						MarkdownDescription: "List of site ids",
+						Description:         "Sites excluded from the WLAN template application scope",
+						MarkdownDescription: "Sites excluded from the WLAN template application scope",
 						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 					"sitegroup_ids": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of sitegroup ids",
-						MarkdownDescription: "List of sitegroup ids",
+						Description:         "Site groups excluded from the WLAN template application scope",
+						MarkdownDescription: "Site groups excluded from the WLAN template application scope",
 						Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 					},
 				},
@@ -99,8 +101,8 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Optional:            true,
 				Computed:            true,
-				Description:         "Where this template should not be applied to (takes precedence)",
-				MarkdownDescription: "Where this template should not be applied to (takes precedence)",
+				Description:         "Sites or site groups excluded from this WLAN template even when included by the application scope",
+				MarkdownDescription: "Sites or site groups excluded from this WLAN template even when included by the application scope",
 				Default: objectdefault.StaticValue(
 					types.ObjectValueMust(
 						ExceptionsValue{}.AttributeTypes(ctx),
@@ -120,17 +122,21 @@ func OrgWlantemplateResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the WLAN template",
+				MarkdownDescription: "Unique identifier of the WLAN template",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the WLAN template",
+				MarkdownDescription: "Display name of the WLAN template",
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Organization that owns this WLAN template",
+				MarkdownDescription: "Organization that owns this WLAN template",
 			},
 		},
 	}

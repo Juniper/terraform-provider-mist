@@ -279,6 +279,7 @@
       dynamic_vlan_networks  = ["dynamic1", "dynamic2"]
       guest_network          = "guest"
       server_fail_network    = "quarantine"
+      server_fail_retry_interval = 300
       server_reject_network  = "reject"
       voip_network           = "voip"
       reset_default_when     = "link_down"
@@ -719,6 +720,7 @@
             ae_disable_lacp    = false
             ae_idx             = "0"
             ae_lacp_force_up   = true
+            ae_lacp_passive    = true
             ae_lacp_slow       = false
             aggregated         = false
             critical           = false

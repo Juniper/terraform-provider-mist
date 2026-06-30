@@ -28,24 +28,24 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier for this WxLAN tag",
+				MarkdownDescription: "Unique identifier for this WxLAN tag",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"mac": schema.StringAttribute{
 				Optional:            true,
-				Description:         "If `type`==`client`, Client MAC Address",
-				MarkdownDescription: "If `type`==`client`, Client MAC Address",
+				Description:         "If `type`==`client`, Client MAC address",
+				MarkdownDescription: "If `type`==`client`, Client MAC address",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("client")),
 				},
 			},
 			"match": schema.StringAttribute{
 				Optional:            true,
-				Description:         "required if `type`==`match`. enum: `ap_id`, `app`, `asset_mac`, `client_mac`, `hostname`, `ip_range_subnet`, `port`, `psk_name`, `psk_role`, `radius_attr`, `radius_class`, `radius_group`, `radius_username`, `sdkclient_uuid`, `wlan_id`",
-				MarkdownDescription: "required if `type`==`match`. enum: `ap_id`, `app`, `asset_mac`, `client_mac`, `hostname`, `ip_range_subnet`, `port`, `psk_name`, `psk_role`, `radius_attr`, `radius_class`, `radius_group`, `radius_username`, `sdkclient_uuid`, `wlan_id`",
+				Description:         "Required if `type`==`match`; attribute compared against `values`",
+				MarkdownDescription: "Required if `type`==`match`; attribute compared against `values`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"ap_id",
@@ -69,13 +69,13 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
-				Description:         "The name",
-				MarkdownDescription: "The name",
+				Description:         "Display name of the WxLAN tag",
+				MarkdownDescription: "Display name of the WxLAN tag",
 			},
 			"op": schema.StringAttribute{
 				Optional:            true,
-				Description:         "required if `type`==`match`, type of tag (inclusive/exclusive). enum: `in`, `not_in`",
-				MarkdownDescription: "required if `type`==`match`, type of tag (inclusive/exclusive). enum: `in`, `not_in`",
+				Description:         "Required if `type`==`match`; whether `values` are inclusive or exclusive matches",
+				MarkdownDescription: "Required if `type`==`match`; whether `values` are inclusive or exclusive matches",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"in",
@@ -85,7 +85,9 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Owning organization associated with this WxLAN tag",
+				MarkdownDescription: "Owning organization associated with this WxLAN tag",
 			},
 			"specs": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -117,8 +119,8 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "Matched destination subnets and/or IP Addresses",
-							MarkdownDescription: "Matched destination subnets and/or IP Addresses",
+							Description:         "Destination subnets or IP addresses matched by this WxLAN tag spec",
+							MarkdownDescription: "Destination subnets or IP addresses matched by this WxLAN tag spec",
 							Validators: []validator.List{
 								listvalidator.ValueStringsAre(
 									stringvalidator.Any(
@@ -145,16 +147,16 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "If `type`==`spec`",
-				MarkdownDescription: "If `type`==`spec`",
+				Description:         "Traffic match specifications used when `type`==`spec`",
+				MarkdownDescription: "Traffic match specifications used when `type`==`spec`",
 				Validators: []validator.List{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("spec")),
 				},
 			},
 			"type": schema.StringAttribute{
 				Required:            true,
-				Description:         "enum: `client`, `match`, `resource`, `spec`, `subnet`, `vlan`",
-				MarkdownDescription: "enum: `client`, `match`, `resource`, `spec`, `subnet`, `vlan`",
+				Description:         "Kind of WxLAN tag and how it is populated",
+				MarkdownDescription: "Kind of WxLAN tag and how it is populated",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -170,14 +172,16 @@ func OrgWxtagResourceSchema(ctx context.Context) schema.Schema {
 			"values": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "Required if `type`==`match` and\n  * `match`==`ap_id`: list of AP IDs\n  * `match`==`app`: list of Application Names\n  * `match`==`asset_mac`: list of Asset MAC Addresses\n  * `match`==`client_mac`: list of Client MAC Addresses\n  * `match`==`hostname`: list of Resources Hostnames\n  * `match`==`ip_range_subnet`: list of IP Addresses and/or CIDRs\n  * `match`==`psk_name`: list of PSK Names\n  * `match`==`psk_role`: list of PSK Roles\n  * `match`==`port`: list of Ports or Port Ranges\n  * `match`==`radius_attr`: list of RADIUS Attributes. The values are [ \"6=1\", \"26=10.2.3.4\" ], this support other RADIUS attributes where we know the type\n  * `match`==`radius_class`: list of RADIUS Classes. This matches the ATTR-Class(25)\n  * `match`==`radius_group`: list of RADIUS Groups. This is a smart tag that matches RADIUS-Filter-ID, Airespace-ACL-Name (VendorID=14179, VendorType=6) / Aruba-User-Role (VendorID=14823, VendorType=1)\n  * `match`==`radius_username`: list of RADIUS Usernames. This matches the ATTR-User-Name(1)\n  * `match`==`sdkclient_uuid`: list of SDK UUIDs\n  * `match`==`wlan_id`: list of WLAN IDs\n\n**Notes**:\nVariables are not allowed",
-				MarkdownDescription: "Required if `type`==`match` and\n  * `match`==`ap_id`: list of AP IDs\n  * `match`==`app`: list of Application Names\n  * `match`==`asset_mac`: list of Asset MAC Addresses\n  * `match`==`client_mac`: list of Client MAC Addresses\n  * `match`==`hostname`: list of Resources Hostnames\n  * `match`==`ip_range_subnet`: list of IP Addresses and/or CIDRs\n  * `match`==`psk_name`: list of PSK Names\n  * `match`==`psk_role`: list of PSK Roles\n  * `match`==`port`: list of Ports or Port Ranges\n  * `match`==`radius_attr`: list of RADIUS Attributes. The values are [ \"6=1\", \"26=10.2.3.4\" ], this support other RADIUS attributes where we know the type\n  * `match`==`radius_class`: list of RADIUS Classes. This matches the ATTR-Class(25)\n  * `match`==`radius_group`: list of RADIUS Groups. This is a smart tag that matches RADIUS-Filter-ID, Airespace-ACL-Name (VendorID=14179, VendorType=6) / Aruba-User-Role (VendorID=14823, VendorType=1)\n  * `match`==`radius_username`: list of RADIUS Usernames. This matches the ATTR-User-Name(1)\n  * `match`==`sdkclient_uuid`: list of SDK UUIDs\n  * `match`==`wlan_id`: list of WLAN IDs\n\n**Notes**:\nVariables are not allowed",
+				Description:         "Comparison values for the selected `match` attribute when `type`==`match`",
+				MarkdownDescription: "Comparison values for the selected `match` attribute when `type`==`match`",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
 			},
 			"vlan_id": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Identifier of the VLAN associated with this WxLAN tag when `type`==`vlan`",
+				MarkdownDescription: "Identifier of the VLAN associated with this WxLAN tag when `type`==`vlan`",
 				Validators: []validator.String{
 					stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
 				},

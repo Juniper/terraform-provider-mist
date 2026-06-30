@@ -18,6 +18,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var allowMist types.Bool
 	var apUpdownThreshold types.Int64
 	var apiPolicy = NewApiPolicyValueNull()
+	var autoUpgrade = NewAutoUpgradeValueNull()
 	// var blacklist_url types.String
 	var cacerts = types.ListNull(types.StringType)
 	var celona = NewCelonaValueNull()
@@ -66,6 +67,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	}
 	if data.ApiPolicy != nil {
 		apiPolicy = apiPolicySdkToTerraform(ctx, &diags, data.ApiPolicy)
+	}
+	if data.AutoUpgrade != nil {
+		autoUpgrade = autoUpgradeSdkToTerraform(ctx, &diags, data.AutoUpgrade)
 	}
 	// if data.BlacklistUrl != nil {
 	// 	blacklist_url = types.StringValue(*data.BlacklistUrl)
@@ -206,6 +210,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.AllowMist = allowMist
 	state.ApUpdownThreshold = apUpdownThreshold
 	state.ApiPolicy = apiPolicy
+	state.AutoUpgrade = autoUpgrade
 	// state.BlacklistUrl = blacklist_url
 	state.Cacerts = cacerts
 	state.Celona = celona

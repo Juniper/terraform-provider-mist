@@ -4,8 +4,7 @@ package resource_org_webhook
 
 import (
 	"context"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -44,21 +43,21 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the webhook",
+				MarkdownDescription: "Unique identifier of the webhook",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
-				Description:         "Name of the webhook",
-				MarkdownDescription: "Name of the webhook",
+				Description:         "Display name of the webhook",
+				MarkdownDescription: "Display name of the webhook",
 			},
 			"oauth2_client_id": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Required when `oauth2_grant_type`==`client_credentials`",
-				MarkdownDescription: "Required when `oauth2_grant_type`==`client_credentials`",
+				Description:         "Required when `oauth2_grant_type`==`client_credentials`; OAuth2 client identifier used to request an access token",
+				MarkdownDescription: "Required when `oauth2_grant_type`==`client_credentials`; OAuth2 client identifier used to request an access token",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("oauth2_grant_type"), types.StringValue("client_credentials")),
 				},
@@ -66,16 +65,16 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"oauth2_client_secret": schema.StringAttribute{
 				Optional:            true,
 				Sensitive:           true,
-				Description:         "Required when `oauth2_grant_type`==`client_credentials`",
-				MarkdownDescription: "Required when `oauth2_grant_type`==`client_credentials`",
+				Description:         "Required when `oauth2_grant_type`==`client_credentials`; OAuth2 client secret used to request an access token",
+				MarkdownDescription: "Required when `oauth2_grant_type`==`client_credentials`; OAuth2 client secret used to request an access token",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("oauth2_grant_type"), types.StringValue("client_credentials")),
 				},
 			},
 			"oauth2_grant_type": schema.StringAttribute{
 				Optional:            true,
-				Description:         "required when `type`==`oauth2`. enum: `client_credentials`, `password`",
-				MarkdownDescription: "required when `type`==`oauth2`. enum: `client_credentials`, `password`",
+				Description:         "OAuth2 grant type used when `type`==`oauth2`",
+				MarkdownDescription: "OAuth2 grant type used when `type`==`oauth2`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"client_credentials",
@@ -87,8 +86,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"oauth2_password": schema.StringAttribute{
 				Optional:            true,
 				Sensitive:           true,
-				Description:         "Required when `oauth2_grant_type`==`password`",
-				MarkdownDescription: "Required when `oauth2_grant_type`==`password`",
+				Description:         "Required when `oauth2_grant_type`==`password`; password used for the OAuth2 token request",
+				MarkdownDescription: "Required when `oauth2_grant_type`==`password`; password used for the OAuth2 token request",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("oauth2_grant_type"), types.StringValue("password")),
 				},
@@ -96,30 +95,32 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"oauth2_scopes": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "Required when `type`==`oauth2`, if provided, will be used in the token request",
-				MarkdownDescription: "Required when `type`==`oauth2`, if provided, will be used in the token request",
+				Description:         "OAuth2 scopes included in the token request when `type`==`oauth2`",
+				MarkdownDescription: "OAuth2 scopes included in the token request when `type`==`oauth2`",
 				Validators: []validator.List{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("oauth2")),
 				},
 			},
 			"oauth2_token_url": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Required when `type`==`oauth2`",
-				MarkdownDescription: "Required when `type`==`oauth2`",
+				Description:         "Required when `type`==`oauth2`; token endpoint URL used to obtain the OAuth2 access token",
+				MarkdownDescription: "Required when `type`==`oauth2`; token endpoint URL used to obtain the OAuth2 access token",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("oauth2")),
 				},
 			},
 			"oauth2_username": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Required when `oauth2_grant_type`==`password`",
-				MarkdownDescription: "Required when `oauth2_grant_type`==`password`",
+				Description:         "Required when `oauth2_grant_type`==`password`; username used for the OAuth2 token request",
+				MarkdownDescription: "Required when `oauth2_grant_type`==`password`; username used for the OAuth2 token request",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("oauth2_grant_type"), types.StringValue("password")),
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Organization that owns the webhook",
+				MarkdownDescription: "Organization that owns the webhook",
 			},
 			"secret": schema.StringAttribute{
 				Optional:            true,
@@ -170,8 +171,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"type": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "enum: `aws-sns`, `google-pubsub`, `http-post`, `oauth2`, `splunk`",
-				MarkdownDescription: "enum: `aws-sns`, `google-pubsub`, `http-post`, `oauth2`, `splunk`",
+				Description:         "Delivery mechanism used by this webhook",
+				MarkdownDescription: "Delivery mechanism used by this webhook",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -185,7 +186,9 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 				Default: stringdefault.StaticString("http-post"),
 			},
 			"url": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Destination URL that receives webhook deliveries",
+				MarkdownDescription: "Destination URL that receives webhook deliveries",
 			},
 			"verify_cert": schema.BoolAttribute{
 				Optional:            true,

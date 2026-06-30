@@ -19,6 +19,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxcluster) (OrgMxclusterMo
 	var id = types.StringNull()
 	var mistDas = NewMistDasValueNull()
 	var mistNac = NewMistNacValueNull()
+	var mistNacedge = NewMistNacedgeValueNull()
 	var mxedgeMgmt = NewMxedgeMgmtValueNull()
 	var name = types.StringNull()
 	var orgId = types.StringNull()
@@ -51,6 +52,9 @@ func SdkToTerraform(ctx context.Context, data *models.Mxcluster) (OrgMxclusterMo
 	}
 	if data.MistNac != nil {
 		mistNac = mistNacSdkToTerraform(ctx, &diags, data.MistNac)
+	}
+	if data.MistNacedge != nil {
+		mistNacedge = mistNacedgeSdkToTerraform(ctx, &diags, data.MistNacedge)
 	}
 	if data.MxedgeMgmt != nil {
 		mxedgeMgmt = mxedgeMgmtSdkToTerraform(ctx, &diags, data.MxedgeMgmt)
@@ -101,6 +105,7 @@ func SdkToTerraform(ctx context.Context, data *models.Mxcluster) (OrgMxclusterMo
 	state.Id = id
 	state.MistDas = mistDas
 	state.MistNac = mistNac
+	state.MistNacedge = mistNacedge
 	state.MxedgeMgmt = mxedgeMgmt
 	state.Name = name
 	state.OrgId = orgId

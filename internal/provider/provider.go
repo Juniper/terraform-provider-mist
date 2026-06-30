@@ -615,6 +615,7 @@ func (p *mistProvider) Resources(_ context.Context) []func() resource.Resource {
 		NewOrgDeviceprofileAp,
 		NewOrgDeviceprofileAssign,
 		NewOrgDeviceprofileGateway,
+		NewOrgDeviceprofileSwitch,
 		NewOrgSettingResource,
 		NewOrgServicepolicyResource,
 		NewOrgIdpprofileResource,

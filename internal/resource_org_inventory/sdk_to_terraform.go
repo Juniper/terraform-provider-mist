@@ -308,6 +308,7 @@ func mapSdkToTerraform(
 		refInventoryDevicesMap, refPlanMap := GenDeviceMap(&refInventory.Inventory)
 		state.Inventory = processSync(ctx, &diags, &refInventoryDevicesMap, &refPlanMap, &mistDevicesByClaimCode, &mistDevicesByMac, &mistSiteIdByVcMac)
 	}
+	state.DisconnectedBefore = refInventory.DisconnectedBefore
 
 	return state, diags
 }

@@ -42,7 +42,7 @@ func switchAutoUpgradesSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 		"enabled":         enabled,
 		"snapshot":        snapshot,
 	}
-	data, e := NewAutoUpgradeValue(AutoUpgradeValue{}.AttributeTypes(ctx), dataMapValue)
+	data, e := NewSwitchAutoUpgradeValue(SwitchAutoUpgradeValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)
 
 	o, e := data.ToObjectValue(ctx)
@@ -52,7 +52,7 @@ func switchAutoUpgradesSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 
 func switchSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingSwitch) SwitchValue {
 
-	var autoUpgrade = types.ObjectNull(AutoUpgradeValue{}.AttributeTypes(ctx))
+	var autoUpgrade = types.ObjectNull(SwitchAutoUpgradeValue{}.AttributeTypes(ctx))
 
 	if d != nil && d.AutoUpgrade != nil {
 		autoUpgrade = switchAutoUpgradesSdkToTerraform(ctx, diags, d.AutoUpgrade)

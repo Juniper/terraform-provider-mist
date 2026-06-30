@@ -23,6 +23,11 @@ import (
 func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"disconnected_before": schema.Int64Attribute{
+				Optional:            true,
+				Description:         "Filter results to devices that were last disconnected before this time, in epoch seconds",
+				MarkdownDescription: "Filter results to devices that were last disconnected before this time, in epoch seconds",
+			},
 			"inventory": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
@@ -57,7 +62,9 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "device model",
 						},
 						"org_id": schema.StringAttribute{
-							Computed: true,
+							Computed:            true,
+							Description:         "Unique identifier of a Mist organization",
+							MarkdownDescription: "Unique identifier of a Mist organization",
 						},
 						"serial": schema.StringAttribute{
 							Computed:            true,
@@ -114,8 +121,9 @@ func OrgInventoryResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type OrgInventoryModel struct {
-	Inventory types.Map    `tfsdk:"inventory"`
-	OrgId     types.String `tfsdk:"org_id"`
+	DisconnectedBefore types.Int64  `tfsdk:"disconnected_before"`
+	Inventory          types.Map    `tfsdk:"inventory"`
+	OrgId              types.String `tfsdk:"org_id"`
 }
 
 var _ basetypes.ObjectTypable = InventoryType{}

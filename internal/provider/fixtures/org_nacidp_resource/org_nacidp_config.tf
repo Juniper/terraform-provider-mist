@@ -22,6 +22,7 @@ oauth_cc_client_id = "12345678-1234-1234-1234-123456789abc"
 oauth_cc_client_secret = "-----BEGIN RSA PRIVATE KEY-----\nMIIE...oauth...key...\n-----END RSA PRIVATE KEY-----"
 oauth_discovery_url = "https://login.microsoftonline.com/tenant-id/.well-known/openid-configuration"
 oauth_ping_identity_region = "us"
+oauth_provider_domain = "okta.com"
 oauth_ropc_client_id = "87654321-4321-4321-4321-cba987654321"
 oauth_ropc_client_secret = "oauth-ropc-secret"
 oauth_tenant_id = "tenant-12345678-1234-1234-1234-123456789abc"
@@ -30,3 +31,9 @@ scim_secret_token = "scim-secret-token-123"
 ␞
 name = "test-nacidp-mxedge"
 idp_type = "mxedge_proxy"
+␞
+name = "test-nacidp-openroaming"
+idp_type = "mxedge_proxy"
+openroaming_ssids = ["corp-wifi", "guest-wifi"]
+openroaming_wba_client_cert = "-----BEGIN CERTIFICATE-----\nMIIBwba...client...cert...\n-----END CERTIFICATE-----"
+openroaming_wba_client_key = "-----BEGIN RSA PRIVATE KEY-----\nMIIEwba...client...key...\n-----END RSA PRIVATE KEY-----"

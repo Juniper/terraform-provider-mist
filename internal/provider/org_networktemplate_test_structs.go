@@ -188,6 +188,7 @@ type OrgNetworktemplatePortUsagesValue struct {
 	ResetDefaultWhen                         *string                              `cty:"reset_default_when" hcl:"reset_default_when"`
 	Rules                                    []OrgNetworktemplateRulesValue       `cty:"rules" hcl:"rules"`
 	ServerFailNetwork                        *string                              `cty:"server_fail_network" hcl:"server_fail_network"`
+	ServerFailRetryInterval                  *int64                               `cty:"server_fail_retry_interval" hcl:"server_fail_retry_interval"`
 	ServerRejectNetwork                      *string                              `cty:"server_reject_network" hcl:"server_reject_network"`
 	Speed                                    *string                              `cty:"speed" hcl:"speed"`
 	StormControl                             *OrgNetworktemplateStormControlValue `cty:"storm_control" hcl:"storm_control"`
@@ -501,6 +502,7 @@ type OrgNetworktemplatePortConfigValue struct {
 	AeDisableLacp    *bool    `cty:"ae_disable_lacp" hcl:"ae_disable_lacp"`
 	AeIdx            *int64   `cty:"ae_idx" hcl:"ae_idx"`
 	AeLacpForceUp    *bool    `cty:"ae_lacp_force_up" hcl:"ae_lacp_force_up"`
+	AeLacpPassive    *bool    `cty:"ae_lacp_passive" hcl:"ae_lacp_passive"`
 	AeLacpSlow       *bool    `cty:"ae_lacp_slow" hcl:"ae_lacp_slow"`
 	Aggregated       *bool    `cty:"aggregated" hcl:"aggregated"`
 	Critical         *bool    `cty:"critical" hcl:"critical"`

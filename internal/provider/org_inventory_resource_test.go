@@ -125,6 +125,10 @@ func (o *OrgInventoryModel) testChecks(t testing.TB, rType, tName string, tracke
 	// Check required fields
 	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
 
+	if o.DisconnectedBefore != nil {
+		checks.append(t, "TestCheckResourceAttr", "disconnected_before", fmt.Sprintf("%d", *o.DisconnectedBefore))
+	}
+
 	// Check inventory map and all nested fields if inventory is configured
 	if len(o.Inventory) > 0 {
 		// Validate the inventory map length

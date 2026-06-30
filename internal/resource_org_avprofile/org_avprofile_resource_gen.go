@@ -25,8 +25,8 @@ func OrgAvprofileResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"fallback_action": schema.StringAttribute{
 				Optional:            true,
-				Description:         "enum: `block`, `log-and-permit`, `permit`",
-				MarkdownDescription: "enum: `block`, `log-and-permit`, `permit`",
+				Description:         "Action to take when antivirus scanning cannot complete",
+				MarkdownDescription: "Action to take when antivirus scanning cannot complete",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -38,8 +38,8 @@ func OrgAvprofileResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the antivirus profile",
+				MarkdownDescription: "Unique identifier of the antivirus profile",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -47,17 +47,19 @@ func OrgAvprofileResourceSchema(ctx context.Context) schema.Schema {
 			"max_filesize": schema.Int64Attribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "In KB",
-				MarkdownDescription: "In KB",
+				Description:         "Maximum file size scanned by this antivirus profile, in KB",
+				MarkdownDescription: "Maximum file size scanned by this antivirus profile, in KB",
 				Validators: []validator.Int64{
 					int64validator.Between(20, 40000),
 				},
 				Default: int64default.StaticInt64(10000),
 			},
 			"mime_whitelist": schema.ListAttribute{
-				ElementType: types.StringType,
-				Optional:    true,
-				Computed:    true,
+				ElementType:         types.StringType,
+				Optional:            true,
+				Computed:            true,
+				Description:         "Content MIME types exempted from antivirus scanning",
+				MarkdownDescription: "Content MIME types exempted from antivirus scanning",
 				Validators: []validator.List{
 					listvalidator.UniqueValues(),
 					listvalidator.ValueStringsAre(
@@ -70,19 +72,23 @@ func OrgAvprofileResourceSchema(ctx context.Context) schema.Schema {
 				Default: listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the antivirus profile",
+				MarkdownDescription: "Display name of the antivirus profile",
 				Validators: []validator.String{
 					stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName()),
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Owning organization identifier for this antivirus profile",
+				MarkdownDescription: "Owning organization identifier for this antivirus profile",
 			},
 			"protocols": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Required:            true,
-				Description:         "List of protocols to monitor. enum: `ftp`, `http`, `imap`, `pop3`, `smtp`",
-				MarkdownDescription: "List of protocols to monitor. enum: `ftp`, `http`, `imap`, `pop3`, `smtp`",
+				Description:         "Network protocols inspected by this antivirus profile",
+				MarkdownDescription: "Network protocols inspected by this antivirus profile",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(
@@ -97,9 +103,11 @@ func OrgAvprofileResourceSchema(ctx context.Context) schema.Schema {
 				},
 			},
 			"url_whitelist": schema.ListAttribute{
-				ElementType: types.StringType,
-				Optional:    true,
-				Computed:    true,
+				ElementType:         types.StringType,
+				Optional:            true,
+				Computed:            true,
+				Description:         "Allowed URL entries exempted from antivirus scanning",
+				MarkdownDescription: "Allowed URL entries exempted from antivirus scanning",
 				Validators: []validator.List{
 					listvalidator.UniqueValues(),
 					listvalidator.ValueStringsAre(

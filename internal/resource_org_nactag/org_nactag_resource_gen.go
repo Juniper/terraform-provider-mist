@@ -20,20 +20,22 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"allow_usermac_override": schema.BoolAttribute{
 				Optional:            true,
-				Description:         "Can be set to true to allow the override by usermac result",
-				MarkdownDescription: "Can be set to true to allow the override by usermac result",
+				Description:         "Whether usermac result values can override this NAC tag when the result type is also supported by usermac",
+				MarkdownDescription: "Whether usermac result values can override this NAC tag when the result type is also supported by usermac",
 			},
 			"egress_vlan_names": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "If `type`==`egress_vlan_names`, list of egress vlans to return",
-				MarkdownDescription: "If `type`==`egress_vlan_names`, list of egress vlans to return",
+				Description:         "If `type`==`egress_vlan_names`, list of egress VLAN names returned by the NAC rule",
+				MarkdownDescription: "If `type`==`egress_vlan_names`, list of egress VLAN names returned by the NAC rule",
 				Validators: []validator.List{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("egress_vlan_names")),
 				},
 			},
 			"gbp_tag": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "If `type`==`gbp_tag`, GBP tag value returned by the NAC rule",
+				MarkdownDescription: "If `type`==`gbp_tag`, GBP tag value returned by the NAC rule",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("gbp_tag")),
 					stringvalidator.Any(
@@ -44,16 +46,16 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the NAC tag",
+				MarkdownDescription: "Unique identifier of the NAC tag",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"match": schema.StringAttribute{
 				Optional:            true,
-				Description:         "if `type`==`match`. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
-				MarkdownDescription: "if `type`==`match`. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`",
+				Description:         "If `type`==`match`, client or authentication attribute used for rule matching",
+				MarkdownDescription: "If `type`==`match`, client or authentication attribute used for rule matching",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -88,31 +90,35 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"nacportal_id": schema.StringAttribute{
 				Optional:            true,
-				Description:         "If `type`==`redirect_nacportal_id`, the ID of the NAC portal to redirect to",
-				MarkdownDescription: "If `type`==`redirect_nacportal_id`, the ID of the NAC portal to redirect to",
+				Description:         "If `type`==`redirect_nacportal_id`, NAC portal ID used for client redirection",
+				MarkdownDescription: "If `type`==`redirect_nacportal_id`, NAC portal ID used for client redirection",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Human-readable name of the NAC tag",
+				MarkdownDescription: "Human-readable name of the NAC tag",
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(1, 32),
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Org identifier that owns the NAC tag",
+				MarkdownDescription: "Org identifier that owns the NAC tag",
 			},
 			"radius_attrs": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "If `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
-				MarkdownDescription: "If `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field \"radius_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_attrs in the result of a given rule.",
+				Description:         "If `type`==`radius_attrs`, standard RADIUS attributes returned by the NAC rule",
+				MarkdownDescription: "If `type`==`radius_attrs`, standard RADIUS attributes returned by the NAC rule",
 				Validators: []validator.List{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_attrs")),
 				},
 			},
 			"radius_group": schema.StringAttribute{
 				Optional:            true,
-				Description:         "If `type`==`radius_group`",
-				MarkdownDescription: "If `type`==`radius_group`",
+				Description:         "If `type`==`radius_group`, RADIUS group value returned by the NAC rule",
+				MarkdownDescription: "If `type`==`radius_group`, RADIUS group value returned by the NAC rule",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_group")),
 				},
@@ -120,24 +126,24 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			"radius_vendor_attrs": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "If `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
-				MarkdownDescription: "If `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field \"radius_vendor_attrs\". \nIt is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.\nNote that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.",
+				Description:         "If `type`==`radius_vendor_attrs`, vendor-specific RADIUS attributes returned by the NAC rule",
+				MarkdownDescription: "If `type`==`radius_vendor_attrs`, vendor-specific RADIUS attributes returned by the NAC rule",
 				Validators: []validator.List{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_vendor_attrs")),
 				},
 			},
 			"session_timeout": schema.Int64Attribute{
 				Optional:            true,
-				Description:         "If `type`==`session_timeout, in seconds",
-				MarkdownDescription: "If `type`==`session_timeout, in seconds",
+				Description:         "If `type`==`session_timeout`, session timeout returned by the NAC rule, in seconds",
+				MarkdownDescription: "If `type`==`session_timeout`, session timeout returned by the NAC rule, in seconds",
 				Validators: []validator.Int64{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("session_timeout")),
 				},
 			},
 			"type": schema.StringAttribute{
 				Required:            true,
-				Description:         "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `redirect_nacportal_id`, `session_timeout`, `username_attr`, `vlan`",
-				MarkdownDescription: "enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `redirect_nacportal_id`, `session_timeout`, `username_attr`, `vlan`",
+				Description:         "NAC tag type that determines whether the tag is a matcher or a result attribute",
+				MarkdownDescription: "NAC tag type that determines whether the tag is a matcher or a result attribute",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -157,8 +163,8 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"username_attr": schema.StringAttribute{
 				Optional:            true,
-				Description:         "enum: `automatic`, `cn`, `dns`, `email`, `upn`",
-				MarkdownDescription: "enum: `automatic`, `cn`, `dns`, `email`, `upn`",
+				Description:         "If `type`==`username_attr`, attribute used to derive the username returned by the NAC rule",
+				MarkdownDescription: "If `type`==`username_attr`, attribute used to derive the username returned by the NAC rule",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -173,16 +179,16 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			"values": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "If `type`==`match`",
-				MarkdownDescription: "If `type`==`match`",
+				Description:         "If `type`==`match`, attribute values used by the NAC tag matcher",
+				MarkdownDescription: "If `type`==`match`, attribute values used by the NAC tag matcher",
 				Validators: []validator.List{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("match")),
 				},
 			},
 			"vlan": schema.StringAttribute{
 				Optional:            true,
-				Description:         "If `type`==`vlan`",
-				MarkdownDescription: "If `type`==`vlan`",
+				Description:         "If `type`==`vlan`, VLAN name or ID returned by the NAC rule",
+				MarkdownDescription: "If `type`==`vlan`, VLAN name or ID returned by the NAC rule",
 				Validators: []validator.String{
 					mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("vlan")),
 				},

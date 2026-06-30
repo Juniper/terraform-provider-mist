@@ -179,6 +179,24 @@ func TerraformToSdk(plan *OrgNacidpModel) (*models.Sso, diag.Diagnostics) {
 		unset["-scim_secret_token"] = ""
 	}
 
+	if !plan.OpenroamingSsids.IsNull() && !plan.OpenroamingSsids.IsUnknown() {
+		data.OpenroamingSsids = mistutils.ListOfStringTerraformToSdk(plan.OpenroamingSsids)
+	} else {
+		unset["-openroaming_ssids"] = ""
+	}
+
+	if !plan.OpenroamingWbaClientCert.IsNull() && !plan.OpenroamingWbaClientCert.IsUnknown() {
+		data.OpenroamingWbaClientCert = plan.OpenroamingWbaClientCert.ValueStringPointer()
+	} else {
+		unset["-openroaming_wba_client_cert"] = ""
+	}
+
+	if !plan.OpenroamingWbaClientKey.IsNull() && !plan.OpenroamingWbaClientKey.IsUnknown() {
+		data.OpenroamingWbaClientKey = plan.OpenroamingWbaClientKey.ValueStringPointer()
+	} else {
+		unset["-openroaming_wba_client_key"] = ""
+	}
+
 	data.AdditionalProperties = unset
 	return &data, diags
 }

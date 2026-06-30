@@ -38,6 +38,9 @@ func SdkToTerraform(data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
 	var oauthProviderDomain types.String
 	var oauthTenantId types.String
 	var oauthType types.String
+	var openroamingSsids = types.ListNull(types.StringType)
+	var openroamingWbaClientCert types.String
+	var openroamingWbaClientKey types.String
 	var orgId types.String
 	var scimEnabled = types.BoolValue(false)
 	var scimSecretToken = types.StringValue("")
@@ -125,6 +128,15 @@ func SdkToTerraform(data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
 			oauthType = types.StringValue(string(*data.OauthType))
 		}
 	}
+	if data.OpenroamingSsids != nil {
+		openroamingSsids = mistutils.ListOfStringSdkToTerraform(data.OpenroamingSsids)
+	}
+	if data.OpenroamingWbaClientCert != nil {
+		openroamingWbaClientCert = types.StringValue(*data.OpenroamingWbaClientCert)
+	}
+	if data.OpenroamingWbaClientKey != nil {
+		openroamingWbaClientKey = types.StringValue(*data.OpenroamingWbaClientKey)
+	}
 	if data.OrgId != nil {
 		orgId = types.StringValue(data.OrgId.String())
 	}
@@ -161,6 +173,9 @@ func SdkToTerraform(data *models.Sso) (OrgNacidpModel, diag.Diagnostics) {
 	state.OauthProviderDomain = oauthProviderDomain
 	state.OauthTenantId = oauthTenantId
 	state.OauthType = oauthType
+	state.OpenroamingSsids = openroamingSsids
+	state.OpenroamingWbaClientCert = openroamingWbaClientCert
+	state.OpenroamingWbaClientKey = openroamingWbaClientKey
 	state.OrgId = orgId
 	state.ScimEnabled = scimEnabled
 	state.ScimSecretToken = scimSecretToken

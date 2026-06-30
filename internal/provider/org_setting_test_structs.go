@@ -3,6 +3,7 @@ package provider
 type OrgSettingModel struct {
 	ApUpdownThreshold            *int64                                    `hcl:"ap_updown_threshold"`
 	ApiPolicy                    *OrgSettingApiPolicyValue                 `hcl:"api_policy"`
+	AutoUpgrade                  *OrgSettingAutoUpgradeValue               `hcl:"auto_upgrade"`
 	Cacerts                      []string                                  `hcl:"cacerts"`
 	Celona                       *OrgSettingCelonaValue                    `hcl:"celona"`
 	Cloudshark                   *OrgSettingCloudsharkValue                `hcl:"cloudshark"`
@@ -39,7 +40,16 @@ type OrgSettingModel struct {
 }
 
 type OrgSettingApiPolicyValue struct {
-	NoReveal *bool `cty:"no_reveal" hcl:"no_reveal"`
+	NoReveal *bool    `cty:"no_reveal" hcl:"no_reveal"`
+	SrcIps   []string `cty:"src_ips" hcl:"src_ips"`
+}
+
+type OrgSettingAutoUpgradeValue struct {
+	CustomVersions map[string]string `cty:"custom_versions" hcl:"custom_versions"`
+	DayOfWeek      *string           `cty:"day_of_week" hcl:"day_of_week"`
+	Enabled        *bool             `cty:"enabled" hcl:"enabled"`
+	TimeOfDay      *string           `cty:"time_of_day" hcl:"time_of_day"`
+	Version        *string           `cty:"version" hcl:"version"`
 }
 
 type OrgSettingCelonaValue struct {
@@ -104,7 +114,8 @@ type OrgSettingJunosShellAccessValue struct {
 }
 
 type OrgSettingMarvisValue struct {
-	SelfDriving *OrgSettingSelfDrivingValue `cty:"self_driving" hcl:"self_driving"`
+	DisableProactiveMonitoring *bool                       `cty:"disable_proactive_monitoring" hcl:"disable_proactive_monitoring"`
+	SelfDriving                *OrgSettingSelfDrivingValue `cty:"self_driving" hcl:"self_driving"`
 }
 
 type OrgSettingSelfDrivingValue struct {
@@ -224,10 +235,10 @@ type OrgSettingSsrAutoUpgradeValue struct {
 }
 
 type OrgSettingSwitchValue struct {
-	AutoUpgrade *OrgSettingAutoUpgradeValue `cty:"auto_upgrade" hcl:"auto_upgrade"`
+	SwitchAutoUpgrade *OrgSettingSwitchAutoUpgradeValue `cty:"auto_upgrade" hcl:"auto_upgrade"`
 }
 
-type OrgSettingAutoUpgradeValue struct {
+type OrgSettingSwitchAutoUpgradeValue struct {
 	CustomVersions map[string]string `cty:"custom_versions" hcl:"custom_versions"`
 	Enabled        *bool             `cty:"enabled" hcl:"enabled"`
 	Snapshot       *bool             `cty:"snapshot" hcl:"snapshot"`

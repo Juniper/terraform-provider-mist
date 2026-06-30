@@ -2,7 +2,8 @@ package provider
 
 type OrgMxclusterModel struct {
 	MistDas                   *OrgMxclusterMistDasValue                      `hcl:"mist_das"`
-	MistNac                   *OrgMxclusterMistNacValue                      `hcl:"mist_nac"`
+	MistNac                   OrgMxclusterMistNacValue                       `hcl:"mist_nac"`
+	MistNacedge               *OrgMxclusterMistNacedgeValue                  `hcl:"mist_nacedge"`
 	MxedgeMgmt                *OrgMxclusterMxedgeMgmtValue                   `hcl:"mxedge_mgmt"`
 	Name                      string                                         `hcl:"name"`
 	OrgId                     string                                         `hcl:"org_id"`
@@ -38,6 +39,15 @@ type OrgMxclusterMistNacValue struct {
 	AuthServerPort *int64  `cty:"auth_server_port" hcl:"auth_server_port"`
 	Enabled        *bool   `cty:"enabled" hcl:"enabled"`
 	Secret         *string `cty:"secret" hcl:"secret"`
+}
+
+type OrgMxclusterMistNacedgeValue struct {
+	AuthTtl          *int64   `cty:"auth_ttl" hcl:"auth_ttl"`
+	CachingSiteIds   []string `cty:"caching_site_ids" hcl:"caching_site_ids"`
+	DefaultDot1xVlan *string  `cty:"default_dot1x_vlan" hcl:"default_dot1x_vlan"`
+	DefaultVlan      *string  `cty:"default_vlan" hcl:"default_vlan"`
+	Enabled          *bool    `cty:"enabled" hcl:"enabled"`
+	NacEdgeHosts     []string `cty:"nac_edge_hosts" hcl:"nac_edge_hosts"`
 }
 
 type OrgMxclusterMxedgeMgmtValue struct {
@@ -85,6 +95,10 @@ type OrgMxclusterAuthServersValue struct {
 	Secret               *string  `cty:"secret" hcl:"secret"`
 	Ssids                []string `cty:"ssids" hcl:"ssids"`
 	Timeout              *int64   `cty:"timeout" hcl:"timeout"`
+}
+
+type OrgMxclusterRadsecTlsValue struct {
+	Keypair *string `cty:"keypair" hcl:"keypair"`
 }
 
 type OrgMxclusterTuntermDhcpdConfigValue struct {

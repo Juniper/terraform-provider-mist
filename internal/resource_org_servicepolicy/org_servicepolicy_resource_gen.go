@@ -30,18 +30,20 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"aamwprofile_id": schema.StringAttribute{
 						Optional:            true,
-						Description:         "org-level Advanced Advance Anti Malware Profile (SkyAtp) Profile can be used, this takes precedence over 'profile'",
-						MarkdownDescription: "org-level Advanced Advance Anti Malware Profile (SkyAtp) Profile can be used, this takes precedence over 'profile'",
+						Description:         "Organization-level advanced anti-malware profile ID; takes precedence over inline `profile` settings",
+						MarkdownDescription: "Organization-level advanced anti-malware profile ID; takes precedence over inline `profile` settings",
 					},
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether advanced anti-malware inspection is enabled for the service policy",
+						MarkdownDescription: "Whether advanced anti-malware inspection is enabled for the service policy",
+						Default:             booldefault.StaticBool(false),
 					},
 					"profile": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `docsonly`, `executables`, `standard`",
-						MarkdownDescription: "enum: `docsonly`, `executables`, `standard`",
+						Description:         "Built-in advanced anti-malware inspection profile to apply",
+						MarkdownDescription: "Built-in advanced anti-malware inspection profile to apply",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -58,14 +60,14 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "SRX only",
-				MarkdownDescription: "SRX only",
+				Description:         "Advanced anti-malware settings applied by this service policy",
+				MarkdownDescription: "Advanced anti-malware settings applied by this service policy",
 			},
 			"action": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "enum: `allow`, `deny`",
-				MarkdownDescription: "enum: `allow`, `deny`",
+				Description:         "Allow or deny action for traffic matched by this service policy",
+				MarkdownDescription: "Allow or deny action for traffic matched by this service policy",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -78,18 +80,20 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"avprofile_id": schema.StringAttribute{
 						Optional:            true,
-						Description:         "org-level AV Profile can be used, this takes precedence over 'profile'",
-						MarkdownDescription: "org-level AV Profile can be used, this takes precedence over 'profile'",
+						Description:         "Organization-level antivirus profile ID; takes precedence over inline `profile` settings",
+						MarkdownDescription: "Organization-level antivirus profile ID; takes precedence over inline `profile` settings",
 					},
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether antivirus inspection is enabled for the service policy",
+						MarkdownDescription: "Whether antivirus inspection is enabled for the service policy",
+						Default:             booldefault.StaticBool(false),
 					},
 					"profile": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Default / noftp / httponly / or keys from av_profiles",
-						MarkdownDescription: "Default / noftp / httponly / or keys from av_profiles",
+						Description:         "Antivirus profile name to apply, such as `default`, `noftp`, `httponly`, or an AV profile key",
+						MarkdownDescription: "Antivirus profile name to apply, such as `default`, `noftp`, `httponly`, or an AV profile key",
 					},
 				},
 				CustomType: AntivirusType{
@@ -98,15 +102,17 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "For SRX-only",
-				MarkdownDescription: "For SRX-only",
+				Description:         "Malware and virus inspection settings applied by this service policy",
+				MarkdownDescription: "Malware and virus inspection settings applied by this service policy",
 			},
 			"appqoe": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether application QoE is enabled for the service policy",
+						MarkdownDescription: "Whether application QoE is enabled for the service policy",
+						Default:             booldefault.StaticBool(false),
 					},
 				},
 				CustomType: AppqoeType{
@@ -115,27 +121,33 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "SRX only",
-				MarkdownDescription: "SRX only",
+				Description:         "Application QoE settings applied by this service policy",
+				MarkdownDescription: "Application QoE settings applied by this service policy",
 			},
 			"ewf": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"alert_only": schema.BoolAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Whether matching enhanced web filtering traffic is logged without being blocked",
+							MarkdownDescription: "Whether matching enhanced web filtering traffic is logged without being blocked",
 						},
 						"block_message": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Message returned when enhanced web filtering blocks a request",
+							MarkdownDescription: "Message returned when enhanced web filtering blocks a request",
 						},
 						"enabled": schema.BoolAttribute{
-							Optional: true,
-							Computed: true,
-							Default:  booldefault.StaticBool(false),
+							Optional:            true,
+							Computed:            true,
+							Description:         "Whether this enhanced web filtering rule is enabled",
+							MarkdownDescription: "Whether this enhanced web filtering rule is enabled",
+							Default:             booldefault.StaticBool(false),
 						},
 						"profile": schema.StringAttribute{
 							Optional:            true,
-							Description:         "enum: `critical`, `standard`, `strict`",
-							MarkdownDescription: "enum: `critical`, `standard`, `strict`",
+							Description:         "Enhanced web filtering profile applied by this rule",
+							MarkdownDescription: "Enhanced web filtering profile applied by this rule",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -152,12 +164,14 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Enhanced web filtering rules applied by this service policy",
+				MarkdownDescription: "Enhanced web filtering rules applied by this service policy",
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the service policy",
+				MarkdownDescription: "Unique identifier of the service policy",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -165,12 +179,16 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 			"idp": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"alert_only": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether to alert without enforcing IDP prevention actions",
+						MarkdownDescription: "Whether to alert without enforcing IDP prevention actions",
 					},
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether IDP inspection is enabled for the policy",
+						MarkdownDescription: "Whether IDP inspection is enabled for the policy",
+						Default:             booldefault.StaticBool(false),
 					},
 					"idpprofile_id": schema.StringAttribute{
 						Optional:            true,
@@ -188,21 +206,27 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: IdpValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Intrusion detection and prevention settings applied by this service policy",
+				MarkdownDescription: "Intrusion detection and prevention settings applied by this service policy",
 			},
 			"local_routing": schema.BoolAttribute{
 				Optional:            true,
-				Description:         "access within the same VRF",
-				MarkdownDescription: "access within the same VRF",
+				Description:         "Whether the policy permits access within the same VRF",
+				MarkdownDescription: "Whether the policy permits access within the same VRF",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the service policy",
+				MarkdownDescription: "Display name of the service policy",
 				Validators: []validator.String{
 					stringvalidator.All(stringvalidator.LengthBetween(2, 32), mistvalidator.ParseName()),
 				},
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Organization that owns this service policy",
+				MarkdownDescription: "Organization that owns this service policy",
 			},
 			"path_preference": schema.StringAttribute{
 				Optional:            true,
@@ -210,8 +234,10 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "By default, we derive all paths available and use them, optionally, you can customize by using `path_preference`",
 			},
 			"services": schema.ListAttribute{
-				ElementType: types.StringType,
-				Optional:    true,
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "Application services or groups matched by this policy",
+				MarkdownDescription: "Application services or groups matched by this policy",
 				Validators: []validator.List{
 					listvalidator.UniqueValues(),
 				},
@@ -221,8 +247,8 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					"ciphers_category": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `medium`, `strong`, `weak`",
-						MarkdownDescription: "enum: `medium`, `strong`, `weak`",
+						Description:         "Allowed cipher strength category for SSL proxy inspection",
+						MarkdownDescription: "Allowed cipher strength category for SSL proxy inspection",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -234,9 +260,11 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 						Default: stringdefault.StaticString("strong"),
 					},
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether SSL proxy inspection is enabled for the service policy",
+						MarkdownDescription: "Whether SSL proxy inspection is enabled for the service policy",
+						Default:             booldefault.StaticBool(false),
 					},
 				},
 				CustomType: SslProxyType{
@@ -245,12 +273,14 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "For SRX-only",
-				MarkdownDescription: "For SRX-only",
+				Description:         "SSL proxy inspection settings applied by this service policy",
+				MarkdownDescription: "SSL proxy inspection settings applied by this service policy",
 			},
 			"tenants": schema.ListAttribute{
-				ElementType: types.StringType,
-				Optional:    true,
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "Tenant names matched by this service policy",
+				MarkdownDescription: "Tenant names matched by this service policy",
 				Validators: []validator.List{
 					listvalidator.UniqueValues(),
 				},

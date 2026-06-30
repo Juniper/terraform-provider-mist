@@ -18,8 +18,10 @@ func OrgDeviceprofileAssignResourceSchema(ctx context.Context) schema.Schema {
 				Required: true,
 			},
 			"macs": schema.SetAttribute{
-				ElementType: types.StringType,
-				Required:    true,
+				ElementType:         types.StringType,
+				Required:            true,
+				Description:         "List of MAC addresses included in the request",
+				MarkdownDescription: "List of MAC addresses included in the request",
 				Validators: []validator.Set{
 					setvalidator.SizeAtLeast(0),
 				},

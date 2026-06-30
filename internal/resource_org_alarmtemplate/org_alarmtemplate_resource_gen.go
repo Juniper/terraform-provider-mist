@@ -30,8 +30,8 @@ func OrgAlarmtemplateResourceSchema(ctx context.Context) schema.Schema {
 						ElementType:         types.StringType,
 						Optional:            true,
 						Computed:            true,
-						Description:         "List of additional email string to deliver the alarms via emails",
-						MarkdownDescription: "List of additional email string to deliver the alarms via emails",
+						Description:         "Additional email recipients for alarm delivery",
+						MarkdownDescription: "Additional email recipients for alarm delivery",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -58,13 +58,13 @@ func OrgAlarmtemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Required:            true,
-				Description:         "Delivery object to configure the alarm delivery",
-				MarkdownDescription: "Delivery object to configure the alarm delivery",
+				Description:         "Default alarm delivery settings for rules in this template",
+				MarkdownDescription: "Default alarm delivery settings for rules in this template",
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the alarm template",
+				MarkdownDescription: "Unique identifier of the alarm template",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -75,7 +75,9 @@ func OrgAlarmtemplateResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Some string to name the alarm template",
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Organization that owns this alarm template",
+				MarkdownDescription: "Organization that owns this alarm template",
 			},
 			"rules": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -86,8 +88,8 @@ func OrgAlarmtemplateResourceSchema(ctx context.Context) schema.Schema {
 									ElementType:         types.StringType,
 									Optional:            true,
 									Computed:            true,
-									Description:         "List of additional email string to deliver the alarms via emails",
-									MarkdownDescription: "List of additional email string to deliver the alarms via emails",
+									Description:         "Additional email recipients for alarm delivery",
+									MarkdownDescription: "Additional email recipients for alarm delivery",
 									Default:             listdefault.StaticValue(types.ListValueMust(types.StringType, []attr.Value{})),
 								},
 								"enabled": schema.BoolAttribute{
@@ -112,11 +114,13 @@ func OrgAlarmtemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Delivery object to configure the alarm delivery",
-							MarkdownDescription: "Delivery object to configure the alarm delivery",
+							Description:         "Overrides for the alarm template delivery defaults for this alarm rule",
+							MarkdownDescription: "Overrides for the alarm template delivery defaults for this alarm rule",
 						},
 						"enabled": schema.BoolAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Whether this alarm rule is enabled in the template",
+							MarkdownDescription: "Whether this alarm rule is enabled in the template",
 						},
 					},
 					CustomType: RulesType{

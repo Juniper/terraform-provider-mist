@@ -29,6 +29,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgMxclusterModel) (*models.Mxclu
 		unset["-mist_nac"] = ""
 	}
 
+	if !plan.MistNacedge.IsNull() && !plan.MistNacedge.IsUnknown() {
+		data.MistNacedge = mistNacedgeTerraformToSdk(ctx, &diags, plan.MistNacedge)
+	} else {
+		unset["-mist_nacedge"] = ""
+	}
+
 	if !plan.MxedgeMgmt.IsNull() && !plan.MxedgeMgmt.IsUnknown() {
 		data.MxedgeMgmt = mxedgeMgmtTerraformToSdk(ctx, &diags, plan.MxedgeMgmt)
 	} else {

@@ -34,8 +34,8 @@ func DeviceGatewayClusterResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"mac": schema.StringAttribute{
 							Required:            true,
-							Description:         "Gateway MAC Address. Format is `[0-9a-f]{12}` (e.g. \"5684dae9ac8b\")",
-							MarkdownDescription: "Gateway MAC Address. Format is `[0-9a-f]{12}` (e.g. \"5684dae9ac8b\")",
+							Description:         "Gateway device MAC address. Format is `[0-9a-f]{12}` (e.g. \"5684dae9ac8b\")",
+							MarkdownDescription: "Gateway device MAC address. Format is `[0-9a-f]{12}` (e.g. \"5684dae9ac8b\")",
 							Validators: []validator.String{
 								mistvalidator.ParseMac(),
 							},
@@ -48,8 +48,8 @@ func DeviceGatewayClusterResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Required:            true,
-				Description:         "When replacing a node, either mac has to remain the same as existing cluster",
-				MarkdownDescription: "When replacing a node, either mac has to remain the same as existing cluster",
+				Description:         "Gateway nodes that form the HA cluster",
+				MarkdownDescription: "Gateway nodes that form the HA cluster",
 				Validators: []validator.List{
 					listvalidator.SizeBetween(1, 2),
 					listvalidator.UniqueValues(),

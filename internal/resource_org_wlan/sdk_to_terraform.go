@@ -61,6 +61,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	var dtim types.Int64
 	var dynamicPsk = NewDynamicPskValueNull()
 	var dynamicVlan = NewDynamicVlanValueNull()
+	var enableFtm types.Bool
 	var enableLocalKeycaching types.Bool
 	var enableWirelessBridging types.Bool
 	var enableWirelessBridgingDhcpTracking types.Bool
@@ -289,6 +290,10 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 
 	if data.DynamicVlan.IsValueSet() && data.DynamicVlan.Value() != nil {
 		dynamicVlan = dynamicVlanSdkToTerraform(ctx, &diags, data.DynamicVlan.Value())
+	}
+
+	if data.EnableFtm != nil {
+		enableFtm = types.BoolValue(*data.EnableFtm)
 	}
 
 	if data.EnableLocalKeycaching != nil {
@@ -554,6 +559,7 @@ func SdkToTerraform(ctx context.Context, data *models.Wlan) (OrgWlanModel, diag.
 	state.Dtim = dtim
 	state.DynamicPsk = dynamicPsk
 	state.DynamicVlan = dynamicVlan
+	state.EnableFtm = enableFtm
 	state.EnableLocalKeycaching = enableLocalKeycaching
 	state.EnableWirelessBridging = enableWirelessBridging
 	state.EnableWirelessBridgingDhcpTracking = enableWirelessBridgingDhcpTracking

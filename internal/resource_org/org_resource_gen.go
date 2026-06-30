@@ -19,23 +19,29 @@ func OrgResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"alarmtemplate_id": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				Description:         "Org-level alarm template ID used as the default for sites",
+				MarkdownDescription: "Org-level alarm template ID used as the default for sites",
 			},
 			"allow_mist": schema.BoolAttribute{
-				Optional: true,
-				Computed: true,
-				Default:  booldefault.StaticBool(true),
+				Optional:            true,
+				Computed:            true,
+				Description:         "Whether Mist support access is allowed for this organization",
+				MarkdownDescription: "Whether Mist support access is allowed for this organization",
+				Default:             booldefault.StaticBool(true),
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the organization",
+				MarkdownDescription: "Unique identifier of the organization",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"msp_id": schema.StringAttribute{
-				Computed: true,
+				Computed:            true,
+				Description:         "Managed service provider account that owns this organization, when applicable",
+				MarkdownDescription: "Managed service provider account that owns this organization, when applicable",
 			},
 			"msp_logo_url": schema.StringAttribute{
 				Computed:            true,
@@ -48,15 +54,21 @@ func OrgResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Name of the msp the org belongs to",
 			},
 			"name": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Display name of the organization",
+				MarkdownDescription: "Display name of the organization",
 			},
 			"orggroup_ids": schema.ListAttribute{
-				ElementType: types.StringType,
-				Computed:    true,
+				ElementType:         types.StringType,
+				Computed:            true,
+				Description:         "Organization group IDs that include this organization",
+				MarkdownDescription: "Organization group IDs that include this organization",
 			},
 			"session_expiry": schema.Int64Attribute{
-				Optional: true,
-				Computed: true,
+				Optional:            true,
+				Computed:            true,
+				Description:         "Admin session lifetime for the organization, in minutes",
+				MarkdownDescription: "Admin session lifetime for the organization, in minutes",
 				Validators: []validator.Int64{
 					int64validator.Between(10, 20160),
 				},

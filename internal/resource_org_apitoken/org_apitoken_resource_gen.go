@@ -32,31 +32,35 @@ func OrgApitokenResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique identifier of the organization API token",
+				MarkdownDescription: "Unique identifier of the organization API token",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
 			"key": schema.StringAttribute{
-				Computed:  true,
-				Sensitive: true,
+				Computed:            true,
+				Sensitive:           true,
+				Description:         "Token secret key. The full API Token is only returned when the API token is created and can only be partially retrieved afterward",
+				MarkdownDescription: "Token secret key. The full API Token is only returned when the API token is created and can only be partially retrieved afterward",
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
-				Description:         "Name of the token",
-				MarkdownDescription: "Name of the token",
+				Description:         "Display name of the organization API token",
+				MarkdownDescription: "Display name of the organization API token",
 			},
 			"org_id": schema.StringAttribute{
-				Required: true,
+				Required:            true,
+				Description:         "Organization that owns this API token",
+				MarkdownDescription: "Organization that owns this API token",
 			},
 			"privileges": schema.ListNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"role": schema.StringAttribute{
 							Required:            true,
-							Description:         "access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`",
-							MarkdownDescription: "access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`",
+							Description:         "Access role granted by this organization privilege",
+							MarkdownDescription: "Access role granted by this organization privilege",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -70,8 +74,8 @@ func OrgApitokenResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"scope": schema.StringAttribute{
 							Required:            true,
-							Description:         "enum: `org`, `site`, `sitegroup`, `orgsites`",
-							MarkdownDescription: "enum: `org`, `site`, `sitegroup`, `orgsites`",
+							Description:         "Organization hierarchy level where this privilege applies",
+							MarkdownDescription: "Organization hierarchy level where this privilege applies",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -108,8 +112,8 @@ func OrgApitokenResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Required:            true,
-				Description:         "List of privileges the token has on the orgs/sites",
-				MarkdownDescription: "List of privileges the token has on the orgs/sites",
+				Description:         "Access scopes and roles granted to the organization API token",
+				MarkdownDescription: "Access scopes and roles granted to the organization API token",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
@@ -117,8 +121,8 @@ func OrgApitokenResourceSchema(ctx context.Context) schema.Schema {
 			"src_ips": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "List of allowed IP addresses from where the token can be used from. At most 10 IP addresses can be specified, cannot be changed once the API Token is created.",
-				MarkdownDescription: "List of allowed IP addresses from where the token can be used from. At most 10 IP addresses can be specified, cannot be changed once the API Token is created.",
+				Description:         "Allowed source IP addresses or CIDRs from which the token may be used",
+				MarkdownDescription: "Allowed source IP addresses or CIDRs from which the token may be used",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.SizeAtMost(10),

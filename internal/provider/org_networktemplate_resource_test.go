@@ -967,6 +967,9 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, tName string, 
 						if portCfg.AeLacpForceUp != nil {
 							checks.append(t, "TestCheckResourceAttr", portPath+".ae_lacp_force_up", fmt.Sprintf("%t", *portCfg.AeLacpForceUp))
 						}
+						if portCfg.AeLacpPassive != nil {
+							checks.append(t, "TestCheckResourceAttr", portPath+".ae_lacp_passive", fmt.Sprintf("%t", *portCfg.AeLacpPassive))
+						}
 						if portCfg.AeLacpSlow != nil {
 							checks.append(t, "TestCheckResourceAttr", portPath+".ae_lacp_slow", fmt.Sprintf("%t", *portCfg.AeLacpSlow))
 						}
@@ -1628,6 +1631,9 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, tName string, 
 			}
 			if usage.ServerFailNetwork != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".server_fail_network", *usage.ServerFailNetwork)
+			}
+			if usage.ServerFailRetryInterval != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".server_fail_retry_interval", fmt.Sprintf("%d", *usage.ServerFailRetryInterval))
 			}
 			if usage.ServerRejectNetwork != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".server_reject_network", *usage.ServerRejectNetwork)

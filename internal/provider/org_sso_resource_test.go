@@ -139,5 +139,22 @@ func (o *OrgSsoModel) testChecks(t testing.TB, rType, tName string, tracker *val
 		checks.append(t, "TestCheckResourceAttr", "ignore_unmatched_roles", fmt.Sprintf("%t", *o.IgnoreUnmatchedRoles))
 	}
 
+	// Check oauth/openroaming fields
+	if o.OauthProviderDomain != nil {
+		checks.append(t, "TestCheckResourceAttr", "oauth_provider_domain", *o.OauthProviderDomain)
+	}
+	if o.OpenroamingWbaClientCert != nil {
+		checks.append(t, "TestCheckResourceAttr", "openroaming_wba_client_cert", *o.OpenroamingWbaClientCert)
+	}
+	if o.OpenroamingWbaClientKey != nil {
+		checks.append(t, "TestCheckResourceAttr", "openroaming_wba_client_key", *o.OpenroamingWbaClientKey)
+	}
+	if len(o.OpenroamingSsids) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "openroaming_ssids.#", fmt.Sprintf("%d", len(o.OpenroamingSsids)))
+		for i, ssid := range o.OpenroamingSsids {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("openroaming_ssids.%d", i), ssid)
+		}
+	}
+
 	return checks
 }

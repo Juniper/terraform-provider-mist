@@ -389,6 +389,27 @@ func (s *DeviceApModel) testChecks(t testing.TB, rType, tName string, tracker *v
 		}
 	}
 
+	if s.MqttConfig != nil {
+		if s.MqttConfig.BrokerHost != nil {
+			checks.append(t, "TestCheckResourceAttr", "mqtt_config.broker_host", *s.MqttConfig.BrokerHost)
+		}
+		if s.MqttConfig.BrokerPort != nil {
+			checks.append(t, "TestCheckResourceAttr", "mqtt_config.broker_port", fmt.Sprintf("%d", *s.MqttConfig.BrokerPort))
+		}
+		if s.MqttConfig.BrokerProto != nil {
+			checks.append(t, "TestCheckResourceAttr", "mqtt_config.broker_proto", *s.MqttConfig.BrokerProto)
+		}
+		if s.MqttConfig.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "mqtt_config.enabled", fmt.Sprintf("%t", *s.MqttConfig.Enabled))
+		}
+		if s.MqttConfig.Format != nil {
+			checks.append(t, "TestCheckResourceAttr", "mqtt_config.format", *s.MqttConfig.Format)
+		}
+		if s.MqttConfig.Username != nil {
+			checks.append(t, "TestCheckResourceAttr", "mqtt_config.username", *s.MqttConfig.Username)
+		}
+	}
+
 	if s.Notes != nil {
 		checks.append(t, "TestCheckResourceAttr", "notes", *s.Notes)
 	}

@@ -303,6 +303,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgWlanModel) (*models.Wlan, diag
 		data.DynamicVlan = models.NewOptional(dynamicVlan)
 	}
 
+	if plan.EnableFtm.IsNull() || plan.EnableFtm.IsUnknown() {
+		unset["-enable_ftm"] = ""
+	} else {
+		data.EnableFtm = plan.EnableFtm.ValueBoolPointer()
+	}
+
 	if plan.EnableLocalKeycaching.IsNull() || plan.EnableLocalKeycaching.IsUnknown() {
 		unset["-enable_local_keycaching"] = ""
 	} else {
