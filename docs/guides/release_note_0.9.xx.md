@@ -22,7 +22,7 @@ description: |-
 
 #### Resources added
 
-- **`mist_org_deviceprofile_switch` resource**: New resource to manage switch device profiles at the organisation level
+- **`mist_org_deviceprofile_switch` resource**: New resource to manage switch device profiles at the organization level
 
 #### Attributes added
 
