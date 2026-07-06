@@ -37,24 +37,24 @@ resource "mist_org_wxrule" "wxrule_one" {
 
 ### Required
 
-- `action` (String) type of action, allow / block. enum: `allow`, `block`
-- `order` (Number) Order how rules would be looked up, > 0 and bigger order got matched first, -1 means LAST, uniqueness not checked
-- `org_id` (String)
+- `action` (String) Allow or block behavior applied by this WxLAN rule
+- `order` (Number) Lookup priority for WxLAN rules; larger positive values match first, and -1 means LAST. Uniqueness is not checked
+- `org_id` (String) Owning organization associated with this WxLAN rule
 - `template_id` (String) Only for Org Level WxRule
 
 ### Optional
 
-- `apply_tags` (List of String)
-- `blocked_apps` (List of String) Blocked apps (always blocking, ignoring action), the key of Get Application List
-- `dst_allow_wxtags` (List of String) List of WxTag UUID to indicate these tags are allowed access
-- `dst_deny_wxtags` (List of String) List of WxTag UUID to indicate these tags are blocked access
-- `dst_wxtags` (List of String) List of WxTag UUID
-- `enabled` (Boolean)
-- `src_wxtags` (List of String) List of WxTag UUID to determine if this rule would match
+- `apply_tags` (List of String) WxLAN tag identifiers applied when this rule matches
+- `blocked_apps` (List of String) Application keys always blocked by this rule, regardless of the rule action
+- `dst_allow_wxtags` (List of String) Destination WxLAN tag identifiers explicitly allowed by this rule
+- `dst_deny_wxtags` (List of String) Destination WxLAN tag identifiers explicitly denied by this rule
+- `dst_wxtags` (List of String) Destination WxLAN tag identifiers matched by this rule
+- `enabled` (Boolean) Whether this WxLAN rule is enabled
+- `src_wxtags` (List of String) Source WxLAN tag identifiers that must match for this rule to apply
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier for this WxLAN rule
 
 
 

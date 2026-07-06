@@ -39,8 +39,8 @@ resource "mist_org_sso" "sso_admin_one" {
 - `idp_sign_algo` (String) Signing algorithm for SAML Assertion. enum `sha1`, `sha256`, `sha384`, `sha512`
 - `idp_sso_url` (String) IDP Single-Sign-On URL
 - `issuer` (String) IDP issuer URL
-- `name` (String) Name
-- `org_id` (String)
+- `name` (String) Display name of the SSO configuration
+- `org_id` (String) Owning organization identifier for this SSO configuration
 
 ### Optional
 
@@ -48,7 +48,10 @@ resource "mist_org_sso" "sso_admin_one" {
 - `default_role` (String) default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched
 - `ignore_unmatched_roles` (Boolean) ignore any unmatched roles provided in assertion. By default, an assertion is treated as invalid for any unmatched role
 - `nameid_format` (String) enum: `email`, `unspecified`
-- `oauth_provider_domain` (String) If `oauth_type`==`okta`, specifies the region-specific OAuth provider domain. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`
+- `oauth_provider_domain` (String) Provider domain for Okta OAuth SSO when `oauth_type`==`okta`
+- `openroaming_ssids` (List of String) SSIDs that support OpenRoaming, used when `idp_type`==`openroaming`
+- `openroaming_wba_client_cert` (String, Sensitive) Optional WBA-issued client certificate for OpenRoaming. If not provided, the default WBA-issued certificate for Juniper will be used.
+- `openroaming_wba_client_key` (String, Sensitive) Optional WBA-issued client private key for OpenRoaming. If not provided, the default WBA-issued key for Juniper will be used.
 - `role_attr_extraction` (String) custom role attribute parsing scheme. Supported Role Parsing Schemes <table><tr><th>Name</th><th>Scheme</th></tr><tr><td>`cn`</td><td><ul><li>The expected role attribute format in SAML Assertion is “CN=cn,OU=ou1,OU=ou2,…”</li><li>CN (the key) is case insensitive and exactly 1 CN is expected (or the entire entry will be ignored)</li></ul>E.g. if role attribute is “CN=cn,OU=ou1,OU=ou2” then parsed role value is “cn”</td></tr></table>
 - `role_attr_from` (String) name of the attribute in SAML Assertion to extract role from. Default: `Role`
 
@@ -57,7 +60,7 @@ resource "mist_org_sso" "sso_admin_one" {
 - `domain` (String) Random string generated during the SSO creation and used to generate the SAML URLs:
   * ACS URL = `/api/v1/saml/{domain}/login` (e.g. `https://api.mist.com/api/v1/saml/s4t5vwv8/login`)
   * Single Logout URL = `/api/v1/saml/{domain}/logout` (e.g. `https://api.mist.com/api/v1/saml/s4t5vwv8/logout`)
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier for this SSO configuration
 
 
 

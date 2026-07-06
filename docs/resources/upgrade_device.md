@@ -44,7 +44,7 @@ resource "mist_upgrade_device" "switch_upgrade" {
 ### Required
 
 - `device_id` (String)
-- `site_id` (String)
+- `site_id` (String) Associated site identifier for the switch statistics record
 - `target_version` (String) firmware version to deploy to the device. Use the `mist_device_versions` datasource to get the list of available firmware versions
 
 ### Optional
@@ -60,23 +60,23 @@ resource "mist_upgrade_device" "switch_upgrade" {
 
 ### Read-Only
 
-- `auto_upgrade_stat` (Attributes) (see [below for nested schema](#nestedatt--auto_upgrade_stat))
-- `config_timestamp` (Number)
-- `config_version` (Number)
+- `auto_upgrade_stat` (Attributes) Automatic firmware upgrade status for the switch (see [below for nested schema](#nestedatt--auto_upgrade_stat))
+- `config_timestamp` (Number) Time when the switch configuration status was last updated, in epoch seconds
+- `config_version` (Number) Currently applied configuration version for the switch
 - `device_version` (String) current device firmware version
-- `ext_ip` (String)
-- `fwupdate` (Attributes) (see [below for nested schema](#nestedatt--fwupdate))
-- `status` (String) enum: `error`, `inprogress`, `scheduled`, `starting`, `success`
-- `tag_id` (Number)
-- `tag_uuid` (String)
-- `timestamp` (Number) Epoch (seconds)
+- `ext_ip` (String) Public IP address observed for the switch
+- `fwupdate` (Attributes) Firmware update status for the switch (see [below for nested schema](#nestedatt--fwupdate))
+- `status` (String) Current status of the requested device upgrade
+- `tag_id` (Number) Numeric inventory tag identifier associated with the switch
+- `tag_uuid` (String) Inventory tag UUID associated with the switch
+- `timestamp` (Number) Epoch timestamp when the device upgrade status was reported
 
 <a id="nestedatt--auto_upgrade_stat"></a>
 ### Nested Schema for `auto_upgrade_stat`
 
 Read-Only:
 
-- `lastcheck` (Number)
+- `lastcheck` (Number) Time when the device last checked for auto-upgrade, in epoch seconds
 
 
 <a id="nestedatt--fwupdate"></a>
@@ -84,10 +84,10 @@ Read-Only:
 
 Read-Only:
 
-- `progress` (Number)
-- `status` (String) enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`
-- `status_id` (Number)
-- `timestamp` (Number) Epoch (seconds)
-- `will_retry` (Boolean)
+- `progress` (Number) Firmware update progress percentage, or null when unavailable
+- `status` (String) Current firmware update status
+- `status_id` (Number) Numeric firmware update status identifier
+- `timestamp` (Number) Time when the firmware update status was last updated
+- `will_retry` (Boolean) Whether the firmware update process will retry after the current status
 
 

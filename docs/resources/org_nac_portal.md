@@ -90,47 +90,35 @@ resource "mist_org_nac_portal" "guest_portal" {
 
 ### Required
 
-- `name` (String)
-- `org_id` (String)
+- `name` (String) Human-readable name of the NAC portal
+- `org_id` (String) Organization that owns this NAC portal
 
 ### Optional
 
-- `access_type` (String) if `type`==`marvis_client`. enum: `wireless`, `wireless+wired`
-- `additional_cacerts` (List of String) Optional list of additional CA certificates to be used
+- `access_type` (String) If `type`==`marvis_client`, whether onboarding applies to wireless clients or both wireless and wired clients
+- `additional_cacerts` (List of String) Additional CA certificates trusted during NAC portal certificate onboarding
 - `additional_nac_server_name` (List of String) Optional list of additional NAC server names
-- `cert_expire_time` (Number) In days
-- `eap_type` (String) enum: `wpa2`, `wpa3`
+- `cert_expire_time` (Number) Validity duration for portal-issued client certificates, in days
+- `eap_type` (String) EAP mode used when onboarding wireless clients through the NAC portal
 - `enable_telemetry` (Boolean) Model, version, fingering, events (connecting, disconnect, roaming), which ap
-- `expiry_notification_time` (Number) In days
-- `notify_expiry` (Boolean) phase 2
-- `portal` (Attributes) Guest portal configuration when `type`==`guest_portal`. If 
-  * `auth`==`none`, the user is presented with a terms of service and can click and continue.
-  * `auth`==`external`, the user is redirected to an external URL for authentication.
-  * `auth`==`multi`, the user is presented with a choice of authentication methods:
-    - social logins: facebook / google / amazon / microsoft / azure
-    - sponsor
-    - sms: supported provider: twillio
-    - email
-    - sso
-    - userpass: pre created guest list (see [below for nested schema](#nestedatt--portal))
-- `ssid` (String)
-- `sso` (Attributes) (see [below for nested schema](#nestedatt--sso))
-- `tos` (String)
-- `type` (String) enum: 
-  * `guest_admin`: NAC-Based Portal Admin for Pre Created Guest Authentication
-  * `guest_portal`: NAC-Based Guest Portal
-  * `marvis_client`
+- `expiry_notification_time` (Number) Number of days before certificate expiration to start sending reminder notifications
+- `notify_expiry` (Boolean) Whether to send reminder notifications before portal-issued certificates expire
+- `portal` (Attributes) Guest portal settings used when `type`==`guest_portal` (see [below for nested schema](#nestedatt--portal))
+- `ssid` (String) Wireless SSID associated with the NAC portal
+- `sso` (Attributes) SAML SSO settings for NAC portal authentication and role mapping (see [below for nested schema](#nestedatt--sso))
+- `tos` (String) Terms of service text shown in the NAC portal
+- `type` (String) NAC portal mode, such as guest admin, guest portal, or Marvis client onboarding
 
 ### Read-Only
 
-- `id` (String) The ID of this resource.
+- `id` (String) Unique identifier of the NAC portal
 
 <a id="nestedatt--portal"></a>
 ### Nested Schema for `portal`
 
 Optional:
 
-- `auth` (String) Guest portal authentication type. enum: `external`, `multi`, `none`
+- `auth` (String) Mode presented by the NAC guest portal for user authentication
 - `expire` (Number) If `auth`==`none` or `auth`==`multi`, whether to expire the guest after a certain time
 - `external_portal_url` (String) If `auth`==`external`, the URL to redirect the user to for authentication
 - `force_reconnect` (Boolean) Disconnect client (workaround for reauth issues)
@@ -145,20 +133,20 @@ Optional:
 
 Optional:
 
-- `idp_cert` (String)
-- `idp_sign_algo` (String) Signing algorithm for SAML Assertion. enum: `sha1`, `sha256`, `sha384`, `sha512`.
-- `idp_sso_url` (String)
-- `issuer` (String)
-- `nameid_format` (String)
-- `sso_role_matching` (Attributes List) (see [below for nested schema](#nestedatt--sso--sso_role_matching))
-- `use_sso_role_for_cert` (Boolean) If it's desired to inject a role into Cert's Subject (so it can be used later on in policy)
+- `idp_cert` (String) Identity provider certificate used to verify signed SAML responses
+- `idp_sign_algo` (String) Signing algorithm expected for SAML assertions from the identity provider
+- `idp_sso_url` (String) Identity provider Single Sign-On URL for SAML authentication
+- `issuer` (String) Identity provider issuer URL for SAML authentication
+- `nameid_format` (String) SAML NameID format expected from the identity provider
+- `sso_role_matching` (Attributes List) Rules that map SSO role values from the identity provider to NAC portal roles (see [below for nested schema](#nestedatt--sso--sso_role_matching))
+- `use_sso_role_for_cert` (Boolean) Whether to include the matched SSO role in the issued certificate subject for later policy matching
 
 <a id="nestedatt--sso--sso_role_matching"></a>
 ### Nested Schema for `sso.sso_role_matching`
 
 Optional:
 
-- `assigned` (String)
-- `match` (String)
+- `assigned` (String) NAC portal role assigned when the SSO role value matches
+- `match` (String) SSO role value to match from the SAML assertion
 
 

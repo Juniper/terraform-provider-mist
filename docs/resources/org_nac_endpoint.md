@@ -38,20 +38,20 @@ resource "mist_org_nac_endpoint" "endpoint_one" {
 
 ### Required
 
-- `mac` (String) Only non-local-admin MAC is accepted
+- `mac` (String) Client MAC address for this entry. Only non-local-admin MAC addresses are accepted
 - `org_id` (String)
 
 ### Optional
 
-- `labels` (List of String)
-- `name` (String)
-- `notes` (String)
-- `radius_group` (String)
-- `vlan` (String)
+- `labels` (List of String) Applied labels for this user MAC entry
+- `name` (String) Display name for this user MAC entry
+- `notes` (String) Free-form notes about this user MAC entry
+- `radius_group` (String) RADIUS group associated with this user MAC entry
+- `vlan` (String) Network VLAN value associated with this user MAC entry
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier for this user MAC entry
 
 
 

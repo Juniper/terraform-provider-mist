@@ -48,20 +48,20 @@ resource "mist_org_avprofile" "avprofile_one" {
 
 ### Required
 
-- `name` (String)
-- `org_id` (String)
-- `protocols` (List of String) List of protocols to monitor. enum: `ftp`, `http`, `imap`, `pop3`, `smtp`
+- `name` (String) Display name of the antivirus profile
+- `org_id` (String) Owning organization identifier for this antivirus profile
+- `protocols` (List of String) Network protocols inspected by this antivirus profile
 
 ### Optional
 
-- `fallback_action` (String) enum: `block`, `log-and-permit`, `permit`
-- `max_filesize` (Number) In KB
-- `mime_whitelist` (List of String)
-- `url_whitelist` (List of String)
+- `fallback_action` (String) Action to take when antivirus scanning cannot complete
+- `max_filesize` (Number) Maximum file size scanned by this antivirus profile, in KB
+- `mime_whitelist` (List of String) Content MIME types exempted from antivirus scanning
+- `url_whitelist` (List of String) Allowed URL entries exempted from antivirus scanning
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier of the antivirus profile
 
 
 

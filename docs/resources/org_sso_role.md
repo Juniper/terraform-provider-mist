@@ -36,40 +36,27 @@ resource "mist_org_sso_role" "sso_role_one" {
 
 ### Required
 
-- `name` (String)
-- `org_id` (String)
-- `privileges` (Attributes List) (see [below for nested schema](#nestedatt--privileges))
+- `name` (String) Display name of the organization SSO role
+- `org_id` (String) Owning organization identifier for this SSO role
+- `privileges` (Attributes List) Access privileges granted by this organization SSO role (see [below for nested schema](#nestedatt--privileges))
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier for this organization SSO role
 
 <a id="nestedatt--privileges"></a>
 ### Nested Schema for `privileges`
 
 Required:
 
-- `role` (String) access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`
-- `scope` (String) enum: `org`, `site`, `sitegroup`, `orgsites`
+- `role` (String) Access role granted by this organization privilege
+- `scope` (String) Organization hierarchy level where this privilege applies
 
 Optional:
 
 - `site_id` (String) Required if `scope`==`site`
 - `sitegroup_id` (String) Required if `scope`==`sitegroup`
-- `views` (List of String) Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users. Custom roles restrict Org users to specific UI views. This is useful for limiting UI access of Org users.  
-You can define custom roles by adding the `views` attribute along with `role` when assigning privileges.  
-Below are the list of supported UI views. Note that this is UI only feature.  
-
-  | UI View | Required Role | Description |
-  | --- | --- | --- |
-  | `reporting` | `read` | full access to all analytics tools |
-  | `marketing` | `read` | can view analytics and location maps |
-  | `super_observer` | `read` | can view all the organization except the subscription page |
-  | `location` | `write` | can view and manage location maps, can view analytics |
-  | `security` | `write` | can view and manage site labels, policies and security |
-  | `switch_admin` | `helpdesk` | can view and manage Switch ports, can view wired clients |
-  | `mxedge_admin` | `admin` | can view and manage Mist edges and Mist tunnels |
-  | `lobby_admin` | `admin` | full access to Org and Site Pre-shared keys |
+- `views` (List of String) UI views allowed by custom role restrictions
 
 
 

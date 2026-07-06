@@ -28,12 +28,12 @@ resource "mist_org_sitegroup" "sitegroup_one" {
 
 ### Required
 
-- `name` (String)
-- `org_id` (String)
+- `name` (String) Display name of the site group
+- `org_id` (String) Identifier of the org that owns the site group
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique value identifying the site group
 
 
 

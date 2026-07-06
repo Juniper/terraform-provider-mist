@@ -1,82 +1,27 @@
 ---
-page_title: "mist_org_networktemplate Resource - terraform-provider-mist"
+page_title: "mist_org_deviceprofile_switch Resource - terraform-provider-mist"
 subcategory: "Wired Assurance"
 description: |-
-  This resource managed the Org Network Templates (Switch templates).
-  A network template is a predefined configuration that provides a consistent and reusable set of network settings for devices within an organization. It includes various parameters such as ip addressing, vlan configurations, routing protocols, security policies, and other network-specific settings.Network templates simplify the deployment and management of switches by ensuring consistent configurations across multiple devices and sites. They help enforce standardization, reduce human error, and streamline troubleshooting and maintenance tasks.
+  This resource manages the Switch Device Profiles.
+  A Switch Device Profile is a configuration profile that defines the attributes of a switch device in a network. It includes settings for port configurations, VLANs, routing, and other switch-specific options. Switch Device Profiles are used to create consistent configurations across switch devices.
+  The Switch Device Profile can be assigned to a switch with the mist_org_deviceprofile_assign resource.
 ---
 
-# mist_org_networktemplate (Resource)
+# mist_org_deviceprofile_switch (Resource)
 
-This resource managed the Org Network Templates (Switch templates).
+This resource manages the Switch Device Profiles.
 
-A network template is a predefined configuration that provides a consistent and reusable set of network settings for devices within an organization. It includes various parameters such as ip addressing, vlan configurations, routing protocols, security policies, and other network-specific settings.  
-Network templates simplify the deployment and management of switches by ensuring consistent configurations across multiple devices and sites. They help enforce standardization, reduce human error, and streamline troubleshooting and maintenance tasks.
+A Switch Device Profile is a configuration profile that defines the attributes of a switch device in a network. It includes settings for port configurations, VLANs, routing, and other switch-specific options. Switch Device Profiles are used to create consistent configurations across switch devices.
+
+The Switch Device Profile can be assigned to a switch with the `mist_org_deviceprofile_assign` resource.
 
 
 ## Example Usage
 
 ```terraform
-resource "mist_org_networktemplate" "networktemplate_one" {
-  name        = "networktemplate_one"
-  org_id      = mist_org.terraform_test.id
-  dns_servers = ["8.8.8.8", "1.1.1.1"]
-  dns_suffix  = ["mycorp.com"]
-  ntp_servers = ["pool.ntp.org"]
-  additional_config_cmds = [
-    "set system hostname test",
-    "set system services ssh root-login allow"
-  ]
-  networks = {
-    network_one = {
-      vlan_id = 10
-    }
-    network_two = {
-      vlan_id = 11
-
-    }
-  }
-  port_usages = {
-    trunk = {
-      all_networks = true
-      enable_qos   = true
-      mode         = "port_usage_one"
-      port_network = "network_one"
-    }
-  }
-  radius_config = {
-    acct_interim_interval = 60
-    coa_enabled           = true
-    network               = "network_one"
-    acct_servers = [
-      {
-        host   = "1.2.3.4"
-        secret = "secret"
-      }
-    ]
-    auth_servers = [
-      {
-        host   = "1.2.3.4"
-        secret = "secret"
-      }
-    ]
-  }
-  switch_matching = {
-    enable = true
-    rules = [
-      {
-        name        = "switch_rule_one"
-        match_name        = "corp"
-        match_name_offset = 3
-        match_role        = "core"
-        port_config = {
-          "ge-0/0/0-10" = {
-            usage = "port_usage_one"
-          }
-        }
-      }
-    ]
-  }
+resource "mist_org_deviceprofile_switch" "deviceprofile_switch_one" {
+  name   = "deviceprofile_switch_one"
+  org_id = mist_org.terraform_test.id
 }
 ```
 
@@ -85,39 +30,48 @@ resource "mist_org_networktemplate" "networktemplate_one" {
 
 ### Required
 
-- `name` (String) Display name of the network template
-- `org_id` (String) Organization that owns this network template
+- `name` (String) Display name of the switch profile
+- `org_id` (String) Organization that owns this switch profile
+- `type` (String) Device type discriminator for switch profiles
 
 ### Optional
 
-- `acl_policies` (Attributes List) ACL policy defaults provided by this network template (see [below for nested schema](#nestedatt--acl_policies))
-- `acl_tags` (Attributes Map) ACL tags available to access policies in this network template (see [below for nested schema](#nestedatt--acl_tags))
-- `additional_config_cmds` (List of String) Additional CLI configuration commands provided by this network template
-- `bgp_config` (Attributes Map) BGP routing defaults for this network template. Property key is the BGP session name (see [below for nested schema](#nestedatt--bgp_config))
-- `dhcp_snooping` (Attributes) DHCP snooping defaults provided by this network template (see [below for nested schema](#nestedatt--dhcp_snooping))
-- `dns_servers` (List of String) DNS servers provided by this network template
-- `dns_suffix` (List of String) DNS search suffixes provided by this network template
-- `extra_routes` (Attributes Map) Additional IPv4 route defaults in this network template (see [below for nested schema](#nestedatt--extra_routes))
-- `extra_routes6` (Attributes Map) Additional IPv6 route defaults in this network template (see [below for nested schema](#nestedatt--extra_routes6))
-- `mist_nac` (Attributes) Mist NAC defaults applied by this network template (see [below for nested schema](#nestedatt--mist_nac))
-- `networks` (Attributes Map) Layer 3 networks configured by this network template (see [below for nested schema](#nestedatt--networks))
-- `ntp_servers` (List of String) NTP servers provided by this network template
-- `ospf_areas` (Attributes Map) OSPF area defaults provided by this network template (see [below for nested schema](#nestedatt--ospf_areas))
-- `port_mirroring` (Attributes Map) Port mirroring defaults provided by this network template (see [below for nested schema](#nestedatt--port_mirroring))
-- `port_usages` (Attributes Map) Reusable switch port usage profiles provided by this network template (see [below for nested schema](#nestedatt--port_usages))
-- `radius_config` (Attributes) RADIUS authentication and accounting defaults in this network template (see [below for nested schema](#nestedatt--radius_config))
-- `remote_syslog` (Attributes) Remote syslog defaults provided by this network template (see [below for nested schema](#nestedatt--remote_syslog))
-- `remove_existing_configs` (Boolean) By default, only the configuration generated by Mist is cleaned up during the configuration process. If `true`, all the existing configuration will be removed.
-- `routing_policies` (Attributes Map) Routing policy defaults applied by this network template (see [below for nested schema](#nestedatt--routing_policies))
-- `snmp_config` (Attributes) SNMP defaults provided by this network template (see [below for nested schema](#nestedatt--snmp_config))
-- `switch_matching` (Attributes) Matching rules that select switches for this network template (see [below for nested schema](#nestedatt--switch_matching))
-- `switch_mgmt` (Attributes) Management-plane defaults provided by this network template (see [below for nested schema](#nestedatt--switch_mgmt))
-- `vrf_config` (Attributes) VRF defaults applied by this network template (see [below for nested schema](#nestedatt--vrf_config))
-- `vrf_instances` (Attributes Map) VRF instances configured by this network template (see [below for nested schema](#nestedatt--vrf_instances))
+- `acl_policies` (Attributes List) ACL policy defaults provided by this switch profile (see [below for nested schema](#nestedatt--acl_policies))
+- `acl_tags` (Attributes Map) ACL tags available to switch access policies in this profile (see [below for nested schema](#nestedatt--acl_tags))
+- `additional_config_cmds` (List of String) Additional CLI configuration commands provided by this switch profile
+- `dhcp_snooping` (Attributes) DHCP snooping defaults provided by this switch profile (see [below for nested schema](#nestedatt--dhcp_snooping))
+- `dhcpd_config` (Attributes) DHCP server defaults provided by this switch profile (see [below for nested schema](#nestedatt--dhcpd_config))
+- `dns_servers` (List of String) DNS servers provided by this switch profile
+- `dns_suffix` (List of String) DNS search suffixes provided by this switch profile
+- `evpn_config` (Attributes) EVPN defaults applied by this switch profile (see [below for nested schema](#nestedatt--evpn_config))
+- `extra_routes` (Attributes Map) Additional IPv4 route defaults in this switch profile (see [below for nested schema](#nestedatt--extra_routes))
+- `extra_routes6` (Attributes Map) Additional IPv6 route defaults in this switch profile (see [below for nested schema](#nestedatt--extra_routes6))
+- `iot_config` (Attributes Map) IoT port defaults provided by this switch profile (see [below for nested schema](#nestedatt--iot_config))
+- `ip_config` (Attributes) Management IP addressing defaults in this switch profile (see [below for nested schema](#nestedatt--ip_config))
+- `mist_nac` (Attributes) Mist NAC defaults applied by this switch profile (see [below for nested schema](#nestedatt--mist_nac))
+- `networks` (Attributes Map) Layer 3 networks configured by this switch profile (see [below for nested schema](#nestedatt--networks))
+- `ntp_servers` (List of String) NTP servers provided by this switch profile
+- `oob_ip_config` (Attributes) Out-of-band management IP defaults in this switch profile (see [below for nested schema](#nestedatt--oob_ip_config))
+- `ospf_areas` (Attributes Map) OSPF area defaults provided by this switch profile (see [below for nested schema](#nestedatt--ospf_areas))
+- `other_ip_configs` (Attributes Map) Property key is the network name. Defines the additional IP Addresses configured on the device. (see [below for nested schema](#nestedatt--other_ip_configs))
+- `port_config` (Attributes Map) Per-port wired defaults provided by this switch profile (see [below for nested schema](#nestedatt--port_config))
+- `port_mirroring` (Attributes Map) Port mirroring defaults provided by this switch profile (see [below for nested schema](#nestedatt--port_mirroring))
+- `port_usages` (Attributes Map) Reusable switch port usage profiles provided by this switch profile (see [below for nested schema](#nestedatt--port_usages))
+- `radius_config` (Attributes) RADIUS authentication and accounting defaults in this switch profile (see [below for nested schema](#nestedatt--radius_config))
+- `remote_syslog` (Attributes) Remote syslog defaults provided by this switch profile (see [below for nested schema](#nestedatt--remote_syslog))
+- `routing_policies` (Attributes Map) Routing policy defaults applied by this switch profile (see [below for nested schema](#nestedatt--routing_policies))
+- `site_id` (String) Site where this switch profile is defined, when scoped to a site
+- `snmp_config` (Attributes) SNMP defaults provided by this switch profile (see [below for nested schema](#nestedatt--snmp_config))
+- `stp_config` (Attributes) Spanning Tree Protocol defaults provided by this switch profile (see [below for nested schema](#nestedatt--stp_config))
+- `switch_mgmt` (Attributes) Management-plane defaults provided by this switch profile (see [below for nested schema](#nestedatt--switch_mgmt))
+- `use_router_id_as_source_ip` (Boolean) Whether to use it for snmp / syslog / tacplus / radius
+- `vrf_config` (Attributes) VRF defaults applied by this switch profile (see [below for nested schema](#nestedatt--vrf_config))
+- `vrf_instances` (Attributes Map) VRF instances configured by this switch profile (see [below for nested schema](#nestedatt--vrf_instances))
+- `vrrp_config` (Attributes) VRRP defaults applied by this switch profile (see [below for nested schema](#nestedatt--vrrp_config))
 
 ### Read-Only
 
-- `id` (String) Unique identifier of the network template
+- `id` (String) Unique identifier of the switch profile
 
 <a id="nestedatt--acl_policies"></a>
 ### Nested Schema for `acl_policies`
@@ -180,40 +134,6 @@ Optional:
 
 
 
-<a id="nestedatt--bgp_config"></a>
-### Nested Schema for `bgp_config`
-
-Required:
-
-- `local_as` (String) Local BGP Autonomous System (AS) number for the switch
-- `type` (String) BGP session type for this switch BGP configuration
-
-Optional:
-
-- `auth_key` (String) Authentication key used for BGP neighbor sessions, when configured
-- `bfd_minimum_interval` (Number) Minimum interval in milliseconds for BFD hello packets. A neighbor is considered failed when the device stops receiving replies after the specified interval. Value must be between 1 and 255000.
-- `export_policy` (String) Export policy must match one of the policy names defined in the `routing_policies` property.
-- `hold_time` (Number) Default BGP hold time for switch BGP sessions
-- `import_policy` (String) Import policy must match one of the policy names defined in the `routing_policies` property.
-- `neighbors` (Attributes Map) BGP neighbor settings keyed by neighbor IP address (see [below for nested schema](#nestedatt--bgp_config--neighbors))
-- `networks` (List of String) Network names used to add BGP groups to the corresponding VRFs
-
-<a id="nestedatt--bgp_config--neighbors"></a>
-### Nested Schema for `bgp_config.neighbors`
-
-Required:
-
-- `neighbor_as` (String) Autonomous System (AS) number of the BGP neighbor. For internal BGP, this must match `local_as`. For external BGP, this must differ from `local_as`.
-
-Optional:
-
-- `export_policy` (String) Export policy must match one of the policy names defined in the `routing_policies` property.
-- `hold_time` (Number) BGP hold time for this neighbor
-- `import_policy` (String) Import policy must match one of the policy names defined in the `routing_policies` property.
-- `multihop_ttl` (Number) Time-to-live value for multihop BGP sessions to this neighbor
-
-
-
 <a id="nestedatt--dhcp_snooping"></a>
 ### Nested Schema for `dhcp_snooping`
 
@@ -224,6 +144,76 @@ Optional:
 - `enable_ip_source_guard` (Boolean) Enable for check for forging source IP address
 - `enabled` (Boolean) Whether DHCP snooping is enabled
 - `networks` (List of String) Network names with DHCP snooping enabled when `all_networks`==`false`
+
+
+<a id="nestedatt--dhcpd_config"></a>
+### Nested Schema for `dhcpd_config`
+
+Optional:
+
+- `config` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--dhcpd_config--config))
+- `enabled` (Boolean) Whether switch DHCP server or relay configuration is enabled
+
+<a id="nestedatt--dhcpd_config--config"></a>
+### Nested Schema for `dhcpd_config.config`
+
+Optional:
+
+- `dns_servers` (List of String) If `type`==`server` or `type6`==`server`, DNS servers advertised to DHCP clients
+- `dns_suffix` (List of String) If `type`==`server` or `type6`==`server`, DNS search suffixes advertised to DHCP clients
+- `fixed_bindings` (Attributes Map) If `type`==`server` or `type6`==`server`, fixed client bindings for DHCP service (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
+- `gateway` (String) If `type`==`server` - optional, `ip` will be used if not provided
+- `ip_end` (String) If `type`==`server`, ending IPv4 address for the DHCP lease pool
+- `ip_end6` (String) If `type6`==`server`, ending IPv6 address for the DHCP lease pool
+- `ip_start` (String) If `type`==`server`, starting IPv4 address for the DHCP lease pool
+- `ip_start6` (String) If `type6`==`server`, starting IPv6 address for the DHCP lease pool
+- `lease_time` (Number) In seconds, lease time has to be between 3600 [1hr] - 604800 [1 week], default is 86400 [1 day]
+- `options` (Attributes Map) If `type`==`server` or `type6`==`server`, custom DHCP options advertised to clients (see [below for nested schema](#nestedatt--dhcpd_config--config--options))
+- `server_id_override` (Boolean) `server_id_override`==`true` means the device, when acts as DHCP relay and forwards DHCP responses from DHCP server to clients, 
+should overwrite the Sever Identifier option (i.e. DHCP option 54) in DHCP responses with its own IP address.
+- `servers` (List of String) If `type`==`relay`, upstream IPv4 DHCP servers
+- `servers6` (List of String) If `type6`==`relay`, upstream IPv6 DHCP servers
+- `type` (String) IPv4 DHCP mode for this switch network
+- `type6` (String) IPv6 DHCP mode for this switch network
+- `vendor_encapsulated` (Attributes Map) If `type`==`server` or `type6`==`server`, vendor-encapsulated DHCP options advertised to clients (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapsulated))
+
+<a id="nestedatt--dhcpd_config--config--fixed_bindings"></a>
+### Nested Schema for `dhcpd_config.config.fixed_bindings`
+
+Optional:
+
+- `ip` (String) Reserved IPv4 address for this fixed DHCP binding
+- `ip6` (String) Reserved IPv6 address for this fixed DHCP binding
+- `name` (String) Friendly name for this fixed DHCP binding
+
+
+<a id="nestedatt--dhcpd_config--config--options"></a>
+### Nested Schema for `dhcpd_config.config.options`
+
+Optional:
+
+- `type` (String) Data type used to encode this DHCP option value
+- `value` (String) Option value to send for this DHCP option
+
+
+<a id="nestedatt--dhcpd_config--config--vendor_encapsulated"></a>
+### Nested Schema for `dhcpd_config.config.vendor_encapsulated`
+
+Optional:
+
+- `type` (String) Data type used to encode this vendor option value
+- `value` (String) Option value to send for this vendor option
+
+
+
+
+<a id="nestedatt--evpn_config"></a>
+### Nested Schema for `evpn_config`
+
+Optional:
+
+- `enabled` (Boolean) Whether EVPN configuration is enabled on the switch
+- `role` (String) EVPN topology role for the switch
 
 
 <a id="nestedatt--extra_routes"></a>
@@ -276,6 +266,31 @@ Optional:
 
 
 
+<a id="nestedatt--iot_config"></a>
+### Nested Schema for `iot_config`
+
+Optional:
+
+- `alarm_class` (String) Alarm severity class raised for input-triggered switch IOT port events
+- `enabled` (Boolean) Whether this switch IOT port is enabled
+- `input_src` (String) Only for `OUT` ports. Input port that triggers this output port
+- `name` (String) Display name for the switch IOT port
+
+
+<a id="nestedatt--ip_config"></a>
+### Nested Schema for `ip_config`
+
+Optional:
+
+- `dns` (List of String) Configured DNS server addresses for Junos management traffic
+- `dns_suffix` (List of String) DNS search suffixes configured for Junos management traffic
+- `gateway` (String) Default gateway IPv4 address for this Junos IP configuration
+- `ip` (String) Configured IPv4 address for this Junos IP configuration
+- `netmask` (String) Used only if `subnet` is not specified in `networks`
+- `network` (String) Management network for this IP configuration; used as the default source network for outbound SSH, DNS, NTP, TACACS+, RADIUS, syslog, and SNMP
+- `type` (String) IP assignment mode for this Junos IP configuration
+
+
 <a id="nestedatt--mist_nac"></a>
 ### Nested Schema for `mist_nac`
 
@@ -300,6 +315,20 @@ Optional:
 - `isolation_vlan_id` (String) Required when `isolation`==`true`. Unique VLAN ID used for client isolation
 - `subnet` (String) Optional for pure switching, required when L3 / routing features are used
 - `subnet6` (String) Optional for pure switching, required when L3 / routing features are used
+
+
+<a id="nestedatt--oob_ip_config"></a>
+### Nested Schema for `oob_ip_config`
+
+Optional:
+
+- `gateway` (String) Default gateway for the out-of-band management interface when `type`==`static`
+- `ip` (String) Static IPv4 address for the out-of-band management interface when `type`==`static`
+- `netmask` (String) Used only if `subnet` is not specified in `networks`
+- `network` (String) Optional, the network to be used for mgmt
+- `type` (String) IP assignment mode for the out-of-band management interface
+- `use_mgmt_vrf` (Boolean) If supported on the platform. If enabled, DNS will be using this routing-instance, too
+- `use_mgmt_vrf_for_host_out` (Boolean) For host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
 
 
 <a id="nestedatt--ospf_areas"></a>
@@ -332,6 +361,49 @@ Optional:
 - `no_readvertise_to_overlay` (Boolean) By default, we'll re-advertise all learned OSPF routes toward overlay
 - `passive` (Boolean) Whether to send OSPF-Hello
 
+
+
+<a id="nestedatt--other_ip_configs"></a>
+### Nested Schema for `other_ip_configs`
+
+Optional:
+
+- `evpn_anycast` (Boolean) For EVPN, whether anycast is desired
+- `ip` (String) Required if `type`==`static`; IPv4 address for the additional Junos L3 presence
+- `ip6` (String) Required if `type6`==`static`; IPv6 address for the additional Junos L3 presence
+- `netmask` (String) Optional IPv4 netmask; `subnet` from `network` definition will be used if defined
+- `netmask6` (String) Optional IPv6 prefix length; `subnet` from `network` definition will be used if defined
+- `type` (String) IPv4 assignment mode for the additional Junos L3 presence
+- `type6` (String) IPv6 assignment mode for the additional Junos L3 presence
+
+
+<a id="nestedatt--port_config"></a>
+### Nested Schema for `port_config`
+
+Required:
+
+- `usage` (String) Port usage name. For Q-in-Q, use `vlan_tunnel`. If EVPN is used, use `evpn_uplink`or `evpn_downlink`
+
+Optional:
+
+- `ae_disable_lacp` (Boolean) To disable LACP support for the AE interface
+- `ae_idx` (Number) Users could force to use the designated AE name
+- `ae_lacp_force_up` (Boolean) If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only
+- `ae_lacp_passive` (Boolean) If `aggregated`==`true`, sets LACP to passive mode on this AE interface; by default, active (fast) mode is used
+- `ae_lacp_slow` (Boolean) To use slow timeout
+- `aggregated` (Boolean) Whether this port is configured as an aggregated Ethernet member
+- `critical` (Boolean) To generate port up/down alarm
+- `description` (String) Human-readable description for this Junos port
+- `disable_autoneg` (Boolean) If `speed` and `duplex` are specified, whether to disable autonegotiation
+- `duplex` (String) Link duplex mode for this Junos port
+- `dynamic_usage` (String) Enable dynamic usage for this port. Set to `dynamic` to enable.
+- `esilag` (Boolean) Whether this Junos port participates in an ESI-LAG
+- `mtu` (Number) Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation
+- `networks` (List of String) List of network names. Required if `usage`==`inet`
+- `no_local_overwrite` (Boolean) Prevent helpdesk to override the port config
+- `poe_disabled` (Boolean) Whether PoE capabilities are disabled for this Junos port
+- `port_network` (String) Required if `usage`==`vlan_tunnel`. Q-in-Q tunneling using All-in-one bundling. This also enables standard L2PT for interfaces that are not encapsulation tunnel interfaces and uses MAC rewrite operation. [View more information](https://www.juniper.net/documentation/us/en/software/junos/multicast-l2/topics/topic-map/q-in-q.html#id-understanding-qinq-tunneling-and-vlan-translation)
+- `speed` (String) Link speed for this Junos port
 
 
 <a id="nestedatt--port_mirroring"></a>
@@ -395,7 +467,6 @@ Optional:
 - `stp_no_root_port` (Boolean) Only if `mode`!=`dynamic`
 - `stp_p2p` (Boolean) Only if `mode`!=`dynamic`
 - `stp_required` (Boolean) Only if `mode`!=`dynamic`. Whether to remain in block state if no BPDU is received
-- `ui_evpntopo_id` (String) Optional for Campus Fabric Core-Distribution ESI-LAG profile. Helper used by the UI to select this port profile as the ESI-Lag between Distribution and Access switches
 - `use_vstp` (Boolean) If this is connected to a vstp network
 - `voip_network` (String) Only if `mode`!=`dynamic`. Network/vlan for voip traffic, must also set port_network. to authenticate device, set port_auth
 
@@ -624,19 +695,8 @@ Required:
 
 Optional:
 
-- `actions` (Attributes) Policy actions applied when this routing policy term matches (see [below for nested schema](#nestedatt--routing_policies--terms--actions))
 - `matching` (Attributes) Route match criteria that must be satisfied before actions are applied (see [below for nested schema](#nestedatt--routing_policies--terms--matching))
-
-<a id="nestedatt--routing_policies--terms--actions"></a>
-### Nested Schema for `routing_policies.terms.actions`
-
-Optional:
-
-- `accept` (Boolean) Whether to accept routes that match this term
-- `community` (List of String) BGP communities to set when this term is used as an export policy
-- `local_preference` (String) Optional, for an import policy, local_preference can be changed, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)
-- `prepend_as_path` (List of String) AS path values to prepend when this term is used as an export policy
-
+- `routing_policy_term_actions` (Attributes) Policy actions applied when this routing policy term matches (see [below for nested schema](#nestedatt--routing_policies--terms--routing_policy_term_actions))
 
 <a id="nestedatt--routing_policies--terms--matching"></a>
 ### Nested Schema for `routing_policies.terms.matching`
@@ -647,6 +707,17 @@ Optional:
 - `community` (List of String) BGP communities that routes must match
 - `prefix` (List of String) Route prefixes that routes must match
 - `protocol` (List of String) enum: `bgp`, `direct`, `evpn`, `ospf`, `static`
+
+
+<a id="nestedatt--routing_policies--terms--routing_policy_term_actions"></a>
+### Nested Schema for `routing_policies.terms.routing_policy_term_actions`
+
+Optional:
+
+- `accept` (Boolean) Whether to accept routes that match this term
+- `community` (List of String) BGP communities to set when this term is used as an export policy
+- `local_preference` (String) Optional, for an import policy, local_preference can be changed, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)
+- `prepend_as_path` (List of String) AS path values to prepend when this term is used as an export policy
 
 
 
@@ -863,101 +934,12 @@ Optional:
 
 
 
-<a id="nestedatt--switch_matching"></a>
-### Nested Schema for `switch_matching`
-
-Optional:
-
-- `enable` (Boolean) Whether custom switch matching rules are enabled
-- `rules` (Attributes List) list of rules to define custom switch configuration based on different criteria. Each list must have at least one of `match_model`, `match_name` or `match_role` must be defined (see [below for nested schema](#nestedatt--switch_matching--rules))
-
-<a id="nestedatt--switch_matching--rules"></a>
-### Nested Schema for `switch_matching.rules`
-
-Optional:
-
-- `additional_config_cmds` (List of String) Additional Junos CLI commands applied when this matching rule matches
-- `default_port_usage` (String) Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior
-- `ip_config` (Attributes) In-band management IP configuration applied when this matching rule matches (see [below for nested schema](#nestedatt--switch_matching--rules--ip_config))
-- `match_model` (String) string the switch model must start with to use this rule. It is possible to combine with the `match_name` and `match_role` attributes
-- `match_name` (String) string the switch name must start with to use this rule. Use the `match_name_offset` to indicate the first character of the switch name to compare to. It is possible to combine with the `match_model` and `match_role` attributes
-- `match_name_offset` (Number) first character of the switch name to compare to the `match_name` value
-- `match_role` (String) string the switch role must start with to use this rule. It is possible to combine with the `match_name` and `match_model` attributes
-- `name` (String) Rule name. WARNING: the name `default` is reserved and can only be used for the last rule in the list
-- `oob_ip_config` (Attributes) Out-of-band management IP configuration applied when this matching rule matches (see [below for nested schema](#nestedatt--switch_matching--rules--oob_ip_config))
-- `port_config` (Attributes Map) Per-port wired configuration applied when this matching rule matches (see [below for nested schema](#nestedatt--switch_matching--rules--port_config))
-- `port_mirroring` (Attributes Map) Port mirroring configuration applied when this matching rule matches (see [below for nested schema](#nestedatt--switch_matching--rules--port_mirroring))
-- `stp_config` (Attributes) Spanning Tree Protocol configuration applied when this matching rule matches (see [below for nested schema](#nestedatt--switch_matching--rules--stp_config))
-
-<a id="nestedatt--switch_matching--rules--ip_config"></a>
-### Nested Schema for `switch_matching.rules.ip_config`
-
-Optional:
-
-- `network` (String) VLAN Name for the management interface
-- `type` (String) IP assignment mode for in-band switch management
-
-
-<a id="nestedatt--switch_matching--rules--oob_ip_config"></a>
-### Nested Schema for `switch_matching.rules.oob_ip_config`
-
-Optional:
-
-- `type` (String) IP assignment mode for out-of-band switch management
-- `use_mgmt_vrf` (Boolean) If supported on the platform. If enabled, DNS will be using this routing-instance, too
-- `use_mgmt_vrf_for_host_out` (Boolean) For host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
-
-
-<a id="nestedatt--switch_matching--rules--port_config"></a>
-### Nested Schema for `switch_matching.rules.port_config`
-
-Required:
-
-- `usage` (String) Port usage name. For Q-in-Q, use `vlan_tunnel`. If EVPN is used, use `evpn_uplink`or `evpn_downlink`
-
-Optional:
-
-- `ae_disable_lacp` (Boolean) To disable LACP support for the AE interface
-- `ae_idx` (Number) Users could force to use the designated AE name
-- `ae_lacp_force_up` (Boolean) If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only
-- `ae_lacp_passive` (Boolean) If `aggregated`==`true`, sets LACP to passive mode on this AE interface; by default, active (fast) mode is used
-- `ae_lacp_slow` (Boolean) To use slow timeout
-- `aggregated` (Boolean) Whether this port is configured as an aggregated Ethernet member
-- `critical` (Boolean) To generate port up/down alarm
-- `description` (String) Human-readable description for this Junos port
-- `disable_autoneg` (Boolean) If `speed` and `duplex` are specified, whether to disable autonegotiation
-- `duplex` (String) Link duplex mode for this Junos port
-- `dynamic_usage` (String) Enable dynamic usage for this port. Set to `dynamic` to enable.
-- `esilag` (Boolean) Whether this Junos port participates in an ESI-LAG
-- `mtu` (Number) Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation
-- `networks` (List of String) List of network names. Required if `usage`==`inet`
-- `no_local_overwrite` (Boolean) Prevent helpdesk to override the port config
-- `poe_disabled` (Boolean) Whether PoE capabilities are disabled for this Junos port
-- `port_network` (String) Required if `usage`==`vlan_tunnel`. Q-in-Q tunneling using All-in-one bundling. This also enables standard L2PT for interfaces that are not encapsulation tunnel interfaces and uses MAC rewrite operation. [View more information](https://www.juniper.net/documentation/us/en/software/junos/multicast-l2/topics/topic-map/q-in-q.html#id-understanding-qinq-tunneling-and-vlan-translation)
-- `speed` (String) Link speed for this Junos port
-
-
-<a id="nestedatt--switch_matching--rules--port_mirroring"></a>
-### Nested Schema for `switch_matching.rules.port_mirroring`
-
-Optional:
-
-- `input_networks_ingress` (List of String) At least one mirror input source should be specified. Networks whose ingress traffic is mirrored
-- `input_port_ids_egress` (List of String) At least one mirror input source should be specified. Switch ports whose egress traffic is mirrored
-- `input_port_ids_ingress` (List of String) At least one mirror input source should be specified. Switch ports whose ingress traffic is mirrored
-- `output_ip_address` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
-- `output_network` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
-- `output_port_id` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
-
-
-<a id="nestedatt--switch_matching--rules--stp_config"></a>
-### Nested Schema for `switch_matching.rules.stp_config`
+<a id="nestedatt--stp_config"></a>
+### Nested Schema for `stp_config`
 
 Optional:
 
 - `bridge_priority` (String) Switch STP priority. Range [0, 4k, 8k.. 60k] in steps of 4k. Bridge priority applies to both VSTP and RSTP.
-
-
 
 
 <a id="nestedatt--switch_mgmt"></a>
@@ -1088,9 +1070,20 @@ Optional:
 
 
 
-## Import
-Using `terraform import`, import `mist_org_networktemplate` with:
-```shell
-# Org Network Template can be imported by specifying the org_id and the networktemplate_id
-terraform import mist_org_networktemplate.networktemplate_one 17b46405-3a6d-4715-8bb4-6bb6d06f316a.d3c42998-9012-4859-9743-6b9bee475309
-```
+<a id="nestedatt--vrrp_config"></a>
+### Nested Schema for `vrrp_config`
+
+Optional:
+
+- `enabled` (Boolean) Whether VRRP configuration is enabled
+- `groups` (Attributes Map) VRRP groups keyed by group name (see [below for nested schema](#nestedatt--vrrp_config--groups))
+
+<a id="nestedatt--vrrp_config--groups"></a>
+### Nested Schema for `vrrp_config.groups`
+
+Optional:
+
+- `preempt` (Boolean) If `true`, allow preemption (a backup router can preempt a primary router)
+- `priority` (Number) VRRP priority for this router in the group
+
+

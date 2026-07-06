@@ -25,10 +25,9 @@ resource "mist_org_mxcluster" "existing_mxcluster" {
 
 
 resource "mist_org_mxedge" "mxedge" {
-  org_id        = mist_org_mxcluster.existing_mxcluster.org_id
-  claim_code    = XXX4DSY7TZMDXXX
-  name          = "me1"
-  mxcluster_id  = mist_org_mxcluster.existing_mxcluster.id
+  org_id       = mist_org_mxcluster.existing_mxcluster.org_id
+  claim_code = "<claim_code>"
+  name         = "me1"
 }
 ```
 
@@ -37,41 +36,39 @@ resource "mist_org_mxedge" "mxedge" {
 
 ### Required
 
-- `name` (String)
-- `org_id` (String)
+- `name` (String) Display name of the Mist Edge cluster
+- `org_id` (String) Identifier of the org that owns the Mist Edge cluster
 
 ### Optional
 
-- `mist_das` (Attributes) Configure cloud-assisted dynamic authorization service on this cluster of mist edges (see [below for nested schema](#nestedatt--mist_das))
-- `mist_nac` (Attributes) (see [below for nested schema](#nestedatt--mist_nac))
-- `mxedge_mgmt` (Attributes) (see [below for nested schema](#nestedatt--mxedge_mgmt))
-- `proxy` (Attributes) Proxy Configuration to talk to Mist (see [below for nested schema](#nestedatt--proxy))
-- `radsec` (Attributes) MxEdge RadSec Configuration (see [below for nested schema](#nestedatt--radsec))
-- `site_id` (String)
-- `tunterm_ap_subnets` (List of String) List of subnets where we allow AP to establish Mist Tunnels from
-- `tunterm_dhcpd_config` (Attributes Map) DHCP server/relay configuration of Mist Tunneled VLANs. Property key is the VLAN ID (see [below for nested schema](#nestedatt--tunterm_dhcpd_config))
-- `tunterm_extra_routes` (Attributes Map) Extra routes for Mist Tunneled VLANs. Property key is a CIDR (see [below for nested schema](#nestedatt--tunterm_extra_routes))
-- `tunterm_hosts` (List of String) Hostnames or IPs where a Mist Tunnel will use as the Peer (i.e. they are reachable from AP)
-- `tunterm_hosts_order` (List of Number) List of index of tunterm_hosts
-- `tunterm_hosts_selection` (String) Ordering of tunterm_hosts for mxedge within the same mxcluster. enum:
-  * `shuffle`: the ordering of tunterm_hosts is randomized by the device''s MAC
-  * `shuffle-by-site`: shuffle by site_id+tunnel_id (so when client connects to a specific Tunnel, it will go to the same (order of) mxedge, and we load-balancing between tunnels)
-  * `ordered`: order decided by tunterm_hosts_order
-- `tunterm_monitoring` (List of List of Object)
-- `tunterm_monitoring_disabled` (Boolean)
+- `mist_das` (Attributes) Dynamic authorization service settings for the cluster (see [below for nested schema](#nestedatt--mist_das))
+- `mist_nac` (Attributes) NAC settings for the Mist Edge cluster (see [below for nested schema](#nestedatt--mist_nac))
+- `mist_nacedge` (Attributes) NAC Edge survivability settings for the cluster; requires `mist_nac` to be enabled (see [below for nested schema](#nestedatt--mist_nacedge))
+- `mxedge_mgmt` (Attributes) Out-of-band management settings for Mist Edges in the cluster (see [below for nested schema](#nestedatt--mxedge_mgmt))
+- `proxy` (Attributes) Network proxy settings used by Mist Edges in the cluster to communicate with the Mist Cloud (see [below for nested schema](#nestedatt--proxy))
+- `radsec` (Attributes) TLS RADIUS proxy settings for the Mist Edge cluster (see [below for nested schema](#nestedatt--radsec))
+- `site_id` (String) Identifier of the site when the Mist Edge cluster is site-scoped
+- `tunterm_ap_subnets` (List of String) AP source subnets allowed to establish Mist tunnels
+- `tunterm_dhcpd_config` (Attributes Map) DHCP relay or server settings for tunneled VLANs (see [below for nested schema](#nestedatt--tunterm_dhcpd_config))
+- `tunterm_extra_routes` (Attributes Map) Extra routes for Mist Tunnel VLAN traffic (see [below for nested schema](#nestedatt--tunterm_extra_routes))
+- `tunterm_hosts` (List of String) Hostnames or IP addresses used as Mist Tunnel peers
+- `tunterm_hosts_order` (List of Number) Explicit host ordering indexes used when ordered selection is configured
+- `tunterm_hosts_selection` (String) Selection strategy for ordering tunnel termination hosts
+- `tunterm_monitoring` (List of List of Object) Monitoring checks for tunnel termination reachability
+- `tunterm_monitoring_disabled` (Boolean) Whether tunnel termination monitoring is disabled for the cluster
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
-- `radsec_tls` (Attributes) (see [below for nested schema](#nestedatt--radsec_tls))
+- `id` (String) Unique identifier of the Mist Edge cluster
+- `radsec_tls` (Attributes) TLS keypair settings for RadSec on the Mist Edge cluster (see [below for nested schema](#nestedatt--radsec_tls))
 
 <a id="nestedatt--mist_das"></a>
 ### Nested Schema for `mist_das`
 
 Optional:
 
-- `coa_servers` (Attributes List) Dynamic authorization clients configured to send CoA|DM to mist edges on port 3799 (see [below for nested schema](#nestedatt--mist_das--coa_servers))
-- `enabled` (Boolean)
+- `coa_servers` (Attributes List) Dynamic authorization clients allowed to send CoA or Disconnect-Message requests (see [below for nested schema](#nestedatt--mist_das--coa_servers))
+- `enabled` (Boolean) Whether cloud-assisted DAS is enabled for the Mist Edge cluster
 
 <a id="nestedatt--mist_das--coa_servers"></a>
 ### Nested Schema for `mist_das.coa_servers`
@@ -79,11 +76,11 @@ Optional:
 Optional:
 
 - `disable_event_timestamp_check` (Boolean) Whether to disable Event-Timestamp Check
-- `enabled` (Boolean)
-- `host` (String) This server configured to send CoA|DM to mist edges
-- `port` (Number) Mist edges will allow this host on this port
+- `enabled` (Boolean) Whether this DAS CoA or Disconnect-Message client is enabled
+- `host` (String) Server host allowed to send CoA or Disconnect-Message requests to Mist Edges
+- `port` (Number) UDP port where Mist Edges accept CoA or Disconnect-Message requests from this host
 - `require_message_authenticator` (Boolean) Whether to require Message-Authenticator in requests
-- `secret` (String, Sensitive)
+- `secret` (String, Sensitive) Shared secret used by this DAS CoA or Disconnect-Message client
 
 
 
@@ -92,10 +89,10 @@ Optional:
 
 Optional:
 
-- `acct_server_port` (Number)
-- `auth_server_port` (Number)
-- `enabled` (Boolean)
-- `secret` (String, Sensitive)
+- `acct_server_port` (Number) RADIUS accounting port used by Mist NAC on the cluster
+- `auth_server_port` (Number) RADIUS authentication port used by Mist NAC on the cluster
+- `enabled` (Boolean) Whether Mist NAC is enabled on the cluster
+- `secret` (String, Sensitive) Shared RADIUS secret used by Mist NAC clients
 
 Read-Only:
 
@@ -106,17 +103,30 @@ Read-Only:
 
 
 
+<a id="nestedatt--mist_nacedge"></a>
+### Nested Schema for `mist_nacedge`
+
+Optional:
+
+- `auth_ttl` (Number) Cache TTL for last auth result in seconds
+- `caching_site_ids` (List of String) List of site UUIDs whose auth requests should be cached by NAC Edges in this cluster
+- `default_dot1x_vlan` (String) Default VLAN for all dot1x devices, if different from default_vlan
+- `default_vlan` (String) Default VLAN to assign for devices not in the cache
+- `enabled` (Boolean) Whether NAC Edge survivability is enabled for this cluster
+- `nac_edge_hosts` (List of String) NAC Edge hostnames used by APs for survivability authentication
+
+
 <a id="nestedatt--mxedge_mgmt"></a>
 ### Nested Schema for `mxedge_mgmt`
 
 Optional:
 
-- `config_auto_revert` (Boolean)
-- `fips_enabled` (Boolean)
-- `mist_password` (String, Sensitive)
-- `oob_ip_type` (String) enum: `dhcp`, `disabled`, `static`
-- `oob_ip_type6` (String) enum: `autoconf`, `dhcp`, `disabled`, `static`
-- `root_password` (String, Sensitive)
+- `config_auto_revert` (Boolean) Whether the Mist Edge automatically reverts configuration changes if connectivity is lost
+- `fips_enabled` (Boolean) Whether FIPS mode is enabled on the Mist Edge
+- `mist_password` (String, Sensitive) Password for the Mist service account on the Mist Edge
+- `oob_ip_type` (String) IPv4 address assignment mode for out-of-band management
+- `oob_ip_type6` (String) IPv6 address assignment mode for out-of-band management
+- `root_password` (String, Sensitive) Root account password for the Mist Edge
 
 
 <a id="nestedatt--proxy"></a>
@@ -124,8 +134,8 @@ Optional:
 
 Optional:
 
-- `disabled` (Boolean)
-- `url` (String)
+- `disabled` (Boolean) Whether this proxy configuration is disabled
+- `url` (String) Proxy URL used to reach Mist
 
 
 <a id="nestedatt--radsec"></a>
@@ -133,14 +143,14 @@ Optional:
 
 Optional:
 
-- `acct_servers` (Attributes List) List of RADIUS accounting servers, optional, order matters where the first one is treated as primary (see [below for nested schema](#nestedatt--radsec--acct_servers))
-- `auth_servers` (Attributes List) List of RADIUS authentication servers, order matters where the first one is treated as primary (see [below for nested schema](#nestedatt--radsec--auth_servers))
+- `acct_servers` (Attributes List) RADIUS accounting servers used by the RadSec proxy (see [below for nested schema](#nestedatt--radsec--acct_servers))
+- `auth_servers` (Attributes List) RADIUS authentication servers used by the RadSec proxy (see [below for nested schema](#nestedatt--radsec--auth_servers))
 - `enabled` (Boolean) Whether to enable service on Mist Edge i.e. RADIUS proxy over TLS
 - `match_ssid` (Boolean) Whether to match ssid in request message to select from a subset of RADIUS servers
-- `nas_ip_source` (String) SSpecify NAS-IP-ADDRESS, NAS-IPv6-ADDRESS to use with auth_servers. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`
-- `proxy_hosts` (List of String) Hostnames or IPs for Mist AP to use as the TLS Server (i.e. they are reachable from AP) in addition to `tunterm_hosts`
-- `server_selection` (String) When ordered, Mist Edge will prefer and go back to the first radius server if possible. enum: `ordered`, `unordered`
-- `src_ip_source` (String) Specify IP address to connect to auth_servers and acct_servers. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`
+- `nas_ip_source` (String) Source used to populate NAS-IP-Address and NAS-IPv6-Address attributes
+- `proxy_hosts` (List of String) AP-reachable hostnames or IP addresses advertised as RadSec TLS servers
+- `server_selection` (String) RADIUS server selection strategy for RadSec failover
+- `src_ip_source` (String) Connection source interface or address used when reaching RADIUS servers
 
 <a id="nestedatt--radsec--acct_servers"></a>
 ### Nested Schema for `radsec.acct_servers`
@@ -149,8 +159,8 @@ Optional:
 
 - `host` (String) IP / hostname of RADIUS server
 - `port` (Number) Acct port of RADIUS server
-- `secret` (String, Sensitive) Secret of RADIUS server
-- `ssids` (List of String) List of ssids that will use this server if match_ssid is true and match is found
+- `secret` (String, Sensitive) Shared secret used with this RADIUS accounting server
+- `ssids` (List of String) WLAN SSID filters that use this accounting server when matching is enabled
 
 
 <a id="nestedatt--radsec--auth_servers"></a>
@@ -162,13 +172,13 @@ Optional:
 - `inband_status_check` (Boolean) Whether to enable inband status check
 - `inband_status_interval` (Number) Inband status interval, in seconds
 - `keywrap_enabled` (Boolean) If used for Mist APs, enable keywrap algorithm. Default is false
-- `keywrap_format` (String) if used for Mist APs. enum: `ascii`, `hex`
+- `keywrap_format` (String) Encoding format for Mist AP RADIUS keywrap keys
 - `keywrap_kek` (String) If used for Mist APs, encryption key
 - `keywrap_mack` (String) If used for Mist APs, Message Authentication Code Key
 - `port` (Number) Auth port of RADIUS server
-- `retry` (Number) Authentication request retry
-- `secret` (String, Sensitive) Secret of RADIUS server
-- `ssids` (List of String) List of ssids that will use this server if match_ssid is true and match is found
+- `retry` (Number) Number of authentication request retries before failing over
+- `secret` (String, Sensitive) Shared secret used with this RADIUS authentication server
+- `ssids` (List of String) WLAN SSID filters that use this authentication server when matching is enabled
 - `timeout` (Number) Authentication request timeout, in seconds
 
 
@@ -178,9 +188,9 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
-- `servers` (List of String)
-- `type` (String) enum: `relay`
+- `enabled` (Boolean) Whether DHCP relay is enabled for this tunneled VLAN
+- `servers` (List of String) DHCP server IP addresses used as relay targets for this VLAN
+- `type` (String) DHCP forwarding mode for this tunneled VLAN
 
 
 <a id="nestedatt--tunterm_extra_routes"></a>
@@ -188,7 +198,7 @@ Optional:
 
 Optional:
 
-- `via` (String)
+- `via` (String) Next-hop IP address for this extra route
 
 
 <a id="nestedatt--radsec_tls"></a>
@@ -196,7 +206,7 @@ Optional:
 
 Optional:
 
-- `keypair` (String)
+- `keypair` (String) Name or identifier of the TLS keypair used by RadSec
 
 
 

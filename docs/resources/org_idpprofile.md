@@ -50,41 +50,38 @@ resource "mist_org_idpprofile" "idpprofile_one" {
 
 ### Required
 
-- `base_profile` (String) enum: `critical`, `standard`, `strict`
-- `name` (String)
-- `org_id` (String)
+- `base_profile` (String) Built-in IDP baseline profile inherited before applying overwrites
+- `name` (String) Display name of the IDP profile
+- `org_id` (String) Owning organization for the IDP profile
 
 ### Optional
 
-- `overwrites` (Attributes List) (see [below for nested schema](#nestedatt--overwrites))
+- `overwrites` (Attributes List) IDP signature override rules applied on top of the base profile (see [below for nested schema](#nestedatt--overwrites))
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier of the IDP profile
 
 <a id="nestedatt--overwrites"></a>
 ### Nested Schema for `overwrites`
 
 Required:
 
-- `name` (String)
+- `name` (String) Display name for this IDP profile overwrite rule
 
 Optional:
 
-- `action` (String) enum:
-  * alert (default)
-  * drop: silently dropping packets
-  * close: notify client/server to close connection
-- `matching` (Attributes) (see [below for nested schema](#nestedatt--overwrites--matching))
+- `action` (String) Enforcement action applied when this overwrite rule matches
+- `matching` (Attributes) Criteria that select signatures for this overwrite rule (see [below for nested schema](#nestedatt--overwrites--matching))
 
 <a id="nestedatt--overwrites--matching"></a>
 ### Nested Schema for `overwrites.matching`
 
 Optional:
 
-- `attack_name` (List of String)
-- `dst_subnet` (List of String)
-- `severity` (List of String)
+- `attack_name` (List of String) Signature names matched by the IDP profile overwrite
+- `dst_subnet` (List of String) Destination subnets matched by the IDP profile overwrite
+- `severity` (List of String) Threat levels matched by the IDP profile overwrite
 
 
 

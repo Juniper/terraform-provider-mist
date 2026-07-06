@@ -47,40 +47,22 @@ resource "mist_org_wxtag" "wxtag_one" {
 
 ### Required
 
-- `name` (String) The name
-- `org_id` (String)
-- `type` (String) enum: `client`, `match`, `resource`, `spec`, `subnet`, `vlan`
+- `name` (String) Display name of the WxLAN tag
+- `org_id` (String) Owning organization associated with this WxLAN tag
+- `type` (String) Kind of WxLAN tag and how it is populated
 
 ### Optional
 
-- `mac` (String) If `type`==`client`, Client MAC Address
-- `match` (String) required if `type`==`match`. enum: `ap_id`, `app`, `asset_mac`, `client_mac`, `hostname`, `ip_range_subnet`, `port`, `psk_name`, `psk_role`, `radius_attr`, `radius_class`, `radius_group`, `radius_username`, `sdkclient_uuid`, `wlan_id`
-- `op` (String) required if `type`==`match`, type of tag (inclusive/exclusive). enum: `in`, `not_in`
-- `specs` (Attributes List) If `type`==`spec` (see [below for nested schema](#nestedatt--specs))
-- `values` (List of String) Required if `type`==`match` and
-  * `match`==`ap_id`: list of AP IDs
-  * `match`==`app`: list of Application Names
-  * `match`==`asset_mac`: list of Asset MAC Addresses
-  * `match`==`client_mac`: list of Client MAC Addresses
-  * `match`==`hostname`: list of Resources Hostnames
-  * `match`==`ip_range_subnet`: list of IP Addresses and/or CIDRs
-  * `match`==`psk_name`: list of PSK Names
-  * `match`==`psk_role`: list of PSK Roles
-  * `match`==`port`: list of Ports or Port Ranges
-  * `match`==`radius_attr`: list of RADIUS Attributes. The values are [ "6=1", "26=10.2.3.4" ], this support other RADIUS attributes where we know the type
-  * `match`==`radius_class`: list of RADIUS Classes. This matches the ATTR-Class(25)
-  * `match`==`radius_group`: list of RADIUS Groups. This is a smart tag that matches RADIUS-Filter-ID, Airespace-ACL-Name (VendorID=14179, VendorType=6) / Aruba-User-Role (VendorID=14823, VendorType=1)
-  * `match`==`radius_username`: list of RADIUS Usernames. This matches the ATTR-User-Name(1)
-  * `match`==`sdkclient_uuid`: list of SDK UUIDs
-  * `match`==`wlan_id`: list of WLAN IDs
-
-**Notes**:
-Variables are not allowed
-- `vlan_id` (String)
+- `mac` (String) If `type`==`client`, Client MAC address
+- `match` (String) Required if `type`==`match`; attribute compared against `values`
+- `op` (String) Required if `type`==`match`; whether `values` are inclusive or exclusive matches
+- `specs` (Attributes List) Traffic match specifications used when `type`==`spec` (see [below for nested schema](#nestedatt--specs))
+- `values` (List of String) Comparison values for the selected `match` attribute when `type`==`match`
+- `vlan_id` (String) Identifier of the VLAN associated with this WxLAN tag when `type`==`vlan`
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier for this WxLAN tag
 
 <a id="nestedatt--specs"></a>
 ### Nested Schema for `specs`
@@ -89,7 +71,7 @@ Optional:
 
 - `port_range` (String) Matched destination port, "0" means any
 - `protocol` (String) tcp / udp / icmp / gre / any / ":protocol_number", `protocol_number` is between 1-254
-- `subnets` (List of String) Matched destination subnets and/or IP Addresses
+- `subnets` (List of String) Destination subnets or IP addresses matched by this WxLAN tag spec
 
 
 

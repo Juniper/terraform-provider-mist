@@ -47,37 +47,37 @@ resource "mist_org_setting" "terraform_test" {
 
 ### Required
 
-- `name` (String)
-- `paths` (Attributes Map) For `type`==`hub_spoke`, Property key is the VPN name. For `type`==`mesh`, Property key is the Interface name (see [below for nested schema](#nestedatt--paths))
+- `name` (String) Display name of the VPN configuration
+- `paths` (Attributes Map) VPN path definitions keyed by VPN name for `hub_spoke` mode or interface name for `mesh` mode (see [below for nested schema](#nestedatt--paths))
 
 ### Optional
 
-- `org_id` (String)
-- `path_selection` (Attributes) Only if `type`==`hub_spoke` (see [below for nested schema](#nestedatt--path_selection))
-- `type` (String) enum: `hub_spoke`, `mesh`
+- `org_id` (String) Organization that owns the VPN configuration
+- `path_selection` (Attributes) Path selection settings used when `type`==`hub_spoke` (see [below for nested schema](#nestedatt--path_selection))
+- `type` (String) VPN topology mode for this configuration
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier of the VPN configuration
 
 <a id="nestedatt--paths"></a>
 ### Nested Schema for `paths`
 
 Optional:
 
-- `bfd_profile` (String) enum: `broadband`, `lte`
+- `bfd_profile` (String) BFD profile used for this VPN path
 - `bfd_use_tunnel_mode` (Boolean) If `type`==`mesh` and for SSR only, whether to use tunnel mode
-- `ip` (String) If different from the wan port
-- `peer_paths` (Attributes Map) If `type`==`mesh`, Property key is the Peer Interface name (see [below for nested schema](#nestedatt--paths--peer_paths))
-- `pod` (Number)
-- `traffic_shaping` (Attributes) (see [below for nested schema](#nestedatt--paths--traffic_shaping))
+- `ip` (String) Source IP address for this VPN path, if different from the WAN port IP
+- `peer_paths` (Attributes Map) Peer path preferences used when `type`==`mesh` (see [below for nested schema](#nestedatt--paths--peer_paths))
+- `pod` (Number) Grouping index used to place this VPN path into a pod
+- `traffic_shaping` (Attributes) Traffic shaping settings applied to this VPN path (see [below for nested schema](#nestedatt--paths--traffic_shaping))
 
 <a id="nestedatt--paths--peer_paths"></a>
 ### Nested Schema for `paths.peer_paths`
 
 Optional:
 
-- `preference` (Number)
+- `preference` (Number) Lower numeric value makes this outgoing WAN path more preferred
 
 
 <a id="nestedatt--paths--traffic_shaping"></a>
@@ -85,9 +85,9 @@ Optional:
 
 Optional:
 
-- `class_percentage` (List of Number) percentages for different class of traffic: high / medium / low / best-effort adding up to 100
-- `enabled` (Boolean)
-- `max_tx_kbps` (Number)
+- `class_percentage` (List of Number) Bandwidth percentages for high, medium, low, and best-effort traffic classes
+- `enabled` (Boolean) Whether traffic shaping is enabled for this VPN path
+- `max_tx_kbps` (Number) Maximum transmit rate for this VPN path, in Kbps; `null` means no explicit limit
 
 
 
@@ -96,7 +96,7 @@ Optional:
 
 Optional:
 
-- `strategy` (String) enum: `disabled`, `simple`, `manual`
+- `strategy` (String) Path selection strategy for a hub-and-spoke VPN
 
 
 

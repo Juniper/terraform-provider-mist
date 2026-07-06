@@ -43,40 +43,37 @@ resource "mist_org_service" "service_one" {
 
 ### Required
 
-- `name` (String)
-- `org_id` (String)
+- `name` (String) Display name of the service definition
+- `org_id` (String) Organization identifier associated with the service definition
 
 ### Optional
 
-- `addresses` (List of String) If `type`==`custom`, IPv4 and/or IPv6 subnets (e.g. 10.0.0.0/8, fd28::/128)
-- `app_categories` (List of String) When `type`==`app_categories`, list of application categories are available through [List App Category Definitions]($e/Constants%20Definitions/listAppCategoryDefinitions)
-- `app_subcategories` (List of String) When `type`==`app_categories`, list of application categories are available through [List App Sub Category Definitions]($e/Constants%20Definitions/listAppSubCategoryDefinitions)
-- `apps` (List of String) When `type`==`apps`, list of applications are available through:
-  * [List Applications]($e/Constants%20Definitions/listApplications)
-  * [List Gateway Applications]($e/Constants%20Definitions/listGatewayApplications)
-  * /insight/top_app_by-bytes?wired=true
+- `addresses` (List of String) Custom IPv4 or IPv6 subnets matched by this service when `type`==`custom`
+- `app_categories` (List of String) Categories of applications matched by this service when `type`==`app_categories`
+- `app_subcategories` (List of String) Application subcategories matched by this service when `type`==`app_categories`
+- `apps` (List of String) Application identifiers matched by this service when `type`==`apps`
 - `client_limit_down` (Number) 0 means unlimited, value from 0 to 107374182
 - `client_limit_up` (Number) 0 means unlimited, value from 0 to 107374182
-- `description` (String)
-- `dscp` (String)
-- `failover_policy` (String) enum: `non_revertible`, `none`, `revertible`
-- `hostnames` (List of String) If `type`==`custom`, web filtering
-- `max_jitter` (String)
-- `max_latency` (String)
-- `max_loss` (String)
+- `description` (String) Free-form description of the service definition
+- `dscp` (String) QoS DSCP value used for custom SSR traffic classification
+- `failover_policy` (String) Failover behavior for traffic matched by this service
+- `hostnames` (List of String) Domain hostnames matched by this custom service for web filtering
+- `max_jitter` (String) Maximum jitter threshold used for SSR uplink selection when `traffic_type`==`custom`
+- `max_latency` (String) Maximum latency threshold used for SSR uplink selection when `traffic_type`==`custom`
+- `max_loss` (String) Maximum packet loss threshold used for SSR uplink selection when `traffic_type`==`custom`
 - `service_limit_down` (Number) 0 means unlimited, value from 0 to 107374182
 - `service_limit_up` (Number) 0 means unlimited, value from 0 to 107374182
 - `sle_enabled` (Boolean) Whether to enable measure SLE
-- `specs` (Attributes List) When `type`==`custom`, optional, if it doesn't exist, http and https is assumed (see [below for nested schema](#nestedatt--specs))
-- `ssr_relaxed_tcp_state_enforcement` (Boolean)
-- `traffic_class` (String) when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`
+- `specs` (Attributes List) Protocol and port match rules used when `type`==`custom` (see [below for nested schema](#nestedatt--specs))
+- `ssr_relaxed_tcp_state_enforcement` (Boolean) Whether SSR relaxes TCP state enforcement for this service
+- `traffic_class` (String) Traffic class applied when `traffic_type`==`custom`
 - `traffic_type` (String) values from [List Traffic Types]($e/Constants%20Definitions/listTrafficTypes)
-- `type` (String) enum: `app_categories`, `apps`, `custom`, `urls`
-- `urls` (List of String) When `type`==`urls`, no need for spec as URL can encode the ports being used
+- `type` (String) Matching mode that determines which app, URL, or custom fields are used
+- `urls` (List of String) URL patterns matched by this service when `type`==`urls`
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique value identifying the service definition
 
 <a id="nestedatt--specs"></a>
 ### Nested Schema for `specs`

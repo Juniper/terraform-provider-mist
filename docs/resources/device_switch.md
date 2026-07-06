@@ -105,93 +105,87 @@ resource "mist_device_switch" "switch_one" {
 ### Required
 
 - `device_id` (String)
-- `name` (String)
-- `site_id` (String)
+- `name` (String) Friendly display name assigned to the switch
+- `site_id` (String) Site where this switch is assigned
 
 ### Optional
 
-- `acl_policies` (Attributes List) (see [below for nested schema](#nestedatt--acl_policies))
-- `acl_tags` (Attributes Map) ACL Tags to identify traffic source or destination. Key name is the tag name (see [below for nested schema](#nestedatt--acl_tags))
-- `additional_config_cmds` (List of String) additional CLI commands to append to the generated Junos config. **Note**: no check is done
-- `bgp_config` (Attributes Map) (see [below for nested schema](#nestedatt--bgp_config))
+- `acl_policies` (Attributes List) ACL policies applied to traffic handled by this switch (see [below for nested schema](#nestedatt--acl_policies))
+- `acl_tags` (Attributes Map) ACL tags used by switch access policies (see [below for nested schema](#nestedatt--acl_tags))
+- `additional_config_cmds` (List of String) Additional CLI configuration commands to apply to this switch
+- `bgp_config` (Attributes Map) BGP routing configuration for this switch. Property key is the BGP session name (see [below for nested schema](#nestedatt--bgp_config))
 - `default_port_usage` (String) Port usage to assign to switch ports without any port usage assigned. Default: `default` to preserve default behavior
-- `dhcp_snooping` (Attributes) (see [below for nested schema](#nestedatt--dhcp_snooping))
-- `dhcpd_config` (Attributes) (see [below for nested schema](#nestedatt--dhcpd_config))
+- `dhcp_snooping` (Attributes) DHCP snooping configuration for this switch (see [below for nested schema](#nestedatt--dhcp_snooping))
+- `dhcpd_config` (Attributes) DHCP server configuration served by this switch (see [below for nested schema](#nestedatt--dhcpd_config))
 - `disable_auto_config` (Boolean, Deprecated) This disables the default behavior of a cloud-ready switch/gateway being managed/configured by Mist. Setting this to `true` means you want to disable the default behavior and do not want the device to be Mist-managed.
-- `dns_servers` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
-- `dns_suffix` (List of String) Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting
-- `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--extra_routes))
-- `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--extra_routes6))
-- `ip_config` (Attributes) Junos IP Config (see [below for nested schema](#nestedatt--ip_config))
-- `local_port_config` (Attributes Map) Local port override, overriding the port configuration from `port_config`. Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--local_port_config))
+- `dns_servers` (List of String) DNS servers configured for this switch
+- `dns_suffix` (List of String) DNS search suffixes configured for this switch
+- `extra_routes` (Attributes Map) Additional IPv4 routes configured on this switch (see [below for nested schema](#nestedatt--extra_routes))
+- `extra_routes6` (Attributes Map) Additional IPv6 routes configured on this switch (see [below for nested schema](#nestedatt--extra_routes6))
+- `ip_config` (Attributes) Management IP addressing settings for this switch (see [below for nested schema](#nestedatt--ip_config))
+- `local_port_config` (Attributes Map) Local port configuration settings for this switch (see [below for nested schema](#nestedatt--local_port_config))
 - `managed` (Boolean, Deprecated) An adopted switch/gateway will not be managed/configured by Mist by default. Setting this parameter to `true` enables the adopted switch/gateway to be managed/configured by Mist. Deprecated in favour of mist_configured, which is more intuitive and can be used for both adopted and claimed devices.
 - `map_id` (String) Map where the device belongs to
 - `mist_configured` (Boolean) whether the device can be configured by Mist or not. This deprecates `managed` (for adopted device) and `disable_auto_config` for claimed device)
-- `mist_nac` (Attributes) Enable mist_nac to use RadSec (see [below for nested schema](#nestedatt--mist_nac))
-- `networks` (Attributes Map) Property key is network name (see [below for nested schema](#nestedatt--networks))
-- `notes` (String)
-- `ntp_servers` (List of String) List of NTP servers specific to this device. By default, those in Site Settings will be used
-- `oob_ip_config` (Attributes) Switch OOB IP Config:
-  - If HA configuration: key parameter will be nodeX (eg: node1)
-  - If there are 2 routing engines, re1 mgmt IP has to be set separately (if desired): key parameter = `re1` (see [below for nested schema](#nestedatt--oob_ip_config))
-- `ospf_areas` (Attributes Map) Junos OSPF areas. Property key is the OSPF Area (Area should be a number (0-255) / IP address) (see [below for nested schema](#nestedatt--ospf_areas))
-- `ospf_config` (Attributes) (see [below for nested schema](#nestedatt--ospf_config))
+- `mist_nac` (Attributes) Mist NAC settings applied to this switch (see [below for nested schema](#nestedatt--mist_nac))
+- `networks` (Attributes Map) Layer 3 networks configured for use by this switch (see [below for nested schema](#nestedatt--networks))
+- `notes` (String) Free-form administrative notes for this switch
+- `ntp_servers` (List of String) NTP servers used by this switch
+- `oob_ip_config` (Attributes) Out-of-band management IP configuration for this switch (see [below for nested schema](#nestedatt--oob_ip_config))
+- `ospf_areas` (Attributes Map) OSPF area configuration for this switch (see [below for nested schema](#nestedatt--ospf_areas))
+- `ospf_config` (Attributes) OSPF routing configuration for this switch (see [below for nested schema](#nestedatt--ospf_config))
 - `other_ip_configs` (Attributes Map) Property key is the network name. Defines the additional IP Addresses configured on the device. (see [below for nested schema](#nestedatt--other_ip_configs))
-- `port_config` (Attributes Map) Property key is the port name or range (e.g. "ge-0/0/0-10") (see [below for nested schema](#nestedatt--port_config))
-- `port_config_overwrite` (Attributes Map) Property key is the port name or range (e.g. "ge-0/0/0-10"). This can be used to override some attributes of the port_usage without having to create a new port_usage. (see [below for nested schema](#nestedatt--port_config_overwrite))
-- `port_mirroring` (Attributes Map) Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed (see [below for nested schema](#nestedatt--port_mirroring))
-- `port_usages` (Attributes Map) Property key is the port usage name. Defines the profiles of port configuration configured on the switch (see [below for nested schema](#nestedatt--port_usages))
-- `radius_config` (Attributes) Junos Radius config (see [below for nested schema](#nestedatt--radius_config))
-- `remote_syslog` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog))
-- `role` (String)
+- `port_config` (Attributes Map) Per-port wired configuration for this switch (see [below for nested schema](#nestedatt--port_config))
+- `port_config_overwrite` (Attributes Map) Per-port overrides for switch port usage attributes (see [below for nested schema](#nestedatt--port_config_overwrite))
+- `port_mirroring` (Attributes Map) Port mirroring configuration for this switch (see [below for nested schema](#nestedatt--port_mirroring))
+- `port_usages` (Attributes Map) Reusable switch port usage profiles available on this switch (see [below for nested schema](#nestedatt--port_usages))
+- `radius_config` (Attributes) RADIUS authentication and accounting settings for this switch (see [below for nested schema](#nestedatt--radius_config))
+- `remote_syslog` (Attributes) Remote syslog settings for this switch (see [below for nested schema](#nestedatt--remote_syslog))
+- `role` (String) Deployment role label for this switch
 - `router_id` (String) Used for OSPF / BGP / EVPN
-- `routing_policies` (Attributes Map) Property key is the routing policy name (see [below for nested schema](#nestedatt--routing_policies))
-- `snmp_config` (Attributes) (see [below for nested schema](#nestedatt--snmp_config))
-- `stp_config` (Attributes) (see [below for nested schema](#nestedatt--stp_config))
-- `switch_mgmt` (Attributes) Switch Management settings (see [below for nested schema](#nestedatt--switch_mgmt))
+- `routing_policies` (Attributes Map) Routing policies applied by this switch (see [below for nested schema](#nestedatt--routing_policies))
+- `snmp_config` (Attributes) SNMP configuration for this switch (see [below for nested schema](#nestedatt--snmp_config))
+- `stp_config` (Attributes) Spanning Tree Protocol configuration for this switch (see [below for nested schema](#nestedatt--stp_config))
+- `switch_mgmt` (Attributes) Management-plane settings for this switch (see [below for nested schema](#nestedatt--switch_mgmt))
 - `use_router_id_as_source_ip` (Boolean) Whether to use it for snmp / syslog / tacplus / radius
-- `vars` (Map of String) Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
-- `virtual_chassis` (Attributes) Required for preprovisioned Virtual Chassis (see [below for nested schema](#nestedatt--virtual_chassis))
-- `vrf_config` (Attributes) (see [below for nested schema](#nestedatt--vrf_config))
-- `vrf_instances` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--vrf_instances))
-- `vrrp_config` (Attributes) Junos VRRP config (see [below for nested schema](#nestedatt--vrrp_config))
-- `x` (Number) X in pixel
-- `y` (Number) Y in pixel
+- `vars` (Map of String) Variable values that override site variables for this switch
+- `virtual_chassis` (Attributes) Virtual Chassis membership and provisioning settings for this switch (see [below for nested schema](#nestedatt--virtual_chassis))
+- `vrf_config` (Attributes) VRF configuration applied to this switch (see [below for nested schema](#nestedatt--vrf_config))
+- `vrf_instances` (Attributes Map) VRF instances configured on this switch (see [below for nested schema](#nestedatt--vrf_instances))
+- `vrrp_config` (Attributes) VRRP configuration applied to this switch (see [below for nested schema](#nestedatt--vrrp_config))
+- `x` (Number) Horizontal map position of the switch, in pixels
+- `y` (Number) Vertical map position of the switch, in pixels
 
 ### Read-Only
 
-- `image1_url` (String)
-- `image2_url` (String)
-- `image3_url` (String)
-- `mac` (String) Device MAC address
-- `model` (String) Device Model
-- `org_id` (String)
-- `serial` (String) Device Serial
-- `type` (String) Device Type. enum: `switch`
+- `image1_url` (String) First custom image URL associated with the switch
+- `image2_url` (String) Second custom image URL associated with the switch
+- `image3_url` (String) Third custom image URL associated with the switch
+- `mac` (String) Switch MAC address used to identify the device
+- `model` (String) Switch model reported for the device
+- `org_id` (String) Organization that owns this switch
+- `serial` (String) Manufacturer serial number for the switch
+- `type` (String) Device type discriminator for switch records
 
 <a id="nestedatt--acl_policies"></a>
 ### Nested Schema for `acl_policies`
 
 Optional:
 
-- `actions` (Attributes List) ACL Policy Actions:
-  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based
-  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to (see [below for nested schema](#nestedatt--acl_policies--actions))
-- `name` (String)
-- `src_tags` (List of String) ACL Policy Source Tags:
-  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based
-  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to
+- `actions` (Attributes List) Destination tag actions evaluated for sources matching this ACL policy (see [below for nested schema](#nestedatt--acl_policies--actions))
+- `name` (String) Display name of the ACL policy
+- `src_tags` (List of String) Source ACL tags that select traffic for this ACL policy
 
 <a id="nestedatt--acl_policies--actions"></a>
 ### Nested Schema for `acl_policies.actions`
 
 Required:
 
-- `dst_tag` (String)
+- `dst_tag` (String) Destination ACL tag matched by this policy action
 
 Optional:
 
-- `action` (String) enum: `allow`, `deny`
+- `action` (String) Allow or deny decision applied to traffic matching the destination tag
 
 
 
@@ -200,44 +194,29 @@ Optional:
 
 Required:
 
-- `type` (String) enum: 
-  * `any`: matching anything not identified
-  * `dynamic_gbp`: from the gbp_tag received from RADIUS
-  * `gbp_resource`: can only be used in `dst_tags`
-  * `mac`
-  * `network`
-  * `port_usage`
-  * `radius_group`
-  * `resource`: can only be used in `dst_tags`
-  * `static_gbp`: applying gbp tag against matching conditions
-  * `subnet`'
+- `type` (String) Classifier type that determines which ACL tag fields are evaluated
 
 Optional:
 
-- `ether_types` (List of String) ARP / IPv6. Default is `any`
+- `ether_types` (List of String) Layer 2 EtherTypes matched by this ACL tag; defaults to `any`
 - `gbp_tag` (Number) Required if
   - `type`==`dynamic_gbp` (gbp_tag received from RADIUS)
   - `type`==`gbp_resource`
   - `type`==`static_gbp` (applying gbp tag against matching conditions)
-- `macs` (List of String) Required if 
-- `type`==`mac`
-- `type`==`static_gbp` if from matching mac
+- `macs` (List of String) Client or resource MAC addresses matched by this ACL tag
 - `network` (String) If:
   * `type`==`mac` (optional. default is `any`)
   * `type`==`subnet` (optional. default is `any`)
   * `type`==`network`
   * `type`==`resource` (optional. default is `any`)
   * `type`==`static_gbp` if from matching network (vlan)
-- `port_usage` (String) Required if `type`==`port_usage`
+- `port_usage` (String) Required if `type`==`port_usage`. Switch port usage name matched by this ACL tag
 - `radius_group` (String) Required if:
   * `type`==`radius_group`
   * `type`==`static_gbp`
 if from matching radius_group
-- `specs` (Attributes List) If `type`==`resource`, `type`==`radius_group`, `type`==`port_usage` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any (see [below for nested schema](#nestedatt--acl_tags--specs))
-- `subnets` (List of String) If 
-- `type`==`subnet` 
-- `type`==`resource` (optional. default is `any`)
-- `type`==`static_gbp` if from matching subnet
+- `specs` (Attributes List) Layer 4 protocol and destination-port constraints for this ACL tag (see [below for nested schema](#nestedatt--acl_tags--specs))
+- `subnets` (List of String) IP subnets matched by this ACL tag
 
 <a id="nestedatt--acl_tags--specs"></a>
 ### Nested Schema for `acl_tags.specs`
@@ -254,18 +233,18 @@ Optional:
 
 Required:
 
-- `local_as` (String)
-- `type` (String) enum: `external`, `internal`
+- `local_as` (String) Local BGP Autonomous System (AS) number for the switch
+- `type` (String) BGP session type for this switch BGP configuration
 
 Optional:
 
-- `auth_key` (String)
+- `auth_key` (String) Authentication key used for BGP neighbor sessions, when configured
 - `bfd_minimum_interval` (Number) Minimum interval in milliseconds for BFD hello packets. A neighbor is considered failed when the device stops receiving replies after the specified interval. Value must be between 1 and 255000.
 - `export_policy` (String) Export policy must match one of the policy names defined in the `routing_policies` property.
-- `hold_time` (Number) Hold time is three times the interval at which keepalive messages are sent. It indicates to the peer the length of time that it should consider the sender valid. Must be 0 or a number in the range 3-65535.
+- `hold_time` (Number) Default BGP hold time for switch BGP sessions
 - `import_policy` (String) Import policy must match one of the policy names defined in the `routing_policies` property.
-- `neighbors` (Attributes Map) Property key is the BGP Neighbor IP Address. (see [below for nested schema](#nestedatt--bgp_config--neighbors))
-- `networks` (List of String) List of network names for BGP configuration. When a network is specified, a BGP group will be added to the VRF that network is part of.
+- `neighbors` (Attributes Map) BGP neighbor settings keyed by neighbor IP address (see [below for nested schema](#nestedatt--bgp_config--neighbors))
+- `networks` (List of String) Network names used to add BGP groups to the corresponding VRFs
 
 <a id="nestedatt--bgp_config--neighbors"></a>
 ### Nested Schema for `bgp_config.neighbors`
@@ -277,9 +256,9 @@ Required:
 Optional:
 
 - `export_policy` (String) Export policy must match one of the policy names defined in the `routing_policies` property.
-- `hold_time` (Number) Hold time is three times the interval at which keepalive messages are sent. It indicates to the peer the length of time that it should consider the sender valid. Must be 0 or a number in the range 3-65535.
+- `hold_time` (Number) BGP hold time for this neighbor
 - `import_policy` (String) Import policy must match one of the policy names defined in the `routing_policies` property.
-- `multihop_ttl` (Number)
+- `multihop_ttl` (Number) Time-to-live value for multihop BGP sessions to this neighbor
 
 
 
@@ -288,11 +267,11 @@ Optional:
 
 Optional:
 
-- `all_networks` (Boolean)
+- `all_networks` (Boolean) Whether DHCP snooping applies to all configured networks
 - `enable_arp_spoof_check` (Boolean) Enable for dynamic ARP inspection check
 - `enable_ip_source_guard` (Boolean) Enable for check for forging source IP address
-- `enabled` (Boolean)
-- `networks` (List of String) If `all_networks`==`false`, list of network with DHCP snooping enabled
+- `enabled` (Boolean) Whether DHCP snooping is enabled
+- `networks` (List of String) Network names with DHCP snooping enabled when `all_networks`==`false`
 
 
 <a id="nestedatt--dhcpd_config"></a>
@@ -301,41 +280,39 @@ Optional:
 Optional:
 
 - `config` (Attributes Map) Property key is the network name (see [below for nested schema](#nestedatt--dhcpd_config--config))
-- `enabled` (Boolean) If set to `true`, enable the DHCP server
+- `enabled` (Boolean) Whether switch DHCP server or relay configuration is enabled
 
 <a id="nestedatt--dhcpd_config--config"></a>
 ### Nested Schema for `dhcpd_config.config`
 
 Optional:
 
-- `dns_servers` (List of String) If `type`==`server` or `type6`==`server` - optional, if not defined, system one will be used
-- `dns_suffix` (List of String) If `type`==`server` or `type6`==`server` - optional, if not defined, system one will be used
-- `fixed_bindings` (Attributes Map) If `type`==`server` or `type6`==`server`. Property key is the MAC Address. Format is `[0-9a-f]{12}` (e.g. "5684dae9ac8b") (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
+- `dns_servers` (List of String) If `type`==`server` or `type6`==`server`, DNS servers advertised to DHCP clients
+- `dns_suffix` (List of String) If `type`==`server` or `type6`==`server`, DNS search suffixes advertised to DHCP clients
+- `fixed_bindings` (Attributes Map) If `type`==`server` or `type6`==`server`, fixed client bindings for DHCP service (see [below for nested schema](#nestedatt--dhcpd_config--config--fixed_bindings))
 - `gateway` (String) If `type`==`server` - optional, `ip` will be used if not provided
-- `ip_end` (String) If `type`==`server`
-- `ip_end6` (String) If `type6`==`server`
-- `ip_start` (String) If `type`==`server`
-- `ip_start6` (String) If `type6`==`server`
+- `ip_end` (String) If `type`==`server`, ending IPv4 address for the DHCP lease pool
+- `ip_end6` (String) If `type6`==`server`, ending IPv6 address for the DHCP lease pool
+- `ip_start` (String) If `type`==`server`, starting IPv4 address for the DHCP lease pool
+- `ip_start6` (String) If `type6`==`server`, starting IPv6 address for the DHCP lease pool
 - `lease_time` (Number) In seconds, lease time has to be between 3600 [1hr] - 604800 [1 week], default is 86400 [1 day]
-- `options` (Attributes Map) If `type`==`server` or `type6`==`server`. Property key is the DHCP option number (see [below for nested schema](#nestedatt--dhcpd_config--config--options))
+- `options` (Attributes Map) If `type`==`server` or `type6`==`server`, custom DHCP options advertised to clients (see [below for nested schema](#nestedatt--dhcpd_config--config--options))
 - `server_id_override` (Boolean) `server_id_override`==`true` means the device, when acts as DHCP relay and forwards DHCP responses from DHCP server to clients, 
 should overwrite the Sever Identifier option (i.e. DHCP option 54) in DHCP responses with its own IP address.
-- `servers` (List of String) If `type`==`relay`
-- `servers6` (List of String) If `type6`==`relay`
-- `type` (String) enum: `none`, `relay` (DHCP Relay), `server` (DHCP Server)
-- `type6` (String) enum: `none`, `relay` (DHCP Relay), `server` (DHCP Server)
-- `vendor_encapsulated` (Attributes Map) If `type`==`server` or `type6`==`server`. Property key is <enterprise number>:<sub option code>, with
-  * enterprise number: 1-65535 (https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers)
-  * sub option code: 1-255, sub-option code' (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapsulated))
+- `servers` (List of String) If `type`==`relay`, upstream IPv4 DHCP servers
+- `servers6` (List of String) If `type6`==`relay`, upstream IPv6 DHCP servers
+- `type` (String) IPv4 DHCP mode for this switch network
+- `type6` (String) IPv6 DHCP mode for this switch network
+- `vendor_encapsulated` (Attributes Map) If `type`==`server` or `type6`==`server`, vendor-encapsulated DHCP options advertised to clients (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapsulated))
 
 <a id="nestedatt--dhcpd_config--config--fixed_bindings"></a>
 ### Nested Schema for `dhcpd_config.config.fixed_bindings`
 
 Optional:
 
-- `ip` (String)
-- `ip6` (String)
-- `name` (String)
+- `ip` (String) Reserved IPv4 address for this fixed DHCP binding
+- `ip6` (String) Reserved IPv6 address for this fixed DHCP binding
+- `name` (String) Friendly name for this fixed DHCP binding
 
 
 <a id="nestedatt--dhcpd_config--config--options"></a>
@@ -343,8 +320,8 @@ Optional:
 
 Optional:
 
-- `type` (String) enum: `boolean`, `hex`, `int16`, `int32`, `ip`, `string`, `uint16`, `uint32`
-- `value` (String)
+- `type` (String) Data type used to encode this DHCP option value
+- `value` (String) Option value to send for this DHCP option
 
 
 <a id="nestedatt--dhcpd_config--config--vendor_encapsulated"></a>
@@ -352,8 +329,8 @@ Optional:
 
 Optional:
 
-- `type` (String) enum: `boolean`, `hex`, `int16`, `int32`, `ip`, `string`, `uint16`, `uint32`
-- `value` (String)
+- `type` (String) Data type used to encode this vendor option value
+- `value` (String) Option value to send for this vendor option
 
 
 
@@ -363,23 +340,23 @@ Optional:
 
 Required:
 
-- `via` (String) Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.
+- `via` (String) Next-hop IPv4 address or ECMP next-hop IPv4 addresses for the route
 
 Optional:
 
-- `discard` (Boolean) This takes precedence
-- `metric` (Number)
-- `next_qualified` (Attributes Map) (see [below for nested schema](#nestedatt--extra_routes--next_qualified))
-- `no_resolve` (Boolean)
-- `preference` (Number)
+- `discard` (Boolean) Whether to install a discard route; this takes precedence over next-hop settings
+- `metric` (Number) Route metric for the IPv4 static route
+- `next_qualified` (Attributes Map) Qualified next-hop settings keyed by IPv4 next-hop address (see [below for nested schema](#nestedatt--extra_routes--next_qualified))
+- `no_resolve` (Boolean) Whether to prevent recursive next-hop resolution for the IPv4 static route
+- `preference` (Number) Route preference for the IPv4 static route
 
 <a id="nestedatt--extra_routes--next_qualified"></a>
 ### Nested Schema for `extra_routes.next_qualified`
 
 Optional:
 
-- `metric` (Number)
-- `preference` (Number)
+- `metric` (Number) Route metric for this qualified IPv4 next hop
+- `preference` (Number) Route preference for this qualified IPv4 next hop
 
 
 
@@ -388,23 +365,23 @@ Optional:
 
 Required:
 
-- `via` (String) Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.
+- `via` (String) Next-hop IPv6 address or ECMP next-hop IPv6 addresses for the route
 
 Optional:
 
-- `discard` (Boolean) This takes precedence
-- `metric` (Number)
-- `next_qualified` (Attributes Map) (see [below for nested schema](#nestedatt--extra_routes6--next_qualified))
-- `no_resolve` (Boolean)
-- `preference` (Number)
+- `discard` (Boolean) Whether to install a discard route; this takes precedence over next-hop settings
+- `metric` (Number) Route metric for the IPv6 static route
+- `next_qualified` (Attributes Map) Qualified next-hop settings keyed by IPv6 next-hop address (see [below for nested schema](#nestedatt--extra_routes6--next_qualified))
+- `no_resolve` (Boolean) Whether to prevent recursive next-hop resolution for the IPv6 static route
+- `preference` (Number) Route preference for the IPv6 static route
 
 <a id="nestedatt--extra_routes6--next_qualified"></a>
 ### Nested Schema for `extra_routes6.next_qualified`
 
 Optional:
 
-- `metric` (Number)
-- `preference` (Number)
+- `metric` (Number) Route metric for this qualified IPv6 next hop
+- `preference` (Number) Route preference for this qualified IPv6 next hop
 
 
 
@@ -414,12 +391,12 @@ Optional:
 Optional:
 
 - `dns` (List of String) Required when `type`==`static`
-- `dns_suffix` (List of String)
-- `gateway` (String)
-- `ip` (String)
+- `dns_suffix` (List of String) DNS search suffixes configured for Junos management traffic
+- `gateway` (String) Default gateway IPv4 address for this Junos IP configuration
+- `ip` (String) Configured IPv4 address for this Junos IP configuration
 - `netmask` (String) Used only if `subnet` is not specified in `networks`
-- `network` (String) Network where this mgmt IP reside, this will be used as default network for outbound-ssh, dns, ntp, dns, tacplus, radius, syslog, snmp
-- `type` (String) enum: `dhcp`, `static`
+- `network` (String) Management network for this IP configuration; used as the default source network for outbound SSH, DNS, NTP, TACACS+, RADIUS, syslog, and SNMP
+- `type` (String) IP assignment mode for this Junos IP configuration
 
 
 <a id="nestedatt--local_port_config"></a>
@@ -427,44 +404,44 @@ Optional:
 
 Required:
 
-- `usage` (String) Port usage name.
+- `usage` (String) Port usage profile name for this local port configuration
 
 Optional:
 
 - `all_networks` (Boolean) Only if `mode`==`trunk` whether to trunk all network/vlans
 - `allow_dhcpd` (Boolean) Controls whether DHCP server traffic is allowed on ports using this configuration if DHCP snooping is enabled. This is a tri-state setting; `true`: ports become trusted ports allowing DHCP server traffic, `false`: ports become untrusted blocking DHCP server traffic, undefined: use system defaults (access ports default to untrusted, trunk ports default to trusted).
-- `allow_multiple_supplicants` (Boolean)
+- `allow_multiple_supplicants` (Boolean) Whether multiple supplicants may authenticate on the port
 - `bypass_auth_when_server_down` (Boolean) Only if `port_auth`==`dot1x` bypass auth for known clients if set to true when RADIUS server is down
 - `bypass_auth_when_server_down_for_unknown_client` (Boolean) Only if `port_auth`=`dot1x` bypass auth for all (including unknown clients) if set to true when RADIUS server is down
-- `description` (String)
+- `description` (String) Human-readable description for this local port configuration
 - `disable_autoneg` (Boolean) Only if `mode`!=`dynamic` if speed and duplex are specified, whether to disable autonegotiation
 - `disabled` (Boolean) Whether the port is disabled
-- `duplex` (String) link connection mode. enum: `auto`, `full`, `half`
-- `dynamic_vlan_networks` (List of String) Only if `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return
+- `duplex` (String) Link duplex mode for this local port configuration
+- `dynamic_vlan_networks` (List of String) Only if `port_auth`==`dot1x`, networks or VLANs that RADIUS can return for dynamic VLAN assignment
 - `enable_mac_auth` (Boolean) Only if `port_auth`==`dot1x` whether to enable MAC Auth
-- `enable_qos` (Boolean)
+- `enable_qos` (Boolean) Whether QoS is enabled on ports using this local configuration
 - `guest_network` (String) Only if `port_auth`==`dot1x` which network to put the device into if the device cannot do dot1x. default is null (i.e. not allowed)
-- `inter_switch_link` (Boolean) inter_switch_link is used together with "isolation" under networks. NOTE: inter_switch_link works only between Juniper devices. This has to be applied to both ports connected together
-- `mac_auth_only` (Boolean) Only if `enable_mac_auth`==`true`
+- `inter_switch_link` (Boolean) Used together with "isolation" under networks for links between Juniper devices; must be applied to both connected ports
+- `mac_auth_only` (Boolean) Only if `enable_mac_auth`==`true`, whether to use MAC authentication without 802.1X
 - `mac_auth_preferred` (Boolean) Only if `enable_mac_auth`==`true` + `mac_auth_only`==`false`, dot1x will be given priority then mac_auth. Enable this to prefer mac_auth over dot1x.
-- `mac_auth_protocol` (String) Only if `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`
-- `mac_limit` (Number) Max number of mac addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform
-- `mode` (String) enum: `access`, `inet`, `trunk`
+- `mac_auth_protocol` (String) Only if `enable_mac_auth`==`true`, MAC authentication protocol to use
+- `mac_limit` (Number) Max number of MAC addresses, default is 0 for unlimited, otherwise range is 1 or higher, with upper bound constrained by platform
+- `mode` (String) Switching mode for this local port configuration
 - `mtu` (Number) Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. The default value is 1514.
-- `networks` (List of String) Only if `mode`==`trunk`, the list of network/vlans
+- `networks` (List of String) Only if `mode`==`trunk`, network or VLAN names to trunk
 - `note` (String) Additional note for the port config override
 - `persist_mac` (Boolean) Only if `mode`==`access` and `port_auth`!=`dot1x` whether the port should retain dynamically learned MAC addresses
 - `poe_disabled` (Boolean) Whether PoE capabilities are disabled for a port
-- `port_auth` (String) if dot1x is desired, set to dot1x. enum: `dot1x`
+- `port_auth` (String) 802.1X authentication mode for this local port configuration
 - `port_network` (String) Native network/vlan for untagged traffic
 - `reauth_interval` (String) Only `port_auth`=`dot1x`, reauthentication interval range between 10 and 65535 (default: 3600)
 - `server_fail_network` (String) Only if `port_auth`==`dot1x` sets server fail fallback vlan
-- `server_reject_network` (String) Only if `port_auth`==`dot1x` when radius server reject / fails
-- `speed` (String) enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
-- `storm_control` (Attributes) Switch storm control (see [below for nested schema](#nestedatt--local_port_config--storm_control))
+- `server_reject_network` (String) Only if `port_auth`==`dot1x` when RADIUS server reject / fails
+- `speed` (String) Link speed for this local port configuration
+- `storm_control` (Attributes) Storm-control settings for this local port configuration (see [below for nested schema](#nestedatt--local_port_config--storm_control))
 - `stp_edge` (Boolean) When enabled, the port is not expected to receive BPDU frames
-- `stp_no_root_port` (Boolean)
-- `stp_p2p` (Boolean)
+- `stp_no_root_port` (Boolean) Whether STP should prevent this port from becoming a root port
+- `stp_p2p` (Boolean) Whether STP treats this port as a point-to-point link
 - `use_vstp` (Boolean) If this is connected to a vstp network
 - `voip_network` (String) Network/vlan for voip traffic, must also set port_network. to authenticate device, set port_auth
 
@@ -487,8 +464,8 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
-- `network` (String)
+- `enabled` (Boolean) Whether Mist NAC RadSec is enabled for the switch
+- `network` (String) Switch network used for Mist NAC RadSec connectivity
 
 
 <a id="nestedatt--networks"></a>
@@ -496,14 +473,14 @@ Optional:
 
 Required:
 
-- `vlan_id` (String)
+- `vlan_id` (String) VLAN identifier for this switch network
 
 Optional:
 
 - `gateway` (String) Only required for EVPN-VXLAN networks, IPv4 Virtual Gateway
 - `gateway6` (String) Only required for EVPN-VXLAN networks, IPv6 Virtual Gateway
 - `isolation` (Boolean) whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set. See also `inter_isolation_network_link` and `community_vlan_id` in port_usage
-- `isolation_vlan_id` (String)
+- `isolation_vlan_id` (String) Required when `isolation`==`true`. Unique VLAN ID used for client isolation
 - `subnet` (String) Optional for pure switching, required when L3 / routing features are used
 - `subnet6` (String) Optional for pure switching, required when L3 / routing features are used
 
@@ -513,11 +490,11 @@ Optional:
 
 Optional:
 
-- `gateway` (String)
-- `ip` (String)
+- `gateway` (String) Default gateway for the out-of-band management interface when `type`==`static`
+- `ip` (String) Static IPv4 address for the out-of-band management interface when `type`==`static`
 - `netmask` (String) Used only if `subnet` is not specified in `networks`
 - `network` (String) Optional, the network to be used for mgmt
-- `type` (String) enum: `dhcp`, `static`
+- `type` (String) IP assignment mode for the out-of-band management interface
 - `use_mgmt_vrf` (Boolean) If supported on the platform. If enabled, DNS will be using this routing-instance, too
 - `use_mgmt_vrf_for_host_out` (Boolean) For host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
 
@@ -527,12 +504,12 @@ Optional:
 
 Required:
 
-- `networks` (Attributes Map) (see [below for nested schema](#nestedatt--ospf_areas--networks))
+- `networks` (Attributes Map) OSPF network settings keyed by network name (see [below for nested schema](#nestedatt--ospf_areas--networks))
 
 Optional:
 
-- `include_loopback` (Boolean)
-- `type` (String) OSPF type. enum: `default`, `nssa`, `stub`
+- `include_loopback` (Boolean) Whether loopback interfaces are included in this OSPF area
+- `type` (String) Area type for this OSPF area
 
 <a id="nestedatt--ospf_areas--networks"></a>
 ### Nested Schema for `ospf_areas.networks`
@@ -541,14 +518,14 @@ Optional:
 
 - `auth_keys` (Map of String) Required if `auth_type`==`md5`. Property key is the key number
 - `auth_password` (String) Required if `auth_type`==`password`, the password, max length is 8
-- `auth_type` (String) auth type. enum: `md5`, `none`, `password`
-- `bfd_minimum_interval` (Number)
-- `dead_interval` (Number)
-- `export_policy` (String)
-- `hello_interval` (Number)
-- `import_policy` (String)
-- `interface_type` (String) interface type (nbma = non-broadcast multi-access). enum: `broadcast`, `nbma`, `p2mp`, `p2p`
-- `metric` (Number)
+- `auth_type` (String) Authentication method used by this OSPF network
+- `bfd_minimum_interval` (Number) Minimum BFD interval for this OSPF network, in milliseconds
+- `dead_interval` (Number) OSPF dead interval for this network, in seconds
+- `export_policy` (String) Routing policy used to export routes from this OSPF network
+- `hello_interval` (Number) OSPF hello interval for this network, in seconds
+- `import_policy` (String) Routing policy used to import routes for this OSPF network
+- `interface_type` (String) OSPF interface type used for this network
+- `metric` (Number) OSPF metric assigned to this network
 - `no_readvertise_to_overlay` (Boolean) By default, we'll re-advertise all learned OSPF routes toward overlay
 - `passive` (Boolean) Whether to send OSPF-Hello
 
@@ -559,11 +536,11 @@ Optional:
 
 Optional:
 
-- `areas` (Attributes Map) Property key is the area name. Defines the OSPF areas configured on the switch. (see [below for nested schema](#nestedatt--ospf_config--areas))
+- `areas` (Attributes Map) OSPF areas configured on the switch (see [below for nested schema](#nestedatt--ospf_config--areas))
 - `enabled` (Boolean) Enable OSPF on the switch
 - `export_policy` (String) optional, for basic scenario, `import_policy` can be specified and can be applied to all networks in all areas if not explicitly specified
 - `import_policy` (String) optional, for basic scenario, `import_policy` can be specified and can be applied to all networks in all areas if not explicitly specified
-- `reference_bandwidth` (String)
+- `reference_bandwidth` (String) Reference bandwidth used for OSPF cost calculation
 
 <a id="nestedatt--ospf_config--areas"></a>
 ### Nested Schema for `ospf_config.areas`
@@ -579,13 +556,13 @@ Optional:
 
 Optional:
 
-- `evpn_anycast` (Boolean) For EVPN, if anycast is desired
-- `ip` (String) Required if `type`==`static`
-- `ip6` (String) Required if `type6`==`static`
-- `netmask` (String) Optional, `subnet` from `network` definition will be used if defined
-- `netmask6` (String) Optional, `subnet` from `network` definition will be used if defined
-- `type` (String) enum: `dhcp`, `static`
-- `type6` (String) enum: `autoconf`, `dhcp`, `disabled`, `static`
+- `evpn_anycast` (Boolean) For EVPN, whether anycast is desired
+- `ip` (String) Required if `type`==`static`; IPv4 address for the additional Junos L3 presence
+- `ip6` (String) Required if `type6`==`static`; IPv6 address for the additional Junos L3 presence
+- `netmask` (String) Optional IPv4 netmask; `subnet` from `network` definition will be used if defined
+- `netmask6` (String) Optional IPv6 prefix length; `subnet` from `network` definition will be used if defined
+- `type` (String) IPv4 assignment mode for the additional Junos L3 presence
+- `type6` (String) IPv6 assignment mode for the additional Junos L3 presence
 
 
 <a id="nestedatt--port_config"></a>
@@ -600,20 +577,21 @@ Optional:
 - `ae_disable_lacp` (Boolean) To disable LACP support for the AE interface
 - `ae_idx` (Number) Users could force to use the designated AE name
 - `ae_lacp_force_up` (Boolean) If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only
+- `ae_lacp_passive` (Boolean) If `aggregated`==`true`, sets LACP to passive mode on this AE interface; by default, active (fast) mode is used
 - `ae_lacp_slow` (Boolean) To use slow timeout
-- `aggregated` (Boolean)
+- `aggregated` (Boolean) Whether this port is configured as an aggregated Ethernet member
 - `critical` (Boolean) To generate port up/down alarm
-- `description` (String)
+- `description` (String) Human-readable description for this Junos port
 - `disable_autoneg` (Boolean) If `speed` and `duplex` are specified, whether to disable autonegotiation
-- `duplex` (String) enum: `auto`, `full`, `half`
+- `duplex` (String) Link duplex mode for this Junos port
 - `dynamic_usage` (String) Enable dynamic usage for this port. Set to `dynamic` to enable.
-- `esilag` (Boolean)
+- `esilag` (Boolean) Whether this Junos port participates in an ESI-LAG
 - `mtu` (Number) Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation
 - `networks` (List of String) List of network names. Required if `usage`==`inet`
 - `no_local_overwrite` (Boolean) Prevent helpdesk to override the port config
-- `poe_disabled` (Boolean)
+- `poe_disabled` (Boolean) Whether PoE capabilities are disabled for this Junos port
 - `port_network` (String) Required if `usage`==`vlan_tunnel`. Q-in-Q tunneling using All-in-one bundling. This also enables standard L2PT for interfaces that are not encapsulation tunnel interfaces and uses MAC rewrite operation. [View more information](https://www.juniper.net/documentation/us/en/software/junos/multicast-l2/topics/topic-map/q-in-q.html#id-understanding-qinq-tunneling-and-vlan-translation)
-- `speed` (String) enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
+- `speed` (String) Link speed for this Junos port
 
 
 <a id="nestedatt--port_config_overwrite"></a>
@@ -621,14 +599,14 @@ Optional:
 
 Optional:
 
-- `description` (String)
+- `description` (String) Administrative description applied to the switch port override
 - `disabled` (Boolean) Whether the port is disabled
-- `duplex` (String) Link connection mode. enum: `auto`, `full`, `half`
-- `mac_limit` (String)
+- `duplex` (String) Link duplex mode override for the switch port
+- `mac_limit` (String) MAC address learning limit override for the switch port
 - `poe_disabled` (Boolean) Whether PoE capabilities are disabled for a port
 - `poe_keep_state_when_reboot` (Boolean) Whether Perpetual PoE is enabled; keeps PoE state across reboots
 - `port_network` (String) Native network/vlan for untagged traffic
-- `speed` (String) Port Speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
+- `speed` (String) Link speed override for the switch port
 
 
 <a id="nestedatt--port_mirroring"></a>
@@ -636,9 +614,9 @@ Optional:
 
 Optional:
 
-- `input_networks_ingress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
-- `input_port_ids_egress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
-- `input_port_ids_ingress` (List of String) At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified
+- `input_networks_ingress` (List of String) At least one mirror input source should be specified. Networks whose ingress traffic is mirrored
+- `input_port_ids_egress` (List of String) At least one mirror input source should be specified. Switch ports whose egress traffic is mirrored
+- `input_port_ids_ingress` (List of String) At least one mirror input source should be specified. Switch ports whose ingress traffic is mirrored
 - `output_ip_address` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
 - `output_network` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
 - `output_port_id` (String) Exactly one of the `output_ip_address`, `output_port_id` or `output_network` should be provided
@@ -659,8 +637,8 @@ Optional:
 - `description` (String) Only if `mode`!=`dynamic`
 - `disable_autoneg` (Boolean) Only if `mode`!=`dynamic`. If speed and duplex are specified, whether to disable autonegotiation
 - `disabled` (Boolean) Only if `mode`!=`dynamic`. Whether the port is disabled
-- `duplex` (String) Only if `mode`!=`dynamic`. Link connection mode. enum: `auto`, `full`, `half`
-- `dynamic_vlan_networks` (List of String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return
+- `duplex` (String) Only if `mode`!=`dynamic`. Link duplex mode for this port usage
+- `dynamic_vlan_networks` (List of String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Networks or VLANs that RADIUS can return for dynamic VLAN assignment
 - `enable_mac_auth` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Whether to enable MAC Auth
 - `enable_qos` (Boolean) Only if `mode`!=`dynamic`
 - `guest_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Which network to put the device into if the device cannot do dot1x. default is null (i.e. not allowed)
@@ -668,24 +646,25 @@ Optional:
 - `inter_switch_link` (Boolean) Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper devices. This has to be applied to both ports connected together
 - `mac_auth_only` (Boolean) Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`
 - `mac_auth_preferred` (Boolean) Only if `mode`!=`dynamic` + `enable_mac_auth`==`true` + `mac_auth_only`==`false`, dot1x will be given priority then mac_auth. Enable this to prefer mac_auth over dot1x.
-- `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`
+- `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`. MAC authentication protocol to use; ignored if Mist NAC is enabled
 - `mac_limit` (String) Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 to 16383 (upper bound constrained by platform)
-- `mode` (String) `mode`==`dynamic` must only be used if the port usage name is `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`
+- `mode` (String) Switching mode for this port usage
 - `mtu` (String) Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. Value between 256 and 9216, default value is 1514.
-- `networks` (List of String) Only if `mode`==`trunk`, the list of network/vlans
+- `networks` (List of String) Only if `mode`==`trunk`. Network or VLAN names to trunk
 - `persist_mac` (Boolean) Only if `mode`==`access` and `port_auth`!=`dot1x`. Whether the port should retain dynamically learned MAC addresses
 - `poe_disabled` (Boolean) Only if `mode`!=`dynamic`. Whether PoE capabilities are disabled for a port
 - `poe_keep_state_when_reboot` (Boolean) Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots
-- `poe_priority` (String) PoE priority. enum: `low`, `high`
-- `port_auth` (String) Only if `mode`!=`dynamic`. If dot1x is desired, set to dot1x. enum: `dot1x`
+- `poe_priority` (String) Only if `mode`!=`dynamic`. PoE priority for ports using this port usage
+- `port_auth` (String) Only if `mode`!=`dynamic`. 802.1X authentication mode for this port usage
 - `port_network` (String) Only if `mode`!=`dynamic`. Native network/vlan for untagged traffic
 - `reauth_interval` (String) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range between 10 and 65535 (default: 3600)
-- `reset_default_when` (String) Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage. enum: `link_down`, `none` (let the DPC port keep at the current port usage)
-- `rules` (Attributes List) Only if `mode`==`dynamic` (see [below for nested schema](#nestedatt--port_usages--rules))
+- `reset_default_when` (String) Only if `mode`==`dynamic`. Condition that resets a dynamic port to the default port usage
+- `rules` (Attributes List) Only if `mode`==`dynamic`. Dynamic matching rules that select the port usage to apply (see [below for nested schema](#nestedatt--port_usages--rules))
 - `server_fail_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Sets server fail fallback vlan
-- `server_reject_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. When radius server reject / fails
-- `speed` (String) Only if `mode`!=`dynamic`, Port speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`
-- `storm_control` (Attributes) Switch storm control. Only if `mode`!=`dynamic` (see [below for nested schema](#nestedatt--port_usages--storm_control))
+- `server_fail_retry_interval` (Number) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Interval, in seconds. Sets the wait time before retrying authentication after RADIUS failure to reduce client flapping. Range 120-65535
+- `server_reject_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. When RADIUS server reject / fails
+- `speed` (String) Only if `mode`!=`dynamic`. Link speed for this port usage
+- `storm_control` (Attributes) Only if `mode`!=`dynamic`. Storm-control settings for this port usage (see [below for nested schema](#nestedatt--port_usages--storm_control))
 - `stp_disable` (Boolean) Only if `mode`!=`dynamic` and `stp_required`==`false`. Drop bridge protocol data units (BPDUs ) that enter any interface or a specified interface
 - `stp_edge` (Boolean) Only if `mode`!=`dynamic`. When enabled, the port is not expected to receive BPDU frames
 - `stp_no_root_port` (Boolean) Only if `mode`!=`dynamic`
@@ -699,17 +678,17 @@ Optional:
 
 Required:
 
-- `src` (String) enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_description`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`
+- `src` (String) Source attribute evaluated by this dynamic rule
 
 Optional:
 
 - `description` (String) Optional description of the rule
-- `equals` (String)
-- `equals_any` (List of String) Use `equals_any` to match any item in a list
+- `equals` (String) Exact value that the selected source attribute must match
+- `equals_any` (List of String) List of values where any match satisfies this dynamic rule
 - `expression` (String) "[0:3]":"abcdef" -> "abc"
 "split(.)[1]": "a.b.c" -> "b"
 "split(-)[1][0:3]: "a1234-b5678-c90" -> "b56"
-- `usage` (String) `port_usage` name
+- `usage` (String) Port usage name to apply when this dynamic rule matches
 
 
 <a id="nestedatt--port_usages--storm_control"></a>
@@ -731,34 +710,34 @@ Optional:
 
 Optional:
 
-- `acct_immediate_update` (Boolean)
-- `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled
-- `acct_servers` (Attributes List) (see [below for nested schema](#nestedatt--radius_config--acct_servers))
-- `auth_server_selection` (String) enum: `ordered`, `unordered`
-- `auth_servers` (Attributes List) (see [below for nested schema](#nestedatt--radius_config--auth_servers))
-- `auth_servers_retries` (Number) Radius auth session retries
-- `auth_servers_timeout` (Number) Radius auth session timeout
-- `coa_enabled` (Boolean)
-- `coa_port` (String)
-- `fast_dot1x_timers` (Boolean)
+- `acct_immediate_update` (Boolean) Whether immediate RADIUS accounting updates are sent
+- `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the RADIUS server, 600 and up is recommended when enabled
+- `acct_servers` (Attributes List) RADIUS accounting servers used by this switch configuration (see [below for nested schema](#nestedatt--radius_config--acct_servers))
+- `auth_server_selection` (String) Selection strategy for RADIUS authentication servers
+- `auth_servers` (Attributes List) RADIUS authentication servers used by this switch configuration (see [below for nested schema](#nestedatt--radius_config--auth_servers))
+- `auth_servers_retries` (Number) RADIUS auth session retries
+- `auth_servers_timeout` (Number) RADIUS auth session timeout
+- `coa_enabled` (Boolean) Whether RADIUS Change of Authorization (CoA) is enabled
+- `coa_port` (String) UDP port used for RADIUS Change of Authorization (CoA)
+- `fast_dot1x_timers` (Boolean) Whether fast 802.1X timers are enabled for RADIUS authentication
 - `network` (String) Use `network`or `source_ip`. Which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip
-- `source_ip` (String) Use `network`or `source_ip`
+- `source_ip` (String) Use `network` or `source_ip`. Explicit source IP address for RADIUS traffic
 
 <a id="nestedatt--radius_config--acct_servers"></a>
 ### Nested Schema for `radius_config.acct_servers`
 
 Required:
 
-- `host` (String) IP/ hostname of RADIUS server
-- `secret` (String, Sensitive) Secret of RADIUS server
+- `host` (String) Address or hostname of the RADIUS accounting server
+- `secret` (String, Sensitive) Shared secret used with this RADIUS accounting server
 
 Optional:
 
-- `keywrap_enabled` (Boolean)
-- `keywrap_format` (String) enum: `ascii`, `hex`
-- `keywrap_kek` (String)
-- `keywrap_mack` (String)
-- `port` (String)
+- `keywrap_enabled` (Boolean) Whether RADIUS keywrap is enabled for messages sent to this accounting server
+- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values
+- `keywrap_kek` (String) RADIUS keywrap key encryption key (KEK)
+- `keywrap_mack` (String) RADIUS keywrap message authentication code key (MACK)
+- `port` (String) UDP port used by the RADIUS accounting server
 
 
 <a id="nestedatt--radius_config--auth_servers"></a>
@@ -766,16 +745,16 @@ Optional:
 
 Required:
 
-- `host` (String) IP/ hostname of RADIUS server
-- `secret` (String, Sensitive) Secret of RADIUS server
+- `host` (String) Address or hostname of the RADIUS authentication server
+- `secret` (String, Sensitive) Shared secret used with this RADIUS authentication server
 
 Optional:
 
-- `keywrap_enabled` (Boolean)
-- `keywrap_format` (String) enum: `ascii`, `hex`
-- `keywrap_kek` (String)
-- `keywrap_mack` (String)
-- `port` (String)
+- `keywrap_enabled` (Boolean) Whether RADIUS keywrap is enabled for messages sent to this authentication server
+- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values
+- `keywrap_kek` (String) RADIUS keywrap key encryption key (KEK)
+- `keywrap_mack` (String) RADIUS keywrap message authentication code key (MACK)
+- `port` (String) UDP port used by the RADIUS authentication server
 - `require_message_authenticator` (Boolean) Whether to require Message-Authenticator in requests
 
 
@@ -785,24 +764,24 @@ Optional:
 
 Optional:
 
-- `archive` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog--archive))
-- `cacerts` (List of String)
-- `console` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog--console))
-- `enabled` (Boolean)
-- `files` (Attributes List) (see [below for nested schema](#nestedatt--remote_syslog--files))
-- `network` (String) If source_address is configured, will use the vlan firstly otherwise use source_ip
-- `send_to_all_servers` (Boolean)
-- `servers` (Attributes List) (see [below for nested schema](#nestedatt--remote_syslog--servers))
-- `time_format` (String) enum: `millisecond`, `year`, `year millisecond`
-- `users` (Attributes List) (see [below for nested schema](#nestedatt--remote_syslog--users))
+- `archive` (Attributes) Retention settings for generated syslog archive files (see [below for nested schema](#nestedatt--remote_syslog--archive))
+- `cacerts` (List of String) CA certificates used to verify TLS syslog servers
+- `console` (Attributes) Log forwarding filters for console messages sent to remote syslog (see [below for nested schema](#nestedatt--remote_syslog--console))
+- `enabled` (Boolean) Whether remote syslog forwarding is enabled
+- `files` (Attributes List) Local syslog file definitions to generate and forward (see [below for nested schema](#nestedatt--remote_syslog--files))
+- `network` (String) Source network used for syslog traffic. If `source_address` is configured, Mist uses the VLAN first; otherwise it uses `source_ip`
+- `send_to_all_servers` (Boolean) Whether each log entry is sent to all configured remote syslog servers
+- `servers` (Attributes List) Remote syslog server destinations (see [below for nested schema](#nestedatt--remote_syslog--servers))
+- `time_format` (String) Timestamp format used in forwarded syslog messages
+- `users` (Attributes List) User-specific syslog logging rules (see [below for nested schema](#nestedatt--remote_syslog--users))
 
 <a id="nestedatt--remote_syslog--archive"></a>
 ### Nested Schema for `remote_syslog.archive`
 
 Optional:
 
-- `files` (String)
-- `size` (String)
+- `files` (String) Number of archived syslog files to retain
+- `size` (String) Maximum size of each archived syslog file, such as 5m
 
 
 <a id="nestedatt--remote_syslog--console"></a>
@@ -810,15 +789,15 @@ Optional:
 
 Optional:
 
-- `contents` (Attributes List) (see [below for nested schema](#nestedatt--remote_syslog--console--contents))
+- `contents` (Attributes List) Syslog facilities and severities forwarded from console logs (see [below for nested schema](#nestedatt--remote_syslog--console--contents))
 
 <a id="nestedatt--remote_syslog--console--contents"></a>
 ### Nested Schema for `remote_syslog.console.contents`
 
 Optional:
 
-- `facility` (String) enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`
-- `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
+- `facility` (String) Syslog facility to match for this selector
+- `severity` (String) Syslog severity to match for this selector
 
 
 
@@ -827,21 +806,21 @@ Optional:
 
 Optional:
 
-- `archive` (Attributes) (see [below for nested schema](#nestedatt--remote_syslog--files--archive))
-- `contents` (Attributes List) (see [below for nested schema](#nestedatt--remote_syslog--files--contents))
-- `enable_tls` (Boolean) Only if `protocol`==`tcp`
-- `explicit_priority` (Boolean)
-- `file` (String)
-- `match` (String)
-- `structured_data` (Boolean)
+- `archive` (Attributes) Retention settings for this generated syslog file (see [below for nested schema](#nestedatt--remote_syslog--files--archive))
+- `contents` (Attributes List) Syslog facilities and severities written to this file (see [below for nested schema](#nestedatt--remote_syslog--files--contents))
+- `enable_tls` (Boolean) Only if `protocol`==`tcp`, enable TLS for this syslog file destination
+- `explicit_priority` (Boolean) Whether to include explicit syslog priority values in file output
+- `file` (String) Generated syslog file name
+- `match` (String) Expression used to filter log messages written to this file
+- `structured_data` (Boolean) Whether to include structured syslog data in file output
 
 <a id="nestedatt--remote_syslog--files--archive"></a>
 ### Nested Schema for `remote_syslog.files.archive`
 
 Optional:
 
-- `files` (String)
-- `size` (String)
+- `files` (String) Number of archived syslog files to retain
+- `size` (String) Maximum size of each archived syslog file, such as 5m
 
 
 <a id="nestedatt--remote_syslog--files--contents"></a>
@@ -849,8 +828,8 @@ Optional:
 
 Optional:
 
-- `facility` (String) enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`
-- `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
+- `facility` (String) Syslog facility to match for this selector
+- `severity` (String) Syslog severity to match for this selector
 
 
 
@@ -859,27 +838,27 @@ Optional:
 
 Optional:
 
-- `contents` (Attributes List) (see [below for nested schema](#nestedatt--remote_syslog--servers--contents))
-- `explicit_priority` (Boolean)
-- `facility` (String) enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`
-- `host` (String)
-- `match` (String)
-- `port` (String)
-- `protocol` (String) enum: `tcp`, `udp`
-- `routing_instance` (String)
-- `server_name` (String) Name of the server
-- `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
-- `source_address` (String) If source_address is configured, will use the vlan firstly otherwise use source_ip
-- `structured_data` (Boolean)
-- `tag` (String)
+- `contents` (Attributes List) Syslog facilities and severities sent to this server (see [below for nested schema](#nestedatt--remote_syslog--servers--contents))
+- `explicit_priority` (Boolean) Whether to include explicit syslog priority values in messages sent to this server
+- `facility` (String) Default syslog facility for messages sent to this server
+- `host` (String) Address or hostname of the remote syslog server
+- `match` (String) Expression used to filter log messages sent to this server
+- `port` (String) Network port used by the remote syslog server
+- `protocol` (String) Transport protocol used for this remote syslog server
+- `routing_instance` (String) Routing instance used to reach this remote syslog server
+- `server_name` (String) TLS server name used when verifying the remote syslog server certificate
+- `severity` (String) Default syslog severity for messages sent to this server
+- `source_address` (String) Source address for syslog traffic. If configured, Mist uses the VLAN first; otherwise it uses `source_ip`
+- `structured_data` (Boolean) Whether to include structured syslog data in messages sent to this server
+- `tag` (String) Syslog tag value added to messages sent to this server
 
 <a id="nestedatt--remote_syslog--servers--contents"></a>
 ### Nested Schema for `remote_syslog.servers.contents`
 
 Optional:
 
-- `facility` (String) enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`
-- `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
+- `facility` (String) Syslog facility to match for this selector
+- `severity` (String) Syslog severity to match for this selector
 
 
 
@@ -888,17 +867,17 @@ Optional:
 
 Optional:
 
-- `contents` (Attributes List) (see [below for nested schema](#nestedatt--remote_syslog--users--contents))
-- `match` (String)
-- `user` (String)
+- `contents` (Attributes List) Syslog facilities and severities logged for this user rule (see [below for nested schema](#nestedatt--remote_syslog--users--contents))
+- `match` (String) Expression used to filter user log messages
+- `user` (String) Account name or wildcard matched by this syslog rule
 
 <a id="nestedatt--remote_syslog--users--contents"></a>
 ### Nested Schema for `remote_syslog.users.contents`
 
 Optional:
 
-- `facility` (String) enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`
-- `severity` (String) enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`
+- `facility` (String) Syslog facility to match for this selector
+- `severity` (String) Syslog severity to match for this selector
 
 
 
@@ -908,29 +887,29 @@ Optional:
 
 Optional:
 
-- `terms` (Attributes Set) at least criteria/filter must be specified to match the term, all criteria have to be met (see [below for nested schema](#nestedatt--routing_policies--terms))
+- `terms` (Attributes Set) Ordered terms evaluated by this switch routing policy (see [below for nested schema](#nestedatt--routing_policies--terms))
 
 <a id="nestedatt--routing_policies--terms"></a>
 ### Nested Schema for `routing_policies.terms`
 
 Required:
 
-- `name` (String)
+- `name` (String) Display name of the switch routing policy term
 
 Optional:
 
-- `actions` (Attributes) When used as import policy (see [below for nested schema](#nestedatt--routing_policies--terms--actions))
-- `matching` (Attributes) zero or more criteria/filter can be specified to match the term, all criteria have to be met (see [below for nested schema](#nestedatt--routing_policies--terms--matching))
+- `actions` (Attributes) Policy actions applied when this routing policy term matches (see [below for nested schema](#nestedatt--routing_policies--terms--actions))
+- `matching` (Attributes) Route match criteria that must be satisfied before actions are applied (see [below for nested schema](#nestedatt--routing_policies--terms--matching))
 
 <a id="nestedatt--routing_policies--terms--actions"></a>
 ### Nested Schema for `routing_policies.terms.actions`
 
 Optional:
 
-- `accept` (Boolean)
-- `community` (List of String) When used as export policy, optional
+- `accept` (Boolean) Whether to accept routes that match this term
+- `community` (List of String) BGP communities to set when this term is used as an export policy
 - `local_preference` (String) Optional, for an import policy, local_preference can be changed, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)
-- `prepend_as_path` (List of String) When used as export policy, optional. By default, the local AS will be prepended, to change it. Can be a Variable (e.g. `{{as_path}}`)
+- `prepend_as_path` (List of String) AS path values to prepend when this term is used as an export policy
 
 
 <a id="nestedatt--routing_policies--terms--matching"></a>
@@ -939,8 +918,8 @@ Optional:
 Optional:
 
 - `as_path` (List of String) BGP AS, value in range 1-4294967294. Can be a Variable (e.g. `{{bgp_as}}`)
-- `community` (List of String)
-- `prefix` (List of String) zero or more criteria/filter can be specified to match the term, all criteria have to be met
+- `community` (List of String) BGP communities that routes must match
+- `prefix` (List of String) Route prefixes that routes must match
 - `protocol` (List of String) enum: `bgp`, `direct`, `evpn`, `ospf`, `static`
 
 
@@ -951,27 +930,27 @@ Optional:
 
 Optional:
 
-- `client_list` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--client_list))
-- `contact` (String)
-- `description` (String)
-- `enabled` (Boolean)
-- `engine_id` (String)
-- `engine_id_type` (String) enum: `local`, `use_mac_address`
-- `location` (String)
-- `name` (String)
-- `network` (String)
-- `trap_groups` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--trap_groups))
-- `v2c_config` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v2c_config))
-- `v3_config` (Attributes) (see [below for nested schema](#nestedatt--snmp_config--v3_config))
-- `views` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--views))
+- `client_list` (Attributes List) SNMP client allowlists that can be referenced by communities (see [below for nested schema](#nestedatt--snmp_config--client_list))
+- `contact` (String) Administrative contact string advertised through SNMP
+- `description` (String) Device description string advertised through SNMP
+- `enabled` (Boolean) Whether SNMP is enabled
+- `engine_id` (String) SNMP engine ID used for SNMPv3
+- `engine_id_type` (String) Method used to derive the SNMP engine ID
+- `location` (String) Physical location string advertised through SNMP
+- `name` (String) System name advertised through SNMP
+- `network` (String) Management network used for SNMP traffic
+- `trap_groups` (Attributes List) SNMP trap group definitions (see [below for nested schema](#nestedatt--snmp_config--trap_groups))
+- `v2c_config` (Attributes List) SNMPv2c community configuration entries for this SNMP profile (see [below for nested schema](#nestedatt--snmp_config--v2c_config))
+- `v3_config` (Attributes) SNMPv3 user, VACM, notify, and target configuration (see [below for nested schema](#nestedatt--snmp_config--v3_config))
+- `views` (Attributes List) SNMP MIB view definitions (see [below for nested schema](#nestedatt--snmp_config--views))
 
 <a id="nestedatt--snmp_config--client_list"></a>
 ### Nested Schema for `snmp_config.client_list`
 
 Optional:
 
-- `client_list_name` (String)
-- `clients` (List of String)
+- `client_list_name` (String) Name of the SNMP client list
+- `clients` (List of String) SNMP client IP addresses or CIDR ranges allowed by this list
 
 
 <a id="nestedatt--snmp_config--trap_groups"></a>
@@ -979,10 +958,10 @@ Optional:
 
 Optional:
 
-- `categories` (List of String)
-- `group_name` (String) Categories list can refer to https://www.juniper.net/documentation/software/topics/task/configuration/snmp_trap-groups-configuring-junos-nm.html
-- `targets` (List of String)
-- `version` (String) enum: `all`, `v1`, `v2`
+- `categories` (List of String) Trap categories included in this SNMP trap group
+- `group_name` (String) Trap group name for this SNMP trap group
+- `targets` (List of String) Trap target addresses for this SNMP trap group
+- `version` (String) SNMP trap protocol version used by this group
 
 
 <a id="nestedatt--snmp_config--v2c_config"></a>
@@ -990,10 +969,10 @@ Optional:
 
 Optional:
 
-- `authorization` (String)
-- `client_list_name` (String) Client_list_name here should refer to client_list above
-- `community_name` (String)
-- `view` (String) View name here should be defined in views above
+- `authorization` (String) Access level for the SNMPv2c community
+- `client_list_name` (String) SNMP client list name referenced by this community
+- `community_name` (String) SNMPv2c community string name
+- `view` (String) SNMP view name that must be defined in the views list
 
 
 <a id="nestedatt--snmp_config--v3_config"></a>
@@ -1001,21 +980,21 @@ Optional:
 
 Optional:
 
-- `notify` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--notify))
-- `notify_filter` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--notify_filter))
-- `target_address` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--target_address))
-- `target_parameters` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--target_parameters))
-- `usm` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--usm))
-- `vacm` (Attributes) (see [below for nested schema](#nestedatt--snmp_config--v3_config--vacm))
+- `notify` (Attributes List) SNMPv3 notification definitions used for traps and informs (see [below for nested schema](#nestedatt--snmp_config--v3_config--notify))
+- `notify_filter` (Attributes List) SNMPv3 notification filter profiles (see [below for nested schema](#nestedatt--snmp_config--v3_config--notify_filter))
+- `target_address` (Attributes List) SNMPv3 notification target addresses (see [below for nested schema](#nestedatt--snmp_config--v3_config--target_address))
+- `target_parameters` (Attributes List) SNMPv3 target parameter profiles (see [below for nested schema](#nestedatt--snmp_config--v3_config--target_parameters))
+- `usm` (Attributes List) SNMPv3 USM engine configurations (see [below for nested schema](#nestedatt--snmp_config--v3_config--usm))
+- `vacm` (Attributes) SNMPv3 VACM access control configuration (see [below for nested schema](#nestedatt--snmp_config--v3_config--vacm))
 
 <a id="nestedatt--snmp_config--v3_config--notify"></a>
 ### Nested Schema for `snmp_config.v3_config.notify`
 
 Required:
 
-- `name` (String)
-- `tag` (String)
-- `type` (String) enum: `inform`, `trap`
+- `name` (String) Identifier for this SNMPv3 notification definition
+- `tag` (String) Notification tag used to select target addresses
+- `type` (String) Delivery mode for this SNMPv3 notification, such as trap or inform
 
 
 <a id="nestedatt--snmp_config--v3_config--notify_filter"></a>
@@ -1023,19 +1002,19 @@ Required:
 
 Optional:
 
-- `contents` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--notify_filter--contents))
-- `profile_name` (String)
+- `contents` (Attributes List) OID filter rules in this notification filter profile (see [below for nested schema](#nestedatt--snmp_config--v3_config--notify_filter--contents))
+- `profile_name` (String) Notification filter profile name
 
 <a id="nestedatt--snmp_config--v3_config--notify_filter--contents"></a>
 ### Nested Schema for `snmp_config.v3_config.notify_filter.contents`
 
 Required:
 
-- `oid` (String)
+- `oid` (String) Matched OID subtree for this notification filter rule
 
 Optional:
 
-- `include` (Boolean)
+- `include` (Boolean) Whether the matching OID subtree is included
 
 
 
@@ -1044,15 +1023,15 @@ Optional:
 
 Required:
 
-- `address` (String)
-- `address_mask` (String)
-- `target_address_name` (String)
+- `address` (String) IP address or hostname of the SNMP target
+- `address_mask` (String) Mask applied to the SNMP target address
+- `target_address_name` (String) Name of the SNMP target address entry
 
 Optional:
 
-- `port` (String)
-- `tag_list` (String) Refer to notify tag, can be multiple with blank
-- `target_parameters` (String) Refer to notify target parameters name
+- `port` (String) UDP port used by the SNMP target
+- `tag_list` (String) Set of notification tags for this target address; use spaces between multiple tags
+- `target_parameters` (String) Target parameter profile referenced by this target address
 
 
 <a id="nestedatt--snmp_config--v3_config--target_parameters"></a>
@@ -1060,15 +1039,15 @@ Optional:
 
 Required:
 
-- `message_processing_model` (String) enum: `v1`, `v2c`, `v3`
-- `name` (String)
+- `message_processing_model` (String) SNMP message processing model used by this target parameter profile
+- `name` (String) Target parameter profile name
 
 Optional:
 
-- `notify_filter` (String) Refer to profile-name in notify_filter
-- `security_level` (String) enum: `authentication`, `none`, `privacy`
-- `security_model` (String) enum: `usm`, `v1`, `v2c`
-- `security_name` (String) Refer to security_name in usm
+- `notify_filter` (String) Notification filter profile referenced by this target parameter profile
+- `security_level` (String) Required security level for this target parameter profile
+- `security_model` (String) Required security model for this target parameter profile
+- `security_name` (String) USM security name referenced by this target parameter profile
 
 
 <a id="nestedatt--snmp_config--v3_config--usm"></a>
@@ -1076,12 +1055,12 @@ Optional:
 
 Required:
 
-- `engine_type` (String) enum: `local_engine`, `remote_engine`
+- `engine_type` (String) SNMP engine type used for this USM configuration
 
 Optional:
 
 - `remote_engine_id` (String) Required only if `engine_type`==`remote_engine`
-- `users` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--usm--users))
+- `users` (Attributes List) SNMPv3 USM users for this engine (see [below for nested schema](#nestedatt--snmp_config--v3_config--usm--users))
 
 <a id="nestedatt--snmp_config--v3_config--usm--users"></a>
 ### Nested Schema for `snmp_config.v3_config.usm.users`
@@ -1089,10 +1068,10 @@ Optional:
 Optional:
 
 - `authentication_password` (String, Sensitive) Not required if `authentication_type`==`authentication-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.
-- `authentication_type` (String) sha224, sha256, sha384, sha512 are supported in 21.1 and newer release. enum: `authentication-md5`, `authentication-none`, `authentication-sha`, `authentication-sha224`, `authentication-sha256`, `authentication-sha384`, `authentication-sha512`
+- `authentication_type` (String) Authentication protocol used by this SNMPv3 USM user
 - `encryption_password` (String, Sensitive) Not required if `encryption_type`==`privacy-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters
-- `encryption_type` (String) enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`
-- `name` (String)
+- `encryption_type` (String) Privacy protocol used by this SNMPv3 USM user
+- `name` (String) Username for the SNMPv3 USM user
 
 
 
@@ -1101,29 +1080,29 @@ Optional:
 
 Optional:
 
-- `access` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--vacm--access))
-- `security_to_group` (Attributes) (see [below for nested schema](#nestedatt--snmp_config--v3_config--vacm--security_to_group))
+- `access` (Attributes List) VACM access rules for SNMPv3 (see [below for nested schema](#nestedatt--snmp_config--v3_config--vacm--access))
+- `security_to_group` (Attributes) VACM security-name to group mappings (see [below for nested schema](#nestedatt--snmp_config--v3_config--vacm--security_to_group))
 
 <a id="nestedatt--snmp_config--v3_config--vacm--access"></a>
 ### Nested Schema for `snmp_config.v3_config.vacm.access`
 
 Optional:
 
-- `group_name` (String)
-- `prefix_list` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--vacm--access--prefix_list))
+- `group_name` (String) SNMP VACM group name
+- `prefix_list` (Attributes List) Context prefix rules for this VACM group (see [below for nested schema](#nestedatt--snmp_config--v3_config--vacm--access--prefix_list))
 
 <a id="nestedatt--snmp_config--v3_config--vacm--access--prefix_list"></a>
 ### Nested Schema for `snmp_config.v3_config.vacm.access.prefix_list`
 
 Optional:
 
-- `context_prefix` (String) Only required if `type`==`context_prefix`
-- `notify_view` (String) Refer to view name
-- `read_view` (String) Refer to view name
-- `security_level` (String) enum: `authentication`, `none`, `privacy`
-- `security_model` (String) enum: `any`, `usm`, `v1`, `v2c`
-- `type` (String) enum: `context_prefix`, `default_context_prefix`
-- `write_view` (String) Refer to view name
+- `context_prefix` (String) Context prefix for this VACM access rule. Required only if `type`==`context_prefix`
+- `notify_view` (String) Notify view name referenced by this VACM access rule
+- `read_view` (String) Read view name referenced by this VACM access rule
+- `security_level` (String) Required security level for this VACM access rule
+- `security_model` (String) Required security model for this VACM access rule
+- `type` (String) VACM context matching type for this access rule
+- `write_view` (String) Write view name referenced by this VACM access rule
 
 
 
@@ -1132,16 +1111,16 @@ Optional:
 
 Optional:
 
-- `content` (Attributes List) (see [below for nested schema](#nestedatt--snmp_config--v3_config--vacm--security_to_group--content))
-- `security_model` (String) enum: `usm`, `v1`, `v2c`
+- `content` (Attributes List) VACM security-name to group mapping entries (see [below for nested schema](#nestedatt--snmp_config--v3_config--vacm--security_to_group--content))
+- `security_model` (String) Required security model for these VACM group mappings
 
 <a id="nestedatt--snmp_config--v3_config--vacm--security_to_group--content"></a>
 ### Nested Schema for `snmp_config.v3_config.vacm.security_to_group.content`
 
 Optional:
 
-- `group` (String) Refer to group_name under access
-- `security_name` (String)
+- `group` (String) VACM group name referenced by this mapping
+- `security_name` (String) Name of the SNMP security principal mapped to a VACM group
 
 
 
@@ -1152,9 +1131,9 @@ Optional:
 
 Optional:
 
-- `include` (Boolean) If the root oid configured is included
-- `oid` (String)
-- `view_name` (String)
+- `include` (Boolean) Whether the root OID is included in this SNMP view
+- `oid` (String) Root OID for this SNMP view
+- `view_name` (String) Name of the SNMP MIB view definition
 
 
 
@@ -1171,31 +1150,29 @@ Optional:
 
 Optional:
 
-- `ap_affinity_threshold` (Number) AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default, this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.
+- `ap_affinity_threshold` (Number) AP affinity threshold for switch management. If set in both site settings and organization settings, the site setting value is used.
 - `cli_banner` (String) Set Banners for switches. Allows markup formatting
 - `cli_idle_timeout` (Number) Sets timeout for switches
 - `config_revert_timer` (Number) Rollback timer for commit confirmed
 - `dhcp_option_fqdn` (Boolean) Enable to provide the FQDN with DHCP option 81
-- `disable_oob_down_alarm` (Boolean)
-- `fips_enabled` (Boolean)
-- `local_accounts` (Attributes Map) Property key is the user name. For Local user authentication (see [below for nested schema](#nestedatt--switch_mgmt--local_accounts))
-- `mxedge_proxy_host` (String) IP Address or FQDN of the Mist Edge used to proxy the switch management traffic to the Mist Cloud
+- `disable_oob_down_alarm` (Boolean) Whether to suppress alarms when the switch out-of-band management interface is down
+- `fips_enabled` (Boolean) Whether FIPS mode is enabled on the switch
+- `local_accounts` (Attributes Map) Local switch user accounts keyed by username (see [below for nested schema](#nestedatt--switch_mgmt--local_accounts))
+- `mxedge_proxy_host` (String) IP address or FQDN of the Mist Edge used to proxy the switch management traffic to the Mist Cloud
 - `mxedge_proxy_port` (String) Mist Edge port used to proxy the switch management traffic to the Mist Cloud. Value in range 1-65535
-- `protect_re` (Attributes) Restrict inbound-traffic to host
-when enabled, all traffic that is not essential to our operation will be dropped 
-e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works (see [below for nested schema](#nestedatt--switch_mgmt--protect_re))
+- `protect_re` (Attributes) Control-plane protection settings for the switch (see [below for nested schema](#nestedatt--switch_mgmt--protect_re))
 - `remove_existing_configs` (Boolean) By default, only the configuration generated by Mist is cleaned up during the configuration process. If `true`, all the existing configuration will be removed.
-- `root_password` (String, Sensitive)
-- `tacacs` (Attributes) (see [below for nested schema](#nestedatt--switch_mgmt--tacacs))
-- `use_mxedge_proxy` (Boolean) To use mxedge as proxy
+- `root_password` (String, Sensitive) Root password for local switch access
+- `tacacs` (Attributes) Management authentication settings using TACACS+ (see [below for nested schema](#nestedatt--switch_mgmt--tacacs))
+- `use_mxedge_proxy` (Boolean) Whether to use Mist Edge as a proxy for switch management traffic
 
 <a id="nestedatt--switch_mgmt--local_accounts"></a>
 ### Nested Schema for `switch_mgmt.local_accounts`
 
 Optional:
 
-- `password` (String, Sensitive)
-- `role` (String) enum: `admin`, `helpdesk`, `none`, `read`
+- `password` (String, Sensitive) Local password for the switch user account
+- `role` (String) Access role granted to the local switch user account
 
 
 <a id="nestedatt--switch_mgmt--protect_re"></a>
@@ -1204,19 +1181,19 @@ Optional:
 Optional:
 
 - `allowed_services` (List of String) optionally, services we'll allow. enum: `icmp`, `ssh`
-- `custom` (Attributes List) (see [below for nested schema](#nestedatt--switch_mgmt--protect_re--custom))
+- `custom` (Attributes List) Additional ACL entries allowed by the Protect RE policy (see [below for nested schema](#nestedatt--switch_mgmt--protect_re--custom))
 - `enabled` (Boolean) When enabled, all traffic that is not essential to our operation will be dropped
 e.g. ntp / dns / traffic to mist will be allowed by default
      if dhcpd is enabled, we'll make sure it works
 - `hit_count` (Boolean) Whether to enable hit count for Protect_RE policy
-- `trusted_hosts` (List of String) host/subnets we'll allow traffic to/from
+- `trusted_hosts` (List of String) Trusted host or subnet entries allowed by the Protect RE policy
 
 <a id="nestedatt--switch_mgmt--protect_re--custom"></a>
 ### Nested Schema for `switch_mgmt.protect_re.custom`
 
 Required:
 
-- `subnets` (List of String)
+- `subnets` (List of String) Source subnets matched by this custom Protect RE ACL
 
 Optional:
 
@@ -1230,21 +1207,21 @@ Optional:
 
 Optional:
 
-- `acct_servers` (Attributes List) (see [below for nested schema](#nestedatt--switch_mgmt--tacacs--acct_servers))
-- `default_role` (String) enum: `admin`, `helpdesk`, `none`, `read`
-- `enabled` (Boolean)
-- `network` (String) Which network the TACACS server resides
-- `tacplus_servers` (Attributes List) (see [below for nested schema](#nestedatt--switch_mgmt--tacacs--tacplus_servers))
+- `acct_servers` (Attributes List) TACACS+ accounting servers used for switch management sessions (see [below for nested schema](#nestedatt--switch_mgmt--tacacs--acct_servers))
+- `default_role` (String) Default switch-management role to use for TACACS+ logins
+- `enabled` (Boolean) Whether TACACS+ is enabled for switch management authentication
+- `network` (String) Source network used for connectivity to the TACACS+ servers
+- `tacplus_servers` (Attributes List) TACACS+ authentication servers used for switch management logins (see [below for nested schema](#nestedatt--switch_mgmt--tacacs--tacplus_servers))
 
 <a id="nestedatt--switch_mgmt--tacacs--acct_servers"></a>
 ### Nested Schema for `switch_mgmt.tacacs.acct_servers`
 
 Optional:
 
-- `host` (String)
-- `port` (String)
-- `secret` (String, Sensitive)
-- `timeout` (Number)
+- `host` (String) Address or hostname of the TACACS+ accounting server
+- `port` (String) TCP port used by the TACACS+ accounting server
+- `secret` (String, Sensitive) Shared secret used with this TACACS+ accounting server
+- `timeout` (Number) TACACS+ accounting server timeout, in seconds
 
 
 <a id="nestedatt--switch_mgmt--tacacs--tacplus_servers"></a>
@@ -1252,10 +1229,10 @@ Optional:
 
 Optional:
 
-- `host` (String)
-- `port` (String)
-- `secret` (String, Sensitive)
-- `timeout` (Number)
+- `host` (String) Address or hostname of the TACACS+ authentication server
+- `port` (String) TCP port used by the TACACS+ authentication server
+- `secret` (String, Sensitive) Shared secret used with this TACACS+ authentication server
+- `timeout` (Number) TACACS+ authentication server timeout, in seconds
 
 
 
@@ -1265,7 +1242,7 @@ Optional:
 
 Optional:
 
-- `members` (Attributes List) List of Virtual Chassis members (see [below for nested schema](#nestedatt--virtual_chassis--members))
+- `members` (Attributes List) Virtual Chassis members and their expected roles (see [below for nested schema](#nestedatt--virtual_chassis--members))
 - `preprovisioned` (Boolean) To configure whether the VC is preprovisioned or nonprovisioned
 
 <a id="nestedatt--virtual_chassis--members"></a>
@@ -1273,9 +1250,9 @@ Optional:
 
 Required:
 
-- `mac` (String) fpc0, same as the mac of device_id
-- `member_id` (Number)
-- `vc_role` (String) Both vc_role master and backup will be matched to routing-engine role in Junos preprovisioned VC config. enum: `backup`, `linecard`, `master`
+- `mac` (String) Virtual Chassis member MAC address; for FPC0 this matches the device ID MAC
+- `member_id` (Number) Virtual Chassis member identifier
+- `vc_role` (String) Role of this member in the Virtual Chassis
 
 
 
@@ -1292,18 +1269,18 @@ Optional:
 
 Optional:
 
-- `evpn_auto_loopback_subnet` (String)
-- `evpn_auto_loopback_subnet6` (String)
-- `extra_routes` (Attributes Map) Property key is the destination CIDR (e.g. "10.0.0.0/8") (see [below for nested schema](#nestedatt--vrf_instances--extra_routes))
-- `extra_routes6` (Attributes Map) Property key is the destination CIDR (e.g. "2a02:1234:420a:10c9::/64") (see [below for nested schema](#nestedatt--vrf_instances--extra_routes6))
-- `networks` (List of String)
+- `evpn_auto_loopback_subnet` (String) IPv4 subnet used for automatic EVPN loopback addresses in this VRF instance
+- `evpn_auto_loopback_subnet6` (String) IPv6 subnet used for automatic EVPN loopback addresses in this VRF instance
+- `extra_routes` (Attributes Map) Additional IPv4 static routes configured for this VRF instance (see [below for nested schema](#nestedatt--vrf_instances--extra_routes))
+- `extra_routes6` (Attributes Map) Additional IPv6 static routes configured for this VRF instance (see [below for nested schema](#nestedatt--vrf_instances--extra_routes6))
+- `networks` (List of String) Names of switch networks included in this VRF instance
 
 <a id="nestedatt--vrf_instances--extra_routes"></a>
 ### Nested Schema for `vrf_instances.extra_routes`
 
 Required:
 
-- `via` (String) Next-hop address
+- `via` (String) IPv4 next-hop address for this VRF extra route
 
 
 <a id="nestedatt--vrf_instances--extra_routes6"></a>
@@ -1311,7 +1288,7 @@ Required:
 
 Optional:
 
-- `via` (String) Next-hop address
+- `via` (String) IPv6 next-hop address for this VRF extra route
 
 
 
@@ -1320,8 +1297,8 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
-- `groups` (Attributes Map) Property key is the VRRP name (see [below for nested schema](#nestedatt--vrrp_config--groups))
+- `enabled` (Boolean) Whether VRRP configuration is enabled
+- `groups` (Attributes Map) VRRP groups keyed by group name (see [below for nested schema](#nestedatt--vrrp_config--groups))
 
 <a id="nestedatt--vrrp_config--groups"></a>
 ### Nested Schema for `vrrp_config.groups`
@@ -1329,7 +1306,7 @@ Optional:
 Optional:
 
 - `preempt` (Boolean) If `true`, allow preemption (a backup router can preempt a primary router)
-- `priority` (Number)
+- `priority` (Number) VRRP priority for this router in the group
 
 
 

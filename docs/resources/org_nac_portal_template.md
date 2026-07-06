@@ -68,8 +68,8 @@ resource "mist_org_nac_portal_template" "logo_template" {
 
 ### Optional
 
-- `alignment` (String) defines alignment on portal. enum: `center`, `left`, `right`
-- `color` (String)
+- `alignment` (String) Text and content alignment for the NAC portal page
+- `color` (String) Primary color used by the NAC portal template
 - `logo` (String) path to the logo image file. File must be a `png` image less than 100kB and image dimension must be less 500px x 200px (width x height).
 - `powered_by` (Boolean) Whether to hide "Powered by Juniper Mist" and email footers
 

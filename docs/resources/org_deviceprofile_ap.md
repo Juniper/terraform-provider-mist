@@ -34,40 +34,39 @@ resource "mist_org_deviceprofile_ap" "deviceprofile_ap_one" {
 
 ### Required
 
-- `name` (String)
-- `org_id` (String)
+- `name` (String) Display name of the AP device profile
+- `org_id` (String) Organization that owns this AP device profile
 
 ### Optional
 
-- `aeroscout` (Attributes) Aeroscout AP settings (see [below for nested schema](#nestedatt--aeroscout))
-- `airista` (Attributes) (see [below for nested schema](#nestedatt--airista))
-- `ble_config` (Attributes) BLE AP settings (see [below for nested schema](#nestedatt--ble_config))
+- `aeroscout` (Attributes) Location integration defaults for AeroScout in this AP profile (see [below for nested schema](#nestedatt--aeroscout))
+- `airista` (Attributes) Location integration defaults for Airista in this AP profile (see [below for nested schema](#nestedatt--airista))
+- `ble_config` (Attributes) Bluetooth Low Energy beacon and asset defaults in this AP profile (see [below for nested schema](#nestedatt--ble_config))
 - `disable_eth1` (Boolean) Whether to disable eth1 port
 - `disable_eth2` (Boolean) Whether to disable eth2 port
 - `disable_eth3` (Boolean) Whether to disable eth3 port
 - `disable_module` (Boolean) Whether to disable module port
-- `esl_config` (Attributes) (see [below for nested schema](#nestedatt--esl_config))
-- `ip_config` (Attributes) IP AP settings (see [below for nested schema](#nestedatt--ip_config))
-- `lacp_config` (Attributes) (see [below for nested schema](#nestedatt--lacp_config))
-- `led` (Attributes) LED AP settings (see [below for nested schema](#nestedatt--led))
-- `mesh` (Attributes) Mesh AP settings (see [below for nested schema](#nestedatt--mesh))
-- `ntp_servers` (List of String)
+- `esl_config` (Attributes) Electronic shelf label integration defaults in this AP profile (see [below for nested schema](#nestedatt--esl_config))
+- `ip_config` (Attributes) Management IP addressing defaults in this AP profile (see [below for nested schema](#nestedatt--ip_config))
+- `lacp_config` (Attributes) Link aggregation defaults for supported AP Ethernet uplinks (see [below for nested schema](#nestedatt--lacp_config))
+- `led` (Attributes) Indicator light behavior defaults in this AP profile (see [below for nested schema](#nestedatt--led))
+- `mesh` (Attributes) Wireless mesh role and band defaults in this AP profile (see [below for nested schema](#nestedatt--mesh))
+- `mqtt_config` (Attributes) MQTT broker publishing settings for this AP profile (see [below for nested schema](#nestedatt--mqtt_config))
+- `ntp_servers` (List of String) NTP servers configured by this AP profile
 - `poe_passthrough` (Boolean) Whether to enable power out through module port (for APH) or eth1 (for APL/BT11)
 - `port_config` (Attributes Map) eth0 is not allowed here. Property key is the interface(s) name (e.g. `eth1` or `eth1,eth2`). If specified, this takes precedence over switch_config (deprecated) (see [below for nested schema](#nestedatt--port_config))
-- `pwr_config` (Attributes) Power related configs (see [below for nested schema](#nestedatt--pwr_config))
-- `radio_config` (Attributes) Radio AP settings (see [below for nested schema](#nestedatt--radio_config))
-- `site_id` (String)
-- `uplink_port_config` (Attributes) AP Uplink port configuration (see [below for nested schema](#nestedatt--uplink_port_config))
-- `usb_config` (Attributes) USB AP settings
-  - Note: if native imagotag is enabled, BLE will be disabled automatically
-  - Note: legacy, new config moved to ESL Config. (see [below for nested schema](#nestedatt--usb_config))
-- `vars` (Map of String) Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
-- `zigbee_config` (Attributes) Zigbee AP settings (see [below for nested schema](#nestedatt--zigbee_config))
+- `pwr_config` (Attributes) Power negotiation and peripheral power defaults in this AP profile (see [below for nested schema](#nestedatt--pwr_config))
+- `radio_config` (Attributes) Radio configuration defaults in this AP profile (see [below for nested schema](#nestedatt--radio_config))
+- `site_id` (String) Site where this AP device profile is defined, when scoped to a site
+- `uplink_port_config` (Attributes) Authentication and failover defaults for AP uplink ports (see [below for nested schema](#nestedatt--uplink_port_config))
+- `usb_config` (Attributes) Legacy USB integration defaults in this AP profile (see [below for nested schema](#nestedatt--usb_config))
+- `vars` (Map of String) Variable values provided by this AP device profile
+- `zigbee_config` (Attributes) Zigbee radio and network defaults in this AP profile (see [below for nested schema](#nestedatt--zigbee_config))
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
-- `type` (String) Device Type. enum: `ap`
+- `id` (String) Unique identifier of the AP device profile
+- `type` (String) Device type discriminator for AP device profiles
 
 <a id="nestedatt--aeroscout"></a>
 ### Nested Schema for `aeroscout`
@@ -77,7 +76,7 @@ Optional:
 - `enabled` (Boolean) Whether to enable aeroscout config
 - `host` (String) Required if enabled, aeroscout server host
 - `locate_connected` (Boolean) Whether to enable the feature to allow wireless clients data received and sent to AES server for location calculation
-- `port` (Number)
+- `port` (Number) Optional if enabled, Aeroscout server port. Defaults to 1144
 
 
 <a id="nestedatt--airista"></a>
@@ -87,7 +86,7 @@ Optional:
 
 - `enabled` (Boolean) Whether to enable Airista config
 - `host` (String) Required if enabled, Airista server host
-- `port` (Number)
+- `port` (Number) Optional if enabled, Airista server port. Defaults to 1144
 
 
 <a id="nestedatt--ble_config"></a>
@@ -97,31 +96,31 @@ Optional:
 
 - `beacon_enabled` (Boolean) Whether Mist beacons is enabled
 - `beacon_rate` (Number) Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second
-- `beacon_rate_mode` (String) enum: `custom`, `default`
-- `beam_disabled` (List of Number) List of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)
+- `beacon_rate_mode` (String) Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate
+- `beam_disabled` (List of Number) AP BLE beam numbers disabled for location advertisements
 - `custom_ble_packet_enabled` (Boolean) Can be enabled if `beacon_enabled`==`true`, whether to send custom packet
 - `custom_ble_packet_frame` (String) The custom frame to be sent out in this beacon. The frame must be a hexstring
 - `custom_ble_packet_freq_msec` (Number) Frequency (msec) of data emitted by custom ble beacon
 - `eddystone_uid_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
-- `eddystone_uid_beams` (String)
+- `eddystone_uid_beams` (String) BLE beams used to transmit Eddystone-UID advertisements, expressed as ranges such as `2-4,7`
 - `eddystone_uid_enabled` (Boolean) Only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled
 - `eddystone_uid_freq_msec` (Number) Frequency (msec) of data emit by Eddystone-UID beacon
 - `eddystone_uid_instance` (String) Eddystone-UID instance for the device
-- `eddystone_uid_namespace` (String) Eddystone-UID namespace
+- `eddystone_uid_namespace` (String) Eddystone-UID namespace broadcast by the AP, as a 10-byte hex string
 - `eddystone_url_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
-- `eddystone_url_beams` (String)
+- `eddystone_url_beams` (String) BLE beams used to transmit Eddystone-URL advertisements, expressed as ranges such as `2-4,7`
 - `eddystone_url_enabled` (Boolean) Only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled
-- `eddystone_url_freq_msec` (Number) Frequency (msec) of data emit by Eddystone-UID beacon
+- `eddystone_url_freq_msec` (Number) Frequency (msec) of data emitted by Eddystone-URL beacon
 - `eddystone_url_url` (String) URL pointed by Eddystone-URL beacon
 - `ibeacon_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
-- `ibeacon_beams` (String)
+- `ibeacon_beams` (String) BLE beams used to transmit iBeacon advertisements, expressed as ranges such as `2-4,7`
 - `ibeacon_enabled` (Boolean) Can be enabled if `beacon_enabled`==`true`, whether to send iBeacon
 - `ibeacon_freq_msec` (Number) Frequency (msec) of data emit for iBeacon
-- `ibeacon_major` (Number) Major number for iBeacon
-- `ibeacon_minor` (Number) Minor number for iBeacon
+- `ibeacon_major` (Number) iBeacon major value broadcast by the AP
+- `ibeacon_minor` (Number) iBeacon minor value broadcast by the AP
 - `ibeacon_uuid` (String) Optional, if not specified, the same UUID as the beacon will be used
 - `power` (Number) Required if `power_mode`==`custom`; else use `power_mode` as default
-- `power_mode` (String) enum: `custom`, `default`
+- `power_mode` (String) Transmit power mode for BLE beacons; use custom to set `power`
 
 
 <a id="nestedatt--esl_config"></a>
@@ -134,7 +133,7 @@ Optional:
 - `enabled` (Boolean) usb_config is ignored if esl_config enabled
 - `host` (String) Only if `type`==`imagotag` or `type`==`native`
 - `port` (Number) Only if `type`==`imagotag` or `type`==`native`
-- `type` (String) note: ble_config will be ignored if esl_config is enabled and with native mode. enum: `hanshow`, `imagotag`, `native`, `solum`
+- `type` (String) ESL integration type to enable on the AP
 - `verify_cert` (Boolean) Only if `type`==`imagotag` or `type`==`native`
 - `vlan_id` (Number) Only if `type`==`solum` or `type`==`hanshow`
 
@@ -144,18 +143,18 @@ Optional:
 
 Optional:
 
-- `dns` (List of String) If `type`==`static`
-- `dns_suffix` (List of String) Required if `type`==`static`
-- `gateway` (String) Required if `type`==`static`
-- `gateway6` (String)
-- `ip` (String) Required if `type`==`static`
-- `ip6` (String)
-- `mtu` (Number)
-- `netmask` (String) Required if `type`==`static`
-- `netmask6` (String)
-- `type` (String) enum: `dhcp`, `static`
-- `type6` (String) enum: `autoconf`, `dhcp`, `disabled`, `static`
-- `vlan_id` (Number) Management VLAN id, default is 1 (untagged)
+- `dns` (List of String) If `type`==`static`. DNS server IP addresses for AP management traffic
+- `dns_suffix` (List of String) If `type`==`static`. DNS search suffixes applied to AP management lookups
+- `gateway` (String) Required if `type`==`static`. IPv4 default gateway for AP management traffic
+- `gateway6` (String) Required if `type6`==`static`. IPv6 default gateway for AP management traffic when static IPv6 addressing is used
+- `ip` (String) Required if `type`==`static`. Static IPv4 address for the AP management interface
+- `ip6` (String) Required if `type6`==`static`. Static IPv6 address for the AP management interface
+- `mtu` (Number) Maximum transmission unit for AP management traffic
+- `netmask` (String) Required if `type`==`static`. IPv4 netmask for the AP management interface
+- `netmask6` (String) Required if `type6`==`static`. IPv6 prefix length for the AP management interface
+- `type` (String) IPv4 address assignment mode for AP management traffic
+- `type6` (String) IPv6 address assignment mode for AP management traffic
+- `vlan_id` (Number) Management VLAN ID, default is 1 (untagged)
 
 
 <a id="nestedatt--lacp_config"></a>
@@ -163,7 +162,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
+- `enabled` (Boolean) Whether to enable LACP on supported AP Ethernet uplinks
 
 
 <a id="nestedatt--led"></a>
@@ -171,8 +170,8 @@ Optional:
 
 Optional:
 
-- `brightness` (Number)
-- `enabled` (Boolean)
+- `brightness` (Number) Indicator LED brightness level from 0 to 255
+- `enabled` (Boolean) Whether the AP indicator LED is enabled
 
 
 <a id="nestedatt--mesh"></a>
@@ -180,11 +179,25 @@ Optional:
 
 Optional:
 
-- `bands` (List of String) List of bands that the mesh should apply to. For relay, the first viable one will be picked. For relay, the first viable one will be picked. enum: `24`, `5`, `6`
+- `bands` (List of String) Radio bands allowed for AP mesh links
 - `enabled` (Boolean) Whether mesh is enabled on this AP
 - `group` (Number) Mesh group, base AP(s) will only allow remote AP(s) in the same mesh group to join, 1-9, optional
-- `role` (String) enum: `base`, `remote`
+- `role` (String) Mesh role for this AP, either base or remote
 - `use_wpa3_on_5` (Boolean) Whether to use WPA3 on the 5 GHz band for mesh links
+
+
+<a id="nestedatt--mqtt_config"></a>
+### Nested Schema for `mqtt_config`
+
+Optional:
+
+- `broker_host` (String) MQTT broker hostname or IP address; required when `enabled` is `true`
+- `broker_port` (Number) MQTT broker port; defaults to `1883` for `tcp` and `8883` for `ssl`
+- `broker_proto` (String) MQTT broker transport protocol
+- `enabled` (Boolean) Whether to enable MQTT publishing
+- `format` (String) Payload format for published messages
+- `password` (String, Sensitive) Optional MQTT password; masked in GET responses
+- `username` (String) Optional MQTT username
 
 
 <a id="nestedatt--port_config"></a>
@@ -192,28 +205,23 @@ Optional:
 
 Optional:
 
-- `disabled` (Boolean)
-- `dynamic_vlan` (Attributes) Optional dynamic vlan (see [below for nested schema](#nestedatt--port_config--dynamic_vlan))
-- `enable_mac_auth` (Boolean)
-- `forwarding` (String) enum: 
-  * `all`: local breakout, All VLANs
-  * `limited`: local breakout, only the VLANs configured in `port_vlan_id` and `vlan_ids`
-  * `mxtunnel`: central breakout to an Org Mist Edge (requires `mxtunnel_id`)
-  * `site_mxedge`: central breakout to a Site Mist Edge (requires `mxtunnel_name`)
-  * `wxtunnel`': central breakout to an Org WxTunnel (requires `wxtunnel_id`)
+- `disabled` (Boolean) Whether this AP Ethernet port is disabled
+- `dynamic_vlan` (Attributes) RADIUS-assigned VLAN settings for AP port authentication (see [below for nested schema](#nestedatt--port_config--dynamic_vlan))
+- `enable_mac_auth` (Boolean) Whether MAC authentication is enabled on this AP port
+- `forwarding` (String) Traffic forwarding mode for this AP Ethernet port
 - `mac_auth_preferred` (Boolean) When `true`, we'll do dot1x then mac_auth. enable this to prefer mac_auth
-- `mac_auth_protocol` (String) if `enable_mac_auth`==`true`, allows user to select an authentication protocol. enum: `eap-md5`, `eap-peap`, `pap`
-- `mist_nac` (Attributes) (see [below for nested schema](#nestedatt--port_config--mist_nac))
+- `mac_auth_protocol` (String) Protocol used for MAC authentication when `enable_mac_auth` is `true`
+- `mist_nac` (Attributes) Juniper Mist NAC settings used by AP port authentication (see [below for nested schema](#nestedatt--port_config--mist_nac))
 - `mx_tunnel_id` (String) If `forwarding`==`mxtunnel`, vlan_ids comes from mxtunnel
 - `mxtunnel_name` (String) If `forwarding`==`site_mxedge`, vlan_ids comes from site_mxedge (`mxtunnels` under site setting)
-- `port_auth` (String) When doing port auth. enum: `dot1x`, `none`
-- `port_vlan_id` (Number) If `forwarding`==`limited`
-- `radius_config` (Attributes) Junos Radius config (see [below for nested schema](#nestedatt--port_config--radius_config))
-- `radsec` (Attributes) RadSec settings (see [below for nested schema](#nestedatt--port_config--radsec))
-- `vlan_id` (Number) Optional to specify the vlan id for a tunnel if forwarding is for `wxtunnel`, `mxtunnel` or `site_mxedge`.
+- `port_auth` (String) Authentication mode for this AP Ethernet port
+- `port_vlan_id` (Number) If `forwarding`==`limited`. VLAN ID allowed on this AP Ethernet port
+- `radius_config` (Attributes) RADIUS authentication and accounting settings for this AP port (see [below for nested schema](#nestedatt--port_config--radius_config))
+- `radsec` (Attributes) TLS-secured RADIUS settings for this AP port (see [below for nested schema](#nestedatt--port_config--radsec))
+- `vlan_id` (Number) Optional to specify the VLAN ID for a tunnel if forwarding is for `wxtunnel`, `mxtunnel` or `site_mxedge`.
   * if vlan_id is not specified then it will use first one in vlan_ids[] of the mxtunnel.
   * if forwarding == site_mxedge, vlan_ids comes from site_mxedge (`mxtunnels` under site setting)
-- `vlan_ids` (String) If `forwarding`==`limited`, comma separated list of additional vlan ids allowed on this port
+- `vlan_ids` (String) If `forwarding`==`limited`, comma separated list of additional VLAN IDs allowed on this port
 - `wxtunnel_id` (String) If `forwarding`==`wxtunnel`, the port is bridged to the vlan of the session
 - `wxtunnel_remote_id` (String) If `forwarding`==`wxtunnel`, the port is bridged to the vlan of the session
 
@@ -222,10 +230,10 @@ Optional:
 
 Optional:
 
-- `default_vlan_id` (Number)
-- `enabled` (Boolean)
-- `type` (String)
-- `vlans` (Map of String)
+- `default_vlan_id` (Number) Fallback VLAN ID used when RADIUS does not return a dynamic VLAN match
+- `enabled` (Boolean) Whether dynamic VLAN assignment is enabled for this AP port
+- `type` (String) Mapping mode for interpreting dynamic VLAN attributes returned by RADIUS
+- `vlans` (Map of String) Mapping entries for RADIUS-assigned VLAN values on this AP port. For `type`==`airespace-interface-name`, the property key is the Airespace interface name returned by RADIUS (e.g. "guest"), and the value is the corresponding VLAN ID (e.g. 100). For `type`==`standard`, the property key is the VLAN ID number returned by RADIUS, and the value is ignored.
 
 
 <a id="nestedatt--port_config--mist_nac"></a>
@@ -233,9 +241,9 @@ Optional:
 
 Optional:
 
-- `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled.
-- `auth_servers_retries` (Number) Radius auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. "retries" are set to value of `auth_servers_timeout`. "max-requests" is also set when setting `auth_servers_retries` is set to default value to 3.
-- `auth_servers_timeout` (Number) Radius auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. "quite-period" and "transmit-period" are set to half the value of `auth_servers_timeout`. "supplicant-timeout" is also set when setting `auth_servers_timeout` is set to default value of 10.
+- `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from Server). Very frequent messages can affect the performance of the RADIUS server, 600 and up is recommended when enabled.
+- `auth_servers_retries` (Number) RADIUS auth session retries. Following fast timers are set if `fast_dot1x_timers` knob is enabled. "retries" are set to value of `auth_servers_timeout`. "max-requests" is also set when setting `auth_servers_retries` is set to default value to 3.
+- `auth_servers_timeout` (Number) RADIUS auth session timeout. Following fast timers are set if `fast_dot1x_timers` knob is enabled. "quite-period" and "transmit-period" are set to half the value of `auth_servers_timeout`. "supplicant-timeout" is also set when setting `auth_servers_timeout` is set to default value of 10.
 - `coa_enabled` (Boolean) Allows a RADIUS server to dynamically modify the authorization status of a user session.
 - `coa_port` (Number) the communication port used for “Change of Authorization” (CoA) messages
 - `enabled` (Boolean) When enabled:
@@ -255,31 +263,31 @@ Optional:
 
 Optional:
 
-- `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled
-- `acct_servers` (Attributes List) (see [below for nested schema](#nestedatt--port_config--radius_config--acct_servers))
-- `auth_servers` (Attributes List) (see [below for nested schema](#nestedatt--port_config--radius_config--auth_servers))
-- `auth_servers_retries` (Number) radius auth session retries
-- `auth_servers_timeout` (Number) radius auth session timeout
-- `coa_enabled` (Boolean)
-- `coa_port` (Number)
-- `network` (String) use `network`or `source_ip`, which network the RADIUS server resides, if there's static IP for this network, we'd use it as source-ip
-- `source_ip` (String) use `network`or `source_ip`
+- `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the RADIUS server, 600 and up is recommended when enabled
+- `acct_servers` (Attributes List) RADIUS accounting servers used by this Junos configuration (see [below for nested schema](#nestedatt--port_config--radius_config--acct_servers))
+- `auth_servers` (Attributes List) RADIUS authentication servers used by this Junos configuration (see [below for nested schema](#nestedatt--port_config--radius_config--auth_servers))
+- `auth_servers_retries` (Number) Number of RADIUS authentication request retries before failover
+- `auth_servers_timeout` (Number) RADIUS authentication server timeout, in seconds
+- `coa_enabled` (Boolean) Whether RADIUS Change of Authorization (CoA) is enabled
+- `coa_port` (Number) UDP port used for RADIUS Change of Authorization (CoA)
+- `network` (String) Use `network` or `source_ip`. Network where the RADIUS server resides; if the network has a static IP, Mist uses it as the source IP
+- `source_ip` (String) Use `network` or `source_ip`. Explicit source IP address for RADIUS traffic
 
 <a id="nestedatt--port_config--radius_config--acct_servers"></a>
 ### Nested Schema for `port_config.radius_config.acct_servers`
 
 Required:
 
-- `host` (String) IP/ hostname of RADIUS server
-- `secret` (String, Sensitive) Secret of RADIUS server
+- `host` (String) Address or hostname of the RADIUS accounting server
+- `secret` (String, Sensitive) Shared secret used with this RADIUS accounting server
 
 Optional:
 
-- `keywrap_enabled` (Boolean)
-- `keywrap_format` (String) enum: `ascii`, `hex`
-- `keywrap_kek` (String)
-- `keywrap_mack` (String)
-- `port` (String)
+- `keywrap_enabled` (Boolean) Whether RADIUS keywrap is enabled for messages sent to this accounting server
+- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values
+- `keywrap_kek` (String) RADIUS keywrap key encryption key (KEK)
+- `keywrap_mack` (String) RADIUS keywrap message authentication code key (MACK)
+- `port` (String) UDP port used by the RADIUS accounting server
 
 
 <a id="nestedatt--port_config--radius_config--auth_servers"></a>
@@ -287,16 +295,16 @@ Optional:
 
 Required:
 
-- `host` (String) IP/ hostname of RADIUS server
-- `secret` (String, Sensitive) Secret of RADIUS server
+- `host` (String) Address or hostname of the RADIUS authentication server
+- `secret` (String, Sensitive) Shared secret used with this RADIUS authentication server
 
 Optional:
 
-- `keywrap_enabled` (Boolean)
-- `keywrap_format` (String) enum: `ascii`, `hex`
-- `keywrap_kek` (String)
-- `keywrap_mack` (String)
-- `port` (String)
+- `keywrap_enabled` (Boolean) Whether RADIUS keywrap is enabled for messages sent to this authentication server
+- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values
+- `keywrap_kek` (String) RADIUS keywrap key encryption key (KEK)
+- `keywrap_mack` (String) RADIUS keywrap message authentication code key (MACK)
+- `port` (String) UDP port used by the RADIUS authentication server
 - `require_message_authenticator` (Boolean) Whether to require Message-Authenticator in requests
 
 
@@ -306,23 +314,23 @@ Optional:
 
 Optional:
 
-- `coa_enabled` (Boolean)
-- `enabled` (Boolean)
-- `idle_timeout` (String)
-- `mxcluster_ids` (List of String) To use Org mxedges when this WLAN does not use mxtunnel, specify their mxcluster_ids. Org mxedge(s) identified by mxcluster_ids
-- `proxy_hosts` (List of String) Default is site.mxedge.radsec.proxy_hosts which must be a superset of all `wlans[*].radsec.proxy_hosts`. When `radsec.proxy_hosts` are not used, tunnel peers (org or site mxedges) are used irrespective of `use_site_mxedge`
-- `server_name` (String) Name of the server to verify (against the cacerts in Org Setting). Only if not Mist Edge.
-- `servers` (Attributes List) List of RadSec Servers. Only if not Mist Edge. (see [below for nested schema](#nestedatt--port_config--radsec--servers))
-- `use_mxedge` (Boolean) use mxedge(s) as RadSec Proxy
-- `use_site_mxedge` (Boolean) To use Site mxedges when this WLAN does not use mxtunnel
+- `coa_enabled` (Boolean) Whether RADIUS Change of Authorization (CoA) is enabled for RadSec traffic
+- `enabled` (Boolean) Whether RadSec is enabled
+- `idle_timeout` (String) Idle timeout, in seconds, for RadSec connections
+- `mxcluster_ids` (List of String) Mist Edge cluster IDs used as RadSec proxies when the WLAN does not use mxtunnel
+- `proxy_hosts` (List of String) RadSec proxy hostnames advertised to APs
+- `server_name` (String) TLS server name to verify against the CA certificates in Org Setting. Only if not Mist Edge.
+- `servers` (Attributes List) External RadSec servers. Only if not Mist Edge. (see [below for nested schema](#nestedatt--port_config--radsec--servers))
+- `use_mxedge` (Boolean) Whether to use organization Mist Edge instances as RadSec proxies
+- `use_site_mxedge` (Boolean) Whether to use site Mist Edge instances when this WLAN does not use mxtunnel
 
 <a id="nestedatt--port_config--radsec--servers"></a>
 ### Nested Schema for `port_config.radsec.servers`
 
 Optional:
 
-- `host` (String)
-- `port` (Number)
+- `host` (String) Address or hostname of the RadSec server
+- `port` (Number) TCP port used by the RadSec server
 
 
 
@@ -341,17 +349,17 @@ Optional:
 
 Optional:
 
-- `allow_rrm_disable` (Boolean)
+- `allow_rrm_disable` (Boolean) Whether RRM can be disabled for individual radio-band settings
 - `ant_gain_24` (Number) Antenna gain for 2.4G - for models with external antenna only
 - `ant_gain_5` (Number) Antenna gain for 5G - for models with external antenna only
 - `ant_gain_6` (Number) Antenna gain for 6G - for models with external antenna only
-- `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `antenna_select` (String) Antenna Mode for AP which supports selectable antennas. enum: `""` (default), `external`, `internal`
-- `band_24` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_24))
-- `band_24_usage` (String) enum: `24`, `5`, `6`, `auto`
-- `band_5` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_5))
-- `band_5_on_24_radio` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_5_on_24_radio))
-- `band_6` (Attributes) Radio Band AP settings (see [below for nested schema](#nestedatt--radio_config--band_6))
+- `antenna_mode` (String) Selected radio chain mode for AP models that support antenna mode control
+- `antenna_select` (String) Internal or external antenna selection for AP models with selectable antennas
+- `band_24` (Attributes) 2.4 GHz radio settings for this access point (see [below for nested schema](#nestedatt--radio_config--band_24))
+- `band_24_usage` (String) Radio usage mode for the 2.4 GHz-capable radio
+- `band_5` (Attributes) 5 GHz radio settings for this access point (see [below for nested schema](#nestedatt--radio_config--band_5))
+- `band_5_on_24_radio` (Attributes) 5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode (see [below for nested schema](#nestedatt--radio_config--band_5_on_24_radio))
+- `band_6` (Attributes) 6 GHz radio settings for this access point (see [below for nested schema](#nestedatt--radio_config--band_6))
 - `full_automatic_rrm` (Boolean) Let RRM control everything, only the `channels` and `ant_gain` will be honored (i.e. disabled/bandwidth/power/band_24_usage are all controlled by RRM)
 - `indoor_use` (Boolean) To make an outdoor operate indoor. For an outdoor-ap, some channels are disallowed by default, this allows the user to use it as an indoor-ap
 - `rrm_managed` (Boolean) Enable RRM to manage all radio settings (ignores all band_xxx configs)
@@ -362,17 +370,17 @@ Optional:
 
 Optional:
 
-- `allow_rrm_disable` (Boolean)
-- `ant_gain` (Number)
-- `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 2.4GHz band. enum: `0`(disabled, response only), `20`, `40`
+- `allow_rrm_disable` (Boolean) Whether RRM may disable the 2.4 GHz radio when optimizing RF settings
+- `ant_gain` (Number) External antenna gain for the 2.4 GHz radio
+- `antenna_mode` (String) Radio chain mode for the 2.4 GHz radio
+- `bandwidth` (Number) Channel width configured for the 2.4 GHz radio
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
-- `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
+- `channels` (List of Number) Allowed channel list for the 2.4 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
-- `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) enum: `auto`, `long`, `short`
+- `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
+- `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
+- `preamble` (String) 802.11 preamble mode used by the 2.4 GHz radio
 
 
 <a id="nestedatt--radio_config--band_5"></a>
@@ -380,18 +388,18 @@ Optional:
 
 Optional:
 
-- `allow_rrm_disable` (Boolean)
-- `ant_gain` (Number)
-- `antenna_beam_pattern` (String) enum: `narrow`, `medium`, `wide`
-- `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`
+- `allow_rrm_disable` (Boolean) Whether RRM may disable the 5 GHz radio when optimizing RF settings
+- `ant_gain` (Number) External antenna gain for the 5 GHz radio
+- `antenna_beam_pattern` (String) Beam pattern used by the 5 GHz radio antenna
+- `antenna_mode` (String) Radio chain mode for the 5 GHz radio
+- `bandwidth` (Number) Channel width configured for the 5 GHz radio
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
-- `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
+- `channels` (List of Number) Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
-- `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) enum: `auto`, `long`, `short`
+- `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
+- `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
+- `preamble` (String) 802.11 preamble mode used by the 5 GHz radio
 
 
 <a id="nestedatt--radio_config--band_5_on_24_radio"></a>
@@ -399,18 +407,18 @@ Optional:
 
 Optional:
 
-- `allow_rrm_disable` (Boolean)
-- `ant_gain` (Number)
-- `antenna_beam_pattern` (String) enum: `narrow`, `medium`, `wide`
-- `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 5GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`
+- `allow_rrm_disable` (Boolean) Whether RRM may disable the 5 GHz radio when optimizing RF settings
+- `ant_gain` (Number) External antenna gain for the 5 GHz radio
+- `antenna_beam_pattern` (String) Beam pattern used by the 5 GHz radio antenna
+- `antenna_mode` (String) Radio chain mode for the 5 GHz radio
+- `bandwidth` (Number) Channel width configured for the 5 GHz radio
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
-- `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
+- `channels` (List of Number) Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
-- `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) enum: `auto`, `long`, `short`
+- `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
+- `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
+- `preamble` (String) 802.11 preamble mode used by the 5 GHz radio
 
 
 <a id="nestedatt--radio_config--band_6"></a>
@@ -418,18 +426,18 @@ Optional:
 
 Optional:
 
-- `allow_rrm_disable` (Boolean)
-- `ant_gain` (Number)
-- `antenna_beam_pattern` (String) enum: `narrow`, `medium`, `wide`
-- `antenna_mode` (String) enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`
-- `bandwidth` (Number) channel width for the 6GHz band. enum: `0`(disabled, response only), `20`, `40`, `80`, `160`
+- `allow_rrm_disable` (Boolean) Whether RRM may disable the 6 GHz radio when optimizing RF settings
+- `ant_gain` (Number) External antenna gain for the 6 GHz radio
+- `antenna_beam_pattern` (String) Beam pattern used by the 6 GHz radio antenna
+- `antenna_mode` (String) Radio chain mode for the 6 GHz radio
+- `bandwidth` (Number) Channel width configured for the 6 GHz radio
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
-- `channels` (List of Number) For RFTemplates. List of channels, null or empty array means auto
+- `channels` (List of Number) Allowed channel list for the 6 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
-- `power` (Number) TX power of the radio. For Devices, 0 means auto. -1 / -2 / -3 / …: treated as 0 / -1 / -2 / …
-- `power_max` (Number) When power=0, max tx power to use, HW-specific values will be used if not set
-- `power_min` (Number) When power=0, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) enum: `auto`, `long`, `short`
+- `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
+- `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
+- `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
+- `preamble` (String) 802.11 preamble mode used by the 6 GHz radio
 - `standard_power` (Boolean) For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed
 
 
@@ -448,12 +456,12 @@ Optional:
 
 Optional:
 
-- `cacert` (String) Only if `type`==`imagotag`
+- `cacert` (String) Only if `type`==`imagotag`. CA certificate used to validate the Imagotag service certificate
 - `channel` (Number) Only if `type`==`imagotag`, channel selection, not needed by default, required for manual channel override only
 - `enabled` (Boolean) Whether to enable any usb config
-- `host` (String) Only if `type`==`imagotag`
-- `port` (Number) Only if `type`==`imagotag`
-- `type` (String) usb config type. enum: `hanshow`, `imagotag`, `solum`
+- `host` (String) Only if `type`==`imagotag`. Imagotag service host or IP address contacted by the AP
+- `port` (Number) Only if `type`==`imagotag`. TCP port used to reach the Imagotag service
+- `type` (String) USB integration type for this legacy AP USB configuration
 - `verify_cert` (Boolean) Only if `type`==`imagotag`, whether to turn on SSL verification
 - `vlan_id` (Number) Only if `type`==`solum` or `type`==`hanshow`
 
@@ -463,7 +471,7 @@ Optional:
 
 Optional:
 
-- `allow_join` (String) Controls whether new Zigbee devices are allowed to join the network. enum: `always`, `manual`
+- `allow_join` (String) Join policy for new Zigbee devices on this AP
 - `channel` (Number) Zigbee channel (2.4 GHz). `0` means auto; valid fixed values are 11–26
 - `enabled` (Boolean) Whether to enable Zigbee on this AP
 - `extended_pan_id` (String) Extended PAN ID in hex string format; only applicable when `pan_id` is also specified

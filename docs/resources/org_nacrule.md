@@ -43,38 +43,39 @@ resource "mist_org_nacrule" "nacrule_one" {
 
 ### Required
 
-- `action` (String) enum: `allow`, `block`
-- `name` (String)
-- `order` (Number) Order of the rule, lower value implies higher priority
-- `org_id` (String)
+- `action` (String) Allow or block decision applied when the NAC rule matches
+- `name` (String) Human-readable name of the NAC rule
+- `order` (Number) Rule priority; lower values are evaluated with higher priority
+- `org_id` (String) Org identifier that owns the NAC rule
 
 ### Optional
 
-- `apply_tags` (List of String) All optional, this goes into Access-Accept
-- `enabled` (Boolean) Enabled or not
-- `guest_auth_state` (String) Guest portal authorization state. enum: `authorized`, `unknown`
-- `matching` (Attributes) (see [below for nested schema](#nestedatt--matching))
-- `not_matching` (Attributes) (see [below for nested schema](#nestedatt--not_matching))
+- `apply_tags` (List of String) NAC tag IDs to include in the Access-Accept when the rule allows access
+- `dry_run` (Boolean) Whether the NAC rule is in dry-run mode, where matches are logged but the action is not enforced
+- `enabled` (Boolean) Whether the NAC rule is evaluated during policy matching
+- `guest_auth_state` (String) Guest portal authorization state condition for the rule
+- `matching` (Attributes) Criteria that must match for the NAC rule to apply (see [below for nested schema](#nestedatt--matching))
+- `not_matching` (Attributes) Criteria that must not match for the NAC rule to apply (see [below for nested schema](#nestedatt--not_matching))
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier of the NAC rule
 
 <a id="nestedatt--matching"></a>
 ### Nested Schema for `matching`
 
 Optional:
 
-- `auth_type` (String) enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`
-- `family` (List of String) List of client device families to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed family values
-- `mfg` (List of String) List of client device models to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed model values
-- `model` (List of String) List of client device manufacturers to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed mfg values
-- `nactags` (List of String)
-- `os_type` (List of String) List of client device os types to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed os_type values
-- `port_types` (List of String)
-- `site_ids` (List of String) List of site ids to match
-- `sitegroup_ids` (List of String) List of sitegroup ids to match
-- `vendor` (List of String) List of vendors to match
+- `auth_type` (String) NAC authentication method that must match the request
+- `family` (List of String) Client device family values that must match the request
+- `mfg` (List of String) Client device manufacturer values that must match the request
+- `model` (List of String) Client device model values that must match the request
+- `nactags` (List of String) NAC tag IDs whose match criteria must be satisfied by the request
+- `os_type` (List of String) Client OS type values that must match the request
+- `port_types` (List of String) Wired or wireless access types that must match the request
+- `site_ids` (List of String) Site IDs where the rule criteria apply
+- `sitegroup_ids` (List of String) Site group IDs where the rule criteria apply
+- `vendor` (List of String) Client device vendor values that must match the request
 
 
 <a id="nestedatt--not_matching"></a>
@@ -82,16 +83,16 @@ Optional:
 
 Optional:
 
-- `auth_type` (String) enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`
-- `family` (List of String) List of client device families to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed family values
-- `mfg` (List of String) List of client device models to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed model values
-- `model` (List of String) List of client device manufacturers to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed mfg values
-- `nactags` (List of String)
-- `os_type` (List of String) List of client device os types to match. Refer to [List Fingerprint Types]]($e/Constants%20Definitions/listFingerprintTypes) for allowed os_type values
-- `port_types` (List of String)
-- `site_ids` (List of String) List of site ids to match
-- `sitegroup_ids` (List of String) List of sitegroup ids to match
-- `vendor` (List of String) List of vendors to match
+- `auth_type` (String) NAC authentication method that must match the request
+- `family` (List of String) Client device family values that must match the request
+- `mfg` (List of String) Client device manufacturer values that must match the request
+- `model` (List of String) Client device model values that must match the request
+- `nactags` (List of String) NAC tag IDs whose match criteria must be satisfied by the request
+- `os_type` (List of String) Client OS type values that must match the request
+- `port_types` (List of String) Wired or wireless access types that must match the request
+- `site_ids` (List of String) Site IDs where the rule criteria apply
+- `sitegroup_ids` (List of String) Site group IDs where the rule criteria apply
+- `vendor` (List of String) Client device vendor values that must match the request
 
 
 

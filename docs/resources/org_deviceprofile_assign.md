@@ -32,7 +32,7 @@ resource "mist_org_deviceprofile_assign" "deviceprofile_assign" {
 ### Required
 
 - `deviceprofile_id` (String)
-- `macs` (Set of String)
+- `macs` (Set of String) List of MAC addresses included in the request
 - `org_id` (String)
 
 

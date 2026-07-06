@@ -67,9 +67,9 @@ resource "mist_org_nacidp" "idp_ldap" {
 
 ### Required
 
-- `idp_type` (String) enum: `ldap`, `mxedge_proxy`, `oauth`
-- `name` (String) Name
-- `org_id` (String)
+- `idp_type` (String) enum: `ldap`, `mxedge_proxy`, `oauth`, `openroaming`
+- `name` (String) Display name of the NAC IDP configuration
+- `org_id` (String) Owning organization identifier for this NAC IDP configuration
 
 ### Optional
 
@@ -77,31 +77,34 @@ resource "mist_org_nacidp" "idp_ldap" {
 - `ldap_base_dn` (String) Required if `idp_type`==`ldap`, whole domain or a specific organization unit (container) in Search base to specify where users and groups are found in the LDAP tree
 - `ldap_bind_dn` (String) Required if `idp_type`==`ldap`, the account used to authenticate against the LDAP
 - `ldap_bind_password` (String) Required if `idp_type`==`ldap`, the password used to authenticate against the LDAP
-- `ldap_cacerts` (List of String) Required if `idp_type`==`ldap`, list of CA certificates to validate the LDAP certificate
+- `ldap_cacerts` (List of String) CA certificates used to validate LDAP or LDAPS server certificates. Required if `idp_type`==`ldap`
 - `ldap_client_cert` (String) If `idp_type`==`ldap`, LDAPS Client certificate
 - `ldap_client_key` (String) If `idp_type`==`ldap`, Key for the `ldap_client_cert`
-- `ldap_group_attr` (String) If `ldap_type`==`custom`
-- `ldap_group_dn` (String) If `ldap_type`==`custom`
+- `ldap_group_attr` (String) Group attribute used to resolve LDAP memberships. If `ldap_type`==`custom`
+- `ldap_group_dn` (String) Group search base used for custom LDAP group lookup. If `ldap_type`==`custom`
 - `ldap_resolve_groups` (Boolean) If `idp_type`==`ldap`, whether to recursively resolve LDAP groups
-- `ldap_server_hosts` (List of String) If `idp_type`==`ldap`, list of LDAP/LDAPS server IP Addresses or Hostnames
-- `ldap_type` (String) if `idp_type`==`ldap`. enum: `azure`, `custom`, `google`, `okta`, `ping_identity`
+- `ldap_server_hosts` (List of String) Server hostnames or IP addresses for LDAP or LDAPS when `idp_type`==`ldap`
+- `ldap_type` (String) Provider template for LDAP SSO when `idp_type`==`ldap`
 - `ldap_user_filter` (String) Required if `ldap_type`==`custom`, LDAP filter that will identify the type of user
 - `member_filter` (String) Required if `ldap_type`==`custom`,LDAP filter that will identify the type of member
 - `oauth_cc_client_id` (String) Required if `idp_type`==`oauth`, Client Credentials
 - `oauth_cc_client_secret` (String, Sensitive) Required if `idp_type`==`oauth`, oauth_cc_client_secret is RSA private key, of the form "-----BEGIN RSA PRIVATE KEY--...."
-- `oauth_discovery_url` (String) If `idp_type`==`oauth`
-- `oauth_ping_identity_region` (String) enum: `us` (United States, default), `ca` (Canada), `eu` (Europe), `asia` (Asia), `au` (Australia)
-- `oauth_provider_domain` (String) If `oauth_type`==`okta`, specifies the region-specific OAuth provider domain. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`
+- `oauth_discovery_url` (String) OAuth discovery document URL used when `idp_type`==`oauth`
+- `oauth_ping_identity_region` (String) Ping Identity region for OAuth SSO when `oauth_type`==`ping_identity`
+- `oauth_provider_domain` (String) Provider domain for Okta OAuth SSO when `oauth_type`==`okta`
 - `oauth_ropc_client_id` (String) If `idp_type`==`oauth`, ropc = Resource Owner Password Credentials
 - `oauth_ropc_client_secret` (String, Sensitive) If `oauth_type`==`azure` or `oauth_type`==`azure-gov`. oauth_ropc_client_secret can be empty
 - `oauth_tenant_id` (String) Required if `idp_type`==`oauth`, oauth_tenant_id
-- `oauth_type` (String) if `idp_type`==`oauth`. enum: `azure`, `azure-gov`, `okta`, `ping_identity`
+- `oauth_type` (String) Provider type for OAuth SSO when `idp_type`==`oauth`
+- `openroaming_ssids` (List of String) SSIDs that support OpenRoaming, used when `idp_type`==`openroaming`
+- `openroaming_wba_client_cert` (String, Sensitive) Optional WBA-issued client certificate for OpenRoaming. If not provided, the default WBA-issued certificate for Juniper will be used.
+- `openroaming_wba_client_key` (String, Sensitive) Optional WBA-issued client private key for OpenRoaming. If not provided, the default WBA-issued key for Juniper will be used.
 - `scim_enabled` (Boolean) If `idp_type`==`oauth`, indicates if SCIM provisioning is enabled for the OAuth IDP
 - `scim_secret_token` (String, Sensitive) If `idp_type`==`oauth`, scim_secret_token (auto-generated when not provided by caller and `scim_enabled`==`true`, empty string when `scim_enabled`==`false`) is used as the Bearer token in the Authorization header of SCIM provisioning requests by the IDP
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier for this SSO configuration
 
 
 
