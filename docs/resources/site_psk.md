@@ -62,7 +62,7 @@ resource "mist_site_psk" "psk_one" {
 ### Read-Only
 
 - `id` (String) Unique identifier of the PSK
-- `org_id` (String) Organization that owns the org-level PSK
+- `org_id` (String) Organization that owns the site-level PSK
 
 
 

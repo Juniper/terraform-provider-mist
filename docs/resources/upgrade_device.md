@@ -76,7 +76,7 @@ resource "mist_upgrade_device" "switch_upgrade" {
 
 Read-Only:
 
-- `lastcheck` (Number) Time when the AP last checked for auto-upgrade, in epoch seconds
+- `lastcheck` (Number) Time when the device last checked for auto-upgrade, in epoch seconds
 
 
 <a id="nestedatt--fwupdate"></a>

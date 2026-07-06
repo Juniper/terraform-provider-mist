@@ -68,8 +68,8 @@ resource "mist_org_nacidp" "idp_ldap" {
 ### Required
 
 - `idp_type` (String) enum: `ldap`, `mxedge_proxy`, `oauth`, `openroaming`
-- `name` (String) Display name of the SSO configuration
-- `org_id` (String) Owning organization identifier for this SSO configuration
+- `name` (String) Display name of the NAC IDP configuration
+- `org_id` (String) Owning organization identifier for this NAC IDP configuration
 
 ### Optional
 
