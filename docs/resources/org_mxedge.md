@@ -44,8 +44,7 @@ resource "mist_org_mxedge" "existing_mxedge" {
   org_id = "b3b6ad7a-de9e-438c-8cdf-3ddcc1e124e2"
   name    = "test-mxedge"
   model   = "ME-X5"
-  site_id = mist_site.primary_site.id
-  mxcluster_id = mist_org_mxcluster.existing_mxcluster.id
+  site_id = "{site_id}"
 
   # Optional attributes
   notes              = "Test MxEdge for comprehensive attribute testing"
@@ -166,50 +165,51 @@ resource "mist_org_mxedge" "existing_mxedge" {
 
 ### Required
 
-- `org_id` (String)
+- `org_id` (String) Identifier of the org that owns the Mist Edge
 
 ### Optional
 
-- `claim_code` (String)
-- `model` (String)
-- `mxcluster_id` (String) MxCluster this MxEdge belongs to
-- `mxedge_mgmt` (Attributes) (see [below for nested schema](#nestedatt--mxedge_mgmt))
-- `name` (String)
-- `notes` (String)
-- `ntp_servers` (List of String)
-- `oob_ip_config` (Attributes) IPconfiguration of the Mist Edge out-of_band management interface (see [below for nested schema](#nestedatt--oob_ip_config))
-- `proxy` (Attributes) Proxy Configuration to talk to Mist (see [below for nested schema](#nestedatt--proxy))
-- `site_id` (String)
-- `tunterm_dhcpd_config` (Attributes Map) Global and per-VLAN. Property key is the VLAN ID (see [below for nested schema](#nestedatt--tunterm_dhcpd_config))
-- `tunterm_extra_routes` (Attributes Map) Property key is a CIDR (see [below for nested schema](#nestedatt--tunterm_extra_routes))
-- `tunterm_igmp_snooping_config` (Attributes) (see [below for nested schema](#nestedatt--tunterm_igmp_snooping_config))
-- `tunterm_ip_config` (Attributes) IPconfiguration of the Mist Tunnel interface (see [below for nested schema](#nestedatt--tunterm_ip_config))
-- `tunterm_monitoring` (List of List of Object)
-- `tunterm_multicast_config` (Attributes) (see [below for nested schema](#nestedatt--tunterm_multicast_config))
+- `claim_code` (String) Registration claim code for the Mist Edge
+- `model` (String) Mist Edge hardware or virtual appliance model
+- `mxcluster_id` (String) Mist Edge cluster identifier that this appliance belongs to
+- `mxedge_mgmt` (Attributes) Management credentials and settings for the Mist Edge (see [below for nested schema](#nestedatt--mxedge_mgmt))
+- `name` (String) Display name of the Mist Edge
+- `notes` (String) Free-form notes for the Mist Edge
+- `ntp_servers` (List of String) Time synchronization servers used by the Mist Edge
+- `oob_ip_config` (Attributes) Out-of-band management IP configuration for the Mist Edge (see [below for nested schema](#nestedatt--oob_ip_config))
+- `proxy` (Attributes) Network proxy settings used by the Mist Edge (see [below for nested schema](#nestedatt--proxy))
+- `site_id` (String) Identifier of the site when the Mist Edge is site-scoped
+- `tunterm_dhcpd_config` (Attributes Map) DHCP relay or server settings for Mist Tunneled VLANs (see [below for nested schema](#nestedatt--tunterm_dhcpd_config))
+- `tunterm_extra_routes` (Attributes Map) Extra routes for Mist Tunneled VLAN traffic; property key is a CIDR (see [below for nested schema](#nestedatt--tunterm_extra_routes))
+- `tunterm_igmp_snooping_config` (Attributes) IGMP snooping settings for Mist Tunneled VLANs (see [below for nested schema](#nestedatt--tunterm_igmp_snooping_config))
+- `tunterm_ip_config` (Attributes) Tunnel termination IP configuration for the Mist Edge (see [below for nested schema](#nestedatt--tunterm_ip_config))
+- `tunterm_monitoring` (List of List of Object) Monitoring checks for tunnel termination reachability
+- `tunterm_multicast_config` (Attributes) Multicast forwarding settings for tunnel termination (see [below for nested schema](#nestedatt--tunterm_multicast_config))
 - `tunterm_other_ip_configs` (Attributes Map) IPconfigs by VLAN ID. Property key is the VLAN ID (see [below for nested schema](#nestedatt--tunterm_other_ip_configs))
-- `tunterm_port_config` (Attributes) Ethernet port configurations (see [below for nested schema](#nestedatt--tunterm_port_config))
-- `tunterm_switch_config` (Attributes Map) If custom vlan settings are desired (see [below for nested schema](#nestedatt--tunterm_switch_config))
-- `versions` (Attributes) (see [below for nested schema](#nestedatt--versions))
+- `tunterm_port_config` (Attributes) Port configuration for tunnel termination traffic (see [below for nested schema](#nestedatt--tunterm_port_config))
+- `tunterm_switch_config` (Attributes Map) Switch VLAN settings for tunnel termination (see [below for nested schema](#nestedatt--tunterm_switch_config))
+- `versions` (Attributes) Service version information reported by the Mist Edge (see [below for nested schema](#nestedatt--versions))
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
-- `mac` (String)
-- `mxagent_registered` (Boolean)
-- `services` (List of String) List of services to run, tunterm only for now
-- `tunterm_registered` (Boolean)
+- `for_site` (Boolean) Whether this Mist Edge is scoped to a site
+- `id` (String) Unique identifier of the Mist Edge
+- `mac` (String) Mist Edge MAC address
+- `mxagent_registered` (Boolean) Whether the Mist Edge agent has registered with Mist cloud
+- `services` (List of String) List of services enabled to run on the Mist Edge
+- `tunterm_registered` (Boolean) Whether the tunnel termination service has registered with Mist cloud
 
 <a id="nestedatt--mxedge_mgmt"></a>
 ### Nested Schema for `mxedge_mgmt`
 
 Optional:
 
-- `config_auto_revert` (Boolean)
-- `fips_enabled` (Boolean)
-- `mist_password` (String, Sensitive)
-- `oob_ip_type` (String) enum: `dhcp`, `disabled`, `static`
-- `oob_ip_type6` (String) enum: `autoconf`, `dhcp`, `disabled`, `static`
-- `root_password` (String, Sensitive)
+- `config_auto_revert` (Boolean) Whether the Mist Edge automatically reverts configuration changes if connectivity is lost
+- `fips_enabled` (Boolean) Whether FIPS mode is enabled on the Mist Edge
+- `mist_password` (String, Sensitive) Password for the Mist service account on the Mist Edge
+- `oob_ip_type` (String) IPv4 address assignment mode for out-of-band management
+- `oob_ip_type6` (String) IPv6 address assignment mode for out-of-band management
+- `root_password` (String, Sensitive) Root account password for the Mist Edge
 
 
 <a id="nestedatt--oob_ip_config"></a>
@@ -217,17 +217,17 @@ Optional:
 
 Optional:
 
-- `autoconf6` (Boolean)
-- `dhcp6` (Boolean)
-- `dns` (List of String) IPv4 ignored if `type`!=`static`, IPv6 ignored if `type6`!=`static`
-- `gateway` (String) If `type`=`static`
-- `gateway6` (String)
-- `ip` (String) If `type`=`static`
-- `ip6` (String)
-- `netmask` (String) If `type`=`static`
-- `netmask6` (String)
-- `type` (String) enum: `dhcp`, `static`
-- `type6` (String) enum: `dhcp`, `static`
+- `autoconf6` (Boolean) Whether IPv6 autoconfiguration is enabled on the out-of-band management interface
+- `dhcp6` (Boolean) Whether DHCPv6 is enabled on the out-of-band management interface
+- `dns` (List of String) Name server addresses for out-of-band management
+- `gateway` (String) If `type`=`static`, IPv4 default gateway for the out-of-band management interface
+- `gateway6` (String) If `type6`=`static`, IPv6 default gateway for the out-of-band management interface
+- `ip` (String) If `type`=`static`, IPv4 address for the out-of-band management interface
+- `ip6` (String) If `type6`=`static`, IPv6 address for the out-of-band management interface
+- `netmask` (String) If `type`=`static`, IPv4 netmask for the out-of-band management interface
+- `netmask6` (String) If `type6`=`static`, IPv6 prefix length for the out-of-band management interface
+- `type` (String) IPv4 address assignment mode for out-of-band management
+- `type6` (String) IPv6 address assignment mode for out-of-band management
 
 
 <a id="nestedatt--proxy"></a>
@@ -235,8 +235,8 @@ Optional:
 
 Optional:
 
-- `disabled` (Boolean)
-- `url` (String)
+- `disabled` (Boolean) Whether this proxy configuration is disabled
+- `url` (String) Proxy URL used to reach Mist
 
 
 <a id="nestedatt--tunterm_dhcpd_config"></a>
@@ -244,9 +244,9 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
-- `servers` (List of String) List of DHCP servers; required if `type`==`relay`
-- `type` (String) enum: `relay`
+- `enabled` (Boolean) Whether DHCP relay is enabled for this tunneled VLAN
+- `servers` (List of String) DHCP relay server addresses used by this tunneled VLAN
+- `type` (String) DHCP handling mode for this tunneled VLAN
 
 
 <a id="nestedatt--tunterm_extra_routes"></a>
@@ -254,7 +254,7 @@ Optional:
 
 Optional:
 
-- `via` (String)
+- `via` (String) Next-hop IP address for this Mist Tunnel extra route
 
 
 <a id="nestedatt--tunterm_igmp_snooping_config"></a>
@@ -262,9 +262,9 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
-- `querier` (Attributes) (see [below for nested schema](#nestedatt--tunterm_igmp_snooping_config--querier))
-- `vlan_ids` (List of Number) List of vlans on which tunterm performs IGMP snooping
+- `enabled` (Boolean) Whether IGMP snooping is enabled for the configured VLANs
+- `querier` (Attributes) IGMP querier settings used with tunnel termination snooping (see [below for nested schema](#nestedatt--tunterm_igmp_snooping_config--querier))
+- `vlan_ids` (List of Number) List of VLAN IDs where tunnel termination performs IGMP snooping
 
 <a id="nestedatt--tunterm_igmp_snooping_config--querier"></a>
 ### Nested Schema for `tunterm_igmp_snooping_config.querier`
@@ -274,7 +274,7 @@ Optional:
 - `max_response_time` (Number) Querier's query response interval, in tenths-of-seconds
 - `mtu` (Number) The MTU we use (needed when forming large IGMPv3 Reports)
 - `query_interval` (Number) Querier's query interval, in seconds
-- `robustness` (Number) Querier's robustness
+- `robustness` (Number) IGMP querier robustness variable
 - `version` (Number) Querier's maximum protocol version
 
 
@@ -284,15 +284,15 @@ Optional:
 
 Required:
 
-- `gateway` (String)
-- `ip` (String) Untagged VLAN
-- `netmask` (String)
+- `gateway` (String) IPv4 gateway for the Mist Tunnel interface
+- `ip` (String) Address on the untagged Mist Tunnel interface, in IPv4 format
+- `netmask` (String) Subnet mask for the Mist Tunnel IPv4 address
 
 Optional:
 
-- `gateway6` (String)
-- `ip6` (String)
-- `netmask6` (String)
+- `gateway6` (String) IPv6 gateway for the Mist Tunnel interface
+- `ip6` (String) Address on the Mist Tunnel interface, in IPv6 format
+- `netmask6` (String) Prefix length for the Mist Tunnel IPv6 address
 
 
 <a id="nestedatt--tunterm_multicast_config"></a>
@@ -300,16 +300,16 @@ Optional:
 
 Optional:
 
-- `mdns` (Attributes) (see [below for nested schema](#nestedatt--tunterm_multicast_config--mdns))
-- `ssdp` (Attributes) (see [below for nested schema](#nestedatt--tunterm_multicast_config--ssdp))
+- `mdns` (Attributes) Settings for mDNS forwarding on tunnel termination VLANs (see [below for nested schema](#nestedatt--tunterm_multicast_config--mdns))
+- `ssdp` (Attributes) Settings for SSDP forwarding on tunnel termination VLANs (see [below for nested schema](#nestedatt--tunterm_multicast_config--ssdp))
 
 <a id="nestedatt--tunterm_multicast_config--mdns"></a>
 ### Nested Schema for `tunterm_multicast_config.mdns`
 
 Optional:
 
-- `enabled` (Boolean)
-- `vlan_ids` (List of String)
+- `enabled` (Boolean) Whether mDNS forwarding is enabled for the configured VLANs
+- `vlan_ids` (List of String) List of VLAN IDs where mDNS forwarding is enabled
 
 
 <a id="nestedatt--tunterm_multicast_config--ssdp"></a>
@@ -317,8 +317,8 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
-- `vlan_ids` (List of String)
+- `enabled` (Boolean) Whether SSDP forwarding is enabled for the configured VLANs
+- `vlan_ids` (List of String) List of VLAN IDs where SSDP forwarding is enabled
 
 
 
@@ -327,8 +327,8 @@ Optional:
 
 Required:
 
-- `ip` (String)
-- `netmask` (String)
+- `ip` (String) Address for the additional Mist Tunnel interface, in IPv4 format
+- `netmask` (String) Subnet mask for the additional Mist Tunnel IPv4 address
 
 
 <a id="nestedatt--tunterm_port_config"></a>
@@ -336,10 +336,10 @@ Required:
 
 Optional:
 
-- `downstream_ports` (List of String) List of ports to be used for downstream (to AP) purpose
+- `downstream_ports` (List of String) Ports connected downstream toward APs for tunnel termination
 - `separate_upstream_downstream` (Boolean) Whether to separate upstream / downstream ports. default is false where all ports will be used.
-- `upstream_port_vlan_id` (String)
-- `upstream_ports` (List of String) List of ports to be used for upstream purpose (to LAN)
+- `upstream_port_vlan_id` (String) Native VLAN ID applied to upstream tunnel termination ports
+- `upstream_ports` (List of String) Ports connected upstream toward the LAN for tunnel termination
 
 
 <a id="nestedatt--tunterm_switch_config"></a>
@@ -347,8 +347,8 @@ Optional:
 
 Optional:
 
-- `port_vlan_id` (Number)
-- `vlan_ids` (List of String)
+- `port_vlan_id` (Number) Untagged VLAN ID for this tunnel termination switch port
+- `vlan_ids` (List of String) List of tagged VLAN IDs allowed on this tunnel termination switch port
 
 
 <a id="nestedatt--versions"></a>
@@ -356,8 +356,8 @@ Optional:
 
 Read-Only:
 
-- `mxagent` (String)
-- `tunterm` (String)
+- `mxagent` (String) Reported version of the mxagent service
+- `tunterm` (String) Reported version of the tunnel termination service
 
 
 

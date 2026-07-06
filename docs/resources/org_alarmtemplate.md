@@ -58,14 +58,14 @@ resource "mist_org_alarmtemplate" "alarmtemplate_one" {
 
 ### Required
 
-- `delivery` (Attributes) Delivery object to configure the alarm delivery (see [below for nested schema](#nestedatt--delivery))
+- `delivery` (Attributes) Default alarm delivery settings for rules in this template (see [below for nested schema](#nestedatt--delivery))
 - `name` (String) Some string to name the alarm template
-- `org_id` (String)
+- `org_id` (String) Organization that owns this alarm template
 - `rules` (Attributes Map) Alarm Rules object to configure the individual alarm keys/types. Property key is the alarm name (list available with the `mist_const_alarms` data source). (see [below for nested schema](#nestedatt--rules))
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier of the alarm template
 
 <a id="nestedatt--delivery"></a>
 ### Nested Schema for `delivery`
@@ -76,7 +76,7 @@ Required:
 
 Optional:
 
-- `additional_emails` (List of String) List of additional email string to deliver the alarms via emails
+- `additional_emails` (List of String) Additional email recipients for alarm delivery
 - `to_org_admins` (Boolean) Whether to deliver the alarms via emails to Org admins or not
 - `to_site_admins` (Boolean) Whether to deliver the alarms via emails to Site admins or not
 
@@ -86,8 +86,8 @@ Optional:
 
 Optional:
 
-- `delivery` (Attributes) Delivery object to configure the alarm delivery (see [below for nested schema](#nestedatt--rules--delivery))
-- `enabled` (Boolean)
+- `delivery` (Attributes) Overrides for the alarm template delivery defaults for this alarm rule (see [below for nested schema](#nestedatt--rules--delivery))
+- `enabled` (Boolean) Whether this alarm rule is enabled in the template
 
 <a id="nestedatt--rules--delivery"></a>
 ### Nested Schema for `rules.delivery`
@@ -98,7 +98,7 @@ Required:
 
 Optional:
 
-- `additional_emails` (List of String) List of additional email string to deliver the alarms via emails
+- `additional_emails` (List of String) Additional email recipients for alarm delivery
 - `to_org_admins` (Boolean) Whether to deliver the alarms via emails to Org admins or not
 - `to_site_admins` (Boolean) Whether to deliver the alarms via emails to Site admins or not
 

@@ -39,30 +39,30 @@ resource "mist_site_psk" "psk_one" {
 
 ### Required
 
-- `name` (String)
-- `passphrase` (String, Sensitive) passphrase of the PSK (8-63 character or 64 in hex)
-- `site_id` (String)
-- `ssid` (String) SSID this PSK should be applicable to
+- `name` (String) Display name of the PSK
+- `passphrase` (String, Sensitive) PSK passphrase, 8-63 characters or 64 hexadecimal characters
+- `site_id` (String) Site associated with the site-level PSK
+- `ssid` (String) WLAN SSID where this PSK can be used
 
 ### Optional
 
-- `email` (String) email to send psk expiring notifications to
+- `email` (String) Notification recipient email address for PSK creation notification and expiration reminders
 - `expire_time` (Number) Expire time for this PSK key (epoch time in seconds). Default `null` (as no expiration)
 - `expiry_notification_time` (Number) Number of days before psk is expired. Used as to when to start sending reminder notification when the psk is about to expire
-- `mac` (String) If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`
-- `note` (String)
+- `mac` (String) If `usage`==`single`, client MAC address this PSK is bound to; empty when auto-binding is used
+- `note` (String) Admin note or description stored with the PSK
 - `notify_expiry` (Boolean) If set to true, reminder notification will be sent when psk is about to expire
 - `notify_on_create_or_edit` (Boolean) If set to true, notification will be sent when psk is created or edited
 - `old_passphrase` (String, Sensitive) previous passphrase of the PSK if it has been rotated
-- `role` (String)
+- `role` (String) Client role applied to users authenticated with this PSK
 - `usage` (String) enum: `multi`, `single`
-- `vlan_id` (String)
+- `vlan_id` (String) VLAN ID returned for clients using this PSK
 - `vlan_name` (String) VLAN name to be assigned. Optional, `vlan_id` takes precedence if both are provided
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
-- `org_id` (String)
+- `id` (String) Unique identifier of the PSK
+- `org_id` (String) Organization that owns the org-level PSK
 
 
 

@@ -45,35 +45,35 @@ resource "mist_org_servicepolicy" "servicepolicy_one" {
 
 ### Required
 
-- `name` (String)
-- `org_id` (String)
+- `name` (String) Display name of the service policy
+- `org_id` (String) Organization that owns this service policy
 
 ### Optional
 
-- `aamw` (Attributes) SRX only (see [below for nested schema](#nestedatt--aamw))
-- `action` (String) enum: `allow`, `deny`
-- `antivirus` (Attributes) For SRX-only (see [below for nested schema](#nestedatt--antivirus))
-- `appqoe` (Attributes) SRX only (see [below for nested schema](#nestedatt--appqoe))
-- `ewf` (Attributes List) (see [below for nested schema](#nestedatt--ewf))
-- `idp` (Attributes) (see [below for nested schema](#nestedatt--idp))
-- `local_routing` (Boolean) access within the same VRF
+- `aamw` (Attributes) Advanced anti-malware settings applied by this service policy (see [below for nested schema](#nestedatt--aamw))
+- `action` (String) Allow or deny action for traffic matched by this service policy
+- `antivirus` (Attributes) Malware and virus inspection settings applied by this service policy (see [below for nested schema](#nestedatt--antivirus))
+- `appqoe` (Attributes) Application QoE settings applied by this service policy (see [below for nested schema](#nestedatt--appqoe))
+- `ewf` (Attributes List) Enhanced web filtering rules applied by this service policy (see [below for nested schema](#nestedatt--ewf))
+- `idp` (Attributes) Intrusion detection and prevention settings applied by this service policy (see [below for nested schema](#nestedatt--idp))
+- `local_routing` (Boolean) Whether the policy permits access within the same VRF
 - `path_preference` (String) By default, we derive all paths available and use them, optionally, you can customize by using `path_preference`
-- `services` (List of String)
-- `ssl_proxy` (Attributes) For SRX-only (see [below for nested schema](#nestedatt--ssl_proxy))
-- `tenants` (List of String)
+- `services` (List of String) Application services or groups matched by this policy
+- `ssl_proxy` (Attributes) SSL proxy inspection settings applied by this service policy (see [below for nested schema](#nestedatt--ssl_proxy))
+- `tenants` (List of String) Tenant names matched by this service policy
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier of the service policy
 
 <a id="nestedatt--aamw"></a>
 ### Nested Schema for `aamw`
 
 Optional:
 
-- `aamwprofile_id` (String) org-level Advanced Advance Anti Malware Profile (SkyAtp) Profile can be used, this takes precedence over 'profile'
-- `enabled` (Boolean)
-- `profile` (String) enum: `docsonly`, `executables`, `standard`
+- `aamwprofile_id` (String) Organization-level advanced anti-malware profile ID; takes precedence over inline `profile` settings
+- `enabled` (Boolean) Whether advanced anti-malware inspection is enabled for the service policy
+- `profile` (String) Built-in advanced anti-malware inspection profile to apply
 
 
 <a id="nestedatt--antivirus"></a>
@@ -81,9 +81,9 @@ Optional:
 
 Optional:
 
-- `avprofile_id` (String) org-level AV Profile can be used, this takes precedence over 'profile'
-- `enabled` (Boolean)
-- `profile` (String) Default / noftp / httponly / or keys from av_profiles
+- `avprofile_id` (String) Organization-level antivirus profile ID; takes precedence over inline `profile` settings
+- `enabled` (Boolean) Whether antivirus inspection is enabled for the service policy
+- `profile` (String) Antivirus profile name to apply, such as `default`, `noftp`, `httponly`, or an AV profile key
 
 
 <a id="nestedatt--appqoe"></a>
@@ -91,7 +91,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
+- `enabled` (Boolean) Whether application QoE is enabled for the service policy
 
 
 <a id="nestedatt--ewf"></a>
@@ -99,10 +99,10 @@ Optional:
 
 Optional:
 
-- `alert_only` (Boolean)
-- `block_message` (String)
-- `enabled` (Boolean)
-- `profile` (String) enum: `critical`, `standard`, `strict`
+- `alert_only` (Boolean) Whether matching enhanced web filtering traffic is logged without being blocked
+- `block_message` (String) Message returned when enhanced web filtering blocks a request
+- `enabled` (Boolean) Whether this enhanced web filtering rule is enabled
+- `profile` (String) Enhanced web filtering profile applied by this rule
 
 
 <a id="nestedatt--idp"></a>
@@ -110,8 +110,8 @@ Optional:
 
 Optional:
 
-- `alert_only` (Boolean)
-- `enabled` (Boolean)
+- `alert_only` (Boolean) Whether to alert without enforcing IDP prevention actions
+- `enabled` (Boolean) Whether IDP inspection is enabled for the policy
 - `idpprofile_id` (String) org_level IDP Profile can be used, this takes precedence over `profile`
 - `profile` (String) enum: `Custom`, `strict` (default), `standard` or keys from idp_profiles
 
@@ -121,8 +121,8 @@ Optional:
 
 Optional:
 
-- `ciphers_category` (String) enum: `medium`, `strong`, `weak`
-- `enabled` (Boolean)
+- `ciphers_category` (String) Allowed cipher strength category for SSL proxy inspection
+- `enabled` (Boolean) Whether SSL proxy inspection is enabled for the service policy
 
 
 

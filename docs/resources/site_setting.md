@@ -311,7 +311,7 @@ e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled
 
 Optional:
 
-- `apps` (List of String) App-keys from [List Applications]($e/Constants%20Definitions/listApplications)
+- `apps` (List of String) APp-keys from [List Applications]($e/Constants%20Definitions/listApplications)
 - `custom_apps` (Attributes List) (see [below for nested schema](#nestedatt--gateway_mgmt--app_probing--custom_apps))
 - `enabled` (Boolean)
 

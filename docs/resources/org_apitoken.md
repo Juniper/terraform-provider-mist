@@ -44,27 +44,27 @@ resource "mist_org_apitoken" "apitoken_one" {
 
 ### Required
 
-- `name` (String) Name of the token
-- `org_id` (String)
-- `privileges` (Attributes List) List of privileges the token has on the orgs/sites (see [below for nested schema](#nestedatt--privileges))
+- `name` (String) Display name of the organization API token
+- `org_id` (String) Organization that owns this API token
+- `privileges` (Attributes List) Access scopes and roles granted to the organization API token (see [below for nested schema](#nestedatt--privileges))
 
 ### Optional
 
-- `src_ips` (List of String) List of allowed IP addresses from where the token can be used from. At most 10 IP addresses can be specified, cannot be changed once the API Token is created.
+- `src_ips` (List of String) Allowed source IP addresses or CIDRs from which the token may be used
 
 ### Read-Only
 
 - `created_by` (String) email of the token creator / null if creator is deleted
-- `id` (String) Unique ID of the object instance in the Mist Organization
-- `key` (String, Sensitive)
+- `id` (String) Unique identifier of the organization API token
+- `key` (String, Sensitive) Token secret key. The full API Token is only returned when the API token is created and can only be partially retrieved afterward
 
 <a id="nestedatt--privileges"></a>
 ### Nested Schema for `privileges`
 
 Required:
 
-- `role` (String) access permissions. enum: `admin`, `helpdesk`, `installer`, `read`, `write`
-- `scope` (String) enum: `org`, `site`, `sitegroup`, `orgsites`
+- `role` (String) Access role granted by this organization privilege
+- `scope` (String) Organization hierarchy level where this privilege applies
 
 Optional:
 

@@ -5,7 +5,9 @@ package resource_org_wlan
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -26,7 +28,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -2131,6 +2132,7 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 							"sms_provider":                   types.StringValue("manual"),
 							"smsglobal_api_key":              types.StringNull(),
 							"smsglobal_api_secret":           types.StringNull(),
+							"smsglobal_sender":               types.StringNull(),
 							"sponsor_auto_approve":           types.BoolNull(),
 							"sponsor_email_domains":          types.ListValueMust(types.StringType, []attr.Value{}),
 							"sponsor_enabled":                types.BoolValue(false),

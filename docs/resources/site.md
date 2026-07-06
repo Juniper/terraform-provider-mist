@@ -44,8 +44,8 @@ resource "mist_site" "juniper_france" {
 ### Required
 
 - `address` (String) full address of the site
-- `name` (String)
-- `org_id` (String)
+- `name` (String) Display name of the site
+- `org_id` (String) Organization identifier associated with the site
 
 ### Optional
 
@@ -53,28 +53,28 @@ resource "mist_site" "juniper_france" {
 - `aptemplate_id` (String) AP Template ID, used by APs
 - `country_code` (String) Country code for the site (for AP config generation), in two-character
 - `gatewaytemplate_id` (String) Gateway Template ID, used by gateways
-- `latlng` (Attributes) (see [below for nested schema](#nestedatt--latlng))
+- `latlng` (Attributes) Latitude and longitude for the site location (see [below for nested schema](#nestedatt--latlng))
 - `networktemplate_id` (String) Network Template ID, this takes precedence over Site Settings
 - `notes` (String) Optional, any notes about the site
 - `rftemplate_id` (String) RF Template ID, this takes precedence over Site Settings
 - `routertemplate_id` (String) Router Template ID, used by gateways
-- `secpolicy_id` (String) SecPolicy ID
+- `secpolicy_id` (String) Security policy identifier applied to this site
 - `sitegroup_ids` (List of String) Sitegroups this site belongs to
-- `sitetemplate_id` (String) Site Template ID
-- `timezone` (String) Timezone the site is at
+- `sitetemplate_id` (String) Site template identifier applied to this site
+- `timezone` (String) IANA time zone name for the site
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
-- `tzoffset` (Number)
+- `id` (String) Unique value identifying the site
+- `tzoffset` (Number) Time zone offset value derived from the site's timezone
 
 <a id="nestedatt--latlng"></a>
 ### Nested Schema for `latlng`
 
 Required:
 
-- `lat` (Number)
-- `lng` (Number)
+- `lat` (Number) Geographic latitude in decimal degrees
+- `lng` (Number) Geographic longitude in decimal degrees
 
 
 

@@ -34,28 +34,28 @@ resource "mist_org_wlantemplate" "wlantemplate_one" {
 
 ### Required
 
-- `name` (String)
-- `org_id` (String)
+- `name` (String) Display name of the WLAN template
+- `org_id` (String) Organization that owns this WLAN template
 
 ### Optional
 
-- `applies` (Attributes) Where this template should be applied to, can be org_id, site_ids, sitegroup_ids (see [below for nested schema](#nestedatt--applies))
-- `deviceprofile_ids` (List of String) List of Device Profile ids
-- `exceptions` (Attributes) Where this template should not be applied to (takes precedence) (see [below for nested schema](#nestedatt--exceptions))
+- `applies` (Attributes) Organizations, sites, or site groups targeted by this WLAN template (see [below for nested schema](#nestedatt--applies))
+- `deviceprofile_ids` (List of String) Device profile IDs that further limit where this WLAN template applies
+- `exceptions` (Attributes) Sites or site groups excluded from this WLAN template even when included by the application scope (see [below for nested schema](#nestedatt--exceptions))
 - `filter_by_deviceprofile` (Boolean) Whether to further filter by Device Profile
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier of the WLAN template
 
 <a id="nestedatt--applies"></a>
 ### Nested Schema for `applies`
 
 Optional:
 
-- `org_id` (String)
-- `site_ids` (List of String) List of site ids
-- `sitegroup_ids` (List of String) List of sitegroup ids
+- `org_id` (String) Organization included in the WLAN template application scope
+- `site_ids` (List of String) Sites included in the WLAN template application scope
+- `sitegroup_ids` (List of String) Site groups included in the WLAN template application scope
 
 
 <a id="nestedatt--exceptions"></a>
@@ -63,8 +63,8 @@ Optional:
 
 Optional:
 
-- `site_ids` (List of String) List of site ids
-- `sitegroup_ids` (List of String) List of sitegroup ids
+- `site_ids` (List of String) Sites excluded from the WLAN template application scope
+- `sitegroup_ids` (List of String) Site groups excluded from the WLAN template application scope
 
 
 

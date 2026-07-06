@@ -32,38 +32,34 @@ resource "mist_org_nactag" "tag_one" {
 
 ### Required
 
-- `name` (String)
-- `org_id` (String)
-- `type` (String) enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `redirect_nacportal_id`, `session_timeout`, `username_attr`, `vlan`
+- `name` (String) Human-readable name of the NAC tag
+- `org_id` (String) Org identifier that owns the NAC tag
+- `type` (String) NAC tag type that determines whether the tag is a matcher or a result attribute
 
 ### Optional
 
-- `allow_usermac_override` (Boolean) Can be set to true to allow the override by usermac result
-- `egress_vlan_names` (List of String) If `type`==`egress_vlan_names`, list of egress vlans to return
-- `gbp_tag` (String)
-- `match` (String) if `type`==`match`. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`
+- `allow_usermac_override` (Boolean) Whether usermac result values can override this NAC tag when the result type is also supported by usermac
+- `egress_vlan_names` (List of String) If `type`==`egress_vlan_names`, list of egress VLAN names returned by the NAC rule
+- `gbp_tag` (String) If `type`==`gbp_tag`, GBP tag value returned by the NAC rule
+- `match` (String) If `type`==`match`, client or authentication attribute used for rule matching
 - `match_all` (Boolean) This field is applicable only when `type`==`match`
   * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)
   * `true`: means all values should be matched (i.e., match-all behavior)
 
 
 Currently it makes sense to set this field to `true` only if the `match`==`idp_role`, `match`==`usermac_label` and `edr_status`
-- `nacportal_id` (String) If `type`==`redirect_nacportal_id`, the ID of the NAC portal to redirect to
-- `radius_attrs` (List of String) If `type`==`radius_attrs`, user can specify a list of one or more standard attributes in the field "radius_attrs". 
-It is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.
-Note that it is allowed to have more than one radius_attrs in the result of a given rule.
-- `radius_group` (String) If `type`==`radius_group`
-- `radius_vendor_attrs` (List of String) If `type`==`radius_vendor_attrs`, user can specify a list of one or more vendor-specific attributes in the field "radius_vendor_attrs". 
-It is the responsibility of the user to provide a syntactically correct string, otherwise it may not work as expected.
-Note that it is allowed to have more than one radius_vendor_attrs in the result of a given rule.
-- `session_timeout` (Number) If `type`==`session_timeout, in seconds
-- `username_attr` (String) enum: `automatic`, `cn`, `dns`, `email`, `upn`
-- `values` (List of String) If `type`==`match`
-- `vlan` (String) If `type`==`vlan`
+- `nacportal_id` (String) If `type`==`redirect_nacportal_id`, NAC portal ID used for client redirection
+- `radius_attrs` (List of String) If `type`==`radius_attrs`, standard RADIUS attributes returned by the NAC rule
+- `radius_group` (String) If `type`==`radius_group`, RADIUS group value returned by the NAC rule
+- `radius_vendor_attrs` (List of String) If `type`==`radius_vendor_attrs`, vendor-specific RADIUS attributes returned by the NAC rule
+- `session_timeout` (Number) If `type`==`session_timeout`, session timeout returned by the NAC rule, in seconds
+- `username_attr` (String) If `type`==`username_attr`, attribute used to derive the username returned by the NAC rule
+- `values` (List of String) If `type`==`match`, attribute values used by the NAC tag matcher
+- `vlan` (String) If `type`==`vlan`, VLAN name or ID returned by the NAC rule
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier of the NAC tag
 
 
 

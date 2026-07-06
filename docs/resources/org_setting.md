@@ -65,16 +65,17 @@ resource "mist_org_setting" "terraform_test" {
 
 ### Required
 
-- `org_id` (String)
+- `org_id` (String) Organization that owns these settings
 
 ### Optional
 
 - `ap_updown_threshold` (Number) Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.
-- `api_policy` (Attributes) (see [below for nested schema](#nestedatt--api_policy))
-- `cacerts` (List of String) RADSec certificates for AP
-- `celona` (Attributes) (see [below for nested schema](#nestedatt--celona))
-- `cloudshark` (Attributes) (see [below for nested schema](#nestedatt--cloudshark))
-- `device_cert` (Attributes) common device cert, optional (see [below for nested schema](#nestedatt--device_cert))
+- `api_policy` (Attributes) Policy for hiding API secrets and passwords in responses (see [below for nested schema](#nestedatt--api_policy))
+- `auto_upgrade` (Attributes) AP automatic firmware upgrade policy for the organization (see [below for nested schema](#nestedatt--auto_upgrade))
+- `cacerts` (List of String) CA certificates used by organization-level RADIUS and RADSec settings
+- `celona` (Attributes) Integration settings for Celona (see [below for nested schema](#nestedatt--celona))
+- `cloudshark` (Attributes) Packet capture integration settings for CloudShark (see [below for nested schema](#nestedatt--cloudshark))
+- `device_cert` (Attributes) Common device certificate used by organization settings (see [below for nested schema](#nestedatt--device_cert))
 - `device_updown_threshold` (Number) Enable threshold-based device down delivery via
   * device-updowns webhooks topic, 
   * Mist Alert Framework; e.g. send AP/SW/GW down event only if AP/SW/GW Up is not seen within the threshold in minutes; 0 - 240, default is 0 (trigger immediate)
@@ -82,38 +83,36 @@ resource "mist_org_setting" "terraform_test" {
 - `disable_remote_shell` (Boolean) Whether to disable remote shell access for an entire org
 - `gateway_tunnel_updown_threshold` (Number) enable threshold-based gateway tunnel (secure edge tunnels) up-down delivery.
 - `gateway_updown_threshold` (Number) Enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
-- `installer` (Attributes) (see [below for nested schema](#nestedatt--installer))
-- `jcloud` (Attributes) (see [below for nested schema](#nestedatt--jcloud))
-- `jcloud_ra` (Attributes) JCloud Routing Assurance connexion (see [below for nested schema](#nestedatt--jcloud_ra))
-- `juniper_srx` (Attributes) (see [below for nested schema](#nestedatt--juniper_srx))
-- `junos_shell_access` (Attributes) junos_shell_access: Manages role-based web-shell access.  
-When junos_shell access is not defined (Default) - No additional users are configured and web-shell uses default `mist` user to login.  
-When junos_shell_access is defined - Additional users mist-web-admin (admin permission), mist-web-viewer(viewer permission) are configured on the device and web-shell logs in with the mist-web-admin/mist-web-viewer user depending upon the shell access level. Setting the shell access level to "none", disables web-shell access for that specific role. (see [below for nested schema](#nestedatt--junos_shell_access))
-- `marvis` (Attributes) (see [below for nested schema](#nestedatt--marvis))
-- `mgmt` (Attributes) management-related properties (see [below for nested schema](#nestedatt--mgmt))
-- `mist_nac` (Attributes) (see [below for nested schema](#nestedatt--mist_nac))
-- `mxedge_mgmt` (Attributes) (see [below for nested schema](#nestedatt--mxedge_mgmt))
-- `optic_port_config` (Attributes Map) Property key is the interface name or range (e.g. `et-0/0/47`, `et-0/0/48-49`) (see [below for nested schema](#nestedatt--optic_port_config))
-- `password_policy` (Attributes) password policy (see [below for nested schema](#nestedatt--password_policy))
-- `security` (Attributes) (see [below for nested schema](#nestedatt--security))
-- `ssr` (Attributes) (see [below for nested schema](#nestedatt--ssr))
-- `switch` (Attributes) (see [below for nested schema](#nestedatt--switch))
-- `switch_mgmt` (Attributes) (see [below for nested schema](#nestedatt--switch_mgmt))
+- `installer` (Attributes) Access settings for organization installer workflows (see [below for nested schema](#nestedatt--installer))
+- `jcloud` (Attributes) Integration settings for JCloud (see [below for nested schema](#nestedatt--jcloud))
+- `jcloud_ra` (Attributes) Routing Assurance integration settings for JCloud (see [below for nested schema](#nestedatt--jcloud_ra))
+- `juniper_srx` (Attributes) SRX integration settings for Juniper devices (see [below for nested schema](#nestedatt--juniper_srx))
+- `junos_shell_access` (Attributes) Role-based Junos web-shell access settings (see [below for nested schema](#nestedatt--junos_shell_access))
+- `marvis` (Attributes) AI assistant and self-driving feature settings for Marvis (see [below for nested schema](#nestedatt--marvis))
+- `mgmt` (Attributes) Tunnel settings for organization management connectivity (see [below for nested schema](#nestedatt--mgmt))
+- `mist_nac` (Attributes) NAC settings for Mist Access Assurance (see [below for nested schema](#nestedatt--mist_nac))
+- `mxedge_mgmt` (Attributes) Management settings for Mist Edge devices (see [below for nested schema](#nestedatt--mxedge_mgmt))
+- `optic_port_config` (Attributes Map) Configuration defaults for optic ports (see [below for nested schema](#nestedatt--optic_port_config))
+- `password_policy` (Attributes) Admin credential policy settings for the organization (see [below for nested schema](#nestedatt--password_policy))
+- `security` (Attributes) Organization security controls such as local SSH restrictions (see [below for nested schema](#nestedatt--security))
+- `ssr` (Attributes) Session Smart Router settings for the organization (see [below for nested schema](#nestedatt--ssr))
+- `switch` (Attributes) Configuration defaults for switches in this organization (see [below for nested schema](#nestedatt--switch))
+- `switch_mgmt` (Attributes) Management settings for switches in this organization (see [below for nested schema](#nestedatt--switch_mgmt))
 - `switch_updown_threshold` (Number) Enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.
-- `synthetic_test` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test))
+- `synthetic_test` (Attributes) Configuration for organization synthetic tests (see [below for nested schema](#nestedatt--synthetic_test))
 - `ui_idle_timeout` (Number) Automatically logout the user when UI session is inactive. `0` means disabled
-- `ui_no_tracking` (Boolean)
-- `vpn_options` (Attributes) (see [below for nested schema](#nestedatt--vpn_options))
-- `wan_pma` (Attributes) (see [below for nested schema](#nestedatt--wan_pma))
-- `wired_pma` (Attributes) (see [below for nested schema](#nestedatt--wired_pma))
-- `wireless_pma` (Attributes) (see [below for nested schema](#nestedatt--wireless_pma))
+- `ui_no_tracking` (Boolean) Whether UI usage tracking is disabled for the organization
+- `vpn_options` (Attributes) Options for organization VPN behavior (see [below for nested schema](#nestedatt--vpn_options))
+- `wan_pma` (Attributes) PMA feature settings for WAN Assurance (see [below for nested schema](#nestedatt--wan_pma))
+- `wired_pma` (Attributes) PMA feature settings for Wired Assurance (see [below for nested schema](#nestedatt--wired_pma))
+- `wireless_pma` (Attributes) PMA feature settings for Wireless Assurance (see [below for nested schema](#nestedatt--wireless_pma))
 
 ### Read-Only
 
 - `allow_mist` (Boolean) whether to allow Mist to look at this org
-- `cradlepoint` (Attributes) (see [below for nested schema](#nestedatt--cradlepoint))
-- `juniper` (Attributes) (see [below for nested schema](#nestedatt--juniper))
-- `pcap` (Attributes) (see [below for nested schema](#nestedatt--pcap))
+- `cradlepoint` (Attributes) Integration settings for Cradlepoint devices (see [below for nested schema](#nestedatt--cradlepoint))
+- `juniper` (Attributes) Linked Juniper account information for this organization (see [below for nested schema](#nestedatt--juniper))
+- `pcap` (Attributes) Packet capture settings for the organization (see [below for nested schema](#nestedatt--pcap))
 
 <a id="nestedatt--api_policy"></a>
 ### Nested Schema for `api_policy`
@@ -123,6 +122,19 @@ Optional:
 - `no_reveal` (Boolean) By default, API hides password/secrets when the user doesn't have write access
   * `true`: API will hide passwords/secrets for all users
   * `false`: API will hide passwords/secrets for read-only users
+- `src_ips` (List of String) Optional list of IP addresses or CIDR subnets from which org API access is allowed. At most 10 entries. The source IP of the request making this update must be within one of the specified subnets.
+
+
+<a id="nestedatt--auto_upgrade"></a>
+### Nested Schema for `auto_upgrade`
+
+Optional:
+
+- `custom_versions` (Map of String) Per-AP-model firmware versions or channels used for auto-upgrade
+- `day_of_week` (String) Day of the week for the AP auto-upgrade maintenance window
+- `enabled` (Boolean) Whether AP auto-upgrade is enabled. Note that Mist may auto-upgrade APs if the running version is no longer supported.
+- `time_of_day` (String) `any` or HH:MM (24-hour format). Upgrade will happen within up to 1 hour from this time.
+- `version` (String) Firmware release channel or specific version used for AP auto-upgrade
 
 
 <a id="nestedatt--celona"></a>
@@ -130,8 +142,8 @@ Optional:
 
 Required:
 
-- `api_key` (String)
-- `api_prefix` (String)
+- `api_key` (String) Credential used by Mist for the Celona integration
+- `api_prefix` (String) Celona API prefix configured for the integration
 
 
 <a id="nestedatt--cloudshark"></a>
@@ -139,8 +151,8 @@ Required:
 
 Optional:
 
-- `apitoken` (String, Sensitive)
-- `url` (String) If using CS Enterprise
+- `apitoken` (String, Sensitive) Token used by Mist to access the CloudShark integration
+- `url` (String) CloudShark Enterprise URL, if using a self-hosted CS Enterprise instance
 
 
 <a id="nestedatt--device_cert"></a>
@@ -148,8 +160,8 @@ Optional:
 
 Required:
 
-- `cert` (String)
-- `key` (String, Sensitive)
+- `cert` (String) PEM-encoded common device certificate used by organization settings
+- `key` (String, Sensitive) Private key paired with the common device certificate
 
 
 <a id="nestedatt--installer"></a>
@@ -157,10 +169,10 @@ Required:
 
 Optional:
 
-- `allow_all_devices` (Boolean)
-- `allow_all_sites` (Boolean)
-- `extra_site_ids` (List of String)
-- `grace_period` (Number)
+- `allow_all_devices` (Boolean) Whether installers may work with all eligible devices
+- `allow_all_sites` (Boolean) Whether installers may work with all sites
+- `extra_site_ids` (List of String) Additional site IDs that installers may access
+- `grace_period` (Number) Grace period, in days, during which installers can modify recent sites or devices
 
 
 <a id="nestedatt--jcloud"></a>
@@ -168,9 +180,9 @@ Optional:
 
 Required:
 
-- `org_apitoken` (String) JCloud Org Token
-- `org_apitoken_name` (String) JCloud Org Token Name
-- `org_id` (String) JCloud Org ID
+- `org_apitoken` (String) JCloud organization API token used by this Mist organization
+- `org_apitoken_name` (String) Display name for the JCloud organization API token
+- `org_id` (String) JCloud organization identifier linked to this Mist organization
 
 
 <a id="nestedatt--jcloud_ra"></a>
@@ -188,16 +200,16 @@ Optional:
 
 Optional:
 
-- `auto_upgrade` (Attributes) auto_upgrade device first time it is onboarded (see [below for nested schema](#nestedatt--juniper_srx--auto_upgrade))
+- `auto_upgrade` (Attributes) SRX auto-upgrade settings applied when Juniper SRX devices are first onboarded (see [below for nested schema](#nestedatt--juniper_srx--auto_upgrade))
 
 <a id="nestedatt--juniper_srx--auto_upgrade"></a>
 ### Nested Schema for `juniper_srx.auto_upgrade`
 
 Optional:
 
-- `custom_versions` (Map of String) Property key is the SRX Hardware model (e.g. "SRX4600")
-- `enabled` (Boolean)
-- `snapshot` (Boolean)
+- `custom_versions` (Map of String) Per-SRX-model firmware versions to deploy instead of the default version
+- `enabled` (Boolean) Whether SRX auto-upgrade is enabled for newly onboarded devices
+- `snapshot` (Boolean) Whether to take a snapshot during the SRX upgrade process
 - `version` (String) Firmware version to deploy (e.g. 23.4R2-S5.5). Optional, used when custom_versions not specified
 
 
@@ -207,10 +219,10 @@ Optional:
 
 Optional:
 
-- `admin` (String) enum: `admin`, `viewer`, `none`
-- `helpdesk` (String) enum: `admin`, `viewer`, `none`
-- `read` (String) enum: `admin`, `viewer`, `none`
-- `write` (String) enum: `admin`, `viewer`, `none`
+- `admin` (String) Shell access level used for administrator web-shell sessions
+- `helpdesk` (String) Shell access level used for helpdesk web-shell sessions
+- `read` (String) Shell access level used for read-only web-shell sessions
+- `write` (String) Shell access level used for write-role web-shell sessions
 
 
 <a id="nestedatt--marvis"></a>
@@ -218,23 +230,24 @@ Optional:
 
 Optional:
 
-- `self_driving` (Attributes) Self-driving network automation settings per domain (see [below for nested schema](#nestedatt--marvis--self_driving))
+- `disable_proactive_monitoring` (Boolean) Disable proactive monitoring in Marvis. NOTE: support access must be enabled for the org (`allow_mist`=`true`) for proactive monitoring to function.
+- `self_driving` (Attributes) Self-driving network automation settings by domain (see [below for nested schema](#nestedatt--marvis--self_driving))
 
 <a id="nestedatt--marvis--self_driving"></a>
 ### Nested Schema for `marvis.self_driving`
 
 Optional:
 
-- `wan` (Attributes) (see [below for nested schema](#nestedatt--marvis--self_driving--wan))
-- `wired` (Attributes) (see [below for nested schema](#nestedatt--marvis--self_driving--wired))
-- `wireless` (Attributes) (see [below for nested schema](#nestedatt--marvis--self_driving--wireless))
+- `wan` (Attributes) Self-driving automation settings for the WAN domain (see [below for nested schema](#nestedatt--marvis--self_driving--wan))
+- `wired` (Attributes) Self-driving automation settings for the wired domain (see [below for nested schema](#nestedatt--marvis--self_driving--wired))
+- `wireless` (Attributes) Self-driving automation settings for the wireless domain (see [below for nested schema](#nestedatt--marvis--self_driving--wireless))
 
 <a id="nestedatt--marvis--self_driving--wan"></a>
 ### Nested Schema for `marvis.self_driving.wan`
 
 Optional:
 
-- `enabled` (Boolean)
+- `enabled` (Boolean) Whether self-driving automation is enabled for this domain
 
 
 <a id="nestedatt--marvis--self_driving--wired"></a>
@@ -242,7 +255,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
+- `enabled` (Boolean) Whether self-driving automation is enabled for this domain
 
 
 <a id="nestedatt--marvis--self_driving--wireless"></a>
@@ -250,7 +263,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
+- `enabled` (Boolean) Whether self-driving automation is enabled for this domain
 
 
 
@@ -260,7 +273,7 @@ Optional:
 
 Optional:
 
-- `mxtunnel_ids` (List of String) List of Mist Tunnels
+- `mxtunnel_ids` (List of String) Mist Tunnel IDs selected for management connectivity
 - `use_mxtunnel` (Boolean) Whether to use Mist Tunnel for mgmt connectivity, this takes precedence over use_wxtunnel
 - `use_wxtunnel` (Boolean) Whether to use wxtunnel for mgmt connectivity
 
@@ -271,18 +284,18 @@ Optional:
 Optional:
 
 - `allow_teap_machine_auth_only` (Boolean) allow clients to connect even when the user cert failed. TEAP authenticates both Machine Cert and User Cert. When enabled, clients who only succeed Machine Cert authentication will be accepted.
-- `cacerts` (List of String) List of PEM-encoded ca certs
+- `cacerts` (List of String) CA certificates trusted by Mist NAC for certificate-based authentication
 - `default_idp_id` (String) use this IDP when no explicit realm present in the incoming username/CN OR when no IDP is explicitly mapped to the incoming realm.
 - `disable_rsae_algorithms` (Boolean) to disable RSAE_PSS_SHA256, RSAE_PSS_SHA384, RSAE_PSS_SHA512 from server side. see https://www.openssl.org/docs/man3.0/man1/openssl-ciphers.html
 - `eap_ssl_security_level` (Number) eap ssl security level, see https://www.openssl.org/docs/man1.1.1/man3/SSL_CTX_set_security_level.html#DEFAULT-CALLBACK-BEHAVIOUR
-- `eu_only` (Boolean) By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliance NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, mxedge clusters that have mist_nac enabled
-- `fingerprinting` (Attributes) Allows customer to enable client fingerprinting for policy enforcement (see [below for nested schema](#nestedatt--mist_nac--fingerprinting))
-- `idp_machine_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field to use for IDP Machine Groups lookup. enum: `automatic`, `cn`, `dns`
-- `idp_user_cert_lookup_field` (String) allow customer to choose the EAP-TLS client certificate's field. To use for IDP User Groups lookup. enum: `automatic`, `cn`, `email`, `upn`
-- `idps` (Attributes List) (see [below for nested schema](#nestedatt--mist_nac--idps))
-- `mdm` (Attributes) MDM (Mobile Device Management) CoA configuration (see [below for nested schema](#nestedatt--mist_nac--mdm))
-- `server_cert` (Attributes) radius server cert to be presented in EAP TLS (see [below for nested schema](#nestedatt--mist_nac--server_cert))
-- `use_ip_version` (String) by default, NAS devices(switches/aps) and proxies(mxedge) are configured to reach mist-nac via IPv4. enum: `v4`, `v6`
+- `eu_only` (Boolean) By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliance NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, Mist Edge clusters that have mist_nac enabled
+- `fingerprinting` (Attributes) Client fingerprinting settings used by Mist NAC (see [below for nested schema](#nestedatt--mist_nac--fingerprinting))
+- `idp_machine_cert_lookup_field` (String) Client certificate field used to look up machine groups in identity providers
+- `idp_user_cert_lookup_field` (String) Client certificate field used to look up user groups in identity providers
+- `idps` (Attributes List) Identity provider mappings used by Mist NAC realm matching (see [below for nested schema](#nestedatt--mist_nac--idps))
+- `mdm` (Attributes) Mobile Device Management CoA settings for Mist NAC (see [below for nested schema](#nestedatt--mist_nac--mdm))
+- `server_cert` (Attributes) RADIUS server certificate presented by Mist NAC during EAP-TLS (see [below for nested schema](#nestedatt--mist_nac--server_cert))
+- `use_ip_version` (String) IP version used by NAS devices and Mist Edge proxies to reach Mist NAC
 - `use_ssl_port` (Boolean) By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled
 - `usermac_expiry` (Number) Allow customer to configure an expiry time for usermacs by attaching a Quarantine label to those which have been inactive for the configured period of time (in days). 0 means no expiry
 
@@ -294,7 +307,7 @@ Optional:
 - `enabled` (Boolean) enable/disable writes to NAC DDB fingerprint table
 - `generate_coa` (Boolean) enable/disable CoA triggers on fingerprint change for wired clients, always port-bounce
 - `generate_wireless_coa` (Boolean) enable/disable CoA triggers on fingerprint change for wireless clients
-- `wireless_coa_type` (String) enum: `reauth`, `disconnect`
+- `wireless_coa_type` (String) Change of Authorization action sent to wireless clients when fingerprints change
 
 
 <a id="nestedatt--mist_nac--idps"></a>
@@ -303,13 +316,11 @@ Optional:
 Required:
 
 - `id` (String) ID of the `mist_nacidp`
-- `user_realms` (List of String) Which realm should trigger this IDP. User Realm is extracted from:
-  * Username-AVP (`mist.com` from john@mist.com)
-  * Cert CN
+- `user_realms` (List of String) User realms that select this identity provider
 
 Optional:
 
-- `exclude_realms` (List of String) When the IDP of mxedge_proxy type, exclude the following realms from proxying in addition to other valid home realms in this org
+- `exclude_realms` (List of String) When the IDP is `mxedge_proxy` type, realms excluded from proxying in addition to other valid home realms in this org
 
 
 <a id="nestedatt--mist_nac--mdm"></a>
@@ -317,7 +328,7 @@ Optional:
 
 Optional:
 
-- `coa_type` (String) CoA type to send. enum: `reauth`, `disconnect`
+- `coa_type` (String) Change of Authorization action sent for MDM posture changes
 
 
 <a id="nestedatt--mist_nac--server_cert"></a>
@@ -325,9 +336,9 @@ Optional:
 
 Optional:
 
-- `cert` (String)
-- `key` (String, Sensitive)
-- `password` (String, Sensitive) private key password (optional)
+- `cert` (String) PEM-encoded RADIUS server certificate presented during EAP-TLS
+- `key` (String, Sensitive) Private key paired with the Mist NAC RADIUS server certificate
+- `password` (String, Sensitive) Optional password for the private key
 
 
 
@@ -336,12 +347,12 @@ Optional:
 
 Optional:
 
-- `config_auto_revert` (Boolean)
-- `fips_enabled` (Boolean)
-- `mist_password` (String, Sensitive)
-- `oob_ip_type` (String) enum: `dhcp`, `disabled`, `static`
-- `oob_ip_type6` (String) enum: `autoconf`, `dhcp`, `disabled`, `static`
-- `root_password` (String, Sensitive)
+- `config_auto_revert` (Boolean) Whether the Mist Edge automatically reverts configuration changes if connectivity is lost
+- `fips_enabled` (Boolean) Whether FIPS mode is enabled on the Mist Edge
+- `mist_password` (String, Sensitive) Password for the Mist service account on the Mist Edge
+- `oob_ip_type` (String) IPv4 address assignment mode for out-of-band management
+- `oob_ip_type6` (String) IPv6 address assignment mode for out-of-band management
+- `root_password` (String, Sensitive) Root account password for the Mist Edge
 
 
 <a id="nestedatt--optic_port_config"></a>
@@ -349,7 +360,7 @@ Optional:
 
 Optional:
 
-- `channelized` (Boolean) Enable channelization
+- `channelized` (Boolean) Whether channelization is enabled on this optic port
 - `speed` (String) Interface speed (e.g. `25g`, `50g`), use the chassis speed by default
 
 
@@ -360,7 +371,7 @@ Optional:
 
 - `enabled` (Boolean) Whether the policy is enabled
 - `expiry_in_days` (Number) Password expiry in days. Password Expiry Notice banner will display in the UI 14 days before expiration
-- `min_length` (Number) Required password length
+- `min_length` (Number) Minimum number of characters required for passwords
 - `requires_special_char` (Boolean) Whether to require special character
 - `requires_two_factor_auth` (Boolean) Whether to require two-factor auth
 
@@ -380,20 +391,20 @@ Optional:
 
 Optional:
 
-- `auto_upgrade` (Attributes) auto_upgrade device first time it is onboarded (see [below for nested schema](#nestedatt--ssr--auto_upgrade))
-- `conductor_hosts` (List of String) List of Conductor IP Addresses or Hosts to be used by the SSR Devices
-- `conductor_token` (String, Sensitive) Token to be used by the SSR Devices to connect to the Conductor
-- `disable_stats` (Boolean) Disable stats collection on SSR devices
-- `proxy` (Attributes) SSR proxy configuration to talk to Mist (see [below for nested schema](#nestedatt--ssr--proxy))
+- `auto_upgrade` (Attributes) Automatic SSR firmware upgrade settings for newly onboarded devices (see [below for nested schema](#nestedatt--ssr--auto_upgrade))
+- `conductor_hosts` (List of String) IP addresses or hostnames of conductors used by SSR devices
+- `conductor_token` (String, Sensitive) Registration token used by SSR devices to connect to the conductor
+- `disable_stats` (Boolean) Whether stats collection is disabled on SSR devices
+- `proxy` (Attributes) Network proxy settings used by SSR devices to reach Mist (see [below for nested schema](#nestedatt--ssr--proxy))
 
 <a id="nestedatt--ssr--auto_upgrade"></a>
 ### Nested Schema for `ssr.auto_upgrade`
 
 Optional:
 
-- `channel` (String) upgrade channel to follow. enum: `alpha`, `beta`, `stable`
-- `custom_versions` (Map of String) Property key is the SSR model (e.g. "SSR130").
-- `enabled` (Boolean)
+- `channel` (String) Firmware release channel used for SSR auto-upgrade
+- `custom_versions` (Map of String) Per-model SSR firmware versions used for auto-upgrade
+- `enabled` (Boolean) Whether SSR auto-upgrade is enabled for newly onboarded devices
 - `version` (String) Firmware version to deploy (e.g. 6.3.0-107.r1). Optional, used when custom_versions not specified
 
 
@@ -402,8 +413,8 @@ Optional:
 
 Optional:
 
-- `disabled` (Boolean)
-- `url` (String)
+- `disabled` (Boolean) Whether the SSR proxy configuration is disabled
+- `url` (String) Proxy URL that SSR devices use to reach Mist
 
 
 
@@ -412,16 +423,16 @@ Optional:
 
 Optional:
 
-- `auto_upgrade` (Attributes) (see [below for nested schema](#nestedatt--switch--auto_upgrade))
+- `auto_upgrade` (Attributes) Auto-upgrade defaults for switches in this organization (see [below for nested schema](#nestedatt--switch--auto_upgrade))
 
 <a id="nestedatt--switch--auto_upgrade"></a>
 ### Nested Schema for `switch.auto_upgrade`
 
 Optional:
 
-- `custom_versions` (Map of String) Custom version to be used. The Property Key is the switch hardware and the property value is the firmware version
-- `enabled` (Boolean) Enable auto upgrade for the switch
-- `snapshot` (Boolean) Enable snapshot during the upgrade process
+- `custom_versions` (Map of String) Per-model switch firmware versions to use for auto-upgrade
+- `enabled` (Boolean) Whether switch auto-upgrade is enabled
+- `snapshot` (Boolean) Whether to create a recovery snapshot during the upgrade process
 
 
 
@@ -438,22 +449,22 @@ Optional:
 
 Optional:
 
-- `aggressiveness` (String) enum: `auto`, `high`, `low`
-- `custom_probes` (Attributes Map) Custom probes to be used for synthetic tests (see [below for nested schema](#nestedatt--synthetic_test--custom_probes))
-- `disabled` (Boolean)
-- `lan_networks` (Attributes List) List of networks to be used for synthetic tests (see [below for nested schema](#nestedatt--synthetic_test--lan_networks))
-- `vlans` (Attributes List, Deprecated) (see [below for nested schema](#nestedatt--synthetic_test--vlans))
-- `wan_speedtest` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test--wan_speedtest))
+- `aggressiveness` (String) Overall aggressiveness level for synthetic test probes
+- `custom_probes` (Attributes Map) Custom synthetic probe definitions keyed by probe name (see [below for nested schema](#nestedatt--synthetic_test--custom_probes))
+- `disabled` (Boolean) Whether synthetic tests are disabled
+- `lan_networks` (Attributes List) LAN network probe groups used by synthetic tests (see [below for nested schema](#nestedatt--synthetic_test--lan_networks))
+- `vlans` (Attributes List, Deprecated) Deprecated VLAN-based synthetic test settings (see [below for nested schema](#nestedatt--synthetic_test--vlans))
+- `wan_speedtest` (Attributes) WAN speedtest settings for synthetic tests (see [below for nested schema](#nestedatt--synthetic_test--wan_speedtest))
 
 <a id="nestedatt--synthetic_test--custom_probes"></a>
 ### Nested Schema for `synthetic_test.custom_probes`
 
 Optional:
 
-- `aggressiveness` (String) enum: `auto`, `high`, `low`
+- `aggressiveness` (String) Probe aggressiveness level for this custom synthetic probe
 - `target` (String) Can be URL (e.g. http://x.com, https://x.com:8080/path/to/resource), IP address, or IP:port combination
-- `threshold` (Number) In milliseconds
-- `type` (String) enum: `application`, `curl`, `icmp`, `reachability`, `tcp`
+- `threshold` (Number) Response-time threshold for this custom probe, in milliseconds
+- `type` (String) Probe type used by this custom synthetic probe
 
 
 <a id="nestedatt--synthetic_test--lan_networks"></a>
@@ -461,8 +472,8 @@ Optional:
 
 Optional:
 
-- `networks` (List of String) List of networks to be used for synthetic tests
-- `probes` (List of String) app name comes from `custom_probes` above or /const/synthetic_test_probes
+- `networks` (List of String) LAN network names where synthetic probes are run
+- `probes` (List of String) Synthetic probe names to run on the listed LAN networks
 
 
 <a id="nestedatt--synthetic_test--vlans"></a>
@@ -470,10 +481,10 @@ Optional:
 
 Optional:
 
-- `custom_test_urls` (List of String, Deprecated)
+- `custom_test_urls` (List of String, Deprecated) Deprecated custom URLs tested by VLAN-based synthetic probes
 - `disabled` (Boolean) For some vlans where we don't want this to run
-- `probes` (List of String) app name comes from `custom_probes` above or /const/synthetic_test_probes
-- `vlan_ids` (List of String)
+- `probes` (List of String) Synthetic probe names to run for the listed VLANs
+- `vlan_ids` (List of String) VLAN identifiers where synthetic probes are run
 
 
 <a id="nestedatt--synthetic_test--wan_speedtest"></a>
@@ -481,8 +492,8 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
-- `time_of_day` (String) `any` / HH:MM (24-hour format)
+- `enabled` (Boolean) Whether scheduled WAN speedtests are enabled
+- `time_of_day` (String) Scheduled time of day for WAN speedtests
 
 
 
@@ -491,8 +502,8 @@ Optional:
 
 Optional:
 
-- `as_base` (Number)
-- `enable_ipv6` (Boolean)
+- `as_base` (Number) Base BGP autonomous system number used for generated VPN configurations
+- `enable_ipv6` (Boolean) Whether IPv6 is enabled for organization VPN configuration
 - `st_subnet` (String) requiring /12 or bigger to support 16 private IPs for 65535 gateways
 
 
@@ -501,7 +512,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
+- `enabled` (Boolean) Whether PMA is enabled for WAN Assurance
 
 
 <a id="nestedatt--wired_pma"></a>
@@ -509,7 +520,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
+- `enabled` (Boolean) Whether PMA is enabled for Wired Assurance
 
 
 <a id="nestedatt--wireless_pma"></a>
@@ -517,7 +528,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
+- `enabled` (Boolean) Whether PMA is enabled for Wireless Assurance
 
 
 <a id="nestedatt--cradlepoint"></a>
@@ -525,11 +536,11 @@ Optional:
 
 Read-Only:
 
-- `cp_api_id` (String)
-- `cp_api_key` (String, Sensitive)
-- `ecm_api_id` (String)
-- `ecm_api_key` (String, Sensitive)
-- `enable_lldp` (Boolean)
+- `cp_api_id` (String) Cradlepoint API ID used by Mist for the integration
+- `cp_api_key` (String, Sensitive) Cradlepoint API key paired with the Cradlepoint API ID
+- `ecm_api_id` (String) Cradlepoint ECM API ID used by Mist for the integration
+- `ecm_api_key` (String, Sensitive) Cradlepoint ECM API key paired with the ECM API ID
+- `enable_lldp` (Boolean) Whether Mist uses Cradlepoint LLDP data to link routers to Mist sites and devices
 
 
 <a id="nestedatt--juniper"></a>
@@ -537,15 +548,15 @@ Read-Only:
 
 Read-Only:
 
-- `accounts` (Attributes List) (see [below for nested schema](#nestedatt--juniper--accounts))
+- `accounts` (Attributes List) List of linked Juniper account records (see [below for nested schema](#nestedatt--juniper--accounts))
 
 <a id="nestedatt--juniper--accounts"></a>
 ### Nested Schema for `juniper.accounts`
 
 Read-Only:
 
-- `linked_by` (String)
-- `name` (String)
+- `linked_by` (String) User who linked this Juniper account
+- `name` (String) Display name of the linked Juniper account
 
 
 
@@ -554,8 +565,8 @@ Read-Only:
 
 Read-Only:
 
-- `bucket` (String)
-- `max_pkt_len` (Number) Max_len of non-management packets to capture
+- `bucket` (String) Storage bucket name used for organization packet capture files
+- `max_pkt_len` (Number) Maximum length of non-management packets to capture, in bytes
 
 
 

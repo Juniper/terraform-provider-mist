@@ -47,7 +47,7 @@ resource "mist_org_wlan_portal_template" "wlan_one" {
 ### Required
 
 - `org_id` (String)
-- `portal_template` (Attributes) Portal template wlan settings (see [below for nested schema](#nestedatt--portal_template))
+- `portal_template` (Attributes) Template settings that define guest portal text, layout, and localization (see [below for nested schema](#nestedatt--portal_template))
 - `wlan_id` (String) Org WLAN ID
 
 <a id="nestedatt--portal_template"></a>
@@ -55,8 +55,8 @@ resource "mist_org_wlan_portal_template" "wlan_one" {
 
 Optional:
 
-- `access_code_alternate_email` (String)
-- `alignment` (String) defines alignment on portal. enum: `center`, `left`, `right`
+- `access_code_alternate_email` (String) Link text for using an alternate email address during access-code login
+- `alignment` (String) Text and content alignment used by the guest portal template
 - `auth_button_amazon` (String) Label for Amazon auth button
 - `auth_button_azure` (String) Label for Azure auth button
 - `auth_button_email` (String) Label for Email auth button
@@ -66,45 +66,45 @@ Optional:
 - `auth_button_passphrase` (String) Label for passphrase auth button
 - `auth_button_sms` (String) Label for SMS auth button
 - `auth_button_sponsor` (String) Label for Sponsor auth button
-- `auth_label` (String)
+- `auth_label` (String) Heading text displayed above portal authentication options
 - `back_link` (String) Label of the link to go back to /logon
-- `color` (String) Portal main color
-- `color_dark` (String)
-- `color_light` (String)
+- `color` (String) Primary color used by the portal template
+- `color_dark` (String) Darker accent color used by the portal template
+- `color_light` (String) Lighter accent color used by the portal template
 - `company` (Boolean) Whether company field is required
 - `company_error` (String) Error message when company not provided
-- `company_label` (String) Label of company field
+- `company_label` (String) Label displayed for the company input field
 - `email` (Boolean) Whether email field is required
 - `email_access_domain_error` (String) Error message when a user has valid social login but doesn't match specified email domains.
 - `email_cancel` (String) Label for cancel confirmation code submission using email auth
-- `email_code_cancel` (String)
-- `email_code_error` (String)
-- `email_code_field_label` (String)
-- `email_code_message` (String)
-- `email_code_submit` (String)
-- `email_code_title` (String)
+- `email_code_cancel` (String) Link text for requesting help when the email access code was not received
+- `email_code_error` (String) Error message shown when the alternate email address for access-code delivery is invalid
+- `email_code_field_label` (String) Label for the email access-code input field
+- `email_code_message` (String) Instructional text shown before entering the email access code
+- `email_code_submit` (String) Button label for submitting the email access code
+- `email_code_title` (String) Title shown on the email access-code entry page
 - `email_error` (String) Error message when email not provided
-- `email_field_label` (String)
-- `email_label` (String) Label of email field
-- `email_message` (String)
+- `email_field_label` (String) Label for the email address input field
+- `email_label` (String) Label displayed for the email input field
+- `email_message` (String) Instructional text explaining email access-code delivery
 - `email_submit` (String) Label for confirmation code submit button using email auth
 - `email_title` (String) Title for the Email registration
 - `field1` (Boolean) Whether to ask field1
 - `field1error` (String) Error message when field1 not provided
-- `field1label` (String) Label of field1
-- `field1required` (Boolean) Whether field1 is required field
+- `field1label` (String) Label for custom field 1 input
+- `field1required` (Boolean) Whether custom field 1 must be provided when the field is shown
 - `field2` (Boolean) Whether to ask field2
 - `field2error` (String) Error message when field2 not provided
-- `field2label` (String) Label of field2
-- `field2required` (Boolean) Whether field2 is required field
+- `field2label` (String) Label for custom field 2 input
+- `field2required` (Boolean) Whether custom field 2 must be provided when the field is shown
 - `field3` (Boolean) Whether to ask field3
 - `field3error` (String) Error message when field3 not provided
-- `field3label` (String) Label of field3
-- `field3required` (Boolean) Whether field3 is required field
+- `field3label` (String) Label for custom field 3 input
+- `field3required` (Boolean) Whether custom field 3 must be provided when the field is shown
 - `field4` (Boolean) Whether to ask field4
 - `field4error` (String) Error message when field4 not provided
-- `field4label` (String) Label of field4
-- `field4required` (Boolean) Whether field4 is required field
+- `field4label` (String) Label for custom field 4 input
+- `field4required` (Boolean) Whether custom field 4 must be provided when the field is shown
 - `locales` (Attributes Map) Can be used to localize the portal based on the User Agent. Allowed property key values are:
   `ar`, `ca-ES`, `cs-CZ`, `da-DK`, `de-DE`, `el-GR`, `en-GB`, `en-US`, `es-ES`, `fi-FI`, `fr-FR`, 
   `he-IL`, `hi-IN`, `hr-HR`, `hu-HU`, `id-ID`, `it-IT`, `ja-J^`, `ko-KT`, `ms-MY`, `nb-NO`, `nl-NL`, 
@@ -114,20 +114,20 @@ Optional:
 - `marketing_policy_link` (String) label of the link to go to /marketing_policy
 - `marketing_policy_opt_in` (Boolean) Whether marketing policy optin is enabled
 - `marketing_policy_opt_in_label` (String) label for marketing optin
-- `marketing_policy_opt_in_text` (String) marketing policy text
-- `message` (String)
-- `multi_auth` (Boolean)
+- `marketing_policy_opt_in_text` (String) Text of the marketing policy opt-in content
+- `message` (String) Main message displayed on the guest portal sign-in page
+- `multi_auth` (Boolean) Whether the portal presents multiple authentication methods
 - `name` (Boolean) Whether name field is required
 - `name_error` (String) Error message when name not provided
-- `name_label` (String) Label of name field
+- `name_label` (String) Label displayed for the name input field
 - `opt_out_default` (Boolean) Default value for the `Do not store` checkbox
 - `optout` (Boolean) Whether to display Do Not Store My Personal Information
 - `optout_label` (String) Label for Do Not Store My Personal Information
-- `page_title` (String)
+- `page_title` (String) Browser or page title shown for the guest portal
 - `passphrase_cancel` (String) Label for the Passphrase cancel button
 - `passphrase_error` (String) Error message when invalid passphrase is provided
-- `passphrase_label` (String) Passphrase
-- `passphrase_message` (String)
+- `passphrase_label` (String) Label for the passphrase input field
+- `passphrase_message` (String) Instructional text shown on the passphrase sign-in page
 - `passphrase_submit` (String) Label for the Passphrase submit button
 - `passphrase_title` (String) Title for passphrase details page
 - `powered_by` (Boolean) Whether to show \"Powered by Mist\"
@@ -136,36 +136,36 @@ Optional:
 - `privacy_policy_error` (String) Error message when Privacy Policy not accepted
 - `privacy_policy_link` (String) Label of the link to go to Privacy Policy
 - `privacy_policy_text` (String) Text of the Privacy Policy
-- `required_field_label` (String) Label to denote required field
-- `responsive_layout` (Boolean)
+- `required_field_label` (String) Text used to mark a form field as required
+- `responsive_layout` (Boolean) Whether the portal template uses a responsive layout
 - `sign_in_label` (String) Label of the button to signin
-- `sms_carrier_default` (String)
-- `sms_carrier_error` (String)
+- `sms_carrier_default` (String) Default option text shown in the SMS carrier selector
+- `sms_carrier_error` (String) Error message shown when no mobile carrier is selected
 - `sms_carrier_field_label` (String) Label for mobile carrier drop-down list
 - `sms_code_cancel` (String) Label for cancel confirmation code submission
 - `sms_code_error` (String) Error message when confirmation code is invalid
-- `sms_code_field_label` (String)
-- `sms_code_message` (String)
+- `sms_code_field_label` (String) Label for the SMS confirmation-code input field
+- `sms_code_message` (String) Instructional text shown before entering the SMS access code
 - `sms_code_submit` (String) Label for confirmation code submit button
-- `sms_code_title` (String)
-- `sms_country_field_label` (String)
-- `sms_country_format` (String)
+- `sms_code_title` (String) Title shown on the SMS access-code entry page
+- `sms_country_field_label` (String) Label for the SMS country-code input field
+- `sms_country_format` (String) Example country code format shown for SMS authentication
 - `sms_have_access_code` (String) Label for checkbox to specify that the user has access code
-- `sms_is_twilio` (Boolean)
+- `sms_is_twilio` (Boolean) Whether the SMS portal flow uses Twilio-specific behavior
 - `sms_message_format` (String) Format of access code sms message. {{code}} and {{duration}} are placeholders and should be retained as is.
 - `sms_number_cancel` (String) Label for canceling mobile details for SMS auth
-- `sms_number_error` (String)
+- `sms_number_error` (String) Error message shown when the mobile number is invalid
 - `sms_number_field_label` (String) Label for field to provide mobile number
-- `sms_number_format` (String)
-- `sms_number_message` (String)
+- `sms_number_format` (String) Example mobile number format shown for SMS authentication
+- `sms_number_message` (String) Instructional text explaining SMS access-code delivery
 - `sms_number_submit` (String) Label for submit button for code generation
 - `sms_number_title` (String) Title for phone number details
-- `sms_username_format` (String)
+- `sms_username_format` (String) Example username format shown for SMS authentication
 - `sms_validity_duration` (Number) How long confirmation code should be considered valid (in minutes)
-- `sponsor_back_link` (String)
-- `sponsor_cancel` (String)
+- `sponsor_back_link` (String) Link text for returning to edit the sponsor request form
+- `sponsor_cancel` (String) Button label for canceling sponsor authentication
 - `sponsor_email` (String) Label for Sponsor Email
-- `sponsor_email_error` (String)
+- `sponsor_email_error` (String) Error message shown when the sponsor email address is invalid
 - `sponsor_email_template` (String) HTML template to replace/override default sponsor email template 
 Sponsor Email Template supports following template variables:
   * `approve_url`: Renders URL to approve the request; optionally &minutes=N query param can be appended to change the Authorization period of the guest, where N is a valid integer denoting number of minutes a guest remains authorized
@@ -176,20 +176,20 @@ Sponsor Email Template supports following template variables:
   * `field2`: Renders value of the Custom Field 2
   * `sponsor_link_validity_duration`: Renders validity time of the request (i.e. Approve/Deny URL)
   * `auth_expire_minutes`: Renders Wlan-level configured Guest Authorization Expiration time period (in minutes), If not configured then default (1 day in minutes)
-- `sponsor_info_approved` (String)
-- `sponsor_info_denied` (String)
-- `sponsor_info_pending` (String)
+- `sponsor_info_approved` (String) Status message prefix shown when a sponsor approves the request
+- `sponsor_info_denied` (String) Status message prefix shown when a sponsor denies the request
+- `sponsor_info_pending` (String) Status message prefix shown after a sponsor notification is sent
 - `sponsor_name` (String) Label for Sponsor Name
-- `sponsor_name_error` (String)
-- `sponsor_note_pending` (String)
+- `sponsor_name_error` (String) Error message shown when the sponsor name is missing
+- `sponsor_note_pending` (String) Additional status text shown while sponsor approval is pending
 - `sponsor_request_access` (String) Submit button label request Wifi Access and notify sponsor about guest request
 - `sponsor_status_approved` (String) Text to display if sponsor approves request
 - `sponsor_status_denied` (String) Text to display when sponsor denies request
 - `sponsor_status_pending` (String) Text to display if request is still pending
 - `sponsor_submit` (String) Submit button label to notify sponsor about guest request
-- `sponsors_error` (String)
-- `sponsors_field_label` (String)
-- `tos` (Boolean)
+- `sponsors_error` (String) Error message shown when no sponsor is selected
+- `sponsors_field_label` (String) Label for the sponsor selection field
+- `tos` (Boolean) Whether the portal requires Terms of Service acceptance
 - `tos_accept_label` (String) Prefix of the label of the link to go to tos
 - `tos_error` (String) Error message when tos not accepted
 - `tos_link` (String) Label of the link to go to tos
@@ -209,91 +209,91 @@ Optional:
 - `auth_button_passphrase` (String) Label for passphrase auth button
 - `auth_button_sms` (String) Label for SMS auth button
 - `auth_button_sponsor` (String) Label for Sponsor auth button
-- `auth_label` (String)
+- `auth_label` (String) Localized heading text displayed above portal authentication options
 - `back_link` (String) Label of the link to go back to /logon
 - `company_error` (String) Error message when company not provided
-- `company_label` (String) Label of company field
+- `company_label` (String) Localized label displayed for the company input field
 - `email_access_domain_error` (String) Error message when a user has valid social login but doesn't match specified email domains.
 - `email_cancel` (String) Label for cancel confirmation code submission using email auth
-- `email_code_cancel` (String)
-- `email_code_error` (String)
-- `email_code_field_label` (String)
-- `email_code_message` (String)
-- `email_code_submit` (String)
-- `email_code_title` (String)
+- `email_code_cancel` (String) Localized link text for requesting help when the email access code was not received
+- `email_code_error` (String) Localized error message shown when the alternate email address for access-code delivery is invalid
+- `email_code_field_label` (String) Localized label for the email access-code input field
+- `email_code_message` (String) Localized instructional text shown before entering the email access code
+- `email_code_submit` (String) Localized button label for submitting the email access code
+- `email_code_title` (String) Localized title shown on the email access-code entry page
 - `email_error` (String) Error message when email not provided
-- `email_field_label` (String)
-- `email_label` (String) Label of email field
-- `email_message` (String)
+- `email_field_label` (String) Localized label for the email address input field
+- `email_label` (String) Localized label displayed for the email input field
+- `email_message` (String) Localized instructional text explaining email access-code delivery
 - `email_submit` (String) Label for confirmation code submit button using email auth
 - `email_title` (String) Title for the Email registration
 - `field1error` (String) Error message when field1 not provided
-- `field1label` (String) Label of field1
+- `field1label` (String) Localized label for custom field 1 input
 - `field2error` (String) Error message when field2 not provided
-- `field2label` (String) Label of field2
+- `field2label` (String) Localized label for custom field 2 input
 - `field3error` (String) Error message when field3 not provided
-- `field3label` (String) Label of field3
+- `field3label` (String) Localized label for custom field 3 input
 - `field4error` (String) Error message when field4 not provided
-- `field4label` (String) Label of field4
+- `field4label` (String) Localized label for custom field 4 input
 - `marketing_policy_link` (String) label of the link to go to /marketing_policy
 - `marketing_policy_opt_in` (Boolean) Whether marketing policy optin is enabled
 - `marketing_policy_opt_in_label` (String) label for marketing optin
-- `marketing_policy_opt_in_text` (String) marketing policy text
-- `message` (String)
+- `marketing_policy_opt_in_text` (String) Localized text of the marketing policy opt-in content
+- `message` (String) Localized main message displayed on the guest portal sign-in page
 - `name_error` (String) Error message when name not provided
-- `name_label` (String) Label of name field
+- `name_label` (String) Localized label displayed for the name input field
 - `optout_label` (String) Label for Do Not Store My Personal Information
-- `page_title` (String)
+- `page_title` (String) Localized browser or page title shown for the guest portal
 - `passphrase_cancel` (String) Label for the Passphrase cancel button
 - `passphrase_error` (String) Error message when invalid passphrase is provided
-- `passphrase_label` (String) Passphrase
-- `passphrase_message` (String)
+- `passphrase_label` (String) Localized label for the passphrase input field
+- `passphrase_message` (String) Localized instructional text shown on the passphrase sign-in page
 - `passphrase_submit` (String) Label for the Passphrase submit button
 - `passphrase_title` (String) Title for passphrase details page
 - `privacy_policy_accept_label` (String) Prefix of the label of the link to go to Privacy Policy
 - `privacy_policy_error` (String) Error message when Privacy Policy not accepted
 - `privacy_policy_link` (String) Label of the link to go to Privacy Policy
 - `privacy_policy_text` (String) Text of the Privacy Policy
-- `required_field_label` (String) Label to denote required field
+- `required_field_label` (String) Localized text used to mark a form field as required
 - `sign_in_label` (String) Label of the button to signin
-- `sms_carrier_default` (String)
-- `sms_carrier_error` (String)
+- `sms_carrier_default` (String) Localized default option text shown in the SMS carrier selector
+- `sms_carrier_error` (String) Localized error message shown when no mobile carrier is selected
 - `sms_carrier_field_label` (String) Label for mobile carrier drop-down list
 - `sms_code_cancel` (String) Label for cancel confirmation code submission
 - `sms_code_error` (String) Error message when confirmation code is invalid
-- `sms_code_field_label` (String)
-- `sms_code_message` (String)
+- `sms_code_field_label` (String) Localized label for the SMS confirmation-code input field
+- `sms_code_message` (String) Localized instructional text shown before entering the SMS access code
 - `sms_code_submit` (String) Label for confirmation code submit button
-- `sms_code_title` (String)
-- `sms_country_field_label` (String)
-- `sms_country_format` (String)
+- `sms_code_title` (String) Localized title shown on the SMS access-code entry page
+- `sms_country_field_label` (String) Localized label for the SMS country-code input field
+- `sms_country_format` (String) Localized example country code format shown for SMS authentication
 - `sms_have_access_code` (String) Label for checkbox to specify that the user has access code
 - `sms_message_format` (String) Format of access code sms message. {{code}} and {{duration}} are placeholders and should be retained as is.
 - `sms_number_cancel` (String) Label for canceling mobile details for SMS auth
-- `sms_number_error` (String)
+- `sms_number_error` (String) Localized error message shown when the mobile number is invalid
 - `sms_number_field_label` (String) Label for field to provide mobile number
-- `sms_number_format` (String)
-- `sms_number_message` (String)
+- `sms_number_format` (String) Localized example mobile number format shown for SMS authentication
+- `sms_number_message` (String) Localized instructional text explaining SMS access-code delivery
 - `sms_number_submit` (String) Label for submit button for code generation
 - `sms_number_title` (String) Title for phone number details
-- `sms_username_format` (String)
-- `sponsor_back_link` (String)
-- `sponsor_cancel` (String)
+- `sms_username_format` (String) Localized example username format shown for SMS authentication
+- `sponsor_back_link` (String) Localized link text for returning to edit the sponsor request form
+- `sponsor_cancel` (String) Localized button label for canceling sponsor authentication
 - `sponsor_email` (String) Label for Sponsor Email
-- `sponsor_email_error` (String)
-- `sponsor_info_approved` (String)
-- `sponsor_info_denied` (String)
-- `sponsor_info_pending` (String)
+- `sponsor_email_error` (String) Localized error message shown when the sponsor email address is invalid
+- `sponsor_info_approved` (String) Localized status message prefix shown when a sponsor approves the request
+- `sponsor_info_denied` (String) Localized status message prefix shown when a sponsor denies the request
+- `sponsor_info_pending` (String) Localized status message prefix shown after a sponsor notification is sent
 - `sponsor_name` (String) Label for Sponsor Name
-- `sponsor_name_error` (String)
-- `sponsor_note_pending` (String)
+- `sponsor_name_error` (String) Localized error message shown when the sponsor name is missing
+- `sponsor_note_pending` (String) Localized additional status text shown while sponsor approval is pending
 - `sponsor_request_access` (String) Submit button label request Wifi Access and notify sponsor about guest request
 - `sponsor_status_approved` (String) Text to display if sponsor approves request
 - `sponsor_status_denied` (String) Text to display when sponsor denies request
 - `sponsor_status_pending` (String) Text to display if request is still pending
 - `sponsor_submit` (String) Submit button label to notify sponsor about guest request
-- `sponsors_error` (String)
-- `sponsors_field_label` (String)
+- `sponsors_error` (String) Localized error message shown when no sponsor is selected
+- `sponsors_field_label` (String) Localized label for the sponsor selection field
 - `tos_accept_label` (String) Prefix of the label of the link to go to tos
 - `tos_error` (String) Error message when tos not accepted
 - `tos_link` (String) Label of the link to go to tos

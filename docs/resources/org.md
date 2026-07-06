@@ -27,21 +27,21 @@ resource "mist_org" "org_one" {
 
 ### Required
 
-- `name` (String)
+- `name` (String) Display name of the organization
 
 ### Optional
 
-- `alarmtemplate_id` (String)
-- `allow_mist` (Boolean)
-- `session_expiry` (Number)
+- `alarmtemplate_id` (String) Org-level alarm template ID used as the default for sites
+- `allow_mist` (Boolean) Whether Mist support access is allowed for this organization
+- `session_expiry` (Number) Admin session lifetime for the organization, in minutes
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
-- `msp_id` (String)
+- `id` (String) Unique identifier of the organization
+- `msp_id` (String) Managed service provider account that owns this organization, when applicable
 - `msp_logo_url` (String) logo uploaded by the MSP with advanced tier, only present if provided
 - `msp_name` (String) Name of the msp the org belongs to
-- `orggroup_ids` (List of String)
+- `orggroup_ids` (List of String) Organization group IDs that include this organization
 
 
 

@@ -45,23 +45,23 @@ resource "mist_site_webhook" "webhook_one" {
 
 ### Required
 
-- `name` (String) Name of the webhook
-- `site_id` (String)
+- `name` (String) Display name of the webhook
+- `site_id` (String) Site associated with this webhook when it is site-scoped
 - `topics` (List of String) enum: `alarms`, `asset-raw`, `asset-raw-rssi`, `audits`, `client-info`, `client-join`, `client-latency`, `client-sessions`, `device-events`, `device-updowns`, `discovered-raw-rssi`, `guest-authorizations`, `location`, `location-asset`, `location-centrak`, `location-client`, `location-sdk`, `location-unclient`, `mxedge-events`, `minis-application`, `minis-reachability`, `nac-accounting`, `nac-events`, `occupancy-alerts`, `rssizone`, `sdkclient-scan-data`, `vbeacon`, `wifi-conn-raw`, `wifi-unconn-raw`, `zone`
-- `url` (String)
+- `url` (String) Destination URL that receives webhook deliveries
 
 ### Optional
 
-- `assetfilter_ids` (List of String) Only if `type`==`asset-raw-rssi`. List of ids to associated asset filters. These filters will be applied to messages routed to a filtered-asset-rssi webhook
+- `assetfilter_ids` (List of String) Asset filter identifiers used to restrict `asset-raw-rssi` webhook events
 - `enabled` (Boolean) Whether webhook is enabled
 - `headers` (Map of String) If `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000
-- `oauth2_client_id` (String) Required when `oauth2_grant_type`==`client_credentials`
-- `oauth2_client_secret` (String, Sensitive) Required when `oauth2_grant_type`==`client_credentials`
-- `oauth2_grant_type` (String) required when `type`==`oauth2`. enum: `client_credentials`, `password`
-- `oauth2_password` (String, Sensitive) Required when `oauth2_grant_type`==`password`
-- `oauth2_scopes` (List of String) Required when `type`==`oauth2`, if provided, will be used in the token request
-- `oauth2_token_url` (String) Required when `type`==`oauth2`
-- `oauth2_username` (String) Required when `oauth2_grant_type`==`password`
+- `oauth2_client_id` (String) Required when `oauth2_grant_type`==`client_credentials`; OAuth2 client identifier used to request an access token
+- `oauth2_client_secret` (String, Sensitive) Required when `oauth2_grant_type`==`client_credentials`; OAuth2 client secret used to request an access token
+- `oauth2_grant_type` (String) OAuth2 grant type used when `type`==`oauth2`
+- `oauth2_password` (String, Sensitive) Required when `oauth2_grant_type`==`password`; password used for the OAuth2 token request
+- `oauth2_scopes` (List of String) OAuth2 scopes included in the token request when `type`==`oauth2`
+- `oauth2_token_url` (String) Required when `type`==`oauth2`; token endpoint URL used to obtain the OAuth2 access token
+- `oauth2_username` (String) Required when `oauth2_grant_type`==`password`; username used for the OAuth2 token request
 - `secret` (String, Sensitive) Only if `type`=`http-post` 
 
 when `secret` is provided, two HTTP headers will be added: 
@@ -69,13 +69,13 @@ when `secret` is provided, two HTTP headers will be added:
   * X-Mist-Signature: HMAC_SHA1(secret, body)
 - `single_event_per_message` (Boolean) Some solutions may not be able to parse multiple events from a single message (e.g. IBM Qradar, DSM). When set to `true`, only a single event will be sent per message. this feature is only available on certain topics (see [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics))
 - `splunk_token` (String, Sensitive) Required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.
-- `type` (String) enum: `aws-sns`, `google-pubsub`, `http-post`, `oauth2`, `splunk`
+- `type` (String) Delivery mechanism used by this webhook
 - `verify_cert` (Boolean) When url uses HTTPS, whether to verify the certificate
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
-- `org_id` (String)
+- `id` (String) Unique identifier of the webhook
+- `org_id` (String) Organization that owns the webhook
 
 
 

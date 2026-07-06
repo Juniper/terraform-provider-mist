@@ -40,31 +40,31 @@ resource "mist_org_psk" "psk_one" {
 
 ### Required
 
-- `name` (String)
-- `org_id` (String)
-- `passphrase` (String, Sensitive) passphrase of the PSK (8-63 character or 64 in hex)
-- `ssid` (String) SSID this PSK should be applicable to
+- `name` (String) Display name of the PSK
+- `org_id` (String) Organization that owns the org-level PSK
+- `passphrase` (String, Sensitive) PSK passphrase, 8-63 characters or 64 hexadecimal characters
+- `ssid` (String) WLAN SSID where this PSK can be used
 
 ### Optional
 
-- `email` (String) email to send psk expiring notifications to
+- `email` (String) Notification recipient email address for PSK creation notification and expiration reminders
 - `expire_time` (Number) Expire time for this PSK key (epoch time in seconds). Default `null` (as no expiration)
 - `expiry_notification_time` (Number) Number of days before psk is expired. Used as to when to start sending reminder notification when the psk is about to expire
-- `mac` (String) If `usage`==`single`, the mac that this PSK ties to, empty if `auto-binding`
-- `macs` (List of String) If `usage`==`macs`, this list contains N number of client mac addresses or mac patterns(1122*) or both. This list is capped at 5000
+- `mac` (String) If `usage`==`single`, client MAC address this PSK is bound to; empty when auto-binding is used
+- `macs` (List of String) Client MAC addresses or MAC patterns allowed when `usage`==`macs`
 - `max_usage` (Number) For Org PSK Only. Max concurrent users for this PSK key. Default is 0 (unlimited)
-- `note` (String)
+- `note` (String) Admin note or description stored with the PSK
 - `notify_expiry` (Boolean) If set to true, reminder notification will be sent when psk is about to expire
 - `notify_on_create_or_edit` (Boolean) If set to true, notification will be sent when psk is created or edited
 - `old_passphrase` (String, Sensitive) previous passphrase of the PSK if it has been rotated
-- `role` (String)
-- `usage` (String) enum: `macs`, `multi`, `single`
-- `vlan_id` (String)
+- `role` (String) Client role applied to users authenticated with this PSK
+- `usage` (String) Binding mode for this PSK, enum: `macs`, `multi`, `single`
+- `vlan_id` (String) VLAN ID returned for clients using this PSK
 - `vlan_name` (String) VLAN name to be assigned. Optional, `vlan_id` takes precedence if both are provided
 
 ### Read-Only
 
-- `id` (String) Unique ID of the object instance in the Mist Organization
+- `id` (String) Unique identifier of the PSK
 
 
 

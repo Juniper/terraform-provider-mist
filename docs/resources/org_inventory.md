@@ -55,6 +55,7 @@ resource "mist_org_inventory" "inventory" {
 
 ### Optional
 
+- `disconnected_before` (Number) Filter results to devices that were last disconnected before this time, in epoch seconds
 - `inventory` (Attributes Map) Property key can be the device Claim Code or the device MAC Address:
   * Claim Code: used to claim the device to the Mist Organization and manage it. Format is `[0-9A-Z]{15}` (e.g `01234ABCDE56789`)
   * MAC Address: used to manage a device already in the Mist Organization (claimed or adopted devices). Format is `[0-9a-f]{12}` (e.g `5684dae9ac8b`)
@@ -77,7 +78,7 @@ Read-Only:
 - `id` (String) device id
 - `mac` (String) device MAC address
 - `model` (String) device model
-- `org_id` (String)
+- `org_id` (String) Unique identifier of a Mist organization
 - `serial` (String) device serial
 - `type` (String) enum: `ap`, `gateway`, `switch`
 - `vc_mac` (String) if `type`==`switch` and device part of a Virtual Chassis, MAC Address of the Virtual Chassis. if `type`==`gateway` and device part of a Cluster, MAC Address of the Cluster
