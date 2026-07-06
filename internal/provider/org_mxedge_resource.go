@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/Juniper/terraform-provider-mist/internal/resource_org_mxedge"
 
 	"github.com/tmunzer/mistapi-go/mistapi"
+	sdkerrors "github.com/tmunzer/mistapi-go/mistapi/errors"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
@@ -65,6 +67,37 @@ func (r *orgMxedgeResource) Schema(ctx context.Context, _ resource.SchemaRequest
 	}
 }
 
+// getMxEdge retrieves an MxEdge by ID. GetOrgMxEdge returns 404 for site-assigned
+// devices (the org-level endpoint only sees unassigned devices), so on 404 it falls
+// back to ListOrgMxEdges(for_site=any) and searches by ID.
+// Returns (device, true) if found, (nil, true) if definitively not found (caller
+// should remove from state), or (nil, false) on a real API error.
+func (r *orgMxedgeResource) getMxEdge(ctx context.Context, orgId, mxedgeId uuid.UUID) (*models.Mxedge, bool, error) {
+	getResp, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
+	if err == nil {
+		return &getResp.Data, true, nil
+	}
+	// Only fall back on 404; surface all other errors.
+	var http404 *sdkerrors.ResponseHttp404
+	if !errors.As(err, &http404) &&
+		!(getResp.Response != nil && getResp.Response.StatusCode == 404) {
+		return nil, false, err
+	}
+	tflog.Warn(ctx, fmt.Sprintf("GetOrgMxEdge 404 for %s, falling back to ListOrgMxEdges(for_site=any)", mxedgeId))
+	forSiteAny := models.MxedgeForSiteEnum_ANY
+	listResp, listErr := r.client.OrgsMxEdges().ListOrgMxEdges(ctx, orgId, &forSiteAny, nil, nil)
+	if listErr != nil {
+		return nil, false, fmt.Errorf("GetOrgMxEdge returned 404 and list fallback failed: %w", listErr)
+	}
+	for i := range listResp.Data {
+		if listResp.Data[i].Id != nil && *listResp.Data[i].Id == mxedgeId {
+			return &listResp.Data[i], true, nil
+		}
+	}
+	// Not found in org at all.
+	return nil, true, nil
+}
+
 func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Info(ctx, "Starting OrgMxedge Create")
 	var plan, state resource_org_mxedge.OrgMxedgeModel
@@ -93,34 +126,79 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 		claimCodes := []string{plan.Magic.ValueString()}
 
 		claimResponse, err := r.client.OrgsInventory().AddOrgInventory(ctx, orgId, claimCodes)
-		if err != nil {
-			resp.Diagnostics.AddError(
-				"Error claiming \"mist_org_mxedge\" resource",
-				"Unable to claim the MxEdge: "+err.Error(),
-			)
-			return
-		}
 
-		if claimResponse.Response == nil {
-			resp.Diagnostics.AddError(
-				"Error claiming \"mist_org_mxedge\" resource",
-				"API response is nil",
-			)
-			return
-		}
-		if claimResponse.Response.StatusCode != 200 {
-			apiErr := mistapierror.ProcessApiError(claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
-			if apiErr != "" {
+		// The SDK returns a ResponseInventoryError (HTTP 400) when any claim code
+		// fails. Extract the per-code reasons for a useful error message, but also
+		// allow through cases where the device was already claimed (duplicated).
+		var inventoryAdded []models.ResponseInventoryInventoryAddedItems
+		if err != nil {
+			var invErr *sdkerrors.ResponseInventoryError
+			if errors.As(err, &invErr) {
+				if len(invErr.MError) > 0 {
+					for i, code := range invErr.MError {
+						reason := ""
+						if i < len(invErr.Reason) {
+							reason = invErr.Reason[i]
+						}
+						resp.Diagnostics.AddError(
+							"Error claiming \"mist_org_mxedge\" resource",
+							fmt.Sprintf("Unable to claim the MxEdge with claim code %q: %s", code, reason),
+						)
+					}
+					return
+				}
+				// No per-code errors — device may be duplicated (already claimed)
+				for _, dup := range invErr.InventoryDuplicated {
+					resp.Diagnostics.AddWarning(
+						"MxEdge already claimed",
+						fmt.Sprintf("Device with claim code %q (MAC: %s) was already in the org inventory and has been imported.", dup.Magic, dup.Mac),
+					)
+					var tmp models.ResponseInventoryInventoryAddedItems
+					tmp.Mac = dup.Mac
+					tmp.Magic = dup.Magic
+					tmp.Model = dup.Model
+					tmp.Serial = dup.Serial
+					tmp.Type = dup.Type
+					inventoryAdded = append(inventoryAdded, tmp)
+				}
+				inventoryAdded = append(inventoryAdded, invErr.InventoryAdded...)
+				if len(inventoryAdded) == 0 {
+					resp.Diagnostics.AddError(
+						"Error claiming \"mist_org_mxedge\" resource",
+						"Claim returned no added or duplicated devices: "+err.Error(),
+					)
+					return
+				}
+			} else {
 				resp.Diagnostics.AddError(
 					"Error claiming \"mist_org_mxedge\" resource",
-					fmt.Sprintf("Unable to claim the MxEdge. %s", apiErr),
+					"Unable to claim the MxEdge: "+err.Error(),
 				)
 				return
 			}
+		} else {
+			if claimResponse.Response == nil {
+				resp.Diagnostics.AddError(
+					"Error claiming \"mist_org_mxedge\" resource",
+					"API response is nil",
+				)
+				return
+			}
+			if claimResponse.Response.StatusCode != 200 {
+				apiErr := mistapierror.ProcessApiError(claimResponse.Response.StatusCode, claimResponse.Response.Body, err)
+				if apiErr != "" {
+					resp.Diagnostics.AddError(
+						"Error claiming \"mist_org_mxedge\" resource",
+						fmt.Sprintf("Unable to claim the MxEdge. %s", apiErr),
+					)
+					return
+				}
+			}
+			inventoryAdded = claimResponse.Data.InventoryAdded
 		}
 
 		// Extract the device ID from the claim response
-		if len(claimResponse.Data.InventoryAdded) == 0 {
+		if len(inventoryAdded) == 0 {
 			resp.Diagnostics.AddError(
 				"Error claiming \"mist_org_mxedge\" resource",
 				"No devices were added in the claim response",
@@ -128,7 +206,7 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 			return
 		}
 
-		addedDevice := claimResponse.Data.InventoryAdded[0]
+		addedDevice := inventoryAdded[0]
 		if addedDevice.Mac == "" {
 			resp.Diagnostics.AddError(
 				"Error claiming \"mist_org_mxedge\" resource",
@@ -161,23 +239,35 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 		}
 
 		tflog.Info(ctx, "Retrieving claimed MxEdge details: "+mxedgeId.String())
-		claimedData, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
-		if err != nil {
+		claimedDevice, found, getMxEdgeErr := r.getMxEdge(ctx, orgId, mxedgeId)
+		if getMxEdgeErr != nil {
 			resp.Diagnostics.AddError(
 				"Error retrieving claimed \"mist_org_mxedge\" resource",
-				err.Error(),
+				getMxEdgeErr.Error(),
 			)
 			return
 		}
-		mistMxedge = claimedData.Data
+		if !found || claimedDevice == nil {
+			resp.Diagnostics.AddError(
+				"Error retrieving claimed \"mist_org_mxedge\" resource",
+				fmt.Sprintf("MxEdge %s not found in org after claiming", mxedgeId),
+			)
+			return
+		}
+		mistMxedge = *claimedDevice
 
-		// If additional fields from plan need to be updated (name, site_id, etc.), do it now
-		if !plan.Name.IsNull() || !plan.SiteId.IsNull() || !plan.MxclusterId.IsNull() {
+		// If additional fields from plan need to be updated (name, mxcluster_id, etc.), do it now.
+		// Site assignment is intentionally excluded here and handled by AssignOrgMxEdgeToSite below.
+		if !plan.Name.IsNull() || !plan.MxclusterId.IsNull() {
 			updateMxedge, diags := resource_org_mxedge.TerraformToSdk(ctx, &plan)
 			resp.Diagnostics.Append(diags...)
 			if resp.Diagnostics.HasError() {
 				return
 			}
+			// Strip site fields — sending site_id in UpdateOrgMxEdge causes the Mist API to
+			// perform an inline assignment, which would conflict with the dedicated assign call below.
+			updateMxedge.SiteId = nil
+			updateMxedge.ForSite = nil
 
 			tflog.Info(ctx, "Updating claimed MxEdge with additional fields")
 			data, err := r.client.OrgsMxEdges().UpdateOrgMxEdge(ctx, orgId, mxedgeId, updateMxedge)
@@ -250,6 +340,51 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 		}
 	}
 
+	// The Mist API ignores for_site in the Create/Update body; it is only set
+	// via AssignOrgMxEdgeToSite. If site_id is specified, assign now so that
+	// for_site is correctly reflected in the state after creation.
+	if !plan.SiteId.IsNull() && !plan.SiteId.IsUnknown() && plan.SiteId.ValueString() != "" {
+		if mistMxedge.Id == nil {
+			resp.Diagnostics.AddError(
+				"Error assigning \"mist_org_mxedge\" to site after create",
+				"Created MxEdge has no ID",
+			)
+			return
+		}
+		createdId := *mistMxedge.Id
+		siteId, err := uuid.Parse(plan.SiteId.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Invalid \"site_id\" value for \"mist_org_mxedge\" resource",
+				fmt.Sprintf("Unable to parse the UUID %q: %s", plan.SiteId.ValueString(), err.Error()),
+			)
+			return
+		}
+		tflog.Info(ctx, fmt.Sprintf("Assigning newly created MxEdge %s to site %s", createdId, siteId))
+		assignResp, err := r.client.OrgsMxEdges().AssignOrgMxEdgeToSite(ctx, orgId, &models.MxedgesAssign{
+			MxedgeIds: []uuid.UUID{createdId},
+			SiteId:    siteId,
+		})
+		if err != nil || assignResp.Response == nil || assignResp.Response.StatusCode != 200 {
+			apiErr := ""
+			if assignResp.Response != nil {
+				apiErr = mistapierror.ProcessApiError(assignResp.Response.StatusCode, assignResp.Response.Body, err)
+			}
+			if apiErr == "" && err != nil {
+				apiErr = err.Error()
+			}
+			resp.Diagnostics.AddError(
+				"Error assigning \"mist_org_mxedge\" to site after create",
+				fmt.Sprintf("Unable to assign the MxEdge to site: %s", apiErr),
+			)
+			return
+		}
+		// Assign succeeded — set for_site = true and site_id directly on the local struct.
+		// GetOrgMxEdge returns 404 for VM MxEdges so we avoid that call here.
+		mistMxedge.ForSite = models.ToPointer(true)
+		mistMxedge.SiteId = &siteId
+	}
+
 	state, diags = resource_org_mxedge.SdkToTerraform(ctx, &mistMxedge)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -305,27 +440,26 @@ func (r *orgMxedgeResource) Read(ctx context.Context, _ resource.ReadRequest, re
 		return
 	}
 
-	mxedgeResp, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
-	if err != nil {
-		if mxedgeResp.Response != nil && mxedgeResp.Response.StatusCode == 404 {
-			tflog.Warn(ctx, fmt.Sprintf("MxEdge %s not found (404), removing from state", mxedgeId.String()))
-			resp.State.RemoveResource(ctx)
-			return
-		}
+	foundDevice, found, getMxEdgeErr := r.getMxEdge(ctx, orgId, mxedgeId)
+	if getMxEdgeErr != nil {
 		resp.Diagnostics.AddError(
 			"Error reading \"mist_org_mxedge\" resource",
-			err.Error(),
+			getMxEdgeErr.Error(),
 		)
 		return
 	}
-	foundDevice := mxedgeResp.Data
+	if !found || foundDevice == nil {
+		tflog.Warn(ctx, fmt.Sprintf("MxEdge %s not found in org, removing from state", mxedgeId))
+		resp.State.RemoveResource(ctx)
+		return
+	}
 
 	// Preserve org_id, claim_code and mxcluster_id from existing state before overwriting
 	existingOrgId := state.OrgId
 	existingClaimCode := state.Magic
 	existingMxclusterId := state.MxclusterId
 
-	state, diags = resource_org_mxedge.SdkToTerraform(ctx, &foundDevice)
+	state, diags = resource_org_mxedge.SdkToTerraform(ctx, foundDevice)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -447,6 +581,11 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	// Strip site fields — sending site_id in UpdateOrgMxEdge causes the Mist API to
+	// perform an inline assignment, which would conflict with the dedicated
+	// AssignOrgMxEdgeToSite call in Step 3.
+	mxedge.SiteId = nil
+	mxedge.ForSite = nil
 
 	data, err := r.client.OrgsMxEdges().UpdateOrgMxEdge(ctx, orgId, mxedgeId, mxedge)
 	if data.Response == nil {
@@ -525,16 +664,23 @@ func (r *orgMxedgeResource) Update(ctx context.Context, req resource.UpdateReque
 			return
 		}
 
-		// Refresh state after assignment
-		postAssignResp, err := r.client.OrgsMxEdges().GetOrgMxEdge(ctx, orgId, mxedgeId)
-		if err != nil {
+		// Refresh state after assignment using getMxEdge to handle site-assigned devices.
+		postAssignDevice, found, getMxEdgeErr := r.getMxEdge(ctx, orgId, mxedgeId)
+		if getMxEdgeErr != nil {
 			resp.Diagnostics.AddError(
 				"Error retrieving \"mist_org_mxedge\" after site assignment",
-				err.Error(),
+				getMxEdgeErr.Error(),
 			)
 			return
 		}
-		mistMxedge = postAssignResp.Data
+		if !found || postAssignDevice == nil {
+			resp.Diagnostics.AddError(
+				"Error retrieving \"mist_org_mxedge\" after site assignment",
+				fmt.Sprintf("MxEdge %s not found after site assignment", mxedgeId),
+			)
+			return
+		}
+		mistMxedge = *postAssignDevice
 	}
 
 	// Convert API response to Terraform state

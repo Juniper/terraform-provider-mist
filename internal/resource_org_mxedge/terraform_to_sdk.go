@@ -39,8 +39,10 @@ func TerraformToSdk(ctx context.Context, plan *OrgMxedgeModel) (*models.Mxedge, 
 				diags.AddError("Bad value for mxcluster_id", e.Error())
 			}
 		} else {
-			data.MxclusterId = models.EmptyOptional[uuid.UUID]()
-			unset["-mxcluster_id"] = ""
+			// Explicitly send "mxcluster_id": null so the API clears the assignment.
+			// EmptyOptional (set=false) omits the field entirely; NewOptional(nil)
+			// (set=true, value=nil) serializes as null and tells the API to clear it.
+			data.MxclusterId = models.NewOptional[uuid.UUID](nil)
 		}
 	}
 
