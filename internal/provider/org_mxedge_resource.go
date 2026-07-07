@@ -258,7 +258,7 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 
 		// If additional fields from plan need to be updated (name, mxcluster_id, etc.), do it now.
 		// Site assignment is intentionally excluded here and handled by AssignOrgMxEdgeToSite below.
-		if !plan.Name.IsNull() || !plan.MxclusterId.IsNull() {
+		if (!plan.Name.IsNull() && !plan.Name.IsUnknown()) || (!plan.MxclusterId.IsNull() && !plan.MxclusterId.IsUnknown()) {
 			updateMxedge, diags := resource_org_mxedge.TerraformToSdk(ctx, &plan)
 			resp.Diagnostics.Append(diags...)
 			if resp.Diagnostics.HasError() {
