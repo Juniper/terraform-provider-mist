@@ -194,7 +194,21 @@ func (r *orgMxedgeResource) Create(ctx context.Context, req resource.CreateReque
 					return
 				}
 			}
-			inventoryAdded = claimResponse.Data.InventoryAdded
+			// Handle duplicated devices (already in org) the same as errors.As path above.
+			for _, dup := range claimResponse.Data.InventoryDuplicated {
+				resp.Diagnostics.AddWarning(
+					"MxEdge already claimed",
+					fmt.Sprintf("Device with claim code %q (MAC: %s) was already in the org inventory and has been imported.", dup.Magic, dup.Mac),
+				)
+				var tmp models.ResponseInventoryInventoryAddedItems
+				tmp.Mac = dup.Mac
+				tmp.Magic = dup.Magic
+				tmp.Model = dup.Model
+				tmp.Serial = dup.Serial
+				tmp.Type = dup.Type
+				inventoryAdded = append(inventoryAdded, tmp)
+			}
+			inventoryAdded = append(inventoryAdded, claimResponse.Data.InventoryAdded...)
 		}
 
 		// Extract the device ID from the claim response
