@@ -636,6 +636,7 @@ func (p *mistProvider) Resources(_ context.Context) []func() resource.Resource {
 		NewUpgradeDevice,
 		NewOrgMxedgeResource,
 		NewOrgMxclusterResource,
+		NewOrgMxtunnelResource,
 	}
 }
 

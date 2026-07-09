@@ -333,3 +333,93 @@
     enabled         = true
     threshold       = 5
   }
+
+  mxedge_mgmt = {
+    config_auto_revert = true
+    fips_enabled       = false
+    oob_ip_type        = "dhcp"
+    oob_ip_type6       = "disabled"
+  }
+
+  mxtunnels = {
+    additional_mxtunnels = {
+      "extra1" = {
+        hello_interval = 30
+        hello_retries  = 3
+        protocol       = "udp"
+        vlan_ids       = [10, 20]
+        tunterm_clusters = [
+          {
+            name          = "extra-cluster"
+            tunterm_hosts = ["192.168.1.1", "192.168.1.2"]
+          }
+        ]
+      }
+    }
+    ap_subnets = ["10.0.0.0/24", "10.0.1.0/24"]
+    auto_preemption = {
+      day_of_week = "mon"
+      enabled     = true
+      time_of_day = "02:00"
+    }
+    clusters = [
+      {
+        name          = "cluster1"
+        tunterm_hosts = ["10.0.0.10", "10.0.0.11"]
+      }
+    ]
+    enabled        = true
+    hello_interval = 60
+    hello_retries  = 7
+    hosts          = ["10.1.0.1", "10.1.0.2"]
+    mtu            = 1500
+    protocol       = "udp"
+    radsec = {
+      enabled    = true
+      use_mxedge = true
+      acct_servers = [
+        {
+          host   = "radius.example.com"
+          port   = "1813"
+          secret = "acct_secret"
+        }
+      ]
+      auth_servers = [
+        {
+          host                         = "radius.example.com"
+          port                         = "1812"
+          require_message_authenticator = true
+          secret                       = "auth_secret"
+        }
+      ]
+    }
+    vlan_ids = [100, 200, 300]
+  }
+
+  tunterm_monitoring = [
+    {
+      host     = "10.0.0.1"
+      protocol = "ping"
+      timeout  = 10
+    },
+    {
+      host      = "10.0.0.2"
+      port      = 443
+      protocol  = "tcp"
+      timeout   = 5
+    }
+  ]
+
+  tunterm_monitoring_disabled = false
+
+  tunterm_multicast_config = {
+    multicast_all = false
+    mdns = {
+      enabled  = true
+      vlan_ids = [100, 200]
+    }
+    ssdp = {
+      enabled  = true
+      vlan_ids = [100]
+    }
+  }

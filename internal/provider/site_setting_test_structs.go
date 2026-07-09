@@ -22,6 +22,8 @@ type SiteSettingModel struct {
 	JuniperSrx                   *SiteSettingJuniperSrxValue                `hcl:"juniper_srx"`
 	Led                          *SiteSettingLedValue                       `hcl:"led"`
 	Marvis                       *SiteSettingMarvisValue                    `hcl:"marvis"`
+	MxedgeMgmt                   *SiteSettingMxedgeMgmtValue                `hcl:"mxedge_mgmt"`
+	Mxtunnels                    *SiteSettingMxtunnelsValue                 `hcl:"mxtunnels"`
 	Occupancy                    *SiteSettingOccupancyValue                 `hcl:"occupancy"`
 	PersistConfigOnDevice        *bool                                      `hcl:"persist_config_on_device"`
 	Proxy                        *SiteSettingProxyValue                     `hcl:"proxy"`
@@ -39,6 +41,9 @@ type SiteSettingModel struct {
 	SwitchUpdownThreshold        *int64                                     `hcl:"switch_updown_threshold"`
 	SyntheticTest                *SiteSettingSyntheticTestValue             `hcl:"synthetic_test"`
 	TrackAnonymousDevices        *bool                                      `hcl:"track_anonymous_devices"`
+	TuntermMonitoring            []SiteSettingTuntermMonitoringValue        `hcl:"tunterm_monitoring"`
+	TuntermMonitoringDisabled    *bool                                       `hcl:"tunterm_monitoring_disabled"`
+	TuntermMulticastConfig       *SiteSettingTuntermMulticastConfigValue     `hcl:"tunterm_multicast_config"`
 	UplinkPortConfig             *SiteSettingUplinkPortConfigValue          `hcl:"uplink_port_config"`
 	Vars                         map[string]string                          `hcl:"vars"`
 	VarsAnnotations              map[string]SiteSettingVarsAnnotationsValue `hcl:"vars_annotations"`
@@ -220,12 +225,13 @@ type SiteSettingIotproxyValue struct {
 }
 
 type SiteSettingVisionlineValue struct {
-	AccessId *string `cty:"access_id" hcl:"access_id"`
-	Enabled  *bool   `cty:"enabled" hcl:"enabled"`
-	Host     *string `cty:"host" hcl:"host"`
-	Password *string `cty:"password" hcl:"password"`
-	Port     *int64  `cty:"port" hcl:"port"`
-	Username *string `cty:"username" hcl:"username"`
+	AccessId *string  `cty:"access_id" hcl:"access_id"`
+	Cacerts  []string `cty:"cacerts" hcl:"cacerts"`
+	Enabled  *bool    `cty:"enabled" hcl:"enabled"`
+	Host     *string  `cty:"host" hcl:"host"`
+	Password *string  `cty:"password" hcl:"password"`
+	Port     *int64   `cty:"port" hcl:"port"`
+	Username *string  `cty:"username" hcl:"username"`
 }
 
 type SiteSettingJuniperSrxValue struct {
@@ -266,6 +272,88 @@ type SiteSettingAutoOperationsValue struct {
 	GatewayNonCompliant                    *bool `cty:"gateway_non_compliant" hcl:"gateway_non_compliant"`
 	SwitchMisconfiguredPort                *bool `cty:"switch_misconfigured_port" hcl:"switch_misconfigured_port"`
 	SwitchPortStuck                        *bool `cty:"switch_port_stuck" hcl:"switch_port_stuck"`
+}
+
+type SiteSettingMxedgeMgmtValue struct {
+	ConfigAutoRevert *bool   `cty:"config_auto_revert" hcl:"config_auto_revert"`
+	FipsEnabled      *bool   `cty:"fips_enabled" hcl:"fips_enabled"`
+	MistPassword     *string `cty:"mist_password" hcl:"mist_password"`
+	OobIpType        *string `cty:"oob_ip_type" hcl:"oob_ip_type"`
+	OobIpType6       *string `cty:"oob_ip_type6" hcl:"oob_ip_type6"`
+	RootPassword     *string `cty:"root_password" hcl:"root_password"`
+}
+
+type SiteSettingMxtunnelsValue struct {
+	AdditionalMxtunnels map[string]SiteSettingAdditionalMxtunnelsValue `cty:"additional_mxtunnels" hcl:"additional_mxtunnels"`
+	ApSubnets           []string                                       `cty:"ap_subnets" hcl:"ap_subnets"`
+	AutoPreemption      *SiteSettingAutoPreemptionValue                `cty:"auto_preemption" hcl:"auto_preemption"`
+	Clusters            []SiteSettingClustersValue                     `cty:"clusters" hcl:"clusters"`
+	CreatedTime         *float64                                       `cty:"created_time" hcl:"created_time"`
+	Enabled             *bool                                          `cty:"enabled" hcl:"enabled"`
+	ForSite             *bool                                          `cty:"for_site" hcl:"for_site"`
+	HelloInterval       *int64                                         `cty:"hello_interval" hcl:"hello_interval"`
+	HelloRetries        *int64                                         `cty:"hello_retries" hcl:"hello_retries"`
+	Hosts               []string                                       `cty:"hosts" hcl:"hosts"`
+	Id                  *string                                        `cty:"id" hcl:"id"`
+	ModifiedTime        *float64                                       `cty:"modified_time" hcl:"modified_time"`
+	Mtu                 *int64                                         `cty:"mtu" hcl:"mtu"`
+	OrgId               *string                                        `cty:"org_id" hcl:"org_id"`
+	Protocol            *string                                        `cty:"protocol" hcl:"protocol"`
+	Radsec              *SiteSettingRadsecValue                        `cty:"radsec" hcl:"radsec"`
+	SiteId              *string                                        `cty:"site_id" hcl:"site_id"`
+	VlanIds             []int64                                        `cty:"vlan_ids" hcl:"vlan_ids"`
+}
+
+type SiteSettingAdditionalMxtunnelsValue struct {
+	HelloInterval   *int64                            `cty:"hello_interval" hcl:"hello_interval"`
+	HelloRetries    *int64                            `cty:"hello_retries" hcl:"hello_retries"`
+	Protocol        *string                           `cty:"protocol" hcl:"protocol"`
+	TuntermClusters []SiteSettingTuntermClustersValue `cty:"tunterm_clusters" hcl:"tunterm_clusters"`
+	VlanIds         []int64                           `cty:"vlan_ids" hcl:"vlan_ids"`
+}
+
+type SiteSettingTuntermClustersValue struct {
+	Name         *string  `cty:"name" hcl:"name"`
+	TuntermHosts []string `cty:"tunterm_hosts" hcl:"tunterm_hosts"`
+}
+
+type SiteSettingAutoPreemptionValue struct {
+	DayOfWeek *string `cty:"day_of_week" hcl:"day_of_week"`
+	Enabled   *bool   `cty:"enabled" hcl:"enabled"`
+	TimeOfDay *string `cty:"time_of_day" hcl:"time_of_day"`
+}
+
+type SiteSettingClustersValue struct {
+	Name         *string  `cty:"name" hcl:"name"`
+	TuntermHosts []string `cty:"tunterm_hosts" hcl:"tunterm_hosts"`
+}
+
+type SiteSettingRadsecValue struct {
+	AcctServers []SiteSettingAcctServersValue `cty:"acct_servers" hcl:"acct_servers"`
+	AuthServers []SiteSettingAuthServersValue `cty:"auth_servers" hcl:"auth_servers"`
+	Enabled     *bool                         `cty:"enabled" hcl:"enabled"`
+	UseMxedge   *bool                         `cty:"use_mxedge" hcl:"use_mxedge"`
+}
+
+type SiteSettingAcctServersValue struct {
+	Host           string  `cty:"host" hcl:"host"`
+	KeywrapEnabled *bool   `cty:"keywrap_enabled" hcl:"keywrap_enabled"`
+	KeywrapFormat  *string `cty:"keywrap_format" hcl:"keywrap_format"`
+	KeywrapKek     *string `cty:"keywrap_kek" hcl:"keywrap_kek"`
+	KeywrapMack    *string `cty:"keywrap_mack" hcl:"keywrap_mack"`
+	Port           *string `cty:"port" hcl:"port"`
+	Secret         string  `cty:"secret" hcl:"secret"`
+}
+
+type SiteSettingAuthServersValue struct {
+	Host                        string  `cty:"host" hcl:"host"`
+	KeywrapEnabled              *bool   `cty:"keywrap_enabled" hcl:"keywrap_enabled"`
+	KeywrapFormat               *string `cty:"keywrap_format" hcl:"keywrap_format"`
+	KeywrapKek                  *string `cty:"keywrap_kek" hcl:"keywrap_kek"`
+	KeywrapMack                 *string `cty:"keywrap_mack" hcl:"keywrap_mack"`
+	Port                        *string `cty:"port" hcl:"port"`
+	RequireMessageAuthenticator *bool   `cty:"require_message_authenticator" hcl:"require_message_authenticator"`
+	Secret                      string  `cty:"secret" hcl:"secret"`
 }
 
 type SiteSettingOccupancyValue struct {
@@ -387,6 +475,30 @@ type SiteSettingVlansValue struct {
 type SiteSettingWanSpeedtestValue struct {
 	Enabled   *bool   `cty:"enabled" hcl:"enabled"`
 	TimeOfDay *string `cty:"time_of_day" hcl:"time_of_day"`
+}
+
+type SiteSettingTuntermMonitoringValue struct {
+	Host      *string `cty:"host" hcl:"host"`
+	Port      *int64  `cty:"port" hcl:"port"`
+	Protocol  *string `cty:"protocol" hcl:"protocol"`
+	SrcVlanId *int64  `cty:"src_vlan_id" hcl:"src_vlan_id"`
+	Timeout   *int64  `cty:"timeout" hcl:"timeout"`
+}
+
+type SiteSettingTuntermMulticastConfigValue struct {
+	Mdns         *SiteSettingMdnsValue  `cty:"mdns" hcl:"mdns"`
+	MulticastAll *bool                  `cty:"multicast_all" hcl:"multicast_all"`
+	Ssdp         *SiteSettingSsdpValue  `cty:"ssdp" hcl:"ssdp"`
+}
+
+type SiteSettingMdnsValue struct {
+	Enabled *bool   `cty:"enabled" hcl:"enabled"`
+	VlanIds []int64 `cty:"vlan_ids" hcl:"vlan_ids"`
+}
+
+type SiteSettingSsdpValue struct {
+	Enabled *bool   `cty:"enabled" hcl:"enabled"`
+	VlanIds []int64 `cty:"vlan_ids" hcl:"vlan_ids"`
 }
 
 type SiteSettingUplinkPortConfigValue struct {

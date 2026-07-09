@@ -146,6 +146,7 @@ func (r *siteSettingResource) Read(ctx context.Context, _ resource.ReadRequest, 
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

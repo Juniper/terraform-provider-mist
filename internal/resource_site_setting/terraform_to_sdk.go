@@ -308,6 +308,57 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-zone_occupancy_alert"] = ""
 	}
 
+	if !plan.MxedgeMgmt.IsNull() && !plan.MxedgeMgmt.IsUnknown() {
+		data.MxedgeMgmt = mxedgeMgmtTerraformToSdk(ctx, &diags, plan.MxedgeMgmt)
+	} else {
+		unset["-mxedge_mgmt"] = ""
+	}
+
+	if !plan.Mxtunnels.IsNull() && !plan.Mxtunnels.IsUnknown() {
+		data.Mxtunnels = mxtunnelsTerraformToSdk(ctx, &diags, plan.Mxtunnels)
+	} else {
+		unset["-mxtunnels"] = ""
+	}
+
+	if !plan.TuntermMonitoring.IsNull() && !plan.TuntermMonitoring.IsUnknown() {
+		var items []models.TuntermMonitoringItem
+		for _, item := range plan.TuntermMonitoring.Elements() {
+			itemValue := item.(TuntermMonitoringValue)
+			monItem := models.TuntermMonitoringItem{}
+			if !itemValue.Host.IsNull() && !itemValue.Host.IsUnknown() {
+				monItem.Host = itemValue.Host.ValueStringPointer()
+			}
+			if !itemValue.Port.IsNull() && !itemValue.Port.IsUnknown() {
+				monItem.Port = models.ToPointer(int(itemValue.Port.ValueInt64()))
+			}
+			if !itemValue.Protocol.IsNull() && !itemValue.Protocol.IsUnknown() && itemValue.Protocol.ValueString() != "" {
+				monItem.Protocol = (*models.TuntermMonitoringProtocolEnum)(itemValue.Protocol.ValueStringPointer())
+			}
+			if !itemValue.SrcVlanId.IsNull() && !itemValue.SrcVlanId.IsUnknown() {
+				monItem.SrcVlanId = models.ToPointer(int(itemValue.SrcVlanId.ValueInt64()))
+			}
+			if !itemValue.Timeout.IsNull() && !itemValue.Timeout.IsUnknown() {
+				monItem.Timeout = models.ToPointer(int(itemValue.Timeout.ValueInt64()))
+			}
+			items = append(items, monItem)
+		}
+		data.TuntermMonitoring = items
+	} else {
+		unset["-tunterm_monitoring"] = ""
+	}
+
+	if !plan.TuntermMonitoringDisabled.IsNull() && !plan.TuntermMonitoringDisabled.IsUnknown() {
+		data.TuntermMonitoringDisabled = plan.TuntermMonitoringDisabled.ValueBoolPointer()
+	} else {
+		unset["-tunterm_monitoring_disabled"] = ""
+	}
+
+	if !plan.TuntermMulticastConfig.IsNull() && !plan.TuntermMulticastConfig.IsUnknown() {
+		data.TuntermMulticastConfig = tuntermMulticastConfigTerraformToSdk(ctx, &diags, plan.TuntermMulticastConfig)
+	} else {
+		unset["-tunterm_multicast_config"] = ""
+	}
+
 	data.AdditionalProperties = unset
 
 	return &data, diags
