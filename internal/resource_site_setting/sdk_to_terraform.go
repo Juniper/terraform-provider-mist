@@ -201,6 +201,68 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		syntheticTest = syntheticTestSdkToTerraform(ctx, &diags, data.SyntheticTest)
 	}
 
+	var mxedgeMgmt = NewMxedgeMgmtValueNull()
+	if data.MxedgeMgmt != nil {
+		mxedgeMgmt = mxedgeMgmtSdkToTerraform(ctx, &diags, data.MxedgeMgmt)
+	}
+
+	var mxtunnels = NewMxtunnelsValueNull()
+	if data.Mxtunnels != nil {
+		mxtunnels = mxtunnelsSdkToTerraform(ctx, &diags, data.Mxtunnels)
+	}
+
+	var tuntermMonitoring = types.ListNull(TuntermMonitoringValue{}.Type(ctx))
+	if data.TuntermMonitoring != nil {
+		var items []attr.Value
+		for _, item := range data.TuntermMonitoring {
+			var host = types.StringNull()
+			var port = types.Int64Null()
+			var protocol = types.StringNull()
+			var srcVlanId = types.Int64Null()
+			var timeout = types.Int64Null()
+			if item.Host != nil {
+				host = types.StringValue(*item.Host)
+			}
+			if item.Port != nil {
+				port = types.Int64Value(int64(*item.Port))
+			}
+			if item.Protocol != nil {
+				protocol = types.StringValue(string(*item.Protocol))
+			}
+			if item.SrcVlanId != nil {
+				srcVlanId = types.Int64Value(int64(*item.SrcVlanId))
+			}
+			if item.Timeout != nil {
+				timeout = types.Int64Value(int64(*item.Timeout))
+			}
+			itemObj, e := NewTuntermMonitoringValue(
+				TuntermMonitoringValue{}.AttributeTypes(ctx),
+				map[string]attr.Value{
+					"host":        host,
+					"port":        port,
+					"protocol":    protocol,
+					"src_vlan_id": srcVlanId,
+					"timeout":     timeout,
+				},
+			)
+			diags.Append(e...)
+			items = append(items, itemObj)
+		}
+		r, e := types.ListValueFrom(ctx, TuntermMonitoringValue{}.Type(ctx), items)
+		diags.Append(e...)
+		tuntermMonitoring = r
+	}
+
+	var tuntermMonitoringDisabled = types.BoolNull()
+	if data.TuntermMonitoringDisabled != nil {
+		tuntermMonitoringDisabled = types.BoolValue(*data.TuntermMonitoringDisabled)
+	}
+
+	var tuntermMulticastConfig = NewTuntermMulticastConfigValueNull()
+	if data.TuntermMulticastConfig != nil {
+		tuntermMulticastConfig = tuntermMulticastConfigSdkToTerraform(ctx, &diags, data.TuntermMulticastConfig)
+	}
+
 	var trackAnonymousDevices types.Bool
 	if data.TrackAnonymousDevices != nil {
 		trackAnonymousDevices = types.BoolValue(*data.TrackAnonymousDevices)
@@ -328,6 +390,11 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		Wifi:                       wifi,
 		WiredVna:                   wiredVna,
 		ZoneOccupancyAlert:         zoneOccupancyAlert,
+		MxedgeMgmt:                 mxedgeMgmt,
+		Mxtunnels:                  mxtunnels,
+		TuntermMonitoring:          tuntermMonitoring,
+		TuntermMonitoringDisabled:  tuntermMonitoringDisabled,
+		TuntermMulticastConfig:     tuntermMulticastConfig,
 	}
 
 	return state, diags

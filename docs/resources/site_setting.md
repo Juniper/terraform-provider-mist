@@ -50,65 +50,70 @@ resource "mist_site_setting" "site_one" {
 
 ### Required
 
-- `site_id` (String)
+- `site_id` (String) Identifier of the site these settings apply to
 
 ### Optional
 
 - `allow_mist` (Boolean) whether to allow Mist to look at this org
-- `analytic` (Attributes) (see [below for nested schema](#nestedatt--analytic))
-- `ap_synthetic_test` (Attributes) AP Synthetic Test configuration (see [below for nested schema](#nestedatt--ap_synthetic_test))
+- `analytic` (Attributes) Advanced analytics configuration for the site (see [below for nested schema](#nestedatt--analytic))
+- `ap_synthetic_test` (Attributes) Synthetic test configuration for APs at the site (see [below for nested schema](#nestedatt--ap_synthetic_test))
 - `ap_updown_threshold` (Number) Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.
-- `auto_upgrade` (Attributes) Auto Upgrade Settings (see [below for nested schema](#nestedatt--auto_upgrade))
-- `auto_upgrade_esl` (Attributes) auto upgrade AP ESL. When both firmware and ESL auto-upgrade are enabled, ESL upgrade will be done only after firmware upgrade (see [below for nested schema](#nestedatt--auto_upgrade_esl))
+- `auto_upgrade` (Attributes) Automatic AP firmware upgrade settings for the site. Overrides org setting when provided. (see [below for nested schema](#nestedatt--auto_upgrade))
+- `auto_upgrade_esl` (Attributes) Automatic ESL firmware upgrade settings for the site (see [below for nested schema](#nestedatt--auto_upgrade_esl))
 - `bgp_neighbor_updown_threshold` (Number) enable threshold-based bgp neighbor down delivery.
-- `ble_config` (Attributes) BLE AP settings (see [below for nested schema](#nestedatt--ble_config))
+- `ble_config` (Attributes) Bluetooth Low Energy configuration applied to APs at the site (see [below for nested schema](#nestedatt--ble_config))
 - `config_auto_revert` (Boolean) Whether to enable ap auto config revert
-- `config_push_policy` (Attributes) Mist also uses some heuristic rules to prevent destructive configs from being pushed (see [below for nested schema](#nestedatt--config_push_policy))
-- `critical_url_monitoring` (Attributes) You can define some URLs that's critical to site operations the latency will be captured and considered for site health (see [below for nested schema](#nestedatt--critical_url_monitoring))
+- `config_push_policy` (Attributes) Policy controlling how site configuration pushes are applied (see [below for nested schema](#nestedatt--config_push_policy))
+- `critical_url_monitoring` (Attributes) Monitoring configuration for critical URLs at the site (see [below for nested schema](#nestedatt--critical_url_monitoring))
 - `device_updown_threshold` (Number) By default, device_updown_threshold, if set, will apply to all devices types if different values for specific device type is desired, use the following
-- `enable_unii_4` (Boolean)
-- `engagement` (Attributes) **Note**: if hours does not exist, it's treated as everyday of the week, 00:00-23:59. Currently, we don't allow multiple ranges for the same day (see [below for nested schema](#nestedatt--engagement))
-- `gateway_mgmt` (Attributes) Gateway Management settings (see [below for nested schema](#nestedatt--gateway_mgmt))
+- `enable_unii_4` (Boolean) Whether UNII-4 channels are enabled for the site
+- `engagement` (Attributes) Dwell-time analytics rules for the site (see [below for nested schema](#nestedatt--engagement))
+- `gateway_mgmt` (Attributes) Management access settings for gateways at the site (see [below for nested schema](#nestedatt--gateway_mgmt))
 - `gateway_tunnel_updown_threshold` (Number) enable threshold-based gateway tunnel (secure edge tunnels) up-down delivery.
 - `gateway_updown_threshold` (Number) Enable threshold-based device down delivery for Gateway devices only. When configured it takes effect for GW devices and `device_updown_threshold` is ignored.
-- `iotproxy` (Attributes) IoT proxy configuration for the site (see [below for nested schema](#nestedatt--iotproxy))
-- `juniper_srx` (Attributes) (see [below for nested schema](#nestedatt--juniper_srx))
-- `led` (Attributes) LED AP settings (see [below for nested schema](#nestedatt--led))
-- `marvis` (Attributes) (see [below for nested schema](#nestedatt--marvis))
-- `occupancy` (Attributes) Occupancy Analytics settings (see [below for nested schema](#nestedatt--occupancy))
+- `iotproxy` (Attributes) Proxy settings for IoT traffic at the site (see [below for nested schema](#nestedatt--iotproxy))
+- `juniper_srx` (Attributes) SRX integration settings for the site (see [below for nested schema](#nestedatt--juniper_srx))
+- `led` (Attributes) AP LED behavior configured for the site (see [below for nested schema](#nestedatt--led))
+- `marvis` (Attributes) AI assistant settings for Marvis at the site (see [below for nested schema](#nestedatt--marvis))
+- `mxedge_mgmt` (Attributes) Mist Edge management access settings for the site (see [below for nested schema](#nestedatt--mxedge_mgmt))
+- `mxtunnels` (Attributes) Site Mist Tunnel configuration (see [below for nested schema](#nestedatt--mxtunnels))
+- `occupancy` (Attributes) Analytics settings for site occupancy (see [below for nested schema](#nestedatt--occupancy))
 - `persist_config_on_device` (Boolean) Whether to store the config on AP
-- `proxy` (Attributes) Proxy Configuration to talk to Mist (see [below for nested schema](#nestedatt--proxy))
+- `proxy` (Attributes) Network proxy settings for devices at the site (see [below for nested schema](#nestedatt--proxy))
 - `remove_existing_configs` (Boolean) By default, only the configuration generated by Mist is cleaned up during the configuration process. If `true`, all the existing configuration will be removed.
 - `report_gatt` (Boolean) Whether AP should periodically connect to BLE devices and report GATT device info (device name, manufacturer name, serial number, battery %, temperature, humidity)
-- `rogue` (Attributes) Rogue site settings (see [below for nested schema](#nestedatt--rogue))
-- `rtsa` (Attributes) Managed mobility (see [below for nested schema](#nestedatt--rtsa))
-- `simple_alert` (Attributes) Set of heuristic rules will be enabled when marvis subscription is not available. It triggers when, in a Z minute window, there are more than Y distinct client encountering over X failures (see [below for nested schema](#nestedatt--simple_alert))
-- `skyatp` (Attributes) (see [below for nested schema](#nestedatt--skyatp))
-- `sle_thresholds` (Attributes) (see [below for nested schema](#nestedatt--sle_thresholds))
-- `srx_app` (Attributes) (see [below for nested schema](#nestedatt--srx_app))
-- `ssh_keys` (List of String) When limit_ssh_access = true in Org Setting, list of SSH public keys provided by Mist Support to install onto APs (see Org:Setting)
-- `ssr` (Attributes) (see [below for nested schema](#nestedatt--ssr))
+- `rogue` (Attributes) AP threat detection settings for the site (see [below for nested schema](#nestedatt--rogue))
+- `rtsa` (Attributes) Managed mobility and asset tracking settings for the site (see [below for nested schema](#nestedatt--rtsa))
+- `simple_alert` (Attributes) Threshold alert settings for the site (see [below for nested schema](#nestedatt--simple_alert))
+- `skyatp` (Attributes) Threat intelligence settings from Sky ATP for the site (see [below for nested schema](#nestedatt--skyatp))
+- `sle_thresholds` (Attributes) Service level expectation threshold settings for the site (see [below for nested schema](#nestedatt--sle_thresholds))
+- `srx_app` (Attributes) Juniper SRX application visibility settings for the site (see [below for nested schema](#nestedatt--srx_app))
+- `ssh_keys` (List of String) Public SSH keys configured for the site
+- `ssr` (Attributes) Session Smart Router settings for the site (see [below for nested schema](#nestedatt--ssr))
 - `switch_updown_threshold` (Number) Enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.
-- `synthetic_test` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test))
+- `synthetic_test` (Attributes) Active monitoring test configuration for the site (see [below for nested schema](#nestedatt--synthetic_test))
 - `track_anonymous_devices` (Boolean) Whether to track anonymous BLE assets (requires ‘track_asset’  enabled)
-- `uplink_port_config` (Attributes) AP Uplink port configuration (see [below for nested schema](#nestedatt--uplink_port_config))
-- `vars` (Map of String) Dictionary of name->value, the vars can then be used in Wlans. This can overwrite those from Site Vars
-- `vars_annotations` (Attributes Map) Optional annotations for vars defined in this site. Keys match var names; values describe the var purpose and type for UI auto-complete. (see [below for nested schema](#nestedatt--vars_annotations))
-- `vna` (Attributes) (see [below for nested schema](#nestedatt--vna))
+- `tunterm_monitoring` (Attributes List) Tunnel termination monitoring settings for the site (see [below for nested schema](#nestedatt--tunterm_monitoring))
+- `tunterm_monitoring_disabled` (Boolean) Whether tunnel termination monitoring is disabled for the site
+- `tunterm_multicast_config` (Attributes) Multicast settings for tunnel termination at the site (see [below for nested schema](#nestedatt--tunterm_multicast_config))
+- `uplink_port_config` (Attributes) AP uplink port configuration for the site (see [below for nested schema](#nestedatt--uplink_port_config))
+- `vars` (Map of String) Template variables defined for the site
+- `vars_annotations` (Attributes Map) Metadata annotations for site template variables (see [below for nested schema](#nestedatt--vars_annotations))
+- `vna` (Attributes) Virtual Network Assistant settings for the site (see [below for nested schema](#nestedatt--vna))
 - `vpn_path_updown_threshold` (Number) enable threshold-based vpn path down delivery.
 - `vpn_peer_updown_threshold` (Number) enable threshold-based vpn peer down delivery.
-- `vs_instance` (Attributes Map) Optional, for EX9200 only to segregate virtual-switches. Property key is the instance name (see [below for nested schema](#nestedatt--vs_instance))
-- `wan_vna` (Attributes) (see [below for nested schema](#nestedatt--wan_vna))
-- `wids` (Attributes) WIDS site settings (see [below for nested schema](#nestedatt--wids))
-- `wifi` (Attributes) Wi-Fi site settings (see [below for nested schema](#nestedatt--wifi))
-- `wired_vna` (Attributes) (see [below for nested schema](#nestedatt--wired_vna))
-- `zone_occupancy_alert` (Attributes) Zone Occupancy alert site settings (see [below for nested schema](#nestedatt--zone_occupancy_alert))
+- `vs_instance` (Attributes Map) EX9200 virtual switch instance definitions for the site (see [below for nested schema](#nestedatt--vs_instance))
+- `wan_vna` (Attributes) Virtual Network Assistant settings for WAN experiences at the site (see [below for nested schema](#nestedatt--wan_vna))
+- `wids` (Attributes) Wireless intrusion detection settings for the site (see [below for nested schema](#nestedatt--wids))
+- `wifi` (Attributes) Wireless LAN configuration settings for the site (see [below for nested schema](#nestedatt--wifi))
+- `wired_vna` (Attributes) Virtual Network Assistant settings for wired experiences at the site (see [below for nested schema](#nestedatt--wired_vna))
+- `zone_occupancy_alert` (Attributes) Occupancy alert settings for site zones (see [below for nested schema](#nestedatt--zone_occupancy_alert))
 
 ### Read-Only
 
-- `blacklist_url` (String)
-- `watched_station_url` (String)
-- `whitelist_url` (String)
+- `blacklist_url` (String) Read-only URL for the site blacklist file
+- `watched_station_url` (String) Read-only URL for the watched station list file
+- `whitelist_url` (String) Read-only URL for the site whitelist file
 
 <a id="nestedatt--analytic"></a>
 ### Nested Schema for `analytic`
@@ -123,7 +128,7 @@ Optional:
 
 Optional:
 
-- `additional_vlan_ids` (List of String) List or Comma separated list of additional VLAN IDs (on the LAN side or from other WLANs) should we be forwarding bonjour queries/responses
+- `additional_vlan_ids` (List of String) VLAN IDs included in addition to the default VLAN set for AP synthetic tests
 
 
 <a id="nestedatt--auto_upgrade"></a>
@@ -131,11 +136,11 @@ Optional:
 
 Optional:
 
-- `custom_versions` (Map of String) Custom versions for different models. Property key is the model name (e.g. "AP41")
-- `day_of_week` (String) enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`
+- `custom_versions` (Map of String) Per-AP-model firmware versions or channels used for auto-upgrade
+- `day_of_week` (String) Weekly AP auto-upgrade day for the maintenance window
 - `enabled` (Boolean) Whether auto upgrade should happen (Note that Mist may auto-upgrade if the version is not supported)
 - `time_of_day` (String) `any` / HH:MM (24-hour format), upgrade will happen within up to 1-hour from this time
-- `version` (String) desired version. enum: `beta`, `custom`, `stable`
+- `version` (String) Firmware release channel or custom version used for AP auto-upgrade
 
 
 <a id="nestedatt--auto_upgrade_esl"></a>
@@ -145,10 +150,10 @@ Optional:
 
 - `allow_downgrade` (Boolean) If true, it will allow downgrade to a lower version
 - `custom_versions` (Map of String) Custom versions for different models. Property key is the model name (e.g. "AP41")
-- `day_of_week` (String) enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`
+- `day_of_week` (String) Weekly ESL auto-upgrade day for the maintenance window
 - `enabled` (Boolean) Whether auto upgrade should happen (Note that Mist may auto-upgrade if the version is not supported)
 - `time_of_day` (String) `any` / HH:MM (24-hour format), upgrade will happen within up to 1-hour from this time
-- `version` (String)
+- `version` (String) ESL firmware version used for auto-upgrade
 
 
 <a id="nestedatt--ble_config"></a>
@@ -158,31 +163,31 @@ Optional:
 
 - `beacon_enabled` (Boolean) Whether Mist beacons is enabled
 - `beacon_rate` (Number) Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second
-- `beacon_rate_mode` (String) enum: `custom`, `default`
-- `beam_disabled` (List of Number) List of AP BLE location beam numbers (1-8) which should be disabled at the AP and not transmit location information (where beam 1 is oriented at the top the AP, growing counter-clock-wise, with 9 being the omni BLE beam)
+- `beacon_rate_mode` (String) Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate
+- `beam_disabled` (List of Number) AP BLE beam numbers disabled for location advertisements
 - `custom_ble_packet_enabled` (Boolean) Can be enabled if `beacon_enabled`==`true`, whether to send custom packet
 - `custom_ble_packet_frame` (String) The custom frame to be sent out in this beacon. The frame must be a hexstring
 - `custom_ble_packet_freq_msec` (Number) Frequency (msec) of data emitted by custom ble beacon
 - `eddystone_uid_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
-- `eddystone_uid_beams` (String)
+- `eddystone_uid_beams` (String) BLE beams used to transmit Eddystone-UID advertisements, expressed as ranges such as `2-4,7`
 - `eddystone_uid_enabled` (Boolean) Only if `beacon_enabled`==`false`, Whether Eddystone-UID beacon is enabled
 - `eddystone_uid_freq_msec` (Number) Frequency (msec) of data emit by Eddystone-UID beacon
 - `eddystone_uid_instance` (String) Eddystone-UID instance for the device
-- `eddystone_uid_namespace` (String) Eddystone-UID namespace
+- `eddystone_uid_namespace` (String) Eddystone-UID namespace broadcast by the AP, as a 10-byte hex string
 - `eddystone_url_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
-- `eddystone_url_beams` (String)
+- `eddystone_url_beams` (String) BLE beams used to transmit Eddystone-URL advertisements, expressed as ranges such as `2-4,7`
 - `eddystone_url_enabled` (Boolean) Only if `beacon_enabled`==`false`, Whether Eddystone-URL beacon is enabled
-- `eddystone_url_freq_msec` (Number) Frequency (msec) of data emit by Eddystone-UID beacon
+- `eddystone_url_freq_msec` (Number) Frequency (msec) of data emitted by Eddystone-URL beacon
 - `eddystone_url_url` (String) URL pointed by Eddystone-URL beacon
 - `ibeacon_adv_power` (Number) Advertised TX Power, -100 to 20 (dBm), omit this attribute to use default
-- `ibeacon_beams` (String)
+- `ibeacon_beams` (String) BLE beams used to transmit iBeacon advertisements, expressed as ranges such as `2-4,7`
 - `ibeacon_enabled` (Boolean) Can be enabled if `beacon_enabled`==`true`, whether to send iBeacon
 - `ibeacon_freq_msec` (Number) Frequency (msec) of data emit for iBeacon
-- `ibeacon_major` (Number) Major number for iBeacon
-- `ibeacon_minor` (Number) Minor number for iBeacon
+- `ibeacon_major` (Number) iBeacon major value broadcast by the AP
+- `ibeacon_minor` (Number) iBeacon minor value broadcast by the AP
 - `ibeacon_uuid` (String) Optional, if not specified, the same UUID as the beacon will be used
 - `power` (Number) Required if `power_mode`==`custom`; else use `power_mode` as default
-- `power_mode` (String) enum: `custom`, `default`
+- `power_mode` (String) Transmit power mode for BLE beacons; use custom to set `power`
 
 
 <a id="nestedatt--config_push_policy"></a>
@@ -191,28 +196,28 @@ Optional:
 Optional:
 
 - `no_push` (Boolean) Stop any new config from being pushed to the device
-- `push_window` (Attributes) If enabled, new config will only be pushed to device within the specified time window (see [below for nested schema](#nestedatt--config_push_policy--push_window))
+- `push_window` (Attributes) Allowed time window during which configuration pushes may run (see [below for nested schema](#nestedatt--config_push_policy--push_window))
 
 <a id="nestedatt--config_push_policy--push_window"></a>
 ### Nested Schema for `config_push_policy.push_window`
 
 Optional:
 
-- `enabled` (Boolean)
-- `hours` (Attributes) Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun) (see [below for nested schema](#nestedatt--config_push_policy--push_window--hours))
+- `enabled` (Boolean) Whether configuration pushes are limited to the configured push window
+- `hours` (Attributes) Day-of-week hour ranges when configuration pushes are allowed (see [below for nested schema](#nestedatt--config_push_policy--push_window--hours))
 
 <a id="nestedatt--config_push_policy--push_window--hours"></a>
 ### Nested Schema for `config_push_policy.push_window.hours`
 
 Optional:
 
-- `fri` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
-- `mon` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
-- `sat` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
-- `sun` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
-- `thu` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
-- `tue` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
-- `wed` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+- `fri` (String) Operating hour range for Friday
+- `mon` (String) Operating hour range for Monday
+- `sat` (String) Operating hour range for Saturday
+- `sun` (String) Operating hour range for Sunday
+- `thu` (String) Operating hour range for Thursday
+- `tue` (String) Operating hour range for Tuesday
+- `wed` (String) Operating hour range for Wednesday
 
 
 
@@ -222,16 +227,16 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
-- `monitors` (Attributes List) (see [below for nested schema](#nestedatt--critical_url_monitoring--monitors))
+- `enabled` (Boolean) Whether critical URL monitoring is enabled
+- `monitors` (Attributes List) Critical URLs monitored for site health latency (see [below for nested schema](#nestedatt--critical_url_monitoring--monitors))
 
 <a id="nestedatt--critical_url_monitoring--monitors"></a>
 ### Nested Schema for `critical_url_monitoring.monitors`
 
 Optional:
 
-- `url` (String)
-- `vlan_id` (String)
+- `url` (String) Monitored HTTP or HTTPS URL used for site health latency
+- `vlan_id` (String) Source VLAN ID used to run the critical URL monitor
 
 
 
@@ -240,11 +245,11 @@ Optional:
 
 Optional:
 
-- `dwell_tag_names` (Attributes) Name associated to each tag (see [below for nested schema](#nestedatt--engagement--dwell_tag_names))
-- `dwell_tags` (Attributes) add tags to visits within the duration (in seconds) (see [below for nested schema](#nestedatt--engagement--dwell_tags))
-- `hours` (Attributes) Days/Hours of operation filter, the available days (mon, tue, wed, thu, fri, sat, sun) (see [below for nested schema](#nestedatt--engagement--hours))
-- `max_dwell` (Number) Max time, default is 43200(12h), max is 68400 (18h)
-- `min_dwell` (Number) min time
+- `dwell_tag_names` (Attributes) Display labels for dwell-time visit categories (see [below for nested schema](#nestedatt--engagement--dwell_tag_names))
+- `dwell_tags` (Attributes) Visit duration ranges used to assign engagement categories (see [below for nested schema](#nestedatt--engagement--dwell_tags))
+- `hours` (Attributes) Schedule during which engagement analytics rules apply (see [below for nested schema](#nestedatt--engagement--hours))
+- `max_dwell` (Number) Maximum dwell time in seconds considered by engagement analytics
+- `min_dwell` (Number) Minimum dwell time in seconds for engagement analytics
 
 <a id="nestedatt--engagement--dwell_tag_names"></a>
 ### Nested Schema for `engagement.dwell_tag_names`
@@ -273,13 +278,13 @@ Optional:
 
 Optional:
 
-- `fri` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
-- `mon` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
-- `sat` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
-- `sun` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
-- `thu` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
-- `tue` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
-- `wed` (String) Hour range of the day (e.g. `09:00-17:00`). If the hour is not defined then it's treated as 00:00-23:59.
+- `fri` (String) Operating hour range for Friday
+- `mon` (String) Operating hour range for Monday
+- `sat` (String) Operating hour range for Saturday
+- `sun` (String) Operating hour range for Sunday
+- `thu` (String) Operating hour range for Thursday
+- `tue` (String) Operating hour range for Tuesday
+- `wed` (String) Operating hour range for Wednesday
 
 
 
@@ -288,32 +293,30 @@ Optional:
 
 Optional:
 
-- `admin_sshkeys` (List of String) For SSR only, as direct root access is not allowed
-- `app_probing` (Attributes) (see [below for nested schema](#nestedatt--gateway_mgmt--app_probing))
+- `admin_sshkeys` (List of String) SSR-only SSH public keys for administrative access
+- `app_probing` (Attributes) Application probing configuration for gateway monitoring (see [below for nested schema](#nestedatt--gateway_mgmt--app_probing))
 - `app_usage` (Boolean) Consumes uplink bandwidth, requires WA license
-- `auto_signature_update` (Attributes) (see [below for nested schema](#nestedatt--gateway_mgmt--auto_signature_update))
+- `auto_signature_update` (Attributes) Schedule for automatic security signature updates (see [below for nested schema](#nestedatt--gateway_mgmt--auto_signature_update))
 - `config_revert_timer` (Number) Rollback timer for commit confirmed
 - `disable_console` (Boolean) For SSR and SRX, disable console port
 - `disable_oob` (Boolean) For SSR and SRX, disable management interface
 - `disable_usb` (Boolean) For SSR and SRX, disable usb interface
-- `fips_enabled` (Boolean)
-- `probe_hosts` (List of String)
-- `probe_hostsv6` (List of String)
-- `protect_re` (Attributes) Restrict inbound-traffic to host
-when enabled, all traffic that is not essential to our operation will be dropped 
-e.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works (see [below for nested schema](#nestedatt--gateway_mgmt--protect_re))
-- `root_password` (String, Sensitive) SRX only
-- `security_log_source_address` (String)
-- `security_log_source_interface` (String)
+- `fips_enabled` (Boolean) Whether FIPS mode is enabled on the gateway
+- `probe_hosts` (List of String) IPv4 probe targets used for gateway connectivity checks
+- `probe_hostsv6` (List of String) IPv6 probe targets used for gateway connectivity checks
+- `protect_re` (Attributes) Control-plane protection settings for the gateway (see [below for nested schema](#nestedatt--gateway_mgmt--protect_re))
+- `root_password` (String, Sensitive) SRX only. Root password for local gateway access
+- `security_log_source_address` (String) IPv4 source address used for gateway security log traffic
+- `security_log_source_interface` (String) Source interface used for gateway security log traffic
 
 <a id="nestedatt--gateway_mgmt--app_probing"></a>
 ### Nested Schema for `gateway_mgmt.app_probing`
 
 Optional:
 
-- `apps` (List of String) App-keys from [List Applications]($e/Constants%20Definitions/listApplications)
-- `custom_apps` (Attributes List) (see [below for nested schema](#nestedatt--gateway_mgmt--app_probing--custom_apps))
-- `enabled` (Boolean)
+- `apps` (List of String) Predefined application keys to probe
+- `custom_apps` (Attributes List) User-defined application probe definitions (see [below for nested schema](#nestedatt--gateway_mgmt--app_probing--custom_apps))
+- `enabled` (Boolean) Whether gateway application probing is enabled
 
 <a id="nestedatt--gateway_mgmt--app_probing--custom_apps"></a>
 ### Nested Schema for `gateway_mgmt.app_probing.custom_apps`
@@ -323,20 +326,20 @@ Required:
 - `hostnames` (List of String) Only 1 entry is allowed:
     * if `protocol`==`http`: URL (e.g. `http://test.com` or `https://test.com`)
     * if `protocol`==`icmp`: IP Address (e.g. `1.2.3.4`)
-- `name` (String)
-- `protocol` (String) enum: `http`, `icmp`
+- `name` (String) Display name for this custom application probe
+- `protocol` (String) Probe protocol used by this custom application definition
 
 Optional:
 
-- `app_type` (String)
-- `network` (String)
-- `packet_size` (Number) If `protocol`==`icmp`
-- `vrf` (String)
+- `app_type` (String) Category label used for this custom application probe
+- `network` (String) Gateway network used as the source context for this probe
+- `packet_size` (Number) If `protocol`==`icmp`. ICMP packet size used by this custom app probe
+- `vrf` (String) Gateway VRF used as the source context for this probe
 
 Read-Only:
 
 - `address` (String)
-- `key` (String)
+- `key` (String) Stable key used to identify this custom application probe
 - `url` (String)
 
 
@@ -346,8 +349,8 @@ Read-Only:
 
 Optional:
 
-- `day_of_week` (String) enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`
-- `enable` (Boolean)
+- `day_of_week` (String) Scheduled weekday for automatic signature updates
+- `enable` (Boolean) Whether automatic security signature updates are enabled
 - `time_of_day` (String) Optional, Mist will decide the timing
 
 
@@ -357,19 +360,19 @@ Optional:
 Optional:
 
 - `allowed_services` (List of String) optionally, services we'll allow. enum: `icmp`, `ssh`
-- `custom` (Attributes List) (see [below for nested schema](#nestedatt--gateway_mgmt--protect_re--custom))
+- `custom` (Attributes List) Additional ACL entries allowed by the Protect RE policy (see [below for nested schema](#nestedatt--gateway_mgmt--protect_re--custom))
 - `enabled` (Boolean) When enabled, all traffic that is not essential to our operation will be dropped
 e.g. ntp / dns / traffic to mist will be allowed by default
      if dhcpd is enabled, we'll make sure it works
 - `hit_count` (Boolean) Whether to enable hit count for Protect_RE policy
-- `trusted_hosts` (List of String) host/subnets we'll allow traffic to/from
+- `trusted_hosts` (List of String) Trusted host or subnet entries allowed by the Protect RE policy
 
 <a id="nestedatt--gateway_mgmt--protect_re--custom"></a>
 ### Nested Schema for `gateway_mgmt.protect_re.custom`
 
 Required:
 
-- `subnets` (List of String)
+- `subnets` (List of String) Source subnets matched by this custom Protect RE ACL
 
 Optional:
 
@@ -384,8 +387,8 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
-- `visionline` (Attributes) Visionline integration settings for IoT proxy (see [below for nested schema](#nestedatt--iotproxy--visionline))
+- `enabled` (Boolean) Whether the site IoT proxy is enabled
+- `visionline` (Attributes) Site access-control integration settings for Visionline (see [below for nested schema](#nestedatt--iotproxy--visionline))
 
 <a id="nestedatt--iotproxy--visionline"></a>
 ### Nested Schema for `iotproxy.visionline`
@@ -393,11 +396,12 @@ Optional:
 Optional:
 
 - `access_id` (String) Access ID for the Visionline service
-- `enabled` (Boolean)
-- `host` (String) Hostname or IP of the Visionline collector
-- `password` (String, Sensitive) Password for the Visionline service
+- `cacerts` (List of String) PEM-encoded CA certificates used to verify the Visionline collector's TLS certificate. Required when the collector uses a self-signed certificate
+- `enabled` (Boolean) Whether the Visionline integration is enabled
+- `host` (String) Collector hostname or IP address for Visionline
+- `password` (String, Sensitive) Visionline service password used by the IoT proxy
 - `port` (Number) TCP port of the Visionline collector
-- `username` (String) Username for the Visionline service
+- `username` (String) Visionline service username used by the IoT proxy
 
 
 
@@ -406,18 +410,18 @@ Optional:
 
 Optional:
 
-- `auto_upgrade` (Attributes) auto_upgrade device first time it is onboarded (see [below for nested schema](#nestedatt--juniper_srx--auto_upgrade))
-- `gateways` (Attributes List) (see [below for nested schema](#nestedatt--juniper_srx--gateways))
-- `send_mist_nac_user_info` (Boolean)
+- `auto_upgrade` (Attributes) SRX auto-upgrade settings applied when SRX devices are onboarded (see [below for nested schema](#nestedatt--juniper_srx--auto_upgrade))
+- `gateways` (Attributes List) SRX gateways integrated with this site (see [below for nested schema](#nestedatt--juniper_srx--gateways))
+- `send_mist_nac_user_info` (Boolean) Whether Mist NAC user information is sent to Juniper SRX gateways
 
 <a id="nestedatt--juniper_srx--auto_upgrade"></a>
 ### Nested Schema for `juniper_srx.auto_upgrade`
 
 Optional:
 
-- `custom_versions` (Map of String) Property key is the SRX Hardware model (e.g. "SRX4600")
-- `enabled` (Boolean)
-- `snapshot` (Boolean)
+- `custom_versions` (Map of String) Per-SRX-model firmware versions to deploy instead of the default version
+- `enabled` (Boolean) Whether SRX auto-upgrade is enabled for newly onboarded devices
+- `snapshot` (Boolean) Whether to take a snapshot during the SRX upgrade process
 - `version` (String) Firmware version to deploy (e.g. 23.4R2-S5.5). Optional, used when custom_versions not specified
 
 
@@ -426,9 +430,9 @@ Optional:
 
 Optional:
 
-- `api_key` (String)
-- `api_password` (String)
-- `api_url` (String)
+- `api_key` (String) Authentication key used to access the Juniper SRX gateway API
+- `api_password` (String) Authentication password used to access the Juniper SRX gateway API
+- `api_url` (String) Base URL for the Juniper SRX gateway API
 
 
 
@@ -437,8 +441,8 @@ Optional:
 
 Optional:
 
-- `brightness` (Number)
-- `enabled` (Boolean)
+- `brightness` (Number) Indicator LED brightness level from 0 to 255
+- `enabled` (Boolean) Whether the AP indicator LED is enabled
 
 
 <a id="nestedatt--marvis"></a>
@@ -446,22 +450,146 @@ Optional:
 
 Optional:
 
-- `auto_operations` (Attributes) (see [below for nested schema](#nestedatt--marvis--auto_operations))
+- `auto_operations` (Attributes) Automatic remediation operations controlled by Marvis (see [below for nested schema](#nestedatt--marvis--auto_operations))
 
 <a id="nestedatt--marvis--auto_operations"></a>
 ### Nested Schema for `marvis.auto_operations`
 
 Optional:
 
-- `ap_insufficient_capacity` (Boolean)
-- `ap_loop` (Boolean)
-- `ap_non_compliant` (Boolean)
-- `bounce_port_for_abnormal_poe_client` (Boolean)
-- `disable_port_when_ddos_protocol_violation` (Boolean)
-- `disable_port_when_rogue_dhcp_server_detected` (Boolean)
-- `gateway_non_compliant` (Boolean)
-- `switch_misconfigured_port` (Boolean)
-- `switch_port_stuck` (Boolean)
+- `ap_insufficient_capacity` (Boolean) Whether Marvis may remediate AP insufficient-capacity issues automatically
+- `ap_loop` (Boolean) Whether Marvis may remediate AP loop issues automatically
+- `ap_non_compliant` (Boolean) Whether Marvis may remediate AP non-compliance automatically
+- `bounce_port_for_abnormal_poe_client` (Boolean) Whether Marvis may bounce switch ports for abnormal PoE clients
+- `disable_port_when_ddos_protocol_violation` (Boolean) Whether Marvis may disable a port when DDOS protocol violations are detected
+- `disable_port_when_rogue_dhcp_server_detected` (Boolean) Whether Marvis may disable a port when a rogue DHCP server is detected
+- `gateway_non_compliant` (Boolean) Whether Marvis may remediate non-compliant gateways automatically
+- `switch_misconfigured_port` (Boolean) Whether Marvis may remediate misconfigured switch ports automatically
+- `switch_port_stuck` (Boolean) Whether Marvis may remediate stuck switch ports automatically
+
+
+
+<a id="nestedatt--mxedge_mgmt"></a>
+### Nested Schema for `mxedge_mgmt`
+
+Optional:
+
+- `config_auto_revert` (Boolean) Whether the Mist Edge automatically reverts configuration changes if connectivity is lost
+- `fips_enabled` (Boolean) Whether FIPS mode is enabled on the Mist Edge
+- `mist_password` (String, Sensitive) Password for the Mist service account on the Mist Edge
+- `oob_ip_type` (String) IPv4 address assignment mode for out-of-band management
+- `oob_ip_type6` (String) IPv6 address assignment mode for out-of-band management
+- `root_password` (String, Sensitive) Root account password for the Mist Edge
+
+
+<a id="nestedatt--mxtunnels"></a>
+### Nested Schema for `mxtunnels`
+
+Optional:
+
+- `additional_mxtunnels` (Attributes Map) Additional named Mist Tunnel definitions configured for the site (see [below for nested schema](#nestedatt--mxtunnels--additional_mxtunnels))
+- `ap_subnets` (List of String) AP source subnets allowed to establish Mist Tunnels
+- `auto_preemption` (Attributes) Preemption behavior for restoring preferred tunnel peers after failover (see [below for nested schema](#nestedatt--mxtunnels--auto_preemption))
+- `clusters` (Attributes List) Tunnel peer clusters used by APs for this site Mist Tunnel (see [below for nested schema](#nestedatt--mxtunnels--clusters))
+- `created_time` (Number) Timestamp when the site Mist Tunnel configuration was created
+- `enabled` (Boolean) Whether site Mist Tunnel tunneling is enabled
+- `for_site` (Boolean) Whether this Mist Tunnel configuration is scoped to a site
+- `hello_interval` (Number) In seconds, used as heartbeat to detect if a tunnel is alive. AP will try another peer after missing N hellos specified by hello_retries
+- `hello_retries` (Number) Number of missed hello heartbeats before an AP tries another tunnel peer
+- `hosts` (List of String) Tunnel peer hostnames or IP addresses reachable from APs
+- `id` (String) Unique value identifying the site Mist Tunnel configuration
+- `modified_time` (Number) Timestamp when the site Mist Tunnel configuration was last modified
+- `mtu` (Number) 0 to enable MTU, 552-1500 to start MTU with a lower MTU
+- `org_id` (String) Identifier of the org that owns the site Mist Tunnel configuration
+- `protocol` (String) Encapsulation protocol used for the site Mist Tunnel
+- `radsec` (Attributes) TLS-secured RADIUS proxy settings for the site Mist Tunnel (see [below for nested schema](#nestedatt--mxtunnels--radsec))
+- `site_id` (String) Identifier of the site that owns this Mist Tunnel configuration
+- `vlan_ids` (List of Number) List of VLAN IDs carried by this site Mist Tunnel
+
+<a id="nestedatt--mxtunnels--additional_mxtunnels"></a>
+### Nested Schema for `mxtunnels.additional_mxtunnels`
+
+Optional:
+
+- `hello_interval` (Number) In seconds, used as heartbeat to detect if a tunnel is alive. AP will try another peer after missing N hellos specified by hello_retries
+- `hello_retries` (Number) Number of missed hello heartbeats before an AP tries another tunnel peer
+- `protocol` (String) Encapsulation protocol used for this additional Mist Tunnel
+- `tunterm_clusters` (Attributes List) Tunnel peer clusters used by APs for this additional Mist Tunnel (see [below for nested schema](#nestedatt--mxtunnels--additional_mxtunnels--tunterm_clusters))
+- `vlan_ids` (List of Number) List of VLAN IDs carried by this additional Mist Tunnel
+
+<a id="nestedatt--mxtunnels--additional_mxtunnels--tunterm_clusters"></a>
+### Nested Schema for `mxtunnels.additional_mxtunnels.tunterm_clusters`
+
+Optional:
+
+- `name` (String) Peer cluster name used in the site Mist Tunnel configuration
+- `tunterm_hosts` (List of String) Tunnel termination hostnames or IP addresses in this peer cluster
+
+
+
+<a id="nestedatt--mxtunnels--auto_preemption"></a>
+### Nested Schema for `mxtunnels.auto_preemption`
+
+Optional:
+
+- `day_of_week` (String) Scheduled weekday for auto preemption
+- `enabled` (Boolean) Whether auto preemption is enabled
+- `time_of_day` (String) Scheduled time of day for auto preemption
+
+
+<a id="nestedatt--mxtunnels--clusters"></a>
+### Nested Schema for `mxtunnels.clusters`
+
+Optional:
+
+- `name` (String) Peer cluster name used in the site Mist Tunnel configuration
+- `tunterm_hosts` (List of String) Tunnel termination hostnames or IP addresses in this peer cluster
+
+
+<a id="nestedatt--mxtunnels--radsec"></a>
+### Nested Schema for `mxtunnels.radsec`
+
+Optional:
+
+- `acct_servers` (Attributes List) RADIUS accounting servers used by the site Mist Tunnel RadSec proxy (see [below for nested schema](#nestedatt--mxtunnels--radsec--acct_servers))
+- `auth_servers` (Attributes List) RADIUS authentication servers used by the site Mist Tunnel RadSec proxy (see [below for nested schema](#nestedatt--mxtunnels--radsec--auth_servers))
+- `enabled` (Boolean) Whether RadSec proxying is enabled for this site Mist Tunnel
+- `use_mxedge` (Boolean) Whether RadSec proxying uses Mist Edge
+
+<a id="nestedatt--mxtunnels--radsec--acct_servers"></a>
+### Nested Schema for `mxtunnels.radsec.acct_servers`
+
+Required:
+
+- `host` (String) Address or hostname of the RADIUS accounting server
+- `secret` (String, Sensitive) Shared secret used with this RADIUS accounting server
+
+Optional:
+
+- `keywrap_enabled` (Boolean) Whether RADIUS keywrap is enabled for messages sent to this accounting server
+- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values
+- `keywrap_kek` (String) RADIUS keywrap key encryption key (KEK)
+- `keywrap_mack` (String) RADIUS keywrap message authentication code key (MACK)
+- `port` (String) UDP port used by the RADIUS accounting server
+
+
+<a id="nestedatt--mxtunnels--radsec--auth_servers"></a>
+### Nested Schema for `mxtunnels.radsec.auth_servers`
+
+Required:
+
+- `host` (String) Address or hostname of the RADIUS authentication server
+- `secret` (String, Sensitive) Shared secret used with this RADIUS authentication server
+
+Optional:
+
+- `keywrap_enabled` (Boolean) Whether RADIUS keywrap is enabled for messages sent to this authentication server
+- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values
+- `keywrap_kek` (String) RADIUS keywrap key encryption key (KEK)
+- `keywrap_mack` (String) RADIUS keywrap message authentication code key (MACK)
+- `port` (String) UDP port used by the RADIUS authentication server
+- `require_message_authenticator` (Boolean) Whether to require Message-Authenticator in requests
+
 
 
 
@@ -472,7 +600,7 @@ Optional:
 
 - `assets_enabled` (Boolean) Indicate whether named BLE assets should be included in the zone occupancy calculation
 - `clients_enabled` (Boolean) Indicate whether connected Wi-Fi clients should be included in the zone occupancy calculation
-- `min_duration` (Number) Minimum duration
+- `min_duration` (Number) Minimum dwell duration before a client or asset is counted in occupancy analytics
 - `sdkclients_enabled` (Boolean) Indicate whether SDK clients should be included in the zone occupancy calculation
 - `unconnected_clients_enabled` (Boolean) Indicate whether unconnected Wi-Fi clients should be included in the zone occupancy calculation
 
@@ -482,8 +610,8 @@ Optional:
 
 Optional:
 
-- `disabled` (Boolean)
-- `url` (String)
+- `disabled` (Boolean) Whether this proxy configuration is disabled
+- `url` (String) Proxy URL used to reach Mist
 
 
 <a id="nestedatt--rogue"></a>
@@ -491,15 +619,15 @@ Optional:
 
 Optional:
 
-- `allowed_vlan_ids` (List of Number) list of VLAN IDs on which rogue APs are ignored
+- `allowed_vlan_ids` (List of Number) VLAN IDs allowed by the rogue detection policy
 - `enabled` (Boolean) Whether rogue detection is enabled
 - `honeypot_enabled` (Boolean) Whether honeypot detection is enabled
 - `min_duration` (Number) Minimum duration for a bssid to be considered neighbor
 - `min_rogue_duration` (Number) Minimum duration for a bssid to be considered rogue
 - `min_rogue_rssi` (Number) Minimum RSSI for an AP to be considered rogue
 - `min_rssi` (Number) Minimum RSSI for an AP to be considered neighbor (ignoring APs that’s far away)
-- `whitelisted_bssids` (List of String) list of BSSIDs to whitelist. Ex: "cc-:8e-:6f-:d4-:bf-:16", "cc-8e-6f-d4-bf-16", "cc-73-*", "cc:82:*"
-- `whitelisted_ssids` (List of String) List of SSIDs to whitelist
+- `whitelisted_bssids` (List of String) BSSID values or wildcard patterns excluded from rogue detection
+- `whitelisted_ssids` (List of String) SSID names excluded from rogue detection
 
 
 <a id="nestedatt--rtsa"></a>
@@ -507,11 +635,11 @@ Optional:
 
 Optional:
 
-- `app_waking` (Boolean)
-- `disable_dead_reckoning` (Boolean)
-- `disable_pressure_sensor` (Boolean)
-- `enabled` (Boolean)
-- `track_asset` (Boolean) Asset tracking related
+- `app_waking` (Boolean) Whether app wake-up support is enabled for managed mobility
+- `disable_dead_reckoning` (Boolean) Whether dead reckoning is disabled for managed mobility
+- `disable_pressure_sensor` (Boolean) Whether pressure sensor use is disabled for managed mobility
+- `enabled` (Boolean) Whether managed mobility features are enabled
+- `track_asset` (Boolean) Whether BLE asset tracking is enabled for managed mobility
 
 
 <a id="nestedatt--simple_alert"></a>
@@ -519,18 +647,18 @@ Optional:
 
 Optional:
 
-- `arp_failure` (Attributes) (see [below for nested schema](#nestedatt--simple_alert--arp_failure))
-- `dhcp_failure` (Attributes) (see [below for nested schema](#nestedatt--simple_alert--dhcp_failure))
-- `dns_failure` (Attributes) (see [below for nested schema](#nestedatt--simple_alert--dns_failure))
+- `arp_failure` (Attributes) Thresholds for ARP failure heuristic alerts (see [below for nested schema](#nestedatt--simple_alert--arp_failure))
+- `dhcp_failure` (Attributes) Thresholds for DHCP failure heuristic alerts (see [below for nested schema](#nestedatt--simple_alert--dhcp_failure))
+- `dns_failure` (Attributes) Thresholds for DNS failure heuristic alerts (see [below for nested schema](#nestedatt--simple_alert--dns_failure))
 
 <a id="nestedatt--simple_alert--arp_failure"></a>
 ### Nested Schema for `simple_alert.arp_failure`
 
 Optional:
 
-- `client_count` (Number)
-- `duration` (Number) failing within minutes
-- `incident_count` (Number)
+- `client_count` (Number) Number of distinct clients that must encounter ARP failures before alerting
+- `duration` (Number) Time window in minutes for evaluating ARP failures
+- `incident_count` (Number) Number of ARP failure incidents required within the duration window
 
 
 <a id="nestedatt--simple_alert--dhcp_failure"></a>
@@ -538,9 +666,9 @@ Optional:
 
 Optional:
 
-- `client_count` (Number)
-- `duration` (Number) failing within minutes
-- `incident_count` (Number)
+- `client_count` (Number) Number of distinct clients that must encounter DHCP failures before alerting
+- `duration` (Number) Time window in minutes for evaluating DHCP failures
+- `incident_count` (Number) Number of DHCP failure incidents required within the duration window
 
 
 <a id="nestedatt--simple_alert--dns_failure"></a>
@@ -548,9 +676,9 @@ Optional:
 
 Optional:
 
-- `client_count` (Number)
-- `duration` (Number) failing within minutes
-- `incident_count` (Number)
+- `client_count` (Number) Number of distinct clients that must encounter DNS failures before alerting
+- `duration` (Number) Time window in minutes for evaluating DNS failures
+- `incident_count` (Number) Number of DNS failure incidents required within the duration window
 
 
 
@@ -559,8 +687,8 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
-- `send_ip_mac_mapping` (Boolean) Whether to send IP-MAC mapping to SkyATP
+- `enabled` (Boolean) Whether Sky ATP is enabled for the site
+- `send_ip_mac_mapping` (Boolean) Whether IP-to-MAC mappings are sent to Sky ATP
 
 
 <a id="nestedatt--sle_thresholds"></a>
@@ -568,9 +696,9 @@ Optional:
 
 Optional:
 
-- `capacity` (Number) Capacity, in %
-- `coverage` (Number) Coverage, in dBm
-- `throughput` (Number) Throughput, in Mbps
+- `capacity` (Number) Threshold percentage for capacity SLE scoring
+- `coverage` (Number) RSSI threshold for coverage SLE scoring, in dBm
+- `throughput` (Number) Minimum throughput threshold for SLE scoring, in Mbps
 - `timetoconnect` (Number) Time to connect, in seconds
 
 
@@ -579,7 +707,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
+- `enabled` (Boolean) Whether Juniper SRX application visibility is enabled
 
 
 <a id="nestedatt--ssr"></a>
@@ -587,20 +715,20 @@ Optional:
 
 Optional:
 
-- `auto_upgrade` (Attributes) auto_upgrade device first time it is onboarded (see [below for nested schema](#nestedatt--ssr--auto_upgrade))
-- `conductor_hosts` (List of String) List of Conductor IP Addresses or Hosts to be used by the SSR Devices
-- `conductor_token` (String, Sensitive) Token to be used by the SSR Devices to connect to the Conductor
-- `disable_stats` (Boolean) Disable stats collection on SSR devices
-- `proxy` (Attributes) SSR proxy configuration to talk to Mist (see [below for nested schema](#nestedatt--ssr--proxy))
+- `auto_upgrade` (Attributes) Automatic SSR firmware upgrade settings for newly onboarded devices (see [below for nested schema](#nestedatt--ssr--auto_upgrade))
+- `conductor_hosts` (List of String) IP addresses or hostnames of conductors used by SSR devices
+- `conductor_token` (String, Sensitive) Registration token used by SSR devices to connect to the conductor
+- `disable_stats` (Boolean) Whether stats collection is disabled on SSR devices
+- `proxy` (Attributes) Network proxy settings used by SSR devices to reach Mist (see [below for nested schema](#nestedatt--ssr--proxy))
 
 <a id="nestedatt--ssr--auto_upgrade"></a>
 ### Nested Schema for `ssr.auto_upgrade`
 
 Optional:
 
-- `channel` (String) upgrade channel to follow. enum: `alpha`, `beta`, `stable`
-- `custom_versions` (Map of String) Property key is the SSR model (e.g. "SSR130").
-- `enabled` (Boolean)
+- `channel` (String) Firmware release channel used for SSR auto-upgrade
+- `custom_versions` (Map of String) Per-model SSR firmware versions used for auto-upgrade
+- `enabled` (Boolean) Whether SSR auto-upgrade is enabled for newly onboarded devices
 - `version` (String) Firmware version to deploy (e.g. 6.3.0-107.r1). Optional, used when custom_versions not specified
 
 
@@ -609,8 +737,8 @@ Optional:
 
 Optional:
 
-- `disabled` (Boolean)
-- `url` (String)
+- `disabled` (Boolean) Whether the SSR proxy configuration is disabled
+- `url` (String) Proxy URL that SSR devices use to reach Mist
 
 
 
@@ -619,22 +747,22 @@ Optional:
 
 Optional:
 
-- `aggressiveness` (String) enum: `auto`, `high`, `low`
-- `custom_probes` (Attributes Map) Custom probes to be used for synthetic tests (see [below for nested schema](#nestedatt--synthetic_test--custom_probes))
-- `disabled` (Boolean)
-- `lan_networks` (Attributes List) List of networks to be used for synthetic tests (see [below for nested schema](#nestedatt--synthetic_test--lan_networks))
-- `vlans` (Attributes List, Deprecated) (see [below for nested schema](#nestedatt--synthetic_test--vlans))
-- `wan_speedtest` (Attributes) (see [below for nested schema](#nestedatt--synthetic_test--wan_speedtest))
+- `aggressiveness` (String) Overall aggressiveness level for synthetic test probes
+- `custom_probes` (Attributes Map) Custom synthetic probe definitions keyed by probe name (see [below for nested schema](#nestedatt--synthetic_test--custom_probes))
+- `disabled` (Boolean) Whether synthetic tests are disabled
+- `lan_networks` (Attributes List) LAN network probe groups used by synthetic tests (see [below for nested schema](#nestedatt--synthetic_test--lan_networks))
+- `vlans` (Attributes List, Deprecated) Deprecated VLAN-based synthetic test settings (see [below for nested schema](#nestedatt--synthetic_test--vlans))
+- `wan_speedtest` (Attributes) WAN speedtest settings for synthetic tests (see [below for nested schema](#nestedatt--synthetic_test--wan_speedtest))
 
 <a id="nestedatt--synthetic_test--custom_probes"></a>
 ### Nested Schema for `synthetic_test.custom_probes`
 
 Optional:
 
-- `aggressiveness` (String) enum: `auto`, `high`, `low`
+- `aggressiveness` (String) Probe aggressiveness level for this custom synthetic probe
 - `target` (String) Can be URL (e.g. http://x.com, https://x.com:8080/path/to/resource), IP address, or IP:port combination
-- `threshold` (Number) In milliseconds
-- `type` (String) enum: `application`, `curl`, `icmp`, `reachability`, `tcp`
+- `threshold` (Number) Response-time threshold for this custom probe, in milliseconds
+- `type` (String) Probe type used by this custom synthetic probe
 
 
 <a id="nestedatt--synthetic_test--lan_networks"></a>
@@ -642,8 +770,8 @@ Optional:
 
 Optional:
 
-- `networks` (List of String) List of networks to be used for synthetic tests
-- `probes` (List of String) app name comes from `custom_probes` above or /const/synthetic_test_probes
+- `networks` (List of String) LAN network names where synthetic probes are run
+- `probes` (List of String) Synthetic probe names to run on the listed LAN networks
 
 
 <a id="nestedatt--synthetic_test--vlans"></a>
@@ -651,10 +779,10 @@ Optional:
 
 Optional:
 
-- `custom_test_urls` (List of String, Deprecated)
+- `custom_test_urls` (List of String, Deprecated) Deprecated custom URLs tested by VLAN-based synthetic probes
 - `disabled` (Boolean) For some vlans where we don't want this to run
-- `probes` (List of String) app name comes from `custom_probes` above or /const/synthetic_test_probes
-- `vlan_ids` (List of String)
+- `probes` (List of String) Synthetic probe names to run for the listed VLANs
+- `vlan_ids` (List of String) VLAN identifiers where synthetic probes are run
 
 
 <a id="nestedatt--synthetic_test--wan_speedtest"></a>
@@ -662,8 +790,48 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
-- `time_of_day` (String) `any` / HH:MM (24-hour format)
+- `enabled` (Boolean) Whether scheduled WAN speedtests are enabled
+- `time_of_day` (String) Scheduled time of day for WAN speedtests
+
+
+
+<a id="nestedatt--tunterm_monitoring"></a>
+### Nested Schema for `tunterm_monitoring`
+
+Optional:
+
+- `host` (String) Can be ip, ipv6, hostname
+- `port` (Number) When `protocol`==`tcp`, TCP port checked by the monitoring probe
+- `protocol` (String) Monitoring method used for this tunnel termination check
+- `src_vlan_id` (Number) Optional source for the monitoring check, vlan_id configured in tunterm_other_ip_configs
+- `timeout` (Number) Maximum time for this monitoring check, in seconds
+
+
+<a id="nestedatt--tunterm_multicast_config"></a>
+### Nested Schema for `tunterm_multicast_config`
+
+Optional:
+
+- `mdns` (Attributes) Multicast DNS forwarding settings for tunneled VLANs (see [below for nested schema](#nestedatt--tunterm_multicast_config--mdns))
+- `multicast_all` (Boolean) Whether all multicast traffic is forwarded through tunnel termination
+- `ssdp` (Attributes) Simple Service Discovery Protocol forwarding settings for tunneled VLANs (see [below for nested schema](#nestedatt--tunterm_multicast_config--ssdp))
+
+<a id="nestedatt--tunterm_multicast_config--mdns"></a>
+### Nested Schema for `tunterm_multicast_config.mdns`
+
+Optional:
+
+- `enabled` (Boolean) Whether mDNS multicast forwarding is enabled
+- `vlan_ids` (List of Number) VLAN IDs where mDNS multicast forwarding is enabled
+
+
+<a id="nestedatt--tunterm_multicast_config--ssdp"></a>
+### Nested Schema for `tunterm_multicast_config.ssdp`
+
+Optional:
+
+- `enabled` (Boolean) Whether SSDP multicast forwarding is enabled
+- `vlan_ids` (List of Number) VLAN IDs where SSDP multicast forwarding is enabled
 
 
 
@@ -700,7 +868,7 @@ Optional:
 
 Optional:
 
-- `networks` (List of String)
+- `networks` (List of String) List of network names included in this virtual-switch instance
 
 
 <a id="nestedatt--wan_vna"></a>
@@ -708,7 +876,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
+- `enabled` (Boolean) Whether WAN VNA is enabled for the site
 
 
 <a id="nestedatt--wids"></a>
@@ -716,7 +884,7 @@ Optional:
 
 Optional:
 
-- `repeated_auth_failures` (Attributes) (see [below for nested schema](#nestedatt--wids--repeated_auth_failures))
+- `repeated_auth_failures` (Attributes) Detection settings for repeated authentication failures (see [below for nested schema](#nestedatt--wids--repeated_auth_failures))
 
 <a id="nestedatt--wids--repeated_auth_failures"></a>
 ### Nested Schema for `wids.repeated_auth_failures`
@@ -733,11 +901,11 @@ Optional:
 
 Optional:
 
-- `cisco_enabled` (Boolean)
+- `cisco_enabled` (Boolean) Whether Cisco compatibility features are enabled for site Wi-Fi
 - `disable_11k` (Boolean) Whether to disable 11k
-- `disable_radios_when_power_constrained` (Boolean)
+- `disable_radios_when_power_constrained` (Boolean) Whether AP radios are disabled when AP power is constrained
 - `enable_arp_spoof_check` (Boolean) When proxy_arp is enabled, check for arp spoofing.
-- `enable_shared_radio_scanning` (Boolean)
+- `enable_shared_radio_scanning` (Boolean) Whether shared radio scanning is enabled for site Wi-Fi
 - `enabled` (Boolean) Enable Wi-Fi feature (using SUB-MAN license)
 - `locate_connected` (Boolean) Whether to locate connected clients
 - `locate_unconnected` (Boolean) Whether to locate unconnected clients
@@ -746,7 +914,7 @@ Optional:
 - `mesh_enabled` (Boolean) Whether to enable Mesh feature for the site
 - `mesh_psk` (String, Sensitive) Optional passphrase of mesh networking, default is generated randomly
 - `mesh_ssid` (String) Optional ssid of mesh networking, default is based on site_id
-- `proxy_arp` (String) enum: `default`, `disabled`, `enabled`
+- `proxy_arp` (String) ARP proxy mode for site Wi-Fi
 
 
 <a id="nestedatt--wired_vna"></a>
@@ -754,7 +922,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean)
+- `enabled` (Boolean) Whether Wired VNA is enabled for the site
 
 
 <a id="nestedatt--zone_occupancy_alert"></a>
@@ -762,7 +930,7 @@ Optional:
 
 Optional:
 
-- `email_notifiers` (List of String) List of email addresses to send email notifications when the alert threshold is reached
+- `email_notifiers` (List of String) Notification email recipients for zone occupancy alerts
 - `enabled` (Boolean) Indicate whether zone occupancy alert is enabled for the site
 - `threshold` (Number) Sending zone-occupancy-alert webhook message only if a zone stays non-compliant (i.e. actual occupancy > occupancy_limit) for a minimum duration specified in the threshold, in minutes
 

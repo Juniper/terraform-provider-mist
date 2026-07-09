@@ -13,6 +13,7 @@ import (
 
 func iotproxyVisionlineSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.IotproxyVisionline) basetypes.ObjectValue {
 	var accessId basetypes.StringValue
+	var cacerts = types.ListNull(types.StringType)
 	var enabled basetypes.BoolValue
 	var host basetypes.StringValue
 	var password basetypes.StringValue
@@ -21,6 +22,15 @@ func iotproxyVisionlineSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 
 	if d.AccessId != nil {
 		accessId = types.StringValue(*d.AccessId)
+	}
+	if d.Cacerts != nil {
+		items := make([]attr.Value, len(d.Cacerts))
+		for i, v := range d.Cacerts {
+			items[i] = types.StringValue(v)
+		}
+		list, e := types.ListValue(types.StringType, items)
+		diags.Append(e...)
+		cacerts = list
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
@@ -40,6 +50,7 @@ func iotproxyVisionlineSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 
 	dataMapValue := map[string]attr.Value{
 		"access_id": accessId,
+		"cacerts":   cacerts,
 		"enabled":   enabled,
 		"host":      host,
 		"password":  password,

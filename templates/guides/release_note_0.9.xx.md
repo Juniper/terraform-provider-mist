@@ -7,6 +7,34 @@ description: |-
 
 # Release Notes for v0.9.xx
 
+## Release Notes for v0.9.1
+**Release Date**: July 9th, 2026
+
+### Bug Fixes
+
+#### Resources fixed
+
+- **`mist_org_mxedge` resource**:
+  - Fixed `mxcluster_id` state drift: the attribute is now preserved across read operations when the API returns `null` for the cluster assignment, preventing spurious plan diffs.
+  - Fixed `for_site` handling: site assignment is now performed via the dedicated `AssignOrgMxEdgeToSite` API call instead of being sent in the Create/Update request body (the API silently ignores `for_site`/`site_id` in those payloads); Read operations now fall back to `ListOrgMxEdges(for_site=any)` when the org-level `GetOrgMxEdge` returns 404 for a site-assigned device
+  - Fixed device claiming: when `claim_code` is set, the resource now correctly retrieves the claimed device via the inventory claim response MAC address, applies any additional plan attributes (name, `mxcluster_id`), and handles duplicate-claim responses gracefully
+
+### General Changes
+
+#### Resources added
+
+- **`mist_org_mxtunnel` resource**: New resource to manage Org-level Mist Tunnels, including IPsec settings, auto-preemption scheduling, VLAN assignments, and MxEdge cluster bindings
+
+#### Attributes added
+
+- **`mist_site_setting` resource**:
+  - `mxtunnels`
+  - `tunterm_monitoring`
+  - `tunterm_monitoring_disabled`
+  - `tunterm_multicast_config`
+
+---
+
 ## Release Notes for v0.9.0
 **Release Date**: July 6th, 2026
 
