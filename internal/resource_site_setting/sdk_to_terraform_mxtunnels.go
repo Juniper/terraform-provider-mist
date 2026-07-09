@@ -299,9 +299,14 @@ func mxtunnelsRadsecSdkToTerraform(ctx context.Context, diags *diag.Diagnostics,
 			itemsecret := types.StringValue(item.Secret)
 			itemAttrType := AuthServersValue{}.AttributeTypes(ctx)
 			itemObj, e := NewAuthServersValue(itemAttrType, map[string]attr.Value{
-				"host":            types.StringValue(item.Host),
-				"keywrap_enabled": types.BoolValue(item.KeywrapEnabled != nil && *item.KeywrapEnabled),
-				"keywrap_format":  keywrapFormat,
+				"host": types.StringValue(item.Host),
+				"keywrap_enabled": func() types.Bool {
+					if item.KeywrapEnabled != nil {
+						return types.BoolValue(*item.KeywrapEnabled)
+					}
+					return types.BoolNull()
+				}(),
+				"keywrap_format": keywrapFormat,
 				"keywrap_kek": func() types.String {
 					if item.KeywrapKek != nil {
 						return types.StringValue(*item.KeywrapKek)

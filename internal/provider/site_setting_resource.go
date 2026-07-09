@@ -103,7 +103,6 @@ func (r *siteSettingResource) Create(ctx context.Context, req resource.CreateReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	resource_site_setting.PreserveMxtunnelsRadsecSecrets(ctx, &resp.Diagnostics, &state, &plan)
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
@@ -147,13 +146,7 @@ func (r *siteSettingResource) Read(ctx context.Context, _ resource.ReadRequest, 
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	// Preserve secrets from prior state that the API does not echo back.
-	var priorState resource_site_setting.SiteSettingModel
-	priorDiags := resp.State.Get(ctx, &priorState)
-	resp.Diagnostics.Append(priorDiags...)
-	if !resp.Diagnostics.HasError() {
-		resource_site_setting.PreserveMxtunnelsRadsecSecrets(ctx, &resp.Diagnostics, &state, &priorState)
-	}
+
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -208,7 +201,6 @@ func (r *siteSettingResource) Update(ctx context.Context, req resource.UpdateReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	resource_site_setting.PreserveMxtunnelsRadsecSecrets(ctx, &resp.Diagnostics, &state, &plan)
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)
