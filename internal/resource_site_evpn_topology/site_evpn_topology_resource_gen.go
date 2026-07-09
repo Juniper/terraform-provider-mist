@@ -311,6 +311,7 @@ func SiteEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 								stringvalidator.OneOf(
 									"",
 									"access",
+									"border",
 									"collapsed-core",
 									"core",
 									"distribution",
