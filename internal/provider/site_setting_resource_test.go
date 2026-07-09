@@ -1025,6 +1025,9 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 					if srv.Port != nil {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnels.radsec.acct_servers.%d.port", i), *srv.Port)
 					}
+					if srv.Secret != "" {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnels.radsec.acct_servers.%d.secret", i), srv.Secret)
+					}
 				}
 			}
 			if len(s.Mxtunnels.Radsec.AuthServers) > 0 {
@@ -1036,6 +1039,9 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 					}
 					if srv.RequireMessageAuthenticator != nil {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnels.radsec.auth_servers.%d.require_message_authenticator", i), fmt.Sprintf("%t", *srv.RequireMessageAuthenticator))
+					}
+					if srv.Secret != "" {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnels.radsec.auth_servers.%d.secret", i), srv.Secret)
 					}
 				}
 			}

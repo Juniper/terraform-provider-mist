@@ -149,7 +149,9 @@ func (r *siteSettingResource) Read(ctx context.Context, _ resource.ReadRequest, 
 	}
 	// Preserve secrets from prior state that the API does not echo back.
 	var priorState resource_site_setting.SiteSettingModel
-	if e := resp.State.Get(ctx, &priorState); e == nil {
+	priorDiags := resp.State.Get(ctx, &priorState)
+	resp.Diagnostics.Append(priorDiags...)
+	if !resp.Diagnostics.HasError() {
 		resource_site_setting.PreserveMxtunnelsRadsecSecrets(ctx, &resp.Diagnostics, &state, &priorState)
 	}
 	// Set refreshed state

@@ -8,11 +8,6 @@ import (
 
 // PreserveMxtunnelsRadsecSecrets replaces the radsec object in state with the
 // one from prior (plan on Create/Update, prior state on Read).
-//
-// The Mist API treats radsec secrets as write-only and does not echo them back.
-// Since radsec contains no Computed-only fields, the plan/prior-state value is
-// authoritative and can be used directly.  This follows the same pattern as
-// org_mxedge_resource.go:  `state.Magic = plan.Magic`.
 func PreserveMxtunnelsRadsecSecrets(_ context.Context, _ *diag.Diagnostics, state *SiteSettingModel, prior *SiteSettingModel) {
 	if prior == nil || state == nil {
 		return

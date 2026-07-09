@@ -17,7 +17,8 @@ description: |-
 - **`mist_org_mxedge` resource**:
   - Fixed `mxcluster_id` state drift: the attribute is now preserved across read operations when the API returns `null` for the cluster assignment, preventing spurious plan diffs.
   - Fixed `for_site` handling: site assignment is now performed via the dedicated `AssignOrgMxEdgeToSite` API call instead of being sent in the Create/Update request body (the API silently ignores `for_site`/`site_id` in those payloads); Read operations now fall back to `ListOrgMxEdges(for_site=any)` when the org-level `GetOrgMxEdge` returns 404 for a site-assigned device
-  - Fixed device claiming: when `claim_code` is set, the resource now correctly retrieves the claimed device via the inventory claim response MAC address, applies any additional plan attributes (name, `mxcluster_id`), and handles duplicate-claim responses gracefully
+  - Fixed device claiming: when `claim_code` is set, the resource now correctly retrieves the claimed device via the inventory claim response MAC address, applies any additional plan attributes (name, `mxcluster_id`), and handles duplicate-claim responses gracefully. If an mxedge is already claimed in mist,
+  terraform will import that resource.
 
 ### General Changes
 
@@ -28,10 +29,16 @@ description: |-
 #### Attributes added
 
 - **`mist_site_setting` resource**:
+  - `mxedge_mgmt`
   - `mxtunnels`
   - `tunterm_monitoring`
   - `tunterm_monitoring_disabled`
   - `tunterm_multicast_config`
+
+#### Attributes updated
+
+- **`mist_org_evpn_topology` and `mist_site_evpn_topology` resources**:
+  - `switches.<key>.role`: added `border` as a valid role value (full set: `access`, `border`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`)
 
 ---
 

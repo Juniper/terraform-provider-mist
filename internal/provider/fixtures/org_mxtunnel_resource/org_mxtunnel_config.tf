@@ -4,7 +4,7 @@
   # Optional basic fields
   hello_interval = 60
   hello_retries  = 7
-  mtu            = 0
+  mtu            = 100
   protocol       = "udp"
   vlan_ids       = [100, 200, 300]
 
