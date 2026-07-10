@@ -23,7 +23,7 @@ type SiteSettingModel struct {
 	Led                          *SiteSettingLedValue                       `hcl:"led"`
 	Marvis                       *SiteSettingMarvisValue                    `hcl:"marvis"`
 	MxedgeMgmt                   *SiteSettingMxedgeMgmtValue                `hcl:"mxedge_mgmt"`
-	Mxtunnels                    *SiteSettingMxtunnelsValue                 `hcl:"mxtunnels"`
+	Mxtunnel                     *SiteSettingMxtunnelValue                  `hcl:"mxtunnel"`
 	Occupancy                    *SiteSettingOccupancyValue                 `hcl:"occupancy"`
 	PersistConfigOnDevice        *bool                                      `hcl:"persist_config_on_device"`
 	Proxy                        *SiteSettingProxyValue                     `hcl:"proxy"`
@@ -42,8 +42,8 @@ type SiteSettingModel struct {
 	SyntheticTest                *SiteSettingSyntheticTestValue             `hcl:"synthetic_test"`
 	TrackAnonymousDevices        *bool                                      `hcl:"track_anonymous_devices"`
 	TuntermMonitoring            []SiteSettingTuntermMonitoringValue        `hcl:"tunterm_monitoring"`
-	TuntermMonitoringDisabled    *bool                                       `hcl:"tunterm_monitoring_disabled"`
-	TuntermMulticastConfig       *SiteSettingTuntermMulticastConfigValue     `hcl:"tunterm_multicast_config"`
+	TuntermMonitoringDisabled    *bool                                      `hcl:"tunterm_monitoring_disabled"`
+	TuntermMulticastConfig       *SiteSettingTuntermMulticastConfigValue    `hcl:"tunterm_multicast_config"`
 	UplinkPortConfig             *SiteSettingUplinkPortConfigValue          `hcl:"uplink_port_config"`
 	Vars                         map[string]string                          `hcl:"vars"`
 	VarsAnnotations              map[string]SiteSettingVarsAnnotationsValue `hcl:"vars_annotations"`
@@ -283,7 +283,7 @@ type SiteSettingMxedgeMgmtValue struct {
 	RootPassword     *string `cty:"root_password" hcl:"root_password"`
 }
 
-type SiteSettingMxtunnelsValue struct {
+type SiteSettingMxtunnelValue struct {
 	AdditionalMxtunnels map[string]SiteSettingAdditionalMxtunnelsValue `cty:"additional_mxtunnels" hcl:"additional_mxtunnels"`
 	ApSubnets           []string                                       `cty:"ap_subnets" hcl:"ap_subnets"`
 	AutoPreemption      *SiteSettingAutoPreemptionValue                `cty:"auto_preemption" hcl:"auto_preemption"`
@@ -486,9 +486,9 @@ type SiteSettingTuntermMonitoringValue struct {
 }
 
 type SiteSettingTuntermMulticastConfigValue struct {
-	Mdns         *SiteSettingMdnsValue  `cty:"mdns" hcl:"mdns"`
-	MulticastAll *bool                  `cty:"multicast_all" hcl:"multicast_all"`
-	Ssdp         *SiteSettingSsdpValue  `cty:"ssdp" hcl:"ssdp"`
+	Mdns         *SiteSettingMdnsValue `cty:"mdns" hcl:"mdns"`
+	MulticastAll *bool                 `cty:"multicast_all" hcl:"multicast_all"`
+	Ssdp         *SiteSettingSsdpValue `cty:"ssdp" hcl:"ssdp"`
 }
 
 type SiteSettingMdnsValue struct {

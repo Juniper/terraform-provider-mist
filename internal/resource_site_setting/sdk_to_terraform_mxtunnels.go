@@ -13,7 +13,7 @@ import (
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
-func mxtunnelsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteMxtunnel) MxtunnelsValue {
+func mxtunnelSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteMxtunnel) MxtunnelValue {
 	var additionalMxtunnels = types.MapNull(AdditionalMxtunnelsValue{}.Type(ctx))
 	var apSubnets = types.ListNull(types.StringType)
 	var autoPreemption = types.ObjectNull(AutoPreemptionValue{}.AttributeTypes(ctx))
@@ -119,7 +119,7 @@ func mxtunnelsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 		vlanIds = mistutils.ListOfIntSdkToTerraform(d.VlanIds)
 	}
 
-	dataMapAttrType := MxtunnelsValue{}.AttributeTypes(ctx)
+	dataMapAttrType := MxtunnelValue{}.AttributeTypes(ctx)
 	dataMapValue := map[string]attr.Value{
 		"additional_mxtunnels": additionalMxtunnels,
 		"ap_subnets":           apSubnets,
@@ -140,7 +140,7 @@ func mxtunnelsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 		"site_id":              siteId,
 		"vlan_ids":             vlanIds,
 	}
-	data, e := NewMxtunnelsValue(dataMapAttrType, dataMapValue)
+	data, e := NewMxtunnelValue(dataMapAttrType, dataMapValue)
 	diags.Append(e...)
 
 	return data

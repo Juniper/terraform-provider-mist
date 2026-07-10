@@ -941,21 +941,21 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 		}
 	}
 
-	if s.Mxtunnels != nil {
-		if s.Mxtunnels.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "mxtunnels.enabled", fmt.Sprintf("%t", *s.Mxtunnels.Enabled))
+	if s.Mxtunnel != nil {
+		if s.Mxtunnel.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "mxtunnel.enabled", fmt.Sprintf("%t", *s.Mxtunnel.Enabled))
 		}
-		if s.Mxtunnels.HelloInterval != nil {
-			checks.append(t, "TestCheckResourceAttr", "mxtunnels.hello_interval", fmt.Sprintf("%d", *s.Mxtunnels.HelloInterval))
+		if s.Mxtunnel.HelloInterval != nil {
+			checks.append(t, "TestCheckResourceAttr", "mxtunnel.hello_interval", fmt.Sprintf("%d", *s.Mxtunnel.HelloInterval))
 		}
-		if s.Mxtunnels.HelloRetries != nil {
-			checks.append(t, "TestCheckResourceAttr", "mxtunnels.hello_retries", fmt.Sprintf("%d", *s.Mxtunnels.HelloRetries))
+		if s.Mxtunnel.HelloRetries != nil {
+			checks.append(t, "TestCheckResourceAttr", "mxtunnel.hello_retries", fmt.Sprintf("%d", *s.Mxtunnel.HelloRetries))
 		}
-		if s.Mxtunnels.Protocol != nil {
-			checks.append(t, "TestCheckResourceAttr", "mxtunnels.protocol", *s.Mxtunnels.Protocol)
+		if s.Mxtunnel.Protocol != nil {
+			checks.append(t, "TestCheckResourceAttr", "mxtunnel.protocol", *s.Mxtunnel.Protocol)
 		}
-		for key, am := range s.Mxtunnels.AdditionalMxtunnels {
-			prefix := fmt.Sprintf("mxtunnels.additional_mxtunnels.%s", key)
+		for key, am := range s.Mxtunnel.AdditionalMxtunnels {
+			prefix := fmt.Sprintf("mxtunnel.additional_mxtunnels.%s", key)
 			if am.HelloInterval != nil {
 				checks.append(t, "TestCheckResourceAttr", prefix+".hello_interval", fmt.Sprintf("%d", *am.HelloInterval))
 			}
@@ -980,74 +980,74 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 				}
 			}
 		}
-		if len(s.Mxtunnels.ApSubnets) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "mxtunnels.ap_subnets.#", fmt.Sprintf("%d", len(s.Mxtunnels.ApSubnets)))
+		if len(s.Mxtunnel.ApSubnets) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "mxtunnel.ap_subnets.#", fmt.Sprintf("%d", len(s.Mxtunnel.ApSubnets)))
 		}
-		if s.Mxtunnels.AutoPreemption != nil {
-			if s.Mxtunnels.AutoPreemption.Enabled != nil {
-				checks.append(t, "TestCheckResourceAttr", "mxtunnels.auto_preemption.enabled", fmt.Sprintf("%t", *s.Mxtunnels.AutoPreemption.Enabled))
+		if s.Mxtunnel.AutoPreemption != nil {
+			if s.Mxtunnel.AutoPreemption.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "mxtunnel.auto_preemption.enabled", fmt.Sprintf("%t", *s.Mxtunnel.AutoPreemption.Enabled))
 			}
-			if s.Mxtunnels.AutoPreemption.DayOfWeek != nil {
-				checks.append(t, "TestCheckResourceAttr", "mxtunnels.auto_preemption.day_of_week", *s.Mxtunnels.AutoPreemption.DayOfWeek)
+			if s.Mxtunnel.AutoPreemption.DayOfWeek != nil {
+				checks.append(t, "TestCheckResourceAttr", "mxtunnel.auto_preemption.day_of_week", *s.Mxtunnel.AutoPreemption.DayOfWeek)
 			}
-			if s.Mxtunnels.AutoPreemption.TimeOfDay != nil {
-				checks.append(t, "TestCheckResourceAttr", "mxtunnels.auto_preemption.time_of_day", *s.Mxtunnels.AutoPreemption.TimeOfDay)
+			if s.Mxtunnel.AutoPreemption.TimeOfDay != nil {
+				checks.append(t, "TestCheckResourceAttr", "mxtunnel.auto_preemption.time_of_day", *s.Mxtunnel.AutoPreemption.TimeOfDay)
 			}
 		}
-		if len(s.Mxtunnels.Clusters) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "mxtunnels.clusters.#", fmt.Sprintf("%d", len(s.Mxtunnels.Clusters)))
-			for i, cluster := range s.Mxtunnels.Clusters {
+		if len(s.Mxtunnel.Clusters) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "mxtunnel.clusters.#", fmt.Sprintf("%d", len(s.Mxtunnel.Clusters)))
+			for i, cluster := range s.Mxtunnel.Clusters {
 				if cluster.Name != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnels.clusters.%d.name", i), *cluster.Name)
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnel.clusters.%d.name", i), *cluster.Name)
 				}
 				if len(cluster.TuntermHosts) > 0 {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnels.clusters.%d.tunterm_hosts.#", i), fmt.Sprintf("%d", len(cluster.TuntermHosts)))
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnel.clusters.%d.tunterm_hosts.#", i), fmt.Sprintf("%d", len(cluster.TuntermHosts)))
 				}
 			}
 		}
-		if len(s.Mxtunnels.Hosts) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "mxtunnels.hosts.#", fmt.Sprintf("%d", len(s.Mxtunnels.Hosts)))
+		if len(s.Mxtunnel.Hosts) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "mxtunnel.hosts.#", fmt.Sprintf("%d", len(s.Mxtunnel.Hosts)))
 		}
-		if s.Mxtunnels.Mtu != nil {
-			checks.append(t, "TestCheckResourceAttr", "mxtunnels.mtu", fmt.Sprintf("%d", *s.Mxtunnels.Mtu))
+		if s.Mxtunnel.Mtu != nil {
+			checks.append(t, "TestCheckResourceAttr", "mxtunnel.mtu", fmt.Sprintf("%d", *s.Mxtunnel.Mtu))
 		}
-		if s.Mxtunnels.Radsec != nil {
-			if s.Mxtunnels.Radsec.Enabled != nil {
-				checks.append(t, "TestCheckResourceAttr", "mxtunnels.radsec.enabled", fmt.Sprintf("%t", *s.Mxtunnels.Radsec.Enabled))
+		if s.Mxtunnel.Radsec != nil {
+			if s.Mxtunnel.Radsec.Enabled != nil {
+				checks.append(t, "TestCheckResourceAttr", "mxtunnel.radsec.enabled", fmt.Sprintf("%t", *s.Mxtunnel.Radsec.Enabled))
 			}
-			if s.Mxtunnels.Radsec.UseMxedge != nil {
-				checks.append(t, "TestCheckResourceAttr", "mxtunnels.radsec.use_mxedge", fmt.Sprintf("%t", *s.Mxtunnels.Radsec.UseMxedge))
+			if s.Mxtunnel.Radsec.UseMxedge != nil {
+				checks.append(t, "TestCheckResourceAttr", "mxtunnel.radsec.use_mxedge", fmt.Sprintf("%t", *s.Mxtunnel.Radsec.UseMxedge))
 			}
-			if len(s.Mxtunnels.Radsec.AcctServers) > 0 {
-				checks.append(t, "TestCheckResourceAttr", "mxtunnels.radsec.acct_servers.#", fmt.Sprintf("%d", len(s.Mxtunnels.Radsec.AcctServers)))
-				for i, srv := range s.Mxtunnels.Radsec.AcctServers {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnels.radsec.acct_servers.%d.host", i), srv.Host)
+			if len(s.Mxtunnel.Radsec.AcctServers) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "mxtunnel.radsec.acct_servers.#", fmt.Sprintf("%d", len(s.Mxtunnel.Radsec.AcctServers)))
+				for i, srv := range s.Mxtunnel.Radsec.AcctServers {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnel.radsec.acct_servers.%d.host", i), srv.Host)
 					if srv.Port != nil {
-						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnels.radsec.acct_servers.%d.port", i), *srv.Port)
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnel.radsec.acct_servers.%d.port", i), *srv.Port)
 					}
 					if srv.Secret != "" {
-						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnels.radsec.acct_servers.%d.secret", i), srv.Secret)
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnel.radsec.acct_servers.%d.secret", i), srv.Secret)
 					}
 				}
 			}
-			if len(s.Mxtunnels.Radsec.AuthServers) > 0 {
-				checks.append(t, "TestCheckResourceAttr", "mxtunnels.radsec.auth_servers.#", fmt.Sprintf("%d", len(s.Mxtunnels.Radsec.AuthServers)))
-				for i, srv := range s.Mxtunnels.Radsec.AuthServers {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnels.radsec.auth_servers.%d.host", i), srv.Host)
+			if len(s.Mxtunnel.Radsec.AuthServers) > 0 {
+				checks.append(t, "TestCheckResourceAttr", "mxtunnel.radsec.auth_servers.#", fmt.Sprintf("%d", len(s.Mxtunnel.Radsec.AuthServers)))
+				for i, srv := range s.Mxtunnel.Radsec.AuthServers {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnel.radsec.auth_servers.%d.host", i), srv.Host)
 					if srv.Port != nil {
-						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnels.radsec.auth_servers.%d.port", i), *srv.Port)
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnel.radsec.auth_servers.%d.port", i), *srv.Port)
 					}
 					if srv.RequireMessageAuthenticator != nil {
-						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnels.radsec.auth_servers.%d.require_message_authenticator", i), fmt.Sprintf("%t", *srv.RequireMessageAuthenticator))
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnel.radsec.auth_servers.%d.require_message_authenticator", i), fmt.Sprintf("%t", *srv.RequireMessageAuthenticator))
 					}
 					if srv.Secret != "" {
-						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnels.radsec.auth_servers.%d.secret", i), srv.Secret)
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mxtunnel.radsec.auth_servers.%d.secret", i), srv.Secret)
 					}
 				}
 			}
 		}
-		if len(s.Mxtunnels.VlanIds) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "mxtunnels.vlan_ids.#", fmt.Sprintf("%d", len(s.Mxtunnels.VlanIds)))
+		if len(s.Mxtunnel.VlanIds) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "mxtunnel.vlan_ids.#", fmt.Sprintf("%d", len(s.Mxtunnel.VlanIds)))
 		}
 	}
 

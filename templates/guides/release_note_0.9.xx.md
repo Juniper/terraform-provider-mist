@@ -7,6 +7,18 @@ description: |-
 
 # Release Notes for v0.9.xx
 
+## Release Notes for v0.9.2
+**Release Date**: July 10th, 2026
+
+### General Changes
+
+#### Attributes renamed
+
+- **`mist_site_setting` resource**:
+  - `mxtunnels` renamed to `mxtunnel`
+
+---
+
 ## Release Notes for v0.9.1
 **Release Date**: July 9th, 2026
 
