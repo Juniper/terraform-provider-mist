@@ -317,7 +317,7 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 	if !plan.Mxtunnel.IsNull() && !plan.Mxtunnel.IsUnknown() {
 		data.Mxtunnel = mxtunnelTerraformToSdk(ctx, &diags, plan.Mxtunnel)
 	} else {
-		unset["-mxtunnels"] = ""
+		unset["-mxtunnel"] = ""
 	}
 
 	if !plan.TuntermMonitoring.IsNull() && !plan.TuntermMonitoring.IsUnknown() {
