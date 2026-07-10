@@ -314,10 +314,10 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-mxedge_mgmt"] = ""
 	}
 
-	if !plan.Mxtunnels.IsNull() && !plan.Mxtunnels.IsUnknown() {
-		data.Mxtunnels = mxtunnelsTerraformToSdk(ctx, &diags, plan.Mxtunnels)
+	if !plan.Mxtunnel.IsNull() && !plan.Mxtunnel.IsUnknown() {
+		data.Mxtunnel = mxtunnelTerraformToSdk(ctx, &diags, plan.Mxtunnel)
 	} else {
-		unset["-mxtunnels"] = ""
+		unset["-mxtunnel"] = ""
 	}
 
 	if !plan.TuntermMonitoring.IsNull() && !plan.TuntermMonitoring.IsUnknown() {

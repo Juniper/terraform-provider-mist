@@ -13,7 +13,7 @@ import (
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 )
 
-func mxtunnelsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d MxtunnelsValue) *models.SiteMxtunnel {
+func mxtunnelTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d MxtunnelValue) *models.SiteMxtunnel {
 	data := models.SiteMxtunnel{}
 
 	if !d.ApSubnets.IsNull() && !d.ApSubnets.IsUnknown() {

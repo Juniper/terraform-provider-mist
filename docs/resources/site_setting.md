@@ -76,7 +76,7 @@ resource "mist_site_setting" "site_one" {
 - `led` (Attributes) AP LED behavior configured for the site (see [below for nested schema](#nestedatt--led))
 - `marvis` (Attributes) AI assistant settings for Marvis at the site (see [below for nested schema](#nestedatt--marvis))
 - `mxedge_mgmt` (Attributes) Mist Edge management access settings for the site (see [below for nested schema](#nestedatt--mxedge_mgmt))
-- `mxtunnels` (Attributes) Site Mist Tunnel configuration (see [below for nested schema](#nestedatt--mxtunnels))
+- `mxtunnel` (Attributes) Site Mist Tunnel configuration (see [below for nested schema](#nestedatt--mxtunnel))
 - `occupancy` (Attributes) Analytics settings for site occupancy (see [below for nested schema](#nestedatt--occupancy))
 - `persist_config_on_device` (Boolean) Whether to store the config on AP
 - `proxy` (Attributes) Network proxy settings for devices at the site (see [below for nested schema](#nestedatt--proxy))
@@ -482,15 +482,15 @@ Optional:
 - `root_password` (String, Sensitive) Root account password for the Mist Edge
 
 
-<a id="nestedatt--mxtunnels"></a>
-### Nested Schema for `mxtunnels`
+<a id="nestedatt--mxtunnel"></a>
+### Nested Schema for `mxtunnel`
 
 Optional:
 
-- `additional_mxtunnels` (Attributes Map) Additional named Mist Tunnel definitions configured for the site (see [below for nested schema](#nestedatt--mxtunnels--additional_mxtunnels))
+- `additional_mxtunnels` (Attributes Map) Additional named Mist Tunnel definitions configured for the site (see [below for nested schema](#nestedatt--mxtunnel--additional_mxtunnels))
 - `ap_subnets` (List of String) AP source subnets allowed to establish Mist Tunnels
-- `auto_preemption` (Attributes) Preemption behavior for restoring preferred tunnel peers after failover (see [below for nested schema](#nestedatt--mxtunnels--auto_preemption))
-- `clusters` (Attributes List) Tunnel peer clusters used by APs for this site Mist Tunnel (see [below for nested schema](#nestedatt--mxtunnels--clusters))
+- `auto_preemption` (Attributes) Preemption behavior for restoring preferred tunnel peers after failover (see [below for nested schema](#nestedatt--mxtunnel--auto_preemption))
+- `clusters` (Attributes List) Tunnel peer clusters used by APs for this site Mist Tunnel (see [below for nested schema](#nestedatt--mxtunnel--clusters))
 - `created_time` (Number) Timestamp when the site Mist Tunnel configuration was created
 - `enabled` (Boolean) Whether site Mist Tunnel tunneling is enabled
 - `for_site` (Boolean) Whether this Mist Tunnel configuration is scoped to a site
@@ -502,23 +502,23 @@ Optional:
 - `mtu` (Number) 0 to enable MTU, 552-1500 to start MTU with a lower MTU
 - `org_id` (String) Identifier of the org that owns the site Mist Tunnel configuration
 - `protocol` (String) Encapsulation protocol used for the site Mist Tunnel
-- `radsec` (Attributes) TLS-secured RADIUS proxy settings for the site Mist Tunnel (see [below for nested schema](#nestedatt--mxtunnels--radsec))
+- `radsec` (Attributes) TLS-secured RADIUS proxy settings for the site Mist Tunnel (see [below for nested schema](#nestedatt--mxtunnel--radsec))
 - `site_id` (String) Identifier of the site that owns this Mist Tunnel configuration
 - `vlan_ids` (List of Number) List of VLAN IDs carried by this site Mist Tunnel
 
-<a id="nestedatt--mxtunnels--additional_mxtunnels"></a>
-### Nested Schema for `mxtunnels.additional_mxtunnels`
+<a id="nestedatt--mxtunnel--additional_mxtunnels"></a>
+### Nested Schema for `mxtunnel.additional_mxtunnels`
 
 Optional:
 
 - `hello_interval` (Number) In seconds, used as heartbeat to detect if a tunnel is alive. AP will try another peer after missing N hellos specified by hello_retries
 - `hello_retries` (Number) Number of missed hello heartbeats before an AP tries another tunnel peer
 - `protocol` (String) Encapsulation protocol used for this additional Mist Tunnel
-- `tunterm_clusters` (Attributes List) Tunnel peer clusters used by APs for this additional Mist Tunnel (see [below for nested schema](#nestedatt--mxtunnels--additional_mxtunnels--tunterm_clusters))
+- `tunterm_clusters` (Attributes List) Tunnel peer clusters used by APs for this additional Mist Tunnel (see [below for nested schema](#nestedatt--mxtunnel--additional_mxtunnels--tunterm_clusters))
 - `vlan_ids` (List of Number) List of VLAN IDs carried by this additional Mist Tunnel
 
-<a id="nestedatt--mxtunnels--additional_mxtunnels--tunterm_clusters"></a>
-### Nested Schema for `mxtunnels.additional_mxtunnels.tunterm_clusters`
+<a id="nestedatt--mxtunnel--additional_mxtunnels--tunterm_clusters"></a>
+### Nested Schema for `mxtunnel.additional_mxtunnels.tunterm_clusters`
 
 Optional:
 
@@ -527,8 +527,8 @@ Optional:
 
 
 
-<a id="nestedatt--mxtunnels--auto_preemption"></a>
-### Nested Schema for `mxtunnels.auto_preemption`
+<a id="nestedatt--mxtunnel--auto_preemption"></a>
+### Nested Schema for `mxtunnel.auto_preemption`
 
 Optional:
 
@@ -537,8 +537,8 @@ Optional:
 - `time_of_day` (String) Scheduled time of day for auto preemption
 
 
-<a id="nestedatt--mxtunnels--clusters"></a>
-### Nested Schema for `mxtunnels.clusters`
+<a id="nestedatt--mxtunnel--clusters"></a>
+### Nested Schema for `mxtunnel.clusters`
 
 Optional:
 
@@ -546,18 +546,18 @@ Optional:
 - `tunterm_hosts` (List of String) Tunnel termination hostnames or IP addresses in this peer cluster
 
 
-<a id="nestedatt--mxtunnels--radsec"></a>
-### Nested Schema for `mxtunnels.radsec`
+<a id="nestedatt--mxtunnel--radsec"></a>
+### Nested Schema for `mxtunnel.radsec`
 
 Optional:
 
-- `acct_servers` (Attributes List) RADIUS accounting servers used by the site Mist Tunnel RadSec proxy (see [below for nested schema](#nestedatt--mxtunnels--radsec--acct_servers))
-- `auth_servers` (Attributes List) RADIUS authentication servers used by the site Mist Tunnel RadSec proxy (see [below for nested schema](#nestedatt--mxtunnels--radsec--auth_servers))
+- `acct_servers` (Attributes List) RADIUS accounting servers used by the site Mist Tunnel RadSec proxy (see [below for nested schema](#nestedatt--mxtunnel--radsec--acct_servers))
+- `auth_servers` (Attributes List) RADIUS authentication servers used by the site Mist Tunnel RadSec proxy (see [below for nested schema](#nestedatt--mxtunnel--radsec--auth_servers))
 - `enabled` (Boolean) Whether RadSec proxying is enabled for this site Mist Tunnel
 - `use_mxedge` (Boolean) Whether RadSec proxying uses Mist Edge
 
-<a id="nestedatt--mxtunnels--radsec--acct_servers"></a>
-### Nested Schema for `mxtunnels.radsec.acct_servers`
+<a id="nestedatt--mxtunnel--radsec--acct_servers"></a>
+### Nested Schema for `mxtunnel.radsec.acct_servers`
 
 Required:
 
@@ -573,8 +573,8 @@ Optional:
 - `port` (String) UDP port used by the RADIUS accounting server
 
 
-<a id="nestedatt--mxtunnels--radsec--auth_servers"></a>
-### Nested Schema for `mxtunnels.radsec.auth_servers`
+<a id="nestedatt--mxtunnel--radsec--auth_servers"></a>
+### Nested Schema for `mxtunnel.radsec.auth_servers`
 
 Required:
 

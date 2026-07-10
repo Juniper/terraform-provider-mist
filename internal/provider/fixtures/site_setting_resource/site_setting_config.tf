@@ -341,7 +341,7 @@
     oob_ip_type6       = "disabled"
   }
 
-  mxtunnels = {
+  mxtunnel = {
     additional_mxtunnels = {
       "extra1" = {
         hello_interval = 30

@@ -5,10 +5,8 @@ package resource_site_setting
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistplanmodifiers "github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -27,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -1589,7 +1588,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Mist Edge management access settings for the site",
 				MarkdownDescription: "Mist Edge management access settings for the site",
 			},
-			"mxtunnels": schema.SingleNestedAttribute{
+			"mxtunnel": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"additional_mxtunnels": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -1676,9 +1675,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "AP source subnets allowed to establish Mist Tunnels",
 						MarkdownDescription: "AP source subnets allowed to establish Mist Tunnels",
-						Validators: []validator.List{
-							listvalidator.SizeAtLeast(1),
-						},
 					},
 					"auto_preemption": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -1702,8 +1698,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
+								Computed:            true,
 								Description:         "Whether auto preemption is enabled",
 								MarkdownDescription: "Whether auto preemption is enabled",
+								Default:             booldefault.StaticBool(false),
 							},
 							"time_of_day": schema.StringAttribute{
 								Optional:            true,
@@ -1735,9 +1733,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Tunnel termination hostnames or IP addresses in this peer cluster",
 									MarkdownDescription: "Tunnel termination hostnames or IP addresses in this peer cluster",
-									Validators: []validator.List{
-										listvalidator.SizeAtLeast(1),
-									},
 								},
 							},
 							CustomType: ClustersType{
@@ -1749,9 +1744,6 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Tunnel peer clusters used by APs for this site Mist Tunnel",
 						MarkdownDescription: "Tunnel peer clusters used by APs for this site Mist Tunnel",
-						Validators: []validator.List{
-							listvalidator.SizeAtLeast(1),
-						},
 					},
 					"created_time": schema.Float64Attribute{
 						Optional:            true,
@@ -1770,28 +1762,29 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"hello_interval": schema.Int64Attribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "In seconds, used as heartbeat to detect if a tunnel is alive. AP will try another peer after missing N hellos specified by hello_retries",
 						MarkdownDescription: "In seconds, used as heartbeat to detect if a tunnel is alive. AP will try another peer after missing N hellos specified by hello_retries",
 						Validators: []validator.Int64{
 							int64validator.Between(1, 300),
 						},
+						Default: int64default.StaticInt64(60),
 					},
 					"hello_retries": schema.Int64Attribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "Number of missed hello heartbeats before an AP tries another tunnel peer",
 						MarkdownDescription: "Number of missed hello heartbeats before an AP tries another tunnel peer",
 						Validators: []validator.Int64{
 							int64validator.Between(2, 30),
 						},
+						Default: int64default.StaticInt64(7),
 					},
 					"hosts": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						Description:         "Tunnel peer hostnames or IP addresses reachable from APs",
 						MarkdownDescription: "Tunnel peer hostnames or IP addresses reachable from APs",
-						Validators: []validator.List{
-							listvalidator.SizeAtLeast(1),
-						},
 					},
 					"id": schema.StringAttribute{
 						Optional:            true,
@@ -1805,11 +1798,13 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"mtu": schema.Int64Attribute{
 						Optional:            true,
+						Computed:            true,
 						Description:         "0 to enable MTU, 552-1500 to start MTU with a lower MTU",
 						MarkdownDescription: "0 to enable MTU, 552-1500 to start MTU with a lower MTU",
 						Validators: []validator.Int64{
 							int64validator.Between(0, 1500),
 						},
+						Default: int64default.StaticInt64(0),
 					},
 					"org_id": schema.StringAttribute{
 						Optional:            true,
@@ -1987,9 +1982,9 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "List of VLAN IDs carried by this site Mist Tunnel",
 					},
 				},
-				CustomType: MxtunnelsType{
+				CustomType: MxtunnelType{
 					ObjectType: types.ObjectType{
-						AttrTypes: MxtunnelsValue{}.AttributeTypes(ctx),
+						AttrTypes: MxtunnelValue{}.AttributeTypes(ctx),
 					},
 				},
 				Optional:            true,
@@ -3353,7 +3348,7 @@ type SiteSettingModel struct {
 	Led                          LedValue                    `tfsdk:"led"`
 	Marvis                       MarvisValue                 `tfsdk:"marvis"`
 	MxedgeMgmt                   MxedgeMgmtValue             `tfsdk:"mxedge_mgmt"`
-	Mxtunnels                    MxtunnelsValue              `tfsdk:"mxtunnels"`
+	Mxtunnel                     MxtunnelValue               `tfsdk:"mxtunnel"`
 	Occupancy                    OccupancyValue              `tfsdk:"occupancy"`
 	PersistConfigOnDevice        types.Bool                  `tfsdk:"persist_config_on_device"`
 	Proxy                        ProxyValue                  `tfsdk:"proxy"`
@@ -19790,14 +19785,14 @@ func (v MxedgeMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 	}
 }
 
-var _ basetypes.ObjectTypable = MxtunnelsType{}
+var _ basetypes.ObjectTypable = MxtunnelType{}
 
-type MxtunnelsType struct {
+type MxtunnelType struct {
 	basetypes.ObjectType
 }
 
-func (t MxtunnelsType) Equal(o attr.Type) bool {
-	other, ok := o.(MxtunnelsType)
+func (t MxtunnelType) Equal(o attr.Type) bool {
+	other, ok := o.(MxtunnelType)
 
 	if !ok {
 		return false
@@ -19806,11 +19801,11 @@ func (t MxtunnelsType) Equal(o attr.Type) bool {
 	return t.ObjectType.Equal(other.ObjectType)
 }
 
-func (t MxtunnelsType) String() string {
-	return "MxtunnelsType"
+func (t MxtunnelType) String() string {
+	return "MxtunnelType"
 }
 
-func (t MxtunnelsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+func (t MxtunnelType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	attributes := in.Attributes()
@@ -20143,7 +20138,7 @@ func (t MxtunnelsType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		return nil, diags
 	}
 
-	return MxtunnelsValue{
+	return MxtunnelValue{
 		AdditionalMxtunnels: additionalMxtunnelsVal,
 		ApSubnets:           apSubnetsVal,
 		AutoPreemption:      autoPreemptionVal,
@@ -20166,19 +20161,19 @@ func (t MxtunnelsType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 	}, diags
 }
 
-func NewMxtunnelsValueNull() MxtunnelsValue {
-	return MxtunnelsValue{
+func NewMxtunnelValueNull() MxtunnelValue {
+	return MxtunnelValue{
 		state: attr.ValueStateNull,
 	}
 }
 
-func NewMxtunnelsValueUnknown() MxtunnelsValue {
-	return MxtunnelsValue{
+func NewMxtunnelValueUnknown() MxtunnelValue {
+	return MxtunnelValue{
 		state: attr.ValueStateUnknown,
 	}
 }
 
-func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (MxtunnelsValue, diag.Diagnostics) {
+func NewMxtunnelValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (MxtunnelValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
@@ -20189,11 +20184,11 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 
 		if !ok {
 			diags.AddError(
-				"Missing MxtunnelsValue Attribute Value",
-				"While creating a MxtunnelsValue value, a missing attribute value was detected. "+
-					"A MxtunnelsValue must contain values for all attributes, even if null or unknown. "+
+				"Missing MxtunnelValue Attribute Value",
+				"While creating a MxtunnelValue value, a missing attribute value was detected. "+
+					"A MxtunnelValue must contain values for all attributes, even if null or unknown. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("MxtunnelsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+					fmt.Sprintf("MxtunnelValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
 			)
 
 			continue
@@ -20201,12 +20196,12 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 
 		if !attributeType.Equal(attribute.Type(ctx)) {
 			diags.AddError(
-				"Invalid MxtunnelsValue Attribute Type",
-				"While creating a MxtunnelsValue value, an invalid attribute value was detected. "+
-					"A MxtunnelsValue must use a matching attribute type for the value. "+
+				"Invalid MxtunnelValue Attribute Type",
+				"While creating a MxtunnelValue value, an invalid attribute value was detected. "+
+					"A MxtunnelValue must use a matching attribute type for the value. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("MxtunnelsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("MxtunnelsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+					fmt.Sprintf("MxtunnelValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("MxtunnelValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
 			)
 		}
 	}
@@ -20216,17 +20211,17 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 
 		if !ok {
 			diags.AddError(
-				"Extra MxtunnelsValue Attribute Value",
-				"While creating a MxtunnelsValue value, an extra attribute value was detected. "+
-					"A MxtunnelsValue must not contain values beyond the expected attribute types. "+
+				"Extra MxtunnelValue Attribute Value",
+				"While creating a MxtunnelValue value, an extra attribute value was detected. "+
+					"A MxtunnelValue must not contain values beyond the expected attribute types. "+
 					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra MxtunnelsValue Attribute Name: %s", name),
+					fmt.Sprintf("Extra MxtunnelValue Attribute Name: %s", name),
 			)
 		}
 	}
 
 	if diags.HasError() {
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	additionalMxtunnelsAttribute, ok := attributes["additional_mxtunnels"]
@@ -20236,7 +20231,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`additional_mxtunnels is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	additionalMxtunnelsVal, ok := additionalMxtunnelsAttribute.(basetypes.MapValue)
@@ -20254,7 +20249,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`ap_subnets is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	apSubnetsVal, ok := apSubnetsAttribute.(basetypes.ListValue)
@@ -20272,7 +20267,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`auto_preemption is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	autoPreemptionVal, ok := autoPreemptionAttribute.(basetypes.ObjectValue)
@@ -20290,7 +20285,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`clusters is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	clustersVal, ok := clustersAttribute.(basetypes.ListValue)
@@ -20308,7 +20303,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`created_time is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	createdTimeVal, ok := createdTimeAttribute.(basetypes.Float64Value)
@@ -20326,7 +20321,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`enabled is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
@@ -20344,7 +20339,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`for_site is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	forSiteVal, ok := forSiteAttribute.(basetypes.BoolValue)
@@ -20362,7 +20357,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`hello_interval is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	helloIntervalVal, ok := helloIntervalAttribute.(basetypes.Int64Value)
@@ -20380,7 +20375,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`hello_retries is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	helloRetriesVal, ok := helloRetriesAttribute.(basetypes.Int64Value)
@@ -20398,7 +20393,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`hosts is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	hostsVal, ok := hostsAttribute.(basetypes.ListValue)
@@ -20416,7 +20411,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`id is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	idVal, ok := idAttribute.(basetypes.StringValue)
@@ -20434,7 +20429,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`modified_time is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	modifiedTimeVal, ok := modifiedTimeAttribute.(basetypes.Float64Value)
@@ -20452,7 +20447,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`mtu is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	mtuVal, ok := mtuAttribute.(basetypes.Int64Value)
@@ -20470,7 +20465,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`org_id is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	orgIdVal, ok := orgIdAttribute.(basetypes.StringValue)
@@ -20488,7 +20483,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`protocol is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	protocolVal, ok := protocolAttribute.(basetypes.StringValue)
@@ -20506,7 +20501,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`radsec is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	radsecVal, ok := radsecAttribute.(basetypes.ObjectValue)
@@ -20524,7 +20519,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`site_id is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	siteIdVal, ok := siteIdAttribute.(basetypes.StringValue)
@@ -20542,7 +20537,7 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 			"Attribute Missing",
 			`vlan_ids is missing from object`)
 
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
 	vlanIdsVal, ok := vlanIdsAttribute.(basetypes.ListValue)
@@ -20554,10 +20549,10 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 	}
 
 	if diags.HasError() {
-		return NewMxtunnelsValueUnknown(), diags
+		return NewMxtunnelValueUnknown(), diags
 	}
 
-	return MxtunnelsValue{
+	return MxtunnelValue{
 		AdditionalMxtunnels: additionalMxtunnelsVal,
 		ApSubnets:           apSubnetsVal,
 		AutoPreemption:      autoPreemptionVal,
@@ -20580,8 +20575,8 @@ func NewMxtunnelsValue(attributeTypes map[string]attr.Type, attributes map[strin
 	}, diags
 }
 
-func NewMxtunnelsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) MxtunnelsValue {
-	object, diags := NewMxtunnelsValue(attributeTypes, attributes)
+func NewMxtunnelValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) MxtunnelValue {
+	object, diags := NewMxtunnelValue(attributeTypes, attributes)
 
 	if diags.HasError() {
 		// This could potentially be added to the diag package.
@@ -20595,15 +20590,15 @@ func NewMxtunnelsValueMust(attributeTypes map[string]attr.Type, attributes map[s
 				diagnostic.Detail()))
 		}
 
-		panic("NewMxtunnelsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+		panic("NewMxtunnelValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
 	}
 
 	return object
 }
 
-func (t MxtunnelsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+func (t MxtunnelType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
 	if in.Type() == nil {
-		return NewMxtunnelsValueNull(), nil
+		return NewMxtunnelValueNull(), nil
 	}
 
 	if !in.Type().Equal(t.TerraformType(ctx)) {
@@ -20611,11 +20606,11 @@ func (t MxtunnelsType) ValueFromTerraform(ctx context.Context, in tftypes.Value)
 	}
 
 	if !in.IsKnown() {
-		return NewMxtunnelsValueUnknown(), nil
+		return NewMxtunnelValueUnknown(), nil
 	}
 
 	if in.IsNull() {
-		return NewMxtunnelsValueNull(), nil
+		return NewMxtunnelValueNull(), nil
 	}
 
 	attributes := map[string]attr.Value{}
@@ -20638,16 +20633,16 @@ func (t MxtunnelsType) ValueFromTerraform(ctx context.Context, in tftypes.Value)
 		attributes[k] = a
 	}
 
-	return NewMxtunnelsValueMust(MxtunnelsValue{}.AttributeTypes(ctx), attributes), nil
+	return NewMxtunnelValueMust(MxtunnelValue{}.AttributeTypes(ctx), attributes), nil
 }
 
-func (t MxtunnelsType) ValueType(ctx context.Context) attr.Value {
-	return MxtunnelsValue{}
+func (t MxtunnelType) ValueType(ctx context.Context) attr.Value {
+	return MxtunnelValue{}
 }
 
-var _ basetypes.ObjectValuable = MxtunnelsValue{}
+var _ basetypes.ObjectValuable = MxtunnelValue{}
 
-type MxtunnelsValue struct {
+type MxtunnelValue struct {
 	AdditionalMxtunnels basetypes.MapValue     `tfsdk:"additional_mxtunnels"`
 	ApSubnets           basetypes.ListValue    `tfsdk:"ap_subnets"`
 	AutoPreemption      basetypes.ObjectValue  `tfsdk:"auto_preemption"`
@@ -20669,7 +20664,7 @@ type MxtunnelsValue struct {
 	state               attr.ValueState
 }
 
-func (v MxtunnelsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+func (v MxtunnelValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
 	attrTypes := make(map[string]tftypes.Type, 18)
 
 	var val tftypes.Value
@@ -20872,19 +20867,19 @@ func (v MxtunnelsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	}
 }
 
-func (v MxtunnelsValue) IsNull() bool {
+func (v MxtunnelValue) IsNull() bool {
 	return v.state == attr.ValueStateNull
 }
 
-func (v MxtunnelsValue) IsUnknown() bool {
+func (v MxtunnelValue) IsUnknown() bool {
 	return v.state == attr.ValueStateUnknown
 }
 
-func (v MxtunnelsValue) String() string {
-	return "MxtunnelsValue"
+func (v MxtunnelValue) String() string {
+	return "MxtunnelValue"
 }
 
-func (v MxtunnelsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+func (v MxtunnelValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
 	additionalMxtunnels := types.MapValueMust(
@@ -21203,8 +21198,8 @@ func (v MxtunnelsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	return objVal, diags
 }
 
-func (v MxtunnelsValue) Equal(o attr.Value) bool {
-	other, ok := o.(MxtunnelsValue)
+func (v MxtunnelValue) Equal(o attr.Value) bool {
+	other, ok := o.(MxtunnelValue)
 
 	if !ok {
 		return false
@@ -21293,15 +21288,15 @@ func (v MxtunnelsValue) Equal(o attr.Value) bool {
 	return true
 }
 
-func (v MxtunnelsValue) Type(ctx context.Context) attr.Type {
-	return MxtunnelsType{
+func (v MxtunnelValue) Type(ctx context.Context) attr.Type {
+	return MxtunnelType{
 		basetypes.ObjectType{
 			AttrTypes: v.AttributeTypes(ctx),
 		},
 	}
 }
 
-func (v MxtunnelsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+func (v MxtunnelValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"additional_mxtunnels": basetypes.MapType{
 			ElemType: AdditionalMxtunnelsValue{}.Type(ctx),

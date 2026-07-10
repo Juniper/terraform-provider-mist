@@ -206,9 +206,9 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		mxedgeMgmt = mxedgeMgmtSdkToTerraform(ctx, &diags, data.MxedgeMgmt)
 	}
 
-	var mxtunnels = NewMxtunnelsValueNull()
-	if data.Mxtunnels != nil {
-		mxtunnels = mxtunnelsSdkToTerraform(ctx, &diags, data.Mxtunnels)
+	var mxtunnel = NewMxtunnelValueNull()
+	if data.Mxtunnel != nil {
+		mxtunnel = mxtunnelSdkToTerraform(ctx, &diags, data.Mxtunnel)
 	}
 
 	var tuntermMonitoring = types.ListNull(TuntermMonitoringValue{}.Type(ctx))
@@ -391,7 +391,7 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		WiredVna:                   wiredVna,
 		ZoneOccupancyAlert:         zoneOccupancyAlert,
 		MxedgeMgmt:                 mxedgeMgmt,
-		Mxtunnels:                  mxtunnels,
+		Mxtunnel:                   mxtunnel,
 		TuntermMonitoring:          tuntermMonitoring,
 		TuntermMonitoringDisabled:  tuntermMonitoringDisabled,
 		TuntermMulticastConfig:     tuntermMulticastConfig,
