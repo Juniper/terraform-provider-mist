@@ -5,6 +5,7 @@ package resource_site_psk
 import (
 	"context"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
@@ -128,6 +129,15 @@ func SitePskResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Default: stringdefault.StaticString("multi"),
 			},
+			"usermac_labels": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "Usermac labels allowed when `usage`==`usermac_labels`; this list is capped at 100 entries",
+				MarkdownDescription: "Usermac labels allowed when `usage`==`usermac_labels`; this list is capped at 100 entries",
+				Validators: []validator.List{
+					listvalidator.SizeAtMost(100),
+				},
+			},
 			"vlan_id": schema.StringAttribute{
 				Optional:            true,
 				Description:         "VLAN ID returned for clients using this PSK",
@@ -165,6 +175,7 @@ type SitePskModel struct {
 	SiteId                 types.String `tfsdk:"site_id"`
 	Ssid                   types.String `tfsdk:"ssid"`
 	Usage                  types.String `tfsdk:"usage"`
+	UsermacLabels          types.List   `tfsdk:"usermac_labels"`
 	VlanId                 types.String `tfsdk:"vlan_id"`
 	VlanName               types.String `tfsdk:"vlan_name"`
 }

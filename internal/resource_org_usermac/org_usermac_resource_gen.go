@@ -65,6 +65,12 @@ func OrgUsermacResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "RADIUS group associated with this user MAC entry",
 				Default:             stringdefault.StaticString(""),
 			},
+			"site_ids": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "Optional list of site IDs this user MAC entry is scoped to",
+				MarkdownDescription: "Optional list of site IDs this user MAC entry is scoped to",
+			},
 			"vlan": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
@@ -87,5 +93,6 @@ type OrgUsermacModel struct {
 	Notes       types.String `tfsdk:"notes"`
 	OrgId       types.String `tfsdk:"org_id"`
 	RadiusGroup types.String `tfsdk:"radius_group"`
+	SiteIds     types.List   `tfsdk:"site_ids"`
 	Vlan        types.String `tfsdk:"vlan"`
 }

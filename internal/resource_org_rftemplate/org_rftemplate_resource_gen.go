@@ -524,6 +524,11 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 				Description:         "Optional, country code to use. If specified, this gets applied to all sites using the RF Template",
 				MarkdownDescription: "Optional, country code to use. If specified, this gets applied to all sites using the RF Template",
 			},
+			"enable_unii_4": schema.BoolAttribute{
+				Optional:            true,
+				Description:         "Whether U-NII-4 channels (169, 173, 177) are enabled",
+				MarkdownDescription: "Whether U-NII-4 channels (169, 173, 177) are enabled",
+			},
 			"id": schema.StringAttribute{
 				Computed:            true,
 				Description:         "Unique identifier of the RF template",
@@ -1050,6 +1055,7 @@ type OrgRftemplateModel struct {
 	Band5On24Radio  Band5On24RadioValue `tfsdk:"band_5_on_24_radio"`
 	Band6           Band6Value          `tfsdk:"band_6"`
 	CountryCode     types.String        `tfsdk:"country_code"`
+	EnableUnii4     types.Bool          `tfsdk:"enable_unii_4"`
 	Id              types.String        `tfsdk:"id"`
 	ModelSpecific   types.Map           `tfsdk:"model_specific"`
 	Name            types.String        `tfsdk:"name"`

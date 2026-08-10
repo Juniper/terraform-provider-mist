@@ -131,17 +131,27 @@ func OrgPskResourceSchema(ctx context.Context) schema.Schema {
 			"usage": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Binding mode for this PSK, enum: `macs`, `multi`, `single`",
-				MarkdownDescription: "Binding mode for this PSK, enum: `macs`, `multi`, `single`",
+				Description:         "Binding mode for this PSK, enum: `macs`, `multi`, `single`, `usermac_labels`",
+				MarkdownDescription: "Binding mode for this PSK, enum: `macs`, `multi`, `single`, `usermac_labels`",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
 						"macs",
 						"multi",
 						"single",
+						"usermac_labels",
 					),
 				},
 				Default: stringdefault.StaticString("multi"),
+			},
+			"usermac_labels": schema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "Usermac labels allowed when `usage`==`usermac_labels`; this list is capped at 100 entries",
+				MarkdownDescription: "Usermac labels allowed when `usage`==`usermac_labels`; this list is capped at 100 entries",
+				Validators: []validator.List{
+					listvalidator.SizeAtMost(100),
+				},
 			},
 			"vlan_id": schema.StringAttribute{
 				Optional:            true,
@@ -181,6 +191,7 @@ type OrgPskModel struct {
 	Role                   types.String `tfsdk:"role"`
 	Ssid                   types.String `tfsdk:"ssid"`
 	Usage                  types.String `tfsdk:"usage"`
+	UsermacLabels          types.List   `tfsdk:"usermac_labels"`
 	VlanId                 types.String `tfsdk:"vlan_id"`
 	VlanName               types.String `tfsdk:"vlan_name"`
 }
