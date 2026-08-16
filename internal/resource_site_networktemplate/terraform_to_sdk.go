@@ -36,6 +36,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteNetworktemplateModel) (*model
 		data.AdditionalConfigCmds = mistutils.ListOfStringTerraformToSdk(plan.AdditionalConfigCmds)
 	}
 
+	if plan.AllowMist.IsNull() || plan.AllowMist.IsUnknown() {
+		unset["-allow_mist"] = ""
+	} else {
+		data.AllowMist = plan.AllowMist.ValueBoolPointer()
+	}
+
 	if plan.AutoUpgradeLinecard.IsNull() || plan.AutoUpgradeLinecard.IsUnknown() {
 		unset["-auto_upgrade_linecard"] = ""
 	} else {
@@ -172,6 +178,16 @@ func TerraformToSdk(ctx context.Context, plan *SiteNetworktemplateModel) (*model
 		unset["-vrf_instances"] = ""
 	} else {
 		data.VrfInstances = vrfInstancesTerraformToSdk(plan.VrfInstances)
+	}
+
+	if plan.UwbConfig.IsNull() || plan.UwbConfig.IsUnknown() {
+		unset["-uwb_config"] = ""
+	} else {
+		data.UwbConfig = uwbConfigTerraformToSdk(plan.UwbConfig)
+	}
+
+	if !plan.VarsAnnotations.IsNull() && !plan.VarsAnnotations.IsUnknown() {
+		data.VarsAnnotations = varsAnnotationsTerraformToSdk(plan.VarsAnnotations)
 	}
 
 	data.AdditionalProperties = unset

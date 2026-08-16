@@ -157,7 +157,11 @@ func tunnelConfigIpsecProposalSdkToTerraform(ctx context.Context, diags *diag.Di
 
 func tunnelConfigNodeSdkToTerraform(diags *diag.Diagnostics, d models.TunnelConfigNode, dataMapAttrType map[string]attr.Type) basetypes.ObjectValue {
 	var hosts = types.ListNull(types.StringType)
+	var internalIp6s = types.ListNull(types.StringType)
 	var internalIps = types.ListNull(types.StringType)
+	var probeHostnames = types.ListNull(types.StringType)
+	var probeHttp = types.ObjectNull(ProbeHttpValue{}.AttributeTypes(context.Background()))
+	var probeIp6s = types.ListNull(types.StringType)
 	var probeIps = types.ListNull(types.StringType)
 	var remoteIds = types.ListNull(types.StringType)
 	var wanNames = types.ListNull(types.StringType)
@@ -165,8 +169,34 @@ func tunnelConfigNodeSdkToTerraform(diags *diag.Diagnostics, d models.TunnelConf
 	if d.Hosts != nil {
 		hosts = mistutils.ListOfStringSdkToTerraform(d.Hosts)
 	}
+	if d.InternalIp6s != nil {
+		internalIp6s = mistutils.ListOfStringSdkToTerraform(d.InternalIp6s)
+	}
 	if d.InternalIps != nil {
 		internalIps = mistutils.ListOfStringSdkToTerraform(d.InternalIps)
+	}
+	if d.ProbeHostnames != nil {
+		probeHostnames = mistutils.ListOfStringSdkToTerraform(d.ProbeHostnames)
+	}
+	if d.ProbeHttp != nil {
+		var acceptedStatusCodes = types.ListNull(types.Int64Type)
+		var urls = types.ListNull(types.StringType)
+		if d.ProbeHttp.AcceptedStatusCodes != nil {
+			acceptedStatusCodes = mistutils.ListOfIntSdkToTerraform(d.ProbeHttp.AcceptedStatusCodes)
+		}
+		if d.ProbeHttp.Urls != nil {
+			urls = mistutils.ListOfStringSdkToTerraform(d.ProbeHttp.Urls)
+		}
+		probeHttpValue := map[string]attr.Value{
+			"accepted_status_codes": acceptedStatusCodes,
+			"urls":                  urls,
+		}
+		obj, e := basetypes.NewObjectValue(ProbeHttpValue{}.AttributeTypes(context.Background()), probeHttpValue)
+		diags.Append(e...)
+		probeHttp = obj
+	}
+	if d.ProbeIp6s != nil {
+		probeIp6s = mistutils.ListOfStringSdkToTerraform(d.ProbeIp6s)
 	}
 	if d.ProbeIps != nil {
 		probeIps = mistutils.ListOfStringSdkToTerraform(d.ProbeIps)
@@ -179,11 +209,15 @@ func tunnelConfigNodeSdkToTerraform(diags *diag.Diagnostics, d models.TunnelConf
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"hosts":        hosts,
-		"internal_ips": internalIps,
-		"probe_ips":    probeIps,
-		"remote_ids":   remoteIds,
-		"wan_names":    wanNames,
+		"hosts":           hosts,
+		"internal_ip6s":   internalIp6s,
+		"internal_ips":    internalIps,
+		"probe_hostnames": probeHostnames,
+		"probe_http":      probeHttp,
+		"probe_ip6s":      probeIp6s,
+		"probe_ips":       probeIps,
+		"remote_ids":      remoteIds,
+		"wan_names":       wanNames,
 	}
 	data, e := basetypes.NewObjectValue(dataMapAttrType, dataMapValue)
 	diags.Append(e...)
@@ -287,7 +321,7 @@ func tunnelConfigsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m
 		if d.Provider != nil {
 			provider = types.StringValue(string(*d.Provider))
 		}
-		if d.Psk != nil {
+		if d.Psk != nil && *d.Psk != "" {
 			psk = types.StringValue(*d.Psk)
 		}
 		if d.RemoteSubnets != nil {

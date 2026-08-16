@@ -6,6 +6,7 @@ ssid = "Test-All-Attributes"
 cert_expire_time = 365
 eap_type = "wpa3"
 enable_telemetry = true
+enable_location  = false
 expiry_notification_time = 30
 notify_expiry = true
 tos = "By using this network, you agree to our terms of service and privacy policy."

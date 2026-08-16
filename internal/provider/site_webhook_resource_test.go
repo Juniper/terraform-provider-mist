@@ -129,6 +129,10 @@ func (s *SiteWebhookModel) testChecks(t testing.TB, rType, tName string, tracker
 		}
 	}
 
+	if s.DefaultAction != nil {
+		checks.append(t, "TestCheckResourceAttr", "default_action", *s.DefaultAction)
+	}
+
 	if s.Enabled != nil {
 		checks.append(t, "TestCheckResourceAttr", "enabled", fmt.Sprintf("%t", *s.Enabled))
 	}
@@ -172,6 +176,16 @@ func (s *SiteWebhookModel) testChecks(t testing.TB, rType, tName string, tracker
 
 	if s.Secret != nil {
 		checks.append(t, "TestCheckResourceAttr", "secret", *s.Secret)
+	}
+
+	if len(s.Rules) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "rules.#", fmt.Sprintf("%d", len(s.Rules)))
+		for i, rule := range s.Rules {
+			if rule.Action != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("rules.%d.action", i), *rule.Action)
+			}
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("rules.%d.topic", i), rule.Topic)
+		}
 	}
 
 	if s.SingleEventPerMessage != nil {

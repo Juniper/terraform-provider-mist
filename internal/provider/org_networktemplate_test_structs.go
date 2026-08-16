@@ -11,6 +11,7 @@ type OrgNetworktemplateModel struct {
 	ExtraRoutes           map[string]OrgNetworktemplateExtraRoutesValue     `hcl:"extra_routes"`
 	ExtraRoutes6          map[string]OrgNetworktemplateExtraRoutes6Value    `hcl:"extra_routes6"`
 	MistNac               *OrgNetworktemplateMistNacValue                   `hcl:"mist_nac"`
+	MulticastConfig       *OrgNetworktemplateMulticastConfigValue           `hcl:"multicast_config"`
 	Name                  string                                            `hcl:"name"`
 	Networks              map[string]OrgNetworktemplateNetworksValue        `hcl:"networks"`
 	NtpServers            []string                                          `hcl:"ntp_servers"`
@@ -30,9 +31,10 @@ type OrgNetworktemplateModel struct {
 }
 
 type OrgNetworktemplateAclPoliciesValue struct {
-	Actions []OrgNetworktemplateActionsValue `cty:"actions" hcl:"actions"`
-	Name    *string                          `cty:"name" hcl:"name"`
-	SrcTags []string                         `cty:"src_tags" hcl:"src_tags"`
+	Actions  []OrgNetworktemplateActionsValue `cty:"actions" hcl:"actions"`
+	Disabled *bool                            `cty:"disabled" hcl:"disabled"`
+	Name     *string                          `cty:"name" hcl:"name"`
+	SrcTags  []string                         `cty:"src_tags" hcl:"src_tags"`
 }
 
 type OrgNetworktemplateActionsValue struct {
@@ -113,14 +115,27 @@ type OrgNetworktemplateMistNacValue struct {
 	Network *string `cty:"network" hcl:"network"`
 }
 
+type OrgNetworktemplateMulticastConfigValue struct {
+	AnycastRp *bool   `cty:"anycast_rp" hcl:"anycast_rp"`
+	RpIp      *string `cty:"rp_ip" hcl:"rp_ip"`
+	SbdSubnet *string `cty:"sbd_subnet" hcl:"sbd_subnet"`
+	SbdVlanId *int64  `cty:"sbd_vlan_id" hcl:"sbd_vlan_id"`
+}
+
 type OrgNetworktemplateNetworksValue struct {
-	Gateway         *string `cty:"gateway" hcl:"gateway"`
-	Gateway6        *string `cty:"gateway6" hcl:"gateway6"`
-	Isolation       *bool   `cty:"isolation" hcl:"isolation"`
-	IsolationVlanId *string `cty:"isolation_vlan_id" hcl:"isolation_vlan_id"`
-	Subnet          *string `cty:"subnet" hcl:"subnet"`
-	Subnet6         *string `cty:"subnet6" hcl:"subnet6"`
-	VlanId          string  `cty:"vlan_id" hcl:"vlan_id"`
+	Gateway         *string                           `cty:"gateway" hcl:"gateway"`
+	Gateway6        *string                           `cty:"gateway6" hcl:"gateway6"`
+	Isolation       *bool                             `cty:"isolation" hcl:"isolation"`
+	IsolationVlanId *string                           `cty:"isolation_vlan_id" hcl:"isolation_vlan_id"`
+	Multicast       *OrgNetworktemplateMulticastValue `cty:"multicast" hcl:"multicast"`
+	Subnet          *string                           `cty:"subnet" hcl:"subnet"`
+	Subnet6         *string                           `cty:"subnet6" hcl:"subnet6"`
+	VlanId          string                            `cty:"vlan_id" hcl:"vlan_id"`
+}
+
+type OrgNetworktemplateMulticastValue struct {
+	Enabled     *bool   `cty:"enabled" hcl:"enabled"`
+	IgmpVersion *string `cty:"igmp_version" hcl:"igmp_version"`
 }
 
 type OrgNetworktemplateOspfAreasValue struct {
@@ -390,6 +405,7 @@ type OrgNetworktemplateNotifyValue struct {
 }
 
 type OrgNetworktemplateNotifyFilterValue struct {
+	Categories     []string                                `cty:"categories" hcl:"categories"`
 	ProfileName    *string                                 `cty:"profile_name" hcl:"profile_name"`
 	Snmpv3Contents []OrgNetworktemplateSnmpv3ContentsValue `cty:"contents" hcl:"contents"`
 }
@@ -590,6 +606,7 @@ type OrgNetworktemplateVrfConfigValue struct {
 type OrgNetworktemplateVrfInstancesValue struct {
 	EvpnAutoLoopbackSubnet  *string                                           `cty:"evpn_auto_loopback_subnet" hcl:"evpn_auto_loopback_subnet"`
 	EvpnAutoLoopbackSubnet6 *string                                           `cty:"evpn_auto_loopback_subnet6" hcl:"evpn_auto_loopback_subnet6"`
+	MulticastConfig         *OrgNetworktemplateMulticastConfigValue           `cty:"multicast_config" hcl:"multicast_config"`
 	Networks                []string                                          `cty:"networks" hcl:"networks"`
 	VrfExtraRoutes          map[string]OrgNetworktemplateVrfExtraRoutesValue  `cty:"extra_routes" hcl:"extra_routes"`
 	VrfExtraRoutes6         map[string]OrgNetworktemplateVrfExtraRoutes6Value `cty:"extra_routes6" hcl:"extra_routes6"`

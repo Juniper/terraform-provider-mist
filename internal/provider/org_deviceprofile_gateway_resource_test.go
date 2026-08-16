@@ -3,6 +3,7 @@ package provider
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -890,6 +891,23 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, tName str
 				}
 			}
 			if portConfig.WanProbeOverride != nil {
+				if len(portConfig.WanProbeOverride.Hostnames) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_probe_override.hostnames.#", key), fmt.Sprintf("%d", len(portConfig.WanProbeOverride.Hostnames)))
+					for i, hostname := range portConfig.WanProbeOverride.Hostnames {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_probe_override.hostnames.%d", key, i), hostname)
+					}
+				}
+				if portConfig.WanProbeOverride.Http != nil {
+					if len(portConfig.WanProbeOverride.Http.AcceptedStatusCodes) > 0 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_probe_override.http.accepted_status_codes.#", key), fmt.Sprintf("%d", len(portConfig.WanProbeOverride.Http.AcceptedStatusCodes)))
+					}
+					if len(portConfig.WanProbeOverride.Http.Urls) > 0 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_probe_override.http.urls.#", key), fmt.Sprintf("%d", len(portConfig.WanProbeOverride.Http.Urls)))
+						for i, url := range portConfig.WanProbeOverride.Http.Urls {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_probe_override.http.urls.%d", key, i), url)
+						}
+					}
+				}
 				if len(portConfig.WanProbeOverride.Ip6s) > 0 {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_probe_override.ip6s.#", key), fmt.Sprintf("%d", len(portConfig.WanProbeOverride.Ip6s)))
 					for i, ip6 := range portConfig.WanProbeOverride.Ip6s {
@@ -1213,8 +1231,8 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, tName str
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.auto_provision.enabled", key), fmt.Sprintf("%t", *tunnelConfig.AutoProvision.Enabled))
 				}
 				if tunnelConfig.AutoProvision.Latlng != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.auto_provision.latlng.lat", key), fmt.Sprintf("%f", tunnelConfig.AutoProvision.Latlng.Lat))
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.auto_provision.latlng.lng", key), fmt.Sprintf("%f", tunnelConfig.AutoProvision.Latlng.Lng))
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.auto_provision.latlng.lat", key), strconv.FormatFloat(tunnelConfig.AutoProvision.Latlng.Lat, 'f', -1, 64))
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.auto_provision.latlng.lng", key), strconv.FormatFloat(tunnelConfig.AutoProvision.Latlng.Lng, 'f', -1, 64))
 				}
 				if tunnelConfig.AutoProvision.Provider != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.auto_provision.provider", key), *tunnelConfig.AutoProvision.Provider)
@@ -1288,10 +1306,39 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, tName str
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.hosts.%d", key, i), host)
 					}
 				}
+				if len(tunnelConfig.Primary.InternalIp6s) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.internal_ip6s.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.InternalIp6s)))
+					for i, ip6 := range tunnelConfig.Primary.InternalIp6s {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.internal_ip6s.%d", key, i), ip6)
+					}
+				}
 				if len(tunnelConfig.Primary.InternalIps) > 0 {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.internal_ips.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.InternalIps)))
 					for i, internalIp := range tunnelConfig.Primary.InternalIps {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.internal_ips.%d", key, i), internalIp)
+					}
+				}
+				if len(tunnelConfig.Primary.ProbeHostnames) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_hostnames.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.ProbeHostnames)))
+					for i, hostname := range tunnelConfig.Primary.ProbeHostnames {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_hostnames.%d", key, i), hostname)
+					}
+				}
+				if tunnelConfig.Primary.ProbeHttp != nil {
+					if len(tunnelConfig.Primary.ProbeHttp.AcceptedStatusCodes) > 0 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_http.accepted_status_codes.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.ProbeHttp.AcceptedStatusCodes)))
+					}
+					if len(tunnelConfig.Primary.ProbeHttp.Urls) > 0 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_http.urls.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.ProbeHttp.Urls)))
+						for i, url := range tunnelConfig.Primary.ProbeHttp.Urls {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_http.urls.%d", key, i), url)
+						}
+					}
+				}
+				if len(tunnelConfig.Primary.ProbeIp6s) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_ip6s.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.ProbeIp6s)))
+					for i, ip6 := range tunnelConfig.Primary.ProbeIp6s {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_ip6s.%d", key, i), ip6)
 					}
 				}
 				if len(tunnelConfig.Primary.ProbeIps) > 0 {
@@ -1347,10 +1394,39 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, tName str
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.hosts.%d", key, i), host)
 					}
 				}
+				if len(tunnelConfig.Secondary.InternalIp6s) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.internal_ip6s.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.InternalIp6s)))
+					for i, ip6 := range tunnelConfig.Secondary.InternalIp6s {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.internal_ip6s.%d", key, i), ip6)
+					}
+				}
 				if len(tunnelConfig.Secondary.InternalIps) > 0 {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.internal_ips.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.InternalIps)))
 					for i, internalIp := range tunnelConfig.Secondary.InternalIps {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.internal_ips.%d", key, i), internalIp)
+					}
+				}
+				if len(tunnelConfig.Secondary.ProbeHostnames) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_hostnames.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.ProbeHostnames)))
+					for i, hostname := range tunnelConfig.Secondary.ProbeHostnames {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_hostnames.%d", key, i), hostname)
+					}
+				}
+				if tunnelConfig.Secondary.ProbeHttp != nil {
+					if len(tunnelConfig.Secondary.ProbeHttp.AcceptedStatusCodes) > 0 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_http.accepted_status_codes.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.ProbeHttp.AcceptedStatusCodes)))
+					}
+					if len(tunnelConfig.Secondary.ProbeHttp.Urls) > 0 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_http.urls.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.ProbeHttp.Urls)))
+						for i, url := range tunnelConfig.Secondary.ProbeHttp.Urls {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_http.urls.%d", key, i), url)
+						}
+					}
+				}
+				if len(tunnelConfig.Secondary.ProbeIp6s) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_ip6s.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.ProbeIp6s)))
+					for i, ip6 := range tunnelConfig.Secondary.ProbeIp6s {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_ip6s.%d", key, i), ip6)
 					}
 				}
 				if len(tunnelConfig.Secondary.ProbeIps) > 0 {
@@ -1412,7 +1488,7 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, tName str
 				checks.append(t, "TestCheckResourceAttr", "tunnel_provider_options.zscaler.caution_enabled", fmt.Sprintf("%t", *s.TunnelProviderOptions.Zscaler.CautionEnabled))
 			}
 			if s.TunnelProviderOptions.Zscaler.DnBandwidth != nil {
-				checks.append(t, "TestCheckResourceAttr", "tunnel_provider_options.zscaler.dn_bandwidth", fmt.Sprintf("%f", *s.TunnelProviderOptions.Zscaler.DnBandwidth))
+				checks.append(t, "TestCheckResourceAttr", "tunnel_provider_options.zscaler.dn_bandwidth", strconv.FormatFloat(*s.TunnelProviderOptions.Zscaler.DnBandwidth, 'f', -1, 64))
 			}
 			if s.TunnelProviderOptions.Zscaler.IdleTimeInMinutes != nil {
 				checks.append(t, "TestCheckResourceAttr", "tunnel_provider_options.zscaler.idle_time_in_minutes", fmt.Sprintf("%d", *s.TunnelProviderOptions.Zscaler.IdleTimeInMinutes))
@@ -1442,7 +1518,7 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, tName str
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_provider_options.zscaler.sub_locations.%d.caution_enabled", i), fmt.Sprintf("%t", *subLocation.CautionEnabled))
 					}
 					if subLocation.DnBandwidth != nil {
-						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_provider_options.zscaler.sub_locations.%d.dn_bandwidth", i), fmt.Sprintf("%f", *subLocation.DnBandwidth))
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_provider_options.zscaler.sub_locations.%d.dn_bandwidth", i), strconv.FormatFloat(*subLocation.DnBandwidth, 'f', -1, 64))
 					}
 					if subLocation.IdleTimeInMinutes != nil {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_provider_options.zscaler.sub_locations.%d.idle_time_in_minutes", i), fmt.Sprintf("%d", *subLocation.IdleTimeInMinutes))
@@ -1463,7 +1539,7 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, tName str
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_provider_options.zscaler.sub_locations.%d.surrogate_refresh_time_in_minutes", i), fmt.Sprintf("%d", *subLocation.SurrogateRefreshTimeInMinutes))
 					}
 					if subLocation.UpBandwidth != nil {
-						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_provider_options.zscaler.sub_locations.%d.up_bandwidth", i), fmt.Sprintf("%f", *subLocation.UpBandwidth))
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_provider_options.zscaler.sub_locations.%d.up_bandwidth", i), strconv.FormatFloat(*subLocation.UpBandwidth, 'f', -1, 64))
 					}
 				}
 			}
@@ -1477,7 +1553,7 @@ func (s *OrgDeviceprofileGatewayModel) testChecks(t testing.TB, rType, tName str
 				checks.append(t, "TestCheckResourceAttr", "tunnel_provider_options.zscaler.surrogate_refresh_time_in_minutes", fmt.Sprintf("%d", *s.TunnelProviderOptions.Zscaler.SurrogateRefreshTimeInMinutes))
 			}
 			if s.TunnelProviderOptions.Zscaler.UpBandwidth != nil {
-				checks.append(t, "TestCheckResourceAttr", "tunnel_provider_options.zscaler.up_bandwidth", fmt.Sprintf("%f", *s.TunnelProviderOptions.Zscaler.UpBandwidth))
+				checks.append(t, "TestCheckResourceAttr", "tunnel_provider_options.zscaler.up_bandwidth", strconv.FormatFloat(*s.TunnelProviderOptions.Zscaler.UpBandwidth, 'f', -1, 64))
 			}
 			if s.TunnelProviderOptions.Zscaler.XffForwardEnabled != nil {
 				checks.append(t, "TestCheckResourceAttr", "tunnel_provider_options.zscaler.xff_forward_enabled", fmt.Sprintf("%t", *s.TunnelProviderOptions.Zscaler.XffForwardEnabled))

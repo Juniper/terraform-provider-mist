@@ -136,6 +136,10 @@ func (o *OrgNacPortalModel) testChecks(t testing.TB, rType, tName string, tracke
 		checks.append(t, "TestCheckResourceAttr", "eap_type", *o.EapType)
 	}
 
+	if o.EnableLocation != nil {
+		checks.append(t, "TestCheckResourceAttr", "enable_location", fmt.Sprintf("%t", *o.EnableLocation))
+	}
+
 	if o.EnableTelemetry != nil {
 		checks.append(t, "TestCheckResourceAttr", "enable_telemetry", fmt.Sprintf("%t", *o.EnableTelemetry))
 	}

@@ -82,6 +82,7 @@ func vrfInstancesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m 
 		var evpnAutoLoopbackSubnet6 basetypes.StringValue
 		var extraRoutes = types.MapNull(VrfExtraRoutesValue{}.Type(ctx))
 		var extraRoutes6 = types.MapNull(VrfExtraRoutes6Value{}.Type(ctx))
+		var multicastConfig = types.ObjectNull(MulticastConfigValue{}.AttributeTypes(ctx))
 		var networks = mistutils.ListOfStringSdkToTerraformEmpty()
 
 		if d.EvpnAutoLoopbackSubnet != nil {
@@ -96,6 +97,34 @@ func vrfInstancesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m 
 		if len(d.ExtraRoutes6) > 0 {
 			extraRoutes6 = vrfInstanceExtraRoute6SdkToTerraform(ctx, diags, d.ExtraRoutes6)
 		}
+		if d.MulticastConfig != nil {
+			var anycastRp basetypes.BoolValue
+			var rpIp basetypes.StringValue
+			var sbdSubnet basetypes.StringValue
+			var sbdVlanId basetypes.Int64Value
+			if d.MulticastConfig.AnycastRp != nil {
+				anycastRp = types.BoolValue(*d.MulticastConfig.AnycastRp)
+			}
+			if d.MulticastConfig.RpIp != nil {
+				rpIp = types.StringValue(*d.MulticastConfig.RpIp)
+			}
+			if d.MulticastConfig.SbdSubnet != nil {
+				sbdSubnet = types.StringValue(*d.MulticastConfig.SbdSubnet)
+			}
+			if d.MulticastConfig.SbdVlanId != nil {
+				sbdVlanId = types.Int64Value(int64(*d.MulticastConfig.SbdVlanId))
+			}
+			mcv, e := NewMulticastConfigValue(MulticastConfigValue{}.AttributeTypes(ctx), map[string]attr.Value{
+				"anycast_rp":  anycastRp,
+				"rp_ip":       rpIp,
+				"sbd_subnet":  sbdSubnet,
+				"sbd_vlan_id": sbdVlanId,
+			})
+			diags.Append(e...)
+			o, e2 := mcv.ToObjectValue(ctx)
+			diags.Append(e2...)
+			multicastConfig = o
+		}
 		if d.Networks != nil {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
@@ -105,6 +134,7 @@ func vrfInstancesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m 
 			"evpn_auto_loopback_subnet6": evpnAutoLoopbackSubnet6,
 			"extra_routes":               extraRoutes,
 			"extra_routes6":              extraRoutes6,
+			"multicast_config":           multicastConfig,
 			"networks":                   networks,
 		}
 		data, e := NewVrfInstancesValue(VrfInstancesValue{}.AttributeTypes(ctx), vrfMapValue)

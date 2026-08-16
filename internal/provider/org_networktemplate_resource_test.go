@@ -130,6 +130,9 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, tName string, 
 					checks.append(t, "TestCheckResourceAttr", actionPath+".dst_tag", action.DstTag)
 				}
 			}
+			if policy.Disabled != nil {
+				checks.append(t, "TestCheckResourceAttr", basePath+".disabled", fmt.Sprintf("%t", *policy.Disabled))
+			}
 		}
 	}
 
@@ -244,6 +247,21 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, tName string, 
 		}
 		if o.MistNac.Network != nil {
 			checks.append(t, "TestCheckResourceAttr", "mist_nac.network", *o.MistNac.Network)
+		}
+	}
+
+	if o.MulticastConfig != nil {
+		if o.MulticastConfig.AnycastRp != nil {
+			checks.append(t, "TestCheckResourceAttr", "multicast_config.anycast_rp", fmt.Sprintf("%t", *o.MulticastConfig.AnycastRp))
+		}
+		if o.MulticastConfig.RpIp != nil {
+			checks.append(t, "TestCheckResourceAttr", "multicast_config.rp_ip", *o.MulticastConfig.RpIp)
+		}
+		if o.MulticastConfig.SbdSubnet != nil {
+			checks.append(t, "TestCheckResourceAttr", "multicast_config.sbd_subnet", *o.MulticastConfig.SbdSubnet)
+		}
+		if o.MulticastConfig.SbdVlanId != nil {
+			checks.append(t, "TestCheckResourceAttr", "multicast_config.sbd_vlan_id", fmt.Sprintf("%d", *o.MulticastConfig.SbdVlanId))
 		}
 	}
 
@@ -1382,6 +1400,14 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, tName string, 
 			if network.Isolation != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".isolation", fmt.Sprintf("%t", *network.Isolation))
 			}
+			if network.Multicast != nil {
+				if network.Multicast.Enabled != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".multicast.enabled", fmt.Sprintf("%t", *network.Multicast.Enabled))
+				}
+				if network.Multicast.IgmpVersion != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".multicast.igmp_version", *network.Multicast.IgmpVersion)
+				}
+			}
 		}
 	}
 
@@ -1704,6 +1730,21 @@ func (o *OrgNetworktemplateModel) testChecks(t testing.TB, rType, tName string, 
 			}
 			if instance.EvpnAutoLoopbackSubnet6 != nil {
 				checks.append(t, "TestCheckResourceAttr", basePath+".evpn_auto_loopback_subnet6", *instance.EvpnAutoLoopbackSubnet6)
+			}
+
+			if instance.MulticastConfig != nil {
+				if instance.MulticastConfig.AnycastRp != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".multicast_config.anycast_rp", fmt.Sprintf("%t", *instance.MulticastConfig.AnycastRp))
+				}
+				if instance.MulticastConfig.RpIp != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".multicast_config.rp_ip", *instance.MulticastConfig.RpIp)
+				}
+				if instance.MulticastConfig.SbdSubnet != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".multicast_config.sbd_subnet", *instance.MulticastConfig.SbdSubnet)
+				}
+				if instance.MulticastConfig.SbdVlanId != nil {
+					checks.append(t, "TestCheckResourceAttr", basePath+".multicast_config.sbd_vlan_id", fmt.Sprintf("%d", *instance.MulticastConfig.SbdVlanId))
+				}
 			}
 
 			if len(instance.VrfExtraRoutes) > 0 {

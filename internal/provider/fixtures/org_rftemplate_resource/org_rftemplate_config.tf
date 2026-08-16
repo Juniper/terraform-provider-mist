@@ -4,6 +4,7 @@ ant_gain_5          = 5
 ant_gain_6          = 7
 band_24_usage       = "24"
 country_code        = "US"
+enable_unii_4       = true
 scanning_enabled    = true
 
 band_24 {
@@ -52,8 +53,8 @@ band_6 {
   bandwidth         = 160
   channels          = [1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61]
   disabled          = true
-  power             = 18
-  power_max         = 18
+  power             = 17
+  power_max         = 17
   power_min         = 10
   preamble          = "auto"
   standard_power    = true
@@ -113,7 +114,7 @@ model_specific = {
       channels          = [1, 5, 9, 13, 17, 21, 25, 29]
       disabled          = true
       power             = 16
-      power_max         = 18
+      power_max         = 17
       power_min         = 8
       preamble          = "short"
       standard_power    = true
@@ -173,7 +174,7 @@ model_specific = {
       channels          = [1, 5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45]
       disabled          = true
       power             = 16
-      power_max         = 18
+      power_max         = 17
       power_min         = 12
       preamble          = "long"
       standard_power    = true

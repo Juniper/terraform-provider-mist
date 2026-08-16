@@ -51,6 +51,11 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		autoUpgrade = autoUpgradeSdkToTerraform(ctx, &diags, *data.AutoUpgrade)
 	}
 
+	var autoUpgradeEsl = NewAutoUpgradeEslValueNull()
+	if data.AutoUpgradeEsl != nil {
+		autoUpgradeEsl = autoUpgradeEslSdkToTerraform(ctx, &diags, *data.AutoUpgradeEsl)
+	}
+
 	var blacklistUrl = types.StringValue("")
 	if data.BlacklistUrl != nil {
 		blacklistUrl = types.StringValue(*data.BlacklistUrl)
@@ -104,6 +109,11 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	var gatewayUpdownThreshold types.Int64
 	if data.GatewayUpdownThreshold.Value() != nil {
 		gatewayUpdownThreshold = types.Int64Value(int64(*data.GatewayUpdownThreshold.Value()))
+	}
+
+	var gatewayTunnelUpdownThreshold types.Int64
+	if data.GatewayTunnelUpdownThreshold.Value() != nil {
+		gatewayTunnelUpdownThreshold = types.Int64Value(int64(*data.GatewayTunnelUpdownThreshold.Value()))
 	}
 
 	var juniperSrx = NewJuniperSrxValueNull()
@@ -263,6 +273,11 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 		tuntermMulticastConfig = tuntermMulticastConfigSdkToTerraform(ctx, &diags, data.TuntermMulticastConfig)
 	}
 
+	var uwbConfig = NewUwbConfigValueNull()
+	if data.UwbConfig != nil {
+		uwbConfig = uwbConfigSdkToTerraform(ctx, &diags, data.UwbConfig)
+	}
+
 	var trackAnonymousDevices types.Bool
 	if data.TrackAnonymousDevices != nil {
 		trackAnonymousDevices = types.BoolValue(*data.TrackAnonymousDevices)
@@ -339,62 +354,65 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteSettingM
 	}
 
 	state := SiteSettingModel{
-		SiteId:                     types.StringValue(data.SiteId.String()),
-		AllowMist:                  allowMist,
-		Analytic:                   analytic,
-		ApSyntheticTest:            apSyntheticTest,
-		ApUpdownThreshold:          apUpdownThreshold,
-		AutoUpgrade:                autoUpgrade,
-		BgpNeighborUpdownThreshold: bgpNeighborUpdownThreshold,
-		BleConfig:                  bleConfig,
-		BlacklistUrl:               blacklistUrl,
-		ConfigAutoRevert:           configAutoRevert,
-		ConfigPushPolicy:           configPushPolicy,
-		CriticalUrlMonitoring:      criticalUrlMonitoring,
-		DeviceUpdownThreshold:      deviceUpdownThreshold,
-		EnableUnii4:                enableUnii4,
-		Engagement:                 engagement,
-		GatewayMgmt:                gatewayMgmt,
-		GatewayUpdownThreshold:     gatewayUpdownThreshold,
-		JuniperSrx:                 juniperSrx,
-		Iotproxy:                   iotproxy,
-		Led:                        led,
-		Marvis:                     marvis,
-		Occupancy:                  occupancy,
-		PersistConfigOnDevice:      persistConfigOnDevice,
-		Proxy:                      proxy,
-		RemoveExistingConfigs:      removeExistingConfigs,
-		ReportGatt:                 reportGatt,
-		Rogue:                      rogue,
-		Rtsa:                       rtsa,
-		SimpleAlert:                simpleAlert,
-		Skyatp:                     skyatp,
-		SrxApp:                     srxApp,
-		SleThresholds:              sleThresholds,
-		SshKeys:                    sshKeys,
-		Ssr:                        ssr,
-		SwitchUpdownThreshold:      switchUpdownThreshold,
-		SyntheticTest:              syntheticTest,
-		TrackAnonymousDevices:      trackAnonymousDevices,
-		UplinkPortConfig:           uplinkPortConfig,
-		Vars:                       vars,
-		Vna:                        vna,
-		VpnPathUpdownThreshold:     vpnPathUpdownThreshold,
-		VpnPeerUpdownThreshold:     vpnPeerUpdownThreshold,
-		VsInstance:                 vsInstance,
-		VarsAnnotations:            varsAnnotations,
-		WanVna:                     wanVan,
-		WatchedStationUrl:          watchedStationUrl,
-		WhitelistUrl:               whitelistUrl,
-		Wids:                       wids,
-		Wifi:                       wifi,
-		WiredVna:                   wiredVna,
-		ZoneOccupancyAlert:         zoneOccupancyAlert,
-		MxedgeMgmt:                 mxedgeMgmt,
-		Mxtunnel:                   mxtunnel,
-		TuntermMonitoring:          tuntermMonitoring,
-		TuntermMonitoringDisabled:  tuntermMonitoringDisabled,
-		TuntermMulticastConfig:     tuntermMulticastConfig,
+		SiteId:                       types.StringValue(data.SiteId.String()),
+		AllowMist:                    allowMist,
+		Analytic:                     analytic,
+		ApSyntheticTest:              apSyntheticTest,
+		ApUpdownThreshold:            apUpdownThreshold,
+		AutoUpgrade:                  autoUpgrade,
+		AutoUpgradeEsl:               autoUpgradeEsl,
+		BgpNeighborUpdownThreshold:   bgpNeighborUpdownThreshold,
+		BleConfig:                    bleConfig,
+		BlacklistUrl:                 blacklistUrl,
+		ConfigAutoRevert:             configAutoRevert,
+		ConfigPushPolicy:             configPushPolicy,
+		CriticalUrlMonitoring:        criticalUrlMonitoring,
+		DeviceUpdownThreshold:        deviceUpdownThreshold,
+		EnableUnii4:                  enableUnii4,
+		Engagement:                   engagement,
+		GatewayMgmt:                  gatewayMgmt,
+		GatewayUpdownThreshold:       gatewayUpdownThreshold,
+		GatewayTunnelUpdownThreshold: gatewayTunnelUpdownThreshold,
+		JuniperSrx:                   juniperSrx,
+		Iotproxy:                     iotproxy,
+		Led:                          led,
+		Marvis:                       marvis,
+		Occupancy:                    occupancy,
+		PersistConfigOnDevice:        persistConfigOnDevice,
+		Proxy:                        proxy,
+		RemoveExistingConfigs:        removeExistingConfigs,
+		ReportGatt:                   reportGatt,
+		Rogue:                        rogue,
+		Rtsa:                         rtsa,
+		SimpleAlert:                  simpleAlert,
+		Skyatp:                       skyatp,
+		SrxApp:                       srxApp,
+		SleThresholds:                sleThresholds,
+		SshKeys:                      sshKeys,
+		Ssr:                          ssr,
+		SwitchUpdownThreshold:        switchUpdownThreshold,
+		SyntheticTest:                syntheticTest,
+		TrackAnonymousDevices:        trackAnonymousDevices,
+		UplinkPortConfig:             uplinkPortConfig,
+		Vars:                         vars,
+		Vna:                          vna,
+		VpnPathUpdownThreshold:       vpnPathUpdownThreshold,
+		VpnPeerUpdownThreshold:       vpnPeerUpdownThreshold,
+		VsInstance:                   vsInstance,
+		VarsAnnotations:              varsAnnotations,
+		WanVna:                       wanVan,
+		WatchedStationUrl:            watchedStationUrl,
+		WhitelistUrl:                 whitelistUrl,
+		Wids:                         wids,
+		Wifi:                         wifi,
+		WiredVna:                     wiredVna,
+		ZoneOccupancyAlert:           zoneOccupancyAlert,
+		MxedgeMgmt:                   mxedgeMgmt,
+		Mxtunnel:                     mxtunnel,
+		TuntermMonitoring:            tuntermMonitoring,
+		TuntermMonitoringDisabled:    tuntermMonitoringDisabled,
+		TuntermMulticastConfig:       tuntermMulticastConfig,
+		UwbConfig:                    uwbConfig,
 	}
 
 	return state, diags

@@ -68,7 +68,23 @@ func vrfInstancesTerraformToSdk(d basetypes.MapValue) map[string]models.SwitchVr
 		if !itemObj.VrfExtraRoutes6.IsNull() && !itemObj.VrfExtraRoutes6.IsUnknown() {
 			dataItem.ExtraRoutes = vrfInstanceExtraRoute6TerraformToSdk(itemObj.VrfExtraRoutes6)
 		}
-
+		if !itemObj.MulticastConfig.IsNull() && !itemObj.MulticastConfig.IsUnknown() {
+			attrs := itemObj.MulticastConfig.Attributes()
+			mc := models.SwitchMulticastConfig{}
+			if v, ok := attrs["anycast_rp"].(basetypes.BoolValue); ok && !v.IsNull() && !v.IsUnknown() {
+				mc.AnycastRp = v.ValueBoolPointer()
+			}
+			if v, ok := attrs["rp_ip"].(basetypes.StringValue); ok && !v.IsNull() && !v.IsUnknown() {
+				mc.RpIp = v.ValueStringPointer()
+			}
+			if v, ok := attrs["sbd_subnet"].(basetypes.StringValue); ok && !v.IsNull() && !v.IsUnknown() {
+				mc.SbdSubnet = v.ValueStringPointer()
+			}
+			if v, ok := attrs["sbd_vlan_id"].(basetypes.Int64Value); ok && !v.IsNull() && !v.IsUnknown() {
+				mc.SbdVlanId = models.ToPointer(int(v.ValueInt64()))
+			}
+			dataItem.MulticastConfig = &mc
+		}
 		data[itemName] = dataItem
 	}
 	return data

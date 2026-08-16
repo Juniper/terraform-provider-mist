@@ -1,19 +1,20 @@
 package provider
 
 type OrgRftemplateModel struct {
-	AntGain24       *int64                            `hcl:"ant_gain_24"`
-	AntGain5        *int64                            `hcl:"ant_gain_5"`
-	AntGain6        *int64                            `hcl:"ant_gain_6"`
-	Band24          *OrgRftemplateBand24Value         `hcl:"band_24"`
-	Band24Usage     *string                           `hcl:"band_24_usage"`
-	Band5           *OrgRftemplateBand5Value          `hcl:"band_5"`
-	Band5On24Radio  *OrgRftemplateBand5On24RadioValue `hcl:"band_5_on_24_radio"`
-	Band6           *OrgRftemplateBand6Value          `hcl:"band_6"`
-	CountryCode     *string                           `hcl:"country_code"`
-	ModelSpecific   map[string]ModelSpecificValue     `hcl:"model_specific"`
-	Name            string                            `hcl:"name"`
-	OrgId           string                            `hcl:"org_id"`
-	ScanningEnabled *bool                             `hcl:"scanning_enabled"`
+	AntGain24       *int64                                     `hcl:"ant_gain_24"`
+	AntGain5        *int64                                     `hcl:"ant_gain_5"`
+	AntGain6        *int64                                     `hcl:"ant_gain_6"`
+	Band24          *OrgRftemplateBand24Value                  `hcl:"band_24"`
+	Band24Usage     *string                                    `hcl:"band_24_usage"`
+	Band5           *OrgRftemplateBand5Value                   `hcl:"band_5"`
+	Band5On24Radio  *OrgRftemplateBand5On24RadioValue          `hcl:"band_5_on_24_radio"`
+	Band6           *OrgRftemplateBand6Value                   `hcl:"band_6"`
+	CountryCode     *string                                    `hcl:"country_code"`
+	EnableUnii4     *bool                                      `hcl:"enable_unii_4"`
+	ModelSpecific   map[string]OrgRftemplateModelSpecificValue `hcl:"model_specific"`
+	Name            string                                     `hcl:"name"`
+	OrgId           string                                     `hcl:"org_id"`
+	ScanningEnabled *bool                                      `hcl:"scanning_enabled"`
 }
 
 type OrgRftemplateBand24Value struct {
@@ -69,7 +70,7 @@ type OrgRftemplateBand6Value struct {
 	StandardPower   *bool   `cty:"standard_power" hcl:"standard_power"`
 }
 
-type ModelSpecificValue struct {
+type OrgRftemplateModelSpecificValue struct {
 	AntGain24      *int64                            `cty:"ant_gain_24" hcl:"ant_gain_24"`
 	AntGain5       *int64                            `cty:"ant_gain_5" hcl:"ant_gain_5"`
 	AntGain6       *int64                            `cty:"ant_gain_6" hcl:"ant_gain_6"`

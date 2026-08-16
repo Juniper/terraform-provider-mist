@@ -6,6 +6,7 @@ type OrgNacPortalModel struct {
 	AdditionalNacServerName []string                 `hcl:"additional_nac_server_name"`
 	CertExpireTime          *int64                   `hcl:"cert_expire_time"`
 	EapType                 *string                  `hcl:"eap_type"`
+	EnableLocation          *bool                    `hcl:"enable_location"`
 	EnableTelemetry         *bool                    `hcl:"enable_telemetry"`
 	ExpiryNotificationTime  *int64                   `hcl:"expiry_notification_time"`
 	Name                    string                   `hcl:"name"`

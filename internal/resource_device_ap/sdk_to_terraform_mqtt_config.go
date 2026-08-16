@@ -16,6 +16,7 @@ func mqttConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var brokerHost basetypes.StringValue
 	var brokerPort basetypes.Int64Value
 	var brokerProto basetypes.StringValue
+	var defaultTopic basetypes.StringValue
 	var enabled basetypes.BoolValue
 	var format basetypes.StringValue
 	var password basetypes.StringValue
@@ -29,6 +30,9 @@ func mqttConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	}
 	if d.BrokerProto != nil {
 		brokerProto = types.StringValue(string(*d.BrokerProto))
+	}
+	if d.DefaultTopic != nil {
+		defaultTopic = types.StringValue(*d.DefaultTopic)
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
@@ -44,13 +48,14 @@ func mqttConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"broker_host":  brokerHost,
-		"broker_port":  brokerPort,
-		"broker_proto": brokerProto,
-		"enabled":      enabled,
-		"format":       format,
-		"password":     password,
-		"username":     username,
+		"broker_host":   brokerHost,
+		"broker_port":   brokerPort,
+		"broker_proto":  brokerProto,
+		"default_topic": defaultTopic,
+		"enabled":       enabled,
+		"format":        format,
+		"password":      password,
+		"username":      username,
 	}
 	data, e := NewMqttConfigValue(MqttConfigValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

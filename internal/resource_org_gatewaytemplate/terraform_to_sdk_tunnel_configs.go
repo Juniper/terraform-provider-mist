@@ -178,8 +178,28 @@ func gatewayTemplateTunnelPrimaryProbeTerraformToSdk(ctx context.Context, diags 
 			if !plan.Hosts.IsNull() && !plan.Hosts.IsUnknown() {
 				data.Hosts = mistutils.ListOfStringTerraformToSdk(plan.Hosts)
 			}
+			if !plan.InternalIp6s.IsNull() && !plan.InternalIp6s.IsUnknown() {
+				data.InternalIp6s = mistutils.ListOfStringTerraformToSdk(plan.InternalIp6s)
+			}
 			if !plan.InternalIps.IsNull() && !plan.InternalIps.IsUnknown() {
 				data.InternalIps = mistutils.ListOfStringTerraformToSdk(plan.InternalIps)
+			}
+			if !plan.ProbeHostnames.IsNull() && !plan.ProbeHostnames.IsUnknown() {
+				data.ProbeHostnames = mistutils.ListOfStringTerraformToSdk(plan.ProbeHostnames)
+			}
+			if !plan.ProbeHttp.IsNull() && !plan.ProbeHttp.IsUnknown() {
+				probeHttpPlan := NewProbeHttpValueMust(plan.ProbeHttp.AttributeTypes(ctx), plan.ProbeHttp.Attributes())
+				probeHttp := models.TunnelConfigNodeProbeHttp{}
+				if !probeHttpPlan.AcceptedStatusCodes.IsNull() && !probeHttpPlan.AcceptedStatusCodes.IsUnknown() {
+					probeHttp.AcceptedStatusCodes = mistutils.ListOfIntTerraformToSdk(probeHttpPlan.AcceptedStatusCodes)
+				}
+				if !probeHttpPlan.Urls.IsNull() && !probeHttpPlan.Urls.IsUnknown() {
+					probeHttp.Urls = mistutils.ListOfStringTerraformToSdk(probeHttpPlan.Urls)
+				}
+				data.ProbeHttp = &probeHttp
+			}
+			if !plan.ProbeIp6s.IsNull() && !plan.ProbeIp6s.IsUnknown() {
+				data.ProbeIp6s = mistutils.ListOfStringTerraformToSdk(plan.ProbeIp6s)
 			}
 			if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
 				data.ProbeIps = mistutils.ListOfStringTerraformToSdk(plan.ProbeIps)
@@ -207,8 +227,28 @@ func gatewayTemplateTunnelSecondaryProbeTerraformToSdk(ctx context.Context, diag
 			if !plan.Hosts.IsNull() && !plan.Hosts.IsUnknown() {
 				data.Hosts = mistutils.ListOfStringTerraformToSdk(plan.Hosts)
 			}
+			if !plan.InternalIp6s.IsNull() && !plan.InternalIp6s.IsUnknown() {
+				data.InternalIp6s = mistutils.ListOfStringTerraformToSdk(plan.InternalIp6s)
+			}
 			if !plan.InternalIps.IsNull() && !plan.InternalIps.IsUnknown() {
 				data.InternalIps = mistutils.ListOfStringTerraformToSdk(plan.InternalIps)
+			}
+			if !plan.ProbeHostnames.IsNull() && !plan.ProbeHostnames.IsUnknown() {
+				data.ProbeHostnames = mistutils.ListOfStringTerraformToSdk(plan.ProbeHostnames)
+			}
+			if !plan.ProbeHttp.IsNull() && !plan.ProbeHttp.IsUnknown() {
+				probeHttpPlan := NewProbeHttpValueMust(plan.ProbeHttp.AttributeTypes(ctx), plan.ProbeHttp.Attributes())
+				probeHttp := models.TunnelConfigNodeProbeHttp{}
+				if !probeHttpPlan.AcceptedStatusCodes.IsNull() && !probeHttpPlan.AcceptedStatusCodes.IsUnknown() {
+					probeHttp.AcceptedStatusCodes = mistutils.ListOfIntTerraformToSdk(probeHttpPlan.AcceptedStatusCodes)
+				}
+				if !probeHttpPlan.Urls.IsNull() && !probeHttpPlan.Urls.IsUnknown() {
+					probeHttp.Urls = mistutils.ListOfStringTerraformToSdk(probeHttpPlan.Urls)
+				}
+				data.ProbeHttp = &probeHttp
+			}
+			if !plan.ProbeIp6s.IsNull() && !plan.ProbeIp6s.IsUnknown() {
+				data.ProbeIp6s = mistutils.ListOfStringTerraformToSdk(plan.ProbeIp6s)
 			}
 			if !plan.ProbeIps.IsNull() && !plan.ProbeIps.IsUnknown() {
 				data.ProbeIps = mistutils.ListOfStringTerraformToSdk(plan.ProbeIps)

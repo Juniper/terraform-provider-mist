@@ -25,6 +25,7 @@ enable_wireless_bridging_dhcp_tracking = true
 arp_filter = true
 block_blacklist_clients = true
 disable_11ax = false
+disable_11be = false
 disable_ht_vht_rates = false
 disable_uapsd = false
 disable_wmm = false

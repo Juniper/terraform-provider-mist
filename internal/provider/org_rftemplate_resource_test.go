@@ -126,6 +126,9 @@ func (o *OrgRftemplateModel) testChecks(t testing.TB, rType, tName string, track
 	if o.CountryCode != nil {
 		checks.append(t, "TestCheckResourceAttr", "country_code", *o.CountryCode)
 	}
+	if o.EnableUnii4 != nil {
+		checks.append(t, "TestCheckResourceAttr", "enable_unii_4", fmt.Sprintf("%t", *o.EnableUnii4))
+	}
 	if o.ScanningEnabled != nil {
 		checks.append(t, "TestCheckResourceAttr", "scanning_enabled", fmt.Sprintf("%t", *o.ScanningEnabled))
 	}

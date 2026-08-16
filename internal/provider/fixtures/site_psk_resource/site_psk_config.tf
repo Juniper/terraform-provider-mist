@@ -20,3 +20,4 @@
   email      = "netadmin@example.com"
   notify_expiry = false
   expiry_notification_time = 14
+  vlan_name  = "corp-vlan"

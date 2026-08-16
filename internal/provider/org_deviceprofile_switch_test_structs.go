@@ -11,6 +11,7 @@ type OrgDeviceprofileSwitchModel struct {
 	EvpnConfig            *OrgDeviceprofileSwitchEvpnConfigValue                `hcl:"evpn_config"`
 	ExtraRoutes           map[string]OrgDeviceprofileSwitchExtraRoutesValue     `hcl:"extra_routes"`
 	ExtraRoutes6          map[string]OrgDeviceprofileSwitchExtraRoutes6Value    `hcl:"extra_routes6"`
+	Id                    *string                                               `hcl:"id"`
 	IotConfig             map[string]OrgDeviceprofileSwitchIotConfigValue       `hcl:"iot_config"`
 	IpConfig              *OrgDeviceprofileSwitchIpConfigValue                  `hcl:"ip_config"`
 	MistNac               *OrgDeviceprofileSwitchMistNacValue                   `hcl:"mist_nac"`
@@ -39,9 +40,10 @@ type OrgDeviceprofileSwitchModel struct {
 }
 
 type OrgDeviceprofileSwitchAclPoliciesValue struct {
-	Actions []OrgDeviceprofileSwitchActionsValue `cty:"actions" hcl:"actions"`
-	Name    *string                              `cty:"name" hcl:"name"`
-	SrcTags []string                             `cty:"src_tags" hcl:"src_tags"`
+	Actions  []OrgDeviceprofileSwitchActionsValue `cty:"actions" hcl:"actions"`
+	Disabled *bool                                `cty:"disabled" hcl:"disabled"`
+	Name     *string                              `cty:"name" hcl:"name"`
+	SrcTags  []string                             `cty:"src_tags" hcl:"src_tags"`
 }
 
 type OrgDeviceprofileSwitchActionsValue struct {
@@ -165,13 +167,19 @@ type OrgDeviceprofileSwitchMistNacValue struct {
 }
 
 type OrgDeviceprofileSwitchNetworksValue struct {
-	Gateway         *string `cty:"gateway" hcl:"gateway"`
-	Gateway6        *string `cty:"gateway6" hcl:"gateway6"`
-	Isolation       *bool   `cty:"isolation" hcl:"isolation"`
-	IsolationVlanId *string `cty:"isolation_vlan_id" hcl:"isolation_vlan_id"`
-	Subnet          *string `cty:"subnet" hcl:"subnet"`
-	Subnet6         *string `cty:"subnet6" hcl:"subnet6"`
-	VlanId          string  `cty:"vlan_id" hcl:"vlan_id"`
+	Gateway         *string                               `cty:"gateway" hcl:"gateway"`
+	Gateway6        *string                               `cty:"gateway6" hcl:"gateway6"`
+	Isolation       *bool                                 `cty:"isolation" hcl:"isolation"`
+	IsolationVlanId *string                               `cty:"isolation_vlan_id" hcl:"isolation_vlan_id"`
+	Multicast       *OrgDeviceprofileSwitchMulticastValue `cty:"multicast" hcl:"multicast"`
+	Subnet          *string                               `cty:"subnet" hcl:"subnet"`
+	Subnet6         *string                               `cty:"subnet6" hcl:"subnet6"`
+	VlanId          string                                `cty:"vlan_id" hcl:"vlan_id"`
+}
+
+type OrgDeviceprofileSwitchMulticastValue struct {
+	Enabled     *bool   `cty:"enabled" hcl:"enabled"`
+	IgmpVersion *string `cty:"igmp_version" hcl:"igmp_version"`
 }
 
 type OrgDeviceprofileSwitchOobIpConfigValue struct {
@@ -482,6 +490,7 @@ type OrgDeviceprofileSwitchNotifyValue struct {
 }
 
 type OrgDeviceprofileSwitchNotifyFilterValue struct {
+	Categories     []string                                    `cty:"categories" hcl:"categories"`
 	ProfileName    *string                                     `cty:"profile_name" hcl:"profile_name"`
 	Snmpv3Contents []OrgDeviceprofileSwitchSnmpv3ContentsValue `cty:"contents" hcl:"contents"`
 }
@@ -629,9 +638,17 @@ type OrgDeviceprofileSwitchVrfConfigValue struct {
 type OrgDeviceprofileSwitchVrfInstancesValue struct {
 	EvpnAutoLoopbackSubnet  *string                                               `cty:"evpn_auto_loopback_subnet" hcl:"evpn_auto_loopback_subnet"`
 	EvpnAutoLoopbackSubnet6 *string                                               `cty:"evpn_auto_loopback_subnet6" hcl:"evpn_auto_loopback_subnet6"`
+	MulticastConfig         *OrgDeviceprofileSwitchMulticastConfigValue           `cty:"multicast_config" hcl:"multicast_config"`
 	Networks                []string                                              `cty:"networks" hcl:"networks"`
 	VrfExtraRoutes          map[string]OrgDeviceprofileSwitchVrfExtraRoutesValue  `cty:"extra_routes" hcl:"extra_routes"`
 	VrfExtraRoutes6         map[string]OrgDeviceprofileSwitchVrfExtraRoutes6Value `cty:"extra_routes6" hcl:"extra_routes6"`
+}
+
+type OrgDeviceprofileSwitchMulticastConfigValue struct {
+	AnycastRp *bool   `cty:"anycast_rp" hcl:"anycast_rp"`
+	RpIp      *string `cty:"rp_ip" hcl:"rp_ip"`
+	SbdSubnet *string `cty:"sbd_subnet" hcl:"sbd_subnet"`
+	SbdVlanId *int64  `cty:"sbd_vlan_id" hcl:"sbd_vlan_id"`
 }
 
 type OrgDeviceprofileSwitchVrfExtraRoutesValue struct {

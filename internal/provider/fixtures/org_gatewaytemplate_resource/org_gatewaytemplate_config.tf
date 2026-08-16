@@ -137,6 +137,7 @@
     }
     config_revert_timer = 16
     disable_console     = false
+    disable_idp_pcap    = false
     disable_oob         = false
     disable_usb         = false
     fips_enabled        = false
@@ -379,6 +380,11 @@
       }
       wan_networks = ["guest"]
       wan_probe_override = {
+        hostnames     = ["probe.example.com"]
+        http = {
+          accepted_status_codes = [200, 204]
+          urls                  = ["https://probe.example.com/health"]
+        }
         ips             = ["8.8.8.8"]
         ip6s            = ["2001:4860:4860::8888"]
         probe_profile   = "broadband"
@@ -429,6 +435,8 @@
             exclude_as_path  = ["65003"]
             exclude_community = ["65001:300"]
             export_communities = ["65001:400"]
+            next_policy        = false
+            next_term          = false
           }
           matching = {
             as_path     = ["65001"]
@@ -545,18 +553,32 @@
         }
       ]
       primary = {
-        hosts        = ["203.0.113.100"]
-        internal_ips = ["10.1.1.1"]
-        probe_ips    = ["8.8.8.8"]
-        remote_ids   = ["peer1"]
-        wan_names    = ["wan0"]
+        hosts           = ["203.0.113.100"]
+        internal_ip6s   = ["2001:db8::1"]
+        internal_ips    = ["10.1.1.1"]
+        probe_hostnames = ["probe.example.com"]
+        probe_http = {
+          accepted_status_codes = [200, 204]
+          urls                  = ["https://probe.example.com/health"]
+        }
+        probe_ip6s  = ["2001:4860:4860::8888"]
+        probe_ips   = ["8.8.8.8"]
+        remote_ids  = ["peer1"]
+        wan_names   = ["wan0"]
       }
       secondary = {
-        hosts        = ["203.0.113.101"]
-        internal_ips = ["10.1.1.2"]
-        probe_ips    = ["8.8.4.4"]
-        remote_ids   = ["peer2"]
-        wan_names    = ["wan0"]
+        hosts           = ["203.0.113.101"]
+        internal_ip6s   = ["2001:db8::2"]
+        internal_ips    = ["10.1.1.2"]
+        probe_hostnames = ["probe2.example.com"]
+        probe_http = {
+          accepted_status_codes = [200]
+          urls                  = ["https://probe2.example.com/health"]
+        }
+        probe_ip6s  = ["2001:4860:4860::8844"]
+        probe_ips   = ["8.8.4.4"]
+        remote_ids  = ["peer2"]
+        wan_names   = ["wan0"]
       }
       probe = {
         type      = "icmp"

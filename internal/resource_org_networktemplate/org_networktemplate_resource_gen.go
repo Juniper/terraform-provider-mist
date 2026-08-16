@@ -5,7 +5,9 @@ package resource_org_networktemplate
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -25,7 +27,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -1617,7 +1618,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"secret": schema.StringAttribute{
 									Required:            true,
-									Sensitive:           true,
 									Description:         "Shared secret used with this RADIUS accounting server",
 									MarkdownDescription: "Shared secret used with this RADIUS accounting server",
 								},
@@ -1696,7 +1696,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"secret": schema.StringAttribute{
 									Required:            true,
-									Sensitive:           true,
 									Description:         "Shared secret used with this RADIUS authentication server",
 									MarkdownDescription: "Shared secret used with this RADIUS authentication server",
 								},
@@ -2853,7 +2852,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												Attributes: map[string]schema.Attribute{
 													"authentication_password": schema.StringAttribute{
 														Optional:            true,
-														Sensitive:           true,
 														Description:         "Not required if `authentication_type`==`authentication-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.",
 														MarkdownDescription: "Not required if `authentication_type`==`authentication-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.",
 														Validators: []validator.String{
@@ -2885,7 +2883,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 													},
 													"encryption_password": schema.StringAttribute{
 														Optional:            true,
-														Sensitive:           true,
 														Description:         "Not required if `encryption_type`==`privacy-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters",
 														MarkdownDescription: "Not required if `encryption_type`==`privacy-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters",
 														Validators: []validator.String{
@@ -3597,7 +3594,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"password": schema.StringAttribute{
 									Optional:            true,
-									Sensitive:           true,
 									Description:         "Local password for the switch user account",
 									MarkdownDescription: "Local password for the switch user account",
 								},
@@ -3755,7 +3751,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"root_password": schema.StringAttribute{
 						Optional:            true,
-						Sensitive:           true,
 						Description:         "Root password for local switch access",
 						MarkdownDescription: "Root password for local switch access",
 					},
@@ -3800,7 +3795,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"secret": schema.StringAttribute{
 											Optional:            true,
-											Sensitive:           true,
 											Description:         "Shared secret used with this TACACS+ accounting server",
 											MarkdownDescription: "Shared secret used with this TACACS+ accounting server",
 										},
@@ -3840,7 +3834,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"secret": schema.StringAttribute{
 											Optional:            true,
-											Sensitive:           true,
 											Description:         "Shared secret used with this TACACS+ authentication server",
 											MarkdownDescription: "Shared secret used with this TACACS+ authentication server",
 										},

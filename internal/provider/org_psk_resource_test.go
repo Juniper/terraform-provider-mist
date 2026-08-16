@@ -191,7 +191,15 @@ func (o *OrgPskModel) testChecks(t testing.TB, rType, tName string, tracker *val
 		checks.append(t, "TestCheckResourceAttr", "usage", *o.Usage)
 	}
 
-	// 18. VlanId (optional)
+	// 18. UsermacLabels (optional array)
+	if len(o.UsermacLabels) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "usermac_labels.#", fmt.Sprintf("%d", len(o.UsermacLabels)))
+		for i, label := range o.UsermacLabels {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("usermac_labels.%d", i), label)
+		}
+	}
+
+	// 19. VlanId (optional)
 	if o.VlanId != nil {
 		checks.append(t, "TestCheckResourceAttr", "vlan_id", *o.VlanId)
 	}

@@ -218,6 +218,7 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	var autoSignatureUpdate = types.ObjectNull(AutoSignatureUpdateValue{}.AttributeTypes(ctx))
 	var configRevertTimer basetypes.Int64Value
 	var disableConsole basetypes.BoolValue
+	var disableIdpPcap basetypes.BoolValue
 	var disableOob basetypes.BoolValue
 	var disableUsb basetypes.BoolValue
 	var fipsEnabled basetypes.BoolValue
@@ -245,6 +246,9 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 	}
 	if d.DisableConsole != nil {
 		disableConsole = types.BoolValue(*d.DisableConsole)
+	}
+	if d.DisableIdpPcap != nil {
+		disableIdpPcap = types.BoolValue(*d.DisableIdpPcap)
 	}
 	if d.DisableUsb != nil {
 		disableUsb = types.BoolValue(*d.DisableUsb)
@@ -281,6 +285,7 @@ func gatewayMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *
 		"auto_signature_update":         autoSignatureUpdate,
 		"config_revert_timer":           configRevertTimer,
 		"disable_console":               disableConsole,
+		"disable_idp_pcap":              disableIdpPcap,
 		"disable_usb":                   disableUsb,
 		"fips_enabled":                  fipsEnabled,
 		"disable_oob":                   disableOob,

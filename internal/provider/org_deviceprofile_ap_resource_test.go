@@ -336,6 +336,9 @@ func (s *OrgDeviceprofileApModel) testChecks(t testing.TB, rType, tName string, 
 		if s.MqttConfig.BrokerProto != nil {
 			checks.append(t, "TestCheckResourceAttr", "mqtt_config.broker_proto", *s.MqttConfig.BrokerProto)
 		}
+		if s.MqttConfig.DefaultTopic != nil {
+			checks.append(t, "TestCheckResourceAttr", "mqtt_config.default_topic", *s.MqttConfig.DefaultTopic)
+		}
 		if s.MqttConfig.Enabled != nil {
 			checks.append(t, "TestCheckResourceAttr", "mqtt_config.enabled", fmt.Sprintf("%t", *s.MqttConfig.Enabled))
 		}
@@ -605,6 +608,23 @@ func (s *OrgDeviceprofileApModel) testChecks(t testing.TB, rType, tName string, 
 		}
 		if s.UsbConfig.VlanId != nil {
 			checks.append(t, "TestCheckResourceAttr", "usb_config.vlan_id", fmt.Sprintf("%d", *s.UsbConfig.VlanId))
+		}
+	}
+	if s.UwbConfig != nil {
+		if s.UwbConfig.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "uwb_config.enabled", fmt.Sprintf("%t", *s.UwbConfig.Enabled))
+		}
+		if s.UwbConfig.Host != nil {
+			checks.append(t, "TestCheckResourceAttr", "uwb_config.host", *s.UwbConfig.Host)
+		}
+		if s.UwbConfig.Port != nil {
+			checks.append(t, "TestCheckResourceAttr", "uwb_config.port", fmt.Sprintf("%d", *s.UwbConfig.Port))
+		}
+		if s.UwbConfig.Slot != nil {
+			checks.append(t, "TestCheckResourceAttr", "uwb_config.slot", fmt.Sprintf("%d", *s.UwbConfig.Slot))
+		}
+		if s.UwbConfig.UwbConfigType != nil {
+			checks.append(t, "TestCheckResourceAttr", "uwb_config.type", *s.UwbConfig.UwbConfigType)
 		}
 	}
 	if s.Airista != nil {

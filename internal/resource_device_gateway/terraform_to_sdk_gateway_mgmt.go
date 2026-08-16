@@ -174,6 +174,9 @@ func gatewayMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d G
 	if d.DisableConsole.ValueBoolPointer() != nil {
 		data.DisableConsole = models.ToPointer(d.DisableConsole.ValueBool())
 	}
+	if d.DisableIdpPcap.ValueBoolPointer() != nil {
+		data.DisableIdpPcap = models.ToPointer(d.DisableIdpPcap.ValueBool())
+	}
 	if d.DisableOob.ValueBoolPointer() != nil {
 		data.DisableOob = models.ToPointer(d.DisableOob.ValueBool())
 	}

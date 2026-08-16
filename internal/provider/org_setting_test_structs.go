@@ -5,6 +5,7 @@ type OrgSettingModel struct {
 	ApiPolicy                    *OrgSettingApiPolicyValue                 `hcl:"api_policy"`
 	AutoUpgrade                  *OrgSettingAutoUpgradeValue               `hcl:"auto_upgrade"`
 	Cacerts                      []string                                  `hcl:"cacerts"`
+	CacertsConfigs               []OrgSettingCacertsConfigsValue           `hcl:"cacerts_configs"`
 	Celona                       *OrgSettingCelonaValue                    `hcl:"celona"`
 	Cloudshark                   *OrgSettingCloudsharkValue                `hcl:"cloudshark"`
 	DeviceCert                   *OrgSettingDeviceCertValue                `hcl:"device_cert"`
@@ -40,8 +41,9 @@ type OrgSettingModel struct {
 }
 
 type OrgSettingApiPolicyValue struct {
-	NoReveal *bool    `cty:"no_reveal" hcl:"no_reveal"`
-	SrcIps   []string `cty:"src_ips" hcl:"src_ips"`
+	EnforceSrcIpsForTokens *bool    `cty:"enforce_src_ips_for_tokens" hcl:"enforce_src_ips_for_tokens"`
+	NoReveal               *bool    `cty:"no_reveal" hcl:"no_reveal"`
+	SrcIps                 []string `cty:"src_ips" hcl:"src_ips"`
 }
 
 type OrgSettingAutoUpgradeValue struct {
@@ -52,6 +54,15 @@ type OrgSettingAutoUpgradeValue struct {
 	Version        *string           `cty:"version" hcl:"version"`
 }
 
+type OrgSettingCacertsConfigsValue struct {
+	Cert        string  `cty:"cert" hcl:"cert"`
+	CrlEnabled  *bool   `cty:"crl_enabled" hcl:"crl_enabled"`
+	CrlUrl      *string `cty:"crl_url" hcl:"crl_url"`
+	Name        *string `cty:"name" hcl:"name"`
+	OcspEnabled *bool   `cty:"ocsp_enabled" hcl:"ocsp_enabled"`
+	OcspUrl     *string `cty:"ocsp_url" hcl:"ocsp_url"`
+}
+
 type OrgSettingCelonaValue struct {
 	ApiKey    string `cty:"api_key" hcl:"api_key"`
 	ApiPrefix string `cty:"api_prefix" hcl:"api_prefix"`
@@ -60,9 +71,6 @@ type OrgSettingCelonaValue struct {
 type OrgSettingCloudsharkValue struct {
 	Apitoken *string `cty:"apitoken" hcl:"apitoken"`
 	Url      *string `cty:"url" hcl:"url"`
-}
-
-type OrgSettingCradlepointValue struct {
 }
 
 type OrgSettingDeviceCertValue struct {
@@ -148,6 +156,7 @@ type OrgSettingMistNacValue struct {
 	DefaultIdpId              *string                        `cty:"default_idp_id" hcl:"default_idp_id"`
 	DisableRsaeAlgorithms     *bool                          `cty:"disable_rsae_algorithms" hcl:"disable_rsae_algorithms"`
 	EapSslSecurityLevel       *int64                         `cty:"eap_ssl_security_level" hcl:"eap_ssl_security_level"`
+	EnableEapMd5ForMab        *bool                          `cty:"enable_eap_md5_for_mab" hcl:"enable_eap_md5_for_mab"`
 	EuOnly                    *bool                          `cty:"eu_only" hcl:"eu_only"`
 	Fingerprinting            *OrgSettingFingerprintingValue `cty:"fingerprinting" hcl:"fingerprinting"`
 	IdpMachineCertLookupField *string                        `cty:"idp_machine_cert_lookup_field" hcl:"idp_machine_cert_lookup_field"`

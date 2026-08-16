@@ -5,8 +5,10 @@ package resource_site_setting
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistplanmodifiers "github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -25,7 +27,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -1216,6 +1217,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							),
 							"config_revert_timer":           types.Int64Null(),
 							"disable_console":               types.BoolNull(),
+							"disable_idp_pcap":              types.BoolNull(),
 							"disable_oob":                   types.BoolNull(),
 							"disable_usb":                   types.BoolNull(),
 							"fips_enabled":                  types.BoolNull(),

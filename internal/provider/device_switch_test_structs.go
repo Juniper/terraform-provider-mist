@@ -52,9 +52,10 @@ type DeviceSwitchModel struct {
 }
 
 type DeviceSwitchAclPoliciesValue struct {
-	Actions []DeviceSwitchActionsValue `cty:"actions" hcl:"actions"`
-	Name    *string                    `cty:"name" hcl:"name"`
-	SrcTags []string                   `cty:"src_tags" hcl:"src_tags"`
+	Actions  []DeviceSwitchActionsValue `cty:"actions" hcl:"actions"`
+	Disabled *bool                      `cty:"disabled" hcl:"disabled"`
+	Name     *string                    `cty:"name" hcl:"name"`
+	SrcTags  []string                   `cty:"src_tags" hcl:"src_tags"`
 }
 
 type DeviceSwitchActionsValue struct {
@@ -235,13 +236,19 @@ type DeviceSwitchMistNacValue struct {
 }
 
 type DeviceSwitchNetworksValue struct {
-	Gateway         *string `cty:"gateway" hcl:"gateway"`
-	Gateway6        *string `cty:"gateway6" hcl:"gateway6"`
-	Isolation       *bool   `cty:"isolation" hcl:"isolation"`
-	IsolationVlanId *string `cty:"isolation_vlan_id" hcl:"isolation_vlan_id"`
-	Subnet          *string `cty:"subnet" hcl:"subnet"`
-	Subnet6         *string `cty:"subnet6" hcl:"subnet6"`
-	VlanId          string  `cty:"vlan_id" hcl:"vlan_id"`
+	Gateway         *string                     `cty:"gateway" hcl:"gateway"`
+	Gateway6        *string                     `cty:"gateway6" hcl:"gateway6"`
+	Isolation       *bool                       `cty:"isolation" hcl:"isolation"`
+	IsolationVlanId *string                     `cty:"isolation_vlan_id" hcl:"isolation_vlan_id"`
+	Multicast       *DeviceSwitchMulticastValue `cty:"multicast" hcl:"multicast"`
+	Subnet          *string                     `cty:"subnet" hcl:"subnet"`
+	Subnet6         *string                     `cty:"subnet6" hcl:"subnet6"`
+	VlanId          string                      `cty:"vlan_id" hcl:"vlan_id"`
+}
+
+type DeviceSwitchMulticastValue struct {
+	Enabled     *bool   `cty:"enabled" hcl:"enabled"`
+	IgmpVersion *string `cty:"igmp_version" hcl:"igmp_version"`
 }
 
 type DeviceSwitchOobIpConfigValue struct {
@@ -566,6 +573,7 @@ type DeviceSwitchNotifyValue struct {
 }
 
 type DeviceSwitchNotifyFilterValue struct {
+	Categories     []string                          `cty:"categories" hcl:"categories"`
 	ProfileName    *string                           `cty:"profile_name" hcl:"profile_name"`
 	Snmpv3Contents []DeviceSwitchSnmpv3ContentsValue `cty:"contents" hcl:"contents"`
 }
@@ -724,9 +732,17 @@ type DeviceSwitchVrfConfigValue struct {
 type DeviceSwitchVrfInstancesValue struct {
 	EvpnAutoLoopbackSubnet  *string                                     `cty:"evpn_auto_loopback_subnet" hcl:"evpn_auto_loopback_subnet"`
 	EvpnAutoLoopbackSubnet6 *string                                     `cty:"evpn_auto_loopback_subnet6" hcl:"evpn_auto_loopback_subnet6"`
+	MulticastConfig         *DeviceSwitchMulticastConfigValue           `cty:"multicast_config" hcl:"multicast_config"`
 	Networks                []string                                    `cty:"networks" hcl:"networks"`
 	VrfExtraRoutes          map[string]DeviceSwitchVrfExtraRoutesValue  `cty:"extra_routes" hcl:"extra_routes"`
 	VrfExtraRoutes6         map[string]DeviceSwitchVrfExtraRoutes6Value `cty:"extra_routes6" hcl:"extra_routes6"`
+}
+
+type DeviceSwitchMulticastConfigValue struct {
+	AnycastRp *bool   `cty:"anycast_rp" hcl:"anycast_rp"`
+	RpIp      *string `cty:"rp_ip" hcl:"rp_ip"`
+	SbdSubnet *string `cty:"sbd_subnet" hcl:"sbd_subnet"`
+	SbdVlanId *int64  `cty:"sbd_vlan_id" hcl:"sbd_vlan_id"`
 }
 
 type DeviceSwitchVrfExtraRoutesValue struct {
