@@ -2395,7 +2395,7 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"reth_nodes": schema.ListAttribute{
 							ElementType:         types.StringType,
-							Optional:            true,
+							Computed:            true,
 							Description:         "If HA mode and for SSR only. Per-network node assignment used for VLAN-based redundancy",
 							MarkdownDescription: "If HA mode and for SSR only. Per-network node assignment used for VLAN-based redundancy",
 						},
@@ -2894,17 +2894,13 @@ func DeviceGatewayResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"next_policy": schema.BoolAttribute{
 												Optional:            true,
-												Computed:            true,
 												Description:         "When true, continue evaluating the next routing policy in the chain after this term matches; default is false",
 												MarkdownDescription: "When true, continue evaluating the next routing policy in the chain after this term matches; default is false",
-												Default:             booldefault.StaticBool(false),
 											},
 											"next_term": schema.BoolAttribute{
 												Optional:            true,
-												Computed:            true,
 												Description:         "When true, continue evaluating the next term in the same routing policy after this term matches; default is false",
 												MarkdownDescription: "When true, continue evaluating the next term in the same routing policy after this term matches; default is false",
-												Default:             booldefault.StaticBool(false),
 											},
 											"prepend_as_path": schema.ListAttribute{
 												ElementType:         types.StringType,

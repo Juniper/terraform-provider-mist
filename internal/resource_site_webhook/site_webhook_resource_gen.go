@@ -150,7 +150,6 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"action": schema.StringAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Action applied when the rule matches the incoming event",
 							MarkdownDescription: "Action applied when the rule matches the incoming event",
 							Validators: []validator.String{
@@ -160,7 +159,6 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 									"block",
 								),
 							},
-							Default: stringdefault.StaticString("permit"),
 						},
 						"matching": schema.MapAttribute{
 							ElementType: types.ListType{

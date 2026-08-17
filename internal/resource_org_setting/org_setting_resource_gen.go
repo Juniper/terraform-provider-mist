@@ -157,10 +157,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"crl_enabled": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Whether CRL checks are enabled. When true, CRL from AIA is used if available unless `crl_url` is set.",
 							MarkdownDescription: "Whether CRL checks are enabled. When true, CRL from AIA is used if available unless `crl_url` is set.",
-							Default:             booldefault.StaticBool(true),
 						},
 						"crl_url": schema.StringAttribute{
 							Optional:            true,
@@ -174,10 +172,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"ocsp_enabled": schema.BoolAttribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Whether OCSP checks are enabled. When true, OCSP responder from AIA is used if available unless `ocsp_url` is set.",
 							MarkdownDescription: "Whether OCSP checks are enabled. When true, OCSP responder from AIA is used if available unless `ocsp_url` is set.",
-							Default:             booldefault.StaticBool(true),
 						},
 						"ocsp_url": schema.StringAttribute{
 							Optional:            true,
@@ -706,10 +702,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"enable_eap_md5_for_mab": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Enable EAP-MD5 for MAB. WARNING: Not FIPS compliant, use only if required for legacy device support.",
 						MarkdownDescription: "Enable EAP-MD5 for MAB. WARNING: Not FIPS compliant, use only if required for legacy device support.",
-						Default:             booldefault.StaticBool(false),
 					},
 					"eu_only": schema.BoolAttribute{
 						Optional:            true,

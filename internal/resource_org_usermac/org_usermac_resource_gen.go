@@ -6,11 +6,13 @@ import (
 	"context"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -70,6 +72,12 @@ func OrgUsermacResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Optional list of site IDs this user MAC entry is scoped to",
 				MarkdownDescription: "Optional list of site IDs this user MAC entry is scoped to",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+					listvalidator.ValueStringsAre(
+						stringvalidator.RegexMatches(regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`), "must be a valid UUID"),
+					),
+				},
 			},
 			"vlan": schema.StringAttribute{
 				Optional:            true,
