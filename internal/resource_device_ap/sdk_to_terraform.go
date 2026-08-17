@@ -24,6 +24,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	var disableEth2 types.Bool
 	var disableEth3 types.Bool
 	var disableModule types.Bool
+	var enableUnii4 types.Bool
 	var eslConfig = NewEslConfigValueNull()
 	var flowControl = types.BoolValue(false)
 	var height types.Float64
@@ -50,6 +51,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	var siteId types.String
 	var uplinkPortConfig = NewUplinkPortConfigValueNull()
 	var usbConfig = NewUsbConfigValueNull()
+	var uwbConfig = NewUwbConfigValueNull()
 	var vars = types.MapNull(types.StringType)
 	var zigbeeConfig = NewZigbeeConfigValueNull()
 	var x types.Float64
@@ -86,6 +88,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	}
 	if data.DisableModule != nil {
 		disableModule = types.BoolValue(*data.DisableModule)
+	}
+	if data.EnableUnii4 != nil {
+		enableUnii4 = types.BoolValue(*data.EnableUnii4)
 	}
 	if data.EslConfig != nil {
 		eslConfig = eslSdkToTerraform(ctx, &diags, data.EslConfig)
@@ -165,6 +170,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	if data.UsbConfig != nil {
 		usbConfig = usbConfigSdkToTerraform(ctx, &diags, data.UsbConfig)
 	}
+	if data.UwbConfig != nil {
+		uwbConfig = uwbConfigSdkToTerraform(ctx, &diags, data.UwbConfig)
+	}
 	if data.Vars != nil {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
@@ -200,6 +208,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	state.DisableEth2 = disableEth2
 	state.DisableEth3 = disableEth3
 	state.DisableModule = disableModule
+	state.EnableUnii4 = enableUnii4
 	state.EslConfig = eslConfig
 	state.FlowControl = flowControl
 	state.Height = height
@@ -226,6 +235,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceAp) (DeviceApModel, 
 	state.SiteId = siteId
 	state.UplinkPortConfig = uplinkPortConfig
 	state.UsbConfig = usbConfig
+	state.UwbConfig = uwbConfig
 	state.Vars = vars
 	state.ZigbeeConfig = zigbeeConfig
 	state.X = x

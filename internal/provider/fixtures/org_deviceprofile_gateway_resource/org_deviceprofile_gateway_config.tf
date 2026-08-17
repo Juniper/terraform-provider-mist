@@ -277,6 +277,9 @@
       mtu = 1500
       preserve_dscp = true
       wan_type = "broadband"
+      wan_arp_policer = "recommended"
+      wan_networks = ["wan-network"]
+      wan_speedtest_mode = "auto"
       wan_ext_ip = "203.0.113.10"
       wan_ext_ip6 = "2001:db8:85a3::8a2e:370:7334"
       wan_source_nat = {
@@ -285,13 +288,35 @@
         nat6_pool = "2001:db8:100::1-2001:db8:100::50"
       }
       ip_config = {
-        # dns = ["8.8.8.8"]
-        # dns_suffix = ["example.com"]
+        dns = ["8.8.8.8", "8.8.4.4"]
+        dns_suffix = ["example.com"]
         gateway = "192.168.1.1"
+        gateway6 = "2001:db8::1"
         ip = "192.168.1.10"
+        ip6 = "2001:db8::10"
         netmask = "/24"
+        netmask6 = "/64"
         network = "wan"
         type = "static"
+        type6 = "static"
+      }
+      traffic_shaping = {
+        enabled = true
+        max_tx_kbps = 100000
+        class_percentages = [25, 25, 25, 25]
+      }
+      vpn_paths = {
+        "vpn1" = {
+          bfd_profile = "broadband"
+          bfd_use_tunnel_mode = false
+          preference = 100
+          role = "spoke"
+          traffic_shaping = {
+            enabled = true
+            max_tx_kbps = 50000
+            class_percentages = [25, 25, 25, 25]
+          }
+        }
       }
       wan_extra_routes = {
         "10.0.0.0/8" = {
@@ -303,6 +328,16 @@
           via = "2001:db8::1"
         }
       }
+      wan_probe_override = {
+        hostnames = ["probe.example.com"]
+        http = {
+          accepted_status_codes = [200, 204]
+          urls = ["https://probe.example.com/health"]
+        }
+        ip6s = ["2001:4860:4860::8888"]
+        ips = ["8.8.8.8"]
+        probe_profile = "broadband"
+      }
     },
     "ge-0/0/1" = {
       usage = "lan"
@@ -312,7 +347,36 @@
       ae_lacp_force_up = false
       poe_keep_state_when_reboot = false
       port_network = "lan"
-    }
+    },
+    "ge-0/0/2" = {
+      usage = "wan"
+      name = "dsl-uplink"
+      wan_type = "dsl"
+      dsl_type = "vdsl"
+      dsl_vci = 35
+      dsl_vpi = 0
+      aggregated = true
+      ae_disable_lacp = false
+      ae_idx = "0"
+      outer_vlan_id = 100
+      vlan_id = "100"
+    },
+    "ge-0/0/3" = {
+      usage = "wan"
+      name = "lte-uplink"
+      wan_type = "lte"
+      lte_apn = "internet"
+      lte_auth = "none"
+      lte_backup = true
+      lte_username = "lte-user"
+      poe_disabled = false
+      redundant = true
+      redundant_group = 1
+      reth_idx = "0"
+      reth_node = "node0"
+      ssr_no_virtual_mac = false
+      svr_port_range = "1024-65535"
+    },
   }
   
   router_id = "192.168.1.1"
@@ -325,27 +389,22 @@
             accept = true
             add_community = ["65001:100"]
             add_target_vrfs = ["vrf1"]
-            community = "65001:200"
+            community = ["65001:200"]
             exclude_as_path = ["65002"]
             exclude_community = ["65002:100"]
             local_preference = 100
             med = 50
+            next_policy = false
+            next_term = false
             prepend_as_path = ["65001", "65001"]
           }
           matching = {
-            as_path = ["^65001"]
+            as_path = ["65001"]
             community = ["65001:100"]
-            interface = ["ge-0/0/0"]
-            ip_prefix = ["192.168.1.0/24"]
-            ip_prefix_except = ["192.168.1.1/32"]
-            neighbor = ["192.168.1.10"]
-            prefix_list = ["prefix-list-1"]
             protocol = ["bgp"]
             route_exists = {
               route = "10.0.0.0/8"
-              table = "inet.0"
             }
-            tag = ["100"]
             vpn_neighbor_mac = ["aa:bb:cc:dd:ee:ff"]
             vpn_path_sla = {
               max_jitter = 10
@@ -391,10 +450,21 @@
         profile = "default"
       }
       skyatp = {
-        dns_dga_detection = "strict"
-        dns_tunnel_detection = "default"
-        http_inspection = "standard"
-        iot_device_policy = "enabled"
+        dns_dga_detection = {
+          enabled = true
+          profile = "strict"
+        }
+        dns_tunnel_detection = {
+          enabled = true
+          profile = "default"
+        }
+        http_inspection = {
+          enabled = true
+          profile = "standard"
+        }
+        iot_device_policy = {
+          enabled = true
+        }
       }
       syslog = {
         enabled = true
@@ -403,78 +473,91 @@
     }
   ]
   
-  tunnel_configs = {
-    "tunnel1" = {
-      auto_provision = {
-        enable = true
-        provider = "jse-ipsec"
-        latlng = {
-          lat = 37.7749
-          lng = -122.4194
-        }
-        primary = {
-          probe_ips = ["8.8.8.8", "1.1.1.1"]
-          wan_names = ["wan1"]
-        }
-        secondary = {
-          probe_ips = ["8.8.4.4"]
-          wan_names = ["wan2"]
-        }
+  tunnel_configs "tunnel1" {
+    auto_provision {
+      enabled = true
+      provider = "jse-ipsec"
+      region = "us-west-1"
+      latlng {
+        lat = 37.7749
+        lng = -122.4194
       }
-      ike_lifetime = 28800
-      ike_mode = "main"
-      ike_proposals = [
-        {
-          auth_algo = "sha1"
-          dh_group = "14"
-          enc_algo = "aes128"
-        }
-      ]
-      ipsec_lifetime = 3600
-      ipsec_proposals = [
-        {
-          auth_algo = "sha1"
-          enc_algo = "aes128"
-        }
-      ]
-      local_id = "local@example.com"
-      mode = "active-active"
-      overlay_subnet = "10.255.0.0/16"
-      primary = {
-        hosts = ["203.0.113.1"]
-        internal_ip = "10.255.1.1"
-        node = "node0"
-        probe = {
-          interval = 5
-          threshold = 3
-          type = "icmp"
-        }
-        remote_id = "remote@example.com"
+      primary {
+        probe_ips = ["8.8.8.8", "1.1.1.1"]
         wan_names = ["wan1"]
       }
-      probe = {
-        interval = 10
-        threshold = 5
-        timeout = 2
-        type = "icmp"
-      }
-      protocol = "ipsec"
-      provider = "jse-ipsec"
-      # psk = "shared-secret-key"
-      secondary = {
-        hosts = ["203.0.113.2"]
-        internal_ip = "10.255.1.2"
-        node = "node1"
-        probe = {
-          interval = 5
-          threshold = 3
-          type = "icmp"
-        }
-        remote_id = "remote2@example.com"
+      secondary {
+        probe_ips = ["8.8.4.4"]
         wan_names = ["wan2"]
       }
-      version = "2"
     }
+    ike_lifetime = 28800
+    ike_mode = "main"
+    ike_proposals {
+      auth_algo = "sha1"
+      dh_group = "14"
+      enc_algo = "aes128"
+    }
+    ipsec_lifetime = 3600
+    ipsec_proposals {
+      auth_algo = "sha1"
+      dh_group = "14"
+      enc_algo = "aes128"
+    }
+    local_id = "local@example.com"
+    local_subnets = ["192.168.50.0/24"]
+    mode = "active-active"
+    primary {
+      hosts = ["203.0.113.1"]
+      internal_ip6s = ["2001:db8::1"]
+      internal_ips = ["10.255.1.1"]
+      probe_hostnames = ["probe.example.com"]
+      probe_http {
+        accepted_status_codes = [200, 204]
+        urls = ["https://probe.example.com/health"]
+      }
+      probe_ip6s = ["2001:4860:4860::8888"]
+      probe_ips = ["8.8.8.8"]
+      remote_ids = ["remote@example.com"]
+      wan_names = ["wan1"]
+    }
+    probe {
+      interval = 10
+      threshold = 5
+      timeout = 2
+      type = "icmp"
+    }
+    protocol = "ipsec"
+    provider = "jse-ipsec"
+    psk = "shared-secret-key"
+    remote_subnets = ["10.100.0.0/16"]
+    secondary {
+      hosts = ["203.0.113.2"]
+      internal_ip6s = ["2001:db8::2"]
+      internal_ips = ["10.255.1.2"]
+      probe_hostnames = ["probe2.example.com"]
+      probe_http {
+        accepted_status_codes = [200]
+        urls = ["https://probe2.example.com/health"]
+      }
+      probe_ip6s = ["2001:4860:4860::8844"]
+      probe_ips = ["8.8.4.4"]
+      remote_ids = ["remote2@example.com"]
+      wan_names = ["wan2"]
+    }
+    version = "2"
+  }
+  tunnel_configs "tunnel2" {
+    auto_provision {
+      provider = "jse-ipsec"
+      service_connection = "prisma-service-conn"
+    }
+    networks = ["192.168.10.0/24"]
+    primary {
+      hosts = ["203.0.113.3"]
+      wan_names = ["wan1"]
+    }
+    provider = "prisma-ipsec"
   }
   
   tunnel_provider_options = {

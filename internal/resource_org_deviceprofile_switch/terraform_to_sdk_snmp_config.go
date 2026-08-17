@@ -138,6 +138,9 @@ func snmpConfigV3NotifyFilterTerraformToSdk(d basetypes.ListValue) []models.Snmp
 		plan := vInterface.(NotifyFilterValue)
 		data := models.Snmpv3ConfigNotifyFilterItem{}
 
+		if !plan.Categories.IsNull() && !plan.Categories.IsUnknown() {
+			data.Categories = mistutils.ListOfStringTerraformToSdk(plan.Categories)
+		}
 		if !plan.Snmpv3Contents.IsNull() && !plan.Snmpv3Contents.IsUnknown() {
 			data.Contents = snmpConfigV3NotifyFilterContentTerraformToSdk(plan.Snmpv3Contents)
 		}

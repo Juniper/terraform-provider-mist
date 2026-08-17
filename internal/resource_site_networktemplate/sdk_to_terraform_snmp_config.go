@@ -48,18 +48,18 @@ func snmpClientListSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, 
 func snmpTrapGroupsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SnmpConfigTrapGroup) basetypes.ListValue {
 	var dataList []TrapGroupsValue
 	for _, d := range l {
-		var categories = mistutils.ListOfStringSdkToTerraformEmpty()
+		var categories = types.ListNull(types.StringType)
 		var groupName basetypes.StringValue
-		var targets = mistutils.ListOfStringSdkToTerraformEmpty()
+		var targets = types.ListNull(types.StringType)
 		var version basetypes.StringValue
 
-		if d.Categories != nil {
+		if len(d.Categories) > 0 {
 			categories = mistutils.ListOfStringSdkToTerraform(d.Categories)
 		}
 		if d.GroupName != nil {
 			groupName = types.StringValue(*d.GroupName)
 		}
-		if d.Targets != nil {
+		if len(d.Targets) > 0 {
 			targets = mistutils.ListOfStringSdkToTerraform(d.Targets)
 		}
 		if d.Version != nil {
@@ -187,14 +187,19 @@ func snmpV3NotifyFilterContentSdkToTerraform(ctx context.Context, diags *diag.Di
 func snmpV3NotifyFilterSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.Snmpv3ConfigNotifyFilterItem) basetypes.ListValue {
 	var dataList []NotifyFilterValue
 	for _, d := range l {
+		var categories = types.ListNull(types.StringType)
 		var contents = snmpV3NotifyFilterContentSdkToTerraform(ctx, diags, d.Contents)
 		var profileName basetypes.StringValue
 
+		if len(d.Categories) > 0 {
+			categories = mistutils.ListOfStringSdkToTerraform(d.Categories)
+		}
 		if d.ProfileName != nil {
 			profileName = types.StringValue(*d.ProfileName)
 		}
 
 		dataMapValue := map[string]attr.Value{
+			"categories":   categories,
 			"contents":     contents,
 			"profile_name": profileName,
 		}

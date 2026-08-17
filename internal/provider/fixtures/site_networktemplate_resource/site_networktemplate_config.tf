@@ -58,6 +58,10 @@ networks = {
     dns_suffix = ["lan.test.local"]
     disallow_mist_services = false
     isolation = false
+    multicast = {
+      enabled = true
+      igmp_version = "3"
+    }
   }
   "guest" = {
     vlan_id = "200"
@@ -105,6 +109,7 @@ port_usages = {
     port_network = "lan"
     voip_network = "voice"
     bypass_auth_when_server_down_for_voip = true
+    server_fail_retry_interval = 300
     stp_disable = false
     stp_edge = true
     stp_no_root_port = false
@@ -350,7 +355,6 @@ snmp_config = {
   network = "lan"
   trap_groups = [
     {
-      categories = []
       group_name = "mgmt_traps"
       targets = ["192.168.1.50"]
       version = "v2"
@@ -443,6 +447,7 @@ switch_matching = {
         "ge-0/0/0-23" = {
           usage = "lan"
           ae_lacp_force_up = true
+          ae_lacp_passive  = true
         }
         "ge-0/0/24-47" = {
           usage    = "inet"
@@ -494,12 +499,22 @@ switch_mgmt = {
   use_mxedge_proxy = false
 }
 uses_description_from_port_usage = true
+vars_annotations = {
+  "uplink1" = {
+    note = "Primary uplink annotation"
+    type = "generic"
+  }
+}
 vrf_config = {
   enabled = true
 }
 vrf_instances = {
   "mgmt_vrf" = {
     networks = ["lan"]
+    multicast_config = {
+      anycast_rp = false
+      rp_ip      = "192.168.1.1"
+    }
     extra_routes = {
       "10.0.0.0/8" = {
         via = "192.168.1.1"
@@ -518,6 +533,7 @@ vrf_instances = {
 acl_policies = [
   {
     name = "allow_web_traffic"
+    disabled = false
     src_tags = ["workstations"]
     actions = [
       {

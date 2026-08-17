@@ -359,9 +359,16 @@ type OrgDeviceprofileGatewayWanExtraRoutes6Value struct {
 }
 
 type OrgDeviceprofileGatewayWanProbeOverrideValue struct {
-	Ip6s         []string `cty:"ip6s" hcl:"ip6s"`
-	Ips          []string `cty:"ips" hcl:"ips"`
-	ProbeProfile *string  `cty:"probe_profile" hcl:"probe_profile"`
+	Hostnames    []string                          `cty:"hostnames" hcl:"hostnames"`
+	Http         *OrgDeviceprofileGatewayHttpValue `cty:"http" hcl:"http"`
+	Ip6s         []string                          `cty:"ip6s" hcl:"ip6s"`
+	Ips          []string                          `cty:"ips" hcl:"ips"`
+	ProbeProfile *string                           `cty:"probe_profile" hcl:"probe_profile"`
+}
+
+type OrgDeviceprofileGatewayHttpValue struct {
+	AcceptedStatusCodes []int64  `cty:"accepted_status_codes" hcl:"accepted_status_codes"`
+	Urls                []string `cty:"urls" hcl:"urls"`
 }
 
 type OrgDeviceprofileGatewayWanSourceNatValue struct {
@@ -388,6 +395,8 @@ type OrgDeviceprofileGatewayActionsValue struct {
 	ExcludeCommunity  []string `cty:"exclude_community" hcl:"exclude_community"`
 	ExportCommunities []string `cty:"export_communities" hcl:"export_communities"`
 	LocalPreference   *string  `cty:"local_preference" hcl:"local_preference"`
+	NextPolicy        *bool    `cty:"next_policy" hcl:"next_policy"`
+	NextTerm          *bool    `cty:"next_term" hcl:"next_term"`
 	PrependAsPath     []string `cty:"prepend_as_path" hcl:"prepend_as_path"`
 }
 
@@ -550,11 +559,20 @@ type OrgDeviceprofileGatewayIpsecProposalsValue struct {
 }
 
 type OrgDeviceprofileGatewayPrimaryValue struct {
-	Hosts       []string `cty:"hosts" hcl:"hosts"`
-	InternalIps []string `cty:"internal_ips" hcl:"internal_ips"`
-	ProbeIps    []string `cty:"probe_ips" hcl:"probe_ips"`
-	RemoteIds   []string `cty:"remote_ids" hcl:"remote_ids"`
-	WanNames    []string `cty:"wan_names" hcl:"wan_names"`
+	Hosts          []string                               `cty:"hosts" hcl:"hosts"`
+	InternalIp6s   []string                               `cty:"internal_ip6s" hcl:"internal_ip6s"`
+	InternalIps    []string                               `cty:"internal_ips" hcl:"internal_ips"`
+	ProbeHostnames []string                               `cty:"probe_hostnames" hcl:"probe_hostnames"`
+	ProbeHttp      *OrgDeviceprofileGatewayProbeHttpValue `cty:"probe_http" hcl:"probe_http"`
+	ProbeIp6s      []string                               `cty:"probe_ip6s" hcl:"probe_ip6s"`
+	ProbeIps       []string                               `cty:"probe_ips" hcl:"probe_ips"`
+	RemoteIds      []string                               `cty:"remote_ids" hcl:"remote_ids"`
+	WanNames       []string                               `cty:"wan_names" hcl:"wan_names"`
+}
+
+type OrgDeviceprofileGatewayProbeHttpValue struct {
+	AcceptedStatusCodes []int64  `cty:"accepted_status_codes" hcl:"accepted_status_codes"`
+	Urls                []string `cty:"urls" hcl:"urls"`
 }
 
 type OrgDeviceprofileGatewayProbeValue struct {
@@ -565,11 +583,15 @@ type OrgDeviceprofileGatewayProbeValue struct {
 }
 
 type OrgDeviceprofileGatewaySecondaryValue struct {
-	Hosts       []string `cty:"hosts" hcl:"hosts"`
-	InternalIps []string `cty:"internal_ips" hcl:"internal_ips"`
-	ProbeIps    []string `cty:"probe_ips" hcl:"probe_ips"`
-	RemoteIds   []string `cty:"remote_ids" hcl:"remote_ids"`
-	WanNames    []string `cty:"wan_names" hcl:"wan_names"`
+	Hosts          []string                               `cty:"hosts" hcl:"hosts"`
+	InternalIp6s   []string                               `cty:"internal_ip6s" hcl:"internal_ip6s"`
+	InternalIps    []string                               `cty:"internal_ips" hcl:"internal_ips"`
+	ProbeHostnames []string                               `cty:"probe_hostnames" hcl:"probe_hostnames"`
+	ProbeHttp      *OrgDeviceprofileGatewayProbeHttpValue `cty:"probe_http" hcl:"probe_http"`
+	ProbeIp6s      []string                               `cty:"probe_ip6s" hcl:"probe_ip6s"`
+	ProbeIps       []string                               `cty:"probe_ips" hcl:"probe_ips"`
+	RemoteIds      []string                               `cty:"remote_ids" hcl:"remote_ids"`
+	WanNames       []string                               `cty:"wan_names" hcl:"wan_names"`
 }
 
 type OrgDeviceprofileGatewayTunnelProviderOptionsValue struct {

@@ -23,7 +23,6 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var cacerts = types.ListNull(types.StringType)
 	var celona = NewCelonaValueNull()
 	var cloudshark = NewCloudsharkValueNull()
-	var cradlepoint = NewCradlepointValueNull()
 	var deviceCert = NewDeviceCertValueNull()
 	var deviceUpdownThreshold types.Int64
 	var disablePcap types.Bool
@@ -82,9 +81,6 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	}
 	if data.Cloudshark != nil {
 		cloudshark = cloudsharkSdkToTerraform(ctx, &diags, data.Cloudshark)
-	}
-	if data.Cradlepoint != nil {
-		cradlepoint = cradlepointSdkToTerraform(ctx, &diags, data.Cradlepoint)
 	}
 	if data.DeviceCert != nil {
 		deviceCert = deviceCertSdkToTerraform(ctx, &diags, data.DeviceCert)
@@ -215,7 +211,6 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.Cacerts = cacerts
 	state.Celona = celona
 	state.Cloudshark = cloudshark
-	state.Cradlepoint = cradlepoint
 	state.DeviceCert = deviceCert
 	state.DeviceUpdownThreshold = deviceUpdownThreshold
 	state.DisablePcap = disablePcap

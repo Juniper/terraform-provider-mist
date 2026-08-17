@@ -1,7 +1,5 @@
 package provider
 
-import ()
-
 type OrgPskModel struct {
 	Email                  *string  `hcl:"email"`
 	ExpireTime             *int64   `hcl:"expire_time"`
@@ -19,6 +17,7 @@ type OrgPskModel struct {
 	Role                   *string  `hcl:"role"`
 	Ssid                   string   `hcl:"ssid"`
 	Usage                  *string  `hcl:"usage"`
+	UsermacLabels          []string `hcl:"usermac_labels"`
 	VlanId                 *string  `hcl:"vlan_id"`
 	VlanName               *string  `hcl:"vlan_name"`
 }

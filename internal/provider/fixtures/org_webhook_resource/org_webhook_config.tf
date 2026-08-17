@@ -46,6 +46,7 @@
   type        = "splunk"
   splunk_token = "B5A79AAD-D822-46CC-80D1-819F80D7BFB0"
   topics      = ["alarms", "audits", "device-events"]
+  default_action = "permit"
   verify_cert = false
 ␞
   name   = "All Topics Webhook"

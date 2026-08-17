@@ -79,6 +79,25 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworktemplateModel) (models.
 		data.MistNac = mistNacTerraformToSdk(plan.MistNac)
 	}
 
+	if plan.MulticastConfig.IsNull() || plan.MulticastConfig.IsUnknown() {
+		unset["-multicast_config"] = ""
+	} else {
+		mc := models.SwitchMulticastConfig{}
+		if plan.MulticastConfig.AnycastRp.ValueBoolPointer() != nil {
+			mc.AnycastRp = plan.MulticastConfig.AnycastRp.ValueBoolPointer()
+		}
+		if plan.MulticastConfig.RpIp.ValueStringPointer() != nil {
+			mc.RpIp = plan.MulticastConfig.RpIp.ValueStringPointer()
+		}
+		if plan.MulticastConfig.SbdSubnet.ValueStringPointer() != nil {
+			mc.SbdSubnet = plan.MulticastConfig.SbdSubnet.ValueStringPointer()
+		}
+		if plan.MulticastConfig.SbdVlanId.ValueInt64Pointer() != nil {
+			mc.SbdVlanId = models.ToPointer(int(plan.MulticastConfig.SbdVlanId.ValueInt64()))
+		}
+		data.MulticastConfig = &mc
+	}
+
 	if plan.Networks.IsNull() || plan.Networks.IsUnknown() {
 		unset["-networks"] = ""
 	} else {

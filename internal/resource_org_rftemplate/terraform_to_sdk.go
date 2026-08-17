@@ -70,6 +70,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgRftemplateModel) (*models.RfTe
 		data.CountryCode = plan.CountryCode.ValueStringPointer()
 	}
 
+	if plan.EnableUnii4.IsNull() || plan.EnableUnii4.IsUnknown() {
+		unset["-enable_unii_4"] = ""
+	} else {
+		data.EnableUnii4 = plan.EnableUnii4.ValueBoolPointer()
+	}
+
 	if plan.ModelSpecific.IsNull() || plan.ModelSpecific.IsUnknown() {
 		unset["-model_specific"] = ""
 	} else {

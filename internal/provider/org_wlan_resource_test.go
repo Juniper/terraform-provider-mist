@@ -214,6 +214,9 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string, tracker *va
 	if s.DisableV2RoamNotify != nil {
 		checks.append(t, "TestCheckResourceAttr", "disable_v2_roam_notify", fmt.Sprintf("%t", *s.DisableV2RoamNotify))
 	}
+	if s.DisableMessageAuthenticatorCheck != nil {
+		checks.append(t, "TestCheckResourceAttr", "disable_message_authenticator_check", fmt.Sprintf("%t", *s.DisableMessageAuthenticatorCheck))
+	}
 	if s.DisableWmm != nil {
 		checks.append(t, "TestCheckResourceAttr", "disable_wmm", fmt.Sprintf("%t", *s.DisableWmm))
 	}
@@ -793,6 +796,12 @@ func (s *OrgWlanModel) testChecks(t testing.TB, rType, tName string, tracker *va
 		}
 		if s.DynamicPsk.ForceLookup != nil {
 			checks.append(t, "TestCheckResourceAttr", "dynamic_psk.force_lookup", fmt.Sprintf("%t", *s.DynamicPsk.ForceLookup))
+		}
+		if len(s.DynamicPsk.LocalVlanIds) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "dynamic_psk.local_vlan_ids.#", fmt.Sprintf("%d", len(s.DynamicPsk.LocalVlanIds)))
+			for i, vlanId := range s.DynamicPsk.LocalVlanIds {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dynamic_psk.local_vlan_ids.%d", i), vlanId)
+			}
 		}
 	}
 

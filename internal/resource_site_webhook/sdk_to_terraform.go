@@ -18,6 +18,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	var diags diag.Diagnostics
 
 	var assetfilterIds = types.ListNull(types.StringType)
+	var defaultAction types.String
 	var enabled types.Bool
 	var headers = types.MapNull(types.StringType)
 	var id types.String
@@ -30,6 +31,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	var oauth2TokenUrl types.String
 	var oauth2Username types.String
 	var orgId types.String
+	var rules = types.ListNull(RulesValue{}.Type(ctx))
 	var secret types.String
 	var singleEventPerMessage types.Bool
 	var siteId types.String
@@ -50,6 +52,9 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	}
 	if d.Enabled != nil {
 		enabled = types.BoolValue(*d.Enabled)
+	}
+	if d.DefaultAction != nil {
+		defaultAction = types.StringValue(string(*d.DefaultAction))
 	}
 	if d.Headers.Value() != nil {
 		tmp, e := types.MapValueFrom(ctx, types.StringType, *d.Headers.Value())
@@ -90,6 +95,43 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	if d.OrgId != nil {
 		orgId = types.StringValue(d.OrgId.String())
 	}
+	if d.Rules != nil {
+		var rulesList []RulesValue
+		for _, r := range d.Rules {
+			var action basetypes.StringValue
+			var matching = types.MapNull(types.ListType{ElemType: types.StringType})
+			var topic basetypes.StringValue
+			if r.Action != nil {
+				action = types.StringValue(string(*r.Action))
+			}
+			if r.Matching != nil {
+				m := make(map[string]attr.Value)
+				for k, v := range r.Matching {
+					var items []attr.Value
+					for _, s := range v {
+						items = append(items, types.StringValue(s))
+					}
+					l, e := types.ListValue(types.StringType, items)
+					diags.Append(e...)
+					m[k] = l
+				}
+				mp, e := types.MapValue(types.ListType{ElemType: types.StringType}, m)
+				diags.Append(e...)
+				matching = mp
+			}
+			topic = types.StringValue(r.Topic)
+			rv, e := NewRulesValue(RulesValue{}.AttributeTypes(ctx), map[string]attr.Value{
+				"action":   action,
+				"matching": matching,
+				"topic":    topic,
+			})
+			diags.Append(e...)
+			rulesList = append(rulesList, rv)
+		}
+		rl, e := types.ListValueFrom(ctx, RulesValue{}.Type(ctx), rulesList)
+		diags.Append(e...)
+		rules = rl
+	}
 	if d.Secret.Value() != nil {
 		secret = types.StringValue(*d.Secret.Value())
 	}
@@ -122,6 +164,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	}
 
 	state.AssetfilterIds = assetfilterIds
+	state.DefaultAction = defaultAction
 	state.Enabled = enabled
 	state.Headers = headers
 	state.Id = id
@@ -134,6 +177,7 @@ func SdkToTerraform(ctx context.Context, d *models.Webhook) (SiteWebhookModel, d
 	state.Oauth2TokenUrl = oauth2TokenUrl
 	state.Oauth2Username = oauth2Username
 	state.OrgId = orgId
+	state.Rules = rules
 	state.Secret = secret
 	state.SingleEventPerMessage = singleEventPerMessage
 	state.SiteId = siteId

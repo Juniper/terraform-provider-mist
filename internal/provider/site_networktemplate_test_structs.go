@@ -4,6 +4,8 @@ type SiteNetworktemplateModel struct {
 	AclPolicies                     []SiteNetworktemplateAclPoliciesValue              `hcl:"acl_policies"`
 	AclTags                         map[string]SiteNetworktemplateAclTagsValue         `hcl:"acl_tags"`
 	AdditionalConfigCmds            []string                                           `hcl:"additional_config_cmds"`
+	AllowMist                       *bool                                              `hcl:"allow_mist"`
+	ApSyntheticTest                 *SiteNetworktemplateApSyntheticTestValue           `hcl:"ap_synthetic_test"`
 	AutoUpgradeLinecard             *bool                                              `hcl:"auto_upgrade_linecard"`
 	DhcpSnooping                    *SiteNetworktemplateDhcpSnoopingValue              `hcl:"dhcp_snooping"`
 	DisabledSystemDefinedPortUsages []string                                           `hcl:"disabled_system_defined_port_usages"`
@@ -11,7 +13,10 @@ type SiteNetworktemplateModel struct {
 	DnsSuffix                       []string                                           `hcl:"dns_suffix"`
 	ExtraRoutes                     map[string]SiteNetworktemplateExtraRoutesValue     `hcl:"extra_routes"`
 	ExtraRoutes6                    map[string]SiteNetworktemplateExtraRoutes6Value    `hcl:"extra_routes6"`
+	GatewayTunnelUpdownThreshold    *int64                                             `hcl:"gateway_tunnel_updown_threshold"`
+	Iotproxy                        *SiteNetworktemplateIotproxyValue                  `hcl:"iotproxy"`
 	MistNac                         *SiteNetworktemplateMistNacValue                   `hcl:"mist_nac"`
+	Mxtunnel                        *SiteNetworktemplateMxtunnelValue                  `hcl:"mxtunnel"`
 	Networks                        map[string]SiteNetworktemplateNetworksValue        `hcl:"networks"`
 	NtpServers                      []string                                           `hcl:"ntp_servers"`
 	OspfAreas                       map[string]SiteNetworktemplateOspfAreasValue       `hcl:"ospf_areas"`
@@ -25,14 +30,17 @@ type SiteNetworktemplateModel struct {
 	SwitchMatching                  *SiteNetworktemplateSwitchMatchingValue            `hcl:"switch_matching"`
 	SwitchMgmt                      *SiteNetworktemplateSwitchMgmtValue                `hcl:"switch_mgmt"`
 	UsesDescriptionFromPortUsage    *bool                                              `hcl:"uses_description_from_port_usage"`
+	UwbConfig                       *SiteNetworktemplateUwbConfigValue                 `hcl:"uwb_config"`
+	VarsAnnotations                 map[string]SiteNetworktemplateVarsAnnotationsValue `hcl:"vars_annotations"`
 	VrfConfig                       *SiteNetworktemplateVrfConfigValue                 `hcl:"vrf_config"`
 	VrfInstances                    map[string]SiteNetworktemplateVrfInstancesValue    `hcl:"vrf_instances"`
 }
 
 type SiteNetworktemplateAclPoliciesValue struct {
-	Actions []SiteNetworktemplateActionsValue `cty:"actions" hcl:"actions"`
-	Name    *string                           `cty:"name" hcl:"name"`
-	SrcTags []string                          `cty:"src_tags" hcl:"src_tags"`
+	Actions  []SiteNetworktemplateActionsValue `cty:"actions" hcl:"actions"`
+	Disabled *bool                             `cty:"disabled" hcl:"disabled"`
+	Name     *string                           `cty:"name" hcl:"name"`
+	SrcTags  []string                          `cty:"src_tags" hcl:"src_tags"`
 }
 
 type SiteNetworktemplateActionsValue struct {
@@ -55,6 +63,10 @@ type SiteNetworktemplateAclTagsValue struct {
 type SiteNetworktemplateSpecsValue struct {
 	PortRange *string `cty:"port_range" hcl:"port_range"`
 	Protocol  *string `cty:"protocol" hcl:"protocol"`
+}
+
+type SiteNetworktemplateApSyntheticTestValue struct {
+	AdditionalVlanIds []string `cty:"additional_vlan_ids" hcl:"additional_vlan_ids"`
 }
 
 type SiteNetworktemplateDhcpSnoopingValue struct {
@@ -88,19 +100,108 @@ type SiteNetworktemplateExtraRoutes6Value struct {
 	Via           string                                           `cty:"via" hcl:"via"`
 }
 
+type SiteNetworktemplateIotproxyValue struct {
+	Enabled    *bool                               `cty:"enabled" hcl:"enabled"`
+	Visionline *SiteNetworktemplateVisionlineValue `cty:"visionline" hcl:"visionline"`
+}
+
+type SiteNetworktemplateVisionlineValue struct {
+	AccessId *string  `cty:"access_id" hcl:"access_id"`
+	Cacerts  []string `cty:"cacerts" hcl:"cacerts"`
+	Enabled  *bool    `cty:"enabled" hcl:"enabled"`
+	Host     *string  `cty:"host" hcl:"host"`
+	Password *string  `cty:"password" hcl:"password"`
+	Port     *int64   `cty:"port" hcl:"port"`
+	Username *string  `cty:"username" hcl:"username"`
+}
+
 type SiteNetworktemplateMistNacValue struct {
 	Enabled *bool   `cty:"enabled" hcl:"enabled"`
 	Network *string `cty:"network" hcl:"network"`
 }
 
+type SiteNetworktemplateMxtunnelValue struct {
+	AdditionalMxtunnels map[string]SiteNetworktemplateAdditionalMxtunnelsValue `cty:"additional_mxtunnels" hcl:"additional_mxtunnels"`
+	ApSubnets           []string                                               `cty:"ap_subnets" hcl:"ap_subnets"`
+	AutoPreemption      *SiteNetworktemplateAutoPreemptionValue                `cty:"auto_preemption" hcl:"auto_preemption"`
+	Clusters            []SiteNetworktemplateClustersValue                     `cty:"clusters" hcl:"clusters"`
+	CreatedTime         *float64                                               `cty:"created_time" hcl:"created_time"`
+	Enabled             *bool                                                  `cty:"enabled" hcl:"enabled"`
+	ForSite             *bool                                                  `cty:"for_site" hcl:"for_site"`
+	HelloInterval       *int64                                                 `cty:"hello_interval" hcl:"hello_interval"`
+	HelloRetries        *int64                                                 `cty:"hello_retries" hcl:"hello_retries"`
+	Hosts               []string                                               `cty:"hosts" hcl:"hosts"`
+	Id                  *string                                                `cty:"id" hcl:"id"`
+	ModifiedTime        *float64                                               `cty:"modified_time" hcl:"modified_time"`
+	Mtu                 *int64                                                 `cty:"mtu" hcl:"mtu"`
+	OrgId               *string                                                `cty:"org_id" hcl:"org_id"`
+	Protocol            *string                                                `cty:"protocol" hcl:"protocol"`
+	Radsec              *SiteNetworktemplateRadsecValue                        `cty:"radsec" hcl:"radsec"`
+	SiteId              *string                                                `cty:"site_id" hcl:"site_id"`
+	VlanIds             []int64                                                `cty:"vlan_ids" hcl:"vlan_ids"`
+}
+
+type SiteNetworktemplateAdditionalMxtunnelsValue struct {
+	Clusters      []SiteNetworktemplateClustersValue `cty:"clusters" hcl:"clusters"`
+	HelloInterval *int64                             `cty:"hello_interval" hcl:"hello_interval"`
+	HelloRetries  *int64                             `cty:"hello_retries" hcl:"hello_retries"`
+	Protocol      *string                            `cty:"protocol" hcl:"protocol"`
+	VlanIds       []int64                            `cty:"vlan_ids" hcl:"vlan_ids"`
+}
+
+type SiteNetworktemplateClustersValue struct {
+	Name         *string  `cty:"name" hcl:"name"`
+	TuntermHosts []string `cty:"tunterm_hosts" hcl:"tunterm_hosts"`
+}
+
+type SiteNetworktemplateAutoPreemptionValue struct {
+	DayOfWeek *string `cty:"day_of_week" hcl:"day_of_week"`
+	Enabled   *bool   `cty:"enabled" hcl:"enabled"`
+	TimeOfDay *string `cty:"time_of_day" hcl:"time_of_day"`
+}
+
+type SiteNetworktemplateRadsecValue struct {
+	AcctServers []SiteNetworktemplateAcctServersValue `cty:"acct_servers" hcl:"acct_servers"`
+	AuthServers []SiteNetworktemplateAuthServersValue `cty:"auth_servers" hcl:"auth_servers"`
+	Enabled     *bool                                 `cty:"enabled" hcl:"enabled"`
+	UseMxedge   *bool                                 `cty:"use_mxedge" hcl:"use_mxedge"`
+}
+
+type SiteNetworktemplateAcctServersValue struct {
+	Host           string  `cty:"host" hcl:"host"`
+	KeywrapEnabled *bool   `cty:"keywrap_enabled" hcl:"keywrap_enabled"`
+	KeywrapFormat  *string `cty:"keywrap_format" hcl:"keywrap_format"`
+	KeywrapKek     *string `cty:"keywrap_kek" hcl:"keywrap_kek"`
+	KeywrapMack    *string `cty:"keywrap_mack" hcl:"keywrap_mack"`
+	Port           *string `cty:"port" hcl:"port"`
+	Secret         string  `cty:"secret" hcl:"secret"`
+}
+
+type SiteNetworktemplateAuthServersValue struct {
+	Host                        string  `cty:"host" hcl:"host"`
+	KeywrapEnabled              *bool   `cty:"keywrap_enabled" hcl:"keywrap_enabled"`
+	KeywrapFormat               *string `cty:"keywrap_format" hcl:"keywrap_format"`
+	KeywrapKek                  *string `cty:"keywrap_kek" hcl:"keywrap_kek"`
+	KeywrapMack                 *string `cty:"keywrap_mack" hcl:"keywrap_mack"`
+	Port                        *string `cty:"port" hcl:"port"`
+	RequireMessageAuthenticator *bool   `cty:"require_message_authenticator" hcl:"require_message_authenticator"`
+	Secret                      string  `cty:"secret" hcl:"secret"`
+}
+
 type SiteNetworktemplateNetworksValue struct {
-	Gateway         *string `cty:"gateway" hcl:"gateway"`
-	Gateway6        *string `cty:"gateway6" hcl:"gateway6"`
-	Isolation       *bool   `cty:"isolation" hcl:"isolation"`
-	IsolationVlanId *string `cty:"isolation_vlan_id" hcl:"isolation_vlan_id"`
-	Subnet          *string `cty:"subnet" hcl:"subnet"`
-	Subnet6         *string `cty:"subnet6" hcl:"subnet6"`
-	VlanId          string  `cty:"vlan_id" hcl:"vlan_id"`
+	Gateway         *string                            `cty:"gateway" hcl:"gateway"`
+	Gateway6        *string                            `cty:"gateway6" hcl:"gateway6"`
+	Isolation       *bool                              `cty:"isolation" hcl:"isolation"`
+	IsolationVlanId *string                            `cty:"isolation_vlan_id" hcl:"isolation_vlan_id"`
+	Multicast       *SiteNetworktemplateMulticastValue `cty:"multicast" hcl:"multicast"`
+	Subnet          *string                            `cty:"subnet" hcl:"subnet"`
+	Subnet6         *string                            `cty:"subnet6" hcl:"subnet6"`
+	VlanId          string                             `cty:"vlan_id" hcl:"vlan_id"`
+}
+
+type SiteNetworktemplateMulticastValue struct {
+	Enabled     *bool   `cty:"enabled" hcl:"enabled"`
+	IgmpVersion *string `cty:"igmp_version" hcl:"igmp_version"`
 }
 
 type SiteNetworktemplateOspfAreasValue struct {
@@ -168,6 +269,7 @@ type SiteNetworktemplatePortUsagesValue struct {
 	ResetDefaultWhen                         *string                               `cty:"reset_default_when" hcl:"reset_default_when"`
 	Rules                                    []SiteNetworktemplateRulesValue       `cty:"rules" hcl:"rules"`
 	ServerFailNetwork                        *string                               `cty:"server_fail_network" hcl:"server_fail_network"`
+	ServerFailRetryInterval                  *int64                                `cty:"server_fail_retry_interval" hcl:"server_fail_retry_interval"`
 	ServerRejectNetwork                      *string                               `cty:"server_reject_network" hcl:"server_reject_network"`
 	Speed                                    *string                               `cty:"speed" hcl:"speed"`
 	StormControl                             *SiteNetworktemplateStormControlValue `cty:"storm_control" hcl:"storm_control"`
@@ -214,27 +316,6 @@ type SiteNetworktemplateRadiusConfigValue struct {
 	SourceIp            *string                               `cty:"source_ip" hcl:"source_ip"`
 }
 
-type SiteNetworktemplateAcctServersValue struct {
-	Host           string  `cty:"host" hcl:"host"`
-	KeywrapEnabled *bool   `cty:"keywrap_enabled" hcl:"keywrap_enabled"`
-	KeywrapFormat  *string `cty:"keywrap_format" hcl:"keywrap_format"`
-	KeywrapKek     *string `cty:"keywrap_kek" hcl:"keywrap_kek"`
-	KeywrapMack    *string `cty:"keywrap_mack" hcl:"keywrap_mack"`
-	Port           *string `cty:"port" hcl:"port"`
-	Secret         string  `cty:"secret" hcl:"secret"`
-}
-
-type SiteNetworktemplateAuthServersValue struct {
-	Host                        string  `cty:"host" hcl:"host"`
-	KeywrapEnabled              *bool   `cty:"keywrap_enabled" hcl:"keywrap_enabled"`
-	KeywrapFormat               *string `cty:"keywrap_format" hcl:"keywrap_format"`
-	KeywrapKek                  *string `cty:"keywrap_kek" hcl:"keywrap_kek"`
-	KeywrapMack                 *string `cty:"keywrap_mack" hcl:"keywrap_mack"`
-	Port                        *string `cty:"port" hcl:"port"`
-	RequireMessageAuthenticator *bool   `cty:"require_message_authenticator" hcl:"require_message_authenticator"`
-	Secret                      string  `cty:"secret" hcl:"secret"`
-}
-
 type SiteNetworktemplateRemoteSyslogValue struct {
 	Archive          *SiteNetworktemplateArchiveValue  `cty:"archive" hcl:"archive"`
 	Cacerts          []string                          `cty:"cacerts" hcl:"cacerts"`
@@ -276,7 +357,7 @@ type SiteNetworktemplateServersValue struct {
 	Contents         []SiteNetworktemplateContentsValue `cty:"contents" hcl:"contents"`
 	ExplicitPriority *bool                              `cty:"explicit_priority" hcl:"explicit_priority"`
 	Facility         *string                            `cty:"facility" hcl:"facility"`
-	Host             *string                            `cty:"host" hcl:"host"`
+	Host             string                             `cty:"host" hcl:"host"`
 	Match            *string                            `cty:"match" hcl:"match"`
 	Port             *string                            `cty:"port" hcl:"port"`
 	Protocol         *string                            `cty:"protocol" hcl:"protocol"`
@@ -300,7 +381,7 @@ type SiteNetworktemplateRoutingPoliciesValue struct {
 
 type SiteNetworktemplateTermsValue struct {
 	Matching                 *SiteNetworktemplateMatchingValue                 `cty:"matching" hcl:"matching"`
-	Name                     string                                            `cty:"name" hcl:"name"`
+	Name                     *string                                           `cty:"name" hcl:"name"`
 	RoutingPolicyTermActions *SiteNetworktemplateRoutingPolicyTermActionsValue `cty:"actions" hcl:"actions"`
 }
 
@@ -326,7 +407,7 @@ type SiteNetworktemplateSnmpConfigValue struct {
 	EngineId     *string                              `cty:"engine_id" hcl:"engine_id"`
 	EngineIdType *string                              `cty:"engine_id_type" hcl:"engine_id_type"`
 	Location     *string                              `cty:"location" hcl:"location"`
-	Name         *string                              `cty:"name" hcl:"name"`
+	Name         string                               `cty:"name" hcl:"name"`
 	Network      *string                              `cty:"network" hcl:"network"`
 	TrapGroups   []SiteNetworktemplateTrapGroupsValue `cty:"trap_groups" hcl:"trap_groups"`
 	V2cConfig    []SiteNetworktemplateV2cConfigValue  `cty:"v2c_config" hcl:"v2c_config"`
@@ -363,12 +444,13 @@ type SiteNetworktemplateV3ConfigValue struct {
 }
 
 type SiteNetworktemplateNotifyValue struct {
-	Name       string `cty:"name" hcl:"name"`
-	Tag        string `cty:"tag" hcl:"tag"`
-	NotifyType string `cty:"type" hcl:"type"`
+	Name       *string `cty:"name" hcl:"name"`
+	Tag        string  `cty:"tag" hcl:"tag"`
+	NotifyType string  `cty:"type" hcl:"type"`
 }
 
 type SiteNetworktemplateNotifyFilterValue struct {
+	Categories     []string                                 `cty:"categories" hcl:"categories"`
 	ProfileName    *string                                  `cty:"profile_name" hcl:"profile_name"`
 	Snmpv3Contents []SiteNetworktemplateSnmpv3ContentsValue `cty:"contents" hcl:"contents"`
 }
@@ -407,7 +489,7 @@ type SiteNetworktemplateSnmpv3UsersValue struct {
 	AuthenticationType     *string `cty:"authentication_type" hcl:"authentication_type"`
 	EncryptionPassword     *string `cty:"encryption_password" hcl:"encryption_password"`
 	EncryptionType         *string `cty:"encryption_type" hcl:"encryption_type"`
-	Name                   *string `cty:"name" hcl:"name"`
+	Name                   string  `cty:"name" hcl:"name"`
 }
 
 type SiteNetworktemplateVacmValue struct {
@@ -481,6 +563,7 @@ type SiteNetworktemplatePortConfigValue struct {
 	AeDisableLacp    *bool    `cty:"ae_disable_lacp" hcl:"ae_disable_lacp"`
 	AeIdx            *int64   `cty:"ae_idx" hcl:"ae_idx"`
 	AeLacpForceUp    *bool    `cty:"ae_lacp_force_up" hcl:"ae_lacp_force_up"`
+	AeLacpPassive    *bool    `cty:"ae_lacp_passive" hcl:"ae_lacp_passive"`
 	AeLacpSlow       *bool    `cty:"ae_lacp_slow" hcl:"ae_lacp_slow"`
 	Aggregated       *bool    `cty:"aggregated" hcl:"aggregated"`
 	Critical         *bool    `cty:"critical" hcl:"critical"`
@@ -548,17 +631,30 @@ type SiteNetworktemplateTacacsValue struct {
 }
 
 type SiteNetworktemplateTacacctServersValue struct {
-	Host    *string `cty:"host" hcl:"host"`
+	Host    string  `cty:"host" hcl:"host"`
 	Port    *string `cty:"port" hcl:"port"`
-	Secret  *string `cty:"secret" hcl:"secret"`
+	Secret  string  `cty:"secret" hcl:"secret"`
 	Timeout *int64  `cty:"timeout" hcl:"timeout"`
 }
 
 type SiteNetworktemplateTacplusServersValue struct {
 	Host    *string `cty:"host" hcl:"host"`
 	Port    *string `cty:"port" hcl:"port"`
-	Secret  *string `cty:"secret" hcl:"secret"`
+	Secret  string  `cty:"secret" hcl:"secret"`
 	Timeout *int64  `cty:"timeout" hcl:"timeout"`
+}
+
+type SiteNetworktemplateUwbConfigValue struct {
+	Enabled       *bool   `cty:"enabled" hcl:"enabled"`
+	Host          *string `cty:"host" hcl:"host"`
+	Port          *int64  `cty:"port" hcl:"port"`
+	Slot          *int64  `cty:"slot" hcl:"slot"`
+	UwbConfigType *string `cty:"type" hcl:"type"`
+}
+
+type SiteNetworktemplateVarsAnnotationsValue struct {
+	Note                *string `cty:"note" hcl:"note"`
+	VarsAnnotationsType *string `cty:"type" hcl:"type"`
 }
 
 type SiteNetworktemplateVrfConfigValue struct {
@@ -568,9 +664,17 @@ type SiteNetworktemplateVrfConfigValue struct {
 type SiteNetworktemplateVrfInstancesValue struct {
 	EvpnAutoLoopbackSubnet  *string                                            `cty:"evpn_auto_loopback_subnet" hcl:"evpn_auto_loopback_subnet"`
 	EvpnAutoLoopbackSubnet6 *string                                            `cty:"evpn_auto_loopback_subnet6" hcl:"evpn_auto_loopback_subnet6"`
+	MulticastConfig         *SiteNetworktemplateMulticastConfigValue           `cty:"multicast_config" hcl:"multicast_config"`
 	Networks                []string                                           `cty:"networks" hcl:"networks"`
 	VrfExtraRoutes          map[string]SiteNetworktemplateVrfExtraRoutesValue  `cty:"extra_routes" hcl:"extra_routes"`
 	VrfExtraRoutes6         map[string]SiteNetworktemplateVrfExtraRoutes6Value `cty:"extra_routes6" hcl:"extra_routes6"`
+}
+
+type SiteNetworktemplateMulticastConfigValue struct {
+	AnycastRp *bool   `cty:"anycast_rp" hcl:"anycast_rp"`
+	RpIp      *string `cty:"rp_ip" hcl:"rp_ip"`
+	SbdSubnet *string `cty:"sbd_subnet" hcl:"sbd_subnet"`
+	SbdVlanId *int64  `cty:"sbd_vlan_id" hcl:"sbd_vlan_id"`
 }
 
 type SiteNetworktemplateVrfExtraRoutesValue struct {

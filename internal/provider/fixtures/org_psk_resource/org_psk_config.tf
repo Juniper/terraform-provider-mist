@@ -13,6 +13,7 @@ role                       = "guest"
 usage                      = "macs"
 vlan_id                    = "100"
 vlan_name                  = "vlan-100"
+usermac_labels             = ["label1", "label2"]
 ␞
 name                       = "test-psk-single-mac"
 passphrase                 = "testpassphrase456"

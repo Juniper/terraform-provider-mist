@@ -135,6 +135,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgDeviceprofileApModel) (models.
 		unset["-usb_config"] = ""
 	}
 
+	if !plan.UwbConfig.IsNull() && !plan.UwbConfig.IsUnknown() {
+		data.UwbConfig = uwbConfigTerraformToSdk(plan.UwbConfig)
+	} else {
+		unset["-uwb_config"] = ""
+	}
+
 	if !plan.Vars.IsNull() && !plan.Vars.IsUnknown() {
 		data.Vars = varsTerraformToSdk(plan.Vars)
 	} else {

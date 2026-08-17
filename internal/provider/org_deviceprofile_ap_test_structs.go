@@ -24,6 +24,7 @@ type OrgDeviceprofileApModel struct {
 	SiteId           *string                                      `hcl:"site_id"`
 	UplinkPortConfig *OrgDeviceprofileApUplinkPortConfigValue     `hcl:"uplink_port_config"`
 	UsbConfig        *OrgDeviceprofileApUsbConfigValue            `hcl:"usb_config"`
+	UwbConfig        *OrgDeviceprofileApUwbConfigValue            `hcl:"uwb_config"`
 	Vars             map[string]string                            `hcl:"vars"`
 	ZigbeeConfig     *OrgDeviceprofileApZigbeeConfigValue         `hcl:"zigbee_config"`
 }
@@ -115,13 +116,14 @@ type OrgDeviceprofileApMeshValue struct {
 }
 
 type OrgDeviceprofileApMqttConfigValue struct {
-	BrokerHost  *string `cty:"broker_host" hcl:"broker_host"`
-	BrokerPort  *int64  `cty:"broker_port" hcl:"broker_port"`
-	BrokerProto *string `cty:"broker_proto" hcl:"broker_proto"`
-	Enabled     *bool   `cty:"enabled" hcl:"enabled"`
-	Format      *string `cty:"format" hcl:"format"`
-	Password    *string `cty:"password" hcl:"password"`
-	Username    *string `cty:"username" hcl:"username"`
+	BrokerHost   *string `cty:"broker_host" hcl:"broker_host"`
+	BrokerPort   *int64  `cty:"broker_port" hcl:"broker_port"`
+	BrokerProto  *string `cty:"broker_proto" hcl:"broker_proto"`
+	DefaultTopic *string `cty:"default_topic" hcl:"default_topic"`
+	Enabled      *bool   `cty:"enabled" hcl:"enabled"`
+	Format       *string `cty:"format" hcl:"format"`
+	Password     *string `cty:"password" hcl:"password"`
+	Username     *string `cty:"username" hcl:"username"`
 }
 
 type OrgDeviceprofileApPortConfigValue struct {
@@ -310,6 +312,14 @@ type OrgDeviceprofileApUsbConfigValue struct {
 	UsbConfigType *string `cty:"type" hcl:"type"`
 	VerifyCert    *bool   `cty:"verify_cert" hcl:"verify_cert"`
 	VlanId        *int64  `cty:"vlan_id" hcl:"vlan_id"`
+}
+
+type OrgDeviceprofileApUwbConfigValue struct {
+	Enabled       *bool   `cty:"enabled" hcl:"enabled"`
+	Host          *string `cty:"host" hcl:"host"`
+	Port          *int64  `cty:"port" hcl:"port"`
+	Slot          *int64  `cty:"slot" hcl:"slot"`
+	UwbConfigType *string `cty:"type" hcl:"type"`
 }
 
 type OrgDeviceprofileApZigbeeConfigValue struct {

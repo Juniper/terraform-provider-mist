@@ -122,6 +122,7 @@ type OrgGatewaytemplateGatewayMgmtValue struct {
 	AutoSignatureUpdate        *OrgGatewaytemplateAutoSignatureUpdateValue `cty:"auto_signature_update" hcl:"auto_signature_update"`
 	ConfigRevertTimer          *int64                                      `cty:"config_revert_timer" hcl:"config_revert_timer"`
 	DisableConsole             *bool                                       `cty:"disable_console" hcl:"disable_console"`
+	DisableIdpPcap             *bool                                       `cty:"disable_idp_pcap" hcl:"disable_idp_pcap"`
 	DisableOob                 *bool                                       `cty:"disable_oob" hcl:"disable_oob"`
 	DisableUsb                 *bool                                       `cty:"disable_usb" hcl:"disable_usb"`
 	FipsEnabled                *bool                                       `cty:"fips_enabled" hcl:"fips_enabled"`
@@ -418,9 +419,16 @@ type OrgGatewaytemplateWanExtraRoutes6Value struct {
 }
 
 type OrgGatewaytemplateWanProbeOverrideValue struct {
-	Ip6s         []string `cty:"ip6s" hcl:"ip6s"`
-	Ips          []string `cty:"ips" hcl:"ips"`
-	ProbeProfile *string  `cty:"probe_profile" hcl:"probe_profile"`
+	Hostnames    []string                     `cty:"hostnames" hcl:"hostnames"`
+	Http         *OrgGatewaytemplateHttpValue `cty:"http" hcl:"http"`
+	Ip6s         []string                     `cty:"ip6s" hcl:"ip6s"`
+	Ips          []string                     `cty:"ips" hcl:"ips"`
+	ProbeProfile *string                      `cty:"probe_profile" hcl:"probe_profile"`
+}
+
+type OrgGatewaytemplateHttpValue struct {
+	AcceptedStatusCodes []int64  `cty:"accepted_status_codes" hcl:"accepted_status_codes"`
+	Urls                []string `cty:"urls" hcl:"urls"`
 }
 
 type OrgGatewaytemplateWanSourceNatValue struct {
@@ -447,6 +455,8 @@ type OrgGatewaytemplateActionsValue struct {
 	ExcludeCommunity  []string `cty:"exclude_community" hcl:"exclude_community"`
 	ExportCommunities []string `cty:"export_communities" hcl:"export_communities"`
 	LocalPreference   *string  `cty:"local_preference" hcl:"local_preference"`
+	NextPolicy        *bool    `cty:"next_policy" hcl:"next_policy"`
+	NextTerm          *bool    `cty:"next_term" hcl:"next_term"`
 	PrependAsPath     []string `cty:"prepend_as_path" hcl:"prepend_as_path"`
 }
 
@@ -609,11 +619,20 @@ type OrgGatewaytemplateIpsecProposalsValue struct {
 }
 
 type OrgGatewaytemplatePrimaryValue struct {
-	Hosts       []string `cty:"hosts" hcl:"hosts"`
-	InternalIps []string `cty:"internal_ips" hcl:"internal_ips"`
-	ProbeIps    []string `cty:"probe_ips" hcl:"probe_ips"`
-	RemoteIds   []string `cty:"remote_ids" hcl:"remote_ids"`
-	WanNames    []string `cty:"wan_names" hcl:"wan_names"`
+	Hosts          []string                          `cty:"hosts" hcl:"hosts"`
+	InternalIp6s   []string                          `cty:"internal_ip6s" hcl:"internal_ip6s"`
+	InternalIps    []string                          `cty:"internal_ips" hcl:"internal_ips"`
+	ProbeHostnames []string                          `cty:"probe_hostnames" hcl:"probe_hostnames"`
+	ProbeHttp      *OrgGatewaytemplateProbeHttpValue `cty:"probe_http" hcl:"probe_http"`
+	ProbeIp6s      []string                          `cty:"probe_ip6s" hcl:"probe_ip6s"`
+	ProbeIps       []string                          `cty:"probe_ips" hcl:"probe_ips"`
+	RemoteIds      []string                          `cty:"remote_ids" hcl:"remote_ids"`
+	WanNames       []string                          `cty:"wan_names" hcl:"wan_names"`
+}
+
+type OrgGatewaytemplateProbeHttpValue struct {
+	AcceptedStatusCodes []int64  `cty:"accepted_status_codes" hcl:"accepted_status_codes"`
+	Urls                []string `cty:"urls" hcl:"urls"`
 }
 
 type OrgGatewaytemplateProbeValue struct {
@@ -624,11 +643,15 @@ type OrgGatewaytemplateProbeValue struct {
 }
 
 type OrgGatewaytemplateSecondaryValue struct {
-	Hosts       []string `cty:"hosts" hcl:"hosts"`
-	InternalIps []string `cty:"internal_ips" hcl:"internal_ips"`
-	ProbeIps    []string `cty:"probe_ips" hcl:"probe_ips"`
-	RemoteIds   []string `cty:"remote_ids" hcl:"remote_ids"`
-	WanNames    []string `cty:"wan_names" hcl:"wan_names"`
+	Hosts          []string                          `cty:"hosts" hcl:"hosts"`
+	InternalIp6s   []string                          `cty:"internal_ip6s" hcl:"internal_ip6s"`
+	InternalIps    []string                          `cty:"internal_ips" hcl:"internal_ips"`
+	ProbeHostnames []string                          `cty:"probe_hostnames" hcl:"probe_hostnames"`
+	ProbeHttp      *OrgGatewaytemplateProbeHttpValue `cty:"probe_http" hcl:"probe_http"`
+	ProbeIp6s      []string                          `cty:"probe_ip6s" hcl:"probe_ip6s"`
+	ProbeIps       []string                          `cty:"probe_ips" hcl:"probe_ips"`
+	RemoteIds      []string                          `cty:"remote_ids" hcl:"remote_ids"`
+	WanNames       []string                          `cty:"wan_names" hcl:"wan_names"`
 }
 
 type OrgGatewaytemplateTunnelProviderOptionsValue struct {

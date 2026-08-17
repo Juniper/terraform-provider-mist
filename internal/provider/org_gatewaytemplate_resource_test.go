@@ -374,6 +374,9 @@ func (s *OrgGatewaytemplateModel) testChecks(t testing.TB, rType, tName string, 
 		if gm.DisableConsole != nil {
 			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.disable_console", fmt.Sprintf("%t", *gm.DisableConsole))
 		}
+		if gm.DisableIdpPcap != nil {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.disable_idp_pcap", fmt.Sprintf("%t", *gm.DisableIdpPcap))
+		}
 		if gm.DisableOob != nil {
 			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.disable_oob", fmt.Sprintf("%t", *gm.DisableOob))
 		}
@@ -1012,6 +1015,23 @@ func (s *OrgGatewaytemplateModel) testChecks(t testing.TB, rType, tName string, 
 			}
 			// WanProbeOverride nested structure
 			if portConfig.WanProbeOverride != nil {
+				if len(portConfig.WanProbeOverride.Hostnames) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_probe_override.hostnames.#", key), fmt.Sprintf("%d", len(portConfig.WanProbeOverride.Hostnames)))
+					for i, hostname := range portConfig.WanProbeOverride.Hostnames {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_probe_override.hostnames.%d", key, i), hostname)
+					}
+				}
+				if portConfig.WanProbeOverride.Http != nil {
+					if len(portConfig.WanProbeOverride.Http.AcceptedStatusCodes) > 0 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_probe_override.http.accepted_status_codes.#", key), fmt.Sprintf("%d", len(portConfig.WanProbeOverride.Http.AcceptedStatusCodes)))
+					}
+					if len(portConfig.WanProbeOverride.Http.Urls) > 0 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_probe_override.http.urls.#", key), fmt.Sprintf("%d", len(portConfig.WanProbeOverride.Http.Urls)))
+						for i, url := range portConfig.WanProbeOverride.Http.Urls {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_probe_override.http.urls.%d", key, i), url)
+						}
+					}
+				}
 				if len(portConfig.WanProbeOverride.Ip6s) > 0 {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_config.%s.wan_probe_override.ip6s.#", key), fmt.Sprintf("%d", len(portConfig.WanProbeOverride.Ip6s)))
 					for i, ip6 := range portConfig.WanProbeOverride.Ip6s {
@@ -1266,6 +1286,128 @@ func (s *OrgGatewaytemplateModel) testChecks(t testing.TB, rType, tName string, 
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.networks.%d", key, i), network)
 				}
 			}
+			if tunnelConfig.Primary != nil {
+				if len(tunnelConfig.Primary.Hosts) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.hosts.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.Hosts)))
+					for i, host := range tunnelConfig.Primary.Hosts {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.hosts.%d", key, i), host)
+					}
+				}
+				if len(tunnelConfig.Primary.InternalIp6s) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.internal_ip6s.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.InternalIp6s)))
+					for i, v := range tunnelConfig.Primary.InternalIp6s {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.internal_ip6s.%d", key, i), v)
+					}
+				}
+				if len(tunnelConfig.Primary.InternalIps) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.internal_ips.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.InternalIps)))
+					for i, v := range tunnelConfig.Primary.InternalIps {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.internal_ips.%d", key, i), v)
+					}
+				}
+				if len(tunnelConfig.Primary.ProbeHostnames) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_hostnames.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.ProbeHostnames)))
+					for i, v := range tunnelConfig.Primary.ProbeHostnames {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_hostnames.%d", key, i), v)
+					}
+				}
+				if tunnelConfig.Primary.ProbeHttp != nil {
+					if len(tunnelConfig.Primary.ProbeHttp.AcceptedStatusCodes) > 0 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_http.accepted_status_codes.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.ProbeHttp.AcceptedStatusCodes)))
+					}
+					if len(tunnelConfig.Primary.ProbeHttp.Urls) > 0 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_http.urls.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.ProbeHttp.Urls)))
+						for i, u := range tunnelConfig.Primary.ProbeHttp.Urls {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_http.urls.%d", key, i), u)
+						}
+					}
+				}
+				if len(tunnelConfig.Primary.ProbeIp6s) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_ip6s.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.ProbeIp6s)))
+					for i, v := range tunnelConfig.Primary.ProbeIp6s {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_ip6s.%d", key, i), v)
+					}
+				}
+				if len(tunnelConfig.Primary.ProbeIps) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_ips.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.ProbeIps)))
+					for i, v := range tunnelConfig.Primary.ProbeIps {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.probe_ips.%d", key, i), v)
+					}
+				}
+				if len(tunnelConfig.Primary.RemoteIds) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.remote_ids.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.RemoteIds)))
+					for i, v := range tunnelConfig.Primary.RemoteIds {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.remote_ids.%d", key, i), v)
+					}
+				}
+				if len(tunnelConfig.Primary.WanNames) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.wan_names.#", key), fmt.Sprintf("%d", len(tunnelConfig.Primary.WanNames)))
+					for i, v := range tunnelConfig.Primary.WanNames {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.primary.wan_names.%d", key, i), v)
+					}
+				}
+			}
+			if tunnelConfig.Secondary != nil {
+				if len(tunnelConfig.Secondary.Hosts) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.hosts.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.Hosts)))
+					for i, host := range tunnelConfig.Secondary.Hosts {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.hosts.%d", key, i), host)
+					}
+				}
+				if len(tunnelConfig.Secondary.InternalIp6s) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.internal_ip6s.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.InternalIp6s)))
+					for i, v := range tunnelConfig.Secondary.InternalIp6s {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.internal_ip6s.%d", key, i), v)
+					}
+				}
+				if len(tunnelConfig.Secondary.InternalIps) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.internal_ips.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.InternalIps)))
+					for i, v := range tunnelConfig.Secondary.InternalIps {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.internal_ips.%d", key, i), v)
+					}
+				}
+				if len(tunnelConfig.Secondary.ProbeHostnames) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_hostnames.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.ProbeHostnames)))
+					for i, v := range tunnelConfig.Secondary.ProbeHostnames {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_hostnames.%d", key, i), v)
+					}
+				}
+				if tunnelConfig.Secondary.ProbeHttp != nil {
+					if len(tunnelConfig.Secondary.ProbeHttp.AcceptedStatusCodes) > 0 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_http.accepted_status_codes.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.ProbeHttp.AcceptedStatusCodes)))
+					}
+					if len(tunnelConfig.Secondary.ProbeHttp.Urls) > 0 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_http.urls.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.ProbeHttp.Urls)))
+						for i, u := range tunnelConfig.Secondary.ProbeHttp.Urls {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_http.urls.%d", key, i), u)
+						}
+					}
+				}
+				if len(tunnelConfig.Secondary.ProbeIp6s) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_ip6s.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.ProbeIp6s)))
+					for i, v := range tunnelConfig.Secondary.ProbeIp6s {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_ip6s.%d", key, i), v)
+					}
+				}
+				if len(tunnelConfig.Secondary.ProbeIps) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_ips.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.ProbeIps)))
+					for i, v := range tunnelConfig.Secondary.ProbeIps {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.probe_ips.%d", key, i), v)
+					}
+				}
+				if len(tunnelConfig.Secondary.RemoteIds) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.remote_ids.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.RemoteIds)))
+					for i, v := range tunnelConfig.Secondary.RemoteIds {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.remote_ids.%d", key, i), v)
+					}
+				}
+				if len(tunnelConfig.Secondary.WanNames) > 0 {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.wan_names.#", key), fmt.Sprintf("%d", len(tunnelConfig.Secondary.WanNames)))
+					for i, v := range tunnelConfig.Secondary.WanNames {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("tunnel_configs.%s.secondary.wan_names.%d", key, i), v)
+					}
+				}
+			}
 		}
 	}
 	if len(s.RoutingPolicies) > 0 {
@@ -1298,6 +1440,36 @@ func (s *OrgGatewaytemplateModel) testChecks(t testing.TB, rType, tName string, 
 							for j, prependAsPath := range term.Actions.PrependAsPath {
 								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.prepend_as_path.%d", key, i, j), prependAsPath)
 							}
+						}
+						if len(term.Actions.AddTargetVrfs) > 0 {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.add_target_vrfs.#", key, i), fmt.Sprintf("%d", len(term.Actions.AddTargetVrfs)))
+							for j, vrf := range term.Actions.AddTargetVrfs {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.add_target_vrfs.%d", key, i, j), vrf)
+							}
+						}
+						if len(term.Actions.ExcludeAsPath) > 0 {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.exclude_as_path.#", key, i), fmt.Sprintf("%d", len(term.Actions.ExcludeAsPath)))
+							for j, v := range term.Actions.ExcludeAsPath {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.exclude_as_path.%d", key, i, j), v)
+							}
+						}
+						if len(term.Actions.ExcludeCommunity) > 0 {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.exclude_community.#", key, i), fmt.Sprintf("%d", len(term.Actions.ExcludeCommunity)))
+							for j, v := range term.Actions.ExcludeCommunity {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.exclude_community.%d", key, i, j), v)
+							}
+						}
+						if len(term.Actions.ExportCommunities) > 0 {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.export_communities.#", key, i), fmt.Sprintf("%d", len(term.Actions.ExportCommunities)))
+							for j, v := range term.Actions.ExportCommunities {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.export_communities.%d", key, i, j), v)
+							}
+						}
+						if term.Actions.NextPolicy != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.next_policy", key, i), fmt.Sprintf("%t", *term.Actions.NextPolicy))
+						}
+						if term.Actions.NextTerm != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.actions.next_term", key, i), fmt.Sprintf("%t", *term.Actions.NextTerm))
 						}
 					}
 					if term.RoutingPolicyTermMatching != nil {
@@ -1343,6 +1515,12 @@ func (s *OrgGatewaytemplateModel) testChecks(t testing.TB, rType, tName string, 
 							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.vpn_path.#", key, i), fmt.Sprintf("%d", len(term.RoutingPolicyTermMatching.VpnPath)))
 							for j, vpnPath := range term.RoutingPolicyTermMatching.VpnPath {
 								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.vpn_path.%d", key, i, j), vpnPath)
+							}
+						}
+						if len(term.RoutingPolicyTermMatching.VpnNeighborMac) > 0 {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.vpn_neighbor_mac.#", key, i), fmt.Sprintf("%d", len(term.RoutingPolicyTermMatching.VpnNeighborMac)))
+							for j, mac := range term.RoutingPolicyTermMatching.VpnNeighborMac {
+								checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("routing_policies.%s.terms.%d.matching.vpn_neighbor_mac.%d", key, i, j), mac)
 							}
 						}
 						if term.RoutingPolicyTermMatching.VpnPathSla != nil {

@@ -213,10 +213,18 @@
     pan_id          = "0x1234"
   }
   mqtt_config = {
-    enabled      = true
-    broker_host  = "mqtt.example.com"
-    broker_port  = 1883
-    broker_proto = "tcp"
-    username     = "ap_publisher"
-    format       = "json"
+    enabled       = true
+    broker_host   = "mqtt.example.com"
+    broker_port   = 1883
+    broker_proto  = "tcp"
+    default_topic = "mist/ble/unmatched"
+    username      = "ap_publisher"
+    format        = "json"
+  }
+  uwb_config = {
+    enabled = true
+    host    = "uwb.example.com"
+    port    = 3000
+    slot    = 1
+    type    = "zigpos"
   }

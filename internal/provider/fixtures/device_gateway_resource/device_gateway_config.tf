@@ -147,6 +147,7 @@
     }
     config_revert_timer = 16
     disable_console     = false
+    disable_idp_pcap    = false
     disable_oob         = false
     disable_usb         = false
     fips_enabled        = false
@@ -384,6 +385,18 @@
         }
       }
     }
+    "ge-0/0/0" = {
+      usage = "wan"
+      wan_probe_override = {
+        hostnames     = ["probe.example.com"]
+        http = {
+          accepted_status_codes = [200]
+          urls                  = ["https://probe.example.com/health"]
+        }
+        ips           = ["8.8.8.8"]
+        probe_profile = "broadband"
+      }
+    }
   }
 
   routing_policies = {
@@ -391,7 +404,9 @@
       terms = [
         {
           actions = {
-            accept = true
+            accept      = true
+            next_policy = false
+            next_term   = false
           }
           matching = {
             prefix = ["10.0.0.0/8", "192.168.0.0/16"]
@@ -446,16 +461,30 @@
       local_id = "gateway1@example.com"
       mode = "active-standby"
       primary = {
-        hosts = ["vpn.example.com"]
+        hosts            = ["vpn.example.com"]
+        internal_ip6s    = ["2001:db8::1"]
+        probe_hostnames  = ["probe.example.com"]
+        probe_http = {
+          accepted_status_codes = [200, 204]
+          urls                  = ["https://probe.example.com/health"]
+        }
+        probe_ip6s = ["2001:4860:4860::8888"]
         remote_ids = ["gateway2@example.com"]
-        wan_names = ["wan1"]
+        wan_names  = ["wan1"]
       }
       protocol = "ipsec"
       provider = "custom-ipsec"
       psk = "pre-shared-key-123"
       secondary = {
-        hosts = ["backup-vpn.example.com"]
-        wan_names = ["wan2"]
+        hosts            = ["backup-vpn.example.com"]
+        internal_ip6s    = ["2001:db8::2"]
+        probe_hostnames  = ["backup-probe.example.com"]
+        probe_http = {
+          accepted_status_codes = [200]
+          urls                  = ["https://backup-probe.example.com/health"]
+        }
+        probe_ip6s = ["2001:4860:4860::8844"]
+        wan_names  = ["wan2"]
       }
       version = "2"
     }

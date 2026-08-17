@@ -56,10 +56,34 @@ func wanExtraRoutes6PortConfigIpConfigSdkToTerraform(ctx context.Context, diags 
 	return stateResult
 }
 func wanProbeOverridePortConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, g *models.GatewayWanProbeOverride) basetypes.ObjectValue {
+	var hostnames = types.ListNull(types.StringType)
+	var http = types.ObjectNull(HttpValue{}.AttributeTypes(ctx))
 	var ips = types.ListNull(types.StringType)
 	var ip6s = types.ListNull(types.StringType)
 	var probeProfile basetypes.StringValue
 
+	if g != nil && g.Hostnames != nil {
+		hostnames = mistutils.ListOfStringSdkToTerraform(g.Hostnames)
+	}
+	if g != nil && g.Http != nil {
+		var acceptedStatusCodes = types.ListNull(types.Int64Type)
+		var urls = types.ListNull(types.StringType)
+		if g.Http.AcceptedStatusCodes != nil {
+			acceptedStatusCodes = mistutils.ListOfIntSdkToTerraform(g.Http.AcceptedStatusCodes)
+		}
+		if g.Http.Urls != nil {
+			urls = mistutils.ListOfStringSdkToTerraform(g.Http.Urls)
+		}
+		httpValue := map[string]attr.Value{
+			"accepted_status_codes": acceptedStatusCodes,
+			"urls":                  urls,
+		}
+		obj, e := NewHttpValue(HttpValue{}.AttributeTypes(ctx), httpValue)
+		diags.Append(e...)
+		o, e2 := obj.ToObjectValue(ctx)
+		diags.Append(e2...)
+		http = o
+	}
 	if g != nil && g.Ips != nil {
 		ips = mistutils.ListOfStringSdkToTerraform(g.Ips)
 	}
@@ -71,6 +95,8 @@ func wanProbeOverridePortConfigIpConfigSdkToTerraform(ctx context.Context, diags
 	}
 
 	rAttrValue := map[string]attr.Value{
+		"hostnames":     hostnames,
+		"http":          http,
 		"ips":           ips,
 		"ip6s":          ip6s,
 		"probe_profile": probeProfile,
@@ -124,7 +150,7 @@ func portConfigIpConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnosti
 	if g != nil && g.Network != nil {
 		network = types.StringValue(*g.Network)
 	}
-	if g != nil && g.PoserPassword != nil {
+	if g != nil && g.PoserPassword != nil && *g.PoserPassword != "" {
 		poserPassword = types.StringValue(*g.PoserPassword)
 	}
 	if g != nil && g.PppoeAuth != nil {
@@ -363,7 +389,7 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		if v.LteBackup != nil {
 			lteBackup = types.BoolValue(*v.LteBackup)
 		}
-		if v.LtePassword != nil {
+		if v.LtePassword != nil && *v.LtePassword != "" {
 			ltePassword = types.StringValue(*v.LtePassword)
 		}
 		if v.LteUsername != nil {

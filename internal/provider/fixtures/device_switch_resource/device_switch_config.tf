@@ -43,6 +43,7 @@
   }
   acl_policies = [
     {
+      disabled = true
       name = "policy1"
       src_tags = ["src1", "src2"]
       actions = [
@@ -356,6 +357,52 @@
       poe_disabled            = false
       poe_keep_state_when_reboot = true
       speed                   = "1g"
+    }
+  }
+  networks = {
+    "corp" = {
+      vlan_id = "100"
+      subnet  = "10.100.0.0/24"
+      gateway = "10.100.0.1"
+      multicast = {
+        enabled      = true
+        igmp_version = "2"
+      }
+    }
+    "iot" = {
+      vlan_id = "200"
+      subnet  = "10.200.0.0/24"
+    }
+  }
+  snmp_config = {
+    enabled     = true
+    location    = "server-room"
+    contact     = "admin@example.com"
+    v3_config = {
+      notify = [
+        {
+          name = "notify1"
+          tag  = "tag1"
+          type = "trap"
+        }
+      ]
+      notify_filter = [
+        {
+          profile_name = "filter1"
+          categories   = ["routing", "chassis"]
+        }
+      ]
+    }
+  }
+  vrf_instances = {
+    "corp_vrf" = {
+      networks = ["corp", "mgmt"]
+      multicast_config = {
+        anycast_rp = false
+        rp_ip      = "10.100.0.254"
+        sbd_subnet = "10.100.255.0/24"
+        sbd_vlan_id = 4090
+      }
     }
   }
   image_url = "https://example.com/switch.png"

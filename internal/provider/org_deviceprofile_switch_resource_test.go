@@ -129,6 +129,9 @@ func (s *OrgDeviceprofileSwitchModel) testChecks(t testing.TB, rType, tName stri
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acl_policies.%d.actions.%d.dst_tag", i, j), action.DstTag)
 				}
 			}
+			if policy.Disabled != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acl_policies.%d.disabled", i), fmt.Sprintf("%t", *policy.Disabled))
+			}
 		}
 	}
 
@@ -289,9 +292,25 @@ func (s *OrgDeviceprofileSwitchModel) testChecks(t testing.TB, rType, tName stri
 				}
 				if len(config.Options) > 0 {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.options.%%", key), fmt.Sprintf("%d", len(config.Options)))
+					for optKey, opt := range config.Options {
+						if opt.OptionsType != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.options.%s.type", key, optKey), *opt.OptionsType)
+						}
+						if opt.Value != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.options.%s.value", key, optKey), *opt.Value)
+						}
+					}
 				}
 				if len(config.VendorEncapsulated) > 0 {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.vendor_encapsulated.%%", key), fmt.Sprintf("%d", len(config.VendorEncapsulated)))
+					for veKey, ve := range config.VendorEncapsulated {
+						if ve.VendorEncapsulatedType != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.vendor_encapsulated.%s.type", key, veKey), *ve.VendorEncapsulatedType)
+						}
+						if ve.Value != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dhcpd_config.config.%s.vendor_encapsulated.%s.value", key, veKey), *ve.Value)
+						}
+					}
 				}
 			}
 		}
@@ -471,6 +490,14 @@ func (s *OrgDeviceprofileSwitchModel) testChecks(t testing.TB, rType, tName stri
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%s.subnet6", key), *network.Subnet6)
 			}
 			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%s.vlan_id", key), network.VlanId)
+			if network.Multicast != nil {
+				if network.Multicast.Enabled != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%s.multicast.enabled", key), fmt.Sprintf("%t", *network.Multicast.Enabled))
+				}
+				if network.Multicast.IgmpVersion != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%s.multicast.igmp_version", key), *network.Multicast.IgmpVersion)
+				}
+			}
 		}
 	}
 
@@ -541,6 +568,24 @@ func (s *OrgDeviceprofileSwitchModel) testChecks(t testing.TB, rType, tName stri
 					}
 					if net.Passive != nil {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ospf_areas.%s.networks.%s.passive", key, netKey), fmt.Sprintf("%t", *net.Passive))
+					}
+					if len(net.AuthKeys) > 0 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ospf_areas.%s.networks.%s.auth_keys.%%", key, netKey), fmt.Sprintf("%d", len(net.AuthKeys)))
+						for authKey, authValue := range net.AuthKeys {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ospf_areas.%s.networks.%s.auth_keys.%s", key, netKey, authKey), authValue)
+						}
+					}
+					if net.AuthPassword != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ospf_areas.%s.networks.%s.auth_password", key, netKey), *net.AuthPassword)
+					}
+					if net.ExportPolicy != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ospf_areas.%s.networks.%s.export_policy", key, netKey), *net.ExportPolicy)
+					}
+					if net.ImportPolicy != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ospf_areas.%s.networks.%s.import_policy", key, netKey), *net.ImportPolicy)
+					}
+					if net.NoReadvertiseToOverlay != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ospf_areas.%s.networks.%s.no_readvertise_to_overlay", key, netKey), fmt.Sprintf("%t", *net.NoReadvertiseToOverlay))
 					}
 				}
 			}
@@ -684,17 +729,62 @@ func (s *OrgDeviceprofileSwitchModel) testChecks(t testing.TB, rType, tName stri
 			if usage.AllowDhcpd != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.allow_dhcpd", key), fmt.Sprintf("%t", *usage.AllowDhcpd))
 			}
+			if usage.AllowMultipleSupplicants != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.allow_multiple_supplicants", key), fmt.Sprintf("%t", *usage.AllowMultipleSupplicants))
+			}
+			if usage.BypassAuthWhenServerDown != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.bypass_auth_when_server_down", key), fmt.Sprintf("%t", *usage.BypassAuthWhenServerDown))
+			}
+			if usage.BypassAuthWhenServerDownForUnknownClient != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.bypass_auth_when_server_down_for_unknown_client", key), fmt.Sprintf("%t", *usage.BypassAuthWhenServerDownForUnknownClient))
+			}
 			if usage.BypassAuthWhenServerDownForVoip != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.bypass_auth_when_server_down_for_voip", key), fmt.Sprintf("%t", *usage.BypassAuthWhenServerDownForVoip))
+			}
+			if usage.CommunityVlanId != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.community_vlan_id", key), fmt.Sprintf("%d", *usage.CommunityVlanId))
 			}
 			if usage.Description != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.description", key), *usage.Description)
 			}
+			if usage.DisableAutoneg != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.disable_autoneg", key), fmt.Sprintf("%t", *usage.DisableAutoneg))
+			}
 			if usage.Disabled != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.disabled", key), fmt.Sprintf("%t", *usage.Disabled))
 			}
+			if usage.Duplex != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.duplex", key), *usage.Duplex)
+			}
+			if len(usage.DynamicVlanNetworks) > 0 {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.dynamic_vlan_networks.#", key), fmt.Sprintf("%d", len(usage.DynamicVlanNetworks)))
+				for i, network := range usage.DynamicVlanNetworks {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.dynamic_vlan_networks.%d", key, i), network)
+				}
+			}
+			if usage.EnableMacAuth != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.enable_mac_auth", key), fmt.Sprintf("%t", *usage.EnableMacAuth))
+			}
 			if usage.EnableQos != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.enable_qos", key), fmt.Sprintf("%t", *usage.EnableQos))
+			}
+			if usage.GuestNetwork != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.guest_network", key), *usage.GuestNetwork)
+			}
+			if usage.InterIsolationNetworkLink != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.inter_isolation_network_link", key), fmt.Sprintf("%t", *usage.InterIsolationNetworkLink))
+			}
+			if usage.InterSwitchLink != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.inter_switch_link", key), fmt.Sprintf("%t", *usage.InterSwitchLink))
+			}
+			if usage.MacAuthOnly != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.mac_auth_only", key), fmt.Sprintf("%t", *usage.MacAuthOnly))
+			}
+			if usage.MacAuthPreferred != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.mac_auth_preferred", key), fmt.Sprintf("%t", *usage.MacAuthPreferred))
+			}
+			if usage.MacAuthProtocol != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.mac_auth_protocol", key), *usage.MacAuthProtocol)
 			}
 			if usage.MacLimit != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.mac_limit", key), *usage.MacLimit)
@@ -702,28 +792,45 @@ func (s *OrgDeviceprofileSwitchModel) testChecks(t testing.TB, rType, tName stri
 			if usage.Mode != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.mode", key), *usage.Mode)
 			}
+			if usage.Mtu != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.mtu", key), *usage.Mtu)
+			}
 			if len(usage.Networks) > 0 {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.networks.#", key), fmt.Sprintf("%d", len(usage.Networks)))
 				for i, network := range usage.Networks {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.networks.%d", key, i), network)
 				}
 			}
-			if usage.PortNetwork != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.port_network", key), *usage.PortNetwork)
+			if usage.PersistMac != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.persist_mac", key), fmt.Sprintf("%t", *usage.PersistMac))
 			}
-			if usage.PoePriority != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.poe_priority", key), *usage.PoePriority)
+			if usage.PoeDisabled != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.poe_disabled", key), fmt.Sprintf("%t", *usage.PoeDisabled))
 			}
 			if usage.PoeKeepStateWhenReboot != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.poe_keep_state_when_reboot", key), fmt.Sprintf("%t", *usage.PoeKeepStateWhenReboot))
 			}
-			if usage.Speed != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.speed", key), *usage.Speed)
+			if usage.PoePriority != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.poe_priority", key), *usage.PoePriority)
+			}
+			if usage.PortAuth != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.port_auth", key), *usage.PortAuth)
+			}
+			if usage.PortNetwork != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.port_network", key), *usage.PortNetwork)
+			}
+			if usage.ReauthInterval != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.reauth_interval", key), *usage.ReauthInterval)
+			}
+			if usage.ResetDefaultWhen != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.reset_default_when", key), *usage.ResetDefaultWhen)
 			}
 			if len(usage.Rules) > 0 {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.rules.#", key), fmt.Sprintf("%d", len(usage.Rules)))
 				for i, rule := range usage.Rules {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.rules.%d.src", key, i), rule.Src)
+					if rule.Description != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.rules.%d.description", key, i), *rule.Description)
+					}
 					if rule.Equals != nil {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.rules.%d.equals", key, i), *rule.Equals)
 					}
@@ -733,6 +840,10 @@ func (s *OrgDeviceprofileSwitchModel) testChecks(t testing.TB, rType, tName stri
 							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.rules.%d.equals_any.%d", key, i, j), equalsAnyValue)
 						}
 					}
+					if rule.Expression != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.rules.%d.expression", key, i), *rule.Expression)
+					}
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.rules.%d.src", key, i), rule.Src)
 					if rule.Usage != nil {
 						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.rules.%d.usage", key, i), *rule.Usage)
 					}
@@ -744,14 +855,49 @@ func (s *OrgDeviceprofileSwitchModel) testChecks(t testing.TB, rType, tName stri
 			if usage.ServerFailRetryInterval != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.server_fail_retry_interval", key), fmt.Sprintf("%d", *usage.ServerFailRetryInterval))
 			}
+			if usage.ServerRejectNetwork != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.server_reject_network", key), *usage.ServerRejectNetwork)
+			}
+			if usage.Speed != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.speed", key), *usage.Speed)
+			}
 			if usage.StormControl != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("port_usages.%s.storm_control.%%", key))
+				if usage.StormControl.DisablePort != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.storm_control.disable_port", key), fmt.Sprintf("%t", *usage.StormControl.DisablePort))
+				}
+				if usage.StormControl.NoBroadcast != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.storm_control.no_broadcast", key), fmt.Sprintf("%t", *usage.StormControl.NoBroadcast))
+				}
+				if usage.StormControl.NoMulticast != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.storm_control.no_multicast", key), fmt.Sprintf("%t", *usage.StormControl.NoMulticast))
+				}
+				if usage.StormControl.NoRegisteredMulticast != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.storm_control.no_registered_multicast", key), fmt.Sprintf("%t", *usage.StormControl.NoRegisteredMulticast))
+				}
+				if usage.StormControl.NoUnknownUnicast != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.storm_control.no_unknown_unicast", key), fmt.Sprintf("%t", *usage.StormControl.NoUnknownUnicast))
+				}
+				if usage.StormControl.Percentage != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.storm_control.percentage", key), fmt.Sprintf("%d", *usage.StormControl.Percentage))
+				}
 			}
 			if usage.StpDisable != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.stp_disable", key), fmt.Sprintf("%t", *usage.StpDisable))
 			}
+			if usage.StpEdge != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.stp_edge", key), fmt.Sprintf("%t", *usage.StpEdge))
+			}
+			if usage.StpNoRootPort != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.stp_no_root_port", key), fmt.Sprintf("%t", *usage.StpNoRootPort))
+			}
+			if usage.StpP2p != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.stp_p2p", key), fmt.Sprintf("%t", *usage.StpP2p))
+			}
 			if usage.StpRequired != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.stp_required", key), fmt.Sprintf("%t", *usage.StpRequired))
+			}
+			if usage.UseVstp != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.use_vstp", key), fmt.Sprintf("%t", *usage.UseVstp))
 			}
 			if usage.VoipNetwork != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("port_usages.%s.voip_network", key), *usage.VoipNetwork)
@@ -772,6 +918,18 @@ func (s *OrgDeviceprofileSwitchModel) testChecks(t testing.TB, rType, tName stri
 			checks.append(t, "TestCheckResourceAttr", "radius_config.acct_servers.#", fmt.Sprintf("%d", len(s.RadiusConfig.AcctServers)))
 			for i, server := range s.RadiusConfig.AcctServers {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radius_config.acct_servers.%d.host", i), server.Host)
+				if server.KeywrapEnabled != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radius_config.acct_servers.%d.keywrap_enabled", i), fmt.Sprintf("%t", *server.KeywrapEnabled))
+				}
+				if server.KeywrapFormat != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radius_config.acct_servers.%d.keywrap_format", i), *server.KeywrapFormat)
+				}
+				if server.KeywrapKek != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radius_config.acct_servers.%d.keywrap_kek", i), *server.KeywrapKek)
+				}
+				if server.KeywrapMack != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radius_config.acct_servers.%d.keywrap_mack", i), *server.KeywrapMack)
+				}
 				if server.Port != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radius_config.acct_servers.%d.port", i), *server.Port)
 				}
@@ -785,6 +943,18 @@ func (s *OrgDeviceprofileSwitchModel) testChecks(t testing.TB, rType, tName stri
 			checks.append(t, "TestCheckResourceAttr", "radius_config.auth_servers.#", fmt.Sprintf("%d", len(s.RadiusConfig.AuthServers)))
 			for i, server := range s.RadiusConfig.AuthServers {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radius_config.auth_servers.%d.host", i), server.Host)
+				if server.KeywrapEnabled != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radius_config.auth_servers.%d.keywrap_enabled", i), fmt.Sprintf("%t", *server.KeywrapEnabled))
+				}
+				if server.KeywrapFormat != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radius_config.auth_servers.%d.keywrap_format", i), *server.KeywrapFormat)
+				}
+				if server.KeywrapKek != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radius_config.auth_servers.%d.keywrap_kek", i), *server.KeywrapKek)
+				}
+				if server.KeywrapMack != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radius_config.auth_servers.%d.keywrap_mack", i), *server.KeywrapMack)
+				}
 				if server.Port != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radius_config.auth_servers.%d.port", i), *server.Port)
 				}
@@ -856,10 +1026,23 @@ func (s *OrgDeviceprofileSwitchModel) testChecks(t testing.TB, rType, tName stri
 			checks.append(t, "TestCheckResourceAttr", "remote_syslog.files.#", fmt.Sprintf("%d", len(s.RemoteSyslog.Files)))
 			for i, file := range s.RemoteSyslog.Files {
 				if file.Archive != nil {
-					checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("remote_syslog.files.%d.archive.%%", i))
+					if file.Archive.Files != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("remote_syslog.files.%d.archive.files", i), *file.Archive.Files)
+					}
+					if file.Archive.Size != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("remote_syslog.files.%d.archive.size", i), *file.Archive.Size)
+					}
 				}
 				if len(file.Contents) > 0 {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("remote_syslog.files.%d.contents.#", i), fmt.Sprintf("%d", len(file.Contents)))
+					for j, content := range file.Contents {
+						if content.Facility != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("remote_syslog.files.%d.contents.%d.facility", i, j), *content.Facility)
+						}
+						if content.Severity != nil {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("remote_syslog.files.%d.contents.%d.severity", i, j), *content.Severity)
+						}
+					}
 				}
 				if file.EnableTls != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("remote_syslog.files.%d.enable_tls", i), fmt.Sprintf("%t", *file.EnableTls))
@@ -918,6 +1101,9 @@ func (s *OrgDeviceprofileSwitchModel) testChecks(t testing.TB, rType, tName stri
 				}
 				if server.RoutingInstance != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("remote_syslog.servers.%d.routing_instance", i), *server.RoutingInstance)
+				}
+				if server.ServerName != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("remote_syslog.servers.%d.server_name", i), *server.ServerName)
 				}
 				if server.Severity != nil {
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("remote_syslog.servers.%d.severity", i), *server.Severity)
@@ -1159,6 +1345,20 @@ func (s *OrgDeviceprofileSwitchModel) testChecks(t testing.TB, rType, tName stri
 			}
 			if vrf.EvpnAutoLoopbackSubnet6 != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vrf_instances.%s.evpn_auto_loopback_subnet6", key), *vrf.EvpnAutoLoopbackSubnet6)
+			}
+			if vrf.MulticastConfig != nil {
+				if vrf.MulticastConfig.AnycastRp != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vrf_instances.%s.multicast_config.anycast_rp", key), fmt.Sprintf("%t", *vrf.MulticastConfig.AnycastRp))
+				}
+				if vrf.MulticastConfig.RpIp != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vrf_instances.%s.multicast_config.rp_ip", key), *vrf.MulticastConfig.RpIp)
+				}
+				if vrf.MulticastConfig.SbdSubnet != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vrf_instances.%s.multicast_config.sbd_subnet", key), *vrf.MulticastConfig.SbdSubnet)
+				}
+				if vrf.MulticastConfig.SbdVlanId != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vrf_instances.%s.multicast_config.sbd_vlan_id", key), fmt.Sprintf("%d", *vrf.MulticastConfig.SbdVlanId))
+				}
 			}
 			if len(vrf.Networks) > 0 {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vrf_instances.%s.networks.#", key), fmt.Sprintf("%d", len(vrf.Networks)))

@@ -20,6 +20,7 @@ func SdkToTerraform(ctx context.Context, d *models.NacPortal) (OrgNacPortalModel
 	var additionalNacServerName = types.ListNull(types.StringType)
 	var certExpireTime types.Int64
 	var eapType types.String
+	var enableLocation types.Bool
 	var enableTelemetry types.Bool
 	var expiryNotificationTime types.Int64
 	var id types.String
@@ -47,6 +48,9 @@ func SdkToTerraform(ctx context.Context, d *models.NacPortal) (OrgNacPortalModel
 	if d.EapType != nil {
 		eapType = types.StringValue(string(*d.EapType))
 	}
+	if d.EnableLocation != nil {
+		enableLocation = types.BoolValue(*d.EnableLocation)
+	}
 	if d.EnableTelemetry != nil {
 		enableTelemetry = types.BoolValue(*d.EnableTelemetry)
 	}
@@ -54,13 +58,8 @@ func SdkToTerraform(ctx context.Context, d *models.NacPortal) (OrgNacPortalModel
 		expiryNotificationTime = types.Int64Value(int64(*d.ExpiryNotificationTime))
 	}
 
-	// Extract id and org_id from AdditionalProperties if present (API returns them but SDK model doesn't include them)
-	if d.AdditionalProperties != nil {
-		if idVal, ok := d.AdditionalProperties["id"]; ok {
-			if idStr, ok := idVal.(string); ok {
-				id = types.StringValue(idStr)
-			}
-		}
+	if d.Id != nil {
+		id = types.StringValue(d.Id.String())
 	}
 
 	if d.Name != nil {
@@ -70,13 +69,8 @@ func SdkToTerraform(ctx context.Context, d *models.NacPortal) (OrgNacPortalModel
 		notifyExpiry = types.BoolValue(*d.NotifyExpiry)
 	}
 
-	// Extract org_id from AdditionalProperties if present
-	if d.AdditionalProperties != nil {
-		if orgIdVal, ok := d.AdditionalProperties["org_id"]; ok {
-			if orgIdStr, ok := orgIdVal.(string); ok {
-				orgId = types.StringValue(orgIdStr)
-			}
-		}
+	if d.OrgId != nil {
+		orgId = types.StringValue(d.OrgId.String())
 	}
 
 	if d.Portal != nil {
@@ -100,6 +94,7 @@ func SdkToTerraform(ctx context.Context, d *models.NacPortal) (OrgNacPortalModel
 	state.AdditionalNacServerName = additionalNacServerName
 	state.CertExpireTime = certExpireTime
 	state.EapType = eapType
+	state.EnableLocation = enableLocation
 	state.EnableTelemetry = enableTelemetry
 	state.ExpiryNotificationTime = expiryNotificationTime
 	state.Id = id

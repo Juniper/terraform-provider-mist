@@ -40,6 +40,12 @@ func routingPolicyTermActionsTerraformToSdk(ctx context.Context, d basetypes.Obj
 		if plan.LocalPreference.ValueStringPointer() != nil {
 			data.LocalPreference = models.ToPointer(models.RoutingPolicyLocalPreferenceContainer.FromString(plan.LocalPreference.ValueString()))
 		}
+		if plan.NextPolicy.ValueBoolPointer() != nil {
+			data.NextPolicy = models.ToPointer(plan.NextPolicy.ValueBool())
+		}
+		if plan.NextTerm.ValueBoolPointer() != nil {
+			data.NextTerm = models.ToPointer(plan.NextTerm.ValueBool())
+		}
 		if !plan.PrependAsPath.IsNull() && !plan.PrependAsPath.IsUnknown() {
 			data.PrependAsPath = mistutils.ListOfStringTerraformToSdk(plan.PrependAsPath)
 		}

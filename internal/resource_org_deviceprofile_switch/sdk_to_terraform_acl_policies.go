@@ -46,11 +46,15 @@ func aclPoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l [
 	for _, d := range l {
 
 		var actions = types.ListNull(ActionsValue{}.Type(ctx))
+		var disabled basetypes.BoolValue
 		var name basetypes.StringValue
 		var srcTags = types.ListNull(types.StringType)
 
 		if d.Actions != nil {
 			actions = actionsSdkToTerraform(ctx, diags, d.Actions)
+		}
+		if d.Disabled != nil {
+			disabled = types.BoolValue(*d.Disabled)
 		}
 		if d.Name != nil {
 			name = types.StringValue(*d.Name)
@@ -61,6 +65,7 @@ func aclPoliciesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l [
 
 		dataMapValue := map[string]attr.Value{
 			"actions":  actions,
+			"disabled": disabled,
 			"name":     name,
 			"src_tags": srcTags,
 		}

@@ -17,6 +17,9 @@ func mqttConfigTerraformToSdk(d MqttConfigValue) *models.ApMqtt {
 	if d.BrokerProto.ValueStringPointer() != nil {
 		data.BrokerProto = models.ToPointer(models.ApMqttBrokerProtoEnum(d.BrokerProto.ValueString()))
 	}
+	if d.DefaultTopic.ValueStringPointer() != nil {
+		data.DefaultTopic = d.DefaultTopic.ValueStringPointer()
+	}
 	if d.Enabled.ValueBoolPointer() != nil {
 		data.Enabled = d.Enabled.ValueBoolPointer()
 	}

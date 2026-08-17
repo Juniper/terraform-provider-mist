@@ -51,6 +51,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgNacPortalModel) (models.NacPor
 		unset["-enable_telemetry"] = ""
 	}
 
+	if !plan.EnableLocation.IsNull() && !plan.EnableLocation.IsUnknown() {
+		data.EnableLocation = plan.EnableLocation.ValueBoolPointer()
+	} else {
+		unset["-enable_location"] = ""
+	}
+
 	if !plan.ExpiryNotificationTime.IsNull() && !plan.ExpiryNotificationTime.IsUnknown() {
 		data.ExpiryNotificationTime = models.ToPointer(int(plan.ExpiryNotificationTime.ValueInt64()))
 	} else {
