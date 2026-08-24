@@ -100,6 +100,7 @@ resource "mist_org_networktemplate" "networktemplate_one" {
 - `extra_routes` (Attributes Map) Additional IPv4 route defaults in this network template (see [below for nested schema](#nestedatt--extra_routes))
 - `extra_routes6` (Attributes Map) Additional IPv6 route defaults in this network template (see [below for nested schema](#nestedatt--extra_routes6))
 - `mist_nac` (Attributes) Mist NAC defaults applied by this network template (see [below for nested schema](#nestedatt--mist_nac))
+- `multicast_config` (Attributes) Multicast settings for networks in the master VRF (not assigned to any vrf_instances); PIM is automatically enabled when any master-VRF network has `multicast.enabled`==`true` (see [below for nested schema](#nestedatt--multicast_config))
 - `networks` (Attributes Map) Layer 3 networks configured by this network template (see [below for nested schema](#nestedatt--networks))
 - `ntp_servers` (List of String) NTP servers provided by this network template
 - `ospf_areas` (Attributes Map) OSPF area defaults provided by this network template (see [below for nested schema](#nestedatt--ospf_areas))
@@ -125,6 +126,7 @@ resource "mist_org_networktemplate" "networktemplate_one" {
 Optional:
 
 - `actions` (Attributes List) Destination tag actions evaluated for sources matching this ACL policy (see [below for nested schema](#nestedatt--acl_policies--actions))
+- `disabled` (Boolean) Whether this ACL policy is disabled
 - `name` (String) Display name of the ACL policy
 - `src_tags` (List of String) Source ACL tags that select traffic for this ACL policy
 
@@ -165,6 +167,7 @@ Optional:
 - `port_usage` (String) Required if `type`==`port_usage`. Switch port usage name matched by this ACL tag
 - `radius_group` (String) Required if:
   * `type`==`radius_group`
+  * `type`==`aruba_user_role`
   * `type`==`static_gbp`
 if from matching radius_group
 - `specs` (Attributes List) Layer 4 protocol and destination-port constraints for this ACL tag (see [below for nested schema](#nestedatt--acl_tags--specs))
@@ -190,7 +193,7 @@ Required:
 
 Optional:
 
-- `auth_key` (String) Authentication key used for BGP neighbor sessions, when configured
+- `auth_key` (String, Sensitive) Authentication key used for BGP neighbor sessions, when configured
 - `bfd_minimum_interval` (Number) Minimum interval in milliseconds for BFD hello packets. A neighbor is considered failed when the device stops receiving replies after the specified interval. Value must be between 1 and 255000.
 - `export_policy` (String) Export policy must match one of the policy names defined in the `routing_policies` property.
 - `hold_time` (Number) Default BGP hold time for switch BGP sessions
@@ -285,6 +288,17 @@ Optional:
 - `network` (String) Switch network used for Mist NAC RadSec connectivity
 
 
+<a id="nestedatt--multicast_config"></a>
+### Nested Schema for `multicast_config`
+
+Optional:
+
+- `anycast_rp` (Boolean) When `true`, auto-generates a shared RP on `is_l3_border` devices (ERB/IPClos topologies only)
+- `rp_ip` (String) RP address used when `anycast_rp`==`false`. If the address matches a device SVI, it is configured as a local RP; otherwise a static RP is configured
+- `sbd_subnet` (String) SBD IRB subnet; Mist auto-assigns per-device IPs from this range (EVPN eOISM only)
+- `sbd_vlan_id` (Number) Supplemental Bridge Domain VLAN ID (EVPN topology / eOISM only)
+
+
 <a id="nestedatt--networks"></a>
 ### Nested Schema for `networks`
 
@@ -298,8 +312,18 @@ Optional:
 - `gateway6` (String) Only required for EVPN-VXLAN networks, IPv6 Virtual Gateway
 - `isolation` (Boolean) whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set. See also `inter_isolation_network_link` and `community_vlan_id` in port_usage
 - `isolation_vlan_id` (String) Required when `isolation`==`true`. Unique VLAN ID used for client isolation
+- `multicast` (Attributes) Multicast (IGMP snooping) settings for this VLAN (see [below for nested schema](#nestedatt--networks--multicast))
 - `subnet` (String) Optional for pure switching, required when L3 / routing features are used
 - `subnet6` (String) Optional for pure switching, required when L3 / routing features are used
+
+<a id="nestedatt--networks--multicast"></a>
+### Nested Schema for `networks.multicast`
+
+Optional:
+
+- `enabled` (Boolean) Whether to enable IGMP snooping on this VLAN
+- `igmp_version` (String) IGMP version. '2' (default, ASM/IGMPv2) / '3' (SSM/IGMPv3)
+
 
 
 <a id="nestedatt--ospf_areas"></a>
@@ -319,8 +343,8 @@ Optional:
 
 Optional:
 
-- `auth_keys` (Map of String) Required if `auth_type`==`md5`. Property key is the key number
-- `auth_password` (String) Required if `auth_type`==`password`, the password, max length is 8
+- `auth_keys` (Map of String, Sensitive) Required if `auth_type`==`md5`. Property key is the key number
+- `auth_password` (String, Sensitive) Required if `auth_type`==`password`, the password, max length is 8
 - `auth_type` (String) Authentication method used by this OSPF network
 - `bfd_minimum_interval` (Number) Minimum BFD interval for this OSPF network, in milliseconds
 - `dead_interval` (Number) OSPF dead interval for this network, in seconds
@@ -728,6 +752,7 @@ Required:
 
 Optional:
 
+- `categories` (List of String) CX only. List of SNMP trap group categories included in this filter profile. See https://www.juniper.net/documentation/software/topics/task/configuration/snmp-trap-groups-configuring-junos-nm.html for valid category names.
 - `contents` (Attributes List) OID filter rules in this notification filter profile (see [below for nested schema](#nestedatt--snmp_config--v3_config--notify_filter--contents))
 - `profile_name` (String) Notification filter profile name
 
@@ -1069,6 +1094,7 @@ Optional:
 - `evpn_auto_loopback_subnet6` (String) IPv6 subnet used for automatic EVPN loopback addresses in this VRF instance
 - `extra_routes` (Attributes Map) Additional IPv4 static routes configured for this VRF instance (see [below for nested schema](#nestedatt--vrf_instances--extra_routes))
 - `extra_routes6` (Attributes Map) Additional IPv6 static routes configured for this VRF instance (see [below for nested schema](#nestedatt--vrf_instances--extra_routes6))
+- `multicast_config` (Attributes) Multicast configuration for this VRF instance. PIM is automatically enabled when any network in this VRF has `multicast.enabled`==`true` (see [below for nested schema](#nestedatt--vrf_instances--multicast_config))
 - `networks` (List of String) Names of switch networks included in this VRF instance
 
 <a id="nestedatt--vrf_instances--extra_routes"></a>
@@ -1085,6 +1111,17 @@ Required:
 Optional:
 
 - `via` (String) IPv6 next-hop address for this VRF extra route
+
+
+<a id="nestedatt--vrf_instances--multicast_config"></a>
+### Nested Schema for `vrf_instances.multicast_config`
+
+Optional:
+
+- `anycast_rp` (Boolean) When `true`, auto-generates a shared RP on `is_l3_border` devices (ERB/IPClos topologies only)
+- `rp_ip` (String) RP address used when `anycast_rp`==`false`. If the address matches a device SVI, it is configured as a local RP; otherwise a static RP is configured
+- `sbd_subnet` (String) SBD IRB subnet; Mist auto-assigns per-device IPs from this range (EVPN eOISM only)
+- `sbd_vlan_id` (Number) Supplemental Bridge Domain VLAN ID (EVPN topology / eOISM only)
 
 
 

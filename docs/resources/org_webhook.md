@@ -52,6 +52,7 @@ resource "mist_org_webhook" "webhook_one" {
 
 ### Optional
 
+- `default_action` (String) Default action applied when none of the `rules` match the incoming event
 - `enabled` (Boolean) Whether webhook is enabled
 - `headers` (Map of String) If `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000
 - `oauth2_client_id` (String) Required when `oauth2_grant_type`==`client_credentials`; OAuth2 client identifier used to request an access token
@@ -61,6 +62,7 @@ resource "mist_org_webhook" "webhook_one" {
 - `oauth2_scopes` (List of String) OAuth2 scopes included in the token request when `type`==`oauth2`
 - `oauth2_token_url` (String) Required when `type`==`oauth2`; token endpoint URL used to obtain the OAuth2 access token
 - `oauth2_username` (String) Required when `oauth2_grant_type`==`password`; username used for the OAuth2 token request
+- `rules` (Attributes List) Optional filtering rules to override `topics`. Each rule permits or blocks events for a topic, optionally based on event payload matching criteria (see [below for nested schema](#nestedatt--rules))
 - `secret` (String, Sensitive) Only if `type`=`http-post` 
 
 when `secret` is provided, two HTTP headers will be added: 
@@ -74,6 +76,18 @@ when `secret` is provided, two HTTP headers will be added:
 ### Read-Only
 
 - `id` (String) Unique identifier of the webhook
+
+<a id="nestedatt--rules"></a>
+### Nested Schema for `rules`
+
+Required:
+
+- `topic` (String) Webhook topic this rule applies to
+
+Optional:
+
+- `action` (String) Action applied when the rule matches the incoming event
+- `matching` (Map of List of String) Optional event payload matching criteria. Property key is the event field name and the value is the list of accepted values
 
 
 

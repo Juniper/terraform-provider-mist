@@ -324,6 +324,7 @@ Optional:
 - `default_vlan_id` (String) Default VLAN ID used when dynamic PSK lookup does not return a VLAN
 - `enabled` (Boolean) Whether dynamic PSK is enabled for this WLAN
 - `force_lookup` (Boolean) When 11r is enabled, we'll try to use the cached PMK, this can be disabled. `false` means auto
+- `local_vlan_ids` (List of String) VLANs to be bridged locally when forwarding to mxtunnel or site mxedge
 - `source` (String) Origin used to retrieve per-user PSKs
 
 

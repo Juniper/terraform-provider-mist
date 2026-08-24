@@ -72,7 +72,8 @@ resource "mist_org_setting" "terraform_test" {
 - `ap_updown_threshold` (Number) Enable threshold-based device down delivery for AP devices only. When configured it takes effect for AP devices and `device_updown_threshold` is ignored.
 - `api_policy` (Attributes) Policy for hiding API secrets and passwords in responses (see [below for nested schema](#nestedatt--api_policy))
 - `auto_upgrade` (Attributes) AP automatic firmware upgrade policy for the organization (see [below for nested schema](#nestedatt--auto_upgrade))
-- `cacerts` (List of String) CA certificates used by organization-level RADIUS and RADSec settings
+- `cacerts` (List of String) Legacy CA certificate list used to verify client certificates. If `cacerts_configs` is provided and non-empty, this field is ignored.
+- `cacerts_configs` (Attributes List) Preferred per-issuer CA certificate configuration with optional OCSP and CRL settings. When provided and non-empty, `cacerts` is ignored. (see [below for nested schema](#nestedatt--cacerts_configs))
 - `celona` (Attributes) Integration settings for Celona (see [below for nested schema](#nestedatt--celona))
 - `cloudshark` (Attributes) Packet capture integration settings for CloudShark (see [below for nested schema](#nestedatt--cloudshark))
 - `device_cert` (Attributes) Common device certificate used by organization settings (see [below for nested schema](#nestedatt--device_cert))
@@ -110,7 +111,6 @@ resource "mist_org_setting" "terraform_test" {
 ### Read-Only
 
 - `allow_mist` (Boolean) whether to allow Mist to look at this org
-- `cradlepoint` (Attributes) Integration settings for Cradlepoint devices (see [below for nested schema](#nestedatt--cradlepoint))
 - `juniper` (Attributes) Linked Juniper account information for this organization (see [below for nested schema](#nestedatt--juniper))
 - `pcap` (Attributes) Packet capture settings for the organization (see [below for nested schema](#nestedatt--pcap))
 
@@ -119,6 +119,7 @@ resource "mist_org_setting" "terraform_test" {
 
 Optional:
 
+- `enforce_src_ips_for_tokens` (Boolean) Optional. When `true`, Org API tokens without their own `src_ips` also respect the org policy `src_ips`. Default is `false`.
 - `no_reveal` (Boolean) By default, API hides password/secrets when the user doesn't have write access
   * `true`: API will hide passwords/secrets for all users
   * `false`: API will hide passwords/secrets for read-only users
@@ -135,6 +136,22 @@ Optional:
 - `enabled` (Boolean) Whether AP auto-upgrade is enabled. Note that Mist may auto-upgrade APs if the running version is no longer supported.
 - `time_of_day` (String) `any` or HH:MM (24-hour format). Upgrade will happen within up to 1 hour from this time.
 - `version` (String) Firmware release channel or specific version used for AP auto-upgrade
+
+
+<a id="nestedatt--cacerts_configs"></a>
+### Nested Schema for `cacerts_configs`
+
+Required:
+
+- `cert` (String) PEM-encoded CA certificate
+
+Optional:
+
+- `crl_enabled` (Boolean) Whether CRL checks are enabled. When true, CRL from AIA is used if available unless `crl_url` is set.
+- `crl_url` (String) Optional override URL for the certificate CRL distribution point
+- `name` (String) Optional user-friendly label for the CA issuer configuration
+- `ocsp_enabled` (Boolean) Whether OCSP checks are enabled. When true, OCSP responder from AIA is used if available unless `ocsp_url` is set.
+- `ocsp_url` (String) Optional override URL for the OCSP responder
 
 
 <a id="nestedatt--celona"></a>
@@ -288,6 +305,7 @@ Optional:
 - `default_idp_id` (String) use this IDP when no explicit realm present in the incoming username/CN OR when no IDP is explicitly mapped to the incoming realm.
 - `disable_rsae_algorithms` (Boolean) to disable RSAE_PSS_SHA256, RSAE_PSS_SHA384, RSAE_PSS_SHA512 from server side. see https://www.openssl.org/docs/man3.0/man1/openssl-ciphers.html
 - `eap_ssl_security_level` (Number) eap ssl security level, see https://www.openssl.org/docs/man1.1.1/man3/SSL_CTX_set_security_level.html#DEFAULT-CALLBACK-BEHAVIOUR
+- `enable_eap_md5_for_mab` (Boolean) Enable EAP-MD5 for MAB. WARNING: Not FIPS compliant, use only if required for legacy device support.
 - `eu_only` (Boolean) By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliance NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, Mist Edge clusters that have mist_nac enabled
 - `fingerprinting` (Attributes) Client fingerprinting settings used by Mist NAC (see [below for nested schema](#nestedatt--mist_nac--fingerprinting))
 - `idp_machine_cert_lookup_field` (String) Client certificate field used to look up machine groups in identity providers
@@ -297,7 +315,7 @@ Optional:
 - `server_cert` (Attributes) RADIUS server certificate presented by Mist NAC during EAP-TLS (see [below for nested schema](#nestedatt--mist_nac--server_cert))
 - `use_ip_version` (String) IP version used by NAS devices and Mist Edge proxies to reach Mist NAC
 - `use_ssl_port` (Boolean) By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled
-- `usermac_expiry` (Number) Allow customer to configure an expiry time for usermacs by attaching a Quarantine label to those which have been inactive for the configured period of time (in days). 0 means no expiry
+- `usermac_expiry` (Number) Allow customer to configure an expiry time for usermacs by attaching an `inactive_endpoint` label to those which have been inactive for the configured period of time (in days). 0 means no expiry
 
 <a id="nestedatt--mist_nac--fingerprinting"></a>
 ### Nested Schema for `mist_nac.fingerprinting`
@@ -529,18 +547,6 @@ Optional:
 Optional:
 
 - `enabled` (Boolean) Whether PMA is enabled for Wireless Assurance
-
-
-<a id="nestedatt--cradlepoint"></a>
-### Nested Schema for `cradlepoint`
-
-Read-Only:
-
-- `cp_api_id` (String) Cradlepoint API ID used by Mist for the integration
-- `cp_api_key` (String, Sensitive) Cradlepoint API key paired with the Cradlepoint API ID
-- `ecm_api_id` (String) Cradlepoint ECM API ID used by Mist for the integration
-- `ecm_api_key` (String, Sensitive) Cradlepoint ECM API key paired with the ECM API ID
-- `enable_lldp` (Boolean) Whether Mist uses Cradlepoint LLDP data to link routers to Mist sites and devices
 
 
 <a id="nestedatt--juniper"></a>

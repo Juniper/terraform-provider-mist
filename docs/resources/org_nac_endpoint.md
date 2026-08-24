@@ -47,6 +47,7 @@ resource "mist_org_nac_endpoint" "endpoint_one" {
 - `name` (String) Display name for this user MAC entry
 - `notes` (String) Free-form notes about this user MAC entry
 - `radius_group` (String) RADIUS group associated with this user MAC entry
+- `site_ids` (List of String) Optional list of site IDs this user MAC entry is scoped to
 - `vlan` (String) Network VLAN value associated with this user MAC entry
 
 ### Read-Only

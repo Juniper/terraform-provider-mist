@@ -60,6 +60,7 @@ resource "mist_org_deviceprofile_ap" "deviceprofile_ap_one" {
 - `site_id` (String) Site where this AP device profile is defined, when scoped to a site
 - `uplink_port_config` (Attributes) Authentication and failover defaults for AP uplink ports (see [below for nested schema](#nestedatt--uplink_port_config))
 - `usb_config` (Attributes) Legacy USB integration defaults in this AP profile (see [below for nested schema](#nestedatt--usb_config))
+- `uwb_config` (Attributes) UWB RTLS / OMLOX asset-visibility settings; overrides the site-level `uwb_config` and is overridden by device-level `uwb_config` (see [below for nested schema](#nestedatt--uwb_config))
 - `vars` (Map of String) Variable values provided by this AP device profile
 - `zigbee_config` (Attributes) Zigbee radio and network defaults in this AP profile (see [below for nested schema](#nestedatt--zigbee_config))
 
@@ -194,6 +195,7 @@ Optional:
 - `broker_host` (String) MQTT broker hostname or IP address; required when `enabled` is `true`
 - `broker_port` (Number) MQTT broker port; defaults to `1883` for `tcp` and `8883` for `ssl`
 - `broker_proto` (String) MQTT broker transport protocol
+- `default_topic` (String) Optional catch-all MQTT topic; BLE advertisements matching no AssetFilter are published here
 - `enabled` (Boolean) Whether to enable MQTT publishing
 - `format` (String) Payload format for published messages
 - `password` (String, Sensitive) Optional MQTT password; masked in GET responses
@@ -213,14 +215,14 @@ Optional:
 - `mac_auth_protocol` (String) Protocol used for MAC authentication when `enable_mac_auth` is `true`
 - `mist_nac` (Attributes) Juniper Mist NAC settings used by AP port authentication (see [below for nested schema](#nestedatt--port_config--mist_nac))
 - `mx_tunnel_id` (String) If `forwarding`==`mxtunnel`, vlan_ids comes from mxtunnel
-- `mxtunnel_name` (String) If `forwarding`==`site_mxedge`, vlan_ids comes from site_mxedge (`mxtunnels` under site setting)
+- `mxtunnel_name` (String) If `forwarding`==`site_mxedge`, vlan_ids comes from site_mxedge (`mxtunnel` under site setting)
 - `port_auth` (String) Authentication mode for this AP Ethernet port
 - `port_vlan_id` (Number) If `forwarding`==`limited`. VLAN ID allowed on this AP Ethernet port
 - `radius_config` (Attributes) RADIUS authentication and accounting settings for this AP port (see [below for nested schema](#nestedatt--port_config--radius_config))
 - `radsec` (Attributes) TLS-secured RADIUS settings for this AP port (see [below for nested schema](#nestedatt--port_config--radsec))
 - `vlan_id` (Number) Optional to specify the VLAN ID for a tunnel if forwarding is for `wxtunnel`, `mxtunnel` or `site_mxedge`.
   * if vlan_id is not specified then it will use first one in vlan_ids[] of the mxtunnel.
-  * if forwarding == site_mxedge, vlan_ids comes from site_mxedge (`mxtunnels` under site setting)
+  * if forwarding == site_mxedge, vlan_ids comes from site_mxedge (`mxtunnel` under site setting)
 - `vlan_ids` (String) If `forwarding`==`limited`, comma separated list of additional VLAN IDs allowed on this port
 - `wxtunnel_id` (String) If `forwarding`==`wxtunnel`, the port is bridged to the vlan of the session
 - `wxtunnel_remote_id` (String) If `forwarding`==`wxtunnel`, the port is bridged to the vlan of the session
@@ -464,6 +466,18 @@ Optional:
 - `type` (String) USB integration type for this legacy AP USB configuration
 - `verify_cert` (Boolean) Only if `type`==`imagotag`, whether to turn on SSL verification
 - `vlan_id` (Number) Only if `type`==`solum` or `type`==`hanshow`
+
+
+<a id="nestedatt--uwb_config"></a>
+### Nested Schema for `uwb_config`
+
+Optional:
+
+- `enabled` (Boolean) Whether UWB RTLS integration is enabled
+- `host` (String) RTLS server hostname or IP address
+- `port` (Number) RTLS server port number
+- `slot` (Number) UWB time slot assigned to this AP, 0–15
+- `type` (String) UWB integration type. enum: `zigpos`
 
 
 <a id="nestedatt--zigbee_config"></a>

@@ -67,6 +67,7 @@ resource "mist_org_rftemplate" "rftemplate_one" {
 - `band_5_on_24_radio` (Attributes) 5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode (see [below for nested schema](#nestedatt--band_5_on_24_radio))
 - `band_6` (Attributes) 6 GHz radio settings in this RF template (see [below for nested schema](#nestedatt--band_6))
 - `country_code` (String) Optional, country code to use. If specified, this gets applied to all sites using the RF Template
+- `enable_unii_4` (Boolean) Whether U-NII-4 channels (169, 173, 177) are enabled
 - `model_specific` (Attributes Map) overwrites for a specific model. If a band is specified, it will shadow the default. Property key is the model name (e.g. "AP63") (see [below for nested schema](#nestedatt--model_specific))
 - `scanning_enabled` (Boolean) Whether scanning radio is enabled
 
