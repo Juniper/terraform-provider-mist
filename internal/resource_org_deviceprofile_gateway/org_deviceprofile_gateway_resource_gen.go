@@ -2034,12 +2034,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "If HA mode. Node associated with the redundant Ethernet interface",
 							MarkdownDescription: "If HA mode. Node associated with the redundant Ethernet interface",
 						},
-						"reth_nodes": schema.ListAttribute{
-							ElementType:         types.StringType,
-							Computed:            true,
-							Description:         "If HA mode and for SSR only. Per-network node assignment used for VLAN-based redundancy",
-							MarkdownDescription: "If HA mode and for SSR only. Per-network node assignment used for VLAN-based redundancy",
-						},
 						"speed": schema.StringAttribute{
 							Optional:            true,
 							Description:         "Link speed configured on the port",
@@ -21932,24 +21926,6 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`reth_node expected to be basetypes.StringValue, was: %T`, rethNodeAttribute))
 	}
 
-	rethNodesAttribute, ok := attributes["reth_nodes"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`reth_nodes is missing from object`)
-
-		return nil, diags
-	}
-
-	rethNodesVal, ok := rethNodesAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`reth_nodes expected to be basetypes.ListValue, was: %T`, rethNodesAttribute))
-	}
-
 	speedAttribute, ok := attributes["speed"]
 
 	if !ok {
@@ -22291,7 +22267,6 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 		RedundantGroup:         redundantGroupVal,
 		RethIdx:                rethIdxVal,
 		RethNode:               rethNodeVal,
-		RethNodes:              rethNodesVal,
 		Speed:                  speedVal,
 		SsrNoVirtualMac:        ssrNoVirtualMacVal,
 		SvrPortRange:           svrPortRangeVal,
@@ -22916,24 +22891,6 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`reth_node expected to be basetypes.StringValue, was: %T`, rethNodeAttribute))
 	}
 
-	rethNodesAttribute, ok := attributes["reth_nodes"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`reth_nodes is missing from object`)
-
-		return NewPortConfigValueUnknown(), diags
-	}
-
-	rethNodesVal, ok := rethNodesAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`reth_nodes expected to be basetypes.ListValue, was: %T`, rethNodesAttribute))
-	}
-
 	speedAttribute, ok := attributes["speed"]
 
 	if !ok {
@@ -23275,7 +23232,6 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 		RedundantGroup:         redundantGroupVal,
 		RethIdx:                rethIdxVal,
 		RethNode:               rethNodeVal,
-		RethNodes:              rethNodesVal,
 		Speed:                  speedVal,
 		SsrNoVirtualMac:        ssrNoVirtualMacVal,
 		SvrPortRange:           svrPortRangeVal,
@@ -23395,7 +23351,6 @@ type PortConfigValue struct {
 	RedundantGroup         basetypes.Int64Value  `tfsdk:"redundant_group"`
 	RethIdx                basetypes.StringValue `tfsdk:"reth_idx"`
 	RethNode               basetypes.StringValue `tfsdk:"reth_node"`
-	RethNodes              basetypes.ListValue   `tfsdk:"reth_nodes"`
 	Speed                  basetypes.StringValue `tfsdk:"speed"`
 	SsrNoVirtualMac        basetypes.BoolValue   `tfsdk:"ssr_no_virtual_mac"`
 	SvrPortRange           basetypes.StringValue `tfsdk:"svr_port_range"`
@@ -23417,7 +23372,7 @@ type PortConfigValue struct {
 }
 
 func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 48)
+	attrTypes := make(map[string]tftypes.Type, 47)
 
 	var val tftypes.Value
 	var err error
@@ -23456,9 +23411,6 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["redundant_group"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["reth_idx"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["reth_node"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["reth_nodes"] = basetypes.ListType{
-		ElemType: types.StringType,
-	}.TerraformType(ctx)
 	attrTypes["speed"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ssr_no_virtual_mac"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["svr_port_range"] = basetypes.StringType{}.TerraformType(ctx)
@@ -23495,7 +23447,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 48)
+		vals := make(map[string]tftypes.Value, 47)
 
 		val, err = v.AeDisableLacp.ToTerraformValue(ctx)
 
@@ -23736,14 +23688,6 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["reth_node"] = val
-
-		val, err = v.RethNodes.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["reth_nodes"] = val
 
 		val, err = v.Speed.ToTerraformValue(ctx)
 
@@ -24123,100 +24067,12 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 			},
-			"port_network":    basetypes.StringType{},
-			"preserve_dscp":   basetypes.BoolType{},
-			"redundant":       basetypes.BoolType{},
-			"redundant_group": basetypes.Int64Type{},
-			"reth_idx":        basetypes.StringType{},
-			"reth_node":       basetypes.StringType{},
-			"reth_nodes": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"speed":              basetypes.StringType{},
-			"ssr_no_virtual_mac": basetypes.BoolType{},
-			"svr_port_range":     basetypes.StringType{},
-			"traffic_shaping": basetypes.ObjectType{
-				AttrTypes: TrafficShapingValue{}.AttributeTypes(ctx),
-			},
-			"usage":   basetypes.StringType{},
-			"vlan_id": basetypes.StringType{},
-			"vpn_paths": basetypes.MapType{
-				ElemType: VpnPathsValue{}.Type(ctx),
-			},
-			"wan_arp_policer": basetypes.StringType{},
-			"wan_ext_ip":      basetypes.StringType{},
-			"wan_ext_ip6":     basetypes.StringType{},
-			"wan_extra_routes": basetypes.MapType{
-				ElemType: WanExtraRoutesValue{}.Type(ctx),
-			},
-			"wan_extra_routes6": basetypes.MapType{
-				ElemType: WanExtraRoutes6Value{}.Type(ctx),
-			},
-			"wan_networks": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"wan_probe_override": basetypes.ObjectType{
-				AttrTypes: WanProbeOverrideValue{}.AttributeTypes(ctx),
-			},
-			"wan_source_nat": basetypes.ObjectType{
-				AttrTypes: WanSourceNatValue{}.AttributeTypes(ctx),
-			},
-			"wan_speedtest_mode": basetypes.StringType{},
-			"wan_type":           basetypes.StringType{},
-		}), diags
-	}
-
-	var rethNodesVal basetypes.ListValue
-	switch {
-	case v.RethNodes.IsUnknown():
-		rethNodesVal = types.ListUnknown(types.StringType)
-	case v.RethNodes.IsNull():
-		rethNodesVal = types.ListNull(types.StringType)
-	default:
-		var d diag.Diagnostics
-		rethNodesVal, d = types.ListValue(types.StringType, v.RethNodes.Elements())
-		diags.Append(d...)
-	}
-
-	if diags.HasError() {
-		return types.ObjectUnknown(map[string]attr.Type{
-			"ae_disable_lacp":  basetypes.BoolType{},
-			"ae_idx":           basetypes.StringType{},
-			"ae_lacp_force_up": basetypes.BoolType{},
-			"aggregated":       basetypes.BoolType{},
-			"critical":         basetypes.BoolType{},
-			"description":      basetypes.StringType{},
-			"disable_autoneg":  basetypes.BoolType{},
-			"disabled":         basetypes.BoolType{},
-			"dsl_type":         basetypes.StringType{},
-			"dsl_vci":          basetypes.Int64Type{},
-			"dsl_vpi":          basetypes.Int64Type{},
-			"duplex":           basetypes.StringType{},
-			"lte_apn":          basetypes.StringType{},
-			"lte_auth":         basetypes.StringType{},
-			"lte_backup":       basetypes.BoolType{},
-			"lte_password":     basetypes.StringType{},
-			"lte_username":     basetypes.StringType{},
-			"mtu":              basetypes.Int64Type{},
-			"name":             basetypes.StringType{},
-			"networks": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"outer_vlan_id":              basetypes.Int64Type{},
-			"poe_disabled":               basetypes.BoolType{},
-			"poe_keep_state_when_reboot": basetypes.BoolType{},
-			"ip_config": basetypes.ObjectType{
-				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
-			},
-			"port_network":    basetypes.StringType{},
-			"preserve_dscp":   basetypes.BoolType{},
-			"redundant":       basetypes.BoolType{},
-			"redundant_group": basetypes.Int64Type{},
-			"reth_idx":        basetypes.StringType{},
-			"reth_node":       basetypes.StringType{},
-			"reth_nodes": basetypes.ListType{
-				ElemType: types.StringType,
-			},
+			"port_network":       basetypes.StringType{},
+			"preserve_dscp":      basetypes.BoolType{},
+			"redundant":          basetypes.BoolType{},
+			"redundant_group":    basetypes.Int64Type{},
+			"reth_idx":           basetypes.StringType{},
+			"reth_node":          basetypes.StringType{},
 			"speed":              basetypes.StringType{},
 			"ssr_no_virtual_mac": basetypes.BoolType{},
 			"svr_port_range":     basetypes.StringType{},
@@ -24293,15 +24149,12 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 			},
-			"port_network":    basetypes.StringType{},
-			"preserve_dscp":   basetypes.BoolType{},
-			"redundant":       basetypes.BoolType{},
-			"redundant_group": basetypes.Int64Type{},
-			"reth_idx":        basetypes.StringType{},
-			"reth_node":       basetypes.StringType{},
-			"reth_nodes": basetypes.ListType{
-				ElemType: types.StringType,
-			},
+			"port_network":       basetypes.StringType{},
+			"preserve_dscp":      basetypes.BoolType{},
+			"redundant":          basetypes.BoolType{},
+			"redundant_group":    basetypes.Int64Type{},
+			"reth_idx":           basetypes.StringType{},
+			"reth_node":          basetypes.StringType{},
 			"speed":              basetypes.StringType{},
 			"ssr_no_virtual_mac": basetypes.BoolType{},
 			"svr_port_range":     basetypes.StringType{},
@@ -24365,15 +24218,12 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"ip_config": basetypes.ObjectType{
 			AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 		},
-		"port_network":    basetypes.StringType{},
-		"preserve_dscp":   basetypes.BoolType{},
-		"redundant":       basetypes.BoolType{},
-		"redundant_group": basetypes.Int64Type{},
-		"reth_idx":        basetypes.StringType{},
-		"reth_node":       basetypes.StringType{},
-		"reth_nodes": basetypes.ListType{
-			ElemType: types.StringType,
-		},
+		"port_network":       basetypes.StringType{},
+		"preserve_dscp":      basetypes.BoolType{},
+		"redundant":          basetypes.BoolType{},
+		"redundant_group":    basetypes.Int64Type{},
+		"reth_idx":           basetypes.StringType{},
+		"reth_node":          basetypes.StringType{},
 		"speed":              basetypes.StringType{},
 		"ssr_no_virtual_mac": basetypes.BoolType{},
 		"svr_port_range":     basetypes.StringType{},
@@ -24448,7 +24298,6 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"redundant_group":            v.RedundantGroup,
 			"reth_idx":                   v.RethIdx,
 			"reth_node":                  v.RethNode,
-			"reth_nodes":                 rethNodesVal,
 			"speed":                      v.Speed,
 			"ssr_no_virtual_mac":         v.SsrNoVirtualMac,
 			"svr_port_range":             v.SvrPortRange,
@@ -24606,10 +24455,6 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.RethNodes.Equal(other.RethNodes) {
-		return false
-	}
-
 	if !v.Speed.Equal(other.Speed) {
 		return false
 	}
@@ -24719,15 +24564,12 @@ func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"ip_config": basetypes.ObjectType{
 			AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 		},
-		"port_network":    basetypes.StringType{},
-		"preserve_dscp":   basetypes.BoolType{},
-		"redundant":       basetypes.BoolType{},
-		"redundant_group": basetypes.Int64Type{},
-		"reth_idx":        basetypes.StringType{},
-		"reth_node":       basetypes.StringType{},
-		"reth_nodes": basetypes.ListType{
-			ElemType: types.StringType,
-		},
+		"port_network":       basetypes.StringType{},
+		"preserve_dscp":      basetypes.BoolType{},
+		"redundant":          basetypes.BoolType{},
+		"redundant_group":    basetypes.Int64Type{},
+		"reth_idx":           basetypes.StringType{},
+		"reth_node":          basetypes.StringType{},
 		"speed":              basetypes.StringType{},
 		"ssr_no_virtual_mac": basetypes.BoolType{},
 		"svr_port_range":     basetypes.StringType{},
