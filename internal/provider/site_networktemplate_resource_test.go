@@ -192,10 +192,6 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 		}
 	}
 
-	if s.AllowMist != nil {
-		checks.append(t, "TestCheckResourceAttr", "allow_mist", fmt.Sprintf("%t", *s.AllowMist))
-	}
-
 	if s.AutoUpgradeLinecard != nil {
 		checks.append(t, "TestCheckResourceAttr", "auto_upgrade_linecard", fmt.Sprintf("%t", *s.AutoUpgradeLinecard))
 	}
@@ -792,7 +788,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 				if server.Facility != nil {
 					checks.append(t, "TestCheckResourceAttr", prefix+".facility", *server.Facility)
 				}
-				checks.append(t, "TestCheckResourceAttr", prefix+".host", server.Host)
+				if server.Host != nil {
+					checks.append(t, "TestCheckResourceAttr", prefix+".host", *server.Host)
+				}
 				if server.Match != nil {
 					checks.append(t, "TestCheckResourceAttr", prefix+".match", *server.Match)
 				}
@@ -860,8 +858,8 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 				// Check for terms by name using TestCheckTypeSetElemNestedAttrs to handle ordering
 				for _, term := range v.Terms {
 					termChecks := make(map[string]string)
-					if term.Name != nil {
-						termChecks["name"] = *term.Name
+					if term.Name != "" {
+						termChecks["name"] = term.Name
 					}
 
 					if term.RoutingPolicyTermActions != nil {
@@ -951,7 +949,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 		if s.SnmpConfig.Location != nil {
 			checks.append(t, "TestCheckResourceAttr", "snmp_config.location", *s.SnmpConfig.Location)
 		}
-		checks.append(t, "TestCheckResourceAttr", "snmp_config.name", s.SnmpConfig.Name)
+		if s.SnmpConfig.Name != nil {
+			checks.append(t, "TestCheckResourceAttr", "snmp_config.name", *s.SnmpConfig.Name)
+		}
 		if s.SnmpConfig.Network != nil {
 			checks.append(t, "TestCheckResourceAttr", "snmp_config.network", *s.SnmpConfig.Network)
 		}
@@ -1002,8 +1002,8 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.notify.#", fmt.Sprintf("%d", len(s.SnmpConfig.V3Config.Notify)))
 				for i, notify := range s.SnmpConfig.V3Config.Notify {
 					prefix := fmt.Sprintf("snmp_config.v3_config.notify.%d", i)
-					if notify.Name != nil {
-						checks.append(t, "TestCheckResourceAttr", prefix+".name", *notify.Name)
+					if notify.Name != "" {
+						checks.append(t, "TestCheckResourceAttr", prefix+".name", notify.Name)
 					}
 					checks.append(t, "TestCheckResourceAttr", prefix+".tag", notify.Tag)
 					checks.append(t, "TestCheckResourceAttr", prefix+".type", notify.NotifyType)
@@ -1090,7 +1090,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 							if user.EncryptionType != nil {
 								checks.append(t, "TestCheckResourceAttr", userPrefix+".encryption_type", *user.EncryptionType)
 							}
-							checks.append(t, "TestCheckResourceAttr", userPrefix+".name", user.Name)
+							if user.Name != nil {
+								checks.append(t, "TestCheckResourceAttr", userPrefix+".name", *user.Name)
+							}
 						}
 					}
 				}
@@ -1350,11 +1352,15 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 				checks.append(t, "TestCheckResourceAttr", "switch_mgmt.tacacs.acct_servers.#", fmt.Sprintf("%d", len(s.SwitchMgmt.Tacacs.TacacctServers)))
 				for i, server := range s.SwitchMgmt.Tacacs.TacacctServers {
 					prefix := fmt.Sprintf("switch_mgmt.tacacs.acct_servers.%d", i)
-					checks.append(t, "TestCheckResourceAttr", prefix+".host", server.Host)
+					if server.Host != nil {
+						checks.append(t, "TestCheckResourceAttr", prefix+".host", *server.Host)
+					}
 					if server.Port != nil {
 						checks.append(t, "TestCheckResourceAttr", prefix+".port", *server.Port)
 					}
-					checks.append(t, "TestCheckResourceAttr", prefix+".secret", server.Secret)
+					if server.Secret != nil {
+						checks.append(t, "TestCheckResourceAttr", prefix+".secret", *server.Secret)
+					}
 					if server.Timeout != nil {
 						checks.append(t, "TestCheckResourceAttr", prefix+".timeout", fmt.Sprintf("%d", *server.Timeout))
 					}
@@ -1370,7 +1376,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 					if server.Port != nil {
 						checks.append(t, "TestCheckResourceAttr", prefix+".port", *server.Port)
 					}
-					checks.append(t, "TestCheckResourceAttr", prefix+".secret", server.Secret)
+					if server.Secret != nil {
+						checks.append(t, "TestCheckResourceAttr", prefix+".secret", *server.Secret)
+					}
 					if server.Timeout != nil {
 						checks.append(t, "TestCheckResourceAttr", prefix+".timeout", fmt.Sprintf("%d", *server.Timeout))
 					}
@@ -1384,18 +1392,6 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 
 	if s.UsesDescriptionFromPortUsage != nil {
 		checks.append(t, "TestCheckResourceAttr", "uses_description_from_port_usage", fmt.Sprintf("%t", *s.UsesDescriptionFromPortUsage))
-	}
-
-	if len(s.VarsAnnotations) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "vars_annotations.%", fmt.Sprintf("%d", len(s.VarsAnnotations)))
-		for key, annotation := range s.VarsAnnotations {
-			if annotation.Note != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vars_annotations.%s.note", key), *annotation.Note)
-			}
-			if annotation.VarsAnnotationsType != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vars_annotations.%s.type", key), *annotation.VarsAnnotationsType)
-			}
-		}
 	}
 
 	// Check vrf_config if present

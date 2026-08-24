@@ -20,7 +20,6 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	var aclPolicies = types.ListNull(AclPoliciesValue{}.Type(ctx))
 	var aclTags = types.MapNull(AclTagsValue{}.Type(ctx))
 	var additionalConfigCmds = types.ListNull(types.StringType)
-	var allowMist = types.BoolValue(false)
 	var autoUpgradeLinecard basetypes.BoolValue
 	var usesDescriptionFromPortUsage basetypes.BoolValue
 	var dhcpSnooping = NewDhcpSnoopingValueNull()
@@ -42,10 +41,8 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	var siteId = types.StringValue(data.SiteId.String())
 	var switchMatching = NewSwitchMatchingValueNull()
 	var switchMgmt = NewSwitchMgmtValueNull()
-	var varsAnnotations = types.MapNull(VarsAnnotationsValue{}.Type(ctx))
 	var vrfConfig = NewVrfConfigValueNull()
 	var vrfInstances = types.MapNull(VrfInstancesValue{}.Type(ctx))
-	var uwbConfig = NewUwbConfigValueNull()
 
 	if data.AclPolicies != nil {
 		aclPolicies = aclPoliciesSdkToTerraform(ctx, &diags, data.AclPolicies)
@@ -55,9 +52,6 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	}
 	if data.AdditionalConfigCmds != nil {
 		additionalConfigCmds = mistutils.ListOfStringSdkToTerraform(data.AdditionalConfigCmds)
-	}
-	if data.AllowMist != nil {
-		allowMist = types.BoolValue(*data.AllowMist)
 	}
 	if data.AutoUpgradeLinecard != nil {
 		autoUpgradeLinecard = types.BoolValue(*data.AutoUpgradeLinecard)
@@ -125,23 +119,16 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	if data.SwitchMgmt != nil {
 		switchMgmt = switchMgmtSdkToTerraform(ctx, &diags, data.SwitchMgmt)
 	}
-	if len(data.VarsAnnotations) > 0 {
-		varsAnnotations = varsAnnotationsSdkToTerraform(ctx, &diags, data.VarsAnnotations)
-	}
 	if data.VrfConfig != nil {
 		vrfConfig = vrfConfigSdkToTerraform(ctx, &diags, data.VrfConfig)
 	}
 	if data.VrfInstances != nil {
 		vrfInstances = vrfInstancesSdkToTerraform(ctx, &diags, data.VrfInstances)
 	}
-	if data.UwbConfig != nil {
-		uwbConfig = uwbConfigSdkToTerraform(ctx, &diags, data.UwbConfig)
-	}
 
 	state.AclPolicies = aclPolicies
 	state.AclTags = aclTags
 	state.AdditionalConfigCmds = additionalConfigCmds
-	state.AllowMist = allowMist
 	state.AutoUpgradeLinecard = autoUpgradeLinecard
 	state.DhcpSnooping = dhcpSnooping
 	state.DnsServers = dnsServers
@@ -163,10 +150,8 @@ func SdkToTerraform(ctx context.Context, data *models.SiteSetting) (SiteNetworkt
 	state.SwitchMatching = switchMatching
 	state.SwitchMgmt = switchMgmt
 	state.UsesDescriptionFromPortUsage = usesDescriptionFromPortUsage
-	state.VarsAnnotations = varsAnnotations
 	state.VrfConfig = vrfConfig
 	state.VrfInstances = vrfInstances
-	state.UwbConfig = uwbConfig
 
 	return state, diags
 }

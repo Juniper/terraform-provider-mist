@@ -499,12 +499,6 @@ switch_mgmt = {
   use_mxedge_proxy = false
 }
 uses_description_from_port_usage = true
-vars_annotations = {
-  "uplink1" = {
-    note = "Primary uplink annotation"
-    type = "generic"
-  }
-}
 vrf_config = {
   enabled = true
 }

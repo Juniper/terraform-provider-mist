@@ -5,7 +5,9 @@ package resource_org_networktemplate
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -25,7 +27,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -272,6 +273,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"auth_key": schema.StringAttribute{
 							Optional:            true,
+							Sensitive:           true,
 							Description:         "Authentication key used for BGP neighbor sessions, when configured",
 							MarkdownDescription: "Authentication key used for BGP neighbor sessions, when configured",
 						},
@@ -822,6 +824,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									"auth_keys": schema.MapAttribute{
 										ElementType:         types.StringType,
 										Optional:            true,
+										Sensitive:           true,
 										Description:         "Required if `auth_type`==`md5`. Property key is the key number",
 										MarkdownDescription: "Required if `auth_type`==`md5`. Property key is the key number",
 										Validators: []validator.Map{
@@ -831,6 +834,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"auth_password": schema.StringAttribute{
 										Optional:            true,
+										Sensitive:           true,
 										Description:         "Required if `auth_type`==`password`, the password, max length is 8",
 										MarkdownDescription: "Required if `auth_type`==`password`, the password, max length is 8",
 										Validators: []validator.String{
