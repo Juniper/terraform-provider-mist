@@ -121,6 +121,9 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, tName string, tracke
 		checks.append(t, "TestCheckResourceAttrSet", "acl_policies")
 		// Check nested attributes of AclPolicies
 		for i, policy := range s.AclPolicies {
+			if policy.Disabled != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acl_policies.%d.disabled", i), fmt.Sprintf("%t", *policy.Disabled))
+			}
 			if policy.Name != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("acl_policies.%d.name", i), *policy.Name)
 			}
@@ -568,6 +571,14 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, tName string, tracke
 			}
 			if network.IsolationVlanId != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%s.isolation_vlan_id", key), *network.IsolationVlanId)
+			}
+			if network.Multicast != nil {
+				if network.Multicast.Enabled != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%s.multicast.enabled", key), fmt.Sprintf("%t", *network.Multicast.Enabled))
+				}
+				if network.Multicast.IgmpVersion != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%s.multicast.igmp_version", key), *network.Multicast.IgmpVersion)
+				}
 			}
 			if network.Subnet != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("networks.%s.subnet", key), *network.Subnet)
@@ -1330,6 +1341,20 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, tName string, tracke
 					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("snmp_config.v3_config.notify.%d.type", i), notify.NotifyType)
 				}
 			}
+			if len(s.SnmpConfig.V3Config.NotifyFilter) > 0 {
+				checks.append(t, "TestCheckResourceAttrSet", "snmp_config.v3_config.notify_filter")
+				for i, nf := range s.SnmpConfig.V3Config.NotifyFilter {
+					if len(nf.Categories) > 0 {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("snmp_config.v3_config.notify_filter.%d.categories.#", i), fmt.Sprintf("%d", len(nf.Categories)))
+						for j, cat := range nf.Categories {
+							checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("snmp_config.v3_config.notify_filter.%d.categories.%d", i, j), cat)
+						}
+					}
+					if nf.ProfileName != nil {
+						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("snmp_config.v3_config.notify_filter.%d.profile_name", i), *nf.ProfileName)
+					}
+				}
+			}
 			if len(s.SnmpConfig.V3Config.TargetAddress) > 0 {
 				checks.append(t, "TestCheckResourceAttrSet", "snmp_config.v3_config.target_address")
 				for i, target := range s.SnmpConfig.V3Config.TargetAddress {
@@ -1557,6 +1582,20 @@ func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, tName string, tracke
 			}
 			if vrf.EvpnAutoLoopbackSubnet6 != nil {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vrf_instances.%s.evpn_auto_loopback_subnet6", key), *vrf.EvpnAutoLoopbackSubnet6)
+			}
+			if vrf.MulticastConfig != nil {
+				if vrf.MulticastConfig.AnycastRp != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vrf_instances.%s.multicast_config.anycast_rp", key), fmt.Sprintf("%t", *vrf.MulticastConfig.AnycastRp))
+				}
+				if vrf.MulticastConfig.RpIp != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vrf_instances.%s.multicast_config.rp_ip", key), *vrf.MulticastConfig.RpIp)
+				}
+				if vrf.MulticastConfig.SbdSubnet != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vrf_instances.%s.multicast_config.sbd_subnet", key), *vrf.MulticastConfig.SbdSubnet)
+				}
+				if vrf.MulticastConfig.SbdVlanId != nil {
+					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("vrf_instances.%s.multicast_config.sbd_vlan_id", key), fmt.Sprintf("%d", *vrf.MulticastConfig.SbdVlanId))
+				}
 			}
 			if len(vrf.Networks) > 0 {
 				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("vrf_instances.%s.networks", key))

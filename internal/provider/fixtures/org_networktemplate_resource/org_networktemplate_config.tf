@@ -4,6 +4,7 @@
   acl_policies = [
     {
       name     = "test-policy"
+      disabled = false
       src_tags = ["tag1", "tag2"]
       actions = [
         {
@@ -126,15 +127,24 @@
     network = "nac"
   }
 
+  multicast_config = {
+    anycast_rp = false
+    rp_ip      = "192.168.1.1"
+  }
+
   networks = {
     "lan" = {
-      vlan_id         = "100"
-      subnet          = "192.168.1.0/24"
-      gateway         = "192.168.1.1"
-      subnet6         = "2001:db8:1::/64"
-      gateway6        = "2001:db8:1::1"
-      isolation       = false
+      vlan_id           = "100"
+      subnet            = "192.168.1.0/24"
+      gateway           = "192.168.1.1"
+      subnet6           = "2001:db8:1::/64"
+      gateway6          = "2001:db8:1::1"
+      isolation         = false
       isolation_vlan_id = "200"
+      multicast = {
+        enabled      = true
+        igmp_version = "3"
+      }
     }
     "guest" = {
       vlan_id         = "200"
@@ -827,6 +837,10 @@
     "management" = {
       networks = ["mgmt"]
       evpn_auto_loopback_subnet6 = "fd00:255::/64"
+      multicast_config = {
+        anycast_rp = false
+        rp_ip      = "192.168.100.1"
+      }
       extra_routes = {
         "0.0.0.0/0" = {
           via = "192.168.100.1"

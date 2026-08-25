@@ -30,6 +30,7 @@ func SdkToTerraform(d *models.Psk) (OrgPskModel, diag.Diagnostics) {
 	var role types.String
 	var ssid types.String
 	var usage types.String
+	var usermacLabels = types.ListNull(types.StringType)
 	var vlanId types.String
 
 	if d.Email != nil {
@@ -82,6 +83,10 @@ func SdkToTerraform(d *models.Psk) (OrgPskModel, diag.Diagnostics) {
 
 	usage = types.StringValue(string(*d.Usage))
 
+	if d.UsermacLabels != nil {
+		usermacLabels = mistutils.ListOfStringSdkToTerraform(d.UsermacLabels)
+	}
+
 	if d.VlanId != nil {
 		vlanId = mistutils.PskVlanAsString(*d.VlanId)
 	}
@@ -106,6 +111,7 @@ func SdkToTerraform(d *models.Psk) (OrgPskModel, diag.Diagnostics) {
 	state.Role = role
 	state.Ssid = ssid
 	state.Usage = usage
+	state.UsermacLabels = usermacLabels
 	state.VlanId = vlanId
 
 	return state, diags

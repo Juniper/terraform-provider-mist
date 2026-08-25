@@ -173,6 +173,7 @@ resource "mist_device_switch" "switch_one" {
 Optional:
 
 - `actions` (Attributes List) Destination tag actions evaluated for sources matching this ACL policy (see [below for nested schema](#nestedatt--acl_policies--actions))
+- `disabled` (Boolean) Whether this ACL policy is disabled
 - `name` (String) Display name of the ACL policy
 - `src_tags` (List of String) Source ACL tags that select traffic for this ACL policy
 
@@ -213,6 +214,7 @@ Optional:
 - `port_usage` (String) Required if `type`==`port_usage`. Switch port usage name matched by this ACL tag
 - `radius_group` (String) Required if:
   * `type`==`radius_group`
+  * `type`==`aruba_user_role`
   * `type`==`static_gbp`
 if from matching radius_group
 - `specs` (Attributes List) Layer 4 protocol and destination-port constraints for this ACL tag (see [below for nested schema](#nestedatt--acl_tags--specs))
@@ -481,8 +483,18 @@ Optional:
 - `gateway6` (String) Only required for EVPN-VXLAN networks, IPv6 Virtual Gateway
 - `isolation` (Boolean) whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set. See also `inter_isolation_network_link` and `community_vlan_id` in port_usage
 - `isolation_vlan_id` (String) Required when `isolation`==`true`. Unique VLAN ID used for client isolation
+- `multicast` (Attributes) Multicast (IGMP snooping) settings for this VLAN (see [below for nested schema](#nestedatt--networks--multicast))
 - `subnet` (String) Optional for pure switching, required when L3 / routing features are used
 - `subnet6` (String) Optional for pure switching, required when L3 / routing features are used
+
+<a id="nestedatt--networks--multicast"></a>
+### Nested Schema for `networks.multicast`
+
+Optional:
+
+- `enabled` (Boolean) Whether to enable IGMP snooping on this VLAN
+- `igmp_version` (String) IGMP version. '2' (default, ASM/IGMPv2) / '3' (SSM/IGMPv3)
+
 
 
 <a id="nestedatt--oob_ip_config"></a>
@@ -1002,6 +1014,7 @@ Required:
 
 Optional:
 
+- `categories` (List of String) CX only. List of SNMP trap group categories included in this filter profile. See https://www.juniper.net/documentation/software/topics/task/configuration/snmp-trap-groups-configuring-junos-nm.html for valid category names.
 - `contents` (Attributes List) OID filter rules in this notification filter profile (see [below for nested schema](#nestedatt--snmp_config--v3_config--notify_filter--contents))
 - `profile_name` (String) Notification filter profile name
 
@@ -1273,6 +1286,7 @@ Optional:
 - `evpn_auto_loopback_subnet6` (String) IPv6 subnet used for automatic EVPN loopback addresses in this VRF instance
 - `extra_routes` (Attributes Map) Additional IPv4 static routes configured for this VRF instance (see [below for nested schema](#nestedatt--vrf_instances--extra_routes))
 - `extra_routes6` (Attributes Map) Additional IPv6 static routes configured for this VRF instance (see [below for nested schema](#nestedatt--vrf_instances--extra_routes6))
+- `multicast_config` (Attributes) Multicast configuration for this VRF instance. PIM is automatically enabled when any network in this VRF has `multicast.enabled`==`true` (see [below for nested schema](#nestedatt--vrf_instances--multicast_config))
 - `networks` (List of String) Names of switch networks included in this VRF instance
 
 <a id="nestedatt--vrf_instances--extra_routes"></a>
@@ -1289,6 +1303,17 @@ Required:
 Optional:
 
 - `via` (String) IPv6 next-hop address for this VRF extra route
+
+
+<a id="nestedatt--vrf_instances--multicast_config"></a>
+### Nested Schema for `vrf_instances.multicast_config`
+
+Optional:
+
+- `anycast_rp` (Boolean) When `true`, auto-generates a shared RP on `is_l3_border` devices (ERB/IPClos topologies only)
+- `rp_ip` (String) RP address used when `anycast_rp`==`false`. If the address matches a device SVI, it is configured as a local RP; otherwise a static RP is configured
+- `sbd_subnet` (String) SBD IRB subnet; Mist auto-assigns per-device IPs from this range (EVPN eOISM only)
+- `sbd_vlan_id` (Number) Supplemental Bridge Domain VLAN ID (EVPN topology / eOISM only)
 
 
 

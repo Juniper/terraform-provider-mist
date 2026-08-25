@@ -49,6 +49,20 @@ func wanProbeOverridePortVpnPathTerraformToSdk(ctx context.Context, diags *diag.
 			diags.Append(e...)
 			return nil
 		}
+		if !plan.Hostnames.IsNull() && !plan.Hostnames.IsUnknown() {
+			data.Hostnames = mistutils.ListOfStringTerraformToSdk(plan.Hostnames)
+		}
+		if !plan.Http.IsNull() && !plan.Http.IsUnknown() {
+			httpPlan := NewHttpValueMust(plan.Http.AttributeTypes(ctx), plan.Http.Attributes())
+			http := models.GatewayWanProbeOverrideHttp{}
+			if !httpPlan.AcceptedStatusCodes.IsNull() && !httpPlan.AcceptedStatusCodes.IsUnknown() {
+				http.AcceptedStatusCodes = mistutils.ListOfIntTerraformToSdk(httpPlan.AcceptedStatusCodes)
+			}
+			if !httpPlan.Urls.IsNull() && !httpPlan.Urls.IsUnknown() {
+				http.Urls = mistutils.ListOfStringTerraformToSdk(httpPlan.Urls)
+			}
+			data.Http = &http
+		}
 		if !plan.Ip6s.IsNull() && !plan.Ip6s.IsUnknown() {
 			data.Ip6s = mistutils.ListOfStringTerraformToSdk(plan.Ip6s)
 		}

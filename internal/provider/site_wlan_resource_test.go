@@ -139,8 +139,14 @@ func (s *SiteWlanModel) testChecks(t testing.TB, rType, tName string, tracker *v
 	if s.Disable11ax != nil {
 		checks.append(t, "TestCheckResourceAttr", "disable_11ax", fmt.Sprintf("%t", *s.Disable11ax))
 	}
+	if s.Disable11be != nil {
+		checks.append(t, "TestCheckResourceAttr", "disable_11be", fmt.Sprintf("%t", *s.Disable11be))
+	}
 	if s.DisableHtVhtRates != nil {
 		checks.append(t, "TestCheckResourceAttr", "disable_ht_vht_rates", fmt.Sprintf("%t", *s.DisableHtVhtRates))
+	}
+	if s.DisableMessageAuthenticatorCheck != nil {
+		checks.append(t, "TestCheckResourceAttr", "disable_message_authenticator_check", fmt.Sprintf("%t", *s.DisableMessageAuthenticatorCheck))
 	}
 	if s.DisableUapsd != nil {
 		checks.append(t, "TestCheckResourceAttr", "disable_uapsd", fmt.Sprintf("%t", *s.DisableUapsd))

@@ -97,6 +97,7 @@ resource "mist_site_setting" "site_one" {
 - `tunterm_monitoring_disabled` (Boolean) Whether tunnel termination monitoring is disabled for the site
 - `tunterm_multicast_config` (Attributes) Multicast settings for tunnel termination at the site (see [below for nested schema](#nestedatt--tunterm_multicast_config))
 - `uplink_port_config` (Attributes) AP uplink port configuration for the site (see [below for nested schema](#nestedatt--uplink_port_config))
+- `uwb_config` (Attributes) UWB RTLS (OMLOX asset visibility) settings for the site, only effective on AP models with a UWB radio and in countries where the UWB radio is permitted. Overridden by the device profile and device-level settings (see [below for nested schema](#nestedatt--uwb_config))
 - `vars` (Map of String) Template variables defined for the site
 - `vars_annotations` (Attributes Map) Metadata annotations for site template variables (see [below for nested schema](#nestedatt--vars_annotations))
 - `vna` (Attributes) Virtual Network Assistant settings for the site (see [below for nested schema](#nestedatt--vna))
@@ -299,6 +300,7 @@ Optional:
 - `auto_signature_update` (Attributes) Schedule for automatic security signature updates (see [below for nested schema](#nestedatt--gateway_mgmt--auto_signature_update))
 - `config_revert_timer` (Number) Rollback timer for commit confirmed
 - `disable_console` (Boolean) For SSR and SRX, disable console port
+- `disable_idp_pcap` (Boolean) For SRX only, disable IDP packet capture
 - `disable_oob` (Boolean) For SSR and SRX, disable management interface
 - `disable_usb` (Boolean) For SSR and SRX, disable usb interface
 - `fips_enabled` (Boolean) Whether FIPS mode is enabled on the gateway
@@ -842,6 +844,18 @@ Optional:
 
 - `dot1x` (Boolean) Whether to do 802.1x against uplink switch. When enabled, AP cert will be used to do EAP-TLS and the Org's CA Cert has to be provisioned at the switch
 - `keep_wlans_up_if_down` (Boolean) By default, WLANs are disabled when uplink is down. In some scenario, like SiteSurvey, one would want the AP to keep sending beacons.
+
+
+<a id="nestedatt--uwb_config"></a>
+### Nested Schema for `uwb_config`
+
+Optional:
+
+- `enabled` (Boolean) Whether UWB RTLS integration is enabled
+- `host` (String) RTLS server hostname or IP address
+- `port` (Number) RTLS server port number
+- `slot` (Number) UWB time slot assigned to this AP, 0–15
+- `type` (String) UWB integration type. enum: `zigpos`
 
 
 <a id="nestedatt--vars_annotations"></a>

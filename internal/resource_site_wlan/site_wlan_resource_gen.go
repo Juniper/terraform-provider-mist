@@ -1039,6 +1039,12 @@ func SiteWlanResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "When 11r is enabled, we'll try to use the cached PMK, this can be disabled. `false` means auto",
 						Default:             booldefault.StaticBool(false),
 					},
+					"local_vlan_ids": schema.ListAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						Description:         "VLANs to be bridged locally when forwarding to mxtunnel or site mxedge",
+						MarkdownDescription: "VLANs to be bridged locally when forwarding to mxtunnel or site mxedge",
+					},
 					"source": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
@@ -10443,6 +10449,24 @@ func (t DynamicPskType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`force_lookup expected to be basetypes.BoolValue, was: %T`, forceLookupAttribute))
 	}
 
+	localVlanIdsAttribute, ok := attributes["local_vlan_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`local_vlan_ids is missing from object`)
+
+		return nil, diags
+	}
+
+	localVlanIdsVal, ok := localVlanIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`local_vlan_ids expected to be basetypes.ListValue, was: %T`, localVlanIdsAttribute))
+	}
+
 	sourceAttribute, ok := attributes["source"]
 
 	if !ok {
@@ -10470,6 +10494,7 @@ func (t DynamicPskType) ValueFromObject(ctx context.Context, in basetypes.Object
 		DefaultVlanId: defaultVlanIdVal,
 		Enabled:       enabledVal,
 		ForceLookup:   forceLookupVal,
+		LocalVlanIds:  localVlanIdsVal,
 		Source:        sourceVal,
 		state:         attr.ValueStateKnown,
 	}, diags
@@ -10610,6 +10635,24 @@ func NewDynamicPskValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`force_lookup expected to be basetypes.BoolValue, was: %T`, forceLookupAttribute))
 	}
 
+	localVlanIdsAttribute, ok := attributes["local_vlan_ids"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`local_vlan_ids is missing from object`)
+
+		return NewDynamicPskValueUnknown(), diags
+	}
+
+	localVlanIdsVal, ok := localVlanIdsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`local_vlan_ids expected to be basetypes.ListValue, was: %T`, localVlanIdsAttribute))
+	}
+
 	sourceAttribute, ok := attributes["source"]
 
 	if !ok {
@@ -10637,6 +10680,7 @@ func NewDynamicPskValue(attributeTypes map[string]attr.Type, attributes map[stri
 		DefaultVlanId: defaultVlanIdVal,
 		Enabled:       enabledVal,
 		ForceLookup:   forceLookupVal,
+		LocalVlanIds:  localVlanIdsVal,
 		Source:        sourceVal,
 		state:         attr.ValueStateKnown,
 	}, diags
@@ -10714,12 +10758,13 @@ type DynamicPskValue struct {
 	DefaultVlanId basetypes.StringValue `tfsdk:"default_vlan_id"`
 	Enabled       basetypes.BoolValue   `tfsdk:"enabled"`
 	ForceLookup   basetypes.BoolValue   `tfsdk:"force_lookup"`
+	LocalVlanIds  basetypes.ListValue   `tfsdk:"local_vlan_ids"`
 	Source        basetypes.StringValue `tfsdk:"source"`
 	state         attr.ValueState
 }
 
 func (v DynamicPskValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 5)
+	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
 	var err error
@@ -10728,13 +10773,16 @@ func (v DynamicPskValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["default_vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["force_lookup"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["local_vlan_ids"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["source"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 5)
+		vals := make(map[string]tftypes.Value, 6)
 
 		val, err = v.DefaultPsk.ToTerraformValue(ctx)
 
@@ -10767,6 +10815,14 @@ func (v DynamicPskValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["force_lookup"] = val
+
+		val, err = v.LocalVlanIds.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["local_vlan_ids"] = val
 
 		val, err = v.Source.ToTerraformValue(ctx)
 
@@ -10805,12 +10861,40 @@ func (v DynamicPskValue) String() string {
 func (v DynamicPskValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var localVlanIdsVal basetypes.ListValue
+	switch {
+	case v.LocalVlanIds.IsUnknown():
+		localVlanIdsVal = types.ListUnknown(types.StringType)
+	case v.LocalVlanIds.IsNull():
+		localVlanIdsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		localVlanIdsVal, d = types.ListValue(types.StringType, v.LocalVlanIds.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"default_psk":     basetypes.StringType{},
+			"default_vlan_id": basetypes.StringType{},
+			"enabled":         basetypes.BoolType{},
+			"force_lookup":    basetypes.BoolType{},
+			"local_vlan_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"source": basetypes.StringType{},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
 		"default_psk":     basetypes.StringType{},
 		"default_vlan_id": basetypes.StringType{},
 		"enabled":         basetypes.BoolType{},
 		"force_lookup":    basetypes.BoolType{},
-		"source":          basetypes.StringType{},
+		"local_vlan_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"source": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -10828,6 +10912,7 @@ func (v DynamicPskValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"default_vlan_id": v.DefaultVlanId,
 			"enabled":         v.Enabled,
 			"force_lookup":    v.ForceLookup,
+			"local_vlan_ids":  localVlanIdsVal,
 			"source":          v.Source,
 		})
 
@@ -10865,6 +10950,10 @@ func (v DynamicPskValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.LocalVlanIds.Equal(other.LocalVlanIds) {
+		return false
+	}
+
 	if !v.Source.Equal(other.Source) {
 		return false
 	}
@@ -10886,7 +10975,10 @@ func (v DynamicPskValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"default_vlan_id": basetypes.StringType{},
 		"enabled":         basetypes.BoolType{},
 		"force_lookup":    basetypes.BoolType{},
-		"source":          basetypes.StringType{},
+		"local_vlan_ids": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"source": basetypes.StringType{},
 	}
 }
 

@@ -148,8 +148,19 @@ func (s *SitePskModel) testChecks(t testing.TB, rType, tName string, tracker *va
 		checks.append(t, "TestCheckResourceAttr", "usage", *s.Usage)
 	}
 
+	if len(s.UsermacLabels) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "usermac_labels.#", fmt.Sprintf("%d", len(s.UsermacLabels)))
+		for i, label := range s.UsermacLabels {
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("usermac_labels.%d", i), label)
+		}
+	}
+
 	if s.VlanId != nil {
 		checks.append(t, "TestCheckResourceAttr", "vlan_id", *s.VlanId)
+	}
+
+	if s.VlanName != nil {
+		checks.append(t, "TestCheckResourceAttr", "vlan_name", *s.VlanName)
 	}
 
 	return checks

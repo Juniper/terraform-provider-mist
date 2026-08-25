@@ -43,6 +43,13 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"api_policy": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
+					"enforce_src_ips_for_tokens": schema.BoolAttribute{
+						Optional:            true,
+						Computed:            true,
+						Description:         "Optional. When `true`, Org API tokens without their own `src_ips` also respect the org policy `src_ips`. Default is `false`.",
+						MarkdownDescription: "Optional. When `true`, Org API tokens without their own `src_ips` also respect the org policy `src_ips`. Default is `false`.",
+						Default:             booldefault.StaticBool(false),
+					},
 					"no_reveal": schema.BoolAttribute{
 						Optional:            true,
 						Description:         "By default, API hides password/secrets when the user doesn't have write access\n  * `true`: API will hide passwords/secrets for all users\n  * `false`: API will hide passwords/secrets for read-only users",
@@ -134,11 +141,55 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "CA certificates used by organization-level RADIUS and RADSec settings",
-				MarkdownDescription: "CA certificates used by organization-level RADIUS and RADSec settings",
+				Description:         "Legacy CA certificate list used to verify client certificates. If `cacerts_configs` is provided and non-empty, this field is ignored.",
+				MarkdownDescription: "Legacy CA certificate list used to verify client certificates. If `cacerts_configs` is provided and non-empty, this field is ignored.",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
+			},
+			"cacerts_configs": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"cert": schema.StringAttribute{
+							Required:            true,
+							Description:         "PEM-encoded CA certificate",
+							MarkdownDescription: "PEM-encoded CA certificate",
+						},
+						"crl_enabled": schema.BoolAttribute{
+							Optional:            true,
+							Description:         "Whether CRL checks are enabled. When true, CRL from AIA is used if available unless `crl_url` is set.",
+							MarkdownDescription: "Whether CRL checks are enabled. When true, CRL from AIA is used if available unless `crl_url` is set.",
+						},
+						"crl_url": schema.StringAttribute{
+							Optional:            true,
+							Description:         "Optional override URL for the certificate CRL distribution point",
+							MarkdownDescription: "Optional override URL for the certificate CRL distribution point",
+						},
+						"name": schema.StringAttribute{
+							Optional:            true,
+							Description:         "Optional user-friendly label for the CA issuer configuration",
+							MarkdownDescription: "Optional user-friendly label for the CA issuer configuration",
+						},
+						"ocsp_enabled": schema.BoolAttribute{
+							Optional:            true,
+							Description:         "Whether OCSP checks are enabled. When true, OCSP responder from AIA is used if available unless `ocsp_url` is set.",
+							MarkdownDescription: "Whether OCSP checks are enabled. When true, OCSP responder from AIA is used if available unless `ocsp_url` is set.",
+						},
+						"ocsp_url": schema.StringAttribute{
+							Optional:            true,
+							Description:         "Optional override URL for the OCSP responder",
+							MarkdownDescription: "Optional override URL for the OCSP responder",
+						},
+					},
+					CustomType: CacertsConfigsType{
+						ObjectType: types.ObjectType{
+							AttrTypes: CacertsConfigsValue{}.AttributeTypes(ctx),
+						},
+					},
+				},
+				Optional:            true,
+				Description:         "Preferred per-issuer CA certificate configuration with optional OCSP and CRL settings. When provided and non-empty, `cacerts` is ignored.",
+				MarkdownDescription: "Preferred per-issuer CA certificate configuration with optional OCSP and CRL settings. When provided and non-empty, `cacerts` is ignored.",
 			},
 			"celona": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -188,45 +239,6 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Packet capture integration settings for CloudShark",
 				MarkdownDescription: "Packet capture integration settings for CloudShark",
-			},
-			"cradlepoint": schema.SingleNestedAttribute{
-				Attributes: map[string]schema.Attribute{
-					"cp_api_id": schema.StringAttribute{
-						Computed:            true,
-						Description:         "Cradlepoint API ID used by Mist for the integration",
-						MarkdownDescription: "Cradlepoint API ID used by Mist for the integration",
-					},
-					"cp_api_key": schema.StringAttribute{
-						Computed:            true,
-						Sensitive:           true,
-						Description:         "Cradlepoint API key paired with the Cradlepoint API ID",
-						MarkdownDescription: "Cradlepoint API key paired with the Cradlepoint API ID",
-					},
-					"ecm_api_id": schema.StringAttribute{
-						Computed:            true,
-						Description:         "Cradlepoint ECM API ID used by Mist for the integration",
-						MarkdownDescription: "Cradlepoint ECM API ID used by Mist for the integration",
-					},
-					"ecm_api_key": schema.StringAttribute{
-						Computed:            true,
-						Sensitive:           true,
-						Description:         "Cradlepoint ECM API key paired with the ECM API ID",
-						MarkdownDescription: "Cradlepoint ECM API key paired with the ECM API ID",
-					},
-					"enable_lldp": schema.BoolAttribute{
-						Computed:            true,
-						Description:         "Whether Mist uses Cradlepoint LLDP data to link routers to Mist sites and devices",
-						MarkdownDescription: "Whether Mist uses Cradlepoint LLDP data to link routers to Mist sites and devices",
-					},
-				},
-				CustomType: CradlepointType{
-					ObjectType: types.ObjectType{
-						AttrTypes: CradlepointValue{}.AttributeTypes(ctx),
-					},
-				},
-				Computed:            true,
-				Description:         "Integration settings for Cradlepoint devices",
-				MarkdownDescription: "Integration settings for Cradlepoint devices",
 			},
 			"device_cert": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -688,6 +700,11 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							int64validator.Between(1, 4),
 						},
 					},
+					"enable_eap_md5_for_mab": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "Enable EAP-MD5 for MAB. WARNING: Not FIPS compliant, use only if required for legacy device support.",
+						MarkdownDescription: "Enable EAP-MD5 for MAB. WARNING: Not FIPS compliant, use only if required for legacy device support.",
+					},
 					"eu_only": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
@@ -884,8 +901,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"usermac_expiry": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Allow customer to configure an expiry time for usermacs by attaching a Quarantine label to those which have been inactive for the configured period of time (in days). 0 means no expiry",
-						MarkdownDescription: "Allow customer to configure an expiry time for usermacs by attaching a Quarantine label to those which have been inactive for the configured period of time (in days). 0 means no expiry",
+						Description:         "Allow customer to configure an expiry time for usermacs by attaching an `inactive_endpoint` label to those which have been inactive for the configured period of time (in days). 0 means no expiry",
+						MarkdownDescription: "Allow customer to configure an expiry time for usermacs by attaching an `inactive_endpoint` label to those which have been inactive for the configured period of time (in days). 0 means no expiry",
 						Validators: []validator.Int64{
 							int64validator.Between(0, 1095),
 						},
@@ -1587,9 +1604,9 @@ type OrgSettingModel struct {
 	ApiPolicy                    ApiPolicyValue        `tfsdk:"api_policy"`
 	AutoUpgrade                  AutoUpgradeValue      `tfsdk:"auto_upgrade"`
 	Cacerts                      types.List            `tfsdk:"cacerts"`
+	CacertsConfigs               types.List            `tfsdk:"cacerts_configs"`
 	Celona                       CelonaValue           `tfsdk:"celona"`
 	Cloudshark                   CloudsharkValue       `tfsdk:"cloudshark"`
-	Cradlepoint                  CradlepointValue      `tfsdk:"cradlepoint"`
 	DeviceCert                   DeviceCertValue       `tfsdk:"device_cert"`
 	DeviceUpdownThreshold        types.Int64           `tfsdk:"device_updown_threshold"`
 	DisablePcap                  types.Bool            `tfsdk:"disable_pcap"`
@@ -1649,6 +1666,24 @@ func (t ApiPolicyType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 
 	attributes := in.Attributes()
 
+	enforceSrcIpsForTokensAttribute, ok := attributes["enforce_src_ips_for_tokens"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enforce_src_ips_for_tokens is missing from object`)
+
+		return nil, diags
+	}
+
+	enforceSrcIpsForTokensVal, ok := enforceSrcIpsForTokensAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enforce_src_ips_for_tokens expected to be basetypes.BoolValue, was: %T`, enforceSrcIpsForTokensAttribute))
+	}
+
 	noRevealAttribute, ok := attributes["no_reveal"]
 
 	if !ok {
@@ -1690,9 +1725,10 @@ func (t ApiPolicyType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 	}
 
 	return ApiPolicyValue{
-		NoReveal: noRevealVal,
-		SrcIps:   srcIpsVal,
-		state:    attr.ValueStateKnown,
+		EnforceSrcIpsForTokens: enforceSrcIpsForTokensVal,
+		NoReveal:               noRevealVal,
+		SrcIps:                 srcIpsVal,
+		state:                  attr.ValueStateKnown,
 	}, diags
 }
 
@@ -1759,6 +1795,24 @@ func NewApiPolicyValue(attributeTypes map[string]attr.Type, attributes map[strin
 		return NewApiPolicyValueUnknown(), diags
 	}
 
+	enforceSrcIpsForTokensAttribute, ok := attributes["enforce_src_ips_for_tokens"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enforce_src_ips_for_tokens is missing from object`)
+
+		return NewApiPolicyValueUnknown(), diags
+	}
+
+	enforceSrcIpsForTokensVal, ok := enforceSrcIpsForTokensAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enforce_src_ips_for_tokens expected to be basetypes.BoolValue, was: %T`, enforceSrcIpsForTokensAttribute))
+	}
+
 	noRevealAttribute, ok := attributes["no_reveal"]
 
 	if !ok {
@@ -1800,9 +1854,10 @@ func NewApiPolicyValue(attributeTypes map[string]attr.Type, attributes map[strin
 	}
 
 	return ApiPolicyValue{
-		NoReveal: noRevealVal,
-		SrcIps:   srcIpsVal,
-		state:    attr.ValueStateKnown,
+		EnforceSrcIpsForTokens: enforceSrcIpsForTokensVal,
+		NoReveal:               noRevealVal,
+		SrcIps:                 srcIpsVal,
+		state:                  attr.ValueStateKnown,
 	}, diags
 }
 
@@ -1874,17 +1929,19 @@ func (t ApiPolicyType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = ApiPolicyValue{}
 
 type ApiPolicyValue struct {
-	NoReveal basetypes.BoolValue `tfsdk:"no_reveal"`
-	SrcIps   basetypes.ListValue `tfsdk:"src_ips"`
-	state    attr.ValueState
+	EnforceSrcIpsForTokens basetypes.BoolValue `tfsdk:"enforce_src_ips_for_tokens"`
+	NoReveal               basetypes.BoolValue `tfsdk:"no_reveal"`
+	SrcIps                 basetypes.ListValue `tfsdk:"src_ips"`
+	state                  attr.ValueState
 }
 
 func (v ApiPolicyValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["enforce_src_ips_for_tokens"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["no_reveal"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["src_ips"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -1894,7 +1951,15 @@ func (v ApiPolicyValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.EnforceSrcIpsForTokens.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enforce_src_ips_for_tokens"] = val
 
 		val, err = v.NoReveal.ToTerraformValue(ctx)
 
@@ -1955,7 +2020,8 @@ func (v ApiPolicyValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
-			"no_reveal": basetypes.BoolType{},
+			"enforce_src_ips_for_tokens": basetypes.BoolType{},
+			"no_reveal":                  basetypes.BoolType{},
 			"src_ips": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -1963,7 +2029,8 @@ func (v ApiPolicyValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	}
 
 	attributeTypes := map[string]attr.Type{
-		"no_reveal": basetypes.BoolType{},
+		"enforce_src_ips_for_tokens": basetypes.BoolType{},
+		"no_reveal":                  basetypes.BoolType{},
 		"src_ips": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -1980,8 +2047,9 @@ func (v ApiPolicyValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"no_reveal": v.NoReveal,
-			"src_ips":   srcIpsVal,
+			"enforce_src_ips_for_tokens": v.EnforceSrcIpsForTokens,
+			"no_reveal":                  v.NoReveal,
+			"src_ips":                    srcIpsVal,
 		})
 
 	return objVal, diags
@@ -2000,6 +2068,10 @@ func (v ApiPolicyValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.EnforceSrcIpsForTokens.Equal(other.EnforceSrcIpsForTokens) {
+		return false
 	}
 
 	if !v.NoReveal.Equal(other.NoReveal) {
@@ -2023,7 +2095,8 @@ func (v ApiPolicyValue) Type(ctx context.Context) attr.Type {
 
 func (v ApiPolicyValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"no_reveal": basetypes.BoolType{},
+		"enforce_src_ips_for_tokens": basetypes.BoolType{},
+		"no_reveal":                  basetypes.BoolType{},
 		"src_ips": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -2601,6 +2674,605 @@ func (v AutoUpgradeValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"enabled":     basetypes.BoolType{},
 		"time_of_day": basetypes.StringType{},
 		"version":     basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = CacertsConfigsType{}
+
+type CacertsConfigsType struct {
+	basetypes.ObjectType
+}
+
+func (t CacertsConfigsType) Equal(o attr.Type) bool {
+	other, ok := o.(CacertsConfigsType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t CacertsConfigsType) String() string {
+	return "CacertsConfigsType"
+}
+
+func (t CacertsConfigsType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	certAttribute, ok := attributes["cert"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cert is missing from object`)
+
+		return nil, diags
+	}
+
+	certVal, ok := certAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cert expected to be basetypes.StringValue, was: %T`, certAttribute))
+	}
+
+	crlEnabledAttribute, ok := attributes["crl_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`crl_enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	crlEnabledVal, ok := crlEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`crl_enabled expected to be basetypes.BoolValue, was: %T`, crlEnabledAttribute))
+	}
+
+	crlUrlAttribute, ok := attributes["crl_url"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`crl_url is missing from object`)
+
+		return nil, diags
+	}
+
+	crlUrlVal, ok := crlUrlAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`crl_url expected to be basetypes.StringValue, was: %T`, crlUrlAttribute))
+	}
+
+	nameAttribute, ok := attributes["name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`name is missing from object`)
+
+		return nil, diags
+	}
+
+	nameVal, ok := nameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	ocspEnabledAttribute, ok := attributes["ocsp_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ocsp_enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	ocspEnabledVal, ok := ocspEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ocsp_enabled expected to be basetypes.BoolValue, was: %T`, ocspEnabledAttribute))
+	}
+
+	ocspUrlAttribute, ok := attributes["ocsp_url"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ocsp_url is missing from object`)
+
+		return nil, diags
+	}
+
+	ocspUrlVal, ok := ocspUrlAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ocsp_url expected to be basetypes.StringValue, was: %T`, ocspUrlAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return CacertsConfigsValue{
+		Cert:        certVal,
+		CrlEnabled:  crlEnabledVal,
+		CrlUrl:      crlUrlVal,
+		Name:        nameVal,
+		OcspEnabled: ocspEnabledVal,
+		OcspUrl:     ocspUrlVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewCacertsConfigsValueNull() CacertsConfigsValue {
+	return CacertsConfigsValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewCacertsConfigsValueUnknown() CacertsConfigsValue {
+	return CacertsConfigsValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewCacertsConfigsValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (CacertsConfigsValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing CacertsConfigsValue Attribute Value",
+				"While creating a CacertsConfigsValue value, a missing attribute value was detected. "+
+					"A CacertsConfigsValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("CacertsConfigsValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid CacertsConfigsValue Attribute Type",
+				"While creating a CacertsConfigsValue value, an invalid attribute value was detected. "+
+					"A CacertsConfigsValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("CacertsConfigsValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("CacertsConfigsValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra CacertsConfigsValue Attribute Value",
+				"While creating a CacertsConfigsValue value, an extra attribute value was detected. "+
+					"A CacertsConfigsValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra CacertsConfigsValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewCacertsConfigsValueUnknown(), diags
+	}
+
+	certAttribute, ok := attributes["cert"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`cert is missing from object`)
+
+		return NewCacertsConfigsValueUnknown(), diags
+	}
+
+	certVal, ok := certAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`cert expected to be basetypes.StringValue, was: %T`, certAttribute))
+	}
+
+	crlEnabledAttribute, ok := attributes["crl_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`crl_enabled is missing from object`)
+
+		return NewCacertsConfigsValueUnknown(), diags
+	}
+
+	crlEnabledVal, ok := crlEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`crl_enabled expected to be basetypes.BoolValue, was: %T`, crlEnabledAttribute))
+	}
+
+	crlUrlAttribute, ok := attributes["crl_url"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`crl_url is missing from object`)
+
+		return NewCacertsConfigsValueUnknown(), diags
+	}
+
+	crlUrlVal, ok := crlUrlAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`crl_url expected to be basetypes.StringValue, was: %T`, crlUrlAttribute))
+	}
+
+	nameAttribute, ok := attributes["name"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`name is missing from object`)
+
+		return NewCacertsConfigsValueUnknown(), diags
+	}
+
+	nameVal, ok := nameAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`name expected to be basetypes.StringValue, was: %T`, nameAttribute))
+	}
+
+	ocspEnabledAttribute, ok := attributes["ocsp_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ocsp_enabled is missing from object`)
+
+		return NewCacertsConfigsValueUnknown(), diags
+	}
+
+	ocspEnabledVal, ok := ocspEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ocsp_enabled expected to be basetypes.BoolValue, was: %T`, ocspEnabledAttribute))
+	}
+
+	ocspUrlAttribute, ok := attributes["ocsp_url"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ocsp_url is missing from object`)
+
+		return NewCacertsConfigsValueUnknown(), diags
+	}
+
+	ocspUrlVal, ok := ocspUrlAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ocsp_url expected to be basetypes.StringValue, was: %T`, ocspUrlAttribute))
+	}
+
+	if diags.HasError() {
+		return NewCacertsConfigsValueUnknown(), diags
+	}
+
+	return CacertsConfigsValue{
+		Cert:        certVal,
+		CrlEnabled:  crlEnabledVal,
+		CrlUrl:      crlUrlVal,
+		Name:        nameVal,
+		OcspEnabled: ocspEnabledVal,
+		OcspUrl:     ocspUrlVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewCacertsConfigsValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) CacertsConfigsValue {
+	object, diags := NewCacertsConfigsValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewCacertsConfigsValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t CacertsConfigsType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewCacertsConfigsValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewCacertsConfigsValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewCacertsConfigsValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewCacertsConfigsValueMust(CacertsConfigsValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t CacertsConfigsType) ValueType(ctx context.Context) attr.Value {
+	return CacertsConfigsValue{}
+}
+
+var _ basetypes.ObjectValuable = CacertsConfigsValue{}
+
+type CacertsConfigsValue struct {
+	Cert        basetypes.StringValue `tfsdk:"cert"`
+	CrlEnabled  basetypes.BoolValue   `tfsdk:"crl_enabled"`
+	CrlUrl      basetypes.StringValue `tfsdk:"crl_url"`
+	Name        basetypes.StringValue `tfsdk:"name"`
+	OcspEnabled basetypes.BoolValue   `tfsdk:"ocsp_enabled"`
+	OcspUrl     basetypes.StringValue `tfsdk:"ocsp_url"`
+	state       attr.ValueState
+}
+
+func (v CacertsConfigsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 6)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["cert"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["crl_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["crl_url"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["ocsp_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["ocsp_url"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 6)
+
+		val, err = v.Cert.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["cert"] = val
+
+		val, err = v.CrlEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["crl_enabled"] = val
+
+		val, err = v.CrlUrl.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["crl_url"] = val
+
+		val, err = v.Name.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["name"] = val
+
+		val, err = v.OcspEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ocsp_enabled"] = val
+
+		val, err = v.OcspUrl.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ocsp_url"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v CacertsConfigsValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v CacertsConfigsValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v CacertsConfigsValue) String() string {
+	return "CacertsConfigsValue"
+}
+
+func (v CacertsConfigsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"cert":         basetypes.StringType{},
+		"crl_enabled":  basetypes.BoolType{},
+		"crl_url":      basetypes.StringType{},
+		"name":         basetypes.StringType{},
+		"ocsp_enabled": basetypes.BoolType{},
+		"ocsp_url":     basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"cert":         v.Cert,
+			"crl_enabled":  v.CrlEnabled,
+			"crl_url":      v.CrlUrl,
+			"name":         v.Name,
+			"ocsp_enabled": v.OcspEnabled,
+			"ocsp_url":     v.OcspUrl,
+		})
+
+	return objVal, diags
+}
+
+func (v CacertsConfigsValue) Equal(o attr.Value) bool {
+	other, ok := o.(CacertsConfigsValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Cert.Equal(other.Cert) {
+		return false
+	}
+
+	if !v.CrlEnabled.Equal(other.CrlEnabled) {
+		return false
+	}
+
+	if !v.CrlUrl.Equal(other.CrlUrl) {
+		return false
+	}
+
+	if !v.Name.Equal(other.Name) {
+		return false
+	}
+
+	if !v.OcspEnabled.Equal(other.OcspEnabled) {
+		return false
+	}
+
+	if !v.OcspUrl.Equal(other.OcspUrl) {
+		return false
+	}
+
+	return true
+}
+
+func (v CacertsConfigsValue) Type(ctx context.Context) attr.Type {
+	return CacertsConfigsType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v CacertsConfigsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"cert":         basetypes.StringType{},
+		"crl_enabled":  basetypes.BoolType{},
+		"crl_url":      basetypes.StringType{},
+		"name":         basetypes.StringType{},
+		"ocsp_enabled": basetypes.BoolType{},
+		"ocsp_url":     basetypes.StringType{},
 	}
 }
 
@@ -3359,550 +4031,6 @@ func (v CloudsharkValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 	return map[string]attr.Type{
 		"apitoken": basetypes.StringType{},
 		"url":      basetypes.StringType{},
-	}
-}
-
-var _ basetypes.ObjectTypable = CradlepointType{}
-
-type CradlepointType struct {
-	basetypes.ObjectType
-}
-
-func (t CradlepointType) Equal(o attr.Type) bool {
-	other, ok := o.(CradlepointType)
-
-	if !ok {
-		return false
-	}
-
-	return t.ObjectType.Equal(other.ObjectType)
-}
-
-func (t CradlepointType) String() string {
-	return "CradlepointType"
-}
-
-func (t CradlepointType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	attributes := in.Attributes()
-
-	cpApiIdAttribute, ok := attributes["cp_api_id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`cp_api_id is missing from object`)
-
-		return nil, diags
-	}
-
-	cpApiIdVal, ok := cpApiIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`cp_api_id expected to be basetypes.StringValue, was: %T`, cpApiIdAttribute))
-	}
-
-	cpApiKeyAttribute, ok := attributes["cp_api_key"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`cp_api_key is missing from object`)
-
-		return nil, diags
-	}
-
-	cpApiKeyVal, ok := cpApiKeyAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`cp_api_key expected to be basetypes.StringValue, was: %T`, cpApiKeyAttribute))
-	}
-
-	ecmApiIdAttribute, ok := attributes["ecm_api_id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`ecm_api_id is missing from object`)
-
-		return nil, diags
-	}
-
-	ecmApiIdVal, ok := ecmApiIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`ecm_api_id expected to be basetypes.StringValue, was: %T`, ecmApiIdAttribute))
-	}
-
-	ecmApiKeyAttribute, ok := attributes["ecm_api_key"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`ecm_api_key is missing from object`)
-
-		return nil, diags
-	}
-
-	ecmApiKeyVal, ok := ecmApiKeyAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`ecm_api_key expected to be basetypes.StringValue, was: %T`, ecmApiKeyAttribute))
-	}
-
-	enableLldpAttribute, ok := attributes["enable_lldp"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`enable_lldp is missing from object`)
-
-		return nil, diags
-	}
-
-	enableLldpVal, ok := enableLldpAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`enable_lldp expected to be basetypes.BoolValue, was: %T`, enableLldpAttribute))
-	}
-
-	if diags.HasError() {
-		return nil, diags
-	}
-
-	return CradlepointValue{
-		CpApiId:    cpApiIdVal,
-		CpApiKey:   cpApiKeyVal,
-		EcmApiId:   ecmApiIdVal,
-		EcmApiKey:  ecmApiKeyVal,
-		EnableLldp: enableLldpVal,
-		state:      attr.ValueStateKnown,
-	}, diags
-}
-
-func NewCradlepointValueNull() CradlepointValue {
-	return CradlepointValue{
-		state: attr.ValueStateNull,
-	}
-}
-
-func NewCradlepointValueUnknown() CradlepointValue {
-	return CradlepointValue{
-		state: attr.ValueStateUnknown,
-	}
-}
-
-func NewCradlepointValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (CradlepointValue, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
-	ctx := context.Background()
-
-	for name, attributeType := range attributeTypes {
-		attribute, ok := attributes[name]
-
-		if !ok {
-			diags.AddError(
-				"Missing CradlepointValue Attribute Value",
-				"While creating a CradlepointValue value, a missing attribute value was detected. "+
-					"A CradlepointValue must contain values for all attributes, even if null or unknown. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("CradlepointValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
-			)
-
-			continue
-		}
-
-		if !attributeType.Equal(attribute.Type(ctx)) {
-			diags.AddError(
-				"Invalid CradlepointValue Attribute Type",
-				"While creating a CradlepointValue value, an invalid attribute value was detected. "+
-					"A CradlepointValue must use a matching attribute type for the value. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("CradlepointValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
-					fmt.Sprintf("CradlepointValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
-			)
-		}
-	}
-
-	for name := range attributes {
-		_, ok := attributeTypes[name]
-
-		if !ok {
-			diags.AddError(
-				"Extra CradlepointValue Attribute Value",
-				"While creating a CradlepointValue value, an extra attribute value was detected. "+
-					"A CradlepointValue must not contain values beyond the expected attribute types. "+
-					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
-					fmt.Sprintf("Extra CradlepointValue Attribute Name: %s", name),
-			)
-		}
-	}
-
-	if diags.HasError() {
-		return NewCradlepointValueUnknown(), diags
-	}
-
-	cpApiIdAttribute, ok := attributes["cp_api_id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`cp_api_id is missing from object`)
-
-		return NewCradlepointValueUnknown(), diags
-	}
-
-	cpApiIdVal, ok := cpApiIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`cp_api_id expected to be basetypes.StringValue, was: %T`, cpApiIdAttribute))
-	}
-
-	cpApiKeyAttribute, ok := attributes["cp_api_key"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`cp_api_key is missing from object`)
-
-		return NewCradlepointValueUnknown(), diags
-	}
-
-	cpApiKeyVal, ok := cpApiKeyAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`cp_api_key expected to be basetypes.StringValue, was: %T`, cpApiKeyAttribute))
-	}
-
-	ecmApiIdAttribute, ok := attributes["ecm_api_id"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`ecm_api_id is missing from object`)
-
-		return NewCradlepointValueUnknown(), diags
-	}
-
-	ecmApiIdVal, ok := ecmApiIdAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`ecm_api_id expected to be basetypes.StringValue, was: %T`, ecmApiIdAttribute))
-	}
-
-	ecmApiKeyAttribute, ok := attributes["ecm_api_key"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`ecm_api_key is missing from object`)
-
-		return NewCradlepointValueUnknown(), diags
-	}
-
-	ecmApiKeyVal, ok := ecmApiKeyAttribute.(basetypes.StringValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`ecm_api_key expected to be basetypes.StringValue, was: %T`, ecmApiKeyAttribute))
-	}
-
-	enableLldpAttribute, ok := attributes["enable_lldp"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`enable_lldp is missing from object`)
-
-		return NewCradlepointValueUnknown(), diags
-	}
-
-	enableLldpVal, ok := enableLldpAttribute.(basetypes.BoolValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`enable_lldp expected to be basetypes.BoolValue, was: %T`, enableLldpAttribute))
-	}
-
-	if diags.HasError() {
-		return NewCradlepointValueUnknown(), diags
-	}
-
-	return CradlepointValue{
-		CpApiId:    cpApiIdVal,
-		CpApiKey:   cpApiKeyVal,
-		EcmApiId:   ecmApiIdVal,
-		EcmApiKey:  ecmApiKeyVal,
-		EnableLldp: enableLldpVal,
-		state:      attr.ValueStateKnown,
-	}, diags
-}
-
-func NewCradlepointValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) CradlepointValue {
-	object, diags := NewCradlepointValue(attributeTypes, attributes)
-
-	if diags.HasError() {
-		// This could potentially be added to the diag package.
-		diagsStrings := make([]string, 0, len(diags))
-
-		for _, diagnostic := range diags {
-			diagsStrings = append(diagsStrings, fmt.Sprintf(
-				"%s | %s | %s",
-				diagnostic.Severity(),
-				diagnostic.Summary(),
-				diagnostic.Detail()))
-		}
-
-		panic("NewCradlepointValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
-	}
-
-	return object
-}
-
-func (t CradlepointType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
-	if in.Type() == nil {
-		return NewCradlepointValueNull(), nil
-	}
-
-	if !in.Type().Equal(t.TerraformType(ctx)) {
-		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
-	}
-
-	if !in.IsKnown() {
-		return NewCradlepointValueUnknown(), nil
-	}
-
-	if in.IsNull() {
-		return NewCradlepointValueNull(), nil
-	}
-
-	attributes := map[string]attr.Value{}
-
-	val := map[string]tftypes.Value{}
-
-	err := in.As(&val)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for k, v := range val {
-		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
-
-		if err != nil {
-			return nil, err
-		}
-
-		attributes[k] = a
-	}
-
-	return NewCradlepointValueMust(CradlepointValue{}.AttributeTypes(ctx), attributes), nil
-}
-
-func (t CradlepointType) ValueType(ctx context.Context) attr.Value {
-	return CradlepointValue{}
-}
-
-var _ basetypes.ObjectValuable = CradlepointValue{}
-
-type CradlepointValue struct {
-	CpApiId    basetypes.StringValue `tfsdk:"cp_api_id"`
-	CpApiKey   basetypes.StringValue `tfsdk:"cp_api_key"`
-	EcmApiId   basetypes.StringValue `tfsdk:"ecm_api_id"`
-	EcmApiKey  basetypes.StringValue `tfsdk:"ecm_api_key"`
-	EnableLldp basetypes.BoolValue   `tfsdk:"enable_lldp"`
-	state      attr.ValueState
-}
-
-func (v CradlepointValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 5)
-
-	var val tftypes.Value
-	var err error
-
-	attrTypes["cp_api_id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["cp_api_key"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["ecm_api_id"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["ecm_api_key"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["enable_lldp"] = basetypes.BoolType{}.TerraformType(ctx)
-
-	objectType := tftypes.Object{AttributeTypes: attrTypes}
-
-	switch v.state {
-	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 5)
-
-		val, err = v.CpApiId.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["cp_api_id"] = val
-
-		val, err = v.CpApiKey.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["cp_api_key"] = val
-
-		val, err = v.EcmApiId.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["ecm_api_id"] = val
-
-		val, err = v.EcmApiKey.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["ecm_api_key"] = val
-
-		val, err = v.EnableLldp.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["enable_lldp"] = val
-
-		if err := tftypes.ValidateValue(objectType, vals); err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		return tftypes.NewValue(objectType, vals), nil
-	case attr.ValueStateNull:
-		return tftypes.NewValue(objectType, nil), nil
-	case attr.ValueStateUnknown:
-		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
-	default:
-		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
-	}
-}
-
-func (v CradlepointValue) IsNull() bool {
-	return v.state == attr.ValueStateNull
-}
-
-func (v CradlepointValue) IsUnknown() bool {
-	return v.state == attr.ValueStateUnknown
-}
-
-func (v CradlepointValue) String() string {
-	return "CradlepointValue"
-}
-
-func (v CradlepointValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
-	var diags diag.Diagnostics
-
-	attributeTypes := map[string]attr.Type{
-		"cp_api_id":   basetypes.StringType{},
-		"cp_api_key":  basetypes.StringType{},
-		"ecm_api_id":  basetypes.StringType{},
-		"ecm_api_key": basetypes.StringType{},
-		"enable_lldp": basetypes.BoolType{},
-	}
-
-	if v.IsNull() {
-		return types.ObjectNull(attributeTypes), diags
-	}
-
-	if v.IsUnknown() {
-		return types.ObjectUnknown(attributeTypes), diags
-	}
-
-	objVal, diags := types.ObjectValue(
-		attributeTypes,
-		map[string]attr.Value{
-			"cp_api_id":   v.CpApiId,
-			"cp_api_key":  v.CpApiKey,
-			"ecm_api_id":  v.EcmApiId,
-			"ecm_api_key": v.EcmApiKey,
-			"enable_lldp": v.EnableLldp,
-		})
-
-	return objVal, diags
-}
-
-func (v CradlepointValue) Equal(o attr.Value) bool {
-	other, ok := o.(CradlepointValue)
-
-	if !ok {
-		return false
-	}
-
-	if v.state != other.state {
-		return false
-	}
-
-	if v.state != attr.ValueStateKnown {
-		return true
-	}
-
-	if !v.CpApiId.Equal(other.CpApiId) {
-		return false
-	}
-
-	if !v.CpApiKey.Equal(other.CpApiKey) {
-		return false
-	}
-
-	if !v.EcmApiId.Equal(other.EcmApiId) {
-		return false
-	}
-
-	if !v.EcmApiKey.Equal(other.EcmApiKey) {
-		return false
-	}
-
-	if !v.EnableLldp.Equal(other.EnableLldp) {
-		return false
-	}
-
-	return true
-}
-
-func (v CradlepointValue) Type(ctx context.Context) attr.Type {
-	return CradlepointType{
-		basetypes.ObjectType{
-			AttrTypes: v.AttributeTypes(ctx),
-		},
-	}
-}
-
-func (v CradlepointValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
-	return map[string]attr.Type{
-		"cp_api_id":   basetypes.StringType{},
-		"cp_api_key":  basetypes.StringType{},
-		"ecm_api_id":  basetypes.StringType{},
-		"ecm_api_key": basetypes.StringType{},
-		"enable_lldp": basetypes.BoolType{},
 	}
 }
 
@@ -10237,6 +10365,24 @@ func (t MistNacType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`eap_ssl_security_level expected to be basetypes.Int64Value, was: %T`, eapSslSecurityLevelAttribute))
 	}
 
+	enableEapMd5ForMabAttribute, ok := attributes["enable_eap_md5_for_mab"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable_eap_md5_for_mab is missing from object`)
+
+		return nil, diags
+	}
+
+	enableEapMd5ForMabVal, ok := enableEapMd5ForMabAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable_eap_md5_for_mab expected to be basetypes.BoolValue, was: %T`, enableEapMd5ForMabAttribute))
+	}
+
 	euOnlyAttribute, ok := attributes["eu_only"]
 
 	if !ok {
@@ -10427,6 +10573,7 @@ func (t MistNacType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		DefaultIdpId:              defaultIdpIdVal,
 		DisableRsaeAlgorithms:     disableRsaeAlgorithmsVal,
 		EapSslSecurityLevel:       eapSslSecurityLevelVal,
+		EnableEapMd5ForMab:        enableEapMd5ForMabVal,
 		EuOnly:                    euOnlyVal,
 		Fingerprinting:            fingerprintingVal,
 		IdpMachineCertLookupField: idpMachineCertLookupFieldVal,
@@ -10594,6 +10741,24 @@ func NewMistNacValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`eap_ssl_security_level expected to be basetypes.Int64Value, was: %T`, eapSslSecurityLevelAttribute))
 	}
 
+	enableEapMd5ForMabAttribute, ok := attributes["enable_eap_md5_for_mab"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enable_eap_md5_for_mab is missing from object`)
+
+		return NewMistNacValueUnknown(), diags
+	}
+
+	enableEapMd5ForMabVal, ok := enableEapMd5ForMabAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enable_eap_md5_for_mab expected to be basetypes.BoolValue, was: %T`, enableEapMd5ForMabAttribute))
+	}
+
 	euOnlyAttribute, ok := attributes["eu_only"]
 
 	if !ok {
@@ -10784,6 +10949,7 @@ func NewMistNacValue(attributeTypes map[string]attr.Type, attributes map[string]
 		DefaultIdpId:              defaultIdpIdVal,
 		DisableRsaeAlgorithms:     disableRsaeAlgorithmsVal,
 		EapSslSecurityLevel:       eapSslSecurityLevelVal,
+		EnableEapMd5ForMab:        enableEapMd5ForMabVal,
 		EuOnly:                    euOnlyVal,
 		Fingerprinting:            fingerprintingVal,
 		IdpMachineCertLookupField: idpMachineCertLookupFieldVal,
@@ -10871,6 +11037,7 @@ type MistNacValue struct {
 	DefaultIdpId              basetypes.StringValue `tfsdk:"default_idp_id"`
 	DisableRsaeAlgorithms     basetypes.BoolValue   `tfsdk:"disable_rsae_algorithms"`
 	EapSslSecurityLevel       basetypes.Int64Value  `tfsdk:"eap_ssl_security_level"`
+	EnableEapMd5ForMab        basetypes.BoolValue   `tfsdk:"enable_eap_md5_for_mab"`
 	EuOnly                    basetypes.BoolValue   `tfsdk:"eu_only"`
 	Fingerprinting            basetypes.ObjectValue `tfsdk:"fingerprinting"`
 	IdpMachineCertLookupField basetypes.StringValue `tfsdk:"idp_machine_cert_lookup_field"`
@@ -10885,7 +11052,7 @@ type MistNacValue struct {
 }
 
 func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 15)
+	attrTypes := make(map[string]tftypes.Type, 16)
 
 	var val tftypes.Value
 	var err error
@@ -10897,6 +11064,7 @@ func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 	attrTypes["default_idp_id"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["disable_rsae_algorithms"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["eap_ssl_security_level"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["enable_eap_md5_for_mab"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["eu_only"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["fingerprinting"] = basetypes.ObjectType{
 		AttrTypes: FingerprintingValue{}.AttributeTypes(ctx),
@@ -10920,7 +11088,7 @@ func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 15)
+		vals := make(map[string]tftypes.Value, 16)
 
 		val, err = v.AllowTeapMachineAuthOnly.ToTerraformValue(ctx)
 
@@ -10961,6 +11129,14 @@ func (v MistNacValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["eap_ssl_security_level"] = val
+
+		val, err = v.EnableEapMd5ForMab.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enable_eap_md5_for_mab"] = val
 
 		val, err = v.EuOnly.ToTerraformValue(ctx)
 
@@ -11184,6 +11360,7 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"default_idp_id":          basetypes.StringType{},
 			"disable_rsae_algorithms": basetypes.BoolType{},
 			"eap_ssl_security_level":  basetypes.Int64Type{},
+			"enable_eap_md5_for_mab":  basetypes.BoolType{},
 			"eu_only":                 basetypes.BoolType{},
 			"fingerprinting": basetypes.ObjectType{
 				AttrTypes: FingerprintingValue{}.AttributeTypes(ctx),
@@ -11213,6 +11390,7 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		"default_idp_id":          basetypes.StringType{},
 		"disable_rsae_algorithms": basetypes.BoolType{},
 		"eap_ssl_security_level":  basetypes.Int64Type{},
+		"enable_eap_md5_for_mab":  basetypes.BoolType{},
 		"eu_only":                 basetypes.BoolType{},
 		"fingerprinting": basetypes.ObjectType{
 			AttrTypes: FingerprintingValue{}.AttributeTypes(ctx),
@@ -11249,6 +11427,7 @@ func (v MistNacValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"default_idp_id":                v.DefaultIdpId,
 			"disable_rsae_algorithms":       v.DisableRsaeAlgorithms,
 			"eap_ssl_security_level":        v.EapSslSecurityLevel,
+			"enable_eap_md5_for_mab":        v.EnableEapMd5ForMab,
 			"eu_only":                       v.EuOnly,
 			"fingerprinting":                fingerprinting,
 			"idp_machine_cert_lookup_field": v.IdpMachineCertLookupField,
@@ -11296,6 +11475,10 @@ func (v MistNacValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.EapSslSecurityLevel.Equal(other.EapSslSecurityLevel) {
+		return false
+	}
+
+	if !v.EnableEapMd5ForMab.Equal(other.EnableEapMd5ForMab) {
 		return false
 	}
 
@@ -11359,6 +11542,7 @@ func (v MistNacValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"default_idp_id":          basetypes.StringType{},
 		"disable_rsae_algorithms": basetypes.BoolType{},
 		"eap_ssl_security_level":  basetypes.Int64Type{},
+		"enable_eap_md5_for_mab":  basetypes.BoolType{},
 		"eu_only":                 basetypes.BoolType{},
 		"fingerprinting": basetypes.ObjectType{
 			AttrTypes: FingerprintingValue{}.AttributeTypes(ctx),

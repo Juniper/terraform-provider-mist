@@ -100,6 +100,7 @@ resource "mist_org_nac_portal" "guest_portal" {
 - `additional_nac_server_name` (List of String) Optional list of additional NAC server names
 - `cert_expire_time` (Number) Validity duration for portal-issued client certificates, in days
 - `eap_type` (String) EAP mode used when onboarding wireless clients through the NAC portal
+- `enable_location` (Boolean) Whether location data collection is enabled for devices onboarding through this NAC portal
 - `enable_telemetry` (Boolean) Model, version, fingering, events (connecting, disconnect, roaming), which ap
 - `expiry_notification_time` (Number) Number of days before certificate expiration to start sending reminder notifications
 - `notify_expiry` (Boolean) Whether to send reminder notifications before portal-issued certificates expire

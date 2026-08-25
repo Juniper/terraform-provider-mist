@@ -3,6 +3,8 @@ package resource_site_psk
 import (
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
+
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
@@ -85,10 +87,22 @@ func TerraformToSdk(plan *SitePskModel) (models.Psk, diag.Diagnostics) {
 		unset["-usage"] = ""
 	}
 
+	if !plan.UsermacLabels.IsNull() && !plan.UsermacLabels.IsUnknown() {
+		data.UsermacLabels = mistutils.ListOfStringTerraformToSdk(plan.UsermacLabels)
+	} else {
+		unset["-usermac_labels"] = ""
+	}
+
 	if !plan.VlanId.IsNull() && !plan.VlanId.IsUnknown() {
 		data.VlanId = models.ToPointer(models.PskVlanIdContainer.FromString(plan.VlanId.ValueString()))
 	} else {
 		unset["-vlan_id"] = ""
+	}
+
+	if !plan.VlanName.IsNull() && !plan.VlanName.IsUnknown() {
+		data.VlanName = plan.VlanName.ValueStringPointer()
+	} else {
+		unset["-vlan_name"] = ""
 	}
 
 	data.AdditionalProperties = unset

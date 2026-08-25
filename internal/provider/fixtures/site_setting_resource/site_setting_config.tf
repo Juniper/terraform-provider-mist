@@ -21,6 +21,14 @@
     version      = "stable"
   }
   
+  auto_upgrade_esl = {
+    allow_downgrade = false
+    day_of_week     = "sun"
+    enabled         = true
+    time_of_day     = "03:00"
+    version         = "stable"
+  }
+  
   bgp_neighbor_updown_threshold = 10
   blacklist_url                 = "https://blacklist.example.com"
   
@@ -101,6 +109,15 @@
   }
   
   gateway_updown_threshold = 20
+
+  gateway_mgmt = {
+    disable_idp_pcap = false
+    disable_usb      = false
+    fips_enabled     = false
+    probe_hostsv6    = ["2001:db8::1"]
+  }
+
+  gateway_tunnel_updown_threshold = 20
   
   juniper_srx = {
     antivirus_enabled       = true
@@ -158,12 +175,15 @@
   report_gatt             = false
   
   rogue = {
-    enabled              = true
-    honeypot_enabled     = false
-    min_duration         = 10
-    min_rssi            = -80
-    whitelisted_bssids  = ["aa:bb:cc:dd:ee:ff"]
-    whitelisted_ssids   = ["Test-SSID"]
+    allowed_vlan_ids   = [100, 200]
+    enabled            = true
+    honeypot_enabled   = false
+    min_duration       = 10
+    min_rogue_duration = 30
+    min_rogue_rssi     = -70
+    min_rssi           = -80
+    whitelisted_bssids = ["aa:bb:cc:dd:ee:ff"]
+    whitelisted_ssids  = ["Test-SSID"]
   }
   
   rtsa = {

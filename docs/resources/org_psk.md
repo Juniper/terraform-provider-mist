@@ -58,7 +58,8 @@ resource "mist_org_psk" "psk_one" {
 - `notify_on_create_or_edit` (Boolean) If set to true, notification will be sent when psk is created or edited
 - `old_passphrase` (String, Sensitive) previous passphrase of the PSK if it has been rotated
 - `role` (String) Client role applied to users authenticated with this PSK
-- `usage` (String) Binding mode for this PSK, enum: `macs`, `multi`, `single`
+- `usage` (String) Binding mode for this PSK, enum: `macs`, `multi`, `single`, `usermac_labels`
+- `usermac_labels` (List of String) Usermac labels allowed when `usage`==`usermac_labels`; this list is capped at 100 entries
 - `vlan_id` (String) VLAN ID returned for clients using this PSK
 - `vlan_name` (String) VLAN name to be assigned. Optional, `vlan_id` takes precedence if both are provided
 

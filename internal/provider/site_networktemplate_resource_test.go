@@ -127,6 +127,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 					checks.append(t, "TestCheckResourceAttr", actionPrefix+".dst_tag", action.DstTag)
 				}
 			}
+			if policy.Disabled != nil {
+				checks.append(t, "TestCheckResourceAttr", prefix+".disabled", fmt.Sprintf("%t", *policy.Disabled))
+			}
 		}
 	}
 
@@ -335,6 +338,14 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 				checks.append(t, "TestCheckResourceAttr", prefix+".subnet6", *network.Subnet6)
 			}
 			checks.append(t, "TestCheckResourceAttr", prefix+".vlan_id", network.VlanId)
+			if network.Multicast != nil {
+				if network.Multicast.Enabled != nil {
+					checks.append(t, "TestCheckResourceAttr", prefix+".multicast.enabled", fmt.Sprintf("%t", *network.Multicast.Enabled))
+				}
+				if network.Multicast.IgmpVersion != nil {
+					checks.append(t, "TestCheckResourceAttr", prefix+".multicast.igmp_version", *network.Multicast.IgmpVersion)
+				}
+			}
 		}
 	}
 
@@ -565,6 +576,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 			}
 			if usage.ServerFailNetwork != nil {
 				checks.append(t, "TestCheckResourceAttr", prefix+".server_fail_network", *usage.ServerFailNetwork)
+			}
+			if usage.ServerFailRetryInterval != nil {
+				checks.append(t, "TestCheckResourceAttr", prefix+".server_fail_retry_interval", fmt.Sprintf("%d", *usage.ServerFailRetryInterval))
 			}
 			if usage.ServerRejectNetwork != nil {
 				checks.append(t, "TestCheckResourceAttr", prefix+".server_reject_network", *usage.ServerRejectNetwork)
@@ -844,7 +858,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 				// Check for terms by name using TestCheckTypeSetElemNestedAttrs to handle ordering
 				for _, term := range v.Terms {
 					termChecks := make(map[string]string)
-					termChecks["name"] = term.Name
+					if term.Name != "" {
+						termChecks["name"] = term.Name
+					}
 
 					if term.RoutingPolicyTermActions != nil {
 						if term.RoutingPolicyTermActions.Accept != nil {
@@ -986,7 +1002,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 				checks.append(t, "TestCheckResourceAttr", "snmp_config.v3_config.notify.#", fmt.Sprintf("%d", len(s.SnmpConfig.V3Config.Notify)))
 				for i, notify := range s.SnmpConfig.V3Config.Notify {
 					prefix := fmt.Sprintf("snmp_config.v3_config.notify.%d", i)
-					checks.append(t, "TestCheckResourceAttr", prefix+".name", notify.Name)
+					if notify.Name != "" {
+						checks.append(t, "TestCheckResourceAttr", prefix+".name", notify.Name)
+					}
 					checks.append(t, "TestCheckResourceAttr", prefix+".tag", notify.Tag)
 					checks.append(t, "TestCheckResourceAttr", prefix+".type", notify.NotifyType)
 				}
@@ -1212,6 +1230,9 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 						if portCfg.AeLacpForceUp != nil {
 							checks.append(t, "TestCheckResourceAttr", portPrefix+".ae_lacp_force_up", fmt.Sprintf("%t", *portCfg.AeLacpForceUp))
 						}
+						if portCfg.AeLacpPassive != nil {
+							checks.append(t, "TestCheckResourceAttr", portPrefix+".ae_lacp_passive", fmt.Sprintf("%t", *portCfg.AeLacpPassive))
+						}
 						if len(portCfg.Networks) > 0 {
 							checks.append(t, "TestCheckResourceAttr", portPrefix+".networks.#", fmt.Sprintf("%d", len(portCfg.Networks)))
 							for i, network := range portCfg.Networks {
@@ -1390,6 +1411,20 @@ func (s *SiteNetworktemplateModel) testChecks(t testing.TB, rType, tName string,
 			}
 			if vrf.EvpnAutoLoopbackSubnet6 != nil {
 				checks.append(t, "TestCheckResourceAttr", prefix+".evpn_auto_loopback_subnet6", *vrf.EvpnAutoLoopbackSubnet6)
+			}
+			if vrf.MulticastConfig != nil {
+				if vrf.MulticastConfig.AnycastRp != nil {
+					checks.append(t, "TestCheckResourceAttr", prefix+".multicast_config.anycast_rp", fmt.Sprintf("%t", *vrf.MulticastConfig.AnycastRp))
+				}
+				if vrf.MulticastConfig.RpIp != nil {
+					checks.append(t, "TestCheckResourceAttr", prefix+".multicast_config.rp_ip", *vrf.MulticastConfig.RpIp)
+				}
+				if vrf.MulticastConfig.SbdSubnet != nil {
+					checks.append(t, "TestCheckResourceAttr", prefix+".multicast_config.sbd_subnet", *vrf.MulticastConfig.SbdSubnet)
+				}
+				if vrf.MulticastConfig.SbdVlanId != nil {
+					checks.append(t, "TestCheckResourceAttr", prefix+".multicast_config.sbd_vlan_id", fmt.Sprintf("%d", *vrf.MulticastConfig.SbdVlanId))
+				}
 			}
 			if len(vrf.Networks) > 0 {
 				checks.append(t, "TestCheckResourceAttr", prefix+".networks.#", fmt.Sprintf("%d", len(vrf.Networks)))

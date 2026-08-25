@@ -22,6 +22,7 @@ func SdkToTerraform(ctx context.Context, data models.RfTemplate) (OrgRftemplateM
 	var band5On24Radio = NewBand5On24RadioValueNull()
 	var band6 = NewBand6ValueNull()
 	var countryCode types.String
+	var enableUnii4 types.Bool
 	var id types.String
 	var modelSpecific = types.MapNull(ModelSpecificValue{}.Type(ctx))
 	var name types.String
@@ -55,6 +56,9 @@ func SdkToTerraform(ctx context.Context, data models.RfTemplate) (OrgRftemplateM
 	if data.CountryCode != nil {
 		countryCode = types.StringValue(*data.CountryCode)
 	}
+	if data.EnableUnii4 != nil {
+		enableUnii4 = types.BoolValue(*data.EnableUnii4)
+	}
 	if data.Id != nil {
 		id = types.StringValue(data.Id.String())
 	}
@@ -80,6 +84,7 @@ func SdkToTerraform(ctx context.Context, data models.RfTemplate) (OrgRftemplateM
 	state.Band5On24Radio = band5On24Radio
 	state.Band6 = band6
 	state.CountryCode = countryCode
+	state.EnableUnii4 = enableUnii4
 	state.Id = id
 	state.ModelSpecific = modelSpecific
 	state.Name = name

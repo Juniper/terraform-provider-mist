@@ -5,7 +5,9 @@ package resource_site_networktemplate
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -25,7 +27,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -41,8 +42,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"action": schema.StringAttribute{
 										Optional:            true,
-										Description:         "enum: `allow`, `deny`",
-										MarkdownDescription: "enum: `allow`, `deny`",
+										Description:         "Allow or deny decision applied to traffic matching the destination tag",
+										MarkdownDescription: "Allow or deny decision applied to traffic matching the destination tag",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -52,7 +53,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									"dst_tag": schema.StringAttribute{
-										Required: true,
+										Required:            true,
+										Description:         "Destination ACL tag matched by this policy action",
+										MarkdownDescription: "Destination ACL tag matched by this policy action",
 									},
 								},
 								CustomType: ActionsType{
@@ -62,20 +65,27 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "ACL Policy Actions:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
-							MarkdownDescription: "ACL Policy Actions:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
+							Description:         "Destination tag actions evaluated for sources matching this ACL policy",
+							MarkdownDescription: "Destination tag actions evaluated for sources matching this ACL policy",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
 						},
+						"disabled": schema.BoolAttribute{
+							Optional:            true,
+							Description:         "Whether this ACL policy is disabled",
+							MarkdownDescription: "Whether this ACL policy is disabled",
+						},
 						"name": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Display name of the ACL policy",
+							MarkdownDescription: "Display name of the ACL policy",
 						},
 						"src_tags": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Description:         "ACL Policy Source Tags:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
-							MarkdownDescription: "ACL Policy Source Tags:\n  - for GBP-based policy, all src_tags and dst_tags have to be gbp-based\n  - for ACL-based policy, `network` is required in either the source or destination so that we know where to attach the policy to",
+							Description:         "Source ACL tags that select traffic for this ACL policy",
+							MarkdownDescription: "Source ACL tags that select traffic for this ACL policy",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
@@ -87,7 +97,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Access control policies configured for the site",
+				MarkdownDescription: "Access control policies configured for the site",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
@@ -98,8 +110,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"ether_types": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Description:         "ARP / IPv6. Default is `any`",
-							MarkdownDescription: "ARP / IPv6. Default is `any`",
+							Description:         "Layer 2 EtherTypes matched by this ACL tag; defaults to `any`",
+							MarkdownDescription: "Layer 2 EtherTypes matched by this ACL tag; defaults to `any`",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
@@ -116,8 +128,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"macs": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Description:         "Required if \n- `type`==`mac`\n- `type`==`static_gbp` if from matching mac",
-							MarkdownDescription: "Required if \n- `type`==`mac`\n- `type`==`static_gbp` if from matching mac",
+							Description:         "Client or resource MAC addresses matched by this ACL tag",
+							MarkdownDescription: "Client or resource MAC addresses matched by this ACL tag",
 							Validators: []validator.List{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("mac")),
 								listvalidator.SizeAtLeast(1),
@@ -133,13 +145,13 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"port_usage": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Required if `type`==`port_usage`",
-							MarkdownDescription: "Required if `type`==`port_usage`",
+							Description:         "Required if `type`==`port_usage`. Switch port usage name matched by this ACL tag",
+							MarkdownDescription: "Required if `type`==`port_usage`. Switch port usage name matched by this ACL tag",
 						},
 						"radius_group": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Required if:\n  * `type`==`radius_group`\n  * `type`==`static_gbp`\nif from matching radius_group",
-							MarkdownDescription: "Required if:\n  * `type`==`radius_group`\n  * `type`==`static_gbp`\nif from matching radius_group",
+							Description:         "Required if:\n  * `type`==`radius_group`\n  * `type`==`aruba_user_role`\n  * `type`==`static_gbp`\nif from matching radius_group",
+							MarkdownDescription: "Required if:\n  * `type`==`radius_group`\n  * `type`==`aruba_user_role`\n  * `type`==`static_gbp`\nif from matching radius_group",
 							Validators: []validator.String{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_group")),
 							},
@@ -196,8 +208,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "If `type`==`resource`, `type`==`radius_group`, `type`==`port_usage` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any",
-							MarkdownDescription: "If `type`==`resource`, `type`==`radius_group`, `type`==`port_usage` or `type`==`gbp_resource`. Empty means unrestricted, i.e. any",
+							Description:         "Layer 4 protocol and destination-port constraints for this ACL tag",
+							MarkdownDescription: "Layer 4 protocol and destination-port constraints for this ACL tag",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
@@ -205,8 +217,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"subnets": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Description:         "If \n- `type`==`subnet` \n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching subnet",
-							MarkdownDescription: "If \n- `type`==`subnet` \n- `type`==`resource` (optional. default is `any`)\n- `type`==`static_gbp` if from matching subnet",
+							Description:         "IP subnets matched by this ACL tag",
+							MarkdownDescription: "IP subnets matched by this ACL tag",
 							Validators: []validator.List{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("subnet")),
 								listvalidator.SizeAtLeast(1),
@@ -214,12 +226,13 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"type": schema.StringAttribute{
 							Required:            true,
-							Description:         "enum: \n  * `any`: matching anything not identified\n  * `dynamic_gbp`: from the gbp_tag received from RADIUS\n  * `gbp_resource`: can only be used in `dst_tags`\n  * `mac`\n  * `network`\n  * `port_usage`\n  * `radius_group`\n  * `resource`: can only be used in `dst_tags`\n  * `static_gbp`: applying gbp tag against matching conditions\n  * `subnet`'",
-							MarkdownDescription: "enum: \n  * `any`: matching anything not identified\n  * `dynamic_gbp`: from the gbp_tag received from RADIUS\n  * `gbp_resource`: can only be used in `dst_tags`\n  * `mac`\n  * `network`\n  * `port_usage`\n  * `radius_group`\n  * `resource`: can only be used in `dst_tags`\n  * `static_gbp`: applying gbp tag against matching conditions\n  * `subnet`'",
+							Description:         "Classifier type that determines which ACL tag fields are evaluated",
+							MarkdownDescription: "Classifier type that determines which ACL tag fields are evaluated",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
 									"any",
+									"aruba_user_role",
 									"dynamic_gbp",
 									"gbp_resource",
 									"mac",
@@ -240,8 +253,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "ACL Tags to identify traffic source or destination. Key name is the tag name",
-				MarkdownDescription: "ACL Tags to identify traffic source or destination. Key name is the tag name",
+				Description:         "Access control tag definitions available to site policies",
+				MarkdownDescription: "Access control tag definitions available to site policies",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
@@ -249,21 +262,25 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"additional_config_cmds": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "additional CLI commands to append to the generated Junos config. **Note**: no check is done",
-				MarkdownDescription: "additional CLI commands to append to the generated Junos config. **Note**: no check is done",
+				Description:         "Additional CLI configuration commands applied through the site setting",
+				MarkdownDescription: "Additional CLI configuration commands applied through the site setting",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},
 			},
 			"auto_upgrade_linecard": schema.BoolAttribute{
-				Optional: true,
-				Computed: true,
-				Default:  booldefault.StaticBool(true),
+				Optional:            true,
+				Computed:            true,
+				Description:         "Whether line cards are included in automatic switch upgrades",
+				MarkdownDescription: "Whether line cards are included in automatic switch upgrades",
+				Default:             booldefault.StaticBool(true),
 			},
 			"dhcp_snooping": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"all_networks": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether DHCP snooping applies to all configured networks",
+						MarkdownDescription: "Whether DHCP snooping applies to all configured networks",
 					},
 					"enable_arp_spoof_check": schema.BoolAttribute{
 						Optional:            true,
@@ -276,13 +293,15 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Enable for check for forging source IP address",
 					},
 					"enabled": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether DHCP snooping is enabled",
+						MarkdownDescription: "Whether DHCP snooping is enabled",
 					},
 					"networks": schema.ListAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
-						Description:         "If `all_networks`==`false`, list of network with DHCP snooping enabled",
-						MarkdownDescription: "If `all_networks`==`false`, list of network with DHCP snooping enabled",
+						Description:         "Network names with DHCP snooping enabled when `all_networks`==`false`",
+						MarkdownDescription: "Network names with DHCP snooping enabled when `all_networks`==`false`",
 						Validators: []validator.List{
 							mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("all_networks"), types.BoolValue(true)),
 							listvalidator.SizeAtLeast(1),
@@ -294,20 +313,22 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: DhcpSnoopingValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Layer 2 DHCP snooping settings for the site",
+				MarkdownDescription: "Layer 2 DHCP snooping settings for the site",
 			},
 			"disabled_system_defined_port_usages": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				Description:         "If some system-default port usages are not desired - namely, ap / iot / uplink",
-				MarkdownDescription: "If some system-default port usages are not desired - namely, ap / iot / uplink",
+				Description:         "System-defined switch port usages disabled for the site",
+				MarkdownDescription: "System-defined switch port usages disabled for the site",
 			},
 			"dns_servers": schema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
-				MarkdownDescription: "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
+				Description:         "Name server addresses configured for the site",
+				MarkdownDescription: "Name server addresses configured for the site",
 				Validators: []validator.List{
 					listvalidator.ValueStringsAre(
 						stringvalidator.Any(
@@ -323,8 +344,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
-				MarkdownDescription: "Global dns settings. To keep compatibility, dns settings in `ip_config` and `oob_ip_config` will overwrite this setting",
+				Description:         "Search suffixes used for DNS lookups at the site",
+				MarkdownDescription: "Search suffixes used for DNS lookups at the site",
 				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"extra_routes": schema.MapNestedAttribute{
@@ -332,11 +353,13 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"discard": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "This takes precedence",
-							MarkdownDescription: "This takes precedence",
+							Description:         "Whether to install a discard route; this takes precedence over next-hop settings",
+							MarkdownDescription: "Whether to install a discard route; this takes precedence over next-hop settings",
 						},
 						"metric": schema.Int64Attribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Route metric for the IPv4 static route",
+							MarkdownDescription: "Route metric for the IPv4 static route",
 							Validators: []validator.Int64{
 								int64validator.Between(0, 2147483647),
 							},
@@ -345,10 +368,14 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"metric": schema.Int64Attribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "Route metric for this qualified IPv4 next hop",
+										MarkdownDescription: "Route metric for this qualified IPv4 next hop",
 									},
 									"preference": schema.Int64Attribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "Route preference for this qualified IPv4 next hop",
+										MarkdownDescription: "Route preference for this qualified IPv4 next hop",
 									},
 								},
 								CustomType: NextQualifiedType{
@@ -357,24 +384,30 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 							},
-							Optional: true,
+							Optional:            true,
+							Description:         "Qualified next-hop settings keyed by IPv4 next-hop address",
+							MarkdownDescription: "Qualified next-hop settings keyed by IPv4 next-hop address",
 							Validators: []validator.Map{
 								mapvalidator.SizeAtLeast(1),
 							},
 						},
 						"no_resolve": schema.BoolAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Whether to prevent recursive next-hop resolution for the IPv4 static route",
+							MarkdownDescription: "Whether to prevent recursive next-hop resolution for the IPv4 static route",
 						},
 						"preference": schema.Int64Attribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Route preference for the IPv4 static route",
+							MarkdownDescription: "Route preference for the IPv4 static route",
 							Validators: []validator.Int64{
 								int64validator.Between(0, 2147483647),
 							},
 						},
 						"via": schema.StringAttribute{
 							Required:            true,
-							Description:         "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
-							MarkdownDescription: "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
+							Description:         "Next-hop IPv4 address or ECMP next-hop IPv4 addresses for the route",
+							MarkdownDescription: "Next-hop IPv4 address or ECMP next-hop IPv4 addresses for the route",
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseIp(true, false), mistvalidator.ParseVar()),
 							},
@@ -387,8 +420,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
-				MarkdownDescription: "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
+				Description:         "Additional IPv4 routes configured for the site",
+				MarkdownDescription: "Additional IPv4 routes configured for the site",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(true, false), mistvalidator.ParseVar())),
 				},
@@ -398,11 +431,13 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"discard": schema.BoolAttribute{
 							Optional:            true,
-							Description:         "This takes precedence",
-							MarkdownDescription: "This takes precedence",
+							Description:         "Whether to install a discard route; this takes precedence over next-hop settings",
+							MarkdownDescription: "Whether to install a discard route; this takes precedence over next-hop settings",
 						},
 						"metric": schema.Int64Attribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Route metric for the IPv6 static route",
+							MarkdownDescription: "Route metric for the IPv6 static route",
 							Validators: []validator.Int64{
 								int64validator.Between(0, 2147483647),
 							},
@@ -411,10 +446,14 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									"metric": schema.Int64Attribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "Route metric for this qualified IPv6 next hop",
+										MarkdownDescription: "Route metric for this qualified IPv6 next hop",
 									},
 									"preference": schema.Int64Attribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "Route preference for this qualified IPv6 next hop",
+										MarkdownDescription: "Route preference for this qualified IPv6 next hop",
 									},
 								},
 								CustomType: NextQualifiedType{
@@ -423,24 +462,30 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 							},
-							Optional: true,
+							Optional:            true,
+							Description:         "Qualified next-hop settings keyed by IPv6 next-hop address",
+							MarkdownDescription: "Qualified next-hop settings keyed by IPv6 next-hop address",
 							Validators: []validator.Map{
 								mapvalidator.SizeAtLeast(1),
 							},
 						},
 						"no_resolve": schema.BoolAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Whether to prevent recursive next-hop resolution for the IPv6 static route",
+							MarkdownDescription: "Whether to prevent recursive next-hop resolution for the IPv6 static route",
 						},
 						"preference": schema.Int64Attribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Route preference for the IPv6 static route",
+							MarkdownDescription: "Route preference for the IPv6 static route",
 							Validators: []validator.Int64{
 								int64validator.Between(0, 2147483647),
 							},
 						},
 						"via": schema.StringAttribute{
 							Required:            true,
-							Description:         "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
-							MarkdownDescription: "Next-hop IP Address. Can be a single IP address or an array of IP addresses for ECMP (Equal-Cost Multi-Path) load balancing across multiple next-hops.",
+							Description:         "Next-hop IPv6 address or ECMP next-hop IPv6 addresses for the route",
+							MarkdownDescription: "Next-hop IPv6 address or ECMP next-hop IPv6 addresses for the route",
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
 							},
@@ -453,8 +498,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
-				MarkdownDescription: "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
+				Description:         "Additional IPv6 routes configured for the site",
+				MarkdownDescription: "Additional IPv6 routes configured for the site",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1), mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
 				},
@@ -462,10 +507,14 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"mist_nac": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enabled": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether Mist NAC RadSec is enabled for the switch",
+						MarkdownDescription: "Whether Mist NAC RadSec is enabled for the switch",
 					},
 					"network": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Switch network used for Mist NAC RadSec connectivity",
+						MarkdownDescription: "Switch network used for Mist NAC RadSec connectivity",
 					},
 				},
 				CustomType: MistNacType{
@@ -474,8 +523,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Enable mist_nac to use RadSec",
-				MarkdownDescription: "Enable mist_nac to use RadSec",
+				Description:         "Network access control settings for switches at the site",
+				MarkdownDescription: "Network access control settings for switches at the site",
 			},
 			"networks": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -502,7 +551,37 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							MarkdownDescription: "whether to stop clients to talk to each other, default is false (when enabled, a unique isolation_vlan_id is required). NOTE: this features requires uplink device to also a be Juniper device and `inter_switch_link` to be set. See also `inter_isolation_network_link` and `community_vlan_id` in port_usage",
 						},
 						"isolation_vlan_id": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "Required when `isolation`==`true`. Unique VLAN ID used for client isolation",
+							MarkdownDescription: "Required when `isolation`==`true`. Unique VLAN ID used for client isolation",
+						},
+						"multicast": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"enabled": schema.BoolAttribute{
+									Optional:            true,
+									Description:         "Whether to enable IGMP snooping on this VLAN",
+									MarkdownDescription: "Whether to enable IGMP snooping on this VLAN",
+								},
+								"igmp_version": schema.StringAttribute{
+									Optional:            true,
+									Description:         "IGMP version. '2' (default, ASM/IGMPv2) / '3' (SSM/IGMPv3)",
+									MarkdownDescription: "IGMP version. '2' (default, ASM/IGMPv2) / '3' (SSM/IGMPv3)",
+									Validators: []validator.String{
+										stringvalidator.OneOf(
+											"2",
+											"3",
+										),
+									},
+								},
+							},
+							CustomType: MulticastType{
+								ObjectType: types.ObjectType{
+									AttrTypes: MulticastValue{}.AttributeTypes(ctx),
+								},
+							},
+							Optional:            true,
+							Description:         "Multicast (IGMP snooping) settings for this VLAN",
+							MarkdownDescription: "Multicast (IGMP snooping) settings for this VLAN",
 						},
 						"subnet": schema.StringAttribute{
 							Optional:            true,
@@ -521,7 +600,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						"vlan_id": schema.StringAttribute{
-							Required: true,
+							Required:            true,
+							Description:         "VLAN identifier for this switch network",
+							MarkdownDescription: "VLAN identifier for this switch network",
 							Validators: []validator.String{
 								stringvalidator.Any(mistvalidator.ParseInt(1, 4094), mistvalidator.ParseVar()),
 							},
@@ -534,8 +615,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is network name",
-				MarkdownDescription: "Property key is network name",
+				Description:         "Switch network definitions configured for the site",
+				MarkdownDescription: "Switch network definitions configured for the site",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 					mapvalidator.KeysAre(stringvalidator.All(
@@ -548,17 +629,19 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				ElementType:         types.StringType,
 				Optional:            true,
 				Computed:            true,
-				Description:         "List of NTP servers",
-				MarkdownDescription: "List of NTP servers",
+				Description:         "Time synchronization server addresses configured for the site",
+				MarkdownDescription: "Time synchronization server addresses configured for the site",
 				Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 			},
 			"ospf_areas": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"include_loopback": schema.BoolAttribute{
-							Optional: true,
-							Computed: true,
-							Default:  booldefault.StaticBool(false),
+							Optional:            true,
+							Computed:            true,
+							Description:         "Whether loopback interfaces are included in this OSPF area",
+							MarkdownDescription: "Whether loopback interfaces are included in this OSPF area",
+							Default:             booldefault.StaticBool(false),
 						},
 						"networks": schema.MapNestedAttribute{
 							NestedObject: schema.NestedAttributeObject{
@@ -566,6 +649,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									"auth_keys": schema.MapAttribute{
 										ElementType:         types.StringType,
 										Optional:            true,
+										Sensitive:           true,
 										Description:         "Required if `auth_type`==`md5`. Property key is the key number",
 										MarkdownDescription: "Required if `auth_type`==`md5`. Property key is the key number",
 										Validators: []validator.Map{
@@ -575,6 +659,7 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"auth_password": schema.StringAttribute{
 										Optional:            true,
+										Sensitive:           true,
 										Description:         "Required if `auth_type`==`password`, the password, max length is 8",
 										MarkdownDescription: "Required if `auth_type`==`password`, the password, max length is 8",
 										Validators: []validator.String{
@@ -585,8 +670,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"auth_type": schema.StringAttribute{
 										Optional:            true,
-										Description:         "auth type. enum: `md5`, `none`, `password`",
-										MarkdownDescription: "auth type. enum: `md5`, `none`, `password`",
+										Description:         "Authentication method used by this OSPF network",
+										MarkdownDescription: "Authentication method used by this OSPF network",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -597,34 +682,44 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									"bfd_minimum_interval": schema.Int64Attribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "Minimum BFD interval for this OSPF network, in milliseconds",
+										MarkdownDescription: "Minimum BFD interval for this OSPF network, in milliseconds",
 										Validators: []validator.Int64{
 											int64validator.Between(1, 255000),
 										},
 									},
 									"dead_interval": schema.Int64Attribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "OSPF dead interval for this network, in seconds",
+										MarkdownDescription: "OSPF dead interval for this network, in seconds",
 										Validators: []validator.Int64{
 											int64validator.Between(1, 65535),
 										},
 									},
 									"export_policy": schema.StringAttribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "Routing policy used to export routes from this OSPF network",
+										MarkdownDescription: "Routing policy used to export routes from this OSPF network",
 									},
 									"hello_interval": schema.Int64Attribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "OSPF hello interval for this network, in seconds",
+										MarkdownDescription: "OSPF hello interval for this network, in seconds",
 										Validators: []validator.Int64{
 											int64validator.Between(1, 255),
 										},
 									},
 									"import_policy": schema.StringAttribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "Routing policy used to import routes for this OSPF network",
+										MarkdownDescription: "Routing policy used to import routes for this OSPF network",
 									},
 									"interface_type": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "interface type (nbma = non-broadcast multi-access). enum: `broadcast`, `nbma`, `p2mp`, `p2p`",
-										MarkdownDescription: "interface type (nbma = non-broadcast multi-access). enum: `broadcast`, `nbma`, `p2mp`, `p2p`",
+										Description:         "OSPF interface type used for this network",
+										MarkdownDescription: "OSPF interface type used for this network",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -637,7 +732,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										Default: stringdefault.StaticString("broadcast"),
 									},
 									"metric": schema.Int64Attribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "OSPF metric assigned to this network",
+										MarkdownDescription: "OSPF metric assigned to this network",
 										Validators: []validator.Int64{
 											int64validator.Between(1, 65535),
 										},
@@ -661,7 +758,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 							},
-							Required: true,
+							Required:            true,
+							Description:         "OSPF network settings keyed by network name",
+							MarkdownDescription: "OSPF network settings keyed by network name",
 							Validators: []validator.Map{
 								mapvalidator.SizeAtLeast(1),
 							},
@@ -669,8 +768,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"type": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "OSPF type. enum: `default`, `nssa`, `stub`",
-							MarkdownDescription: "OSPF type. enum: `default`, `nssa`, `stub`",
+							Description:         "Area type for this OSPF area",
+							MarkdownDescription: "Area type for this OSPF area",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -689,8 +788,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Junos OSPF areas. Property key is the OSPF Area (Area should be a number (0-255) / IP address)",
-				MarkdownDescription: "Junos OSPF areas. Property key is the OSPF Area (Area should be a number (0-255) / IP address)",
+				Description:         "Routing area settings for OSPF on site switches",
+				MarkdownDescription: "Routing area settings for OSPF on site switches",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 					mapvalidator.KeysAre(
@@ -708,24 +807,24 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+							Description:         "At least one mirror input source should be specified. Networks whose ingress traffic is mirrored",
+							MarkdownDescription: "At least one mirror input source should be specified. Networks whose ingress traffic is mirrored",
 							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 						},
 						"input_port_ids_egress": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+							Description:         "At least one mirror input source should be specified. Switch ports whose egress traffic is mirrored",
+							MarkdownDescription: "At least one mirror input source should be specified. Switch ports whose egress traffic is mirrored",
 							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 						},
 						"input_port_ids_ingress": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-							MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+							Description:         "At least one mirror input source should be specified. Switch ports whose ingress traffic is mirrored",
+							MarkdownDescription: "At least one mirror input source should be specified. Switch ports whose ingress traffic is mirrored",
 							Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 						},
 						"output_ip_address": schema.StringAttribute{
@@ -764,8 +863,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed",
-				MarkdownDescription: "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed",
+				Description:         "Switch port mirroring settings for the site",
+				MarkdownDescription: "Switch port mirroring settings for the site",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtMost(4),
 				},
@@ -853,8 +952,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"duplex": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`. Link connection mode. enum: `auto`, `full`, `half`",
-							MarkdownDescription: "Only if `mode`!=`dynamic`. Link connection mode. enum: `auto`, `full`, `half`",
+							Description:         "Only if `mode`!=`dynamic`. Link duplex mode for this port usage",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. Link duplex mode for this port usage",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -868,8 +967,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"dynamic_vlan_networks": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return",
-							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`, if dynamic vlan is used, specify the possible networks/vlans RADIUS can return",
+							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Networks or VLANs that RADIUS can return for dynamic VLAN assignment",
+							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Networks or VLANs that RADIUS can return for dynamic VLAN assignment",
 							Validators: []validator.List{
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
@@ -926,8 +1025,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"mac_auth_protocol": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`",
-							MarkdownDescription: "Only if `mode`!=`dynamic` and `enable_mac_auth` ==`true`. This type is ignored if mist_nac is enabled. enum: `eap-md5`, `eap-peap`, `pap`",
+							Description:         "Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`. MAC authentication protocol to use; ignored if Mist NAC is enabled",
+							MarkdownDescription: "Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`. MAC authentication protocol to use; ignored if Mist NAC is enabled",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -952,8 +1051,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"mode": schema.StringAttribute{
 							Optional:            true,
-							Description:         "`mode`==`dynamic` must only be used if the port usage name is `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`",
-							MarkdownDescription: "`mode`==`dynamic` must only be used if the port usage name is `dynamic`. enum: `access`, `dynamic`, `inet`, `trunk`",
+							Description:         "Switching mode for this port usage",
+							MarkdownDescription: "Switching mode for this port usage",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -980,8 +1079,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							ElementType:         types.StringType,
 							Optional:            true,
 							Computed:            true,
-							Description:         "Only if `mode`==`trunk`, the list of network/vlans",
-							MarkdownDescription: "Only if `mode`==`trunk`, the list of network/vlans",
+							Description:         "Only if `mode`==`trunk`. Network or VLAN names to trunk",
+							MarkdownDescription: "Only if `mode`==`trunk`. Network or VLAN names to trunk",
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("trunk")),
@@ -1003,13 +1102,15 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"poe_keep_state_when_reboot": schema.BoolAttribute{
 							Optional:            true,
+							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots",
 							MarkdownDescription: "Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots",
+							Default:             booldefault.StaticBool(false),
 						},
 						"poe_priority": schema.StringAttribute{
 							Optional:            true,
-							Description:         "PoE priority. enum: `low`, `high`",
-							MarkdownDescription: "PoE priority. enum: `low`, `high`",
+							Description:         "Only if `mode`!=`dynamic`. PoE priority for ports using this port usage",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. PoE priority for ports using this port usage",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1020,8 +1121,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"port_auth": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`. If dot1x is desired, set to dot1x. enum: `dot1x`",
-							MarkdownDescription: "Only if `mode`!=`dynamic`. If dot1x is desired, set to dot1x. enum: `dot1x`",
+							Description:         "Only if `mode`!=`dynamic`. 802.1X authentication mode for this port usage",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. 802.1X authentication mode for this port usage",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1053,8 +1154,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"reset_default_when": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage. enum: `link_down`, `none` (let the DPC port keep at the current port usage)",
-							MarkdownDescription: "Only if `mode`==`dynamic` Control when the DPC port should be changed to the default port usage. enum: `link_down`, `none` (let the DPC port keep at the current port usage)",
+							Description:         "Only if `mode`==`dynamic`. Condition that resets a dynamic port to the default port usage",
+							MarkdownDescription: "Only if `mode`==`dynamic`. Condition that resets a dynamic port to the default port usage",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1073,13 +1174,15 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										MarkdownDescription: "Optional description of the rule",
 									},
 									"equals": schema.StringAttribute{
-										Optional: true,
+										Optional:            true,
+										Description:         "Exact value that the selected source attribute must match",
+										MarkdownDescription: "Exact value that the selected source attribute must match",
 									},
 									"equals_any": schema.ListAttribute{
 										ElementType:         types.StringType,
 										Optional:            true,
-										Description:         "Use `equals_any` to match any item in a list",
-										MarkdownDescription: "Use `equals_any` to match any item in a list",
+										Description:         "List of values where any match satisfies this dynamic rule",
+										MarkdownDescription: "List of values where any match satisfies this dynamic rule",
 									},
 									"expression": schema.StringAttribute{
 										Optional:            true,
@@ -1088,8 +1191,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"src": schema.StringAttribute{
 										Required:            true,
-										Description:         "enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_description`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`",
-										MarkdownDescription: "enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_description`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`",
+										Description:         "Source attribute evaluated by this dynamic rule",
+										MarkdownDescription: "Source attribute evaluated by this dynamic rule",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -1109,8 +1212,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"usage": schema.StringAttribute{
 										Optional:            true,
-										Description:         "`port_usage` name",
-										MarkdownDescription: "`port_usage` name",
+										Description:         "Port usage name to apply when this dynamic rule matches",
+										MarkdownDescription: "Port usage name to apply when this dynamic rule matches",
 									},
 								},
 								CustomType: RulesType{
@@ -1120,8 +1223,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Only if `mode`==`dynamic`",
-							MarkdownDescription: "Only if `mode`==`dynamic`",
+							Description:         "Only if `mode`==`dynamic`. Dynamic matching rules that select the port usage to apply",
+							MarkdownDescription: "Only if `mode`==`dynamic`. Dynamic matching rules that select the port usage to apply",
 							Validators: []validator.List{
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
@@ -1134,18 +1237,28 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
 						},
+						"server_fail_retry_interval": schema.Int64Attribute{
+							Optional:            true,
+							Computed:            true,
+							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Interval, in seconds. Sets the wait time before retrying authentication after RADIUS failure to reduce client flapping. Range 120-65535",
+							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Interval, in seconds. Sets the wait time before retrying authentication after RADIUS failure to reduce client flapping. Range 120-65535",
+							Validators: []validator.Int64{
+								int64validator.Between(120, 65535),
+							},
+							Default: int64default.StaticInt64(120),
+						},
 						"server_reject_network": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. When radius server reject / fails",
-							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. When radius server reject / fails",
+							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. When RADIUS server reject / fails",
+							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. When RADIUS server reject / fails",
 							Validators: []validator.String{
 								mistvalidator.AllowedWhenValueIs(path.MatchRelative().AtParent().AtName("port_auth"), types.StringValue("dot1x")),
 							},
 						},
 						"speed": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`, Port speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
-							MarkdownDescription: "Only if `mode`!=`dynamic`, Port speed, default is auto to automatically negotiate speed enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
+							Description:         "Only if `mode`!=`dynamic`. Link speed for this port usage",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. Link speed for this port usage",
 							Validators: []validator.String{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
@@ -1192,8 +1305,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Switch storm control. Only if `mode`!=`dynamic`",
-							MarkdownDescription: "Switch storm control. Only if `mode`!=`dynamic`",
+							Description:         "Only if `mode`!=`dynamic`. Storm-control settings for this port usage",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. Storm-control settings for this port usage",
 							Validators: []validator.Object{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
@@ -1268,8 +1381,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the port usage name. Defines the profiles of port configuration configured on the switch",
-				MarkdownDescription: "Property key is the port usage name. Defines the profiles of port configuration configured on the switch",
+				Description:         "Switch port usage profiles available at the site",
+				MarkdownDescription: "Switch port usage profiles available at the site",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
@@ -1277,13 +1390,15 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 			"radius_config": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"acct_immediate_update": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether immediate RADIUS accounting updates are sent",
+						MarkdownDescription: "Whether immediate RADIUS accounting updates are sent",
 					},
 					"acct_interim_interval": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled",
-						MarkdownDescription: "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the radius server, 600 and up is recommended when enabled",
+						Description:         "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the RADIUS server, 600 and up is recommended when enabled",
+						MarkdownDescription: "How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the RADIUS server, 600 and up is recommended when enabled",
 						Validators: []validator.Int64{
 							int64validator.Between(0, 65535),
 						},
@@ -1294,16 +1409,18 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"host": schema.StringAttribute{
 									Required:            true,
-									Description:         "IP/ hostname of RADIUS server",
-									MarkdownDescription: "IP/ hostname of RADIUS server",
+									Description:         "Address or hostname of the RADIUS accounting server",
+									MarkdownDescription: "Address or hostname of the RADIUS accounting server",
 								},
 								"keywrap_enabled": schema.BoolAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Whether RADIUS keywrap is enabled for messages sent to this accounting server",
+									MarkdownDescription: "Whether RADIUS keywrap is enabled for messages sent to this accounting server",
 								},
 								"keywrap_format": schema.StringAttribute{
 									Optional:            true,
-									Description:         "enum: `ascii`, `hex`",
-									MarkdownDescription: "enum: `ascii`, `hex`",
+									Description:         "Encoding format for RADIUS keywrap KEK and MACK values",
+									MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -1313,19 +1430,25 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								"keywrap_kek": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "RADIUS keywrap key encryption key (KEK)",
+									MarkdownDescription: "RADIUS keywrap key encryption key (KEK)",
 								},
 								"keywrap_mack": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "RADIUS keywrap message authentication code key (MACK)",
+									MarkdownDescription: "RADIUS keywrap message authentication code key (MACK)",
 								},
 								"port": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "UDP port used by the RADIUS accounting server",
+									MarkdownDescription: "UDP port used by the RADIUS accounting server",
 								},
 								"secret": schema.StringAttribute{
 									Required:            true,
 									Sensitive:           true,
-									Description:         "Secret of RADIUS server",
-									MarkdownDescription: "Secret of RADIUS server",
+									Description:         "Shared secret used with this RADIUS accounting server",
+									MarkdownDescription: "Shared secret used with this RADIUS accounting server",
 								},
 							},
 							CustomType: AcctServersType{
@@ -1334,7 +1457,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "RADIUS accounting servers used by this switch configuration",
+						MarkdownDescription: "RADIUS accounting servers used by this switch configuration",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -1342,8 +1467,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					"auth_server_selection": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `ordered`, `unordered`",
-						MarkdownDescription: "enum: `ordered`, `unordered`",
+						Description:         "Selection strategy for RADIUS authentication servers",
+						MarkdownDescription: "Selection strategy for RADIUS authentication servers",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1358,16 +1483,18 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"host": schema.StringAttribute{
 									Required:            true,
-									Description:         "IP/ hostname of RADIUS server",
-									MarkdownDescription: "IP/ hostname of RADIUS server",
+									Description:         "Address or hostname of the RADIUS authentication server",
+									MarkdownDescription: "Address or hostname of the RADIUS authentication server",
 								},
 								"keywrap_enabled": schema.BoolAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Whether RADIUS keywrap is enabled for messages sent to this authentication server",
+									MarkdownDescription: "Whether RADIUS keywrap is enabled for messages sent to this authentication server",
 								},
 								"keywrap_format": schema.StringAttribute{
 									Optional:            true,
-									Description:         "enum: `ascii`, `hex`",
-									MarkdownDescription: "enum: `ascii`, `hex`",
+									Description:         "Encoding format for RADIUS keywrap KEK and MACK values",
+									MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -1377,13 +1504,19 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 								},
 								"keywrap_kek": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "RADIUS keywrap key encryption key (KEK)",
+									MarkdownDescription: "RADIUS keywrap key encryption key (KEK)",
 								},
 								"keywrap_mack": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "RADIUS keywrap message authentication code key (MACK)",
+									MarkdownDescription: "RADIUS keywrap message authentication code key (MACK)",
 								},
 								"port": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "UDP port used by the RADIUS authentication server",
+									MarkdownDescription: "UDP port used by the RADIUS authentication server",
 								},
 								"require_message_authenticator": schema.BoolAttribute{
 									Optional:            true,
@@ -1393,8 +1526,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"secret": schema.StringAttribute{
 									Required:            true,
 									Sensitive:           true,
-									Description:         "Secret of RADIUS server",
-									MarkdownDescription: "Secret of RADIUS server",
+									Description:         "Shared secret used with this RADIUS authentication server",
+									MarkdownDescription: "Shared secret used with this RADIUS authentication server",
 								},
 							},
 							CustomType: AuthServersType{
@@ -1403,7 +1536,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "RADIUS authentication servers used by this switch configuration",
+						MarkdownDescription: "RADIUS authentication servers used by this switch configuration",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -1411,31 +1546,37 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					"auth_servers_retries": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Radius auth session retries",
-						MarkdownDescription: "Radius auth session retries",
+						Description:         "RADIUS auth session retries",
+						MarkdownDescription: "RADIUS auth session retries",
 						Default:             int64default.StaticInt64(3),
 					},
 					"auth_servers_timeout": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Radius auth session timeout",
-						MarkdownDescription: "Radius auth session timeout",
+						Description:         "RADIUS auth session timeout",
+						MarkdownDescription: "RADIUS auth session timeout",
 						Default:             int64default.StaticInt64(5),
 					},
 					"coa_enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether RADIUS Change of Authorization (CoA) is enabled",
+						MarkdownDescription: "Whether RADIUS Change of Authorization (CoA) is enabled",
+						Default:             booldefault.StaticBool(false),
 					},
 					"coa_port": schema.StringAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  stringdefault.StaticString(""),
+						Optional:            true,
+						Computed:            true,
+						Description:         "UDP port used for RADIUS Change of Authorization (CoA)",
+						MarkdownDescription: "UDP port used for RADIUS Change of Authorization (CoA)",
+						Default:             stringdefault.StaticString(""),
 					},
 					"fast_dot1x_timers": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether fast 802.1X timers are enabled for RADIUS authentication",
+						MarkdownDescription: "Whether fast 802.1X timers are enabled for RADIUS authentication",
+						Default:             booldefault.StaticBool(false),
 					},
 					"network": schema.StringAttribute{
 						Optional:            true,
@@ -1444,8 +1585,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"source_ip": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Use `network`or `source_ip`",
-						MarkdownDescription: "Use `network`or `source_ip`",
+						Description:         "Use `network` or `source_ip`. Explicit source IP address for RADIUS traffic",
+						MarkdownDescription: "Use `network` or `source_ip`. Explicit source IP address for RADIUS traffic",
 					},
 				},
 				CustomType: RadiusConfigType{
@@ -1454,18 +1595,22 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Junos Radius config",
-				MarkdownDescription: "Junos Radius config",
+				Description:         "Switch RADIUS configuration for the site",
+				MarkdownDescription: "Switch RADIUS configuration for the site",
 			},
 			"remote_syslog": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"archive": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"files": schema.StringAttribute{
-								Optional: true,
+								Optional:            true,
+								Description:         "Number of archived syslog files to retain",
+								MarkdownDescription: "Number of archived syslog files to retain",
 							},
 							"size": schema.StringAttribute{
-								Optional: true,
+								Optional:            true,
+								Description:         "Maximum size of each archived syslog file, such as 5m",
+								MarkdownDescription: "Maximum size of each archived syslog file, such as 5m",
 							},
 						},
 						CustomType: ArchiveType{
@@ -1473,11 +1618,15 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								AttrTypes: ArchiveValue{}.AttributeTypes(ctx),
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "Retention settings for generated syslog archive files",
+						MarkdownDescription: "Retention settings for generated syslog archive files",
 					},
 					"cacerts": schema.ListAttribute{
-						ElementType: types.StringType,
-						Optional:    true,
+						ElementType:         types.StringType,
+						Optional:            true,
+						Description:         "CA certificates used to verify TLS syslog servers",
+						MarkdownDescription: "CA certificates used to verify TLS syslog servers",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
@@ -1490,8 +1639,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										"facility": schema.StringAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
-											MarkdownDescription: "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
+											Description:         "Syslog facility to match for this selector",
+											MarkdownDescription: "Syslog facility to match for this selector",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -1518,8 +1667,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										"severity": schema.StringAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
-											MarkdownDescription: "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
+											Description:         "Syslog severity to match for this selector",
+											MarkdownDescription: "Syslog severity to match for this selector",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -1542,7 +1691,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 								},
-								Optional: true,
+								Optional:            true,
+								Description:         "Syslog facilities and severities forwarded from console logs",
+								MarkdownDescription: "Syslog facilities and severities forwarded from console logs",
 							},
 						},
 						CustomType: ConsoleType{
@@ -1550,12 +1701,16 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								AttrTypes: ConsoleValue{}.AttributeTypes(ctx),
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "Log forwarding filters for console messages sent to remote syslog",
+						MarkdownDescription: "Log forwarding filters for console messages sent to remote syslog",
 					},
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(false),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether remote syslog forwarding is enabled",
+						MarkdownDescription: "Whether remote syslog forwarding is enabled",
+						Default:             booldefault.StaticBool(false),
 					},
 					"files": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -1563,10 +1718,14 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"archive": schema.SingleNestedAttribute{
 									Attributes: map[string]schema.Attribute{
 										"files": schema.StringAttribute{
-											Optional: true,
+											Optional:            true,
+											Description:         "Number of archived syslog files to retain",
+											MarkdownDescription: "Number of archived syslog files to retain",
 										},
 										"size": schema.StringAttribute{
-											Optional: true,
+											Optional:            true,
+											Description:         "Maximum size of each archived syslog file, such as 5m",
+											MarkdownDescription: "Maximum size of each archived syslog file, such as 5m",
 										},
 									},
 									CustomType: ArchiveType{
@@ -1574,7 +1733,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											AttrTypes: ArchiveValue{}.AttributeTypes(ctx),
 										},
 									},
-									Optional: true,
+									Optional:            true,
+									Description:         "Retention settings for this generated syslog file",
+									MarkdownDescription: "Retention settings for this generated syslog file",
 								},
 								"contents": schema.ListNestedAttribute{
 									NestedObject: schema.NestedAttributeObject{
@@ -1582,8 +1743,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"facility": schema.StringAttribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
-												MarkdownDescription: "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
+												Description:         "Syslog facility to match for this selector",
+												MarkdownDescription: "Syslog facility to match for this selector",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -1610,8 +1771,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"severity": schema.StringAttribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
-												MarkdownDescription: "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
+												Description:         "Syslog severity to match for this selector",
+												MarkdownDescription: "Syslog severity to match for this selector",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -1634,24 +1795,34 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 									},
-									Optional: true,
+									Optional:            true,
+									Description:         "Syslog facilities and severities written to this file",
+									MarkdownDescription: "Syslog facilities and severities written to this file",
 								},
 								"enable_tls": schema.BoolAttribute{
 									Optional:            true,
-									Description:         "Only if `protocol`==`tcp`",
-									MarkdownDescription: "Only if `protocol`==`tcp`",
+									Description:         "Only if `protocol`==`tcp`, enable TLS for this syslog file destination",
+									MarkdownDescription: "Only if `protocol`==`tcp`, enable TLS for this syslog file destination",
 								},
 								"explicit_priority": schema.BoolAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Whether to include explicit syslog priority values in file output",
+									MarkdownDescription: "Whether to include explicit syslog priority values in file output",
 								},
 								"file": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Generated syslog file name",
+									MarkdownDescription: "Generated syslog file name",
 								},
 								"match": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Expression used to filter log messages written to this file",
+									MarkdownDescription: "Expression used to filter log messages written to this file",
 								},
 								"structured_data": schema.BoolAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Whether to include structured syslog data in file output",
+									MarkdownDescription: "Whether to include structured syslog data in file output",
 								},
 							},
 							CustomType: FilesType{
@@ -1660,15 +1831,19 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "Local syslog file definitions to generate and forward",
+						MarkdownDescription: "Local syslog file definitions to generate and forward",
 					},
 					"network": schema.StringAttribute{
 						Optional:            true,
-						Description:         "If source_address is configured, will use the vlan firstly otherwise use source_ip",
-						MarkdownDescription: "If source_address is configured, will use the vlan firstly otherwise use source_ip",
+						Description:         "Source network used for syslog traffic. If `source_address` is configured, Mist uses the VLAN first; otherwise it uses `source_ip`",
+						MarkdownDescription: "Source network used for syslog traffic. If `source_address` is configured, Mist uses the VLAN first; otherwise it uses `source_ip`",
 					},
 					"send_to_all_servers": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether each log entry is sent to all configured remote syslog servers",
+						MarkdownDescription: "Whether each log entry is sent to all configured remote syslog servers",
 					},
 					"servers": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -1679,8 +1854,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"facility": schema.StringAttribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
-												MarkdownDescription: "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
+												Description:         "Syslog facility to match for this selector",
+												MarkdownDescription: "Syslog facility to match for this selector",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -1707,8 +1882,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"severity": schema.StringAttribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
-												MarkdownDescription: "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
+												Description:         "Syslog severity to match for this selector",
+												MarkdownDescription: "Syslog severity to match for this selector",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -1731,16 +1906,20 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 									},
-									Optional: true,
+									Optional:            true,
+									Description:         "Syslog facilities and severities sent to this server",
+									MarkdownDescription: "Syslog facilities and severities sent to this server",
 								},
 								"explicit_priority": schema.BoolAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Whether to include explicit syslog priority values in messages sent to this server",
+									MarkdownDescription: "Whether to include explicit syslog priority values in messages sent to this server",
 								},
 								"facility": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
-									MarkdownDescription: "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
+									Description:         "Default syslog facility for messages sent to this server",
+									MarkdownDescription: "Default syslog facility for messages sent to this server",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -1765,19 +1944,25 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Default: stringdefault.StaticString("any"),
 								},
 								"host": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Address or hostname of the remote syslog server",
+									MarkdownDescription: "Address or hostname of the remote syslog server",
 								},
 								"match": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Expression used to filter log messages sent to this server",
+									MarkdownDescription: "Expression used to filter log messages sent to this server",
 								},
 								"port": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Network port used by the remote syslog server",
+									MarkdownDescription: "Network port used by the remote syslog server",
 								},
 								"protocol": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "enum: `tcp`, `udp`",
-									MarkdownDescription: "enum: `tcp`, `udp`",
+									Description:         "Transport protocol used for this remote syslog server",
+									MarkdownDescription: "Transport protocol used for this remote syslog server",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -1788,18 +1973,20 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Default: stringdefault.StaticString("udp"),
 								},
 								"routing_instance": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Routing instance used to reach this remote syslog server",
+									MarkdownDescription: "Routing instance used to reach this remote syslog server",
 								},
 								"server_name": schema.StringAttribute{
 									Optional:            true,
-									Description:         "Name of the server",
-									MarkdownDescription: "Name of the server",
+									Description:         "TLS server name used when verifying the remote syslog server certificate",
+									MarkdownDescription: "TLS server name used when verifying the remote syslog server certificate",
 								},
 								"severity": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
-									MarkdownDescription: "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
+									Description:         "Default syslog severity for messages sent to this server",
+									MarkdownDescription: "Default syslog severity for messages sent to this server",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -1817,14 +2004,18 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"source_address": schema.StringAttribute{
 									Optional:            true,
-									Description:         "If source_address is configured, will use the vlan firstly otherwise use source_ip",
-									MarkdownDescription: "If source_address is configured, will use the vlan firstly otherwise use source_ip",
+									Description:         "Source address for syslog traffic. If configured, Mist uses the VLAN first; otherwise it uses `source_ip`",
+									MarkdownDescription: "Source address for syslog traffic. If configured, Mist uses the VLAN first; otherwise it uses `source_ip`",
 								},
 								"structured_data": schema.BoolAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Whether to include structured syslog data in messages sent to this server",
+									MarkdownDescription: "Whether to include structured syslog data in messages sent to this server",
 								},
 								"tag": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Syslog tag value added to messages sent to this server",
+									MarkdownDescription: "Syslog tag value added to messages sent to this server",
 								},
 							},
 							CustomType: ServersType{
@@ -1833,12 +2024,14 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "Remote syslog server destinations",
+						MarkdownDescription: "Remote syslog server destinations",
 					},
 					"time_format": schema.StringAttribute{
 						Optional:            true,
-						Description:         "enum: `millisecond`, `year`, `year millisecond`",
-						MarkdownDescription: "enum: `millisecond`, `year`, `year millisecond`",
+						Description:         "Timestamp format used in forwarded syslog messages",
+						MarkdownDescription: "Timestamp format used in forwarded syslog messages",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1857,8 +2050,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"facility": schema.StringAttribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
-												MarkdownDescription: "enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`",
+												Description:         "Syslog facility to match for this selector",
+												MarkdownDescription: "Syslog facility to match for this selector",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -1885,8 +2078,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"severity": schema.StringAttribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
-												MarkdownDescription: "enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`",
+												Description:         "Syslog severity to match for this selector",
+												MarkdownDescription: "Syslog severity to match for this selector",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -1909,13 +2102,19 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 									},
-									Optional: true,
+									Optional:            true,
+									Description:         "Syslog facilities and severities logged for this user rule",
+									MarkdownDescription: "Syslog facilities and severities logged for this user rule",
 								},
 								"match": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Expression used to filter user log messages",
+									MarkdownDescription: "Expression used to filter user log messages",
 								},
 								"user": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Account name or wildcard matched by this syslog rule",
+									MarkdownDescription: "Account name or wildcard matched by this syslog rule",
 								},
 							},
 							CustomType: UsersType{
@@ -1924,7 +2123,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "User-specific syslog logging rules",
+						MarkdownDescription: "User-specific syslog logging rules",
 					},
 				},
 				CustomType: RemoteSyslogType{
@@ -1932,7 +2133,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: RemoteSyslogValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Syslog forwarding settings for devices at the site",
+				MarkdownDescription: "Syslog forwarding settings for devices at the site",
 			},
 			"routing_policies": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -1957,14 +2160,16 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												},
 											},
 											"community": schema.ListAttribute{
-												ElementType: types.StringType,
-												Optional:    true,
+												ElementType:         types.StringType,
+												Optional:            true,
+												Description:         "BGP communities that routes must match",
+												MarkdownDescription: "BGP communities that routes must match",
 											},
 											"prefix": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
-												Description:         "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
-												MarkdownDescription: "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
+												Description:         "Route prefixes that routes must match",
+												MarkdownDescription: "Route prefixes that routes must match",
 											},
 											"protocol": schema.ListAttribute{
 												ElementType:         types.StringType,
@@ -1991,22 +2196,26 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 										Optional:            true,
-										Description:         "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
-										MarkdownDescription: "zero or more criteria/filter can be specified to match the term, all criteria have to be met",
+										Description:         "Route match criteria that must be satisfied before actions are applied",
+										MarkdownDescription: "Route match criteria that must be satisfied before actions are applied",
 									},
 									"name": schema.StringAttribute{
-										Required: true,
+										Required:            true,
+										Description:         "Display name of the switch routing policy term",
+										MarkdownDescription: "Display name of the switch routing policy term",
 									},
 									"actions": schema.SingleNestedAttribute{
 										Attributes: map[string]schema.Attribute{
 											"accept": schema.BoolAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "Whether to accept routes that match this term",
+												MarkdownDescription: "Whether to accept routes that match this term",
 											},
 											"community": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
-												Description:         "When used as export policy, optional",
-												MarkdownDescription: "When used as export policy, optional",
+												Description:         "BGP communities to set when this term is used as an export policy",
+												MarkdownDescription: "BGP communities to set when this term is used as an export policy",
 											},
 											"local_preference": schema.StringAttribute{
 												Optional:            true,
@@ -2022,8 +2231,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"prepend_as_path": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
-												Description:         "When used as export policy, optional. By default, the local AS will be prepended, to change it. Can be a Variable (e.g. `{{as_path}}`)",
-												MarkdownDescription: "When used as export policy, optional. By default, the local AS will be prepended, to change it. Can be a Variable (e.g. `{{as_path}}`)",
+												Description:         "AS path values to prepend when this term is used as an export policy",
+												MarkdownDescription: "AS path values to prepend when this term is used as an export policy",
 											},
 										},
 										CustomType: RoutingPolicyTermActionsType{
@@ -2032,8 +2241,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 										Optional:            true,
-										Description:         "When used as import policy",
-										MarkdownDescription: "When used as import policy",
+										Description:         "Policy actions applied when this routing policy term matches",
+										MarkdownDescription: "Policy actions applied when this routing policy term matches",
 									},
 								},
 								CustomType: TermsType{
@@ -2043,8 +2252,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "at least criteria/filter must be specified to match the term, all criteria have to be met",
-							MarkdownDescription: "at least criteria/filter must be specified to match the term, all criteria have to be met",
+							Description:         "Ordered terms evaluated by this switch routing policy",
+							MarkdownDescription: "Ordered terms evaluated by this switch routing policy",
 							Validators: []validator.Set{
 								setvalidator.SizeAtLeast(1),
 							},
@@ -2057,16 +2266,16 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the routing policy name",
-				MarkdownDescription: "Property key is the routing policy name",
+				Description:         "Switch routing policy definitions for the site",
+				MarkdownDescription: "Switch routing policy definitions for the site",
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
 			},
 			"site_id": schema.StringAttribute{
 				Required:            true,
-				Description:         "Unique ID of the object instance in the Mist Organization",
-				MarkdownDescription: "Unique ID of the object instance in the Mist Organization",
+				Description:         "Unique value identifying the site settings object",
+				MarkdownDescription: "Unique value identifying the site settings object",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.UseStateForUnknown(),
 				},
@@ -2077,11 +2286,15 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"client_list_name": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Name of the SNMP client list",
+									MarkdownDescription: "Name of the SNMP client list",
 								},
 								"clients": schema.ListAttribute{
-									ElementType: types.StringType,
-									Optional:    true,
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "SNMP client IP addresses or CIDR ranges allowed by this list",
+									MarkdownDescription: "SNMP client IP addresses or CIDR ranges allowed by this list",
 								},
 							},
 							CustomType: ClientListType{
@@ -2090,24 +2303,34 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "SNMP client allowlists that can be referenced by communities",
+						MarkdownDescription: "SNMP client allowlists that can be referenced by communities",
 						Validators: []validator.List{
 							listvalidator.SizeAtLeast(1),
 						},
 					},
 					"contact": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Administrative contact string advertised through SNMP",
+						MarkdownDescription: "Administrative contact string advertised through SNMP",
 					},
 					"description": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Device description string advertised through SNMP",
+						MarkdownDescription: "Device description string advertised through SNMP",
 					},
 					"enabled": schema.BoolAttribute{
-						Optional: true,
-						Computed: true,
-						Default:  booldefault.StaticBool(true),
+						Optional:            true,
+						Computed:            true,
+						Description:         "Whether SNMP is enabled",
+						MarkdownDescription: "Whether SNMP is enabled",
+						Default:             booldefault.StaticBool(true),
 					},
 					"engine_id": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "SNMP engine ID used for SNMPv3",
+						MarkdownDescription: "SNMP engine ID used for SNMPv3",
 						Validators: []validator.String{
 							stringvalidator.LengthAtMost(27),
 						},
@@ -2115,8 +2338,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					"engine_id_type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "enum: `local`, `use_mac_address`",
-						MarkdownDescription: "enum: `local`, `use_mac_address`",
+						Description:         "Method used to derive the SNMP engine ID",
+						MarkdownDescription: "Method used to derive the SNMP engine ID",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -2127,35 +2350,45 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						Default: stringdefault.StaticString("local"),
 					},
 					"location": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Physical location string advertised through SNMP",
+						MarkdownDescription: "Physical location string advertised through SNMP",
 					},
 					"name": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "System name advertised through SNMP",
+						MarkdownDescription: "System name advertised through SNMP",
 					},
 					"network": schema.StringAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Management network used for SNMP traffic",
+						MarkdownDescription: "Management network used for SNMP traffic",
 					},
 					"trap_groups": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"categories": schema.ListAttribute{
-									ElementType: types.StringType,
-									Optional:    true,
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "Trap categories included in this SNMP trap group",
+									MarkdownDescription: "Trap categories included in this SNMP trap group",
 								},
 								"group_name": schema.StringAttribute{
 									Optional:            true,
-									Description:         "Categories list can refer to https://www.juniper.net/documentation/software/topics/task/configuration/snmp_trap-groups-configuring-junos-nm.html",
-									MarkdownDescription: "Categories list can refer to https://www.juniper.net/documentation/software/topics/task/configuration/snmp_trap-groups-configuring-junos-nm.html",
+									Description:         "Trap group name for this SNMP trap group",
+									MarkdownDescription: "Trap group name for this SNMP trap group",
 								},
 								"targets": schema.ListAttribute{
-									ElementType: types.StringType,
-									Optional:    true,
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "Trap target addresses for this SNMP trap group",
+									MarkdownDescription: "Trap target addresses for this SNMP trap group",
 								},
 								"version": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "enum: `all`, `v1`, `v2`",
-									MarkdownDescription: "enum: `all`, `v1`, `v2`",
+									Description:         "SNMP trap protocol version used by this group",
+									MarkdownDescription: "SNMP trap protocol version used by this group",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -2173,26 +2406,32 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "SNMP trap group definitions",
+						MarkdownDescription: "SNMP trap group definitions",
 					},
 					"v2c_config": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"authorization": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Access level for the SNMPv2c community",
+									MarkdownDescription: "Access level for the SNMPv2c community",
 								},
 								"client_list_name": schema.StringAttribute{
 									Optional:            true,
-									Description:         "Client_list_name here should refer to client_list above",
-									MarkdownDescription: "Client_list_name here should refer to client_list above",
+									Description:         "SNMP client list name referenced by this community",
+									MarkdownDescription: "SNMP client list name referenced by this community",
 								},
 								"community_name": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "SNMPv2c community string name",
+									MarkdownDescription: "SNMPv2c community string name",
 								},
 								"view": schema.StringAttribute{
 									Optional:            true,
-									Description:         "View name here should be defined in views above",
-									MarkdownDescription: "View name here should be defined in views above",
+									Description:         "SNMP view name that must be defined in the views list",
+									MarkdownDescription: "SNMP view name that must be defined in the views list",
 								},
 							},
 							CustomType: V2cConfigType{
@@ -2201,7 +2440,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "SNMPv2c community configuration entries for this SNMP profile",
+						MarkdownDescription: "SNMPv2c community configuration entries for this SNMP profile",
 					},
 					"v3_config": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
@@ -2209,15 +2450,19 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
 										"name": schema.StringAttribute{
-											Required: true,
+											Required:            true,
+											Description:         "Identifier for this SNMPv3 notification definition",
+											MarkdownDescription: "Identifier for this SNMPv3 notification definition",
 										},
 										"tag": schema.StringAttribute{
-											Required: true,
+											Required:            true,
+											Description:         "Notification tag used to select target addresses",
+											MarkdownDescription: "Notification tag used to select target addresses",
 										},
 										"type": schema.StringAttribute{
 											Required:            true,
-											Description:         "enum: `inform`, `trap`",
-											MarkdownDescription: "enum: `inform`, `trap`",
+											Description:         "Delivery mode for this SNMPv3 notification, such as trap or inform",
+											MarkdownDescription: "Delivery mode for this SNMPv3 notification, such as trap or inform",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -2233,7 +2478,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 								},
-								Optional: true,
+								Optional:            true,
+								Description:         "SNMPv3 notification definitions used for traps and informs",
+								MarkdownDescription: "SNMPv3 notification definitions used for traps and informs",
 								Validators: []validator.List{
 									listvalidator.SizeAtLeast(1),
 								},
@@ -2241,17 +2488,29 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							"notify_filter": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
+										"categories": schema.ListAttribute{
+											ElementType:         types.StringType,
+											Optional:            true,
+											Description:         "CX only. List of SNMP trap group categories included in this filter profile. See https://www.juniper.net/documentation/software/topics/task/configuration/snmp-trap-groups-configuring-junos-nm.html for valid category names.",
+											MarkdownDescription: "CX only. List of SNMP trap group categories included in this filter profile. See https://www.juniper.net/documentation/software/topics/task/configuration/snmp-trap-groups-configuring-junos-nm.html for valid category names.",
+										},
 										"profile_name": schema.StringAttribute{
-											Optional: true,
+											Optional:            true,
+											Description:         "Notification filter profile name",
+											MarkdownDescription: "Notification filter profile name",
 										},
 										"contents": schema.ListNestedAttribute{
 											NestedObject: schema.NestedAttributeObject{
 												Attributes: map[string]schema.Attribute{
 													"include": schema.BoolAttribute{
-														Optional: true,
+														Optional:            true,
+														Description:         "Whether the matching OID subtree is included",
+														MarkdownDescription: "Whether the matching OID subtree is included",
 													},
 													"oid": schema.StringAttribute{
-														Required: true,
+														Required:            true,
+														Description:         "Matched OID subtree for this notification filter rule",
+														MarkdownDescription: "Matched OID subtree for this notification filter rule",
 													},
 												},
 												CustomType: Snmpv3ContentsType{
@@ -2260,7 +2519,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 													},
 												},
 											},
-											Optional: true,
+											Optional:            true,
+											Description:         "OID filter rules in this notification filter profile",
+											MarkdownDescription: "OID filter rules in this notification filter profile",
 										},
 									},
 									CustomType: NotifyFilterType{
@@ -2269,7 +2530,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 								},
-								Optional: true,
+								Optional:            true,
+								Description:         "SNMPv3 notification filter profiles",
+								MarkdownDescription: "SNMPv3 notification filter profiles",
 								Validators: []validator.List{
 									listvalidator.SizeAtLeast(1),
 								},
@@ -2278,28 +2541,36 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
 										"address": schema.StringAttribute{
-											Required: true,
+											Required:            true,
+											Description:         "IP address or hostname of the SNMP target",
+											MarkdownDescription: "IP address or hostname of the SNMP target",
 										},
 										"address_mask": schema.StringAttribute{
-											Required: true,
+											Required:            true,
+											Description:         "Mask applied to the SNMP target address",
+											MarkdownDescription: "Mask applied to the SNMP target address",
 										},
 										"port": schema.StringAttribute{
-											Optional: true,
-											Computed: true,
-											Default:  stringdefault.StaticString("161"),
+											Optional:            true,
+											Computed:            true,
+											Description:         "UDP port used by the SNMP target",
+											MarkdownDescription: "UDP port used by the SNMP target",
+											Default:             stringdefault.StaticString("161"),
 										},
 										"tag_list": schema.StringAttribute{
 											Optional:            true,
-											Description:         "Refer to notify tag, can be multiple with blank",
-											MarkdownDescription: "Refer to notify tag, can be multiple with blank",
+											Description:         "Set of notification tags for this target address; use spaces between multiple tags",
+											MarkdownDescription: "Set of notification tags for this target address; use spaces between multiple tags",
 										},
 										"target_address_name": schema.StringAttribute{
-											Required: true,
+											Required:            true,
+											Description:         "Name of the SNMP target address entry",
+											MarkdownDescription: "Name of the SNMP target address entry",
 										},
 										"target_parameters": schema.StringAttribute{
 											Optional:            true,
-											Description:         "Refer to notify target parameters name",
-											MarkdownDescription: "Refer to notify target parameters name",
+											Description:         "Target parameter profile referenced by this target address",
+											MarkdownDescription: "Target parameter profile referenced by this target address",
 										},
 									},
 									CustomType: TargetAddressType{
@@ -2308,7 +2579,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 								},
-								Optional: true,
+								Optional:            true,
+								Description:         "SNMPv3 notification target addresses",
+								MarkdownDescription: "SNMPv3 notification target addresses",
 								Validators: []validator.List{
 									listvalidator.SizeAtLeast(1),
 								},
@@ -2318,8 +2591,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Attributes: map[string]schema.Attribute{
 										"message_processing_model": schema.StringAttribute{
 											Required:            true,
-											Description:         "enum: `v1`, `v2c`, `v3`",
-											MarkdownDescription: "enum: `v1`, `v2c`, `v3`",
+											Description:         "SNMP message processing model used by this target parameter profile",
+											MarkdownDescription: "SNMP message processing model used by this target parameter profile",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -2330,17 +2603,19 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 										},
 										"name": schema.StringAttribute{
-											Required: true,
+											Required:            true,
+											Description:         "Target parameter profile name",
+											MarkdownDescription: "Target parameter profile name",
 										},
 										"notify_filter": schema.StringAttribute{
 											Optional:            true,
-											Description:         "Refer to profile-name in notify_filter",
-											MarkdownDescription: "Refer to profile-name in notify_filter",
+											Description:         "Notification filter profile referenced by this target parameter profile",
+											MarkdownDescription: "Notification filter profile referenced by this target parameter profile",
 										},
 										"security_level": schema.StringAttribute{
 											Optional:            true,
-											Description:         "enum: `authentication`, `none`, `privacy`",
-											MarkdownDescription: "enum: `authentication`, `none`, `privacy`",
+											Description:         "Required security level for this target parameter profile",
+											MarkdownDescription: "Required security level for this target parameter profile",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -2352,8 +2627,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"security_model": schema.StringAttribute{
 											Optional:            true,
-											Description:         "enum: `usm`, `v1`, `v2c`",
-											MarkdownDescription: "enum: `usm`, `v1`, `v2c`",
+											Description:         "Required security model for this target parameter profile",
+											MarkdownDescription: "Required security model for this target parameter profile",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -2365,8 +2640,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"security_name": schema.StringAttribute{
 											Optional:            true,
-											Description:         "Refer to security_name in usm",
-											MarkdownDescription: "Refer to security_name in usm",
+											Description:         "USM security name referenced by this target parameter profile",
+											MarkdownDescription: "USM security name referenced by this target parameter profile",
 										},
 									},
 									CustomType: TargetParametersType{
@@ -2375,7 +2650,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 								},
-								Optional: true,
+								Optional:            true,
+								Description:         "SNMPv3 target parameter profiles",
+								MarkdownDescription: "SNMPv3 target parameter profiles",
 								Validators: []validator.List{
 									listvalidator.SizeAtLeast(1),
 								},
@@ -2385,8 +2662,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Attributes: map[string]schema.Attribute{
 										"engine_type": schema.StringAttribute{
 											Required:            true,
-											Description:         "enum: `local_engine`, `remote_engine`",
-											MarkdownDescription: "enum: `local_engine`, `remote_engine`",
+											Description:         "SNMP engine type used for this USM configuration",
+											MarkdownDescription: "SNMP engine type used for this USM configuration",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -2423,8 +2700,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 													},
 													"authentication_type": schema.StringAttribute{
 														Optional:            true,
-														Description:         "sha224, sha256, sha384, sha512 are supported in 21.1 and newer release. enum: `authentication-md5`, `authentication-none`, `authentication-sha`, `authentication-sha224`, `authentication-sha256`, `authentication-sha384`, `authentication-sha512`",
-														MarkdownDescription: "sha224, sha256, sha384, sha512 are supported in 21.1 and newer release. enum: `authentication-md5`, `authentication-none`, `authentication-sha`, `authentication-sha224`, `authentication-sha256`, `authentication-sha384`, `authentication-sha512`",
+														Description:         "Authentication protocol used by this SNMPv3 USM user",
+														MarkdownDescription: "Authentication protocol used by this SNMPv3 USM user",
 														Validators: []validator.String{
 															stringvalidator.OneOf(
 																"",
@@ -2452,8 +2729,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 													},
 													"encryption_type": schema.StringAttribute{
 														Optional:            true,
-														Description:         "enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`",
-														MarkdownDescription: "enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`",
+														Description:         "Privacy protocol used by this SNMPv3 USM user",
+														MarkdownDescription: "Privacy protocol used by this SNMPv3 USM user",
 														Validators: []validator.String{
 															stringvalidator.OneOf(
 																"",
@@ -2465,7 +2742,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 														},
 													},
 													"name": schema.StringAttribute{
-														Optional: true,
+														Optional:            true,
+														Description:         "Username for the SNMPv3 USM user",
+														MarkdownDescription: "Username for the SNMPv3 USM user",
 													},
 												},
 												CustomType: Snmpv3UsersType{
@@ -2474,7 +2753,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 													},
 												},
 											},
-											Optional: true,
+											Optional:            true,
+											Description:         "SNMPv3 USM users for this engine",
+											MarkdownDescription: "SNMPv3 USM users for this engine",
 										},
 									},
 									CustomType: UsmType{
@@ -2483,7 +2764,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 								},
-								Optional: true,
+								Optional:            true,
+								Description:         "SNMPv3 USM engine configurations",
+								MarkdownDescription: "SNMPv3 USM engine configurations",
 							},
 							"vacm": schema.SingleNestedAttribute{
 								Attributes: map[string]schema.Attribute{
@@ -2491,15 +2774,17 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										NestedObject: schema.NestedAttributeObject{
 											Attributes: map[string]schema.Attribute{
 												"group_name": schema.StringAttribute{
-													Optional: true,
+													Optional:            true,
+													Description:         "SNMP VACM group name",
+													MarkdownDescription: "SNMP VACM group name",
 												},
 												"prefix_list": schema.ListNestedAttribute{
 													NestedObject: schema.NestedAttributeObject{
 														Attributes: map[string]schema.Attribute{
 															"context_prefix": schema.StringAttribute{
 																Optional:            true,
-																Description:         "Only required if `type`==`context_prefix`",
-																MarkdownDescription: "Only required if `type`==`context_prefix`",
+																Description:         "Context prefix for this VACM access rule. Required only if `type`==`context_prefix`",
+																MarkdownDescription: "Context prefix for this VACM access rule. Required only if `type`==`context_prefix`",
 																Validators: []validator.String{
 																	stringvalidator.LengthAtLeast(7),
 																	mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("context_prefix")),
@@ -2507,18 +2792,18 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 															},
 															"notify_view": schema.StringAttribute{
 																Optional:            true,
-																Description:         "Refer to view name",
-																MarkdownDescription: "Refer to view name",
+																Description:         "Notify view name referenced by this VACM access rule",
+																MarkdownDescription: "Notify view name referenced by this VACM access rule",
 															},
 															"read_view": schema.StringAttribute{
 																Optional:            true,
-																Description:         "Refer to view name",
-																MarkdownDescription: "Refer to view name",
+																Description:         "Read view name referenced by this VACM access rule",
+																MarkdownDescription: "Read view name referenced by this VACM access rule",
 															},
 															"security_level": schema.StringAttribute{
 																Optional:            true,
-																Description:         "enum: `authentication`, `none`, `privacy`",
-																MarkdownDescription: "enum: `authentication`, `none`, `privacy`",
+																Description:         "Required security level for this VACM access rule",
+																MarkdownDescription: "Required security level for this VACM access rule",
 																Validators: []validator.String{
 																	stringvalidator.OneOf(
 																		"",
@@ -2530,8 +2815,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 															},
 															"security_model": schema.StringAttribute{
 																Optional:            true,
-																Description:         "enum: `any`, `usm`, `v1`, `v2c`",
-																MarkdownDescription: "enum: `any`, `usm`, `v1`, `v2c`",
+																Description:         "Required security model for this VACM access rule",
+																MarkdownDescription: "Required security model for this VACM access rule",
 																Validators: []validator.String{
 																	stringvalidator.OneOf(
 																		"",
@@ -2544,8 +2829,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 															},
 															"type": schema.StringAttribute{
 																Optional:            true,
-																Description:         "enum: `context_prefix`, `default_context_prefix`",
-																MarkdownDescription: "enum: `context_prefix`, `default_context_prefix`",
+																Description:         "VACM context matching type for this access rule",
+																MarkdownDescription: "VACM context matching type for this access rule",
 																Validators: []validator.String{
 																	stringvalidator.OneOf(
 																		"",
@@ -2556,8 +2841,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 															},
 															"write_view": schema.StringAttribute{
 																Optional:            true,
-																Description:         "Refer to view name",
-																MarkdownDescription: "Refer to view name",
+																Description:         "Write view name referenced by this VACM access rule",
+																MarkdownDescription: "Write view name referenced by this VACM access rule",
 															},
 														},
 														CustomType: PrefixListType{
@@ -2566,7 +2851,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 															},
 														},
 													},
-													Optional: true,
+													Optional:            true,
+													Description:         "Context prefix rules for this VACM group",
+													MarkdownDescription: "Context prefix rules for this VACM group",
 												},
 											},
 											CustomType: AccessType{
@@ -2575,14 +2862,16 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												},
 											},
 										},
-										Optional: true,
+										Optional:            true,
+										Description:         "VACM access rules for SNMPv3",
+										MarkdownDescription: "VACM access rules for SNMPv3",
 									},
 									"security_to_group": schema.SingleNestedAttribute{
 										Attributes: map[string]schema.Attribute{
 											"security_model": schema.StringAttribute{
 												Optional:            true,
-												Description:         "enum: `usm`, `v1`, `v2c`",
-												MarkdownDescription: "enum: `usm`, `v1`, `v2c`",
+												Description:         "Required security model for these VACM group mappings",
+												MarkdownDescription: "Required security model for these VACM group mappings",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -2597,11 +2886,13 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 													Attributes: map[string]schema.Attribute{
 														"group": schema.StringAttribute{
 															Optional:            true,
-															Description:         "Refer to group_name under access",
-															MarkdownDescription: "Refer to group_name under access",
+															Description:         "VACM group name referenced by this mapping",
+															MarkdownDescription: "VACM group name referenced by this mapping",
 														},
 														"security_name": schema.StringAttribute{
-															Optional: true,
+															Optional:            true,
+															Description:         "Name of the SNMP security principal mapped to a VACM group",
+															MarkdownDescription: "Name of the SNMP security principal mapped to a VACM group",
 														},
 													},
 													CustomType: Snmpv3VacmContentType{
@@ -2610,7 +2901,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 														},
 													},
 												},
-												Optional: true,
+												Optional:            true,
+												Description:         "VACM security-name to group mapping entries",
+												MarkdownDescription: "VACM security-name to group mapping entries",
 											},
 										},
 										CustomType: SecurityToGroupType{
@@ -2618,7 +2911,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												AttrTypes: SecurityToGroupValue{}.AttributeTypes(ctx),
 											},
 										},
-										Optional: true,
+										Optional:            true,
+										Description:         "VACM security-name to group mappings",
+										MarkdownDescription: "VACM security-name to group mappings",
 									},
 								},
 								CustomType: VacmType{
@@ -2626,7 +2921,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										AttrTypes: VacmValue{}.AttributeTypes(ctx),
 									},
 								},
-								Optional: true,
+								Optional:            true,
+								Description:         "SNMPv3 VACM access control configuration",
+								MarkdownDescription: "SNMPv3 VACM access control configuration",
 							},
 						},
 						CustomType: V3ConfigType{
@@ -2634,21 +2931,27 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								AttrTypes: V3ConfigValue{}.AttributeTypes(ctx),
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "SNMPv3 user, VACM, notify, and target configuration",
+						MarkdownDescription: "SNMPv3 user, VACM, notify, and target configuration",
 					},
 					"views": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"include": schema.BoolAttribute{
 									Optional:            true,
-									Description:         "If the root oid configured is included",
-									MarkdownDescription: "If the root oid configured is included",
+									Description:         "Whether the root OID is included in this SNMP view",
+									MarkdownDescription: "Whether the root OID is included in this SNMP view",
 								},
 								"oid": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Root OID for this SNMP view",
+									MarkdownDescription: "Root OID for this SNMP view",
 								},
 								"view_name": schema.StringAttribute{
-									Optional: true,
+									Optional:            true,
+									Description:         "Name of the SNMP MIB view definition",
+									MarkdownDescription: "Name of the SNMP MIB view definition",
 								},
 							},
 							CustomType: ViewsType{
@@ -2657,7 +2960,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "SNMP MIB view definitions",
+						MarkdownDescription: "SNMP MIB view definitions",
 					},
 				},
 				CustomType: SnmpConfigType{
@@ -2665,12 +2970,16 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: SnmpConfigValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Management polling settings for SNMP on site devices",
+				MarkdownDescription: "Management polling settings for SNMP on site devices",
 			},
 			"switch_matching": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"enable": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether custom switch matching rules are enabled",
+						MarkdownDescription: "Whether custom switch matching rules are enabled",
 					},
 					"rules": schema.ListNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
@@ -2678,8 +2987,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"additional_config_cmds": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
-									Description:         "additional CLI commands to append to the generated Junos config. **Note**: no check is done",
-									MarkdownDescription: "additional CLI commands to append to the generated Junos config. **Note**: no check is done",
+									Description:         "Additional Junos CLI commands applied when this matching rule matches",
+									MarkdownDescription: "Additional Junos CLI commands applied when this matching rule matches",
 									Validators: []validator.List{
 										listvalidator.SizeAtLeast(1),
 									},
@@ -2701,8 +3010,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										"type": schema.StringAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "enum: `dhcp`, `static`",
-											MarkdownDescription: "enum: `dhcp`, `static`",
+											Description:         "IP assignment mode for in-band switch management",
+											MarkdownDescription: "IP assignment mode for in-band switch management",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -2719,8 +3028,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "In-Band Management interface configuration",
-									MarkdownDescription: "In-Band Management interface configuration",
+									Description:         "In-band management IP configuration applied when this matching rule matches",
+									MarkdownDescription: "In-band management IP configuration applied when this matching rule matches",
 								},
 								"match_model": schema.StringAttribute{
 									Optional:            true,
@@ -2772,8 +3081,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										"type": schema.StringAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "enum: `dhcp`, `static`",
-											MarkdownDescription: "enum: `dhcp`, `static`",
+											Description:         "IP assignment mode for out-of-band switch management",
+											MarkdownDescription: "IP assignment mode for out-of-band switch management",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -2802,8 +3111,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "Out-of-Band Management interface configuration",
-									MarkdownDescription: "Out-of-Band Management interface configuration",
+									Description:         "Out-of-band management IP configuration applied when this matching rule matches",
+									MarkdownDescription: "Out-of-band management IP configuration applied when this matching rule matches",
 								},
 								"port_config": schema.MapNestedAttribute{
 									NestedObject: schema.NestedAttributeObject{
@@ -2820,8 +3129,17 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"ae_lacp_force_up": schema.BoolAttribute{
 												Optional:            true,
+												Computed:            true,
 												Description:         "If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only",
 												MarkdownDescription: "If `aggregated`==`true`, sets the state of the interface as UP when the peer has limited LACP capability. Use case: When a device connected to this AE port is ZTPing for the first time, it will not have LACP configured on the other end. **Note:** Turning this on will enable force-up on one of the interfaces in the bundle only",
+												Default:             booldefault.StaticBool(false),
+											},
+											"ae_lacp_passive": schema.BoolAttribute{
+												Optional:            true,
+												Computed:            true,
+												Description:         "If `aggregated`==`true`, sets LACP to passive mode on this AE interface; by default, active (fast) mode is used",
+												MarkdownDescription: "If `aggregated`==`true`, sets LACP to passive mode on this AE interface; by default, active (fast) mode is used",
+												Default:             booldefault.StaticBool(false),
 											},
 											"ae_lacp_slow": schema.BoolAttribute{
 												Optional:            true,
@@ -2829,7 +3147,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												MarkdownDescription: "To use slow timeout",
 											},
 											"aggregated": schema.BoolAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "Whether this port is configured as an aggregated Ethernet member",
+												MarkdownDescription: "Whether this port is configured as an aggregated Ethernet member",
 											},
 											"critical": schema.BoolAttribute{
 												Optional:            true,
@@ -2839,7 +3159,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												Default:             booldefault.StaticBool(false),
 											},
 											"description": schema.StringAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "Human-readable description for this Junos port",
+												MarkdownDescription: "Human-readable description for this Junos port",
 											},
 											"disable_autoneg": schema.BoolAttribute{
 												Optional:            true,
@@ -2848,8 +3170,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"duplex": schema.StringAttribute{
 												Optional:            true,
-												Description:         "enum: `auto`, `full`, `half`",
-												MarkdownDescription: "enum: `auto`, `full`, `half`",
+												Description:         "Link duplex mode for this Junos port",
+												MarkdownDescription: "Link duplex mode for this Junos port",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -2865,7 +3187,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												MarkdownDescription: "Enable dynamic usage for this port. Set to `dynamic` to enable.",
 											},
 											"esilag": schema.BoolAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "Whether this Junos port participates in an ESI-LAG",
+												MarkdownDescription: "Whether this Junos port participates in an ESI-LAG",
 											},
 											"mtu": schema.Int64Attribute{
 												Optional:            true,
@@ -2886,7 +3210,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												Default:             booldefault.StaticBool(true),
 											},
 											"poe_disabled": schema.BoolAttribute{
-												Optional: true,
+												Optional:            true,
+												Description:         "Whether PoE capabilities are disabled for this Junos port",
+												MarkdownDescription: "Whether PoE capabilities are disabled for this Junos port",
 											},
 											"port_network": schema.StringAttribute{
 												Optional:            true,
@@ -2895,8 +3221,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"speed": schema.StringAttribute{
 												Optional:            true,
-												Description:         "enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
-												MarkdownDescription: "enum: `100m`, `10m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`,`auto`",
+												Description:         "Link speed for this Junos port",
+												MarkdownDescription: "Link speed for this Junos port",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -2926,8 +3252,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "Property key is the port name or range (e.g. \"ge-0/0/0-10\")",
-									MarkdownDescription: "Property key is the port name or range (e.g. \"ge-0/0/0-10\")",
+									Description:         "Per-port wired configuration applied when this matching rule matches",
+									MarkdownDescription: "Per-port wired configuration applied when this matching rule matches",
 									Validators: []validator.Map{
 										mapvalidator.SizeAtLeast(1),
 									},
@@ -2939,24 +3265,24 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 												ElementType:         types.StringType,
 												Optional:            true,
 												Computed:            true,
-												Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-												MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+												Description:         "At least one mirror input source should be specified. Networks whose ingress traffic is mirrored",
+												MarkdownDescription: "At least one mirror input source should be specified. Networks whose ingress traffic is mirrored",
 												Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 											},
 											"input_port_ids_egress": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
 												Computed:            true,
-												Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-												MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+												Description:         "At least one mirror input source should be specified. Switch ports whose egress traffic is mirrored",
+												MarkdownDescription: "At least one mirror input source should be specified. Switch ports whose egress traffic is mirrored",
 												Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 											},
 											"input_port_ids_ingress": schema.ListAttribute{
 												ElementType:         types.StringType,
 												Optional:            true,
 												Computed:            true,
-												Description:         "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
-												MarkdownDescription: "At least one of the `input_port_ids_ingress`, `input_port_ids_egress` or `input_networks_ingress ` should be specified",
+												Description:         "At least one mirror input source should be specified. Switch ports whose ingress traffic is mirrored",
+												MarkdownDescription: "At least one mirror input source should be specified. Switch ports whose ingress traffic is mirrored",
 												Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 											},
 											"output_ip_address": schema.StringAttribute{
@@ -2995,8 +3321,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 									Optional:            true,
-									Description:         "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed",
-									MarkdownDescription: "Property key is the port mirroring instance name. `port_mirroring` can be added under device/site settings. It takes interface and ports as input for ingress, interface as input for egress and can take interface and port as output. A maximum 4 mirroring ports is allowed",
+									Description:         "Port mirroring configuration applied when this matching rule matches",
+									MarkdownDescription: "Port mirroring configuration applied when this matching rule matches",
 									Validators: []validator.Map{
 										mapvalidator.SizeAtMost(4),
 									},
@@ -3016,7 +3342,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											AttrTypes: StpConfigValue{}.AttributeTypes(ctx),
 										},
 									},
-									Optional: true,
+									Optional:            true,
+									Description:         "Spanning Tree Protocol configuration applied when this matching rule matches",
+									MarkdownDescription: "Spanning Tree Protocol configuration applied when this matching rule matches",
 								},
 							},
 							CustomType: MatchingRulesType{
@@ -3048,15 +3376,15 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Defines custom switch configuration based on different criteria",
-				MarkdownDescription: "Defines custom switch configuration based on different criteria",
+				Description:         "Rules for matching switches to model-specific settings",
+				MarkdownDescription: "Rules for matching switches to model-specific settings",
 			},
 			"switch_mgmt": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"ap_affinity_threshold": schema.Int64Attribute{
 						Optional:            true,
-						Description:         "AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default, this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
-						MarkdownDescription: "AP_affinity_threshold ap_affinity_threshold can be added as a field under site/setting. By default, this value is set to 12. If the field is set in both site/setting and org/setting, the value from site/setting will be used.",
+						Description:         "AP affinity threshold for switch management. If set in both site settings and organization settings, the site setting value is used.",
+						MarkdownDescription: "AP affinity threshold for switch management. If set in both site settings and organization settings, the site setting value is used.",
 					},
 					"cli_banner": schema.StringAttribute{
 						Optional:            true,
@@ -3087,23 +3415,29 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "Enable to provide the FQDN with DHCP option 81",
 					},
 					"disable_oob_down_alarm": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether to suppress alarms when the switch out-of-band management interface is down",
+						MarkdownDescription: "Whether to suppress alarms when the switch out-of-band management interface is down",
 					},
 					"fips_enabled": schema.BoolAttribute{
-						Optional: true,
+						Optional:            true,
+						Description:         "Whether FIPS mode is enabled on the switch",
+						MarkdownDescription: "Whether FIPS mode is enabled on the switch",
 					},
 					"local_accounts": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{
 							Attributes: map[string]schema.Attribute{
 								"password": schema.StringAttribute{
-									Optional:  true,
-									Sensitive: true,
+									Optional:            true,
+									Sensitive:           true,
+									Description:         "Local password for the switch user account",
+									MarkdownDescription: "Local password for the switch user account",
 								},
 								"role": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "enum: `admin`, `helpdesk`, `none`, `read`",
-									MarkdownDescription: "enum: `admin`, `helpdesk`, `none`, `read`",
+									Description:         "Access role granted to the local switch user account",
+									MarkdownDescription: "Access role granted to the local switch user account",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -3123,13 +3457,13 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Property key is the user name. For Local user authentication",
-						MarkdownDescription: "Property key is the user name. For Local user authentication",
+						Description:         "Local switch user accounts keyed by username",
+						MarkdownDescription: "Local switch user accounts keyed by username",
 					},
 					"mxedge_proxy_host": schema.StringAttribute{
 						Optional:            true,
-						Description:         "IP Address or FQDN of the Mist Edge used to proxy the switch management traffic to the Mist Cloud",
-						MarkdownDescription: "IP Address or FQDN of the Mist Edge used to proxy the switch management traffic to the Mist Cloud",
+						Description:         "IP address or FQDN of the Mist Edge used to proxy the switch management traffic to the Mist Cloud",
+						MarkdownDescription: "IP address or FQDN of the Mist Edge used to proxy the switch management traffic to the Mist Cloud",
 					},
 					"mxedge_proxy_port": schema.StringAttribute{
 						Optional:            true,
@@ -3187,8 +3521,10 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											Default: stringdefault.StaticString("any"),
 										},
 										"subnets": schema.ListAttribute{
-											ElementType: types.StringType,
-											Required:    true,
+											ElementType:         types.StringType,
+											Required:            true,
+											Description:         "Source subnets matched by this custom Protect RE ACL",
+											MarkdownDescription: "Source subnets matched by this custom Protect RE ACL",
 											Validators: []validator.List{
 												listvalidator.SizeAtLeast(1),
 												listvalidator.ValueStringsAre(
@@ -3206,9 +3542,11 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 								},
-								Optional: true,
-								Computed: true,
-								Default:  listdefault.StaticValue(basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})),
+								Optional:            true,
+								Computed:            true,
+								Description:         "Additional ACL entries allowed by the Protect RE policy",
+								MarkdownDescription: "Additional ACL entries allowed by the Protect RE policy",
+								Default:             listdefault.StaticValue(basetypes.NewListValueMust(CustomValue{}.Type(ctx), []attr.Value{})),
 							},
 							"enabled": schema.BoolAttribute{
 								Optional:            true,
@@ -3228,8 +3566,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								ElementType:         types.StringType,
 								Optional:            true,
 								Computed:            true,
-								Description:         "host/subnets we'll allow traffic to/from",
-								MarkdownDescription: "host/subnets we'll allow traffic to/from",
+								Description:         "Trusted host or subnet entries allowed by the Protect RE policy",
+								MarkdownDescription: "Trusted host or subnet entries allowed by the Protect RE policy",
 								Default:             listdefault.StaticValue(basetypes.NewListValueMust(basetypes.StringType{}, []attr.Value{})),
 							},
 						},
@@ -3239,8 +3577,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 						},
 						Optional:            true,
-						Description:         "Restrict inbound-traffic to host\nwhen enabled, all traffic that is not essential to our operation will be dropped \ne.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works",
-						MarkdownDescription: "Restrict inbound-traffic to host\nwhen enabled, all traffic that is not essential to our operation will be dropped \ne.g. ntp / dns / traffic to mist will be allowed by default, if dhcpd is enabled, we'll make sure it works",
+						Description:         "Control-plane protection settings for the switch",
+						MarkdownDescription: "Control-plane protection settings for the switch",
 					},
 					"remove_existing_configs": schema.BoolAttribute{
 						Optional:            true,
@@ -3248,15 +3586,17 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						MarkdownDescription: "By default, only the configuration generated by Mist is cleaned up during the configuration process. If `true`, all the existing configuration will be removed.",
 					},
 					"root_password": schema.StringAttribute{
-						Optional:  true,
-						Sensitive: true,
+						Optional:            true,
+						Sensitive:           true,
+						Description:         "Root password for local switch access",
+						MarkdownDescription: "Root password for local switch access",
 					},
 					"tacacs": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
 							"default_role": schema.StringAttribute{
 								Optional:            true,
-								Description:         "enum: `admin`, `helpdesk`, `none`, `read`",
-								MarkdownDescription: "enum: `admin`, `helpdesk`, `none`, `read`",
+								Description:         "Default switch-management role to use for TACACS+ logins",
+								MarkdownDescription: "Default switch-management role to use for TACACS+ logins",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -3268,30 +3608,40 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							"enabled": schema.BoolAttribute{
-								Optional: true,
+								Optional:            true,
+								Description:         "Whether TACACS+ is enabled for switch management authentication",
+								MarkdownDescription: "Whether TACACS+ is enabled for switch management authentication",
 							},
 							"network": schema.StringAttribute{
 								Optional:            true,
-								Description:         "Which network the TACACS server resides",
-								MarkdownDescription: "Which network the TACACS server resides",
+								Description:         "Source network used for connectivity to the TACACS+ servers",
+								MarkdownDescription: "Source network used for connectivity to the TACACS+ servers",
 							},
 							"acct_servers": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
 										"host": schema.StringAttribute{
-											Optional: true,
+											Optional:            true,
+											Description:         "Address or hostname of the TACACS+ accounting server",
+											MarkdownDescription: "Address or hostname of the TACACS+ accounting server",
 										},
 										"port": schema.StringAttribute{
-											Optional: true,
+											Optional:            true,
+											Description:         "TCP port used by the TACACS+ accounting server",
+											MarkdownDescription: "TCP port used by the TACACS+ accounting server",
 										},
 										"secret": schema.StringAttribute{
-											Optional:  true,
-											Sensitive: true,
+											Optional:            true,
+											Sensitive:           true,
+											Description:         "Shared secret used with this TACACS+ accounting server",
+											MarkdownDescription: "Shared secret used with this TACACS+ accounting server",
 										},
 										"timeout": schema.Int64Attribute{
-											Optional: true,
-											Computed: true,
-											Default:  int64default.StaticInt64(10),
+											Optional:            true,
+											Computed:            true,
+											Description:         "TACACS+ accounting server timeout, in seconds",
+											MarkdownDescription: "TACACS+ accounting server timeout, in seconds",
+											Default:             int64default.StaticInt64(10),
 										},
 									},
 									CustomType: TacacctServersType{
@@ -3300,7 +3650,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 								},
-								Optional: true,
+								Optional:            true,
+								Description:         "TACACS+ accounting servers used for switch management sessions",
+								MarkdownDescription: "TACACS+ accounting servers used for switch management sessions",
 								Validators: []validator.List{
 									listvalidator.SizeAtLeast(1),
 								},
@@ -3309,19 +3661,27 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
 										"host": schema.StringAttribute{
-											Optional: true,
+											Optional:            true,
+											Description:         "Address or hostname of the TACACS+ authentication server",
+											MarkdownDescription: "Address or hostname of the TACACS+ authentication server",
 										},
 										"port": schema.StringAttribute{
-											Optional: true,
+											Optional:            true,
+											Description:         "TCP port used by the TACACS+ authentication server",
+											MarkdownDescription: "TCP port used by the TACACS+ authentication server",
 										},
 										"secret": schema.StringAttribute{
-											Optional:  true,
-											Sensitive: true,
+											Optional:            true,
+											Sensitive:           true,
+											Description:         "Shared secret used with this TACACS+ authentication server",
+											MarkdownDescription: "Shared secret used with this TACACS+ authentication server",
 										},
 										"timeout": schema.Int64Attribute{
-											Optional: true,
-											Computed: true,
-											Default:  int64default.StaticInt64(10),
+											Optional:            true,
+											Computed:            true,
+											Description:         "TACACS+ authentication server timeout, in seconds",
+											MarkdownDescription: "TACACS+ authentication server timeout, in seconds",
+											Default:             int64default.StaticInt64(10),
 										},
 									},
 									CustomType: TacplusServersType{
@@ -3330,7 +3690,9 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 								},
-								Optional: true,
+								Optional:            true,
+								Description:         "TACACS+ authentication servers used for switch management logins",
+								MarkdownDescription: "TACACS+ authentication servers used for switch management logins",
 								Validators: []validator.List{
 									listvalidator.SizeAtLeast(1),
 								},
@@ -3341,13 +3703,15 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								AttrTypes: TacacsValue{}.AttributeTypes(ctx),
 							},
 						},
-						Optional: true,
+						Optional:            true,
+						Description:         "Management authentication settings using TACACS+",
+						MarkdownDescription: "Management authentication settings using TACACS+",
 					},
 					"use_mxedge_proxy": schema.BoolAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "To use mxedge as proxy",
-						MarkdownDescription: "To use mxedge as proxy",
+						Description:         "Whether to use Mist Edge as a proxy for switch management traffic",
+						MarkdownDescription: "Whether to use Mist Edge as a proxy for switch management traffic",
 						Default:             booldefault.StaticBool(false),
 					},
 				},
@@ -3357,8 +3721,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Switch Management settings",
-				MarkdownDescription: "Switch Management settings",
+				Description:         "Management access settings for switches at the site",
+				MarkdownDescription: "Management access settings for switches at the site",
 			},
 			"uses_description_from_port_usage": schema.BoolAttribute{
 				Optional:            true,
@@ -3378,20 +3742,60 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						AttrTypes: VrfConfigValue{}.AttributeTypes(ctx),
 					},
 				},
-				Optional: true,
+				Optional:            true,
+				Description:         "Routing instance configuration for the site",
+				MarkdownDescription: "Routing instance configuration for the site",
 			},
 			"vrf_instances": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"evpn_auto_loopback_subnet": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "IPv4 subnet used for automatic EVPN loopback addresses in this VRF instance",
+							MarkdownDescription: "IPv4 subnet used for automatic EVPN loopback addresses in this VRF instance",
 						},
 						"evpn_auto_loopback_subnet6": schema.StringAttribute{
-							Optional: true,
+							Optional:            true,
+							Description:         "IPv6 subnet used for automatic EVPN loopback addresses in this VRF instance",
+							MarkdownDescription: "IPv6 subnet used for automatic EVPN loopback addresses in this VRF instance",
+						},
+						"multicast_config": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"anycast_rp": schema.BoolAttribute{
+									Optional:            true,
+									Description:         "When `true`, auto-generates a shared RP on `is_l3_border` devices (ERB/IPClos topologies only)",
+									MarkdownDescription: "When `true`, auto-generates a shared RP on `is_l3_border` devices (ERB/IPClos topologies only)",
+								},
+								"rp_ip": schema.StringAttribute{
+									Optional:            true,
+									Description:         "RP address used when `anycast_rp`==`false`. If the address matches a device SVI, it is configured as a local RP; otherwise a static RP is configured",
+									MarkdownDescription: "RP address used when `anycast_rp`==`false`. If the address matches a device SVI, it is configured as a local RP; otherwise a static RP is configured",
+								},
+								"sbd_subnet": schema.StringAttribute{
+									Optional:            true,
+									Description:         "SBD IRB subnet; Mist auto-assigns per-device IPs from this range (EVPN eOISM only)",
+									MarkdownDescription: "SBD IRB subnet; Mist auto-assigns per-device IPs from this range (EVPN eOISM only)",
+								},
+								"sbd_vlan_id": schema.Int64Attribute{
+									Optional:            true,
+									Description:         "Supplemental Bridge Domain VLAN ID (EVPN topology / eOISM only)",
+									MarkdownDescription: "Supplemental Bridge Domain VLAN ID (EVPN topology / eOISM only)",
+								},
+							},
+							CustomType: MulticastConfigType{
+								ObjectType: types.ObjectType{
+									AttrTypes: MulticastConfigValue{}.AttributeTypes(ctx),
+								},
+							},
+							Optional:            true,
+							Description:         "Multicast configuration for this VRF instance. PIM is automatically enabled when any network in this VRF has `multicast.enabled`==`true`",
+							MarkdownDescription: "Multicast configuration for this VRF instance. PIM is automatically enabled when any network in this VRF has `multicast.enabled`==`true`",
 						},
 						"networks": schema.ListAttribute{
-							ElementType: types.StringType,
-							Optional:    true,
+							ElementType:         types.StringType,
+							Optional:            true,
+							Description:         "Names of switch networks included in this VRF instance",
+							MarkdownDescription: "Names of switch networks included in this VRF instance",
 							Validators: []validator.List{
 								listvalidator.UniqueValues(),
 							},
@@ -3401,8 +3805,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"via": schema.StringAttribute{
 										Required:            true,
-										Description:         "Next-hop address",
-										MarkdownDescription: "Next-hop address",
+										Description:         "IPv4 next-hop address for this VRF extra route",
+										MarkdownDescription: "IPv4 next-hop address for this VRF extra route",
 										Validators: []validator.String{
 											stringvalidator.Any(mistvalidator.ParseIp(false, true), mistvalidator.ParseVar()),
 										},
@@ -3415,8 +3819,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
-							MarkdownDescription: "Property key is the destination CIDR (e.g. \"10.0.0.0/8\")",
+							Description:         "Additional IPv4 static routes configured for this VRF instance",
+							MarkdownDescription: "Additional IPv4 static routes configured for this VRF instance",
 							Validators: []validator.Map{
 								mapvalidator.KeysAre(stringvalidator.Any(mistvalidator.ParseCidr(false, true), mistvalidator.ParseVar())),
 							},
@@ -3426,8 +3830,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"via": schema.StringAttribute{
 										Optional:            true,
-										Description:         "Next-hop address",
-										MarkdownDescription: "Next-hop address",
+										Description:         "IPv6 next-hop address for this VRF extra route",
+										MarkdownDescription: "IPv6 next-hop address for this VRF extra route",
 									},
 								},
 								CustomType: VrfExtraRoutes6Type{
@@ -3437,8 +3841,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 							},
 							Optional:            true,
-							Description:         "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
-							MarkdownDescription: "Property key is the destination CIDR (e.g. \"2a02:1234:420a:10c9::/64\")",
+							Description:         "Additional IPv6 static routes configured for this VRF instance",
+							MarkdownDescription: "Additional IPv6 static routes configured for this VRF instance",
 							Validators: []validator.Map{
 								mapvalidator.SizeAtLeast(1),
 							},
@@ -3451,8 +3855,8 @@ func SiteNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Property key is the network name",
-				MarkdownDescription: "Property key is the network name",
+				Description:         "Switch VRF instances configured for the site",
+				MarkdownDescription: "Switch VRF instances configured for the site",
 				Validators: []validator.Map{
 					mapvalidator.KeysAre(mistvalidator.ParseName()),
 				},
@@ -3533,6 +3937,24 @@ func (t AclPoliciesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`actions expected to be basetypes.ListValue, was: %T`, actionsAttribute))
 	}
 
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
 	nameAttribute, ok := attributes["name"]
 
 	if !ok {
@@ -3574,10 +3996,11 @@ func (t AclPoliciesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 	}
 
 	return AclPoliciesValue{
-		Actions: actionsVal,
-		Name:    nameVal,
-		SrcTags: srcTagsVal,
-		state:   attr.ValueStateKnown,
+		Actions:  actionsVal,
+		Disabled: disabledVal,
+		Name:     nameVal,
+		SrcTags:  srcTagsVal,
+		state:    attr.ValueStateKnown,
 	}, diags
 }
 
@@ -3662,6 +4085,24 @@ func NewAclPoliciesValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`actions expected to be basetypes.ListValue, was: %T`, actionsAttribute))
 	}
 
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return NewAclPoliciesValueUnknown(), diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
 	nameAttribute, ok := attributes["name"]
 
 	if !ok {
@@ -3703,10 +4144,11 @@ func NewAclPoliciesValue(attributeTypes map[string]attr.Type, attributes map[str
 	}
 
 	return AclPoliciesValue{
-		Actions: actionsVal,
-		Name:    nameVal,
-		SrcTags: srcTagsVal,
-		state:   attr.ValueStateKnown,
+		Actions:  actionsVal,
+		Disabled: disabledVal,
+		Name:     nameVal,
+		SrcTags:  srcTagsVal,
+		state:    attr.ValueStateKnown,
 	}, diags
 }
 
@@ -3778,14 +4220,15 @@ func (t AclPoliciesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = AclPoliciesValue{}
 
 type AclPoliciesValue struct {
-	Actions basetypes.ListValue   `tfsdk:"actions"`
-	Name    basetypes.StringValue `tfsdk:"name"`
-	SrcTags basetypes.ListValue   `tfsdk:"src_tags"`
-	state   attr.ValueState
+	Actions  basetypes.ListValue   `tfsdk:"actions"`
+	Disabled basetypes.BoolValue   `tfsdk:"disabled"`
+	Name     basetypes.StringValue `tfsdk:"name"`
+	SrcTags  basetypes.ListValue   `tfsdk:"src_tags"`
+	state    attr.ValueState
 }
 
 func (v AclPoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
@@ -3793,6 +4236,7 @@ func (v AclPoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["actions"] = basetypes.ListType{
 		ElemType: ActionsValue{}.Type(ctx),
 	}.TerraformType(ctx)
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["src_tags"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -3802,7 +4246,7 @@ func (v AclPoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.Actions.ToTerraformValue(ctx)
 
@@ -3811,6 +4255,14 @@ func (v AclPoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["actions"] = val
+
+		val, err = v.Disabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disabled"] = val
 
 		val, err = v.Name.ToTerraformValue(ctx)
 
@@ -3903,7 +4355,8 @@ func (v AclPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"actions": basetypes.ListType{
 				ElemType: ActionsValue{}.Type(ctx),
 			},
-			"name": basetypes.StringType{},
+			"disabled": basetypes.BoolType{},
+			"name":     basetypes.StringType{},
 			"src_tags": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -3914,7 +4367,8 @@ func (v AclPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"actions": basetypes.ListType{
 			ElemType: ActionsValue{}.Type(ctx),
 		},
-		"name": basetypes.StringType{},
+		"disabled": basetypes.BoolType{},
+		"name":     basetypes.StringType{},
 		"src_tags": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -3932,6 +4386,7 @@ func (v AclPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		attributeTypes,
 		map[string]attr.Value{
 			"actions":  actions,
+			"disabled": v.Disabled,
 			"name":     v.Name,
 			"src_tags": srcTagsVal,
 		})
@@ -3955,6 +4410,10 @@ func (v AclPoliciesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Actions.Equal(other.Actions) {
+		return false
+	}
+
+	if !v.Disabled.Equal(other.Disabled) {
 		return false
 	}
 
@@ -3982,7 +4441,8 @@ func (v AclPoliciesValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"actions": basetypes.ListType{
 			ElemType: ActionsValue{}.Type(ctx),
 		},
-		"name": basetypes.StringType{},
+		"disabled": basetypes.BoolType{},
+		"name":     basetypes.StringType{},
 		"src_tags": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -8363,6 +8823,24 @@ func (t NetworksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`isolation_vlan_id expected to be basetypes.StringValue, was: %T`, isolationVlanIdAttribute))
 	}
 
+	multicastAttribute, ok := attributes["multicast"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`multicast is missing from object`)
+
+		return nil, diags
+	}
+
+	multicastVal, ok := multicastAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`multicast expected to be basetypes.ObjectValue, was: %T`, multicastAttribute))
+	}
+
 	subnetAttribute, ok := attributes["subnet"]
 
 	if !ok {
@@ -8426,6 +8904,7 @@ func (t NetworksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		Gateway6:        gateway6Val,
 		Isolation:       isolationVal,
 		IsolationVlanId: isolationVlanIdVal,
+		Multicast:       multicastVal,
 		Subnet:          subnetVal,
 		Subnet6:         subnet6Val,
 		VlanId:          vlanIdVal,
@@ -8568,6 +9047,24 @@ func NewNetworksValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`isolation_vlan_id expected to be basetypes.StringValue, was: %T`, isolationVlanIdAttribute))
 	}
 
+	multicastAttribute, ok := attributes["multicast"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`multicast is missing from object`)
+
+		return NewNetworksValueUnknown(), diags
+	}
+
+	multicastVal, ok := multicastAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`multicast expected to be basetypes.ObjectValue, was: %T`, multicastAttribute))
+	}
+
 	subnetAttribute, ok := attributes["subnet"]
 
 	if !ok {
@@ -8631,6 +9128,7 @@ func NewNetworksValue(attributeTypes map[string]attr.Type, attributes map[string
 		Gateway6:        gateway6Val,
 		Isolation:       isolationVal,
 		IsolationVlanId: isolationVlanIdVal,
+		Multicast:       multicastVal,
 		Subnet:          subnetVal,
 		Subnet6:         subnet6Val,
 		VlanId:          vlanIdVal,
@@ -8710,6 +9208,7 @@ type NetworksValue struct {
 	Gateway6        basetypes.StringValue `tfsdk:"gateway6"`
 	Isolation       basetypes.BoolValue   `tfsdk:"isolation"`
 	IsolationVlanId basetypes.StringValue `tfsdk:"isolation_vlan_id"`
+	Multicast       basetypes.ObjectValue `tfsdk:"multicast"`
 	Subnet          basetypes.StringValue `tfsdk:"subnet"`
 	Subnet6         basetypes.StringValue `tfsdk:"subnet6"`
 	VlanId          basetypes.StringValue `tfsdk:"vlan_id"`
@@ -8717,7 +9216,7 @@ type NetworksValue struct {
 }
 
 func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 7)
+	attrTypes := make(map[string]tftypes.Type, 8)
 
 	var val tftypes.Value
 	var err error
@@ -8726,6 +9225,9 @@ func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["gateway6"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["isolation"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["isolation_vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["multicast"] = basetypes.ObjectType{
+		AttrTypes: MulticastValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["subnet"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["subnet6"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
@@ -8734,7 +9236,7 @@ func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 7)
+		vals := make(map[string]tftypes.Value, 8)
 
 		val, err = v.Gateway.ToTerraformValue(ctx)
 
@@ -8767,6 +9269,14 @@ func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["isolation_vlan_id"] = val
+
+		val, err = v.Multicast.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["multicast"] = val
 
 		val, err = v.Subnet.ToTerraformValue(ctx)
 
@@ -8821,14 +9331,38 @@ func (v NetworksValue) String() string {
 func (v NetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var multicast basetypes.ObjectValue
+
+	if v.Multicast.IsNull() {
+		multicast = types.ObjectNull(
+			MulticastValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Multicast.IsUnknown() {
+		multicast = types.ObjectUnknown(
+			MulticastValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Multicast.IsNull() && !v.Multicast.IsUnknown() {
+		multicast = types.ObjectValueMust(
+			MulticastValue{}.AttributeTypes(ctx),
+			v.Multicast.Attributes(),
+		)
+	}
+
 	attributeTypes := map[string]attr.Type{
 		"gateway":           basetypes.StringType{},
 		"gateway6":          basetypes.StringType{},
 		"isolation":         basetypes.BoolType{},
 		"isolation_vlan_id": basetypes.StringType{},
-		"subnet":            basetypes.StringType{},
-		"subnet6":           basetypes.StringType{},
-		"vlan_id":           basetypes.StringType{},
+		"multicast": basetypes.ObjectType{
+			AttrTypes: MulticastValue{}.AttributeTypes(ctx),
+		},
+		"subnet":  basetypes.StringType{},
+		"subnet6": basetypes.StringType{},
+		"vlan_id": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -8846,6 +9380,7 @@ func (v NetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"gateway6":          v.Gateway6,
 			"isolation":         v.Isolation,
 			"isolation_vlan_id": v.IsolationVlanId,
+			"multicast":         multicast,
 			"subnet":            v.Subnet,
 			"subnet6":           v.Subnet6,
 			"vlan_id":           v.VlanId,
@@ -8885,6 +9420,10 @@ func (v NetworksValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Multicast.Equal(other.Multicast) {
+		return false
+	}
+
 	if !v.Subnet.Equal(other.Subnet) {
 		return false
 	}
@@ -8914,9 +9453,391 @@ func (v NetworksValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"gateway6":          basetypes.StringType{},
 		"isolation":         basetypes.BoolType{},
 		"isolation_vlan_id": basetypes.StringType{},
-		"subnet":            basetypes.StringType{},
-		"subnet6":           basetypes.StringType{},
-		"vlan_id":           basetypes.StringType{},
+		"multicast": basetypes.ObjectType{
+			AttrTypes: MulticastValue{}.AttributeTypes(ctx),
+		},
+		"subnet":  basetypes.StringType{},
+		"subnet6": basetypes.StringType{},
+		"vlan_id": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = MulticastType{}
+
+type MulticastType struct {
+	basetypes.ObjectType
+}
+
+func (t MulticastType) Equal(o attr.Type) bool {
+	other, ok := o.(MulticastType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t MulticastType) String() string {
+	return "MulticastType"
+}
+
+func (t MulticastType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	igmpVersionAttribute, ok := attributes["igmp_version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`igmp_version is missing from object`)
+
+		return nil, diags
+	}
+
+	igmpVersionVal, ok := igmpVersionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`igmp_version expected to be basetypes.StringValue, was: %T`, igmpVersionAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return MulticastValue{
+		Enabled:     enabledVal,
+		IgmpVersion: igmpVersionVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMulticastValueNull() MulticastValue {
+	return MulticastValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewMulticastValueUnknown() MulticastValue {
+	return MulticastValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewMulticastValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (MulticastValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing MulticastValue Attribute Value",
+				"While creating a MulticastValue value, a missing attribute value was detected. "+
+					"A MulticastValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MulticastValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid MulticastValue Attribute Type",
+				"While creating a MulticastValue value, an invalid attribute value was detected. "+
+					"A MulticastValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MulticastValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("MulticastValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra MulticastValue Attribute Value",
+				"While creating a MulticastValue value, an extra attribute value was detected. "+
+					"A MulticastValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra MulticastValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewMulticastValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewMulticastValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	igmpVersionAttribute, ok := attributes["igmp_version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`igmp_version is missing from object`)
+
+		return NewMulticastValueUnknown(), diags
+	}
+
+	igmpVersionVal, ok := igmpVersionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`igmp_version expected to be basetypes.StringValue, was: %T`, igmpVersionAttribute))
+	}
+
+	if diags.HasError() {
+		return NewMulticastValueUnknown(), diags
+	}
+
+	return MulticastValue{
+		Enabled:     enabledVal,
+		IgmpVersion: igmpVersionVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMulticastValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) MulticastValue {
+	object, diags := NewMulticastValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewMulticastValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t MulticastType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewMulticastValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewMulticastValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewMulticastValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewMulticastValueMust(MulticastValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t MulticastType) ValueType(ctx context.Context) attr.Value {
+	return MulticastValue{}
+}
+
+var _ basetypes.ObjectValuable = MulticastValue{}
+
+type MulticastValue struct {
+	Enabled     basetypes.BoolValue   `tfsdk:"enabled"`
+	IgmpVersion basetypes.StringValue `tfsdk:"igmp_version"`
+	state       attr.ValueState
+}
+
+func (v MulticastValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["igmp_version"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.IgmpVersion.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["igmp_version"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v MulticastValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v MulticastValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v MulticastValue) String() string {
+	return "MulticastValue"
+}
+
+func (v MulticastValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled":      basetypes.BoolType{},
+		"igmp_version": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled":      v.Enabled,
+			"igmp_version": v.IgmpVersion,
+		})
+
+	return objVal, diags
+}
+
+func (v MulticastValue) Equal(o attr.Value) bool {
+	other, ok := o.(MulticastValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.IgmpVersion.Equal(other.IgmpVersion) {
+		return false
+	}
+
+	return true
+}
+
+func (v MulticastValue) Type(ctx context.Context) attr.Type {
+	return MulticastType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v MulticastValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled":      basetypes.BoolType{},
+		"igmp_version": basetypes.StringType{},
 	}
 }
 
@@ -11696,6 +12617,24 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`server_fail_network expected to be basetypes.StringValue, was: %T`, serverFailNetworkAttribute))
 	}
 
+	serverFailRetryIntervalAttribute, ok := attributes["server_fail_retry_interval"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`server_fail_retry_interval is missing from object`)
+
+		return nil, diags
+	}
+
+	serverFailRetryIntervalVal, ok := serverFailRetryIntervalAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`server_fail_retry_interval expected to be basetypes.Int64Value, was: %T`, serverFailRetryIntervalAttribute))
+	}
+
 	serverRejectNetworkAttribute, ok := attributes["server_reject_network"]
 
 	if !ok {
@@ -11933,6 +12872,7 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		ResetDefaultWhen:                         resetDefaultWhenVal,
 		Rules:                                    rulesVal,
 		ServerFailNetwork:                        serverFailNetworkVal,
+		ServerFailRetryInterval:                  serverFailRetryIntervalVal,
 		ServerRejectNetwork:                      serverRejectNetworkVal,
 		Speed:                                    speedVal,
 		StormControl:                             stormControlVal,
@@ -12623,6 +13563,24 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`server_fail_network expected to be basetypes.StringValue, was: %T`, serverFailNetworkAttribute))
 	}
 
+	serverFailRetryIntervalAttribute, ok := attributes["server_fail_retry_interval"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`server_fail_retry_interval is missing from object`)
+
+		return NewPortUsagesValueUnknown(), diags
+	}
+
+	serverFailRetryIntervalVal, ok := serverFailRetryIntervalAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`server_fail_retry_interval expected to be basetypes.Int64Value, was: %T`, serverFailRetryIntervalAttribute))
+	}
+
 	serverRejectNetworkAttribute, ok := attributes["server_reject_network"]
 
 	if !ok {
@@ -12860,6 +13818,7 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		ResetDefaultWhen:                         resetDefaultWhenVal,
 		Rules:                                    rulesVal,
 		ServerFailNetwork:                        serverFailNetworkVal,
+		ServerFailRetryInterval:                  serverFailRetryIntervalVal,
 		ServerRejectNetwork:                      serverRejectNetworkVal,
 		Speed:                                    speedVal,
 		StormControl:                             stormControlVal,
@@ -12977,6 +13936,7 @@ type PortUsagesValue struct {
 	ResetDefaultWhen                         basetypes.StringValue `tfsdk:"reset_default_when"`
 	Rules                                    basetypes.ListValue   `tfsdk:"rules"`
 	ServerFailNetwork                        basetypes.StringValue `tfsdk:"server_fail_network"`
+	ServerFailRetryInterval                  basetypes.Int64Value  `tfsdk:"server_fail_retry_interval"`
 	ServerRejectNetwork                      basetypes.StringValue `tfsdk:"server_reject_network"`
 	Speed                                    basetypes.StringValue `tfsdk:"speed"`
 	StormControl                             basetypes.ObjectValue `tfsdk:"storm_control"`
@@ -12992,7 +13952,7 @@ type PortUsagesValue struct {
 }
 
 func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 45)
+	attrTypes := make(map[string]tftypes.Type, 46)
 
 	var val tftypes.Value
 	var err error
@@ -13037,6 +13997,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		ElemType: RulesValue{}.Type(ctx),
 	}.TerraformType(ctx)
 	attrTypes["server_fail_network"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["server_fail_retry_interval"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["server_reject_network"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["speed"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["storm_control"] = basetypes.ObjectType{
@@ -13055,7 +14016,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 45)
+		vals := make(map[string]tftypes.Value, 46)
 
 		val, err = v.AllNetworks.ToTerraformValue(ctx)
 
@@ -13329,6 +14290,14 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 		vals["server_fail_network"] = val
 
+		val, err = v.ServerFailRetryInterval.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["server_fail_retry_interval"] = val
+
 		val, err = v.ServerRejectNetwork.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -13549,9 +14518,10 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"rules": basetypes.ListType{
 				ElemType: RulesValue{}.Type(ctx),
 			},
-			"server_fail_network":   basetypes.StringType{},
-			"server_reject_network": basetypes.StringType{},
-			"speed":                 basetypes.StringType{},
+			"server_fail_network":        basetypes.StringType{},
+			"server_fail_retry_interval": basetypes.Int64Type{},
+			"server_reject_network":      basetypes.StringType{},
+			"speed":                      basetypes.StringType{},
 			"storm_control": basetypes.ObjectType{
 				AttrTypes: StormControlValue{}.AttributeTypes(ctx),
 			},
@@ -13619,9 +14589,10 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"rules": basetypes.ListType{
 				ElemType: RulesValue{}.Type(ctx),
 			},
-			"server_fail_network":   basetypes.StringType{},
-			"server_reject_network": basetypes.StringType{},
-			"speed":                 basetypes.StringType{},
+			"server_fail_network":        basetypes.StringType{},
+			"server_fail_retry_interval": basetypes.Int64Type{},
+			"server_reject_network":      basetypes.StringType{},
+			"speed":                      basetypes.StringType{},
 			"storm_control": basetypes.ObjectType{
 				AttrTypes: StormControlValue{}.AttributeTypes(ctx),
 			},
@@ -13676,9 +14647,10 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"rules": basetypes.ListType{
 			ElemType: RulesValue{}.Type(ctx),
 		},
-		"server_fail_network":   basetypes.StringType{},
-		"server_reject_network": basetypes.StringType{},
-		"speed":                 basetypes.StringType{},
+		"server_fail_network":        basetypes.StringType{},
+		"server_fail_retry_interval": basetypes.Int64Type{},
+		"server_reject_network":      basetypes.StringType{},
+		"speed":                      basetypes.StringType{},
 		"storm_control": basetypes.ObjectType{
 			AttrTypes: StormControlValue{}.AttributeTypes(ctx),
 		},
@@ -13737,6 +14709,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"reset_default_when":                              v.ResetDefaultWhen,
 			"rules":                                           rules,
 			"server_fail_network":                             v.ServerFailNetwork,
+			"server_fail_retry_interval":                      v.ServerFailRetryInterval,
 			"server_reject_network":                           v.ServerRejectNetwork,
 			"speed":                                           v.Speed,
 			"storm_control":                                   stormControl,
@@ -13904,6 +14877,10 @@ func (v PortUsagesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.ServerFailRetryInterval.Equal(other.ServerFailRetryInterval) {
+		return false
+	}
+
 	if !v.ServerRejectNetwork.Equal(other.ServerRejectNetwork) {
 		return false
 	}
@@ -14000,9 +14977,10 @@ func (v PortUsagesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"rules": basetypes.ListType{
 			ElemType: RulesValue{}.Type(ctx),
 		},
-		"server_fail_network":   basetypes.StringType{},
-		"server_reject_network": basetypes.StringType{},
-		"speed":                 basetypes.StringType{},
+		"server_fail_network":        basetypes.StringType{},
+		"server_fail_retry_interval": basetypes.Int64Type{},
+		"server_reject_network":      basetypes.StringType{},
+		"speed":                      basetypes.StringType{},
 		"storm_control": basetypes.ObjectType{
 			AttrTypes: StormControlValue{}.AttributeTypes(ctx),
 		},
@@ -27836,6 +28814,24 @@ func (t NotifyFilterType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	attributes := in.Attributes()
 
+	categoriesAttribute, ok := attributes["categories"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`categories is missing from object`)
+
+		return nil, diags
+	}
+
+	categoriesVal, ok := categoriesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`categories expected to be basetypes.ListValue, was: %T`, categoriesAttribute))
+	}
+
 	profileNameAttribute, ok := attributes["profile_name"]
 
 	if !ok {
@@ -27877,6 +28873,7 @@ func (t NotifyFilterType) ValueFromObject(ctx context.Context, in basetypes.Obje
 	}
 
 	return NotifyFilterValue{
+		Categories:     categoriesVal,
 		ProfileName:    profileNameVal,
 		Snmpv3Contents: snmpv3ContentsVal,
 		state:          attr.ValueStateKnown,
@@ -27946,6 +28943,24 @@ func NewNotifyFilterValue(attributeTypes map[string]attr.Type, attributes map[st
 		return NewNotifyFilterValueUnknown(), diags
 	}
 
+	categoriesAttribute, ok := attributes["categories"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`categories is missing from object`)
+
+		return NewNotifyFilterValueUnknown(), diags
+	}
+
+	categoriesVal, ok := categoriesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`categories expected to be basetypes.ListValue, was: %T`, categoriesAttribute))
+	}
+
 	profileNameAttribute, ok := attributes["profile_name"]
 
 	if !ok {
@@ -27987,6 +29002,7 @@ func NewNotifyFilterValue(attributeTypes map[string]attr.Type, attributes map[st
 	}
 
 	return NotifyFilterValue{
+		Categories:     categoriesVal,
 		ProfileName:    profileNameVal,
 		Snmpv3Contents: snmpv3ContentsVal,
 		state:          attr.ValueStateKnown,
@@ -28061,17 +29077,21 @@ func (t NotifyFilterType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = NotifyFilterValue{}
 
 type NotifyFilterValue struct {
+	Categories     basetypes.ListValue   `tfsdk:"categories"`
 	ProfileName    basetypes.StringValue `tfsdk:"profile_name"`
 	Snmpv3Contents basetypes.ListValue   `tfsdk:"contents"`
 	state          attr.ValueState
 }
 
 func (v NotifyFilterValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["categories"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["profile_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["contents"] = basetypes.ListType{
 		ElemType: Snmpv3ContentsValue{}.Type(ctx),
@@ -28081,7 +29101,15 @@ func (v NotifyFilterValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.Categories.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["categories"] = val
 
 		val, err = v.ProfileName.ToTerraformValue(ctx)
 
@@ -28157,7 +29185,34 @@ func (v NotifyFilterValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		)
 	}
 
+	var categoriesVal basetypes.ListValue
+	switch {
+	case v.Categories.IsUnknown():
+		categoriesVal = types.ListUnknown(types.StringType)
+	case v.Categories.IsNull():
+		categoriesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		categoriesVal, d = types.ListValue(types.StringType, v.Categories.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"categories": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"profile_name": basetypes.StringType{},
+			"contents": basetypes.ListType{
+				ElemType: Snmpv3ContentsValue{}.Type(ctx),
+			},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
+		"categories": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"profile_name": basetypes.StringType{},
 		"contents": basetypes.ListType{
 			ElemType: Snmpv3ContentsValue{}.Type(ctx),
@@ -28175,6 +29230,7 @@ func (v NotifyFilterValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"categories":   categoriesVal,
 			"profile_name": v.ProfileName,
 			"contents":     snmpv3Contents,
 		})
@@ -28195,6 +29251,10 @@ func (v NotifyFilterValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.Categories.Equal(other.Categories) {
+		return false
 	}
 
 	if !v.ProfileName.Equal(other.ProfileName) {
@@ -28218,6 +29278,9 @@ func (v NotifyFilterValue) Type(ctx context.Context) attr.Type {
 
 func (v NotifyFilterValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"categories": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"profile_name": basetypes.StringType{},
 		"contents": basetypes.ListType{
 			ElemType: Snmpv3ContentsValue{}.Type(ctx),
@@ -35984,6 +37047,24 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`ae_lacp_force_up expected to be basetypes.BoolValue, was: %T`, aeLacpForceUpAttribute))
 	}
 
+	aeLacpPassiveAttribute, ok := attributes["ae_lacp_passive"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ae_lacp_passive is missing from object`)
+
+		return nil, diags
+	}
+
+	aeLacpPassiveVal, ok := aeLacpPassiveAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ae_lacp_passive expected to be basetypes.BoolValue, was: %T`, aeLacpPassiveAttribute))
+	}
+
 	aeLacpSlowAttribute, ok := attributes["ae_lacp_slow"]
 
 	if !ok {
@@ -36262,6 +37343,7 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 		AeDisableLacp:    aeDisableLacpVal,
 		AeIdx:            aeIdxVal,
 		AeLacpForceUp:    aeLacpForceUpVal,
+		AeLacpPassive:    aeLacpPassiveVal,
 		AeLacpSlow:       aeLacpSlowVal,
 		Aggregated:       aggregatedVal,
 		Critical:         criticalVal,
@@ -36398,6 +37480,24 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`ae_lacp_force_up expected to be basetypes.BoolValue, was: %T`, aeLacpForceUpAttribute))
 	}
 
+	aeLacpPassiveAttribute, ok := attributes["ae_lacp_passive"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`ae_lacp_passive is missing from object`)
+
+		return NewPortConfigValueUnknown(), diags
+	}
+
+	aeLacpPassiveVal, ok := aeLacpPassiveAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`ae_lacp_passive expected to be basetypes.BoolValue, was: %T`, aeLacpPassiveAttribute))
+	}
+
 	aeLacpSlowAttribute, ok := attributes["ae_lacp_slow"]
 
 	if !ok {
@@ -36676,6 +37776,7 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 		AeDisableLacp:    aeDisableLacpVal,
 		AeIdx:            aeIdxVal,
 		AeLacpForceUp:    aeLacpForceUpVal,
+		AeLacpPassive:    aeLacpPassiveVal,
 		AeLacpSlow:       aeLacpSlowVal,
 		Aggregated:       aggregatedVal,
 		Critical:         criticalVal,
@@ -36766,6 +37867,7 @@ type PortConfigValue struct {
 	AeDisableLacp    basetypes.BoolValue   `tfsdk:"ae_disable_lacp"`
 	AeIdx            basetypes.Int64Value  `tfsdk:"ae_idx"`
 	AeLacpForceUp    basetypes.BoolValue   `tfsdk:"ae_lacp_force_up"`
+	AeLacpPassive    basetypes.BoolValue   `tfsdk:"ae_lacp_passive"`
 	AeLacpSlow       basetypes.BoolValue   `tfsdk:"ae_lacp_slow"`
 	Aggregated       basetypes.BoolValue   `tfsdk:"aggregated"`
 	Critical         basetypes.BoolValue   `tfsdk:"critical"`
@@ -36785,7 +37887,7 @@ type PortConfigValue struct {
 }
 
 func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 18)
+	attrTypes := make(map[string]tftypes.Type, 19)
 
 	var val tftypes.Value
 	var err error
@@ -36793,6 +37895,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["ae_disable_lacp"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["ae_idx"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["ae_lacp_force_up"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["ae_lacp_passive"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["ae_lacp_slow"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["aggregated"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["critical"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -36815,7 +37918,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 18)
+		vals := make(map[string]tftypes.Value, 19)
 
 		val, err = v.AeDisableLacp.ToTerraformValue(ctx)
 
@@ -36840,6 +37943,14 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["ae_lacp_force_up"] = val
+
+		val, err = v.AeLacpPassive.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["ae_lacp_passive"] = val
 
 		val, err = v.AeLacpSlow.ToTerraformValue(ctx)
 
@@ -37007,6 +38118,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"ae_disable_lacp":  basetypes.BoolType{},
 			"ae_idx":           basetypes.Int64Type{},
 			"ae_lacp_force_up": basetypes.BoolType{},
+			"ae_lacp_passive":  basetypes.BoolType{},
 			"ae_lacp_slow":     basetypes.BoolType{},
 			"aggregated":       basetypes.BoolType{},
 			"critical":         basetypes.BoolType{},
@@ -37031,6 +38143,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"ae_disable_lacp":  basetypes.BoolType{},
 		"ae_idx":           basetypes.Int64Type{},
 		"ae_lacp_force_up": basetypes.BoolType{},
+		"ae_lacp_passive":  basetypes.BoolType{},
 		"ae_lacp_slow":     basetypes.BoolType{},
 		"aggregated":       basetypes.BoolType{},
 		"critical":         basetypes.BoolType{},
@@ -37064,6 +38177,7 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"ae_disable_lacp":    v.AeDisableLacp,
 			"ae_idx":             v.AeIdx,
 			"ae_lacp_force_up":   v.AeLacpForceUp,
+			"ae_lacp_passive":    v.AeLacpPassive,
 			"ae_lacp_slow":       v.AeLacpSlow,
 			"aggregated":         v.Aggregated,
 			"critical":           v.Critical,
@@ -37108,6 +38222,10 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.AeLacpForceUp.Equal(other.AeLacpForceUp) {
+		return false
+	}
+
+	if !v.AeLacpPassive.Equal(other.AeLacpPassive) {
 		return false
 	}
 
@@ -37187,6 +38305,7 @@ func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"ae_disable_lacp":  basetypes.BoolType{},
 		"ae_idx":           basetypes.Int64Type{},
 		"ae_lacp_force_up": basetypes.BoolType{},
+		"ae_lacp_passive":  basetypes.BoolType{},
 		"ae_lacp_slow":     basetypes.BoolType{},
 		"aggregated":       basetypes.BoolType{},
 		"critical":         basetypes.BoolType{},
@@ -42179,6 +43298,24 @@ func (t VrfInstancesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`evpn_auto_loopback_subnet6 expected to be basetypes.StringValue, was: %T`, evpnAutoLoopbackSubnet6Attribute))
 	}
 
+	multicastConfigAttribute, ok := attributes["multicast_config"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`multicast_config is missing from object`)
+
+		return nil, diags
+	}
+
+	multicastConfigVal, ok := multicastConfigAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`multicast_config expected to be basetypes.ObjectValue, was: %T`, multicastConfigAttribute))
+	}
+
 	networksAttribute, ok := attributes["networks"]
 
 	if !ok {
@@ -42240,6 +43377,7 @@ func (t VrfInstancesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 	return VrfInstancesValue{
 		EvpnAutoLoopbackSubnet:  evpnAutoLoopbackSubnetVal,
 		EvpnAutoLoopbackSubnet6: evpnAutoLoopbackSubnet6Val,
+		MulticastConfig:         multicastConfigVal,
 		Networks:                networksVal,
 		VrfExtraRoutes:          vrfExtraRoutesVal,
 		VrfExtraRoutes6:         vrfExtraRoutes6Val,
@@ -42346,6 +43484,24 @@ func NewVrfInstancesValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`evpn_auto_loopback_subnet6 expected to be basetypes.StringValue, was: %T`, evpnAutoLoopbackSubnet6Attribute))
 	}
 
+	multicastConfigAttribute, ok := attributes["multicast_config"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`multicast_config is missing from object`)
+
+		return NewVrfInstancesValueUnknown(), diags
+	}
+
+	multicastConfigVal, ok := multicastConfigAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`multicast_config expected to be basetypes.ObjectValue, was: %T`, multicastConfigAttribute))
+	}
+
 	networksAttribute, ok := attributes["networks"]
 
 	if !ok {
@@ -42407,6 +43563,7 @@ func NewVrfInstancesValue(attributeTypes map[string]attr.Type, attributes map[st
 	return VrfInstancesValue{
 		EvpnAutoLoopbackSubnet:  evpnAutoLoopbackSubnetVal,
 		EvpnAutoLoopbackSubnet6: evpnAutoLoopbackSubnet6Val,
+		MulticastConfig:         multicastConfigVal,
 		Networks:                networksVal,
 		VrfExtraRoutes:          vrfExtraRoutesVal,
 		VrfExtraRoutes6:         vrfExtraRoutes6Val,
@@ -42484,6 +43641,7 @@ var _ basetypes.ObjectValuable = VrfInstancesValue{}
 type VrfInstancesValue struct {
 	EvpnAutoLoopbackSubnet  basetypes.StringValue `tfsdk:"evpn_auto_loopback_subnet"`
 	EvpnAutoLoopbackSubnet6 basetypes.StringValue `tfsdk:"evpn_auto_loopback_subnet6"`
+	MulticastConfig         basetypes.ObjectValue `tfsdk:"multicast_config"`
 	Networks                basetypes.ListValue   `tfsdk:"networks"`
 	VrfExtraRoutes          basetypes.MapValue    `tfsdk:"extra_routes"`
 	VrfExtraRoutes6         basetypes.MapValue    `tfsdk:"extra_routes6"`
@@ -42491,13 +43649,16 @@ type VrfInstancesValue struct {
 }
 
 func (v VrfInstancesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 5)
+	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["evpn_auto_loopback_subnet"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["evpn_auto_loopback_subnet6"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["multicast_config"] = basetypes.ObjectType{
+		AttrTypes: MulticastConfigValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["networks"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -42512,7 +43673,7 @@ func (v VrfInstancesValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 5)
+		vals := make(map[string]tftypes.Value, 6)
 
 		val, err = v.EvpnAutoLoopbackSubnet.ToTerraformValue(ctx)
 
@@ -42529,6 +43690,14 @@ func (v VrfInstancesValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 		}
 
 		vals["evpn_auto_loopback_subnet6"] = val
+
+		val, err = v.MulticastConfig.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["multicast_config"] = val
 
 		val, err = v.Networks.ToTerraformValue(ctx)
 
@@ -42582,6 +43751,27 @@ func (v VrfInstancesValue) String() string {
 
 func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
+
+	var multicastConfig basetypes.ObjectValue
+
+	if v.MulticastConfig.IsNull() {
+		multicastConfig = types.ObjectNull(
+			MulticastConfigValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.MulticastConfig.IsUnknown() {
+		multicastConfig = types.ObjectUnknown(
+			MulticastConfigValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.MulticastConfig.IsNull() && !v.MulticastConfig.IsUnknown() {
+		multicastConfig = types.ObjectValueMust(
+			MulticastConfigValue{}.AttributeTypes(ctx),
+			v.MulticastConfig.Attributes(),
+		)
+	}
 
 	vrfExtraRoutes := types.MapValueMust(
 		VrfExtraRoutesType{
@@ -42657,6 +43847,9 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		return types.ObjectUnknown(map[string]attr.Type{
 			"evpn_auto_loopback_subnet":  basetypes.StringType{},
 			"evpn_auto_loopback_subnet6": basetypes.StringType{},
+			"multicast_config": basetypes.ObjectType{
+				AttrTypes: MulticastConfigValue{}.AttributeTypes(ctx),
+			},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -42672,6 +43865,9 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	attributeTypes := map[string]attr.Type{
 		"evpn_auto_loopback_subnet":  basetypes.StringType{},
 		"evpn_auto_loopback_subnet6": basetypes.StringType{},
+		"multicast_config": basetypes.ObjectType{
+			AttrTypes: MulticastConfigValue{}.AttributeTypes(ctx),
+		},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -42696,6 +43892,7 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		map[string]attr.Value{
 			"evpn_auto_loopback_subnet":  v.EvpnAutoLoopbackSubnet,
 			"evpn_auto_loopback_subnet6": v.EvpnAutoLoopbackSubnet6,
+			"multicast_config":           multicastConfig,
 			"networks":                   networksVal,
 			"extra_routes":               vrfExtraRoutes,
 			"extra_routes6":              vrfExtraRoutes6,
@@ -42727,6 +43924,10 @@ func (v VrfInstancesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.MulticastConfig.Equal(other.MulticastConfig) {
+		return false
+	}
+
 	if !v.Networks.Equal(other.Networks) {
 		return false
 	}
@@ -42754,6 +43955,9 @@ func (v VrfInstancesValue) AttributeTypes(ctx context.Context) map[string]attr.T
 	return map[string]attr.Type{
 		"evpn_auto_loopback_subnet":  basetypes.StringType{},
 		"evpn_auto_loopback_subnet6": basetypes.StringType{},
+		"multicast_config": basetypes.ObjectType{
+			AttrTypes: MulticastConfigValue{}.AttributeTypes(ctx),
+		},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -42763,6 +43967,495 @@ func (v VrfInstancesValue) AttributeTypes(ctx context.Context) map[string]attr.T
 		"extra_routes6": basetypes.MapType{
 			ElemType: VrfExtraRoutes6Value{}.Type(ctx),
 		},
+	}
+}
+
+var _ basetypes.ObjectTypable = MulticastConfigType{}
+
+type MulticastConfigType struct {
+	basetypes.ObjectType
+}
+
+func (t MulticastConfigType) Equal(o attr.Type) bool {
+	other, ok := o.(MulticastConfigType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t MulticastConfigType) String() string {
+	return "MulticastConfigType"
+}
+
+func (t MulticastConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	anycastRpAttribute, ok := attributes["anycast_rp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`anycast_rp is missing from object`)
+
+		return nil, diags
+	}
+
+	anycastRpVal, ok := anycastRpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`anycast_rp expected to be basetypes.BoolValue, was: %T`, anycastRpAttribute))
+	}
+
+	rpIpAttribute, ok := attributes["rp_ip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rp_ip is missing from object`)
+
+		return nil, diags
+	}
+
+	rpIpVal, ok := rpIpAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rp_ip expected to be basetypes.StringValue, was: %T`, rpIpAttribute))
+	}
+
+	sbdSubnetAttribute, ok := attributes["sbd_subnet"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sbd_subnet is missing from object`)
+
+		return nil, diags
+	}
+
+	sbdSubnetVal, ok := sbdSubnetAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sbd_subnet expected to be basetypes.StringValue, was: %T`, sbdSubnetAttribute))
+	}
+
+	sbdVlanIdAttribute, ok := attributes["sbd_vlan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sbd_vlan_id is missing from object`)
+
+		return nil, diags
+	}
+
+	sbdVlanIdVal, ok := sbdVlanIdAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sbd_vlan_id expected to be basetypes.Int64Value, was: %T`, sbdVlanIdAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return MulticastConfigValue{
+		AnycastRp: anycastRpVal,
+		RpIp:      rpIpVal,
+		SbdSubnet: sbdSubnetVal,
+		SbdVlanId: sbdVlanIdVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMulticastConfigValueNull() MulticastConfigValue {
+	return MulticastConfigValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewMulticastConfigValueUnknown() MulticastConfigValue {
+	return MulticastConfigValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewMulticastConfigValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (MulticastConfigValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing MulticastConfigValue Attribute Value",
+				"While creating a MulticastConfigValue value, a missing attribute value was detected. "+
+					"A MulticastConfigValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MulticastConfigValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid MulticastConfigValue Attribute Type",
+				"While creating a MulticastConfigValue value, an invalid attribute value was detected. "+
+					"A MulticastConfigValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MulticastConfigValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("MulticastConfigValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra MulticastConfigValue Attribute Value",
+				"While creating a MulticastConfigValue value, an extra attribute value was detected. "+
+					"A MulticastConfigValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra MulticastConfigValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	anycastRpAttribute, ok := attributes["anycast_rp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`anycast_rp is missing from object`)
+
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	anycastRpVal, ok := anycastRpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`anycast_rp expected to be basetypes.BoolValue, was: %T`, anycastRpAttribute))
+	}
+
+	rpIpAttribute, ok := attributes["rp_ip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rp_ip is missing from object`)
+
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	rpIpVal, ok := rpIpAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rp_ip expected to be basetypes.StringValue, was: %T`, rpIpAttribute))
+	}
+
+	sbdSubnetAttribute, ok := attributes["sbd_subnet"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sbd_subnet is missing from object`)
+
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	sbdSubnetVal, ok := sbdSubnetAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sbd_subnet expected to be basetypes.StringValue, was: %T`, sbdSubnetAttribute))
+	}
+
+	sbdVlanIdAttribute, ok := attributes["sbd_vlan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sbd_vlan_id is missing from object`)
+
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	sbdVlanIdVal, ok := sbdVlanIdAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sbd_vlan_id expected to be basetypes.Int64Value, was: %T`, sbdVlanIdAttribute))
+	}
+
+	if diags.HasError() {
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	return MulticastConfigValue{
+		AnycastRp: anycastRpVal,
+		RpIp:      rpIpVal,
+		SbdSubnet: sbdSubnetVal,
+		SbdVlanId: sbdVlanIdVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMulticastConfigValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) MulticastConfigValue {
+	object, diags := NewMulticastConfigValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewMulticastConfigValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t MulticastConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewMulticastConfigValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewMulticastConfigValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewMulticastConfigValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewMulticastConfigValueMust(MulticastConfigValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t MulticastConfigType) ValueType(ctx context.Context) attr.Value {
+	return MulticastConfigValue{}
+}
+
+var _ basetypes.ObjectValuable = MulticastConfigValue{}
+
+type MulticastConfigValue struct {
+	AnycastRp basetypes.BoolValue   `tfsdk:"anycast_rp"`
+	RpIp      basetypes.StringValue `tfsdk:"rp_ip"`
+	SbdSubnet basetypes.StringValue `tfsdk:"sbd_subnet"`
+	SbdVlanId basetypes.Int64Value  `tfsdk:"sbd_vlan_id"`
+	state     attr.ValueState
+}
+
+func (v MulticastConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 4)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["anycast_rp"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["rp_ip"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["sbd_subnet"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["sbd_vlan_id"] = basetypes.Int64Type{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 4)
+
+		val, err = v.AnycastRp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["anycast_rp"] = val
+
+		val, err = v.RpIp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["rp_ip"] = val
+
+		val, err = v.SbdSubnet.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["sbd_subnet"] = val
+
+		val, err = v.SbdVlanId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["sbd_vlan_id"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v MulticastConfigValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v MulticastConfigValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v MulticastConfigValue) String() string {
+	return "MulticastConfigValue"
+}
+
+func (v MulticastConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"anycast_rp":  basetypes.BoolType{},
+		"rp_ip":       basetypes.StringType{},
+		"sbd_subnet":  basetypes.StringType{},
+		"sbd_vlan_id": basetypes.Int64Type{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"anycast_rp":  v.AnycastRp,
+			"rp_ip":       v.RpIp,
+			"sbd_subnet":  v.SbdSubnet,
+			"sbd_vlan_id": v.SbdVlanId,
+		})
+
+	return objVal, diags
+}
+
+func (v MulticastConfigValue) Equal(o attr.Value) bool {
+	other, ok := o.(MulticastConfigValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AnycastRp.Equal(other.AnycastRp) {
+		return false
+	}
+
+	if !v.RpIp.Equal(other.RpIp) {
+		return false
+	}
+
+	if !v.SbdSubnet.Equal(other.SbdSubnet) {
+		return false
+	}
+
+	if !v.SbdVlanId.Equal(other.SbdVlanId) {
+		return false
+	}
+
+	return true
+}
+
+func (v MulticastConfigValue) Type(ctx context.Context) attr.Type {
+	return MulticastConfigType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v MulticastConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"anycast_rp":  basetypes.BoolType{},
+		"rp_ip":       basetypes.StringType{},
+		"sbd_subnet":  basetypes.StringType{},
+		"sbd_vlan_id": basetypes.Int64Type{},
 	}
 }
 

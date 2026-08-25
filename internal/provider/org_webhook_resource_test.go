@@ -107,6 +107,11 @@ func (s *OrgWebhookModel) testChecks(t testing.TB, rType, tName string, tracker 
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 
 	// Check fields in struct order
+	// 0. DefaultAction
+	if s.DefaultAction != nil {
+		checks.append(t, "TestCheckResourceAttr", "default_action", *s.DefaultAction)
+	}
+
 	// 1. Enabled
 	if s.Enabled != nil {
 		checks.append(t, "TestCheckResourceAttr", "enabled", fmt.Sprintf("%t", *s.Enabled))
@@ -165,6 +170,17 @@ func (s *OrgWebhookModel) testChecks(t testing.TB, rType, tName string, tracker 
 
 	// 12. OrgId (computed)
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
+
+	// 12b. Rules
+	if len(s.Rules) > 0 {
+		checks.append(t, "TestCheckResourceAttr", "rules.#", fmt.Sprintf("%d", len(s.Rules)))
+		for i, rule := range s.Rules {
+			if rule.Action != nil {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("rules.%d.action", i), *rule.Action)
+			}
+			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("rules.%d.topic", i), rule.Topic)
+		}
+	}
 
 	// 13. Secret
 	if s.Secret != nil {

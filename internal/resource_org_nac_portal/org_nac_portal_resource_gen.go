@@ -70,6 +70,11 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 				},
 				Default: stringdefault.StaticString("wpa2"),
 			},
+			"enable_location": schema.BoolAttribute{
+				Optional:            true,
+				Description:         "Whether location data collection is enabled for devices onboarding through this NAC portal",
+				MarkdownDescription: "Whether location data collection is enabled for devices onboarding through this NAC portal",
+			},
 			"enable_telemetry": schema.BoolAttribute{
 				Optional:            true,
 				Description:         "Model, version, fingering, events (connecting, disconnect, roaming), which ap",
@@ -279,6 +284,7 @@ type OrgNacPortalModel struct {
 	AdditionalNacServerName types.List   `tfsdk:"additional_nac_server_name"`
 	CertExpireTime          types.Int64  `tfsdk:"cert_expire_time"`
 	EapType                 types.String `tfsdk:"eap_type"`
+	EnableLocation          types.Bool   `tfsdk:"enable_location"`
 	EnableTelemetry         types.Bool   `tfsdk:"enable_telemetry"`
 	ExpiryNotificationTime  types.Int64  `tfsdk:"expiry_notification_time"`
 	Id                      types.String `tfsdk:"id"`

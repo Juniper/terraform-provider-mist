@@ -39,6 +39,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	var siteId types.String
 	var uplinkPortConfig = NewUplinkPortConfigValueNull()
 	var usbConfig = NewUsbConfigValueNull()
+	var uwbConfig = NewUwbConfigValueNull()
 	var vars = types.MapNull(types.StringType)
 	var zigbeeConfig = NewZigbeeConfigValueNull()
 
@@ -117,6 +118,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	if data.UsbConfig != nil {
 		usbConfig = usbConfigSdkToTerraform(ctx, &diags, data.UsbConfig)
 	}
+	if data.UwbConfig != nil {
+		uwbConfig = uwbConfigSdkToTerraform(ctx, &diags, data.UwbConfig)
+	}
 	if data.Vars != nil {
 		vars = varsSdkToTerraform(ctx, &diags, data.Vars)
 	}
@@ -150,6 +154,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceprofileAp) (OrgDevic
 	state.SiteId = siteId
 	state.UplinkPortConfig = uplinkPortConfig
 	state.UsbConfig = usbConfig
+	state.UwbConfig = uwbConfig
 	state.Vars = vars
 	state.ZigbeeConfig = zigbeeConfig
 	state.Type = profileType

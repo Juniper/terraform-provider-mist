@@ -193,11 +193,12 @@
   }
   
   dynamic_psk = {
-    enabled = true
-    source = "radius"
-    default_psk = "fallback123"
+    enabled         = true
+    source          = "radius"
+    default_psk     = "fallback123"
     default_vlan_id = "100"
-    force_lookup = true
+    force_lookup    = true
+    local_vlan_ids  = ["10", "20"]
   }
   
   mist_nac = {
@@ -206,7 +207,6 @@
     auth_servers_retries = 3
     auth_servers_timeout = 5
     coa_enabled = true
-    # coa_port = 3799  # PROVIDER BUG: Returns null after apply
     fast_dot1x_timers = true
     network = "corporate"
     source_ip = "192.168.1.1"
@@ -261,6 +261,7 @@
     # SMSGlobal configuration
     smsglobal_api_key = "test-smsglobal-api-key"
     smsglobal_api_secret = "test-smsglobal-api-secret"
+    smsglobal_sender = "TestSender"
     
     # Other SMS providers
     clickatell_api_key = "test-clickatell-api-key"

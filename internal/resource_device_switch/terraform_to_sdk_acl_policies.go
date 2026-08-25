@@ -36,6 +36,9 @@ func aclPoliciesTerraformToSdk(d basetypes.ListValue) []models.AclPolicy {
 		if vPlan.Name.ValueStringPointer() != nil {
 			dataItem.Name = models.ToPointer(vPlan.Name.ValueString())
 		}
+		if vPlan.Disabled.ValueBoolPointer() != nil {
+			dataItem.Disabled = models.ToPointer(vPlan.Disabled.ValueBool())
+		}
 		if !vPlan.Actions.IsNull() && !vPlan.Actions.IsUnknown() {
 			actions := aclPolicyActionsTerraformToSdk(vPlan.Actions)
 			dataItem.Actions = actions

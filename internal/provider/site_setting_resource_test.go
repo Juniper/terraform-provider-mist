@@ -142,6 +142,23 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 			checks.append(t, "TestCheckResourceAttr", "auto_upgrade.version", *s.AutoUpgrade.Version)
 		}
 	}
+	if s.AutoUpgradeEsl != nil {
+		if s.AutoUpgradeEsl.AllowDowngrade != nil {
+			checks.append(t, "TestCheckResourceAttr", "auto_upgrade_esl.allow_downgrade", fmt.Sprintf("%t", *s.AutoUpgradeEsl.AllowDowngrade))
+		}
+		if s.AutoUpgradeEsl.DayOfWeek != nil {
+			checks.append(t, "TestCheckResourceAttr", "auto_upgrade_esl.day_of_week", *s.AutoUpgradeEsl.DayOfWeek)
+		}
+		if s.AutoUpgradeEsl.Enabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "auto_upgrade_esl.enabled", fmt.Sprintf("%t", *s.AutoUpgradeEsl.Enabled))
+		}
+		if s.AutoUpgradeEsl.TimeOfDay != nil {
+			checks.append(t, "TestCheckResourceAttr", "auto_upgrade_esl.time_of_day", *s.AutoUpgradeEsl.TimeOfDay)
+		}
+		if s.AutoUpgradeEsl.Version != nil {
+			checks.append(t, "TestCheckResourceAttr", "auto_upgrade_esl.version", *s.AutoUpgradeEsl.Version)
+		}
+	}
 	if s.BleConfig != nil {
 		if s.BleConfig.BeaconEnabled != nil {
 			checks.append(t, "TestCheckResourceAttr", "ble_config.beacon_enabled", fmt.Sprintf("%t", *s.BleConfig.BeaconEnabled))
@@ -228,6 +245,9 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 			checks.append(t, "TestCheckResourceAttr", "ble_config.power_mode", *s.BleConfig.PowerMode)
 		}
 	}
+	if s.BgpNeighborUpdownThreshold != nil {
+		checks.append(t, "TestCheckResourceAttr", "bgp_neighbor_updown_threshold", fmt.Sprintf("%d", *s.BgpNeighborUpdownThreshold))
+	}
 	if s.ConfigAutoRevert != nil {
 		checks.append(t, "TestCheckResourceAttr", "config_auto_revert", fmt.Sprintf("%t", *s.ConfigAutoRevert))
 	}
@@ -282,6 +302,9 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 	}
 	if s.DeviceUpdownThreshold != nil {
 		checks.append(t, "TestCheckResourceAttr", "device_updown_threshold", fmt.Sprintf("%d", *s.DeviceUpdownThreshold))
+	}
+	if s.EnableUnii4 != nil {
+		checks.append(t, "TestCheckResourceAttr", "enable_unii_4", fmt.Sprintf("%t", *s.EnableUnii4))
 	}
 	if s.Engagement != nil {
 		if s.Engagement.DwellTagNames != nil {
@@ -405,13 +428,28 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 		if s.GatewayMgmt.DisableConsole != nil {
 			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.disable_console", fmt.Sprintf("%t", *s.GatewayMgmt.DisableConsole))
 		}
+		if s.GatewayMgmt.DisableIdpPcap != nil {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.disable_idp_pcap", fmt.Sprintf("%t", *s.GatewayMgmt.DisableIdpPcap))
+		}
 		if s.GatewayMgmt.DisableOob != nil {
 			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.disable_oob", fmt.Sprintf("%t", *s.GatewayMgmt.DisableOob))
+		}
+		if s.GatewayMgmt.DisableUsb != nil {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.disable_usb", fmt.Sprintf("%t", *s.GatewayMgmt.DisableUsb))
+		}
+		if s.GatewayMgmt.FipsEnabled != nil {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.fips_enabled", fmt.Sprintf("%t", *s.GatewayMgmt.FipsEnabled))
 		}
 		if len(s.GatewayMgmt.ProbeHosts) > 0 {
 			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.probe_hosts.#", fmt.Sprintf("%d", len(s.GatewayMgmt.ProbeHosts)))
 			for i, host := range s.GatewayMgmt.ProbeHosts {
 				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("gateway_mgmt.probe_hosts.%d", i), host)
+			}
+		}
+		if len(s.GatewayMgmt.ProbeHostsv6) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "gateway_mgmt.probe_hostsv6.#", fmt.Sprintf("%d", len(s.GatewayMgmt.ProbeHostsv6)))
+			for i, host := range s.GatewayMgmt.ProbeHostsv6 {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("gateway_mgmt.probe_hostsv6.%d", i), host)
 			}
 		}
 		if s.GatewayMgmt.ProtectRe != nil {
@@ -463,6 +501,9 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 	}
 	if s.GatewayUpdownThreshold != nil {
 		checks.append(t, "TestCheckResourceAttr", "gateway_updown_threshold", fmt.Sprintf("%d", *s.GatewayUpdownThreshold))
+	}
+	if s.GatewayTunnelUpdownThreshold != nil {
+		checks.append(t, "TestCheckResourceAttr", "gateway_tunnel_updown_threshold", fmt.Sprintf("%d", *s.GatewayTunnelUpdownThreshold))
 	}
 	if s.JuniperSrx != nil {
 		if len(s.JuniperSrx.Gateways) > 0 {
@@ -571,6 +612,12 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 		checks.append(t, "TestCheckResourceAttr", "report_gatt", fmt.Sprintf("%t", *s.ReportGatt))
 	}
 	if s.Rogue != nil {
+		if len(s.Rogue.AllowedVlanIds) > 0 {
+			checks.append(t, "TestCheckResourceAttr", "rogue.allowed_vlan_ids.#", fmt.Sprintf("%d", len(s.Rogue.AllowedVlanIds)))
+			for i, vlanId := range s.Rogue.AllowedVlanIds {
+				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("rogue.allowed_vlan_ids.%d", i), fmt.Sprintf("%d", vlanId))
+			}
+		}
 		if s.Rogue.Enabled != nil {
 			checks.append(t, "TestCheckResourceAttr", "rogue.enabled", fmt.Sprintf("%t", *s.Rogue.Enabled))
 		}
@@ -579,6 +626,12 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 		}
 		if s.Rogue.MinDuration != nil {
 			checks.append(t, "TestCheckResourceAttr", "rogue.min_duration", fmt.Sprintf("%d", *s.Rogue.MinDuration))
+		}
+		if s.Rogue.MinRogueDuration != nil {
+			checks.append(t, "TestCheckResourceAttr", "rogue.min_rogue_duration", fmt.Sprintf("%d", *s.Rogue.MinRogueDuration))
+		}
+		if s.Rogue.MinRogueRssi != nil {
+			checks.append(t, "TestCheckResourceAttr", "rogue.min_rogue_rssi", fmt.Sprintf("%d", *s.Rogue.MinRogueRssi))
 		}
 		if s.Rogue.MinRssi != nil {
 			checks.append(t, "TestCheckResourceAttr", "rogue.min_rssi", fmt.Sprintf("%d", *s.Rogue.MinRssi))
@@ -716,6 +769,12 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 	}
 	if s.SwitchUpdownThreshold != nil {
 		checks.append(t, "TestCheckResourceAttr", "switch_updown_threshold", fmt.Sprintf("%d", *s.SwitchUpdownThreshold))
+	}
+	if s.VpnPathUpdownThreshold != nil {
+		checks.append(t, "TestCheckResourceAttr", "vpn_path_updown_threshold", fmt.Sprintf("%d", *s.VpnPathUpdownThreshold))
+	}
+	if s.VpnPeerUpdownThreshold != nil {
+		checks.append(t, "TestCheckResourceAttr", "vpn_peer_updown_threshold", fmt.Sprintf("%d", *s.VpnPeerUpdownThreshold))
 	}
 	if s.SyntheticTest != nil {
 		if s.SyntheticTest.Disabled != nil {
@@ -1065,16 +1124,14 @@ func (s *SiteSettingModel) testChecks(t testing.TB, rType, tName string, tracker
 	if s.TuntermMonitoringDisabled != nil {
 		checks.append(t, "TestCheckResourceAttr", "tunterm_monitoring_disabled", fmt.Sprintf("%t", *s.TuntermMonitoringDisabled))
 	}
-	if s.TuntermMulticastConfig != nil {
-		if s.TuntermMulticastConfig.MulticastAll != nil {
-			checks.append(t, "TestCheckResourceAttr", "tunterm_multicast_config.multicast_all", fmt.Sprintf("%t", *s.TuntermMulticastConfig.MulticastAll))
-		}
-		if s.TuntermMulticastConfig.Mdns != nil && s.TuntermMulticastConfig.Mdns.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "tunterm_multicast_config.mdns.enabled", fmt.Sprintf("%t", *s.TuntermMulticastConfig.Mdns.Enabled))
-		}
-		if s.TuntermMulticastConfig.Ssdp != nil && s.TuntermMulticastConfig.Ssdp.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "tunterm_multicast_config.ssdp.enabled", fmt.Sprintf("%t", *s.TuntermMulticastConfig.Ssdp.Enabled))
-		}
+	if s.TuntermMulticastConfig.MulticastAll != nil {
+		checks.append(t, "TestCheckResourceAttr", "tunterm_multicast_config.multicast_all", fmt.Sprintf("%t", *s.TuntermMulticastConfig.MulticastAll))
+	}
+	if s.TuntermMulticastConfig.Mdns != nil && s.TuntermMulticastConfig.Mdns.Enabled != nil {
+		checks.append(t, "TestCheckResourceAttr", "tunterm_multicast_config.mdns.enabled", fmt.Sprintf("%t", *s.TuntermMulticastConfig.Mdns.Enabled))
+	}
+	if s.TuntermMulticastConfig.Ssdp.Enabled != nil {
+		checks.append(t, "TestCheckResourceAttr", "tunterm_multicast_config.ssdp.enabled", fmt.Sprintf("%t", *s.TuntermMulticastConfig.Ssdp.Enabled))
 	}
 
 	return checks

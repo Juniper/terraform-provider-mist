@@ -11,6 +11,7 @@ type DeviceApModel struct {
 	DisableEth2      *bool                              `hcl:"disable_eth2"`
 	DisableEth3      *bool                              `hcl:"disable_eth3"`
 	DisableModule    *bool                              `hcl:"disable_module"`
+	EnableUnii4      *bool                              `hcl:"enable_unii_4"`
 	EslConfig        *DeviceApEslConfigValue            `hcl:"esl_config"`
 	FlowControl      *bool                              `hcl:"flow_control"`
 	Height           *float64                           `hcl:"height"`
@@ -32,6 +33,7 @@ type DeviceApModel struct {
 	SiteId           string                             `hcl:"site_id"`
 	UplinkPortConfig *DeviceApUplinkPortConfigValue     `hcl:"uplink_port_config"`
 	UsbConfig        *DeviceApUsbConfigValue            `hcl:"usb_config"`
+	UwbConfig        *DeviceApUwbConfigValue            `hcl:"uwb_config"`
 	Vars             map[string]string                  `hcl:"vars"`
 	X                *float64                           `hcl:"x"`
 	Y                *float64                           `hcl:"y"`
@@ -140,13 +142,14 @@ type DeviceApMeshValue struct {
 }
 
 type DeviceApMqttConfigValue struct {
-	BrokerHost  *string `cty:"broker_host" hcl:"broker_host"`
-	BrokerPort  *int64  `cty:"broker_port" hcl:"broker_port"`
-	BrokerProto *string `cty:"broker_proto" hcl:"broker_proto"`
-	Enabled     *bool   `cty:"enabled" hcl:"enabled"`
-	Format      *string `cty:"format" hcl:"format"`
-	Password    *string `cty:"password" hcl:"password"`
-	Username    *string `cty:"username" hcl:"username"`
+	BrokerHost   *string `cty:"broker_host" hcl:"broker_host"`
+	BrokerPort   *int64  `cty:"broker_port" hcl:"broker_port"`
+	BrokerProto  *string `cty:"broker_proto" hcl:"broker_proto"`
+	DefaultTopic *string `cty:"default_topic" hcl:"default_topic"`
+	Enabled      *bool   `cty:"enabled" hcl:"enabled"`
+	Format       *string `cty:"format" hcl:"format"`
+	Password     *string `cty:"password" hcl:"password"`
+	Username     *string `cty:"username" hcl:"username"`
 }
 
 type DeviceApPortConfigValue struct {
@@ -335,6 +338,14 @@ type DeviceApUsbConfigValue struct {
 	UsbConfigType *string `cty:"type" hcl:"type"`
 	VerifyCert    *bool   `cty:"verify_cert" hcl:"verify_cert"`
 	VlanId        *int64  `cty:"vlan_id" hcl:"vlan_id"`
+}
+
+type DeviceApUwbConfigValue struct {
+	Enabled       *bool   `cty:"enabled" hcl:"enabled"`
+	Host          *string `cty:"host" hcl:"host"`
+	Port          *int64  `cty:"port" hcl:"port"`
+	Slot          *int64  `cty:"slot" hcl:"slot"`
+	UwbConfigType *string `cty:"type" hcl:"type"`
 }
 
 type DeviceApZigbeeConfigValue struct {

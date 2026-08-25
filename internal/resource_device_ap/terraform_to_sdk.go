@@ -90,6 +90,11 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 	} else {
 		unset["-esl_config"] = ""
 	}
+	if !plan.EnableUnii4.IsNull() && !plan.EnableUnii4.IsUnknown() {
+		data.EnableUnii4 = plan.EnableUnii4.ValueBoolPointer()
+	} else {
+		unset["-enable_unii_4"] = ""
+	}
 	if !plan.FlowControl.IsNull() && !plan.FlowControl.IsUnknown() {
 		data.FlowControl = plan.FlowControl.ValueBoolPointer()
 	} else {
@@ -184,6 +189,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceApModel) (models.MistDevice
 		data.UsbConfig = usbConfigTerraformToSdk(plan.UsbConfig)
 	} else {
 		unset["-usb_config"] = ""
+	}
+
+	if !plan.UwbConfig.IsNull() && !plan.UwbConfig.IsUnknown() {
+		data.UwbConfig = uwbConfigTerraformToSdk(plan.UwbConfig)
+	} else {
+		unset["-uwb_config"] = ""
 	}
 
 	if !plan.Vars.IsNull() && !plan.Vars.IsUnknown() {

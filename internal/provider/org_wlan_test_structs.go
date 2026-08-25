@@ -201,11 +201,12 @@ type OrgWlanDnsServerRewriteValue struct {
 }
 
 type OrgWlanDynamicPskValue struct {
-	DefaultPsk    *string `cty:"default_psk" hcl:"default_psk"`
-	DefaultVlanId *string `cty:"default_vlan_id" hcl:"default_vlan_id"`
-	Enabled       *bool   `cty:"enabled" hcl:"enabled"`
-	ForceLookup   *bool   `cty:"force_lookup" hcl:"force_lookup"`
-	Source        *string `cty:"source" hcl:"source"`
+	DefaultPsk    *string  `cty:"default_psk" hcl:"default_psk"`
+	DefaultVlanId *string  `cty:"default_vlan_id" hcl:"default_vlan_id"`
+	Enabled       *bool    `cty:"enabled" hcl:"enabled"`
+	ForceLookup   *bool    `cty:"force_lookup" hcl:"force_lookup"`
+	LocalVlanIds  []string `cty:"local_vlan_ids" hcl:"local_vlan_ids"`
+	Source        *string  `cty:"source" hcl:"source"`
 }
 
 type OrgWlanDynamicVlanValue struct {

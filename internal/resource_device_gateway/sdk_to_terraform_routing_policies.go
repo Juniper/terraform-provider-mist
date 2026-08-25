@@ -134,6 +134,8 @@ func routingPolicyTermActionsSdkToTerraform(ctx context.Context, diags *diag.Dia
 	var excludeCommunity = types.ListNull(types.StringType)
 	var exportCommunities = types.ListNull(types.StringType)
 	var localPreference basetypes.StringValue
+	var nextPolicy basetypes.BoolValue
+	var nextTerm basetypes.BoolValue
 	var prependAsPath = types.ListNull(types.StringType)
 
 	if d.Accept != nil {
@@ -160,6 +162,12 @@ func routingPolicyTermActionsSdkToTerraform(ctx context.Context, diags *diag.Dia
 	if d.LocalPreference != nil {
 		localPreference = mistutils.ContainerAsString(d.LocalPreference)
 	}
+	if d.NextPolicy != nil {
+		nextPolicy = types.BoolValue(*d.NextPolicy)
+	}
+	if d.NextTerm != nil {
+		nextTerm = types.BoolValue(*d.NextTerm)
+	}
 	if len(d.PrependAsPath) > 0 {
 		prependAsPath = mistutils.ListOfStringSdkToTerraform(d.PrependAsPath)
 	}
@@ -173,6 +181,8 @@ func routingPolicyTermActionsSdkToTerraform(ctx context.Context, diags *diag.Dia
 		"exclude_community":  excludeCommunity,
 		"export_communities": exportCommunities,
 		"local_preference":   localPreference,
+		"next_policy":        nextPolicy,
+		"next_term":          nextTerm,
 		"prepend_as_path":    prependAsPath,
 	}
 	data, e := basetypes.NewObjectValue(ActionsValue{}.AttributeTypes(ctx), dataMapValue)

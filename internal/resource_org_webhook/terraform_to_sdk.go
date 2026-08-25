@@ -20,6 +20,12 @@ func TerraformToSdk(plan *OrgWebhookModel) (models.Webhook, diag.Diagnostics) {
 		unset["-enabled"] = ""
 	}
 
+	if !plan.DefaultAction.IsNull() && !plan.DefaultAction.IsUnknown() {
+		data.DefaultAction = models.ToPointer(models.WebhookActionEnum(plan.DefaultAction.ValueString()))
+	} else {
+		unset["-default_action"] = ""
+	}
+
 	if !plan.Headers.IsNull() && !plan.Headers.IsUnknown() {
 		items := make(map[string]string)
 		for key, val := range plan.Headers.Elements() {
@@ -107,6 +113,36 @@ func TerraformToSdk(plan *OrgWebhookModel) (models.Webhook, diag.Diagnostics) {
 		data.Topics = items
 	} else {
 		unset["-topics"] = ""
+	}
+
+	if !plan.Rules.IsNull() && !plan.Rules.IsUnknown() {
+		var ruleList []models.WebhookRule
+		for _, v := range plan.Rules.Elements() {
+			var vInterface interface{} = v
+			rPlan := vInterface.(RulesValue)
+			r := models.WebhookRule{Topic: rPlan.Topic.ValueString()}
+			if rPlan.Action.ValueStringPointer() != nil {
+				r.Action = models.ToPointer(models.WebhookActionEnum(rPlan.Action.ValueString()))
+			}
+			if !rPlan.Matching.IsNull() && !rPlan.Matching.IsUnknown() {
+				m := make(map[string][]string)
+				for k, val := range rPlan.Matching.Elements() {
+					var valInterface interface{} = val
+					listVal := valInterface.(basetypes.ListValue)
+					var strs []string
+					for _, s := range listVal.Elements() {
+						var sInterface interface{} = s
+						strs = append(strs, sInterface.(basetypes.StringValue).ValueString())
+					}
+					m[k] = strs
+				}
+				r.Matching = m
+			}
+			ruleList = append(ruleList, r)
+		}
+		data.Rules = ruleList
+	} else {
+		unset["-rules"] = ""
 	}
 
 	if !plan.Type.IsNull() && !plan.Type.IsUnknown() {

@@ -5,9 +5,7 @@ package resource_org_deviceprofile_switch
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -18,11 +16,14 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -66,6 +67,11 @@ func OrgDeviceprofileSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
 							},
+						},
+						"disabled": schema.BoolAttribute{
+							Optional:            true,
+							Description:         "Whether this ACL policy is disabled",
+							MarkdownDescription: "Whether this ACL policy is disabled",
 						},
 						"name": schema.StringAttribute{
 							Optional:            true,
@@ -141,8 +147,8 @@ func OrgDeviceprofileSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"radius_group": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Required if:\n  * `type`==`radius_group`\n  * `type`==`static_gbp`\nif from matching radius_group",
-							MarkdownDescription: "Required if:\n  * `type`==`radius_group`\n  * `type`==`static_gbp`\nif from matching radius_group",
+							Description:         "Required if:\n  * `type`==`radius_group`\n  * `type`==`aruba_user_role`\n  * `type`==`static_gbp`\nif from matching radius_group",
+							MarkdownDescription: "Required if:\n  * `type`==`radius_group`\n  * `type`==`aruba_user_role`\n  * `type`==`static_gbp`\nif from matching radius_group",
 							Validators: []validator.String{
 								mistvalidator.RequiredWhenValueIs(path.MatchRelative().AtParent().AtName("type"), types.StringValue("radius_group")),
 							},
@@ -221,6 +227,7 @@ func OrgDeviceprofileSwitchResourceSchema(ctx context.Context) schema.Schema {
 								stringvalidator.OneOf(
 									"",
 									"any",
+									"aruba_user_role",
 									"dynamic_gbp",
 									"gbp_resource",
 									"mac",
@@ -744,6 +751,9 @@ func OrgDeviceprofileSwitchResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Unique identifier of the switch profile",
 				MarkdownDescription: "Unique identifier of the switch profile",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
 			},
 			"iot_config": schema.MapNestedAttribute{
 				NestedObject: schema.NestedAttributeObject{
@@ -913,6 +923,34 @@ func OrgDeviceprofileSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Optional:            true,
 							Description:         "Required when `isolation`==`true`. Unique VLAN ID used for client isolation",
 							MarkdownDescription: "Required when `isolation`==`true`. Unique VLAN ID used for client isolation",
+						},
+						"multicast": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"enabled": schema.BoolAttribute{
+									Optional:            true,
+									Description:         "Whether to enable IGMP snooping on this VLAN",
+									MarkdownDescription: "Whether to enable IGMP snooping on this VLAN",
+								},
+								"igmp_version": schema.StringAttribute{
+									Optional:            true,
+									Description:         "IGMP version. '2' (default, ASM/IGMPv2) / '3' (SSM/IGMPv3)",
+									MarkdownDescription: "IGMP version. '2' (default, ASM/IGMPv2) / '3' (SSM/IGMPv3)",
+									Validators: []validator.String{
+										stringvalidator.OneOf(
+											"2",
+											"3",
+										),
+									},
+								},
+							},
+							CustomType: MulticastType{
+								ObjectType: types.ObjectType{
+									AttrTypes: MulticastValue{}.AttributeTypes(ctx),
+								},
+							},
+							Optional:            true,
+							Description:         "Multicast (IGMP snooping) settings for this VLAN",
+							MarkdownDescription: "Multicast (IGMP snooping) settings for this VLAN",
 						},
 						"subnet": schema.StringAttribute{
 							Optional:            true,
@@ -3026,6 +3064,12 @@ func OrgDeviceprofileSwitchResourceSchema(ctx context.Context) schema.Schema {
 							"notify_filter": schema.ListNestedAttribute{
 								NestedObject: schema.NestedAttributeObject{
 									Attributes: map[string]schema.Attribute{
+										"categories": schema.ListAttribute{
+											ElementType:         types.StringType,
+											Optional:            true,
+											Description:         "CX only. List of SNMP trap group categories included in this filter profile. See https://www.juniper.net/documentation/software/topics/task/configuration/snmp-trap-groups-configuring-junos-nm.html for valid category names.",
+											MarkdownDescription: "CX only. List of SNMP trap group categories included in this filter profile. See https://www.juniper.net/documentation/software/topics/task/configuration/snmp-trap-groups-configuring-junos-nm.html for valid category names.",
+										},
 										"profile_name": schema.StringAttribute{
 											Optional:            true,
 											Description:         "Notification filter profile name",
@@ -3900,6 +3944,38 @@ func OrgDeviceprofileSwitchResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "IPv6 subnet used for automatic EVPN loopback addresses in this VRF instance",
 							MarkdownDescription: "IPv6 subnet used for automatic EVPN loopback addresses in this VRF instance",
 						},
+						"multicast_config": schema.SingleNestedAttribute{
+							Attributes: map[string]schema.Attribute{
+								"anycast_rp": schema.BoolAttribute{
+									Optional:            true,
+									Description:         "When `true`, auto-generates a shared RP on `is_l3_border` devices (ERB/IPClos topologies only)",
+									MarkdownDescription: "When `true`, auto-generates a shared RP on `is_l3_border` devices (ERB/IPClos topologies only)",
+								},
+								"rp_ip": schema.StringAttribute{
+									Optional:            true,
+									Description:         "RP address used when `anycast_rp`==`false`. If the address matches a device SVI, it is configured as a local RP; otherwise a static RP is configured",
+									MarkdownDescription: "RP address used when `anycast_rp`==`false`. If the address matches a device SVI, it is configured as a local RP; otherwise a static RP is configured",
+								},
+								"sbd_subnet": schema.StringAttribute{
+									Optional:            true,
+									Description:         "SBD IRB subnet; Mist auto-assigns per-device IPs from this range (EVPN eOISM only)",
+									MarkdownDescription: "SBD IRB subnet; Mist auto-assigns per-device IPs from this range (EVPN eOISM only)",
+								},
+								"sbd_vlan_id": schema.Int64Attribute{
+									Optional:            true,
+									Description:         "Supplemental Bridge Domain VLAN ID (EVPN topology / eOISM only)",
+									MarkdownDescription: "Supplemental Bridge Domain VLAN ID (EVPN topology / eOISM only)",
+								},
+							},
+							CustomType: MulticastConfigType{
+								ObjectType: types.ObjectType{
+									AttrTypes: MulticastConfigValue{}.AttributeTypes(ctx),
+								},
+							},
+							Optional:            true,
+							Description:         "Multicast configuration for this VRF instance. PIM is automatically enabled when any network in this VRF has `multicast.enabled`==`true`",
+							MarkdownDescription: "Multicast configuration for this VRF instance. PIM is automatically enabled when any network in this VRF has `multicast.enabled`==`true`",
+						},
 						"networks": schema.ListAttribute{
 							ElementType:         types.StringType,
 							Optional:            true,
@@ -4100,6 +4176,24 @@ func (t AclPoliciesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`actions expected to be basetypes.ListValue, was: %T`, actionsAttribute))
 	}
 
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return nil, diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
 	nameAttribute, ok := attributes["name"]
 
 	if !ok {
@@ -4141,10 +4235,11 @@ func (t AclPoliciesType) ValueFromObject(ctx context.Context, in basetypes.Objec
 	}
 
 	return AclPoliciesValue{
-		Actions: actionsVal,
-		Name:    nameVal,
-		SrcTags: srcTagsVal,
-		state:   attr.ValueStateKnown,
+		Actions:  actionsVal,
+		Disabled: disabledVal,
+		Name:     nameVal,
+		SrcTags:  srcTagsVal,
+		state:    attr.ValueStateKnown,
 	}, diags
 }
 
@@ -4229,6 +4324,24 @@ func NewAclPoliciesValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`actions expected to be basetypes.ListValue, was: %T`, actionsAttribute))
 	}
 
+	disabledAttribute, ok := attributes["disabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disabled is missing from object`)
+
+		return NewAclPoliciesValueUnknown(), diags
+	}
+
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
+	}
+
 	nameAttribute, ok := attributes["name"]
 
 	if !ok {
@@ -4270,10 +4383,11 @@ func NewAclPoliciesValue(attributeTypes map[string]attr.Type, attributes map[str
 	}
 
 	return AclPoliciesValue{
-		Actions: actionsVal,
-		Name:    nameVal,
-		SrcTags: srcTagsVal,
-		state:   attr.ValueStateKnown,
+		Actions:  actionsVal,
+		Disabled: disabledVal,
+		Name:     nameVal,
+		SrcTags:  srcTagsVal,
+		state:    attr.ValueStateKnown,
 	}, diags
 }
 
@@ -4345,14 +4459,15 @@ func (t AclPoliciesType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = AclPoliciesValue{}
 
 type AclPoliciesValue struct {
-	Actions basetypes.ListValue   `tfsdk:"actions"`
-	Name    basetypes.StringValue `tfsdk:"name"`
-	SrcTags basetypes.ListValue   `tfsdk:"src_tags"`
-	state   attr.ValueState
+	Actions  basetypes.ListValue   `tfsdk:"actions"`
+	Disabled basetypes.BoolValue   `tfsdk:"disabled"`
+	Name     basetypes.StringValue `tfsdk:"name"`
+	SrcTags  basetypes.ListValue   `tfsdk:"src_tags"`
+	state    attr.ValueState
 }
 
 func (v AclPoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
@@ -4360,6 +4475,7 @@ func (v AclPoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	attrTypes["actions"] = basetypes.ListType{
 		ElemType: ActionsValue{}.Type(ctx),
 	}.TerraformType(ctx)
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["src_tags"] = basetypes.ListType{
 		ElemType: types.StringType,
@@ -4369,7 +4485,7 @@ func (v AclPoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.Actions.ToTerraformValue(ctx)
 
@@ -4378,6 +4494,14 @@ func (v AclPoliciesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["actions"] = val
+
+		val, err = v.Disabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disabled"] = val
 
 		val, err = v.Name.ToTerraformValue(ctx)
 
@@ -4470,7 +4594,8 @@ func (v AclPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"actions": basetypes.ListType{
 				ElemType: ActionsValue{}.Type(ctx),
 			},
-			"name": basetypes.StringType{},
+			"disabled": basetypes.BoolType{},
+			"name":     basetypes.StringType{},
 			"src_tags": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -4481,7 +4606,8 @@ func (v AclPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		"actions": basetypes.ListType{
 			ElemType: ActionsValue{}.Type(ctx),
 		},
-		"name": basetypes.StringType{},
+		"disabled": basetypes.BoolType{},
+		"name":     basetypes.StringType{},
 		"src_tags": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -4499,6 +4625,7 @@ func (v AclPoliciesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		attributeTypes,
 		map[string]attr.Value{
 			"actions":  actions,
+			"disabled": v.Disabled,
 			"name":     v.Name,
 			"src_tags": srcTagsVal,
 		})
@@ -4522,6 +4649,10 @@ func (v AclPoliciesValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Actions.Equal(other.Actions) {
+		return false
+	}
+
+	if !v.Disabled.Equal(other.Disabled) {
 		return false
 	}
 
@@ -4549,7 +4680,8 @@ func (v AclPoliciesValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		"actions": basetypes.ListType{
 			ElemType: ActionsValue{}.Type(ctx),
 		},
-		"name": basetypes.StringType{},
+		"disabled": basetypes.BoolType{},
+		"name":     basetypes.StringType{},
 		"src_tags": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -13592,6 +13724,24 @@ func (t NetworksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`isolation_vlan_id expected to be basetypes.StringValue, was: %T`, isolationVlanIdAttribute))
 	}
 
+	multicastAttribute, ok := attributes["multicast"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`multicast is missing from object`)
+
+		return nil, diags
+	}
+
+	multicastVal, ok := multicastAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`multicast expected to be basetypes.ObjectValue, was: %T`, multicastAttribute))
+	}
+
 	subnetAttribute, ok := attributes["subnet"]
 
 	if !ok {
@@ -13655,6 +13805,7 @@ func (t NetworksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		Gateway6:        gateway6Val,
 		Isolation:       isolationVal,
 		IsolationVlanId: isolationVlanIdVal,
+		Multicast:       multicastVal,
 		Subnet:          subnetVal,
 		Subnet6:         subnet6Val,
 		VlanId:          vlanIdVal,
@@ -13797,6 +13948,24 @@ func NewNetworksValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`isolation_vlan_id expected to be basetypes.StringValue, was: %T`, isolationVlanIdAttribute))
 	}
 
+	multicastAttribute, ok := attributes["multicast"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`multicast is missing from object`)
+
+		return NewNetworksValueUnknown(), diags
+	}
+
+	multicastVal, ok := multicastAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`multicast expected to be basetypes.ObjectValue, was: %T`, multicastAttribute))
+	}
+
 	subnetAttribute, ok := attributes["subnet"]
 
 	if !ok {
@@ -13860,6 +14029,7 @@ func NewNetworksValue(attributeTypes map[string]attr.Type, attributes map[string
 		Gateway6:        gateway6Val,
 		Isolation:       isolationVal,
 		IsolationVlanId: isolationVlanIdVal,
+		Multicast:       multicastVal,
 		Subnet:          subnetVal,
 		Subnet6:         subnet6Val,
 		VlanId:          vlanIdVal,
@@ -13939,6 +14109,7 @@ type NetworksValue struct {
 	Gateway6        basetypes.StringValue `tfsdk:"gateway6"`
 	Isolation       basetypes.BoolValue   `tfsdk:"isolation"`
 	IsolationVlanId basetypes.StringValue `tfsdk:"isolation_vlan_id"`
+	Multicast       basetypes.ObjectValue `tfsdk:"multicast"`
 	Subnet          basetypes.StringValue `tfsdk:"subnet"`
 	Subnet6         basetypes.StringValue `tfsdk:"subnet6"`
 	VlanId          basetypes.StringValue `tfsdk:"vlan_id"`
@@ -13946,7 +14117,7 @@ type NetworksValue struct {
 }
 
 func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 7)
+	attrTypes := make(map[string]tftypes.Type, 8)
 
 	var val tftypes.Value
 	var err error
@@ -13955,6 +14126,9 @@ func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["gateway6"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["isolation"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["isolation_vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["multicast"] = basetypes.ObjectType{
+		AttrTypes: MulticastValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["subnet"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["subnet6"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["vlan_id"] = basetypes.StringType{}.TerraformType(ctx)
@@ -13963,7 +14137,7 @@ func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 7)
+		vals := make(map[string]tftypes.Value, 8)
 
 		val, err = v.Gateway.ToTerraformValue(ctx)
 
@@ -13996,6 +14170,14 @@ func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["isolation_vlan_id"] = val
+
+		val, err = v.Multicast.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["multicast"] = val
 
 		val, err = v.Subnet.ToTerraformValue(ctx)
 
@@ -14050,14 +14232,38 @@ func (v NetworksValue) String() string {
 func (v NetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var multicast basetypes.ObjectValue
+
+	if v.Multicast.IsNull() {
+		multicast = types.ObjectNull(
+			MulticastValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Multicast.IsUnknown() {
+		multicast = types.ObjectUnknown(
+			MulticastValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Multicast.IsNull() && !v.Multicast.IsUnknown() {
+		multicast = types.ObjectValueMust(
+			MulticastValue{}.AttributeTypes(ctx),
+			v.Multicast.Attributes(),
+		)
+	}
+
 	attributeTypes := map[string]attr.Type{
 		"gateway":           basetypes.StringType{},
 		"gateway6":          basetypes.StringType{},
 		"isolation":         basetypes.BoolType{},
 		"isolation_vlan_id": basetypes.StringType{},
-		"subnet":            basetypes.StringType{},
-		"subnet6":           basetypes.StringType{},
-		"vlan_id":           basetypes.StringType{},
+		"multicast": basetypes.ObjectType{
+			AttrTypes: MulticastValue{}.AttributeTypes(ctx),
+		},
+		"subnet":  basetypes.StringType{},
+		"subnet6": basetypes.StringType{},
+		"vlan_id": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -14075,6 +14281,7 @@ func (v NetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"gateway6":          v.Gateway6,
 			"isolation":         v.Isolation,
 			"isolation_vlan_id": v.IsolationVlanId,
+			"multicast":         multicast,
 			"subnet":            v.Subnet,
 			"subnet6":           v.Subnet6,
 			"vlan_id":           v.VlanId,
@@ -14114,6 +14321,10 @@ func (v NetworksValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Multicast.Equal(other.Multicast) {
+		return false
+	}
+
 	if !v.Subnet.Equal(other.Subnet) {
 		return false
 	}
@@ -14143,9 +14354,391 @@ func (v NetworksValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"gateway6":          basetypes.StringType{},
 		"isolation":         basetypes.BoolType{},
 		"isolation_vlan_id": basetypes.StringType{},
-		"subnet":            basetypes.StringType{},
-		"subnet6":           basetypes.StringType{},
-		"vlan_id":           basetypes.StringType{},
+		"multicast": basetypes.ObjectType{
+			AttrTypes: MulticastValue{}.AttributeTypes(ctx),
+		},
+		"subnet":  basetypes.StringType{},
+		"subnet6": basetypes.StringType{},
+		"vlan_id": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = MulticastType{}
+
+type MulticastType struct {
+	basetypes.ObjectType
+}
+
+func (t MulticastType) Equal(o attr.Type) bool {
+	other, ok := o.(MulticastType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t MulticastType) String() string {
+	return "MulticastType"
+}
+
+func (t MulticastType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	igmpVersionAttribute, ok := attributes["igmp_version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`igmp_version is missing from object`)
+
+		return nil, diags
+	}
+
+	igmpVersionVal, ok := igmpVersionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`igmp_version expected to be basetypes.StringValue, was: %T`, igmpVersionAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return MulticastValue{
+		Enabled:     enabledVal,
+		IgmpVersion: igmpVersionVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMulticastValueNull() MulticastValue {
+	return MulticastValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewMulticastValueUnknown() MulticastValue {
+	return MulticastValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewMulticastValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (MulticastValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing MulticastValue Attribute Value",
+				"While creating a MulticastValue value, a missing attribute value was detected. "+
+					"A MulticastValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MulticastValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid MulticastValue Attribute Type",
+				"While creating a MulticastValue value, an invalid attribute value was detected. "+
+					"A MulticastValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MulticastValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("MulticastValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra MulticastValue Attribute Value",
+				"While creating a MulticastValue value, an extra attribute value was detected. "+
+					"A MulticastValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra MulticastValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewMulticastValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewMulticastValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	igmpVersionAttribute, ok := attributes["igmp_version"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`igmp_version is missing from object`)
+
+		return NewMulticastValueUnknown(), diags
+	}
+
+	igmpVersionVal, ok := igmpVersionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`igmp_version expected to be basetypes.StringValue, was: %T`, igmpVersionAttribute))
+	}
+
+	if diags.HasError() {
+		return NewMulticastValueUnknown(), diags
+	}
+
+	return MulticastValue{
+		Enabled:     enabledVal,
+		IgmpVersion: igmpVersionVal,
+		state:       attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMulticastValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) MulticastValue {
+	object, diags := NewMulticastValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewMulticastValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t MulticastType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewMulticastValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewMulticastValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewMulticastValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewMulticastValueMust(MulticastValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t MulticastType) ValueType(ctx context.Context) attr.Value {
+	return MulticastValue{}
+}
+
+var _ basetypes.ObjectValuable = MulticastValue{}
+
+type MulticastValue struct {
+	Enabled     basetypes.BoolValue   `tfsdk:"enabled"`
+	IgmpVersion basetypes.StringValue `tfsdk:"igmp_version"`
+	state       attr.ValueState
+}
+
+func (v MulticastValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["igmp_version"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.IgmpVersion.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["igmp_version"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v MulticastValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v MulticastValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v MulticastValue) String() string {
+	return "MulticastValue"
+}
+
+func (v MulticastValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled":      basetypes.BoolType{},
+		"igmp_version": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled":      v.Enabled,
+			"igmp_version": v.IgmpVersion,
+		})
+
+	return objVal, diags
+}
+
+func (v MulticastValue) Equal(o attr.Value) bool {
+	other, ok := o.(MulticastValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.IgmpVersion.Equal(other.IgmpVersion) {
+		return false
+	}
+
+	return true
+}
+
+func (v MulticastValue) Type(ctx context.Context) attr.Type {
+	return MulticastType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v MulticastValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled":      basetypes.BoolType{},
+		"igmp_version": basetypes.StringType{},
 	}
 }
 
@@ -35731,6 +36324,24 @@ func (t NotifyFilterType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	attributes := in.Attributes()
 
+	categoriesAttribute, ok := attributes["categories"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`categories is missing from object`)
+
+		return nil, diags
+	}
+
+	categoriesVal, ok := categoriesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`categories expected to be basetypes.ListValue, was: %T`, categoriesAttribute))
+	}
+
 	profileNameAttribute, ok := attributes["profile_name"]
 
 	if !ok {
@@ -35772,6 +36383,7 @@ func (t NotifyFilterType) ValueFromObject(ctx context.Context, in basetypes.Obje
 	}
 
 	return NotifyFilterValue{
+		Categories:     categoriesVal,
 		ProfileName:    profileNameVal,
 		Snmpv3Contents: snmpv3ContentsVal,
 		state:          attr.ValueStateKnown,
@@ -35841,6 +36453,24 @@ func NewNotifyFilterValue(attributeTypes map[string]attr.Type, attributes map[st
 		return NewNotifyFilterValueUnknown(), diags
 	}
 
+	categoriesAttribute, ok := attributes["categories"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`categories is missing from object`)
+
+		return NewNotifyFilterValueUnknown(), diags
+	}
+
+	categoriesVal, ok := categoriesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`categories expected to be basetypes.ListValue, was: %T`, categoriesAttribute))
+	}
+
 	profileNameAttribute, ok := attributes["profile_name"]
 
 	if !ok {
@@ -35882,6 +36512,7 @@ func NewNotifyFilterValue(attributeTypes map[string]attr.Type, attributes map[st
 	}
 
 	return NotifyFilterValue{
+		Categories:     categoriesVal,
 		ProfileName:    profileNameVal,
 		Snmpv3Contents: snmpv3ContentsVal,
 		state:          attr.ValueStateKnown,
@@ -35956,17 +36587,21 @@ func (t NotifyFilterType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = NotifyFilterValue{}
 
 type NotifyFilterValue struct {
+	Categories     basetypes.ListValue   `tfsdk:"categories"`
 	ProfileName    basetypes.StringValue `tfsdk:"profile_name"`
 	Snmpv3Contents basetypes.ListValue   `tfsdk:"contents"`
 	state          attr.ValueState
 }
 
 func (v NotifyFilterValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 2)
+	attrTypes := make(map[string]tftypes.Type, 3)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["categories"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["profile_name"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["contents"] = basetypes.ListType{
 		ElemType: Snmpv3ContentsValue{}.Type(ctx),
@@ -35976,7 +36611,15 @@ func (v NotifyFilterValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 2)
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.Categories.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["categories"] = val
 
 		val, err = v.ProfileName.ToTerraformValue(ctx)
 
@@ -36052,7 +36695,34 @@ func (v NotifyFilterValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		)
 	}
 
+	var categoriesVal basetypes.ListValue
+	switch {
+	case v.Categories.IsUnknown():
+		categoriesVal = types.ListUnknown(types.StringType)
+	case v.Categories.IsNull():
+		categoriesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		categoriesVal, d = types.ListValue(types.StringType, v.Categories.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"categories": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"profile_name": basetypes.StringType{},
+			"contents": basetypes.ListType{
+				ElemType: Snmpv3ContentsValue{}.Type(ctx),
+			},
+		}), diags
+	}
+
 	attributeTypes := map[string]attr.Type{
+		"categories": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"profile_name": basetypes.StringType{},
 		"contents": basetypes.ListType{
 			ElemType: Snmpv3ContentsValue{}.Type(ctx),
@@ -36070,6 +36740,7 @@ func (v NotifyFilterValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"categories":   categoriesVal,
 			"profile_name": v.ProfileName,
 			"contents":     snmpv3Contents,
 		})
@@ -36090,6 +36761,10 @@ func (v NotifyFilterValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.Categories.Equal(other.Categories) {
+		return false
 	}
 
 	if !v.ProfileName.Equal(other.ProfileName) {
@@ -36113,6 +36788,9 @@ func (v NotifyFilterValue) Type(ctx context.Context) attr.Type {
 
 func (v NotifyFilterValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"categories": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"profile_name": basetypes.StringType{},
 		"contents": basetypes.ListType{
 			ElemType: Snmpv3ContentsValue{}.Type(ctx),
@@ -46418,6 +47096,24 @@ func (t VrfInstancesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 			fmt.Sprintf(`evpn_auto_loopback_subnet6 expected to be basetypes.StringValue, was: %T`, evpnAutoLoopbackSubnet6Attribute))
 	}
 
+	multicastConfigAttribute, ok := attributes["multicast_config"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`multicast_config is missing from object`)
+
+		return nil, diags
+	}
+
+	multicastConfigVal, ok := multicastConfigAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`multicast_config expected to be basetypes.ObjectValue, was: %T`, multicastConfigAttribute))
+	}
+
 	networksAttribute, ok := attributes["networks"]
 
 	if !ok {
@@ -46479,6 +47175,7 @@ func (t VrfInstancesType) ValueFromObject(ctx context.Context, in basetypes.Obje
 	return VrfInstancesValue{
 		EvpnAutoLoopbackSubnet:  evpnAutoLoopbackSubnetVal,
 		EvpnAutoLoopbackSubnet6: evpnAutoLoopbackSubnet6Val,
+		MulticastConfig:         multicastConfigVal,
 		Networks:                networksVal,
 		VrfExtraRoutes:          vrfExtraRoutesVal,
 		VrfExtraRoutes6:         vrfExtraRoutes6Val,
@@ -46585,6 +47282,24 @@ func NewVrfInstancesValue(attributeTypes map[string]attr.Type, attributes map[st
 			fmt.Sprintf(`evpn_auto_loopback_subnet6 expected to be basetypes.StringValue, was: %T`, evpnAutoLoopbackSubnet6Attribute))
 	}
 
+	multicastConfigAttribute, ok := attributes["multicast_config"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`multicast_config is missing from object`)
+
+		return NewVrfInstancesValueUnknown(), diags
+	}
+
+	multicastConfigVal, ok := multicastConfigAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`multicast_config expected to be basetypes.ObjectValue, was: %T`, multicastConfigAttribute))
+	}
+
 	networksAttribute, ok := attributes["networks"]
 
 	if !ok {
@@ -46646,6 +47361,7 @@ func NewVrfInstancesValue(attributeTypes map[string]attr.Type, attributes map[st
 	return VrfInstancesValue{
 		EvpnAutoLoopbackSubnet:  evpnAutoLoopbackSubnetVal,
 		EvpnAutoLoopbackSubnet6: evpnAutoLoopbackSubnet6Val,
+		MulticastConfig:         multicastConfigVal,
 		Networks:                networksVal,
 		VrfExtraRoutes:          vrfExtraRoutesVal,
 		VrfExtraRoutes6:         vrfExtraRoutes6Val,
@@ -46723,6 +47439,7 @@ var _ basetypes.ObjectValuable = VrfInstancesValue{}
 type VrfInstancesValue struct {
 	EvpnAutoLoopbackSubnet  basetypes.StringValue `tfsdk:"evpn_auto_loopback_subnet"`
 	EvpnAutoLoopbackSubnet6 basetypes.StringValue `tfsdk:"evpn_auto_loopback_subnet6"`
+	MulticastConfig         basetypes.ObjectValue `tfsdk:"multicast_config"`
 	Networks                basetypes.ListValue   `tfsdk:"networks"`
 	VrfExtraRoutes          basetypes.MapValue    `tfsdk:"extra_routes"`
 	VrfExtraRoutes6         basetypes.MapValue    `tfsdk:"extra_routes6"`
@@ -46730,13 +47447,16 @@ type VrfInstancesValue struct {
 }
 
 func (v VrfInstancesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 5)
+	attrTypes := make(map[string]tftypes.Type, 6)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["evpn_auto_loopback_subnet"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["evpn_auto_loopback_subnet6"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["multicast_config"] = basetypes.ObjectType{
+		AttrTypes: MulticastConfigValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["networks"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -46751,7 +47471,7 @@ func (v VrfInstancesValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 5)
+		vals := make(map[string]tftypes.Value, 6)
 
 		val, err = v.EvpnAutoLoopbackSubnet.ToTerraformValue(ctx)
 
@@ -46768,6 +47488,14 @@ func (v VrfInstancesValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 		}
 
 		vals["evpn_auto_loopback_subnet6"] = val
+
+		val, err = v.MulticastConfig.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["multicast_config"] = val
 
 		val, err = v.Networks.ToTerraformValue(ctx)
 
@@ -46821,6 +47549,27 @@ func (v VrfInstancesValue) String() string {
 
 func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
+
+	var multicastConfig basetypes.ObjectValue
+
+	if v.MulticastConfig.IsNull() {
+		multicastConfig = types.ObjectNull(
+			MulticastConfigValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.MulticastConfig.IsUnknown() {
+		multicastConfig = types.ObjectUnknown(
+			MulticastConfigValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.MulticastConfig.IsNull() && !v.MulticastConfig.IsUnknown() {
+		multicastConfig = types.ObjectValueMust(
+			MulticastConfigValue{}.AttributeTypes(ctx),
+			v.MulticastConfig.Attributes(),
+		)
+	}
 
 	vrfExtraRoutes := types.MapValueMust(
 		VrfExtraRoutesType{
@@ -46896,6 +47645,9 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		return types.ObjectUnknown(map[string]attr.Type{
 			"evpn_auto_loopback_subnet":  basetypes.StringType{},
 			"evpn_auto_loopback_subnet6": basetypes.StringType{},
+			"multicast_config": basetypes.ObjectType{
+				AttrTypes: MulticastConfigValue{}.AttributeTypes(ctx),
+			},
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -46911,6 +47663,9 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	attributeTypes := map[string]attr.Type{
 		"evpn_auto_loopback_subnet":  basetypes.StringType{},
 		"evpn_auto_loopback_subnet6": basetypes.StringType{},
+		"multicast_config": basetypes.ObjectType{
+			AttrTypes: MulticastConfigValue{}.AttributeTypes(ctx),
+		},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -46935,6 +47690,7 @@ func (v VrfInstancesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 		map[string]attr.Value{
 			"evpn_auto_loopback_subnet":  v.EvpnAutoLoopbackSubnet,
 			"evpn_auto_loopback_subnet6": v.EvpnAutoLoopbackSubnet6,
+			"multicast_config":           multicastConfig,
 			"networks":                   networksVal,
 			"extra_routes":               vrfExtraRoutes,
 			"extra_routes6":              vrfExtraRoutes6,
@@ -46966,6 +47722,10 @@ func (v VrfInstancesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.MulticastConfig.Equal(other.MulticastConfig) {
+		return false
+	}
+
 	if !v.Networks.Equal(other.Networks) {
 		return false
 	}
@@ -46993,6 +47753,9 @@ func (v VrfInstancesValue) AttributeTypes(ctx context.Context) map[string]attr.T
 	return map[string]attr.Type{
 		"evpn_auto_loopback_subnet":  basetypes.StringType{},
 		"evpn_auto_loopback_subnet6": basetypes.StringType{},
+		"multicast_config": basetypes.ObjectType{
+			AttrTypes: MulticastConfigValue{}.AttributeTypes(ctx),
+		},
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -47002,6 +47765,495 @@ func (v VrfInstancesValue) AttributeTypes(ctx context.Context) map[string]attr.T
 		"extra_routes6": basetypes.MapType{
 			ElemType: VrfExtraRoutes6Value{}.Type(ctx),
 		},
+	}
+}
+
+var _ basetypes.ObjectTypable = MulticastConfigType{}
+
+type MulticastConfigType struct {
+	basetypes.ObjectType
+}
+
+func (t MulticastConfigType) Equal(o attr.Type) bool {
+	other, ok := o.(MulticastConfigType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t MulticastConfigType) String() string {
+	return "MulticastConfigType"
+}
+
+func (t MulticastConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	anycastRpAttribute, ok := attributes["anycast_rp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`anycast_rp is missing from object`)
+
+		return nil, diags
+	}
+
+	anycastRpVal, ok := anycastRpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`anycast_rp expected to be basetypes.BoolValue, was: %T`, anycastRpAttribute))
+	}
+
+	rpIpAttribute, ok := attributes["rp_ip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rp_ip is missing from object`)
+
+		return nil, diags
+	}
+
+	rpIpVal, ok := rpIpAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rp_ip expected to be basetypes.StringValue, was: %T`, rpIpAttribute))
+	}
+
+	sbdSubnetAttribute, ok := attributes["sbd_subnet"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sbd_subnet is missing from object`)
+
+		return nil, diags
+	}
+
+	sbdSubnetVal, ok := sbdSubnetAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sbd_subnet expected to be basetypes.StringValue, was: %T`, sbdSubnetAttribute))
+	}
+
+	sbdVlanIdAttribute, ok := attributes["sbd_vlan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sbd_vlan_id is missing from object`)
+
+		return nil, diags
+	}
+
+	sbdVlanIdVal, ok := sbdVlanIdAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sbd_vlan_id expected to be basetypes.Int64Value, was: %T`, sbdVlanIdAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return MulticastConfigValue{
+		AnycastRp: anycastRpVal,
+		RpIp:      rpIpVal,
+		SbdSubnet: sbdSubnetVal,
+		SbdVlanId: sbdVlanIdVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMulticastConfigValueNull() MulticastConfigValue {
+	return MulticastConfigValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewMulticastConfigValueUnknown() MulticastConfigValue {
+	return MulticastConfigValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewMulticastConfigValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (MulticastConfigValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing MulticastConfigValue Attribute Value",
+				"While creating a MulticastConfigValue value, a missing attribute value was detected. "+
+					"A MulticastConfigValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MulticastConfigValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid MulticastConfigValue Attribute Type",
+				"While creating a MulticastConfigValue value, an invalid attribute value was detected. "+
+					"A MulticastConfigValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MulticastConfigValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("MulticastConfigValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra MulticastConfigValue Attribute Value",
+				"While creating a MulticastConfigValue value, an extra attribute value was detected. "+
+					"A MulticastConfigValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra MulticastConfigValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	anycastRpAttribute, ok := attributes["anycast_rp"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`anycast_rp is missing from object`)
+
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	anycastRpVal, ok := anycastRpAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`anycast_rp expected to be basetypes.BoolValue, was: %T`, anycastRpAttribute))
+	}
+
+	rpIpAttribute, ok := attributes["rp_ip"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rp_ip is missing from object`)
+
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	rpIpVal, ok := rpIpAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rp_ip expected to be basetypes.StringValue, was: %T`, rpIpAttribute))
+	}
+
+	sbdSubnetAttribute, ok := attributes["sbd_subnet"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sbd_subnet is missing from object`)
+
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	sbdSubnetVal, ok := sbdSubnetAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sbd_subnet expected to be basetypes.StringValue, was: %T`, sbdSubnetAttribute))
+	}
+
+	sbdVlanIdAttribute, ok := attributes["sbd_vlan_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sbd_vlan_id is missing from object`)
+
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	sbdVlanIdVal, ok := sbdVlanIdAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sbd_vlan_id expected to be basetypes.Int64Value, was: %T`, sbdVlanIdAttribute))
+	}
+
+	if diags.HasError() {
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	return MulticastConfigValue{
+		AnycastRp: anycastRpVal,
+		RpIp:      rpIpVal,
+		SbdSubnet: sbdSubnetVal,
+		SbdVlanId: sbdVlanIdVal,
+		state:     attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMulticastConfigValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) MulticastConfigValue {
+	object, diags := NewMulticastConfigValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewMulticastConfigValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t MulticastConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewMulticastConfigValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewMulticastConfigValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewMulticastConfigValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewMulticastConfigValueMust(MulticastConfigValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t MulticastConfigType) ValueType(ctx context.Context) attr.Value {
+	return MulticastConfigValue{}
+}
+
+var _ basetypes.ObjectValuable = MulticastConfigValue{}
+
+type MulticastConfigValue struct {
+	AnycastRp basetypes.BoolValue   `tfsdk:"anycast_rp"`
+	RpIp      basetypes.StringValue `tfsdk:"rp_ip"`
+	SbdSubnet basetypes.StringValue `tfsdk:"sbd_subnet"`
+	SbdVlanId basetypes.Int64Value  `tfsdk:"sbd_vlan_id"`
+	state     attr.ValueState
+}
+
+func (v MulticastConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 4)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["anycast_rp"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["rp_ip"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["sbd_subnet"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["sbd_vlan_id"] = basetypes.Int64Type{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 4)
+
+		val, err = v.AnycastRp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["anycast_rp"] = val
+
+		val, err = v.RpIp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["rp_ip"] = val
+
+		val, err = v.SbdSubnet.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["sbd_subnet"] = val
+
+		val, err = v.SbdVlanId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["sbd_vlan_id"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v MulticastConfigValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v MulticastConfigValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v MulticastConfigValue) String() string {
+	return "MulticastConfigValue"
+}
+
+func (v MulticastConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"anycast_rp":  basetypes.BoolType{},
+		"rp_ip":       basetypes.StringType{},
+		"sbd_subnet":  basetypes.StringType{},
+		"sbd_vlan_id": basetypes.Int64Type{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"anycast_rp":  v.AnycastRp,
+			"rp_ip":       v.RpIp,
+			"sbd_subnet":  v.SbdSubnet,
+			"sbd_vlan_id": v.SbdVlanId,
+		})
+
+	return objVal, diags
+}
+
+func (v MulticastConfigValue) Equal(o attr.Value) bool {
+	other, ok := o.(MulticastConfigValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AnycastRp.Equal(other.AnycastRp) {
+		return false
+	}
+
+	if !v.RpIp.Equal(other.RpIp) {
+		return false
+	}
+
+	if !v.SbdSubnet.Equal(other.SbdSubnet) {
+		return false
+	}
+
+	if !v.SbdVlanId.Equal(other.SbdVlanId) {
+		return false
+	}
+
+	return true
+}
+
+func (v MulticastConfigValue) Type(ctx context.Context) attr.Type {
+	return MulticastConfigType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v MulticastConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"anycast_rp":  basetypes.BoolType{},
+		"rp_ip":       basetypes.StringType{},
+		"sbd_subnet":  basetypes.StringType{},
+		"sbd_vlan_id": basetypes.Int64Type{},
 	}
 }
 

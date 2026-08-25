@@ -55,6 +55,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		unset["-auto_upgrade"] = ""
 	}
 
+	if !plan.AutoUpgradeEsl.IsNull() && !plan.AutoUpgradeEsl.IsUnknown() {
+		data.AutoUpgradeEsl = siteSettingAutoUpgradeEslTerraformToSdk(plan.AutoUpgradeEsl)
+	} else {
+		unset["-auto_upgrade_esl"] = ""
+	}
+
 	if !plan.BgpNeighborUpdownThreshold.IsNull() && !plan.BgpNeighborUpdownThreshold.IsUnknown() {
 		data.BgpNeighborUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.BgpNeighborUpdownThreshold.ValueInt64())))
 	} else {
@@ -113,6 +119,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		data.GatewayUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.GatewayUpdownThreshold.ValueInt64())))
 	} else {
 		unset["-gateway_updown_threshold"] = ""
+	}
+
+	if !plan.GatewayTunnelUpdownThreshold.IsNull() && !plan.GatewayTunnelUpdownThreshold.IsUnknown() {
+		data.GatewayTunnelUpdownThreshold = models.NewOptional(models.ToPointer(int(plan.GatewayTunnelUpdownThreshold.ValueInt64())))
+	} else {
+		unset["-gateway_tunnel_updown_threshold"] = ""
 	}
 
 	if !plan.JuniperSrx.IsNull() && !plan.JuniperSrx.IsUnknown() {
@@ -357,6 +369,12 @@ func TerraformToSdk(ctx context.Context, plan *SiteSettingModel) (*models.SiteSe
 		data.TuntermMulticastConfig = tuntermMulticastConfigTerraformToSdk(ctx, &diags, plan.TuntermMulticastConfig)
 	} else {
 		unset["-tunterm_multicast_config"] = ""
+	}
+
+	if !plan.UwbConfig.IsNull() && !plan.UwbConfig.IsUnknown() {
+		data.UwbConfig = uwbConfigTerraformToSdk(plan.UwbConfig)
+	} else {
+		unset["-uwb_config"] = ""
 	}
 
 	data.AdditionalProperties = unset

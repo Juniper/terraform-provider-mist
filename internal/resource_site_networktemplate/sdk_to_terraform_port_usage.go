@@ -138,6 +138,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var resetDefaultWhen basetypes.StringValue
 		var rules = types.ListNull(RulesValue{}.Type(ctx))
 		var serverFailNetwork basetypes.StringValue
+		var serverFailRetryInterval basetypes.Int64Value
 		var serverRejectNetwork basetypes.StringValue
 		var speed basetypes.StringValue
 		var stormControl = types.ObjectNull(StormControlValue{}.AttributeTypes(ctx))
@@ -252,6 +253,9 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.ServerFailNetwork.Value() != nil {
 			serverFailNetwork = types.StringValue(*d.ServerFailNetwork.Value())
 		}
+		if d.ServerFailRetryInterval != nil {
+			serverFailRetryInterval = types.Int64Value(int64(*d.ServerFailRetryInterval))
+		}
 		if d.ServerRejectNetwork.Value() != nil {
 			serverRejectNetwork = types.StringValue(*d.ServerRejectNetwork.Value())
 		}
@@ -321,6 +325,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"reset_default_when":                              resetDefaultWhen,
 			"rules":                                           rules,
 			"server_fail_network":                             serverFailNetwork,
+			"server_fail_retry_interval":                      serverFailRetryInterval,
 			"server_reject_network":                           serverRejectNetwork,
 			"speed":                                           speed,
 			"storm_control":                                   stormControl,

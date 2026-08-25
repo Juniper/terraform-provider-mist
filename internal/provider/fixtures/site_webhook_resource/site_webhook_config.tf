@@ -2,6 +2,7 @@
 name = "test-comprehensive-webhook"
 url = "https://webhook.example.com/endpoint"
 type = "oauth2"
+default_action = "permit"
 enabled = true
 topics = [
   "alarms",
@@ -30,3 +31,23 @@ secret = "webhook-secret-key-12345"
 splunk_token = "splunk-hec-token-67890"
 single_event_per_message = true
 verify_cert = false
+␞
+name       = "test-rules-webhook"
+url        = "https://webhook.example.com/rules-endpoint"
+type       = "http-post"
+enabled    = true
+default_action = "block"
+topics = [
+  "device-events",
+  "alarms"
+]
+rules = [
+  {
+    action = "permit"
+    topic  = "device-events"
+  },
+  {
+    action = "permit"
+    topic  = "alarms"
+  }
+]

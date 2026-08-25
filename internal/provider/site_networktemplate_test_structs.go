@@ -30,9 +30,10 @@ type SiteNetworktemplateModel struct {
 }
 
 type SiteNetworktemplateAclPoliciesValue struct {
-	Actions []SiteNetworktemplateActionsValue `cty:"actions" hcl:"actions"`
-	Name    *string                           `cty:"name" hcl:"name"`
-	SrcTags []string                          `cty:"src_tags" hcl:"src_tags"`
+	Actions  []SiteNetworktemplateActionsValue `cty:"actions" hcl:"actions"`
+	Disabled *bool                             `cty:"disabled" hcl:"disabled"`
+	Name     *string                           `cty:"name" hcl:"name"`
+	SrcTags  []string                          `cty:"src_tags" hcl:"src_tags"`
 }
 
 type SiteNetworktemplateActionsValue struct {
@@ -94,13 +95,19 @@ type SiteNetworktemplateMistNacValue struct {
 }
 
 type SiteNetworktemplateNetworksValue struct {
-	Gateway         *string `cty:"gateway" hcl:"gateway"`
-	Gateway6        *string `cty:"gateway6" hcl:"gateway6"`
-	Isolation       *bool   `cty:"isolation" hcl:"isolation"`
-	IsolationVlanId *string `cty:"isolation_vlan_id" hcl:"isolation_vlan_id"`
-	Subnet          *string `cty:"subnet" hcl:"subnet"`
-	Subnet6         *string `cty:"subnet6" hcl:"subnet6"`
-	VlanId          string  `cty:"vlan_id" hcl:"vlan_id"`
+	Gateway         *string                            `cty:"gateway" hcl:"gateway"`
+	Gateway6        *string                            `cty:"gateway6" hcl:"gateway6"`
+	Isolation       *bool                              `cty:"isolation" hcl:"isolation"`
+	IsolationVlanId *string                            `cty:"isolation_vlan_id" hcl:"isolation_vlan_id"`
+	Multicast       *SiteNetworktemplateMulticastValue `cty:"multicast" hcl:"multicast"`
+	Subnet          *string                            `cty:"subnet" hcl:"subnet"`
+	Subnet6         *string                            `cty:"subnet6" hcl:"subnet6"`
+	VlanId          string                             `cty:"vlan_id" hcl:"vlan_id"`
+}
+
+type SiteNetworktemplateMulticastValue struct {
+	Enabled     *bool   `cty:"enabled" hcl:"enabled"`
+	IgmpVersion *string `cty:"igmp_version" hcl:"igmp_version"`
 }
 
 type SiteNetworktemplateOspfAreasValue struct {
@@ -168,6 +175,7 @@ type SiteNetworktemplatePortUsagesValue struct {
 	ResetDefaultWhen                         *string                               `cty:"reset_default_when" hcl:"reset_default_when"`
 	Rules                                    []SiteNetworktemplateRulesValue       `cty:"rules" hcl:"rules"`
 	ServerFailNetwork                        *string                               `cty:"server_fail_network" hcl:"server_fail_network"`
+	ServerFailRetryInterval                  *int64                                `cty:"server_fail_retry_interval" hcl:"server_fail_retry_interval"`
 	ServerRejectNetwork                      *string                               `cty:"server_reject_network" hcl:"server_reject_network"`
 	Speed                                    *string                               `cty:"speed" hcl:"speed"`
 	StormControl                             *SiteNetworktemplateStormControlValue `cty:"storm_control" hcl:"storm_control"`
@@ -369,6 +377,7 @@ type SiteNetworktemplateNotifyValue struct {
 }
 
 type SiteNetworktemplateNotifyFilterValue struct {
+	Categories     []string                                 `cty:"categories" hcl:"categories"`
 	ProfileName    *string                                  `cty:"profile_name" hcl:"profile_name"`
 	Snmpv3Contents []SiteNetworktemplateSnmpv3ContentsValue `cty:"contents" hcl:"contents"`
 }
@@ -481,6 +490,7 @@ type SiteNetworktemplatePortConfigValue struct {
 	AeDisableLacp    *bool    `cty:"ae_disable_lacp" hcl:"ae_disable_lacp"`
 	AeIdx            *int64   `cty:"ae_idx" hcl:"ae_idx"`
 	AeLacpForceUp    *bool    `cty:"ae_lacp_force_up" hcl:"ae_lacp_force_up"`
+	AeLacpPassive    *bool    `cty:"ae_lacp_passive" hcl:"ae_lacp_passive"`
 	AeLacpSlow       *bool    `cty:"ae_lacp_slow" hcl:"ae_lacp_slow"`
 	Aggregated       *bool    `cty:"aggregated" hcl:"aggregated"`
 	Critical         *bool    `cty:"critical" hcl:"critical"`
@@ -568,9 +578,17 @@ type SiteNetworktemplateVrfConfigValue struct {
 type SiteNetworktemplateVrfInstancesValue struct {
 	EvpnAutoLoopbackSubnet  *string                                            `cty:"evpn_auto_loopback_subnet" hcl:"evpn_auto_loopback_subnet"`
 	EvpnAutoLoopbackSubnet6 *string                                            `cty:"evpn_auto_loopback_subnet6" hcl:"evpn_auto_loopback_subnet6"`
+	MulticastConfig         *SiteNetworktemplateMulticastConfigValue           `cty:"multicast_config" hcl:"multicast_config"`
 	Networks                []string                                           `cty:"networks" hcl:"networks"`
 	VrfExtraRoutes          map[string]SiteNetworktemplateVrfExtraRoutesValue  `cty:"extra_routes" hcl:"extra_routes"`
 	VrfExtraRoutes6         map[string]SiteNetworktemplateVrfExtraRoutes6Value `cty:"extra_routes6" hcl:"extra_routes6"`
+}
+
+type SiteNetworktemplateMulticastConfigValue struct {
+	AnycastRp *bool   `cty:"anycast_rp" hcl:"anycast_rp"`
+	RpIp      *string `cty:"rp_ip" hcl:"rp_ip"`
+	SbdSubnet *string `cty:"sbd_subnet" hcl:"sbd_subnet"`
+	SbdVlanId *int64  `cty:"sbd_vlan_id" hcl:"sbd_vlan_id"`
 }
 
 type SiteNetworktemplateVrfExtraRoutesValue struct {

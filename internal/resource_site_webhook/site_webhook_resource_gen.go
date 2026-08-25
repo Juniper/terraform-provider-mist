@@ -4,10 +4,12 @@ package resource_site_webhook
 
 import (
 	"context"
+	"fmt"
 	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -15,6 +17,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -27,6 +32,18 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 				Optional:            true,
 				Description:         "Asset filter identifiers used to restrict `asset-raw-rssi` webhook events",
 				MarkdownDescription: "Asset filter identifiers used to restrict `asset-raw-rssi` webhook events",
+			},
+			"default_action": schema.StringAttribute{
+				Optional:            true,
+				Description:         "Default action applied when none of the `rules` match the incoming event",
+				MarkdownDescription: "Default action applied when none of the `rules` match the incoming event",
+				Validators: []validator.String{
+					stringvalidator.OneOf(
+						"",
+						"permit",
+						"block",
+					),
+				},
 			},
 			"enabled": schema.BoolAttribute{
 				Optional:            true,
@@ -127,6 +144,45 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 				Computed:            true,
 				Description:         "Organization that owns the webhook",
 				MarkdownDescription: "Organization that owns the webhook",
+			},
+			"rules": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"action": schema.StringAttribute{
+							Optional:            true,
+							Description:         "Action applied when the rule matches the incoming event",
+							MarkdownDescription: "Action applied when the rule matches the incoming event",
+							Validators: []validator.String{
+								stringvalidator.OneOf(
+									"",
+									"permit",
+									"block",
+								),
+							},
+						},
+						"matching": schema.MapAttribute{
+							ElementType: types.ListType{
+								ElemType: types.StringType,
+							},
+							Optional:            true,
+							Description:         "Optional event payload matching criteria. Property key is the event field name and the value is the list of accepted values",
+							MarkdownDescription: "Optional event payload matching criteria. Property key is the event field name and the value is the list of accepted values",
+						},
+						"topic": schema.StringAttribute{
+							Required:            true,
+							Description:         "Webhook topic this rule applies to",
+							MarkdownDescription: "Webhook topic this rule applies to",
+						},
+					},
+					CustomType: RulesType{
+						ObjectType: types.ObjectType{
+							AttrTypes: RulesValue{}.AttributeTypes(ctx),
+						},
+					},
+				},
+				Optional:            true,
+				Description:         "Optional filtering rules to override `topics`. Each rule permits or blocks events for a topic, optionally based on event payload matching criteria",
+				MarkdownDescription: "Optional filtering rules to override `topics`. Each rule permits or blocks events for a topic, optionally based on event payload matching criteria",
 			},
 			"secret": schema.StringAttribute{
 				Optional:            true,
@@ -231,6 +287,7 @@ func SiteWebhookResourceSchema(ctx context.Context) schema.Schema {
 
 type SiteWebhookModel struct {
 	AssetfilterIds        types.List   `tfsdk:"assetfilter_ids"`
+	DefaultAction         types.String `tfsdk:"default_action"`
 	Enabled               types.Bool   `tfsdk:"enabled"`
 	Headers               types.Map    `tfsdk:"headers"`
 	Id                    types.String `tfsdk:"id"`
@@ -243,6 +300,7 @@ type SiteWebhookModel struct {
 	Oauth2TokenUrl        types.String `tfsdk:"oauth2_token_url"`
 	Oauth2Username        types.String `tfsdk:"oauth2_username"`
 	OrgId                 types.String `tfsdk:"org_id"`
+	Rules                 types.List   `tfsdk:"rules"`
 	Secret                types.String `tfsdk:"secret"`
 	SingleEventPerMessage types.Bool   `tfsdk:"single_event_per_message"`
 	SiteId                types.String `tfsdk:"site_id"`
@@ -251,4 +309,480 @@ type SiteWebhookModel struct {
 	Type                  types.String `tfsdk:"type"`
 	Url                   types.String `tfsdk:"url"`
 	VerifyCert            types.Bool   `tfsdk:"verify_cert"`
+}
+
+var _ basetypes.ObjectTypable = RulesType{}
+
+type RulesType struct {
+	basetypes.ObjectType
+}
+
+func (t RulesType) Equal(o attr.Type) bool {
+	other, ok := o.(RulesType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t RulesType) String() string {
+	return "RulesType"
+}
+
+func (t RulesType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	actionAttribute, ok := attributes["action"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`action is missing from object`)
+
+		return nil, diags
+	}
+
+	actionVal, ok := actionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`action expected to be basetypes.StringValue, was: %T`, actionAttribute))
+	}
+
+	matchingAttribute, ok := attributes["matching"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`matching is missing from object`)
+
+		return nil, diags
+	}
+
+	matchingVal, ok := matchingAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`matching expected to be basetypes.MapValue, was: %T`, matchingAttribute))
+	}
+
+	topicAttribute, ok := attributes["topic"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`topic is missing from object`)
+
+		return nil, diags
+	}
+
+	topicVal, ok := topicAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`topic expected to be basetypes.StringValue, was: %T`, topicAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return RulesValue{
+		Action:   actionVal,
+		Matching: matchingVal,
+		Topic:    topicVal,
+		state:    attr.ValueStateKnown,
+	}, diags
+}
+
+func NewRulesValueNull() RulesValue {
+	return RulesValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewRulesValueUnknown() RulesValue {
+	return RulesValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewRulesValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (RulesValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing RulesValue Attribute Value",
+				"While creating a RulesValue value, a missing attribute value was detected. "+
+					"A RulesValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("RulesValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid RulesValue Attribute Type",
+				"While creating a RulesValue value, an invalid attribute value was detected. "+
+					"A RulesValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("RulesValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("RulesValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra RulesValue Attribute Value",
+				"While creating a RulesValue value, an extra attribute value was detected. "+
+					"A RulesValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra RulesValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewRulesValueUnknown(), diags
+	}
+
+	actionAttribute, ok := attributes["action"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`action is missing from object`)
+
+		return NewRulesValueUnknown(), diags
+	}
+
+	actionVal, ok := actionAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`action expected to be basetypes.StringValue, was: %T`, actionAttribute))
+	}
+
+	matchingAttribute, ok := attributes["matching"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`matching is missing from object`)
+
+		return NewRulesValueUnknown(), diags
+	}
+
+	matchingVal, ok := matchingAttribute.(basetypes.MapValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`matching expected to be basetypes.MapValue, was: %T`, matchingAttribute))
+	}
+
+	topicAttribute, ok := attributes["topic"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`topic is missing from object`)
+
+		return NewRulesValueUnknown(), diags
+	}
+
+	topicVal, ok := topicAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`topic expected to be basetypes.StringValue, was: %T`, topicAttribute))
+	}
+
+	if diags.HasError() {
+		return NewRulesValueUnknown(), diags
+	}
+
+	return RulesValue{
+		Action:   actionVal,
+		Matching: matchingVal,
+		Topic:    topicVal,
+		state:    attr.ValueStateKnown,
+	}, diags
+}
+
+func NewRulesValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) RulesValue {
+	object, diags := NewRulesValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewRulesValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t RulesType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewRulesValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewRulesValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewRulesValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewRulesValueMust(RulesValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t RulesType) ValueType(ctx context.Context) attr.Value {
+	return RulesValue{}
+}
+
+var _ basetypes.ObjectValuable = RulesValue{}
+
+type RulesValue struct {
+	Action   basetypes.StringValue `tfsdk:"action"`
+	Matching basetypes.MapValue    `tfsdk:"matching"`
+	Topic    basetypes.StringValue `tfsdk:"topic"`
+	state    attr.ValueState
+}
+
+func (v RulesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 3)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["action"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["matching"] = basetypes.MapType{
+		ElemType: types.ListType{
+			ElemType: types.StringType,
+		},
+	}.TerraformType(ctx)
+	attrTypes["topic"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 3)
+
+		val, err = v.Action.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["action"] = val
+
+		val, err = v.Matching.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["matching"] = val
+
+		val, err = v.Topic.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["topic"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v RulesValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v RulesValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v RulesValue) String() string {
+	return "RulesValue"
+}
+
+func (v RulesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var matchingVal basetypes.MapValue
+	switch {
+	case v.Matching.IsUnknown():
+		matchingVal = types.MapUnknown(types.ListType{
+			ElemType: types.StringType,
+		})
+	case v.Matching.IsNull():
+		matchingVal = types.MapNull(types.ListType{
+			ElemType: types.StringType,
+		})
+	default:
+		var d diag.Diagnostics
+		matchingVal, d = types.MapValue(types.ListType{
+			ElemType: types.StringType,
+		}, v.Matching.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"action": basetypes.StringType{},
+			"matching": basetypes.MapType{
+				ElemType: types.ListType{
+					ElemType: types.StringType,
+				},
+			},
+			"topic": basetypes.StringType{},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"action": basetypes.StringType{},
+		"matching": basetypes.MapType{
+			ElemType: types.ListType{
+				ElemType: types.StringType,
+			},
+		},
+		"topic": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"action":   v.Action,
+			"matching": matchingVal,
+			"topic":    v.Topic,
+		})
+
+	return objVal, diags
+}
+
+func (v RulesValue) Equal(o attr.Value) bool {
+	other, ok := o.(RulesValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Action.Equal(other.Action) {
+		return false
+	}
+
+	if !v.Matching.Equal(other.Matching) {
+		return false
+	}
+
+	if !v.Topic.Equal(other.Topic) {
+		return false
+	}
+
+	return true
+}
+
+func (v RulesValue) Type(ctx context.Context) attr.Type {
+	return RulesType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v RulesValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"action": basetypes.StringType{},
+		"matching": basetypes.MapType{
+			ElemType: types.ListType{
+				ElemType: types.StringType,
+			},
+		},
+		"topic": basetypes.StringType{},
+	}
 }

@@ -5,8 +5,10 @@ package resource_site_setting
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistplanmodifiers "github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -25,7 +27,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -653,10 +654,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"enable_unii_4": schema.BoolAttribute{
 				Optional:            true,
-				Computed:            true,
 				Description:         "Whether UNII-4 channels are enabled for the site",
 				MarkdownDescription: "Whether UNII-4 channels are enabled for the site",
-				Default:             booldefault.StaticBool(false),
 			},
 			"engagement": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -1030,6 +1029,11 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "For SSR and SRX, disable console port",
 						MarkdownDescription: "For SSR and SRX, disable console port",
 					},
+					"disable_idp_pcap": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "For SRX only, disable IDP packet capture",
+						MarkdownDescription: "For SRX only, disable IDP packet capture",
+					},
 					"disable_oob": schema.BoolAttribute{
 						Optional:            true,
 						Description:         "For SSR and SRX, disable management interface",
@@ -1213,6 +1217,7 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							),
 							"config_revert_timer":           types.Int64Null(),
 							"disable_console":               types.BoolNull(),
+							"disable_idp_pcap":              types.BoolNull(),
 							"disable_oob":                   types.BoolNull(),
 							"disable_usb":                   types.BoolNull(),
 							"fips_enabled":                  types.BoolNull(),
@@ -2956,6 +2961,55 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					),
 				),
 			},
+			"uwb_config": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "Whether UWB RTLS integration is enabled",
+						MarkdownDescription: "Whether UWB RTLS integration is enabled",
+					},
+					"host": schema.StringAttribute{
+						Optional:            true,
+						Description:         "RTLS server hostname or IP address",
+						MarkdownDescription: "RTLS server hostname or IP address",
+					},
+					"port": schema.Int64Attribute{
+						Optional:            true,
+						Description:         "RTLS server port number",
+						MarkdownDescription: "RTLS server port number",
+						Validators: []validator.Int64{
+							int64validator.Between(1, 65535),
+						},
+					},
+					"slot": schema.Int64Attribute{
+						Optional:            true,
+						Description:         "UWB time slot assigned to this AP, 0–15",
+						MarkdownDescription: "UWB time slot assigned to this AP, 0–15",
+						Validators: []validator.Int64{
+							int64validator.Between(0, 15),
+						},
+					},
+					"type": schema.StringAttribute{
+						Optional:            true,
+						Description:         "UWB integration type. enum: `zigpos`",
+						MarkdownDescription: "UWB integration type. enum: `zigpos`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"zigpos",
+							),
+						},
+					},
+				},
+				CustomType: UwbConfigType{
+					ObjectType: types.ObjectType{
+						AttrTypes: UwbConfigValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "UWB RTLS (OMLOX asset visibility) settings for the site, only effective on AP models with a UWB radio and in countries where the UWB radio is permitted. Overridden by the device profile and device-level settings",
+				MarkdownDescription: "UWB RTLS (OMLOX asset visibility) settings for the site, only effective on AP models with a UWB radio and in countries where the UWB radio is permitted. Overridden by the device profile and device-level settings",
+			},
 			"vars": schema.MapAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
@@ -3370,6 +3424,7 @@ type SiteSettingModel struct {
 	TuntermMonitoringDisabled    types.Bool                  `tfsdk:"tunterm_monitoring_disabled"`
 	TuntermMulticastConfig       TuntermMulticastConfigValue `tfsdk:"tunterm_multicast_config"`
 	UplinkPortConfig             UplinkPortConfigValue       `tfsdk:"uplink_port_config"`
+	UwbConfig                    UwbConfigValue              `tfsdk:"uwb_config"`
 	Vars                         types.Map                   `tfsdk:"vars"`
 	VarsAnnotations              types.Map                   `tfsdk:"vars_annotations"`
 	Vna                          VnaValue                    `tfsdk:"vna"`
@@ -11064,6 +11119,24 @@ func (t GatewayMgmtType) ValueFromObject(ctx context.Context, in basetypes.Objec
 			fmt.Sprintf(`disable_console expected to be basetypes.BoolValue, was: %T`, disableConsoleAttribute))
 	}
 
+	disableIdpPcapAttribute, ok := attributes["disable_idp_pcap"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_idp_pcap is missing from object`)
+
+		return nil, diags
+	}
+
+	disableIdpPcapVal, ok := disableIdpPcapAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_idp_pcap expected to be basetypes.BoolValue, was: %T`, disableIdpPcapAttribute))
+	}
+
 	disableOobAttribute, ok := attributes["disable_oob"]
 
 	if !ok {
@@ -11237,6 +11310,7 @@ func (t GatewayMgmtType) ValueFromObject(ctx context.Context, in basetypes.Objec
 		AutoSignatureUpdate:        autoSignatureUpdateVal,
 		ConfigRevertTimer:          configRevertTimerVal,
 		DisableConsole:             disableConsoleVal,
+		DisableIdpPcap:             disableIdpPcapVal,
 		DisableOob:                 disableOobVal,
 		DisableUsb:                 disableUsbVal,
 		FipsEnabled:                fipsEnabledVal,
@@ -11421,6 +11495,24 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 			fmt.Sprintf(`disable_console expected to be basetypes.BoolValue, was: %T`, disableConsoleAttribute))
 	}
 
+	disableIdpPcapAttribute, ok := attributes["disable_idp_pcap"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`disable_idp_pcap is missing from object`)
+
+		return NewGatewayMgmtValueUnknown(), diags
+	}
+
+	disableIdpPcapVal, ok := disableIdpPcapAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`disable_idp_pcap expected to be basetypes.BoolValue, was: %T`, disableIdpPcapAttribute))
+	}
+
 	disableOobAttribute, ok := attributes["disable_oob"]
 
 	if !ok {
@@ -11594,6 +11686,7 @@ func NewGatewayMgmtValue(attributeTypes map[string]attr.Type, attributes map[str
 		AutoSignatureUpdate:        autoSignatureUpdateVal,
 		ConfigRevertTimer:          configRevertTimerVal,
 		DisableConsole:             disableConsoleVal,
+		DisableIdpPcap:             disableIdpPcapVal,
 		DisableOob:                 disableOobVal,
 		DisableUsb:                 disableUsbVal,
 		FipsEnabled:                fipsEnabledVal,
@@ -11681,6 +11774,7 @@ type GatewayMgmtValue struct {
 	AutoSignatureUpdate        basetypes.ObjectValue `tfsdk:"auto_signature_update"`
 	ConfigRevertTimer          basetypes.Int64Value  `tfsdk:"config_revert_timer"`
 	DisableConsole             basetypes.BoolValue   `tfsdk:"disable_console"`
+	DisableIdpPcap             basetypes.BoolValue   `tfsdk:"disable_idp_pcap"`
 	DisableOob                 basetypes.BoolValue   `tfsdk:"disable_oob"`
 	DisableUsb                 basetypes.BoolValue   `tfsdk:"disable_usb"`
 	FipsEnabled                basetypes.BoolValue   `tfsdk:"fips_enabled"`
@@ -11694,7 +11788,7 @@ type GatewayMgmtValue struct {
 }
 
 func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 15)
+	attrTypes := make(map[string]tftypes.Type, 16)
 
 	var val tftypes.Value
 	var err error
@@ -11711,6 +11805,7 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 	}.TerraformType(ctx)
 	attrTypes["config_revert_timer"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["disable_console"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["disable_idp_pcap"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["disable_oob"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["disable_usb"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["fips_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -11731,7 +11826,7 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 15)
+		vals := make(map[string]tftypes.Value, 16)
 
 		val, err = v.AdminSshkeys.ToTerraformValue(ctx)
 
@@ -11780,6 +11875,14 @@ func (v GatewayMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, 
 		}
 
 		vals["disable_console"] = val
+
+		val, err = v.DisableIdpPcap.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["disable_idp_pcap"] = val
 
 		val, err = v.DisableOob.ToTerraformValue(ctx)
 
@@ -11971,6 +12074,7 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			},
 			"config_revert_timer": basetypes.Int64Type{},
 			"disable_console":     basetypes.BoolType{},
+			"disable_idp_pcap":    basetypes.BoolType{},
 			"disable_oob":         basetypes.BoolType{},
 			"disable_usb":         basetypes.BoolType{},
 			"fips_enabled":        basetypes.BoolType{},
@@ -12015,6 +12119,7 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			},
 			"config_revert_timer": basetypes.Int64Type{},
 			"disable_console":     basetypes.BoolType{},
+			"disable_idp_pcap":    basetypes.BoolType{},
 			"disable_oob":         basetypes.BoolType{},
 			"disable_usb":         basetypes.BoolType{},
 			"fips_enabled":        basetypes.BoolType{},
@@ -12059,6 +12164,7 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			},
 			"config_revert_timer": basetypes.Int64Type{},
 			"disable_console":     basetypes.BoolType{},
+			"disable_idp_pcap":    basetypes.BoolType{},
 			"disable_oob":         basetypes.BoolType{},
 			"disable_usb":         basetypes.BoolType{},
 			"fips_enabled":        basetypes.BoolType{},
@@ -12090,6 +12196,7 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 		},
 		"config_revert_timer": basetypes.Int64Type{},
 		"disable_console":     basetypes.BoolType{},
+		"disable_idp_pcap":    basetypes.BoolType{},
 		"disable_oob":         basetypes.BoolType{},
 		"disable_usb":         basetypes.BoolType{},
 		"fips_enabled":        basetypes.BoolType{},
@@ -12124,6 +12231,7 @@ func (v GatewayMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVa
 			"auto_signature_update":         autoSignatureUpdate,
 			"config_revert_timer":           v.ConfigRevertTimer,
 			"disable_console":               v.DisableConsole,
+			"disable_idp_pcap":              v.DisableIdpPcap,
 			"disable_oob":                   v.DisableOob,
 			"disable_usb":                   v.DisableUsb,
 			"fips_enabled":                  v.FipsEnabled,
@@ -12174,6 +12282,10 @@ func (v GatewayMgmtValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.DisableConsole.Equal(other.DisableConsole) {
+		return false
+	}
+
+	if !v.DisableIdpPcap.Equal(other.DisableIdpPcap) {
 		return false
 	}
 
@@ -12238,6 +12350,7 @@ func (v GatewayMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Ty
 		},
 		"config_revert_timer": basetypes.Int64Type{},
 		"disable_console":     basetypes.BoolType{},
+		"disable_idp_pcap":    basetypes.BoolType{},
 		"disable_oob":         basetypes.BoolType{},
 		"disable_usb":         basetypes.BoolType{},
 		"fips_enabled":        basetypes.BoolType{},
@@ -36460,6 +36573,550 @@ func (v UplinkPortConfigValue) AttributeTypes(ctx context.Context) map[string]at
 	return map[string]attr.Type{
 		"dot1x":                 basetypes.BoolType{},
 		"keep_wlans_up_if_down": basetypes.BoolType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = UwbConfigType{}
+
+type UwbConfigType struct {
+	basetypes.ObjectType
+}
+
+func (t UwbConfigType) Equal(o attr.Type) bool {
+	other, ok := o.(UwbConfigType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t UwbConfigType) String() string {
+	return "UwbConfigType"
+}
+
+func (t UwbConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	hostAttribute, ok := attributes["host"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`host is missing from object`)
+
+		return nil, diags
+	}
+
+	hostVal, ok := hostAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`host expected to be basetypes.StringValue, was: %T`, hostAttribute))
+	}
+
+	portAttribute, ok := attributes["port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port is missing from object`)
+
+		return nil, diags
+	}
+
+	portVal, ok := portAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+	}
+
+	slotAttribute, ok := attributes["slot"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`slot is missing from object`)
+
+		return nil, diags
+	}
+
+	slotVal, ok := slotAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`slot expected to be basetypes.Int64Value, was: %T`, slotAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return nil, diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return UwbConfigValue{
+		Enabled:       enabledVal,
+		Host:          hostVal,
+		Port:          portVal,
+		Slot:          slotVal,
+		UwbConfigType: typeVal,
+		state:         attr.ValueStateKnown,
+	}, diags
+}
+
+func NewUwbConfigValueNull() UwbConfigValue {
+	return UwbConfigValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewUwbConfigValueUnknown() UwbConfigValue {
+	return UwbConfigValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewUwbConfigValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (UwbConfigValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing UwbConfigValue Attribute Value",
+				"While creating a UwbConfigValue value, a missing attribute value was detected. "+
+					"A UwbConfigValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("UwbConfigValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid UwbConfigValue Attribute Type",
+				"While creating a UwbConfigValue value, an invalid attribute value was detected. "+
+					"A UwbConfigValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("UwbConfigValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("UwbConfigValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra UwbConfigValue Attribute Value",
+				"While creating a UwbConfigValue value, an extra attribute value was detected. "+
+					"A UwbConfigValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra UwbConfigValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewUwbConfigValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewUwbConfigValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	hostAttribute, ok := attributes["host"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`host is missing from object`)
+
+		return NewUwbConfigValueUnknown(), diags
+	}
+
+	hostVal, ok := hostAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`host expected to be basetypes.StringValue, was: %T`, hostAttribute))
+	}
+
+	portAttribute, ok := attributes["port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port is missing from object`)
+
+		return NewUwbConfigValueUnknown(), diags
+	}
+
+	portVal, ok := portAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port expected to be basetypes.Int64Value, was: %T`, portAttribute))
+	}
+
+	slotAttribute, ok := attributes["slot"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`slot is missing from object`)
+
+		return NewUwbConfigValueUnknown(), diags
+	}
+
+	slotVal, ok := slotAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`slot expected to be basetypes.Int64Value, was: %T`, slotAttribute))
+	}
+
+	typeAttribute, ok := attributes["type"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`type is missing from object`)
+
+		return NewUwbConfigValueUnknown(), diags
+	}
+
+	typeVal, ok := typeAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`type expected to be basetypes.StringValue, was: %T`, typeAttribute))
+	}
+
+	if diags.HasError() {
+		return NewUwbConfigValueUnknown(), diags
+	}
+
+	return UwbConfigValue{
+		Enabled:       enabledVal,
+		Host:          hostVal,
+		Port:          portVal,
+		Slot:          slotVal,
+		UwbConfigType: typeVal,
+		state:         attr.ValueStateKnown,
+	}, diags
+}
+
+func NewUwbConfigValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) UwbConfigValue {
+	object, diags := NewUwbConfigValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewUwbConfigValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t UwbConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewUwbConfigValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewUwbConfigValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewUwbConfigValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewUwbConfigValueMust(UwbConfigValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t UwbConfigType) ValueType(ctx context.Context) attr.Value {
+	return UwbConfigValue{}
+}
+
+var _ basetypes.ObjectValuable = UwbConfigValue{}
+
+type UwbConfigValue struct {
+	Enabled       basetypes.BoolValue   `tfsdk:"enabled"`
+	Host          basetypes.StringValue `tfsdk:"host"`
+	Port          basetypes.Int64Value  `tfsdk:"port"`
+	Slot          basetypes.Int64Value  `tfsdk:"slot"`
+	UwbConfigType basetypes.StringValue `tfsdk:"type"`
+	state         attr.ValueState
+}
+
+func (v UwbConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 5)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["host"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["port"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["slot"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["type"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 5)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.Host.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["host"] = val
+
+		val, err = v.Port.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port"] = val
+
+		val, err = v.Slot.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["slot"] = val
+
+		val, err = v.UwbConfigType.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["type"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v UwbConfigValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v UwbConfigValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v UwbConfigValue) String() string {
+	return "UwbConfigValue"
+}
+
+func (v UwbConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+		"host":    basetypes.StringType{},
+		"port":    basetypes.Int64Type{},
+		"slot":    basetypes.Int64Type{},
+		"type":    basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+			"host":    v.Host,
+			"port":    v.Port,
+			"slot":    v.Slot,
+			"type":    v.UwbConfigType,
+		})
+
+	return objVal, diags
+}
+
+func (v UwbConfigValue) Equal(o attr.Value) bool {
+	other, ok := o.(UwbConfigValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.Host.Equal(other.Host) {
+		return false
+	}
+
+	if !v.Port.Equal(other.Port) {
+		return false
+	}
+
+	if !v.Slot.Equal(other.Slot) {
+		return false
+	}
+
+	if !v.UwbConfigType.Equal(other.UwbConfigType) {
+		return false
+	}
+
+	return true
+}
+
+func (v UwbConfigValue) Type(ctx context.Context) attr.Type {
+	return UwbConfigType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v UwbConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+		"host":    basetypes.StringType{},
+		"port":    basetypes.Int64Type{},
+		"slot":    basetypes.Int64Type{},
+		"type":    basetypes.StringType{},
 	}
 }
 

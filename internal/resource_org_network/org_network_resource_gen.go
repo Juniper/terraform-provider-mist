@@ -226,17 +226,13 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"disable_igmp": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "If the network will only be the source of the multicast traffic, IGMP can be disabled",
 						MarkdownDescription: "If the network will only be the source of the multicast traffic, IGMP can be disabled",
-						Default:             booldefault.StaticBool(false),
 					},
 					"enabled": schema.BoolAttribute{
 						Optional:            true,
-						Computed:            true,
 						Description:         "Whether multicast support is enabled for this network",
 						MarkdownDescription: "Whether multicast support is enabled for this network",
-						Default:             booldefault.StaticBool(false),
 					},
 					"groups": schema.MapNestedAttribute{
 						NestedObject: schema.NestedAttributeObject{

@@ -2,6 +2,7 @@ package resource_org_deviceprofile_switch
 
 import (
 	"context"
+
 	mistutils "github.com/Juniper/terraform-provider-mist/internal/commons/utils"
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
@@ -19,6 +20,7 @@ func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 
 		var isolation basetypes.BoolValue
 		var isolationVlanId basetypes.StringValue
+		var multicast = types.ObjectNull(MulticastValue{}.AttributeTypes(ctx))
 		var subnet basetypes.StringValue
 		var subnet6 basetypes.StringValue
 		var gateway basetypes.StringValue
@@ -30,6 +32,24 @@ func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 		}
 		if d.IsolationVlanId != nil {
 			isolationVlanId = types.StringValue(*d.IsolationVlanId)
+		}
+		if d.Multicast != nil {
+			var enabled basetypes.BoolValue
+			var igmpVersion basetypes.StringValue
+			if d.Multicast.Enabled != nil {
+				enabled = types.BoolValue(*d.Multicast.Enabled)
+			}
+			if d.Multicast.IgmpVersion != nil {
+				igmpVersion = types.StringValue(string(*d.Multicast.IgmpVersion))
+			}
+			mv, e := NewMulticastValue(MulticastValue{}.AttributeTypes(ctx), map[string]attr.Value{
+				"enabled":      enabled,
+				"igmp_version": igmpVersion,
+			})
+			diags.Append(e...)
+			o, e2 := mv.ToObjectValue(ctx)
+			diags.Append(e2...)
+			multicast = o
 		}
 		if d.Subnet != nil {
 			subnet = types.StringValue(*d.Subnet)
@@ -48,6 +68,7 @@ func NetworksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[
 		dataMapValue := map[string]attr.Value{
 			"isolation":         isolation,
 			"isolation_vlan_id": isolationVlanId,
+			"multicast":         multicast,
 			"subnet":            subnet,
 			"subnet6":           subnet6,
 			"gateway":           gateway,

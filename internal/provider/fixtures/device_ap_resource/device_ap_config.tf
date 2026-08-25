@@ -11,6 +11,7 @@
   disable_eth2 = false
   disable_eth3 = false
   disable_module = false
+  enable_unii_4 = true
   poe_passthrough = false
   flow_control = false
   // map_id = "845a23bf-bed9-e43c-4c86-6fa474be7ae5"
@@ -262,6 +263,14 @@
     broker_host  = "mqtt.example.com"
     broker_port  = 1883
     broker_proto = "tcp"
+    default_topic = "mist/ble/unmatched"
     username     = "ap_publisher"
     format       = "json"
+  }
+  uwb_config = {
+    enabled = true
+    host    = "uwb.example.com"
+    port    = 3000
+    slot    = 1
+    type    = "zigpos"
   }

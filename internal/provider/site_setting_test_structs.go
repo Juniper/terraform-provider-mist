@@ -43,8 +43,9 @@ type SiteSettingModel struct {
 	TrackAnonymousDevices        *bool                                      `hcl:"track_anonymous_devices"`
 	TuntermMonitoring            []SiteSettingTuntermMonitoringValue        `hcl:"tunterm_monitoring"`
 	TuntermMonitoringDisabled    *bool                                      `hcl:"tunterm_monitoring_disabled"`
-	TuntermMulticastConfig       *SiteSettingTuntermMulticastConfigValue    `hcl:"tunterm_multicast_config"`
+	TuntermMulticastConfig       SiteSettingTuntermMulticastConfigValue     `hcl:"tunterm_multicast_config"`
 	UplinkPortConfig             *SiteSettingUplinkPortConfigValue          `hcl:"uplink_port_config"`
+	UwbConfig                    *SiteSettingUwbConfigValue                 `hcl:"uwb_config"`
 	Vars                         map[string]string                          `hcl:"vars"`
 	VarsAnnotations              map[string]SiteSettingVarsAnnotationsValue `hcl:"vars_annotations"`
 	Vna                          *SiteSettingVnaValue                       `hcl:"vna"`
@@ -172,6 +173,7 @@ type SiteSettingGatewayMgmtValue struct {
 	AutoSignatureUpdate        *SiteSettingAutoSignatureUpdateValue `cty:"auto_signature_update" hcl:"auto_signature_update"`
 	ConfigRevertTimer          *int64                               `cty:"config_revert_timer" hcl:"config_revert_timer"`
 	DisableConsole             *bool                                `cty:"disable_console" hcl:"disable_console"`
+	DisableIdpPcap             *bool                                `cty:"disable_idp_pcap" hcl:"disable_idp_pcap"`
 	DisableOob                 *bool                                `cty:"disable_oob" hcl:"disable_oob"`
 	DisableUsb                 *bool                                `cty:"disable_usb" hcl:"disable_usb"`
 	FipsEnabled                *bool                                `cty:"fips_enabled" hcl:"fips_enabled"`
@@ -488,7 +490,7 @@ type SiteSettingTuntermMonitoringValue struct {
 type SiteSettingTuntermMulticastConfigValue struct {
 	Mdns         *SiteSettingMdnsValue `cty:"mdns" hcl:"mdns"`
 	MulticastAll *bool                 `cty:"multicast_all" hcl:"multicast_all"`
-	Ssdp         *SiteSettingSsdpValue `cty:"ssdp" hcl:"ssdp"`
+	Ssdp         SiteSettingSsdpValue  `cty:"ssdp" hcl:"ssdp"`
 }
 
 type SiteSettingMdnsValue struct {
@@ -504,6 +506,14 @@ type SiteSettingSsdpValue struct {
 type SiteSettingUplinkPortConfigValue struct {
 	Dot1x             *bool `cty:"dot1x" hcl:"dot1x"`
 	KeepWlansUpIfDown *bool `cty:"keep_wlans_up_if_down" hcl:"keep_wlans_up_if_down"`
+}
+
+type SiteSettingUwbConfigValue struct {
+	Enabled       *bool   `cty:"enabled" hcl:"enabled"`
+	Host          *string `cty:"host" hcl:"host"`
+	Port          *int64  `cty:"port" hcl:"port"`
+	Slot          *int64  `cty:"slot" hcl:"slot"`
+	UwbConfigType *string `cty:"type" hcl:"type"`
 }
 
 type SiteSettingVarsAnnotationsValue struct {

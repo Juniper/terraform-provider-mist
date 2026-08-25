@@ -1042,10 +1042,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"disable_igmp": schema.BoolAttribute{
 									Optional:            true,
-									Computed:            true,
 									Description:         "If the network will only be the source of the multicast traffic, IGMP can be disabled",
 									MarkdownDescription: "If the network will only be the source of the multicast traffic, IGMP can be disabled",
-									Default:             booldefault.StaticBool(false),
 								},
 								"enabled": schema.BoolAttribute{
 									Optional:            true,
@@ -2036,12 +2034,6 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 							Description:         "If HA mode. Node associated with the redundant Ethernet interface",
 							MarkdownDescription: "If HA mode. Node associated with the redundant Ethernet interface",
 						},
-						"reth_nodes": schema.ListAttribute{
-							ElementType:         types.StringType,
-							Optional:            true,
-							Description:         "If HA mode and for SSR only. Per-network node assignment used for VLAN-based redundancy",
-							MarkdownDescription: "If HA mode and for SSR only. Per-network node assignment used for VLAN-based redundancy",
-						},
 						"speed": schema.StringAttribute{
 							Optional:            true,
 							Description:         "Link speed configured on the port",
@@ -2274,6 +2266,39 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"wan_probe_override": schema.SingleNestedAttribute{
 							Attributes: map[string]schema.Attribute{
+								"hostnames": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "List of hostnames used as probe destinations; applicable for both IPv4 and IPv6",
+									MarkdownDescription: "List of hostnames used as probe destinations; applicable for both IPv4 and IPv6",
+									Validators: []validator.List{
+										listvalidator.UniqueValues(),
+									},
+								},
+								"http": schema.SingleNestedAttribute{
+									Attributes: map[string]schema.Attribute{
+										"accepted_status_codes": schema.ListAttribute{
+											ElementType:         types.Int64Type,
+											Optional:            true,
+											Description:         "HTTP response status codes that indicate a successful probe. Defaults to 200 if not specified.",
+											MarkdownDescription: "HTTP response status codes that indicate a successful probe. Defaults to 200 if not specified.",
+										},
+										"urls": schema.ListAttribute{
+											ElementType:         types.StringType,
+											Optional:            true,
+											Description:         "HTTP or HTTPS URLs to probe",
+											MarkdownDescription: "HTTP or HTTPS URLs to probe",
+										},
+									},
+									CustomType: HttpType{
+										ObjectType: types.ObjectType{
+											AttrTypes: HttpValue{}.AttributeTypes(ctx),
+										},
+									},
+									Optional:            true,
+									Description:         "HTTP probe settings; success from any ICMP or HTTP probe indicates the WAN is up",
+									MarkdownDescription: "HTTP probe settings; success from any ICMP or HTTP probe indicates the WAN is up",
+								},
 								"ip6s": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
@@ -2405,8 +2430,8 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 										Attributes: map[string]schema.Attribute{
 											"accept": schema.BoolAttribute{
 												Optional:            true,
-												Description:         "Whether to accept routes that match this term",
-												MarkdownDescription: "Whether to accept routes that match this term",
+												Description:         "Whether to accept routes that match this term. Precedence is `accept` > `next_term` > `next_policy`; routes are rejected if all three are false",
+												MarkdownDescription: "Whether to accept routes that match this term. Precedence is `accept` > `next_term` > `next_policy`; routes are rejected if all three are false",
 											},
 											"add_community": schema.ListAttribute{
 												ElementType:         types.StringType,
@@ -2448,6 +2473,16 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 												Optional:            true,
 												Description:         "Preference value to set when this term is used as an import policy",
 												MarkdownDescription: "Preference value to set when this term is used as an import policy",
+											},
+											"next_policy": schema.BoolAttribute{
+												Optional:            true,
+												Description:         "When true, continue evaluating the next routing policy in the chain after this term matches; default is false",
+												MarkdownDescription: "When true, continue evaluating the next routing policy in the chain after this term matches; default is false",
+											},
+											"next_term": schema.BoolAttribute{
+												Optional:            true,
+												Description:         "When true, continue evaluating the next term in the same routing policy after this term matches; default is false",
+												MarkdownDescription: "When true, continue evaluating the next term in the same routing policy after this term matches; default is false",
 											},
 											"prepend_as_path": schema.ListAttribute{
 												ElementType:         types.StringType,
@@ -3333,11 +3368,62 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "Remote gateway host addresses for this tunnel node",
 									MarkdownDescription: "Remote gateway host addresses for this tunnel node",
 								},
+								"internal_ip6s": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "IPv6 addresses configured on this tunnel node",
+									MarkdownDescription: "IPv6 addresses configured on this tunnel node",
+									Validators: []validator.List{
+										listvalidator.UniqueValues(),
+									},
+								},
 								"internal_ips": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
 									Description:         "Internal IP addresses configured on this tunnel node",
 									MarkdownDescription: "Internal IP addresses configured on this tunnel node",
+								},
+								"probe_hostnames": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "Hostnames used as ICMP probe destinations for this tunnel node; applicable for both IPv4 and IPv6",
+									MarkdownDescription: "Hostnames used as ICMP probe destinations for this tunnel node; applicable for both IPv4 and IPv6",
+									Validators: []validator.List{
+										listvalidator.UniqueValues(),
+									},
+								},
+								"probe_http": schema.SingleNestedAttribute{
+									Attributes: map[string]schema.Attribute{
+										"accepted_status_codes": schema.ListAttribute{
+											ElementType:         types.Int64Type,
+											Optional:            true,
+											Description:         "HTTP response status codes that indicate a successful probe. Defaults to 200 if not specified.",
+											MarkdownDescription: "HTTP response status codes that indicate a successful probe. Defaults to 200 if not specified.",
+										},
+										"urls": schema.ListAttribute{
+											ElementType:         types.StringType,
+											Optional:            true,
+											Description:         "HTTP or HTTPS URLs to probe",
+											MarkdownDescription: "HTTP or HTTPS URLs to probe",
+										},
+									},
+									CustomType: ProbeHttpType{
+										ObjectType: types.ObjectType{
+											AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+										},
+									},
+									Optional:            true,
+									Description:         "HTTP probe settings for this tunnel node; success from any ICMP or HTTP probe indicates the tunnel is up",
+									MarkdownDescription: "HTTP probe settings for this tunnel node; success from any ICMP or HTTP probe indicates the tunnel is up",
+								},
+								"probe_ip6s": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "IPv6 ICMP probe addresses used to monitor this tunnel node",
+									MarkdownDescription: "IPv6 ICMP probe addresses used to monitor this tunnel node",
+									Validators: []validator.List{
+										listvalidator.UniqueValues(),
+									},
 								},
 								"probe_ips": schema.ListAttribute{
 									ElementType:         types.StringType,
@@ -3464,11 +3550,62 @@ func OrgDeviceprofileGatewayResourceSchema(ctx context.Context) schema.Schema {
 									Description:         "Remote gateway host addresses for this tunnel node",
 									MarkdownDescription: "Remote gateway host addresses for this tunnel node",
 								},
+								"internal_ip6s": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "IPv6 addresses configured on this tunnel node",
+									MarkdownDescription: "IPv6 addresses configured on this tunnel node",
+									Validators: []validator.List{
+										listvalidator.UniqueValues(),
+									},
+								},
 								"internal_ips": schema.ListAttribute{
 									ElementType:         types.StringType,
 									Optional:            true,
 									Description:         "Internal IP addresses configured on this tunnel node",
 									MarkdownDescription: "Internal IP addresses configured on this tunnel node",
+								},
+								"probe_hostnames": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "Hostnames used as ICMP probe destinations for this tunnel node; applicable for both IPv4 and IPv6",
+									MarkdownDescription: "Hostnames used as ICMP probe destinations for this tunnel node; applicable for both IPv4 and IPv6",
+									Validators: []validator.List{
+										listvalidator.UniqueValues(),
+									},
+								},
+								"probe_http": schema.SingleNestedAttribute{
+									Attributes: map[string]schema.Attribute{
+										"accepted_status_codes": schema.ListAttribute{
+											ElementType:         types.Int64Type,
+											Optional:            true,
+											Description:         "HTTP response status codes that indicate a successful probe. Defaults to 200 if not specified.",
+											MarkdownDescription: "HTTP response status codes that indicate a successful probe. Defaults to 200 if not specified.",
+										},
+										"urls": schema.ListAttribute{
+											ElementType:         types.StringType,
+											Optional:            true,
+											Description:         "HTTP or HTTPS URLs to probe",
+											MarkdownDescription: "HTTP or HTTPS URLs to probe",
+										},
+									},
+									CustomType: ProbeHttpType{
+										ObjectType: types.ObjectType{
+											AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+										},
+									},
+									Optional:            true,
+									Description:         "HTTP probe settings for this tunnel node; success from any ICMP or HTTP probe indicates the tunnel is up",
+									MarkdownDescription: "HTTP probe settings for this tunnel node; success from any ICMP or HTTP probe indicates the tunnel is up",
+								},
+								"probe_ip6s": schema.ListAttribute{
+									ElementType:         types.StringType,
+									Optional:            true,
+									Description:         "IPv6 ICMP probe addresses used to monitor this tunnel node",
+									MarkdownDescription: "IPv6 ICMP probe addresses used to monitor this tunnel node",
+									Validators: []validator.List{
+										listvalidator.UniqueValues(),
+									},
 								},
 								"probe_ips": schema.ListAttribute{
 									ElementType:         types.StringType,
@@ -21789,24 +21926,6 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`reth_node expected to be basetypes.StringValue, was: %T`, rethNodeAttribute))
 	}
 
-	rethNodesAttribute, ok := attributes["reth_nodes"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`reth_nodes is missing from object`)
-
-		return nil, diags
-	}
-
-	rethNodesVal, ok := rethNodesAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`reth_nodes expected to be basetypes.ListValue, was: %T`, rethNodesAttribute))
-	}
-
 	speedAttribute, ok := attributes["speed"]
 
 	if !ok {
@@ -22148,7 +22267,6 @@ func (t PortConfigType) ValueFromObject(ctx context.Context, in basetypes.Object
 		RedundantGroup:         redundantGroupVal,
 		RethIdx:                rethIdxVal,
 		RethNode:               rethNodeVal,
-		RethNodes:              rethNodesVal,
 		Speed:                  speedVal,
 		SsrNoVirtualMac:        ssrNoVirtualMacVal,
 		SvrPortRange:           svrPortRangeVal,
@@ -22773,24 +22891,6 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`reth_node expected to be basetypes.StringValue, was: %T`, rethNodeAttribute))
 	}
 
-	rethNodesAttribute, ok := attributes["reth_nodes"]
-
-	if !ok {
-		diags.AddError(
-			"Attribute Missing",
-			`reth_nodes is missing from object`)
-
-		return NewPortConfigValueUnknown(), diags
-	}
-
-	rethNodesVal, ok := rethNodesAttribute.(basetypes.ListValue)
-
-	if !ok {
-		diags.AddError(
-			"Attribute Wrong Type",
-			fmt.Sprintf(`reth_nodes expected to be basetypes.ListValue, was: %T`, rethNodesAttribute))
-	}
-
 	speedAttribute, ok := attributes["speed"]
 
 	if !ok {
@@ -23132,7 +23232,6 @@ func NewPortConfigValue(attributeTypes map[string]attr.Type, attributes map[stri
 		RedundantGroup:         redundantGroupVal,
 		RethIdx:                rethIdxVal,
 		RethNode:               rethNodeVal,
-		RethNodes:              rethNodesVal,
 		Speed:                  speedVal,
 		SsrNoVirtualMac:        ssrNoVirtualMacVal,
 		SvrPortRange:           svrPortRangeVal,
@@ -23252,7 +23351,6 @@ type PortConfigValue struct {
 	RedundantGroup         basetypes.Int64Value  `tfsdk:"redundant_group"`
 	RethIdx                basetypes.StringValue `tfsdk:"reth_idx"`
 	RethNode               basetypes.StringValue `tfsdk:"reth_node"`
-	RethNodes              basetypes.ListValue   `tfsdk:"reth_nodes"`
 	Speed                  basetypes.StringValue `tfsdk:"speed"`
 	SsrNoVirtualMac        basetypes.BoolValue   `tfsdk:"ssr_no_virtual_mac"`
 	SvrPortRange           basetypes.StringValue `tfsdk:"svr_port_range"`
@@ -23274,7 +23372,7 @@ type PortConfigValue struct {
 }
 
 func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 48)
+	attrTypes := make(map[string]tftypes.Type, 47)
 
 	var val tftypes.Value
 	var err error
@@ -23313,9 +23411,6 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["redundant_group"] = basetypes.Int64Type{}.TerraformType(ctx)
 	attrTypes["reth_idx"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["reth_node"] = basetypes.StringType{}.TerraformType(ctx)
-	attrTypes["reth_nodes"] = basetypes.ListType{
-		ElemType: types.StringType,
-	}.TerraformType(ctx)
 	attrTypes["speed"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["ssr_no_virtual_mac"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["svr_port_range"] = basetypes.StringType{}.TerraformType(ctx)
@@ -23352,7 +23447,7 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 48)
+		vals := make(map[string]tftypes.Value, 47)
 
 		val, err = v.AeDisableLacp.ToTerraformValue(ctx)
 
@@ -23593,14 +23688,6 @@ func (v PortConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["reth_node"] = val
-
-		val, err = v.RethNodes.ToTerraformValue(ctx)
-
-		if err != nil {
-			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
-		}
-
-		vals["reth_nodes"] = val
 
 		val, err = v.Speed.ToTerraformValue(ctx)
 
@@ -23980,100 +24067,12 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 			},
-			"port_network":    basetypes.StringType{},
-			"preserve_dscp":   basetypes.BoolType{},
-			"redundant":       basetypes.BoolType{},
-			"redundant_group": basetypes.Int64Type{},
-			"reth_idx":        basetypes.StringType{},
-			"reth_node":       basetypes.StringType{},
-			"reth_nodes": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"speed":              basetypes.StringType{},
-			"ssr_no_virtual_mac": basetypes.BoolType{},
-			"svr_port_range":     basetypes.StringType{},
-			"traffic_shaping": basetypes.ObjectType{
-				AttrTypes: TrafficShapingValue{}.AttributeTypes(ctx),
-			},
-			"usage":   basetypes.StringType{},
-			"vlan_id": basetypes.StringType{},
-			"vpn_paths": basetypes.MapType{
-				ElemType: VpnPathsValue{}.Type(ctx),
-			},
-			"wan_arp_policer": basetypes.StringType{},
-			"wan_ext_ip":      basetypes.StringType{},
-			"wan_ext_ip6":     basetypes.StringType{},
-			"wan_extra_routes": basetypes.MapType{
-				ElemType: WanExtraRoutesValue{}.Type(ctx),
-			},
-			"wan_extra_routes6": basetypes.MapType{
-				ElemType: WanExtraRoutes6Value{}.Type(ctx),
-			},
-			"wan_networks": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"wan_probe_override": basetypes.ObjectType{
-				AttrTypes: WanProbeOverrideValue{}.AttributeTypes(ctx),
-			},
-			"wan_source_nat": basetypes.ObjectType{
-				AttrTypes: WanSourceNatValue{}.AttributeTypes(ctx),
-			},
-			"wan_speedtest_mode": basetypes.StringType{},
-			"wan_type":           basetypes.StringType{},
-		}), diags
-	}
-
-	var rethNodesVal basetypes.ListValue
-	switch {
-	case v.RethNodes.IsUnknown():
-		rethNodesVal = types.ListUnknown(types.StringType)
-	case v.RethNodes.IsNull():
-		rethNodesVal = types.ListNull(types.StringType)
-	default:
-		var d diag.Diagnostics
-		rethNodesVal, d = types.ListValue(types.StringType, v.RethNodes.Elements())
-		diags.Append(d...)
-	}
-
-	if diags.HasError() {
-		return types.ObjectUnknown(map[string]attr.Type{
-			"ae_disable_lacp":  basetypes.BoolType{},
-			"ae_idx":           basetypes.StringType{},
-			"ae_lacp_force_up": basetypes.BoolType{},
-			"aggregated":       basetypes.BoolType{},
-			"critical":         basetypes.BoolType{},
-			"description":      basetypes.StringType{},
-			"disable_autoneg":  basetypes.BoolType{},
-			"disabled":         basetypes.BoolType{},
-			"dsl_type":         basetypes.StringType{},
-			"dsl_vci":          basetypes.Int64Type{},
-			"dsl_vpi":          basetypes.Int64Type{},
-			"duplex":           basetypes.StringType{},
-			"lte_apn":          basetypes.StringType{},
-			"lte_auth":         basetypes.StringType{},
-			"lte_backup":       basetypes.BoolType{},
-			"lte_password":     basetypes.StringType{},
-			"lte_username":     basetypes.StringType{},
-			"mtu":              basetypes.Int64Type{},
-			"name":             basetypes.StringType{},
-			"networks": basetypes.ListType{
-				ElemType: types.StringType,
-			},
-			"outer_vlan_id":              basetypes.Int64Type{},
-			"poe_disabled":               basetypes.BoolType{},
-			"poe_keep_state_when_reboot": basetypes.BoolType{},
-			"ip_config": basetypes.ObjectType{
-				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
-			},
-			"port_network":    basetypes.StringType{},
-			"preserve_dscp":   basetypes.BoolType{},
-			"redundant":       basetypes.BoolType{},
-			"redundant_group": basetypes.Int64Type{},
-			"reth_idx":        basetypes.StringType{},
-			"reth_node":       basetypes.StringType{},
-			"reth_nodes": basetypes.ListType{
-				ElemType: types.StringType,
-			},
+			"port_network":       basetypes.StringType{},
+			"preserve_dscp":      basetypes.BoolType{},
+			"redundant":          basetypes.BoolType{},
+			"redundant_group":    basetypes.Int64Type{},
+			"reth_idx":           basetypes.StringType{},
+			"reth_node":          basetypes.StringType{},
 			"speed":              basetypes.StringType{},
 			"ssr_no_virtual_mac": basetypes.BoolType{},
 			"svr_port_range":     basetypes.StringType{},
@@ -24150,15 +24149,12 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"ip_config": basetypes.ObjectType{
 				AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 			},
-			"port_network":    basetypes.StringType{},
-			"preserve_dscp":   basetypes.BoolType{},
-			"redundant":       basetypes.BoolType{},
-			"redundant_group": basetypes.Int64Type{},
-			"reth_idx":        basetypes.StringType{},
-			"reth_node":       basetypes.StringType{},
-			"reth_nodes": basetypes.ListType{
-				ElemType: types.StringType,
-			},
+			"port_network":       basetypes.StringType{},
+			"preserve_dscp":      basetypes.BoolType{},
+			"redundant":          basetypes.BoolType{},
+			"redundant_group":    basetypes.Int64Type{},
+			"reth_idx":           basetypes.StringType{},
+			"reth_node":          basetypes.StringType{},
 			"speed":              basetypes.StringType{},
 			"ssr_no_virtual_mac": basetypes.BoolType{},
 			"svr_port_range":     basetypes.StringType{},
@@ -24222,15 +24218,12 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"ip_config": basetypes.ObjectType{
 			AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 		},
-		"port_network":    basetypes.StringType{},
-		"preserve_dscp":   basetypes.BoolType{},
-		"redundant":       basetypes.BoolType{},
-		"redundant_group": basetypes.Int64Type{},
-		"reth_idx":        basetypes.StringType{},
-		"reth_node":       basetypes.StringType{},
-		"reth_nodes": basetypes.ListType{
-			ElemType: types.StringType,
-		},
+		"port_network":       basetypes.StringType{},
+		"preserve_dscp":      basetypes.BoolType{},
+		"redundant":          basetypes.BoolType{},
+		"redundant_group":    basetypes.Int64Type{},
+		"reth_idx":           basetypes.StringType{},
+		"reth_node":          basetypes.StringType{},
 		"speed":              basetypes.StringType{},
 		"ssr_no_virtual_mac": basetypes.BoolType{},
 		"svr_port_range":     basetypes.StringType{},
@@ -24305,7 +24298,6 @@ func (v PortConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"redundant_group":            v.RedundantGroup,
 			"reth_idx":                   v.RethIdx,
 			"reth_node":                  v.RethNode,
-			"reth_nodes":                 rethNodesVal,
 			"speed":                      v.Speed,
 			"ssr_no_virtual_mac":         v.SsrNoVirtualMac,
 			"svr_port_range":             v.SvrPortRange,
@@ -24463,10 +24455,6 @@ func (v PortConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
-	if !v.RethNodes.Equal(other.RethNodes) {
-		return false
-	}
-
 	if !v.Speed.Equal(other.Speed) {
 		return false
 	}
@@ -24576,15 +24564,12 @@ func (v PortConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"ip_config": basetypes.ObjectType{
 			AttrTypes: PortIpConfigValue{}.AttributeTypes(ctx),
 		},
-		"port_network":    basetypes.StringType{},
-		"preserve_dscp":   basetypes.BoolType{},
-		"redundant":       basetypes.BoolType{},
-		"redundant_group": basetypes.Int64Type{},
-		"reth_idx":        basetypes.StringType{},
-		"reth_node":       basetypes.StringType{},
-		"reth_nodes": basetypes.ListType{
-			ElemType: types.StringType,
-		},
+		"port_network":       basetypes.StringType{},
+		"preserve_dscp":      basetypes.BoolType{},
+		"redundant":          basetypes.BoolType{},
+		"redundant_group":    basetypes.Int64Type{},
+		"reth_idx":           basetypes.StringType{},
+		"reth_node":          basetypes.StringType{},
 		"speed":              basetypes.StringType{},
 		"ssr_no_virtual_mac": basetypes.BoolType{},
 		"svr_port_range":     basetypes.StringType{},
@@ -27446,6 +27431,42 @@ func (t WanProbeOverrideType) ValueFromObject(ctx context.Context, in basetypes.
 
 	attributes := in.Attributes()
 
+	hostnamesAttribute, ok := attributes["hostnames"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hostnames is missing from object`)
+
+		return nil, diags
+	}
+
+	hostnamesVal, ok := hostnamesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hostnames expected to be basetypes.ListValue, was: %T`, hostnamesAttribute))
+	}
+
+	httpAttribute, ok := attributes["http"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`http is missing from object`)
+
+		return nil, diags
+	}
+
+	httpVal, ok := httpAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`http expected to be basetypes.ObjectValue, was: %T`, httpAttribute))
+	}
+
 	ip6sAttribute, ok := attributes["ip6s"]
 
 	if !ok {
@@ -27505,6 +27526,8 @@ func (t WanProbeOverrideType) ValueFromObject(ctx context.Context, in basetypes.
 	}
 
 	return WanProbeOverrideValue{
+		Hostnames:    hostnamesVal,
+		Http:         httpVal,
 		Ip6s:         ip6sVal,
 		Ips:          ipsVal,
 		ProbeProfile: probeProfileVal,
@@ -27575,6 +27598,42 @@ func NewWanProbeOverrideValue(attributeTypes map[string]attr.Type, attributes ma
 		return NewWanProbeOverrideValueUnknown(), diags
 	}
 
+	hostnamesAttribute, ok := attributes["hostnames"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`hostnames is missing from object`)
+
+		return NewWanProbeOverrideValueUnknown(), diags
+	}
+
+	hostnamesVal, ok := hostnamesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`hostnames expected to be basetypes.ListValue, was: %T`, hostnamesAttribute))
+	}
+
+	httpAttribute, ok := attributes["http"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`http is missing from object`)
+
+		return NewWanProbeOverrideValueUnknown(), diags
+	}
+
+	httpVal, ok := httpAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`http expected to be basetypes.ObjectValue, was: %T`, httpAttribute))
+	}
+
 	ip6sAttribute, ok := attributes["ip6s"]
 
 	if !ok {
@@ -27634,6 +27693,8 @@ func NewWanProbeOverrideValue(attributeTypes map[string]attr.Type, attributes ma
 	}
 
 	return WanProbeOverrideValue{
+		Hostnames:    hostnamesVal,
+		Http:         httpVal,
 		Ip6s:         ip6sVal,
 		Ips:          ipsVal,
 		ProbeProfile: probeProfileVal,
@@ -27709,6 +27770,8 @@ func (t WanProbeOverrideType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = WanProbeOverrideValue{}
 
 type WanProbeOverrideValue struct {
+	Hostnames    basetypes.ListValue   `tfsdk:"hostnames"`
+	Http         basetypes.ObjectValue `tfsdk:"http"`
 	Ip6s         basetypes.ListValue   `tfsdk:"ip6s"`
 	Ips          basetypes.ListValue   `tfsdk:"ips"`
 	ProbeProfile basetypes.StringValue `tfsdk:"probe_profile"`
@@ -27716,11 +27779,17 @@ type WanProbeOverrideValue struct {
 }
 
 func (v WanProbeOverrideValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 5)
 
 	var val tftypes.Value
 	var err error
 
+	attrTypes["hostnames"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["http"] = basetypes.ObjectType{
+		AttrTypes: HttpValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["ip6s"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -27733,7 +27802,23 @@ func (v WanProbeOverrideValue) ToTerraformValue(ctx context.Context) (tftypes.Va
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 5)
+
+		val, err = v.Hostnames.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["hostnames"] = val
+
+		val, err = v.Http.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["http"] = val
 
 		val, err = v.Ip6s.ToTerraformValue(ctx)
 
@@ -27788,6 +27873,57 @@ func (v WanProbeOverrideValue) String() string {
 func (v WanProbeOverrideValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var http basetypes.ObjectValue
+
+	if v.Http.IsNull() {
+		http = types.ObjectNull(
+			HttpValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Http.IsUnknown() {
+		http = types.ObjectUnknown(
+			HttpValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Http.IsNull() && !v.Http.IsUnknown() {
+		http = types.ObjectValueMust(
+			HttpValue{}.AttributeTypes(ctx),
+			v.Http.Attributes(),
+		)
+	}
+
+	var hostnamesVal basetypes.ListValue
+	switch {
+	case v.Hostnames.IsUnknown():
+		hostnamesVal = types.ListUnknown(types.StringType)
+	case v.Hostnames.IsNull():
+		hostnamesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		hostnamesVal, d = types.ListValue(types.StringType, v.Hostnames.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"http": basetypes.ObjectType{
+				AttrTypes: HttpValue{}.AttributeTypes(ctx),
+			},
+			"ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_profile": basetypes.StringType{},
+		}), diags
+	}
+
 	var ip6sVal basetypes.ListValue
 	switch {
 	case v.Ip6s.IsUnknown():
@@ -27802,6 +27938,12 @@ func (v WanProbeOverrideValue) ToObjectValue(ctx context.Context) (basetypes.Obj
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"http": basetypes.ObjectType{
+				AttrTypes: HttpValue{}.AttributeTypes(ctx),
+			},
 			"ip6s": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -27826,6 +27968,12 @@ func (v WanProbeOverrideValue) ToObjectValue(ctx context.Context) (basetypes.Obj
 
 	if diags.HasError() {
 		return types.ObjectUnknown(map[string]attr.Type{
+			"hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"http": basetypes.ObjectType{
+				AttrTypes: HttpValue{}.AttributeTypes(ctx),
+			},
 			"ip6s": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -27837,6 +27985,12 @@ func (v WanProbeOverrideValue) ToObjectValue(ctx context.Context) (basetypes.Obj
 	}
 
 	attributeTypes := map[string]attr.Type{
+		"hostnames": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"http": basetypes.ObjectType{
+			AttrTypes: HttpValue{}.AttributeTypes(ctx),
+		},
 		"ip6s": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -27857,6 +28011,8 @@ func (v WanProbeOverrideValue) ToObjectValue(ctx context.Context) (basetypes.Obj
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
+			"hostnames":     hostnamesVal,
+			"http":          http,
 			"ip6s":          ip6sVal,
 			"ips":           ipsVal,
 			"probe_profile": v.ProbeProfile,
@@ -27878,6 +28034,14 @@ func (v WanProbeOverrideValue) Equal(o attr.Value) bool {
 
 	if v.state != attr.ValueStateKnown {
 		return true
+	}
+
+	if !v.Hostnames.Equal(other.Hostnames) {
+		return false
+	}
+
+	if !v.Http.Equal(other.Http) {
+		return false
 	}
 
 	if !v.Ip6s.Equal(other.Ip6s) {
@@ -27905,6 +28069,12 @@ func (v WanProbeOverrideValue) Type(ctx context.Context) attr.Type {
 
 func (v WanProbeOverrideValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
+		"hostnames": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"http": basetypes.ObjectType{
+			AttrTypes: HttpValue{}.AttributeTypes(ctx),
+		},
 		"ip6s": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -27912,6 +28082,443 @@ func (v WanProbeOverrideValue) AttributeTypes(ctx context.Context) map[string]at
 			ElemType: types.StringType,
 		},
 		"probe_profile": basetypes.StringType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = HttpType{}
+
+type HttpType struct {
+	basetypes.ObjectType
+}
+
+func (t HttpType) Equal(o attr.Type) bool {
+	other, ok := o.(HttpType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t HttpType) String() string {
+	return "HttpType"
+}
+
+func (t HttpType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	acceptedStatusCodesAttribute, ok := attributes["accepted_status_codes"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`accepted_status_codes is missing from object`)
+
+		return nil, diags
+	}
+
+	acceptedStatusCodesVal, ok := acceptedStatusCodesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`accepted_status_codes expected to be basetypes.ListValue, was: %T`, acceptedStatusCodesAttribute))
+	}
+
+	urlsAttribute, ok := attributes["urls"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`urls is missing from object`)
+
+		return nil, diags
+	}
+
+	urlsVal, ok := urlsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`urls expected to be basetypes.ListValue, was: %T`, urlsAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return HttpValue{
+		AcceptedStatusCodes: acceptedStatusCodesVal,
+		Urls:                urlsVal,
+		state:               attr.ValueStateKnown,
+	}, diags
+}
+
+func NewHttpValueNull() HttpValue {
+	return HttpValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewHttpValueUnknown() HttpValue {
+	return HttpValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewHttpValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (HttpValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing HttpValue Attribute Value",
+				"While creating a HttpValue value, a missing attribute value was detected. "+
+					"A HttpValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("HttpValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid HttpValue Attribute Type",
+				"While creating a HttpValue value, an invalid attribute value was detected. "+
+					"A HttpValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("HttpValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("HttpValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra HttpValue Attribute Value",
+				"While creating a HttpValue value, an extra attribute value was detected. "+
+					"A HttpValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra HttpValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewHttpValueUnknown(), diags
+	}
+
+	acceptedStatusCodesAttribute, ok := attributes["accepted_status_codes"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`accepted_status_codes is missing from object`)
+
+		return NewHttpValueUnknown(), diags
+	}
+
+	acceptedStatusCodesVal, ok := acceptedStatusCodesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`accepted_status_codes expected to be basetypes.ListValue, was: %T`, acceptedStatusCodesAttribute))
+	}
+
+	urlsAttribute, ok := attributes["urls"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`urls is missing from object`)
+
+		return NewHttpValueUnknown(), diags
+	}
+
+	urlsVal, ok := urlsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`urls expected to be basetypes.ListValue, was: %T`, urlsAttribute))
+	}
+
+	if diags.HasError() {
+		return NewHttpValueUnknown(), diags
+	}
+
+	return HttpValue{
+		AcceptedStatusCodes: acceptedStatusCodesVal,
+		Urls:                urlsVal,
+		state:               attr.ValueStateKnown,
+	}, diags
+}
+
+func NewHttpValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) HttpValue {
+	object, diags := NewHttpValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewHttpValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t HttpType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewHttpValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewHttpValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewHttpValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewHttpValueMust(HttpValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t HttpType) ValueType(ctx context.Context) attr.Value {
+	return HttpValue{}
+}
+
+var _ basetypes.ObjectValuable = HttpValue{}
+
+type HttpValue struct {
+	AcceptedStatusCodes basetypes.ListValue `tfsdk:"accepted_status_codes"`
+	Urls                basetypes.ListValue `tfsdk:"urls"`
+	state               attr.ValueState
+}
+
+func (v HttpValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["accepted_status_codes"] = basetypes.ListType{
+		ElemType: types.Int64Type,
+	}.TerraformType(ctx)
+	attrTypes["urls"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.AcceptedStatusCodes.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["accepted_status_codes"] = val
+
+		val, err = v.Urls.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["urls"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v HttpValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v HttpValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v HttpValue) String() string {
+	return "HttpValue"
+}
+
+func (v HttpValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var acceptedStatusCodesVal basetypes.ListValue
+	switch {
+	case v.AcceptedStatusCodes.IsUnknown():
+		acceptedStatusCodesVal = types.ListUnknown(types.Int64Type)
+	case v.AcceptedStatusCodes.IsNull():
+		acceptedStatusCodesVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		acceptedStatusCodesVal, d = types.ListValue(types.Int64Type, v.AcceptedStatusCodes.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"accepted_status_codes": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"urls": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var urlsVal basetypes.ListValue
+	switch {
+	case v.Urls.IsUnknown():
+		urlsVal = types.ListUnknown(types.StringType)
+	case v.Urls.IsNull():
+		urlsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		urlsVal, d = types.ListValue(types.StringType, v.Urls.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"accepted_status_codes": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"urls": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"accepted_status_codes": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"urls": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"accepted_status_codes": acceptedStatusCodesVal,
+			"urls":                  urlsVal,
+		})
+
+	return objVal, diags
+}
+
+func (v HttpValue) Equal(o attr.Value) bool {
+	other, ok := o.(HttpValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AcceptedStatusCodes.Equal(other.AcceptedStatusCodes) {
+		return false
+	}
+
+	if !v.Urls.Equal(other.Urls) {
+		return false
+	}
+
+	return true
+}
+
+func (v HttpValue) Type(ctx context.Context) attr.Type {
+	return HttpType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v HttpValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"accepted_status_codes": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"urls": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 	}
 }
 
@@ -29310,6 +29917,42 @@ func (t ActionsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`local_preference expected to be basetypes.StringValue, was: %T`, localPreferenceAttribute))
 	}
 
+	nextPolicyAttribute, ok := attributes["next_policy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`next_policy is missing from object`)
+
+		return nil, diags
+	}
+
+	nextPolicyVal, ok := nextPolicyAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`next_policy expected to be basetypes.BoolValue, was: %T`, nextPolicyAttribute))
+	}
+
+	nextTermAttribute, ok := attributes["next_term"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`next_term is missing from object`)
+
+		return nil, diags
+	}
+
+	nextTermVal, ok := nextTermAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`next_term expected to be basetypes.BoolValue, was: %T`, nextTermAttribute))
+	}
+
 	prependAsPathAttribute, ok := attributes["prepend_as_path"]
 
 	if !ok {
@@ -29341,6 +29984,8 @@ func (t ActionsType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		ExcludeCommunity:  excludeCommunityVal,
 		ExportCommunities: exportCommunitiesVal,
 		LocalPreference:   localPreferenceVal,
+		NextPolicy:        nextPolicyVal,
+		NextTerm:          nextTermVal,
 		PrependAsPath:     prependAsPathVal,
 		state:             attr.ValueStateKnown,
 	}, diags
@@ -29553,6 +30198,42 @@ func NewActionsValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`local_preference expected to be basetypes.StringValue, was: %T`, localPreferenceAttribute))
 	}
 
+	nextPolicyAttribute, ok := attributes["next_policy"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`next_policy is missing from object`)
+
+		return NewActionsValueUnknown(), diags
+	}
+
+	nextPolicyVal, ok := nextPolicyAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`next_policy expected to be basetypes.BoolValue, was: %T`, nextPolicyAttribute))
+	}
+
+	nextTermAttribute, ok := attributes["next_term"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`next_term is missing from object`)
+
+		return NewActionsValueUnknown(), diags
+	}
+
+	nextTermVal, ok := nextTermAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`next_term expected to be basetypes.BoolValue, was: %T`, nextTermAttribute))
+	}
+
 	prependAsPathAttribute, ok := attributes["prepend_as_path"]
 
 	if !ok {
@@ -29584,6 +30265,8 @@ func NewActionsValue(attributeTypes map[string]attr.Type, attributes map[string]
 		ExcludeCommunity:  excludeCommunityVal,
 		ExportCommunities: exportCommunitiesVal,
 		LocalPreference:   localPreferenceVal,
+		NextPolicy:        nextPolicyVal,
+		NextTerm:          nextTermVal,
 		PrependAsPath:     prependAsPathVal,
 		state:             attr.ValueStateKnown,
 	}, diags
@@ -29665,12 +30348,14 @@ type ActionsValue struct {
 	ExcludeCommunity  basetypes.ListValue   `tfsdk:"exclude_community"`
 	ExportCommunities basetypes.ListValue   `tfsdk:"export_communities"`
 	LocalPreference   basetypes.StringValue `tfsdk:"local_preference"`
+	NextPolicy        basetypes.BoolValue   `tfsdk:"next_policy"`
+	NextTerm          basetypes.BoolValue   `tfsdk:"next_term"`
 	PrependAsPath     basetypes.ListValue   `tfsdk:"prepend_as_path"`
 	state             attr.ValueState
 }
 
 func (v ActionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 9)
+	attrTypes := make(map[string]tftypes.Type, 11)
 
 	var val tftypes.Value
 	var err error
@@ -29695,6 +30380,8 @@ func (v ActionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["local_preference"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["next_policy"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["next_term"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["prepend_as_path"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
@@ -29703,7 +30390,7 @@ func (v ActionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 9)
+		vals := make(map[string]tftypes.Value, 11)
 
 		val, err = v.Accept.ToTerraformValue(ctx)
 
@@ -29768,6 +30455,22 @@ func (v ActionsValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["local_preference"] = val
+
+		val, err = v.NextPolicy.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["next_policy"] = val
+
+		val, err = v.NextTerm.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["next_term"] = val
 
 		val, err = v.PrependAsPath.ToTerraformValue(ctx)
 
@@ -29840,6 +30543,8 @@ func (v ActionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
+			"next_policy":      basetypes.BoolType{},
+			"next_term":        basetypes.BoolType{},
 			"prepend_as_path": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -29880,6 +30585,8 @@ func (v ActionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
+			"next_policy":      basetypes.BoolType{},
+			"next_term":        basetypes.BoolType{},
 			"prepend_as_path": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -29920,6 +30627,8 @@ func (v ActionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
+			"next_policy":      basetypes.BoolType{},
+			"next_term":        basetypes.BoolType{},
 			"prepend_as_path": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -29960,6 +30669,8 @@ func (v ActionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
+			"next_policy":      basetypes.BoolType{},
+			"next_term":        basetypes.BoolType{},
 			"prepend_as_path": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -30000,6 +30711,8 @@ func (v ActionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
+			"next_policy":      basetypes.BoolType{},
+			"next_term":        basetypes.BoolType{},
 			"prepend_as_path": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -30040,6 +30753,8 @@ func (v ActionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
+			"next_policy":      basetypes.BoolType{},
+			"next_term":        basetypes.BoolType{},
 			"prepend_as_path": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -30080,6 +30795,8 @@ func (v ActionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 				ElemType: types.StringType,
 			},
 			"local_preference": basetypes.StringType{},
+			"next_policy":      basetypes.BoolType{},
+			"next_term":        basetypes.BoolType{},
 			"prepend_as_path": basetypes.ListType{
 				ElemType: types.StringType,
 			},
@@ -30107,6 +30824,8 @@ func (v ActionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			ElemType: types.StringType,
 		},
 		"local_preference": basetypes.StringType{},
+		"next_policy":      basetypes.BoolType{},
+		"next_term":        basetypes.BoolType{},
 		"prepend_as_path": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -30131,6 +30850,8 @@ func (v ActionsValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"exclude_community":  excludeCommunityVal,
 			"export_communities": exportCommunitiesVal,
 			"local_preference":   v.LocalPreference,
+			"next_policy":        v.NextPolicy,
+			"next_term":          v.NextTerm,
 			"prepend_as_path":    prependAsPathVal,
 		})
 
@@ -30184,6 +30905,14 @@ func (v ActionsValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.NextPolicy.Equal(other.NextPolicy) {
+		return false
+	}
+
+	if !v.NextTerm.Equal(other.NextTerm) {
+		return false
+	}
+
 	if !v.PrependAsPath.Equal(other.PrependAsPath) {
 		return false
 	}
@@ -30221,6 +30950,8 @@ func (v ActionsValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 			ElemType: types.StringType,
 		},
 		"local_preference": basetypes.StringType{},
+		"next_policy":      basetypes.BoolType{},
+		"next_term":        basetypes.BoolType{},
 		"prepend_as_path": basetypes.ListType{
 			ElemType: types.StringType,
 		},
@@ -42646,6 +43377,24 @@ func (t PrimaryType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 			fmt.Sprintf(`hosts expected to be basetypes.ListValue, was: %T`, hostsAttribute))
 	}
 
+	internalIp6sAttribute, ok := attributes["internal_ip6s"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`internal_ip6s is missing from object`)
+
+		return nil, diags
+	}
+
+	internalIp6sVal, ok := internalIp6sAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`internal_ip6s expected to be basetypes.ListValue, was: %T`, internalIp6sAttribute))
+	}
+
 	internalIpsAttribute, ok := attributes["internal_ips"]
 
 	if !ok {
@@ -42662,6 +43411,60 @@ func (t PrimaryType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`internal_ips expected to be basetypes.ListValue, was: %T`, internalIpsAttribute))
+	}
+
+	probeHostnamesAttribute, ok := attributes["probe_hostnames"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_hostnames is missing from object`)
+
+		return nil, diags
+	}
+
+	probeHostnamesVal, ok := probeHostnamesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_hostnames expected to be basetypes.ListValue, was: %T`, probeHostnamesAttribute))
+	}
+
+	probeHttpAttribute, ok := attributes["probe_http"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_http is missing from object`)
+
+		return nil, diags
+	}
+
+	probeHttpVal, ok := probeHttpAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_http expected to be basetypes.ObjectValue, was: %T`, probeHttpAttribute))
+	}
+
+	probeIp6sAttribute, ok := attributes["probe_ip6s"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_ip6s is missing from object`)
+
+		return nil, diags
+	}
+
+	probeIp6sVal, ok := probeIp6sAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_ip6s expected to be basetypes.ListValue, was: %T`, probeIp6sAttribute))
 	}
 
 	probeIpsAttribute, ok := attributes["probe_ips"]
@@ -42723,12 +43526,16 @@ func (t PrimaryType) ValueFromObject(ctx context.Context, in basetypes.ObjectVal
 	}
 
 	return PrimaryValue{
-		Hosts:       hostsVal,
-		InternalIps: internalIpsVal,
-		ProbeIps:    probeIpsVal,
-		RemoteIds:   remoteIdsVal,
-		WanNames:    wanNamesVal,
-		state:       attr.ValueStateKnown,
+		Hosts:          hostsVal,
+		InternalIp6s:   internalIp6sVal,
+		InternalIps:    internalIpsVal,
+		ProbeHostnames: probeHostnamesVal,
+		ProbeHttp:      probeHttpVal,
+		ProbeIp6s:      probeIp6sVal,
+		ProbeIps:       probeIpsVal,
+		RemoteIds:      remoteIdsVal,
+		WanNames:       wanNamesVal,
+		state:          attr.ValueStateKnown,
 	}, diags
 }
 
@@ -42813,6 +43620,24 @@ func NewPrimaryValue(attributeTypes map[string]attr.Type, attributes map[string]
 			fmt.Sprintf(`hosts expected to be basetypes.ListValue, was: %T`, hostsAttribute))
 	}
 
+	internalIp6sAttribute, ok := attributes["internal_ip6s"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`internal_ip6s is missing from object`)
+
+		return NewPrimaryValueUnknown(), diags
+	}
+
+	internalIp6sVal, ok := internalIp6sAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`internal_ip6s expected to be basetypes.ListValue, was: %T`, internalIp6sAttribute))
+	}
+
 	internalIpsAttribute, ok := attributes["internal_ips"]
 
 	if !ok {
@@ -42829,6 +43654,60 @@ func NewPrimaryValue(attributeTypes map[string]attr.Type, attributes map[string]
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`internal_ips expected to be basetypes.ListValue, was: %T`, internalIpsAttribute))
+	}
+
+	probeHostnamesAttribute, ok := attributes["probe_hostnames"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_hostnames is missing from object`)
+
+		return NewPrimaryValueUnknown(), diags
+	}
+
+	probeHostnamesVal, ok := probeHostnamesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_hostnames expected to be basetypes.ListValue, was: %T`, probeHostnamesAttribute))
+	}
+
+	probeHttpAttribute, ok := attributes["probe_http"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_http is missing from object`)
+
+		return NewPrimaryValueUnknown(), diags
+	}
+
+	probeHttpVal, ok := probeHttpAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_http expected to be basetypes.ObjectValue, was: %T`, probeHttpAttribute))
+	}
+
+	probeIp6sAttribute, ok := attributes["probe_ip6s"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_ip6s is missing from object`)
+
+		return NewPrimaryValueUnknown(), diags
+	}
+
+	probeIp6sVal, ok := probeIp6sAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_ip6s expected to be basetypes.ListValue, was: %T`, probeIp6sAttribute))
 	}
 
 	probeIpsAttribute, ok := attributes["probe_ips"]
@@ -42890,12 +43769,16 @@ func NewPrimaryValue(attributeTypes map[string]attr.Type, attributes map[string]
 	}
 
 	return PrimaryValue{
-		Hosts:       hostsVal,
-		InternalIps: internalIpsVal,
-		ProbeIps:    probeIpsVal,
-		RemoteIds:   remoteIdsVal,
-		WanNames:    wanNamesVal,
-		state:       attr.ValueStateKnown,
+		Hosts:          hostsVal,
+		InternalIp6s:   internalIp6sVal,
+		InternalIps:    internalIpsVal,
+		ProbeHostnames: probeHostnamesVal,
+		ProbeHttp:      probeHttpVal,
+		ProbeIp6s:      probeIp6sVal,
+		ProbeIps:       probeIpsVal,
+		RemoteIds:      remoteIdsVal,
+		WanNames:       wanNamesVal,
+		state:          attr.ValueStateKnown,
 	}, diags
 }
 
@@ -42967,16 +43850,20 @@ func (t PrimaryType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = PrimaryValue{}
 
 type PrimaryValue struct {
-	Hosts       basetypes.ListValue `tfsdk:"hosts"`
-	InternalIps basetypes.ListValue `tfsdk:"internal_ips"`
-	ProbeIps    basetypes.ListValue `tfsdk:"probe_ips"`
-	RemoteIds   basetypes.ListValue `tfsdk:"remote_ids"`
-	WanNames    basetypes.ListValue `tfsdk:"wan_names"`
-	state       attr.ValueState
+	Hosts          basetypes.ListValue   `tfsdk:"hosts"`
+	InternalIp6s   basetypes.ListValue   `tfsdk:"internal_ip6s"`
+	InternalIps    basetypes.ListValue   `tfsdk:"internal_ips"`
+	ProbeHostnames basetypes.ListValue   `tfsdk:"probe_hostnames"`
+	ProbeHttp      basetypes.ObjectValue `tfsdk:"probe_http"`
+	ProbeIp6s      basetypes.ListValue   `tfsdk:"probe_ip6s"`
+	ProbeIps       basetypes.ListValue   `tfsdk:"probe_ips"`
+	RemoteIds      basetypes.ListValue   `tfsdk:"remote_ids"`
+	WanNames       basetypes.ListValue   `tfsdk:"wan_names"`
+	state          attr.ValueState
 }
 
 func (v PrimaryValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 5)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
@@ -42984,7 +43871,19 @@ func (v PrimaryValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 	attrTypes["hosts"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
+	attrTypes["internal_ip6s"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["internal_ips"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["probe_hostnames"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["probe_http"] = basetypes.ObjectType{
+		AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["probe_ip6s"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["probe_ips"] = basetypes.ListType{
@@ -43001,7 +43900,7 @@ func (v PrimaryValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 5)
+		vals := make(map[string]tftypes.Value, 9)
 
 		val, err = v.Hosts.ToTerraformValue(ctx)
 
@@ -43011,6 +43910,14 @@ func (v PrimaryValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 
 		vals["hosts"] = val
 
+		val, err = v.InternalIp6s.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["internal_ip6s"] = val
+
 		val, err = v.InternalIps.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -43018,6 +43925,30 @@ func (v PrimaryValue) ToTerraformValue(ctx context.Context) (tftypes.Value, erro
 		}
 
 		vals["internal_ips"] = val
+
+		val, err = v.ProbeHostnames.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["probe_hostnames"] = val
+
+		val, err = v.ProbeHttp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["probe_http"] = val
+
+		val, err = v.ProbeIp6s.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["probe_ip6s"] = val
 
 		val, err = v.ProbeIps.ToTerraformValue(ctx)
 
@@ -43072,6 +44003,27 @@ func (v PrimaryValue) String() string {
 func (v PrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var probeHttp basetypes.ObjectValue
+
+	if v.ProbeHttp.IsNull() {
+		probeHttp = types.ObjectNull(
+			ProbeHttpValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.ProbeHttp.IsUnknown() {
+		probeHttp = types.ObjectUnknown(
+			ProbeHttpValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.ProbeHttp.IsNull() && !v.ProbeHttp.IsUnknown() {
+		probeHttp = types.ObjectValueMust(
+			ProbeHttpValue{}.AttributeTypes(ctx),
+			v.ProbeHttp.Attributes(),
+		)
+	}
+
 	var hostsVal basetypes.ListValue
 	switch {
 	case v.Hosts.IsUnknown():
@@ -43089,7 +44041,63 @@ func (v PrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"remote_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"wan_names": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var internalIp6sVal basetypes.ListValue
+	switch {
+	case v.InternalIp6s.IsUnknown():
+		internalIp6sVal = types.ListUnknown(types.StringType)
+	case v.InternalIp6s.IsNull():
+		internalIp6sVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		internalIp6sVal, d = types.ListValue(types.StringType, v.InternalIp6s.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"hosts": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"probe_ips": basetypes.ListType{
@@ -43121,7 +44129,107 @@ func (v PrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"remote_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"wan_names": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var probeHostnamesVal basetypes.ListValue
+	switch {
+	case v.ProbeHostnames.IsUnknown():
+		probeHostnamesVal = types.ListUnknown(types.StringType)
+	case v.ProbeHostnames.IsNull():
+		probeHostnamesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		probeHostnamesVal, d = types.ListValue(types.StringType, v.ProbeHostnames.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"hosts": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"remote_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"wan_names": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var probeIp6sVal basetypes.ListValue
+	switch {
+	case v.ProbeIp6s.IsUnknown():
+		probeIp6sVal = types.ListUnknown(types.StringType)
+	case v.ProbeIp6s.IsNull():
+		probeIp6sVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		probeIp6sVal, d = types.ListValue(types.StringType, v.ProbeIp6s.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"hosts": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"probe_ips": basetypes.ListType{
@@ -43153,7 +44261,19 @@ func (v PrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"probe_ips": basetypes.ListType{
@@ -43185,7 +44305,19 @@ func (v PrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"probe_ips": basetypes.ListType{
@@ -43217,7 +44349,19 @@ func (v PrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"probe_ips": basetypes.ListType{
@@ -43236,7 +44380,19 @@ func (v PrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 		"hosts": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"internal_ip6s": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"internal_ips": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"probe_hostnames": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"probe_http": basetypes.ObjectType{
+			AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+		},
+		"probe_ip6s": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"probe_ips": basetypes.ListType{
@@ -43261,11 +44417,15 @@ func (v PrimaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue,
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"hosts":        hostsVal,
-			"internal_ips": internalIpsVal,
-			"probe_ips":    probeIpsVal,
-			"remote_ids":   remoteIdsVal,
-			"wan_names":    wanNamesVal,
+			"hosts":           hostsVal,
+			"internal_ip6s":   internalIp6sVal,
+			"internal_ips":    internalIpsVal,
+			"probe_hostnames": probeHostnamesVal,
+			"probe_http":      probeHttp,
+			"probe_ip6s":      probeIp6sVal,
+			"probe_ips":       probeIpsVal,
+			"remote_ids":      remoteIdsVal,
+			"wan_names":       wanNamesVal,
 		})
 
 	return objVal, diags
@@ -43290,7 +44450,23 @@ func (v PrimaryValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.InternalIp6s.Equal(other.InternalIp6s) {
+		return false
+	}
+
 	if !v.InternalIps.Equal(other.InternalIps) {
+		return false
+	}
+
+	if !v.ProbeHostnames.Equal(other.ProbeHostnames) {
+		return false
+	}
+
+	if !v.ProbeHttp.Equal(other.ProbeHttp) {
+		return false
+	}
+
+	if !v.ProbeIp6s.Equal(other.ProbeIp6s) {
 		return false
 	}
 
@@ -43322,7 +44498,19 @@ func (v PrimaryValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"hosts": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"internal_ip6s": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"internal_ips": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"probe_hostnames": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"probe_http": basetypes.ObjectType{
+			AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+		},
+		"probe_ip6s": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"probe_ips": basetypes.ListType{
@@ -43332,6 +44520,443 @@ func (v PrimaryValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 			ElemType: types.StringType,
 		},
 		"wan_names": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+}
+
+var _ basetypes.ObjectTypable = ProbeHttpType{}
+
+type ProbeHttpType struct {
+	basetypes.ObjectType
+}
+
+func (t ProbeHttpType) Equal(o attr.Type) bool {
+	other, ok := o.(ProbeHttpType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t ProbeHttpType) String() string {
+	return "ProbeHttpType"
+}
+
+func (t ProbeHttpType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	acceptedStatusCodesAttribute, ok := attributes["accepted_status_codes"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`accepted_status_codes is missing from object`)
+
+		return nil, diags
+	}
+
+	acceptedStatusCodesVal, ok := acceptedStatusCodesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`accepted_status_codes expected to be basetypes.ListValue, was: %T`, acceptedStatusCodesAttribute))
+	}
+
+	urlsAttribute, ok := attributes["urls"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`urls is missing from object`)
+
+		return nil, diags
+	}
+
+	urlsVal, ok := urlsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`urls expected to be basetypes.ListValue, was: %T`, urlsAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return ProbeHttpValue{
+		AcceptedStatusCodes: acceptedStatusCodesVal,
+		Urls:                urlsVal,
+		state:               attr.ValueStateKnown,
+	}, diags
+}
+
+func NewProbeHttpValueNull() ProbeHttpValue {
+	return ProbeHttpValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewProbeHttpValueUnknown() ProbeHttpValue {
+	return ProbeHttpValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewProbeHttpValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (ProbeHttpValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing ProbeHttpValue Attribute Value",
+				"While creating a ProbeHttpValue value, a missing attribute value was detected. "+
+					"A ProbeHttpValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("ProbeHttpValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid ProbeHttpValue Attribute Type",
+				"While creating a ProbeHttpValue value, an invalid attribute value was detected. "+
+					"A ProbeHttpValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("ProbeHttpValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("ProbeHttpValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra ProbeHttpValue Attribute Value",
+				"While creating a ProbeHttpValue value, an extra attribute value was detected. "+
+					"A ProbeHttpValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra ProbeHttpValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewProbeHttpValueUnknown(), diags
+	}
+
+	acceptedStatusCodesAttribute, ok := attributes["accepted_status_codes"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`accepted_status_codes is missing from object`)
+
+		return NewProbeHttpValueUnknown(), diags
+	}
+
+	acceptedStatusCodesVal, ok := acceptedStatusCodesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`accepted_status_codes expected to be basetypes.ListValue, was: %T`, acceptedStatusCodesAttribute))
+	}
+
+	urlsAttribute, ok := attributes["urls"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`urls is missing from object`)
+
+		return NewProbeHttpValueUnknown(), diags
+	}
+
+	urlsVal, ok := urlsAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`urls expected to be basetypes.ListValue, was: %T`, urlsAttribute))
+	}
+
+	if diags.HasError() {
+		return NewProbeHttpValueUnknown(), diags
+	}
+
+	return ProbeHttpValue{
+		AcceptedStatusCodes: acceptedStatusCodesVal,
+		Urls:                urlsVal,
+		state:               attr.ValueStateKnown,
+	}, diags
+}
+
+func NewProbeHttpValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) ProbeHttpValue {
+	object, diags := NewProbeHttpValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewProbeHttpValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t ProbeHttpType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewProbeHttpValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewProbeHttpValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewProbeHttpValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewProbeHttpValueMust(ProbeHttpValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t ProbeHttpType) ValueType(ctx context.Context) attr.Value {
+	return ProbeHttpValue{}
+}
+
+var _ basetypes.ObjectValuable = ProbeHttpValue{}
+
+type ProbeHttpValue struct {
+	AcceptedStatusCodes basetypes.ListValue `tfsdk:"accepted_status_codes"`
+	Urls                basetypes.ListValue `tfsdk:"urls"`
+	state               attr.ValueState
+}
+
+func (v ProbeHttpValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 2)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["accepted_status_codes"] = basetypes.ListType{
+		ElemType: types.Int64Type,
+	}.TerraformType(ctx)
+	attrTypes["urls"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 2)
+
+		val, err = v.AcceptedStatusCodes.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["accepted_status_codes"] = val
+
+		val, err = v.Urls.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["urls"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v ProbeHttpValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v ProbeHttpValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v ProbeHttpValue) String() string {
+	return "ProbeHttpValue"
+}
+
+func (v ProbeHttpValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	var acceptedStatusCodesVal basetypes.ListValue
+	switch {
+	case v.AcceptedStatusCodes.IsUnknown():
+		acceptedStatusCodesVal = types.ListUnknown(types.Int64Type)
+	case v.AcceptedStatusCodes.IsNull():
+		acceptedStatusCodesVal = types.ListNull(types.Int64Type)
+	default:
+		var d diag.Diagnostics
+		acceptedStatusCodesVal, d = types.ListValue(types.Int64Type, v.AcceptedStatusCodes.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"accepted_status_codes": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"urls": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var urlsVal basetypes.ListValue
+	switch {
+	case v.Urls.IsUnknown():
+		urlsVal = types.ListUnknown(types.StringType)
+	case v.Urls.IsNull():
+		urlsVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		urlsVal, d = types.ListValue(types.StringType, v.Urls.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"accepted_status_codes": basetypes.ListType{
+				ElemType: types.Int64Type,
+			},
+			"urls": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"accepted_status_codes": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"urls": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"accepted_status_codes": acceptedStatusCodesVal,
+			"urls":                  urlsVal,
+		})
+
+	return objVal, diags
+}
+
+func (v ProbeHttpValue) Equal(o attr.Value) bool {
+	other, ok := o.(ProbeHttpValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AcceptedStatusCodes.Equal(other.AcceptedStatusCodes) {
+		return false
+	}
+
+	if !v.Urls.Equal(other.Urls) {
+		return false
+	}
+
+	return true
+}
+
+func (v ProbeHttpValue) Type(ctx context.Context) attr.Type {
+	return ProbeHttpType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v ProbeHttpValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"accepted_status_codes": basetypes.ListType{
+			ElemType: types.Int64Type,
+		},
+		"urls": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 	}
@@ -43869,6 +45494,24 @@ func (t SecondaryType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 			fmt.Sprintf(`hosts expected to be basetypes.ListValue, was: %T`, hostsAttribute))
 	}
 
+	internalIp6sAttribute, ok := attributes["internal_ip6s"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`internal_ip6s is missing from object`)
+
+		return nil, diags
+	}
+
+	internalIp6sVal, ok := internalIp6sAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`internal_ip6s expected to be basetypes.ListValue, was: %T`, internalIp6sAttribute))
+	}
+
 	internalIpsAttribute, ok := attributes["internal_ips"]
 
 	if !ok {
@@ -43885,6 +45528,60 @@ func (t SecondaryType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`internal_ips expected to be basetypes.ListValue, was: %T`, internalIpsAttribute))
+	}
+
+	probeHostnamesAttribute, ok := attributes["probe_hostnames"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_hostnames is missing from object`)
+
+		return nil, diags
+	}
+
+	probeHostnamesVal, ok := probeHostnamesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_hostnames expected to be basetypes.ListValue, was: %T`, probeHostnamesAttribute))
+	}
+
+	probeHttpAttribute, ok := attributes["probe_http"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_http is missing from object`)
+
+		return nil, diags
+	}
+
+	probeHttpVal, ok := probeHttpAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_http expected to be basetypes.ObjectValue, was: %T`, probeHttpAttribute))
+	}
+
+	probeIp6sAttribute, ok := attributes["probe_ip6s"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_ip6s is missing from object`)
+
+		return nil, diags
+	}
+
+	probeIp6sVal, ok := probeIp6sAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_ip6s expected to be basetypes.ListValue, was: %T`, probeIp6sAttribute))
 	}
 
 	probeIpsAttribute, ok := attributes["probe_ips"]
@@ -43946,12 +45643,16 @@ func (t SecondaryType) ValueFromObject(ctx context.Context, in basetypes.ObjectV
 	}
 
 	return SecondaryValue{
-		Hosts:       hostsVal,
-		InternalIps: internalIpsVal,
-		ProbeIps:    probeIpsVal,
-		RemoteIds:   remoteIdsVal,
-		WanNames:    wanNamesVal,
-		state:       attr.ValueStateKnown,
+		Hosts:          hostsVal,
+		InternalIp6s:   internalIp6sVal,
+		InternalIps:    internalIpsVal,
+		ProbeHostnames: probeHostnamesVal,
+		ProbeHttp:      probeHttpVal,
+		ProbeIp6s:      probeIp6sVal,
+		ProbeIps:       probeIpsVal,
+		RemoteIds:      remoteIdsVal,
+		WanNames:       wanNamesVal,
+		state:          attr.ValueStateKnown,
 	}, diags
 }
 
@@ -44036,6 +45737,24 @@ func NewSecondaryValue(attributeTypes map[string]attr.Type, attributes map[strin
 			fmt.Sprintf(`hosts expected to be basetypes.ListValue, was: %T`, hostsAttribute))
 	}
 
+	internalIp6sAttribute, ok := attributes["internal_ip6s"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`internal_ip6s is missing from object`)
+
+		return NewSecondaryValueUnknown(), diags
+	}
+
+	internalIp6sVal, ok := internalIp6sAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`internal_ip6s expected to be basetypes.ListValue, was: %T`, internalIp6sAttribute))
+	}
+
 	internalIpsAttribute, ok := attributes["internal_ips"]
 
 	if !ok {
@@ -44052,6 +45771,60 @@ func NewSecondaryValue(attributeTypes map[string]attr.Type, attributes map[strin
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`internal_ips expected to be basetypes.ListValue, was: %T`, internalIpsAttribute))
+	}
+
+	probeHostnamesAttribute, ok := attributes["probe_hostnames"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_hostnames is missing from object`)
+
+		return NewSecondaryValueUnknown(), diags
+	}
+
+	probeHostnamesVal, ok := probeHostnamesAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_hostnames expected to be basetypes.ListValue, was: %T`, probeHostnamesAttribute))
+	}
+
+	probeHttpAttribute, ok := attributes["probe_http"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_http is missing from object`)
+
+		return NewSecondaryValueUnknown(), diags
+	}
+
+	probeHttpVal, ok := probeHttpAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_http expected to be basetypes.ObjectValue, was: %T`, probeHttpAttribute))
+	}
+
+	probeIp6sAttribute, ok := attributes["probe_ip6s"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`probe_ip6s is missing from object`)
+
+		return NewSecondaryValueUnknown(), diags
+	}
+
+	probeIp6sVal, ok := probeIp6sAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`probe_ip6s expected to be basetypes.ListValue, was: %T`, probeIp6sAttribute))
 	}
 
 	probeIpsAttribute, ok := attributes["probe_ips"]
@@ -44113,12 +45886,16 @@ func NewSecondaryValue(attributeTypes map[string]attr.Type, attributes map[strin
 	}
 
 	return SecondaryValue{
-		Hosts:       hostsVal,
-		InternalIps: internalIpsVal,
-		ProbeIps:    probeIpsVal,
-		RemoteIds:   remoteIdsVal,
-		WanNames:    wanNamesVal,
-		state:       attr.ValueStateKnown,
+		Hosts:          hostsVal,
+		InternalIp6s:   internalIp6sVal,
+		InternalIps:    internalIpsVal,
+		ProbeHostnames: probeHostnamesVal,
+		ProbeHttp:      probeHttpVal,
+		ProbeIp6s:      probeIp6sVal,
+		ProbeIps:       probeIpsVal,
+		RemoteIds:      remoteIdsVal,
+		WanNames:       wanNamesVal,
+		state:          attr.ValueStateKnown,
 	}, diags
 }
 
@@ -44190,16 +45967,20 @@ func (t SecondaryType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = SecondaryValue{}
 
 type SecondaryValue struct {
-	Hosts       basetypes.ListValue `tfsdk:"hosts"`
-	InternalIps basetypes.ListValue `tfsdk:"internal_ips"`
-	ProbeIps    basetypes.ListValue `tfsdk:"probe_ips"`
-	RemoteIds   basetypes.ListValue `tfsdk:"remote_ids"`
-	WanNames    basetypes.ListValue `tfsdk:"wan_names"`
-	state       attr.ValueState
+	Hosts          basetypes.ListValue   `tfsdk:"hosts"`
+	InternalIp6s   basetypes.ListValue   `tfsdk:"internal_ip6s"`
+	InternalIps    basetypes.ListValue   `tfsdk:"internal_ips"`
+	ProbeHostnames basetypes.ListValue   `tfsdk:"probe_hostnames"`
+	ProbeHttp      basetypes.ObjectValue `tfsdk:"probe_http"`
+	ProbeIp6s      basetypes.ListValue   `tfsdk:"probe_ip6s"`
+	ProbeIps       basetypes.ListValue   `tfsdk:"probe_ips"`
+	RemoteIds      basetypes.ListValue   `tfsdk:"remote_ids"`
+	WanNames       basetypes.ListValue   `tfsdk:"wan_names"`
+	state          attr.ValueState
 }
 
 func (v SecondaryValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 5)
+	attrTypes := make(map[string]tftypes.Type, 9)
 
 	var val tftypes.Value
 	var err error
@@ -44207,7 +45988,19 @@ func (v SecondaryValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 	attrTypes["hosts"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
+	attrTypes["internal_ip6s"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
 	attrTypes["internal_ips"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["probe_hostnames"] = basetypes.ListType{
+		ElemType: types.StringType,
+	}.TerraformType(ctx)
+	attrTypes["probe_http"] = basetypes.ObjectType{
+		AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
+	attrTypes["probe_ip6s"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
 	attrTypes["probe_ips"] = basetypes.ListType{
@@ -44224,7 +46017,7 @@ func (v SecondaryValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 5)
+		vals := make(map[string]tftypes.Value, 9)
 
 		val, err = v.Hosts.ToTerraformValue(ctx)
 
@@ -44234,6 +46027,14 @@ func (v SecondaryValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 
 		vals["hosts"] = val
 
+		val, err = v.InternalIp6s.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["internal_ip6s"] = val
+
 		val, err = v.InternalIps.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -44241,6 +46042,30 @@ func (v SecondaryValue) ToTerraformValue(ctx context.Context) (tftypes.Value, er
 		}
 
 		vals["internal_ips"] = val
+
+		val, err = v.ProbeHostnames.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["probe_hostnames"] = val
+
+		val, err = v.ProbeHttp.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["probe_http"] = val
+
+		val, err = v.ProbeIp6s.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["probe_ip6s"] = val
 
 		val, err = v.ProbeIps.ToTerraformValue(ctx)
 
@@ -44295,6 +46120,27 @@ func (v SecondaryValue) String() string {
 func (v SecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 	var diags diag.Diagnostics
 
+	var probeHttp basetypes.ObjectValue
+
+	if v.ProbeHttp.IsNull() {
+		probeHttp = types.ObjectNull(
+			ProbeHttpValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.ProbeHttp.IsUnknown() {
+		probeHttp = types.ObjectUnknown(
+			ProbeHttpValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.ProbeHttp.IsNull() && !v.ProbeHttp.IsUnknown() {
+		probeHttp = types.ObjectValueMust(
+			ProbeHttpValue{}.AttributeTypes(ctx),
+			v.ProbeHttp.Attributes(),
+		)
+	}
+
 	var hostsVal basetypes.ListValue
 	switch {
 	case v.Hosts.IsUnknown():
@@ -44312,7 +46158,63 @@ func (v SecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"remote_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"wan_names": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var internalIp6sVal basetypes.ListValue
+	switch {
+	case v.InternalIp6s.IsUnknown():
+		internalIp6sVal = types.ListUnknown(types.StringType)
+	case v.InternalIp6s.IsNull():
+		internalIp6sVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		internalIp6sVal, d = types.ListValue(types.StringType, v.InternalIp6s.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"hosts": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"probe_ips": basetypes.ListType{
@@ -44344,7 +46246,107 @@ func (v SecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"remote_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"wan_names": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var probeHostnamesVal basetypes.ListValue
+	switch {
+	case v.ProbeHostnames.IsUnknown():
+		probeHostnamesVal = types.ListUnknown(types.StringType)
+	case v.ProbeHostnames.IsNull():
+		probeHostnamesVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		probeHostnamesVal, d = types.ListValue(types.StringType, v.ProbeHostnames.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"hosts": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"remote_ids": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"wan_names": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+		}), diags
+	}
+
+	var probeIp6sVal basetypes.ListValue
+	switch {
+	case v.ProbeIp6s.IsUnknown():
+		probeIp6sVal = types.ListUnknown(types.StringType)
+	case v.ProbeIp6s.IsNull():
+		probeIp6sVal = types.ListNull(types.StringType)
+	default:
+		var d diag.Diagnostics
+		probeIp6sVal, d = types.ListValue(types.StringType, v.ProbeIp6s.Elements())
+		diags.Append(d...)
+	}
+
+	if diags.HasError() {
+		return types.ObjectUnknown(map[string]attr.Type{
+			"hosts": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"probe_ips": basetypes.ListType{
@@ -44376,7 +46378,19 @@ func (v SecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"probe_ips": basetypes.ListType{
@@ -44408,7 +46422,19 @@ func (v SecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"probe_ips": basetypes.ListType{
@@ -44440,7 +46466,19 @@ func (v SecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 			"hosts": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"internal_ip6s": basetypes.ListType{
+				ElemType: types.StringType,
+			},
 			"internal_ips": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_hostnames": basetypes.ListType{
+				ElemType: types.StringType,
+			},
+			"probe_http": basetypes.ObjectType{
+				AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+			},
+			"probe_ip6s": basetypes.ListType{
 				ElemType: types.StringType,
 			},
 			"probe_ips": basetypes.ListType{
@@ -44459,7 +46497,19 @@ func (v SecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 		"hosts": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"internal_ip6s": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"internal_ips": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"probe_hostnames": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"probe_http": basetypes.ObjectType{
+			AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+		},
+		"probe_ip6s": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"probe_ips": basetypes.ListType{
@@ -44484,11 +46534,15 @@ func (v SecondaryValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValu
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"hosts":        hostsVal,
-			"internal_ips": internalIpsVal,
-			"probe_ips":    probeIpsVal,
-			"remote_ids":   remoteIdsVal,
-			"wan_names":    wanNamesVal,
+			"hosts":           hostsVal,
+			"internal_ip6s":   internalIp6sVal,
+			"internal_ips":    internalIpsVal,
+			"probe_hostnames": probeHostnamesVal,
+			"probe_http":      probeHttp,
+			"probe_ip6s":      probeIp6sVal,
+			"probe_ips":       probeIpsVal,
+			"remote_ids":      remoteIdsVal,
+			"wan_names":       wanNamesVal,
 		})
 
 	return objVal, diags
@@ -44513,7 +46567,23 @@ func (v SecondaryValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.InternalIp6s.Equal(other.InternalIp6s) {
+		return false
+	}
+
 	if !v.InternalIps.Equal(other.InternalIps) {
+		return false
+	}
+
+	if !v.ProbeHostnames.Equal(other.ProbeHostnames) {
+		return false
+	}
+
+	if !v.ProbeHttp.Equal(other.ProbeHttp) {
+		return false
+	}
+
+	if !v.ProbeIp6s.Equal(other.ProbeIp6s) {
 		return false
 	}
 
@@ -44545,7 +46615,19 @@ func (v SecondaryValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 		"hosts": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"internal_ip6s": basetypes.ListType{
+			ElemType: types.StringType,
+		},
 		"internal_ips": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"probe_hostnames": basetypes.ListType{
+			ElemType: types.StringType,
+		},
+		"probe_http": basetypes.ObjectType{
+			AttrTypes: ProbeHttpValue{}.AttributeTypes(ctx),
+		},
+		"probe_ip6s": basetypes.ListType{
 			ElemType: types.StringType,
 		},
 		"probe_ips": basetypes.ListType{

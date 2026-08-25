@@ -27,6 +27,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	var extraRoutes6 = types.MapNull(ExtraRoutes6Value{}.Type(ctx))
 	var id types.String
 	var mistNac = NewMistNacValueNull()
+	var multicastConfig = NewMulticastConfigValueNull()
 	var name types.String
 	var networks = types.MapNull(NetworksValue{}.Type(ctx))
 	var ntpServers = types.ListValueMust(types.StringType, []attr.Value{})
@@ -76,6 +77,32 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	}
 	if data.MistNac != nil {
 		mistNac = mistNacSdkToTerraform(ctx, &diags, data.MistNac)
+	}
+	if data.MulticastConfig != nil {
+		var anycastRp types.Bool
+		var rpIp types.String
+		var sbdSubnet types.String
+		var sbdVlanId types.Int64
+		if data.MulticastConfig.AnycastRp != nil {
+			anycastRp = types.BoolValue(*data.MulticastConfig.AnycastRp)
+		}
+		if data.MulticastConfig.RpIp != nil {
+			rpIp = types.StringValue(*data.MulticastConfig.RpIp)
+		}
+		if data.MulticastConfig.SbdSubnet != nil {
+			sbdSubnet = types.StringValue(*data.MulticastConfig.SbdSubnet)
+		}
+		if data.MulticastConfig.SbdVlanId != nil {
+			sbdVlanId = types.Int64Value(int64(*data.MulticastConfig.SbdVlanId))
+		}
+		mcv, e := NewMulticastConfigValue(MulticastConfigValue{}.AttributeTypes(ctx), map[string]attr.Value{
+			"anycast_rp":  anycastRp,
+			"rp_ip":       rpIp,
+			"sbd_subnet":  sbdSubnet,
+			"sbd_vlan_id": sbdVlanId,
+		})
+		diags.Append(e...)
+		multicastConfig = mcv
 	}
 	if data.Name != nil {
 		name = types.StringValue(*data.Name)
@@ -139,6 +166,7 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	state.ExtraRoutes = extraRoutes
 	state.ExtraRoutes6 = extraRoutes6
 	state.MistNac = mistNac
+	state.MulticastConfig = multicastConfig
 	state.NtpServers = ntpServers
 	state.Networks = networks
 	state.OspfAreas = ospfAreas

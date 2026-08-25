@@ -557,7 +557,6 @@ Optional:
 - `redundant_group` (Number) If HA mode, SRX Only - support redundancy-group. 1-128 for physical SRX, 1-64 for virtual SRX
 - `reth_idx` (String) For SRX only and if HA Mode
 - `reth_node` (String) If HA mode. Node associated with the redundant Ethernet interface
-- `reth_nodes` (List of String) If HA mode and for SSR only. Per-network node assignment used for VLAN-based redundancy
 - `speed` (String) Link speed configured on the port
 - `ssr_no_virtual_mac` (Boolean) When SSR is running as VM, this is required on certain hosting platforms
 - `svr_port_range` (String) For SSR only. Port range configured on the interface
@@ -649,9 +648,20 @@ Optional:
 
 Optional:
 
+- `hostnames` (List of String) List of hostnames used as probe destinations; applicable for both IPv4 and IPv6
+- `http` (Attributes) HTTP probe settings; success from any ICMP or HTTP probe indicates the WAN is up (see [below for nested schema](#nestedatt--port_config--wan_probe_override--http))
 - `ip6s` (List of String) List of IPv6 probe host addresses used by this WAN override
 - `ips` (List of String) List of IPv4 probe host addresses used by this WAN override
 - `probe_profile` (String) WAN probe profile used for health checks on this port
+
+<a id="nestedatt--port_config--wan_probe_override--http"></a>
+### Nested Schema for `port_config.wan_probe_override.http`
+
+Optional:
+
+- `accepted_status_codes` (List of Number) HTTP response status codes that indicate a successful probe. Defaults to 200 if not specified.
+- `urls` (List of String) HTTP or HTTPS URLs to probe
+
 
 
 <a id="nestedatt--port_config--wan_source_nat"></a>
@@ -685,7 +695,7 @@ Optional:
 
 Optional:
 
-- `accept` (Boolean) Whether to accept routes that match this term
+- `accept` (Boolean) Whether to accept routes that match this term. Precedence is `accept` > `next_term` > `next_policy`; routes are rejected if all three are false
 - `add_community` (List of String) BGP communities to add to routes that match this term
 - `add_target_vrfs` (List of String) SSR target VRFs to add when leaking routes from hub to spoke
 - `community` (List of String) BGP communities to set when this term is used as an export policy
@@ -693,6 +703,8 @@ Optional:
 - `exclude_community` (List of String) BGP communities to exclude from routes that match this term
 - `export_communities` (List of String) BGP communities allowed for export when this term is used as an export policy
 - `local_preference` (String) Preference value to set when this term is used as an import policy
+- `next_policy` (Boolean) When true, continue evaluating the next routing policy in the chain after this term matches; default is false
+- `next_term` (Boolean) When true, continue evaluating the next term in the same routing policy after this term matches; default is false
 - `prepend_as_path` (List of String) AS path values to prepend when this term is used as an export policy
 
 
@@ -956,9 +968,22 @@ Required:
 
 Optional:
 
+- `internal_ip6s` (List of String) IPv6 addresses configured on this tunnel node
 - `internal_ips` (List of String) Internal IP addresses configured on this tunnel node
+- `probe_hostnames` (List of String) Hostnames used as ICMP probe destinations for this tunnel node; applicable for both IPv4 and IPv6
+- `probe_http` (Attributes) HTTP probe settings for this tunnel node; success from any ICMP or HTTP probe indicates the tunnel is up (see [below for nested schema](#nestedatt--tunnel_configs--primary--probe_http))
+- `probe_ip6s` (List of String) IPv6 ICMP probe addresses used to monitor this tunnel node
 - `probe_ips` (List of String) Health-check IP addresses used to monitor this tunnel node
 - `remote_ids` (List of String) IKE identities expected from this tunnel node
+
+<a id="nestedatt--tunnel_configs--primary--probe_http"></a>
+### Nested Schema for `tunnel_configs.primary.probe_http`
+
+Optional:
+
+- `accepted_status_codes` (List of Number) HTTP response status codes that indicate a successful probe. Defaults to 200 if not specified.
+- `urls` (List of String) HTTP or HTTPS URLs to probe
+
 
 
 <a id="nestedatt--tunnel_configs--probe"></a>
@@ -982,9 +1007,22 @@ Required:
 
 Optional:
 
+- `internal_ip6s` (List of String) IPv6 addresses configured on this tunnel node
 - `internal_ips` (List of String) Internal IP addresses configured on this tunnel node
+- `probe_hostnames` (List of String) Hostnames used as ICMP probe destinations for this tunnel node; applicable for both IPv4 and IPv6
+- `probe_http` (Attributes) HTTP probe settings for this tunnel node; success from any ICMP or HTTP probe indicates the tunnel is up (see [below for nested schema](#nestedatt--tunnel_configs--secondary--probe_http))
+- `probe_ip6s` (List of String) IPv6 ICMP probe addresses used to monitor this tunnel node
 - `probe_ips` (List of String) Health-check IP addresses used to monitor this tunnel node
 - `remote_ids` (List of String) IKE identities expected from this tunnel node
+
+<a id="nestedatt--tunnel_configs--secondary--probe_http"></a>
+### Nested Schema for `tunnel_configs.secondary.probe_http`
+
+Optional:
+
+- `accepted_status_codes` (List of Number) HTTP response status codes that indicate a successful probe. Defaults to 200 if not specified.
+- `urls` (List of String) HTTP or HTTPS URLs to probe
+
 
 
 

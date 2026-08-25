@@ -99,6 +99,12 @@ func TerraformToSdk(plan *OrgPskModel) (models.Psk, diag.Diagnostics) {
 		unset["-usage"] = ""
 	}
 
+	if !plan.UsermacLabels.IsNull() && !plan.UsermacLabels.IsUnknown() {
+		data.UsermacLabels = mistutils.ListOfStringTerraformToSdk(plan.UsermacLabels)
+	} else {
+		unset["-usermac_labels"] = ""
+	}
+
 	if !plan.VlanId.IsNull() && !plan.VlanId.IsUnknown() {
 		data.VlanId = models.ToPointer(models.PskVlanIdContainer.FromString(plan.VlanId.ValueString()))
 	} else {

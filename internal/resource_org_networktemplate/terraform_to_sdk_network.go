@@ -34,6 +34,17 @@ func NetworksTerraformToSdk(d basetypes.MapValue) map[string]models.SwitchNetwor
 		if netPlan.IsolationVlanId.ValueStringPointer() != nil {
 			netData.IsolationVlanId = models.ToPointer(netPlan.IsolationVlanId.ValueString())
 		}
+		if !netPlan.Multicast.IsNull() && !netPlan.Multicast.IsUnknown() {
+			attrs := netPlan.Multicast.Attributes()
+			mc := models.SwitchNetworkMulticast{}
+			if v, ok := attrs["enabled"].(basetypes.BoolValue); ok && !v.IsNull() && !v.IsUnknown() {
+				mc.Enabled = v.ValueBoolPointer()
+			}
+			if v, ok := attrs["igmp_version"].(basetypes.StringValue); ok && !v.IsNull() && !v.IsUnknown() {
+				mc.IgmpVersion = models.ToPointer(models.IgmpVersionEnum(v.ValueString()))
+			}
+			netData.Multicast = &mc
+		}
 		data[vlanName] = netData
 	}
 	return data
