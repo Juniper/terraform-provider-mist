@@ -104,6 +104,7 @@ func TestDeviceGatewayModel(t *testing.T) {
 
 func (s *DeviceGatewayModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
+	appendReflectChecks(t, &checks, s)
 
 	// Always present attributes
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")

@@ -91,6 +91,7 @@ func TestDeviceGatewayClusterModel(t *testing.T) {
 
 func (s *DeviceGatewayClusterModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
+	appendReflectChecks(t, &checks, s)
 
 	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
 

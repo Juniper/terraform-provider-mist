@@ -98,76 +98,8 @@ func TestOrgMxtunnelModel(t *testing.T) {
 
 func (o *OrgMxtunnelModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
-
-	// Required fields
+	appendReflectChecks(t, &checks, o)
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
-	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
-
-	// Optional basic fields
-	if o.HelloInterval != nil {
-		checks.append(t, "TestCheckResourceAttr", "hello_interval", fmt.Sprintf("%d", *o.HelloInterval))
-	}
-	if o.HelloRetries != nil {
-		checks.append(t, "TestCheckResourceAttr", "hello_retries", fmt.Sprintf("%d", *o.HelloRetries))
-	}
-	if o.Mtu != nil {
-		checks.append(t, "TestCheckResourceAttr", "mtu", fmt.Sprintf("%d", *o.Mtu))
-	}
-	if o.Protocol != nil {
-		checks.append(t, "TestCheckResourceAttr", "protocol", *o.Protocol)
-	}
-	if len(o.VlanIds) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "vlan_ids.#", fmt.Sprintf("%d", len(o.VlanIds)))
-	}
-	if len(o.AnchorMxtunnelIds) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "anchor_mxtunnel_ids.#", fmt.Sprintf("%d", len(o.AnchorMxtunnelIds)))
-	}
-	if len(o.MxclusterIds) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "mxcluster_ids.#", fmt.Sprintf("%d", len(o.MxclusterIds)))
-	}
-
-	// auto_preemption
-	if o.AutoPreemption != nil {
-		if o.AutoPreemption.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "auto_preemption.enabled", fmt.Sprintf("%t", *o.AutoPreemption.Enabled))
-		}
-		if o.AutoPreemption.DayOfWeek != nil {
-			checks.append(t, "TestCheckResourceAttr", "auto_preemption.day_of_week", *o.AutoPreemption.DayOfWeek)
-		}
-		if o.AutoPreemption.TimeOfDay != nil {
-			checks.append(t, "TestCheckResourceAttr", "auto_preemption.time_of_day", *o.AutoPreemption.TimeOfDay)
-		}
-	}
-
-	// ipsec
-	if o.Ipsec != nil {
-		if o.Ipsec.Enabled != nil {
-			checks.append(t, "TestCheckResourceAttr", "ipsec.enabled", fmt.Sprintf("%t", *o.Ipsec.Enabled))
-		}
-		if o.Ipsec.SplitTunnel != nil {
-			checks.append(t, "TestCheckResourceAttr", "ipsec.split_tunnel", fmt.Sprintf("%t", *o.Ipsec.SplitTunnel))
-		}
-		if o.Ipsec.UseMxedge != nil {
-			checks.append(t, "TestCheckResourceAttr", "ipsec.use_mxedge", fmt.Sprintf("%t", *o.Ipsec.UseMxedge))
-		}
-		if len(o.Ipsec.DnsServers) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "ipsec.dns_servers.#", fmt.Sprintf("%d", len(o.Ipsec.DnsServers)))
-		}
-		if len(o.Ipsec.DnsSuffix) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "ipsec.dns_suffix.#", fmt.Sprintf("%d", len(o.Ipsec.DnsSuffix)))
-		}
-		if len(o.Ipsec.ExtraRoutes) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "ipsec.extra_routes.#", fmt.Sprintf("%d", len(o.Ipsec.ExtraRoutes)))
-			for i, route := range o.Ipsec.ExtraRoutes {
-				if route.Dest != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ipsec.extra_routes.%d.dest", i), *route.Dest)
-				}
-				if route.NextHop != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("ipsec.extra_routes.%d.next_hop", i), *route.NextHop)
-				}
-			}
-		}
-	}
 
 	return checks
 }
