@@ -93,7 +93,8 @@ func (o *testChecks) append(t testing.TB, testCheckFuncName string, testCheckFun
 // appendReflectChecks appends test checks for all fields in v using reflection.
 // Fields must have an `hcl` tag for the attribute name.
 // Fields tagged `check:"set"` emit TestCheckResourceAttrSet.
-// Nil pointer and empty string fields are skipped. Fields in skip are ignored at the top level.
+// Nil pointer and empty string fields are skipped. Paths in skip are ignored at every nesting depth;
+// patterns may use * to match any single dot-separated segment (e.g. "inventory.*.site_id").
 // Nested structs, slices of any kind, and string-keyed maps are handled recursively.
 func appendReflectChecks(t testing.TB, checks *testChecks, v any, skip ...string) {
 	t.Helper()
@@ -111,7 +112,7 @@ func appendReflectChecksEx(t testing.TB, checks *testChecks, v any, setSets []st
 		skipSet[s] = struct{}{}
 	}
 	rv := reflect.ValueOf(v)
-	if rv.Kind() == reflect.Pointer {
+	if rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
 			return
 		}
@@ -123,7 +124,7 @@ func appendReflectChecksEx(t testing.TB, checks *testChecks, v any, setSets []st
 // appendReflectStruct iterates the hcl-tagged fields of a struct and emits checks for each.
 func appendReflectStruct(t testing.TB, checks *testChecks, rv reflect.Value, prefix string, skipSet map[string]struct{}, setSets []string) {
 	t.Helper()
-	if rv.Kind() == reflect.Pointer {
+	if rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
 			return
 		}
@@ -180,7 +181,7 @@ func appendReflectValue(t testing.TB, checks *testChecks, fv reflect.Value, path
 		checks.append(t, "TestCheckResourceAttr", path, fmt.Sprintf("%d", fv.Uint()))
 	case reflect.Float32, reflect.Float64:
 		checks.append(t, "TestCheckResourceAttr", path, fmt.Sprintf("%g", fv.Float()))
-	case reflect.Pointer:
+	case reflect.Ptr:
 		if !fv.IsNil() {
 			appendReflectValue(t, checks, fv.Elem(), path, setSets, skipSet)
 		}
@@ -205,6 +206,10 @@ func appendReflectValue(t testing.TB, checks *testChecks, fv reflect.Value, path
 		if !fv.IsNil() && fv.Len() > 0 {
 			checks.append(t, "TestCheckResourceAttr", path+".%", fmt.Sprintf("%d", fv.Len()))
 			for _, key := range fv.MapKeys() {
+				if key.Kind() != reflect.String {
+					t.Errorf("appendReflectChecks: map at %q has non-string key kind %s; only string-keyed maps are supported", path, key.Kind())
+					continue
+				}
 				appendReflectValue(t, checks, fv.MapIndex(key), fmt.Sprintf("%s.%s", path, key.String()), setSets, skipSet)
 			}
 		}
@@ -275,7 +280,7 @@ func collectFlatAttrs(fv reflect.Value, prefix string, m map[string]string) {
 		if prefix != "" {
 			m[prefix] = fmt.Sprintf("%g", fv.Float())
 		}
-	case reflect.Pointer:
+	case reflect.Ptr:
 		if !fv.IsNil() {
 			collectFlatAttrs(fv.Elem(), prefix, m)
 		}
@@ -305,6 +310,9 @@ func collectFlatAttrs(fv reflect.Value, prefix string, m map[string]string) {
 		if !fv.IsNil() && fv.Len() > 0 && prefix != "" {
 			m[prefix+".%"] = fmt.Sprintf("%d", fv.Len())
 			for _, key := range fv.MapKeys() {
+				if key.Kind() != reflect.String {
+					continue
+				}
 				collectFlatAttrs(fv.MapIndex(key), fmt.Sprintf("%s.%s", prefix, key.String()), m)
 			}
 		}
