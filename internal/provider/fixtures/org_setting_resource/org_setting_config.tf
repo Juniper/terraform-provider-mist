@@ -14,7 +14,8 @@
   ]
 
   api_policy {
-    no_reveal = true
+    enforce_src_ips_for_tokens = false
+    no_reveal = false
   }
 
   auto_upgrade {
@@ -88,6 +89,7 @@
     default_idp_id               = "550e8400-e29b-41d4-a716-446655440006"
     disable_rsae_algorithms      = false
     eap_ssl_security_level       = 2
+    enable_eap_md5_for_mab       = false
     eu_only                      = false
     idp_machine_cert_lookup_field = "cn"
     idp_user_cert_lookup_field    = "email"

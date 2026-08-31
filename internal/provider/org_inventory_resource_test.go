@@ -121,38 +121,8 @@ func TestOrgInventoryModel(t *testing.T) {
 
 func (o *OrgInventoryModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
-
-	// Check required fields
-	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
-
-	if o.DisconnectedBefore != nil {
-		checks.append(t, "TestCheckResourceAttr", "disconnected_before", fmt.Sprintf("%d", *o.DisconnectedBefore))
-	}
-
-	// Check inventory map and all nested fields if inventory is configured
-	if len(o.Inventory) > 0 {
-		// Validate the inventory map length
-		checks.append(t, "TestCheckResourceAttr", "inventory.%", fmt.Sprintf("%d", len(o.Inventory)))
-
-		// Validate each inventory device
-		for key, device := range o.Inventory {
-			// Test all computed fields with TestCheckResourceAttrSet (since they're populated by the API)
-			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("inventory.%s.id", key))
-			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("inventory.%s.mac", key))
-			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("inventory.%s.model", key))
-			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("inventory.%s.org_id", key))
-			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("inventory.%s.serial", key))
-			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("inventory.%s.type", key))
-
-			// Test configurable fields with expected values
-			if device.SiteId != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("inventory.%s.site_id", key))
-			}
-			if device.UnclaimWhenDestroyed != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("inventory.%s.unclaim_when_destroyed", key), fmt.Sprintf("%t", *device.UnclaimWhenDestroyed))
-			}
-		}
-	}
+	// inventory.*.site_id is injected as a terraform reference, not a literal UUID
+	appendReflectChecks(t, &checks, o, "inventory.*.site_id")
 
 	return checks
 }

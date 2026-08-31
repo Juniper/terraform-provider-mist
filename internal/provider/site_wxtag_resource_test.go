@@ -107,57 +107,9 @@ func TestSiteWxtagModel(t *testing.T) {
 
 func (s *SiteWxtagModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
-
-	// Always present attributes
+	appendReflectChecks(t, &checks, s)
 	checks.append(t, "TestCheckResourceAttrSet", "id")
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "type", s.Type)
-
-	// Optional attributes with conditional checks
-	if s.Mac != nil {
-		checks.append(t, "TestCheckResourceAttr", "mac", *s.Mac)
-	}
-	if s.Match != nil {
-		checks.append(t, "TestCheckResourceAttr", "match", *s.Match)
-	}
-	if s.Op != nil {
-		checks.append(t, "TestCheckResourceAttr", "op", *s.Op)
-	}
-	if s.VlanId != nil {
-		checks.append(t, "TestCheckResourceAttr", "vlan_id", *s.VlanId)
-	}
-
-	// Values array checks
-	if len(s.Values) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "values.#", fmt.Sprintf("%d", len(s.Values)))
-		for i, v := range s.Values {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("values.%d", i), v)
-		}
-	} else {
-		checks.append(t, "TestCheckResourceAttr", "values.#", "0")
-	}
-
-	// Specs array checks
-	if len(s.Specs) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "specs.#", fmt.Sprintf("%d", len(s.Specs)))
-		for i, spec := range s.Specs {
-			if spec.PortRange != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("specs.%d.port_range", i), *spec.PortRange)
-			}
-			if spec.Protocol != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("specs.%d.protocol", i), *spec.Protocol)
-			}
-			if len(spec.Subnets) > 0 {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("specs.%d.subnets.#", i), fmt.Sprintf("%d", len(spec.Subnets)))
-				for j, subnet := range spec.Subnets {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("specs.%d.subnets.%d", i, j), subnet)
-				}
-			}
-		}
-	} else {
-		checks.append(t, "TestCheckResourceAttr", "specs.#", "0")
-	}
 
 	return checks
 }

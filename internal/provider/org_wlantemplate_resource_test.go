@@ -102,71 +102,8 @@ func TestOrgWlantemplateModel(t *testing.T) {
 
 func (s *OrgWlantemplateModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
-
-	// Check fields in struct order
-	// 1. Applies (nested object)
-	if s.Applies != nil {
-		if s.Applies.OrgId != nil {
-			checks.append(t, "TestCheckResourceAttr", "applies.org_id", *s.Applies.OrgId)
-		}
-
-		// applies.site_ids array
-		if len(s.Applies.SiteIds) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "applies.site_ids.#", fmt.Sprintf("%d", len(s.Applies.SiteIds)))
-			for i, id := range s.Applies.SiteIds {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("applies.site_ids.%d", i), id)
-			}
-		}
-
-		// applies.sitegroup_ids array
-		if len(s.Applies.SitegroupIds) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "applies.sitegroup_ids.#", fmt.Sprintf("%d", len(s.Applies.SitegroupIds)))
-			for i, id := range s.Applies.SitegroupIds {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("applies.sitegroup_ids.%d", i), id)
-			}
-		}
-	}
-
-	// 2. DeviceprofileIds array
-	if len(s.DeviceprofileIds) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "deviceprofile_ids.#", fmt.Sprintf("%d", len(s.DeviceprofileIds)))
-		for i, id := range s.DeviceprofileIds {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("deviceprofile_ids.%d", i), id)
-		}
-	}
-
-	// 3. Exceptions (nested object)
-	if s.Exceptions != nil {
-		// exceptions.site_ids array
-		if len(s.Exceptions.SiteIds) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "exceptions.site_ids.#", fmt.Sprintf("%d", len(s.Exceptions.SiteIds)))
-			for i, id := range s.Exceptions.SiteIds {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("exceptions.site_ids.%d", i), id)
-			}
-		}
-
-		// exceptions.sitegroup_ids array
-		if len(s.Exceptions.SitegroupIds) > 0 {
-			checks.append(t, "TestCheckResourceAttr", "exceptions.sitegroup_ids.#", fmt.Sprintf("%d", len(s.Exceptions.SitegroupIds)))
-			for i, id := range s.Exceptions.SitegroupIds {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("exceptions.sitegroup_ids.%d", i), id)
-			}
-		}
-	}
-
-	// 4. FilterByDeviceprofile
-	if s.FilterByDeviceprofile != nil {
-		checks.append(t, "TestCheckResourceAttr", "filter_by_deviceprofile", fmt.Sprintf("%t", *s.FilterByDeviceprofile))
-	}
-
-	// 5. Id (computed-only)
+	appendReflectChecks(t, &checks, s)
 	checks.append(t, "TestCheckResourceAttrSet", "id")
-
-	// 6. Name (required)
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-
-	// 7. OrgId (required top-level field)
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
 
 	return checks
 }

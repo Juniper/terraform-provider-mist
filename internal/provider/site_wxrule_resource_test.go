@@ -103,60 +103,8 @@ func TestSiteWxruleModel(t *testing.T) {
 
 func (s *SiteWxruleModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
-
+	appendReflectChecks(t, &checks, s)
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")
-
-	// Required string attributes
-	checks.append(t, "TestCheckResourceAttr", "action", s.Action)
-	checks.append(t, "TestCheckResourceAttr", "order", fmt.Sprintf("%d", s.Order))
-
-	// Optional boolean attributes
-	if s.Enabled != nil {
-		checks.append(t, "TestCheckResourceAttr", "enabled", fmt.Sprintf("%t", *s.Enabled))
-	}
-
-	// Optional list attributes
-	if len(s.ApplyTags) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "apply_tags.#", fmt.Sprintf("%d", len(s.ApplyTags)))
-		for i, tag := range s.ApplyTags {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("apply_tags.%d", i), tag)
-		}
-	}
-
-	if len(s.BlockedApps) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "blocked_apps.#", fmt.Sprintf("%d", len(s.BlockedApps)))
-		for i, app := range s.BlockedApps {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("blocked_apps.%d", i), app)
-		}
-	}
-
-	if len(s.DstAllowWxtags) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "dst_allow_wxtags.#", fmt.Sprintf("%d", len(s.DstAllowWxtags)))
-		for i, tag := range s.DstAllowWxtags {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dst_allow_wxtags.%d", i), tag)
-		}
-	}
-
-	if len(s.DstDenyWxtags) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "dst_deny_wxtags.#", fmt.Sprintf("%d", len(s.DstDenyWxtags)))
-		for i, tag := range s.DstDenyWxtags {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dst_deny_wxtags.%d", i), tag)
-		}
-	}
-
-	if len(s.DstWxtags) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "dst_wxtags.#", fmt.Sprintf("%d", len(s.DstWxtags)))
-		for i, tag := range s.DstWxtags {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dst_wxtags.%d", i), tag)
-		}
-	}
-
-	if len(s.SrcWxtags) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "src_wxtags.#", fmt.Sprintf("%d", len(s.SrcWxtags)))
-		for i, tag := range s.SrcWxtags {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("src_wxtags.%d", i), tag)
-		}
-	}
 
 	return checks
 }

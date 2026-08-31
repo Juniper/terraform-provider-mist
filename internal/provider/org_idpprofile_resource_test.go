@@ -105,56 +105,9 @@ func TestOrgIdpprofileModel(t *testing.T) {
 
 func (s *OrgIdpprofileModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
+	appendReflectChecks(t, &checks, s)
 
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
-	checks.append(t, "TestCheckResourceAttr", "base_profile", s.BaseProfile)
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-
-	// Check overwrites list if present
-	if len(s.Overwrites) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "overwrites.#", fmt.Sprintf("%d", len(s.Overwrites)))
-
-		for i, overwrite := range s.Overwrites {
-			prefix := fmt.Sprintf("overwrites.%d", i)
-
-			// Required name field
-			checks.append(t, "TestCheckResourceAttr", prefix+".name", overwrite.Name)
-
-			// Optional action field
-			if overwrite.Action != nil {
-				checks.append(t, "TestCheckResourceAttr", prefix+".action", *overwrite.Action)
-			}
-
-			// Optional matching field
-			if overwrite.Matching != nil {
-				matching := overwrite.Matching
-
-				// Check attack_name list if present
-				if len(matching.AttackName) > 0 {
-					checks.append(t, "TestCheckResourceAttr", prefix+".matching.attack_name.#", fmt.Sprintf("%d", len(matching.AttackName)))
-					for j, attackName := range matching.AttackName {
-						checks.append(t, "TestCheckResourceAttr", prefix+fmt.Sprintf(".matching.attack_name.%d", j), attackName)
-					}
-				}
-
-				// Check dst_subnet list if present
-				if len(matching.DstSubnet) > 0 {
-					checks.append(t, "TestCheckResourceAttr", prefix+".matching.dst_subnet.#", fmt.Sprintf("%d", len(matching.DstSubnet)))
-					for j, dstSubnet := range matching.DstSubnet {
-						checks.append(t, "TestCheckResourceAttr", prefix+fmt.Sprintf(".matching.dst_subnet.%d", j), dstSubnet)
-					}
-				}
-
-				// Check severity list if present
-				if len(matching.Severity) > 0 {
-					checks.append(t, "TestCheckResourceAttr", prefix+".matching.severity.#", fmt.Sprintf("%d", len(matching.Severity)))
-					for j, severity := range matching.Severity {
-						checks.append(t, "TestCheckResourceAttr", prefix+fmt.Sprintf(".matching.severity.%d", j), severity)
-					}
-				}
-			}
-		}
-	}
 
 	return checks
 }

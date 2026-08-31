@@ -90,13 +90,11 @@ func GetOrgDeviceprofileApBaseConfig(org_ID string) (config string, deviceprofil
 
 func (s *OrgDeviceprofileAssignModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
+	appendReflectChecks(t, &checks, s)
 
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
 	checks.append(t, "TestCheckResourceAttrSet", "deviceprofile_id")
-	checks.append(t, "TestCheckResourceAttr", "macs.#", fmt.Sprintf("%d", len(s.Macs)))
-	for i, mac := range s.Macs {
-		checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("macs.%d", i), mac)
-	}
+
 
 	return checks
 }

@@ -109,86 +109,9 @@ func TestOrgEvpnTopologyModel(t *testing.T) {
 
 func (s *OrgEvpnTopologyModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
+	appendReflectChecks(t, &checks, s)
 
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-
-	if s.EvpnOptions != nil {
-		if s.EvpnOptions.AutoLoopbackSubnet != nil {
-			checks.append(t, "TestCheckResourceAttr", "evpn_options.auto_loopback_subnet", *s.EvpnOptions.AutoLoopbackSubnet)
-		}
-		if s.EvpnOptions.AutoLoopbackSubnet6 != nil {
-			checks.append(t, "TestCheckResourceAttr", "evpn_options.auto_loopback_subnet6", *s.EvpnOptions.AutoLoopbackSubnet6)
-		}
-		if s.EvpnOptions.AutoRouterIdSubnet != nil {
-			checks.append(t, "TestCheckResourceAttr", "evpn_options.auto_router_id_subnet", *s.EvpnOptions.AutoRouterIdSubnet)
-		}
-		if s.EvpnOptions.AutoRouterIdSubnet6 != nil {
-			checks.append(t, "TestCheckResourceAttr", "evpn_options.auto_router_id_subnet6", *s.EvpnOptions.AutoRouterIdSubnet6)
-		}
-		if s.EvpnOptions.CoreAsBorder != nil {
-			checks.append(t, "TestCheckResourceAttr", "evpn_options.core_as_border", fmt.Sprintf("%t", *s.EvpnOptions.CoreAsBorder))
-		}
-		if s.EvpnOptions.EnableInbandMgmt != nil {
-			checks.append(t, "TestCheckResourceAttr", "evpn_options.enable_inband_mgmt", fmt.Sprintf("%t", *s.EvpnOptions.EnableInbandMgmt))
-		}
-		if s.EvpnOptions.EnableInbandZtp != nil {
-			checks.append(t, "TestCheckResourceAttr", "evpn_options.enable_inband_ztp", fmt.Sprintf("%t", *s.EvpnOptions.EnableInbandZtp))
-		}
-		if s.EvpnOptions.Overlay != nil {
-			if s.EvpnOptions.Overlay.As != nil {
-				checks.append(t, "TestCheckResourceAttr", "evpn_options.overlay.as", fmt.Sprintf("%d", *s.EvpnOptions.Overlay.As))
-			}
-		}
-		if s.EvpnOptions.PerVlanVgaV4Mac != nil {
-			checks.append(t, "TestCheckResourceAttr", "evpn_options.per_vlan_vga_v4_mac", fmt.Sprintf("%t", *s.EvpnOptions.PerVlanVgaV4Mac))
-		}
-		if s.EvpnOptions.PerVlanVgaV6Mac != nil {
-			checks.append(t, "TestCheckResourceAttr", "evpn_options.per_vlan_vga_v6_mac", fmt.Sprintf("%t", *s.EvpnOptions.PerVlanVgaV6Mac))
-		}
-		if s.EvpnOptions.RoutedAt != nil {
-			checks.append(t, "TestCheckResourceAttr", "evpn_options.routed_at", *s.EvpnOptions.RoutedAt)
-		}
-		if s.EvpnOptions.Underlay != nil {
-			if s.EvpnOptions.Underlay.AsBase != nil {
-				checks.append(t, "TestCheckResourceAttr", "evpn_options.underlay.as_base", fmt.Sprintf("%d", *s.EvpnOptions.Underlay.AsBase))
-			}
-			if s.EvpnOptions.Underlay.RoutedIdPrefix != nil {
-				checks.append(t, "TestCheckResourceAttr", "evpn_options.underlay.routed_id_prefix", *s.EvpnOptions.Underlay.RoutedIdPrefix)
-			}
-			if s.EvpnOptions.Underlay.Subnet != nil {
-				checks.append(t, "TestCheckResourceAttr", "evpn_options.underlay.subnet", *s.EvpnOptions.Underlay.Subnet)
-			}
-			if s.EvpnOptions.Underlay.UseIpv6 != nil {
-				checks.append(t, "TestCheckResourceAttr", "evpn_options.underlay.use_ipv6", fmt.Sprintf("%t", *s.EvpnOptions.Underlay.UseIpv6))
-			}
-		}
-		for key, vsInstance := range s.EvpnOptions.VsInstances {
-			if len(vsInstance.Networks) > 0 {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("evpn_options.vs_instances.%s.networks.#", key), fmt.Sprintf("%d", len(vsInstance.Networks)))
-				for i, network := range vsInstance.Networks {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("evpn_options.vs_instances.%s.networks.%d", key, i), network)
-				}
-			}
-		}
-	}
-	if len(s.PodNames) > 0 {
-		for key, value := range s.PodNames {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("pod_names.%s", key), value)
-		}
-	}
-	for key, sw := range s.Switches {
-		checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("switches.%s.role", key), sw.Role)
-		if sw.Pod != nil {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("switches.%s.pod", key), fmt.Sprintf("%d", *sw.Pod))
-		}
-		if len(sw.Pods) > 0 {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("switches.%s.pods.#", key), fmt.Sprintf("%d", len(sw.Pods)))
-			for i, pod := range sw.Pods {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("switches.%s.pods.%d", key, i), fmt.Sprintf("%d", pod))
-			}
-		}
-	}
 
 	return checks
 }
