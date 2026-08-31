@@ -93,7 +93,5 @@ func (s *DeviceGatewayClusterModel) testChecks(t testing.TB, rType, tName string
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 	appendReflectChecks(t, &checks, s)
 
-	checks.append(t, "TestCheckResourceAttr", "site_id", s.SiteId)
-
 	return checks
 }

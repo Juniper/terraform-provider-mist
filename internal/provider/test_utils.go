@@ -150,10 +150,10 @@ func appendReflectStruct(t testing.TB, checks *testChecks, rv reflect.Value, pre
 		}
 
 		if skipSet != nil && shouldSkip(fullName, skipSet) {
-				continue
-			}
+			continue
+		}
 
-			if field.Tag.Get("check") == "set" {
+		if field.Tag.Get("check") == "set" {
 			checks.append(t, "TestCheckResourceAttrSet", fullName)
 			continue
 		}
