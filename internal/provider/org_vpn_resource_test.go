@@ -103,77 +103,8 @@ func TestOrgVpnModel(t *testing.T) {
 
 func (o *OrgVpnModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
-
-	// Check required fields
-	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
-
-	// Check computed-only fields (verify they exist)
+	appendReflectChecks(t, &checks, o)
 	checks.append(t, "TestCheckResourceAttrSet", "id")
-
-	// Check optional string fields
-	if o.OrgId != nil {
-		checks.append(t, "TestCheckResourceAttr", "org_id", *o.OrgId)
-	}
-	if o.Type != nil {
-		checks.append(t, "TestCheckResourceAttr", "type", *o.Type)
-	}
-
-	// Check PathSelection nested object
-	if o.PathSelection != nil {
-		if o.PathSelection.Strategy != nil {
-			checks.append(t, "TestCheckResourceAttr", "path_selection.strategy", *o.PathSelection.Strategy)
-		}
-	}
-
-	// Check Paths map
-	if len(o.Paths) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "paths.%", fmt.Sprintf("%d", len(o.Paths)))
-		for pathKey, path := range o.Paths {
-			// Check optional string fields in each path
-			if path.BfdProfile != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("paths.%s.bfd_profile", pathKey), *path.BfdProfile)
-			}
-			if path.Ip != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("paths.%s.ip", pathKey), *path.Ip)
-			}
-
-			// Check optional boolean fields in each path
-			if path.BfdUseTunnelMode != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("paths.%s.bfd_use_tunnel_mode", pathKey), fmt.Sprintf("%t", *path.BfdUseTunnelMode))
-			}
-
-			// Check optional integer fields in each path
-			if path.Pod != nil {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("paths.%s.pod", pathKey), fmt.Sprintf("%d", *path.Pod))
-			}
-
-			// Check PeerPaths nested map
-			if len(path.PeerPaths) > 0 {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("paths.%s.peer_paths.%%", pathKey), fmt.Sprintf("%d", len(path.PeerPaths)))
-				for peerKey, peer := range path.PeerPaths {
-					if peer.Preference != nil {
-						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("paths.%s.peer_paths.%s.preference", pathKey, peerKey), fmt.Sprintf("%d", *peer.Preference))
-					}
-				}
-			}
-
-			// Check TrafficShaping nested object
-			if path.TrafficShaping != nil {
-				if path.TrafficShaping.Enabled != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("paths.%s.traffic_shaping.enabled", pathKey), fmt.Sprintf("%t", *path.TrafficShaping.Enabled))
-				}
-				if path.TrafficShaping.MaxTxKbps != nil {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("paths.%s.traffic_shaping.max_tx_kbps", pathKey), fmt.Sprintf("%d", *path.TrafficShaping.MaxTxKbps))
-				}
-				if len(path.TrafficShaping.ClassPercentage) > 0 {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("paths.%s.traffic_shaping.class_percentage.#", pathKey), fmt.Sprintf("%d", len(path.TrafficShaping.ClassPercentage)))
-					for i, percentage := range path.TrafficShaping.ClassPercentage {
-						checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("paths.%s.traffic_shaping.class_percentage.%d", pathKey, i), fmt.Sprintf("%d", percentage))
-					}
-				}
-			}
-		}
-	}
 
 	return checks
 }

@@ -133,40 +133,7 @@ func TestOrgSsoRoleModel(t *testing.T) {
 
 func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
-
-	// Check required fields
-	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
-	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
-
-	// Check computed-only fields (verify they exist)
-	checks.append(t, "TestCheckResourceAttrSet", "id")
-
-	// Check privileges array
-	if len(o.Privileges) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "privileges.#", fmt.Sprintf("%d", len(o.Privileges)))
-
-		// Check all privilege entries
-		for i, privilege := range o.Privileges {
-			// Check required fields in each privilege
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.role", i), privilege.Role)
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.scope", i), privilege.Scope)
-
-			// Check optional fields in each privilege
-			if privilege.SiteId != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("privileges.%d.site_id", i))
-			}
-			if privilege.SitegroupId != nil {
-				checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("privileges.%d.sitegroup_id", i))
-			}
-
-			if len(privilege.Views) > 0 {
-				checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.views.#", i), fmt.Sprintf("%d", len(privilege.Views)))
-				for j, view := range privilege.Views {
-					checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.views.%d", i, j), view)
-				}
-			}
-		}
-	}
+	appendReflectChecks(t, &checks, o)
 
 	return checks
 }

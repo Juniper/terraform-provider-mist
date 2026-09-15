@@ -102,66 +102,7 @@ func TestSitePskModel(t *testing.T) {
 
 func (s *SitePskModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
-
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "passphrase", s.Passphrase)
+	appendReflectChecks(t, &checks, s)
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")
-	checks.append(t, "TestCheckResourceAttr", "ssid", s.Ssid)
-
-	if s.Email != nil {
-		checks.append(t, "TestCheckResourceAttr", "email", *s.Email)
-	}
-
-	if s.ExpireTime != nil {
-		checks.append(t, "TestCheckResourceAttr", "expire_time", fmt.Sprintf("%d", *s.ExpireTime))
-	}
-
-	if s.ExpiryNotificationTime != nil {
-		checks.append(t, "TestCheckResourceAttr", "expiry_notification_time", fmt.Sprintf("%d", *s.ExpiryNotificationTime))
-	}
-
-	if s.Mac != nil {
-		checks.append(t, "TestCheckResourceAttr", "mac", *s.Mac)
-	}
-
-	if s.Note != nil {
-		checks.append(t, "TestCheckResourceAttr", "note", *s.Note)
-	}
-
-	if s.NotifyExpiry != nil {
-		checks.append(t, "TestCheckResourceAttr", "notify_expiry", fmt.Sprintf("%t", *s.NotifyExpiry))
-	}
-
-	if s.NotifyOnCreateOrEdit != nil {
-		checks.append(t, "TestCheckResourceAttr", "notify_on_create_or_edit", fmt.Sprintf("%t", *s.NotifyOnCreateOrEdit))
-	}
-
-	if s.OldPassphrase != nil {
-		checks.append(t, "TestCheckResourceAttr", "old_passphrase", *s.OldPassphrase)
-	}
-
-	if s.Role != nil {
-		checks.append(t, "TestCheckResourceAttr", "role", *s.Role)
-	}
-
-	if s.Usage != nil {
-		checks.append(t, "TestCheckResourceAttr", "usage", *s.Usage)
-	}
-
-	if len(s.UsermacLabels) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "usermac_labels.#", fmt.Sprintf("%d", len(s.UsermacLabels)))
-		for i, label := range s.UsermacLabels {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("usermac_labels.%d", i), label)
-		}
-	}
-
-	if s.VlanId != nil {
-		checks.append(t, "TestCheckResourceAttr", "vlan_id", *s.VlanId)
-	}
-
-	if s.VlanName != nil {
-		checks.append(t, "TestCheckResourceAttr", "vlan_name", *s.VlanName)
-	}
-
 	return checks
 }

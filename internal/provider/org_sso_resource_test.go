@@ -104,57 +104,7 @@ func TestOrgSsoModel(t *testing.T) {
 
 func (o *OrgSsoModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
-
-	// Check required fields
-	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
-	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
-	checks.append(t, "TestCheckResourceAttr", "idp_cert", o.IdpCert)
-	checks.append(t, "TestCheckResourceAttr", "idp_sign_algo", o.IdpSignAlgo)
-	checks.append(t, "TestCheckResourceAttr", "idp_sso_url", o.IdpSsoUrl)
-	checks.append(t, "TestCheckResourceAttr", "issuer", o.Issuer)
-
-	// Check computed-only fields (verify they exist)
-	checks.append(t, "TestCheckResourceAttrSet", "id")
-	checks.append(t, "TestCheckResourceAttrSet", "domain")
-
-	// Check optional string fields
-	if o.CustomLogoutUrl != nil {
-		checks.append(t, "TestCheckResourceAttr", "custom_logout_url", *o.CustomLogoutUrl)
-	}
-	if o.DefaultRole != nil {
-		checks.append(t, "TestCheckResourceAttr", "default_role", *o.DefaultRole)
-	}
-	if o.NameidFormat != nil {
-		checks.append(t, "TestCheckResourceAttr", "nameid_format", *o.NameidFormat)
-	}
-	if o.RoleAttrExtraction != nil {
-		checks.append(t, "TestCheckResourceAttr", "role_attr_extraction", *o.RoleAttrExtraction)
-	}
-	if o.RoleAttrFrom != nil {
-		checks.append(t, "TestCheckResourceAttr", "role_attr_from", *o.RoleAttrFrom)
-	}
-
-	// Check optional boolean fields
-	if o.IgnoreUnmatchedRoles != nil {
-		checks.append(t, "TestCheckResourceAttr", "ignore_unmatched_roles", fmt.Sprintf("%t", *o.IgnoreUnmatchedRoles))
-	}
-
-	// Check oauth/openroaming fields
-	if o.OauthProviderDomain != nil {
-		checks.append(t, "TestCheckResourceAttr", "oauth_provider_domain", *o.OauthProviderDomain)
-	}
-	if o.OpenroamingWbaClientCert != nil {
-		checks.append(t, "TestCheckResourceAttr", "openroaming_wba_client_cert", *o.OpenroamingWbaClientCert)
-	}
-	if o.OpenroamingWbaClientKey != nil {
-		checks.append(t, "TestCheckResourceAttr", "openroaming_wba_client_key", *o.OpenroamingWbaClientKey)
-	}
-	if len(o.OpenroamingSsids) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "openroaming_ssids.#", fmt.Sprintf("%d", len(o.OpenroamingSsids)))
-		for i, ssid := range o.OpenroamingSsids {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("openroaming_ssids.%d", i), ssid)
-		}
-	}
-
+	appendReflectChecks(t, &checks, o)
+	
 	return checks
 }

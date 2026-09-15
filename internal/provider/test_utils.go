@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -86,6 +87,235 @@ func (o *testChecks) append(t testing.TB, testCheckFuncName string, testCheckFun
 		o.checks = append(o.checks, resource.TestCheckResourceAttrPair(o.path, testCheckFuncArgs[0], o.path, testCheckFuncArgs[1]))
 	default:
 		t.Fatalf("unknown test check function: %s", testCheckFuncName)
+	}
+}
+
+// appendReflectChecks appends test checks for all fields in v using reflection.
+// Fields must have an `hcl` tag for the attribute name.
+// Fields tagged `check:"set"` emit TestCheckResourceAttrSet.
+// Nil pointer and empty string fields are skipped. Paths in skip are ignored at every nesting depth;
+// patterns may use * to match any single dot-separated segment (e.g. "inventory.*.site_id").
+// Nested structs, slices of any kind, and string-keyed maps are handled recursively.
+func appendReflectChecks(t testing.TB, checks *testChecks, v any, skip ...string) {
+	t.Helper()
+	appendReflectChecksEx(t, checks, v, nil, skip...)
+}
+
+// appendReflectChecksEx is like appendReflectChecks but also accepts setSets: a list of
+// dot-separated path patterns (using * to match any single segment) where a slice field
+// is a Terraform Set and must be checked with TestCheckTypeSetElemNestedAttrs rather than
+// positional indexing.
+func appendReflectChecksEx(t testing.TB, checks *testChecks, v any, setSets []string, skip ...string) {
+	t.Helper()
+	skipSet := make(map[string]struct{}, len(skip))
+	for _, s := range skip {
+		skipSet[s] = struct{}{}
+	}
+	rv := reflect.ValueOf(v)
+	if rv.Kind() == reflect.Ptr {
+		if rv.IsNil() {
+			return
+		}
+		rv = rv.Elem()
+	}
+	appendReflectStruct(t, checks, rv, "", skipSet, setSets)
+}
+
+// appendReflectStruct iterates the hcl-tagged fields of a struct and emits checks for each.
+func appendReflectStruct(t testing.TB, checks *testChecks, rv reflect.Value, prefix string, skipSet map[string]struct{}, setSets []string) {
+	t.Helper()
+	if rv.Kind() == reflect.Ptr {
+		if rv.IsNil() {
+			return
+		}
+		rv = rv.Elem()
+	}
+	if rv.Kind() != reflect.Struct {
+		return
+	}
+	rt := rv.Type()
+	for i := 0; i < rt.NumField(); i++ {
+		field := rt.Field(i)
+		fv := rv.Field(i)
+
+		hclTag := field.Tag.Get("hcl")
+		if hclTag == "" || hclTag == "-" {
+			continue
+		}
+		attrName := strings.SplitN(hclTag, ",", 2)[0]
+
+		fullName := attrName
+		if prefix != "" {
+			fullName = prefix + "." + attrName
+		}
+
+		if skipSet != nil && shouldSkip(fullName, skipSet) {
+			continue
+		}
+
+		if field.Tag.Get("check") == "set" {
+			checks.append(t, "TestCheckResourceAttrSet", fullName)
+			continue
+		}
+
+		appendReflectValue(t, checks, fv, fullName, setSets, skipSet)
+	}
+}
+
+// appendReflectValue emits checks for a single reflected value at path.
+func appendReflectValue(t testing.TB, checks *testChecks, fv reflect.Value, path string, setSets []string, skipSet map[string]struct{}) {
+	t.Helper()
+	if skipSet != nil && shouldSkip(path, skipSet) {
+		return
+	}
+	switch fv.Kind() {
+	case reflect.String:
+		if s := fv.String(); s != "" {
+			checks.append(t, "TestCheckResourceAttr", path, s)
+		}
+	case reflect.Bool:
+		checks.append(t, "TestCheckResourceAttr", path, fmt.Sprintf("%t", fv.Bool()))
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		checks.append(t, "TestCheckResourceAttr", path, fmt.Sprintf("%d", fv.Int()))
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		checks.append(t, "TestCheckResourceAttr", path, fmt.Sprintf("%d", fv.Uint()))
+	case reflect.Float32, reflect.Float64:
+		checks.append(t, "TestCheckResourceAttr", path, fmt.Sprintf("%g", fv.Float()))
+	case reflect.Ptr:
+		if !fv.IsNil() {
+			appendReflectValue(t, checks, fv.Elem(), path, setSets, skipSet)
+		}
+	case reflect.Struct:
+		appendReflectStruct(t, checks, fv, path, skipSet, setSets)
+	case reflect.Slice:
+		if !fv.IsNil() && fv.Len() > 0 {
+			checks.append(t, "TestCheckResourceAttr", path+".#", fmt.Sprintf("%d", fv.Len()))
+			if matchesAnySetPattern(path, setSets) {
+				for j := 0; j < fv.Len(); j++ {
+					m := make(map[string]string)
+					collectFlatAttrs(fv.Index(j), "", m)
+					checks.appendSetNestedCheck(t, path+".*", m)
+				}
+			} else {
+				for j := 0; j < fv.Len(); j++ {
+					appendReflectValue(t, checks, fv.Index(j), fmt.Sprintf("%s.%d", path, j), setSets, skipSet)
+				}
+			}
+		}
+	case reflect.Map:
+		if !fv.IsNil() && fv.Len() > 0 {
+			checks.append(t, "TestCheckResourceAttr", path+".%", fmt.Sprintf("%d", fv.Len()))
+			for _, key := range fv.MapKeys() {
+				if key.Kind() != reflect.String {
+					t.Errorf("appendReflectChecks: map at %q has non-string key kind %s; only string-keyed maps are supported", path, key.Kind())
+					continue
+				}
+				appendReflectValue(t, checks, fv.MapIndex(key), fmt.Sprintf("%s.%s", path, key.String()), setSets, skipSet)
+			}
+		}
+	}
+}
+
+// shouldSkip reports whether path should be skipped, supporting exact matches
+// and wildcard patterns where * matches any single dot-separated segment.
+func shouldSkip(path string, skipSet map[string]struct{}) bool {
+	if _, ok := skipSet[path]; ok {
+		return true
+	}
+	for pattern := range skipSet {
+		if strings.Contains(pattern, "*") && reflectPathMatchesPattern(path, pattern) {
+			return true
+		}
+	}
+	return false
+}
+
+// matchesAnySetPattern reports whether path matches any of the glob patterns in setSets.
+func matchesAnySetPattern(path string, setSets []string) bool {
+	for _, p := range setSets {
+		if reflectPathMatchesPattern(path, p) {
+			return true
+		}
+	}
+	return false
+}
+
+// reflectPathMatchesPattern matches a dot-separated path against a pattern where * matches
+// any single segment.
+func reflectPathMatchesPattern(path, pattern string) bool {
+	pathParts := strings.Split(path, ".")
+	patParts := strings.Split(pattern, ".")
+	if len(pathParts) != len(patParts) {
+		return false
+	}
+	for i, seg := range patParts {
+		if seg != "*" && seg != pathParts[i] {
+			return false
+		}
+	}
+	return true
+}
+
+// collectFlatAttrs mirrors appendReflectValue but writes path→value pairs into m instead
+// of emitting test checks. Used to build the attribute map for set-element checking.
+func collectFlatAttrs(fv reflect.Value, prefix string, m map[string]string) {
+	switch fv.Kind() {
+	case reflect.String:
+		if s := fv.String(); s != "" && prefix != "" {
+			m[prefix] = s
+		}
+	case reflect.Bool:
+		if prefix != "" {
+			m[prefix] = fmt.Sprintf("%t", fv.Bool())
+		}
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		if prefix != "" {
+			m[prefix] = fmt.Sprintf("%d", fv.Int())
+		}
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		if prefix != "" {
+			m[prefix] = fmt.Sprintf("%d", fv.Uint())
+		}
+	case reflect.Float32, reflect.Float64:
+		if prefix != "" {
+			m[prefix] = fmt.Sprintf("%g", fv.Float())
+		}
+	case reflect.Ptr:
+		if !fv.IsNil() {
+			collectFlatAttrs(fv.Elem(), prefix, m)
+		}
+	case reflect.Struct:
+		rt := fv.Type()
+		for i := 0; i < rt.NumField(); i++ {
+			field := rt.Field(i)
+			hclTag := field.Tag.Get("hcl")
+			if hclTag == "" || hclTag == "-" {
+				continue
+			}
+			attrName := strings.SplitN(hclTag, ",", 2)[0]
+			fullName := attrName
+			if prefix != "" {
+				fullName = prefix + "." + attrName
+			}
+			collectFlatAttrs(fv.Field(i), fullName, m)
+		}
+	case reflect.Slice:
+		if !fv.IsNil() && fv.Len() > 0 && prefix != "" {
+			m[prefix+".#"] = fmt.Sprintf("%d", fv.Len())
+			for j := 0; j < fv.Len(); j++ {
+				collectFlatAttrs(fv.Index(j), fmt.Sprintf("%s.%d", prefix, j), m)
+			}
+		}
+	case reflect.Map:
+		if !fv.IsNil() && fv.Len() > 0 && prefix != "" {
+			m[prefix+".%"] = fmt.Sprintf("%d", fv.Len())
+			for _, key := range fv.MapKeys() {
+				if key.Kind() != reflect.String {
+					continue
+				}
+				collectFlatAttrs(fv.MapIndex(key), fmt.Sprintf("%s.%s", prefix, key.String()), m)
+			}
+		}
 	}
 }
 

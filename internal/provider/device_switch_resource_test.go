@@ -103,6 +103,7 @@ func TestDeviceSwitchModel(t *testing.T) {
 
 func (s *DeviceSwitchModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
+	appendReflectChecksEx(t, &checks, s, []string{"routing_policies.*.terms"})
 
 	// Required string attributes
 	checks.append(t, "TestCheckResourceAttrSet", "site_id")

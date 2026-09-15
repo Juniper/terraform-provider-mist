@@ -102,34 +102,10 @@ func TestOrgAvprofileModel(t *testing.T) {
 
 func (s *OrgAvprofileModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
+	appendReflectChecks(t, &checks, s)
 
 	// Required parameters
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "protocols.#", fmt.Sprintf("%d", len(s.Protocols)))
-	for i, prot := range s.Protocols {
-		checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("protocols.%d", i), prot)
-	}
-
-	// Optional parameters
-	if s.FallbackAction != nil {
-		checks.append(t, "TestCheckResourceAttr", "fallback_action", *s.FallbackAction)
-	}
-	if s.MaxFilesize != nil {
-		checks.append(t, "TestCheckResourceAttr", "max_filesize", fmt.Sprintf("%d", *s.MaxFilesize))
-	}
-	if len(s.MimeWhitelist) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "mime_whitelist.#", fmt.Sprintf("%d", len(s.MimeWhitelist)))
-		for i, mime := range s.MimeWhitelist {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("mime_whitelist.%d", i), mime)
-		}
-	}
-	if len(s.UrlWhitelist) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "url_whitelist.#", fmt.Sprintf("%d", len(s.UrlWhitelist)))
-		for i, url := range s.UrlWhitelist {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("url_whitelist.%d", i), url)
-		}
-	}
-
+	
 	return checks
 }

@@ -322,7 +322,6 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 		var redundantGroup basetypes.Int64Value
 		var rethIdx basetypes.StringValue
 		var rethNode basetypes.StringValue
-		var rethNodes = types.ListNull(types.StringType)
 		var speed basetypes.StringValue
 		var ssrNoVirtualMac basetypes.BoolValue
 		var svrPortRange basetypes.StringValue
@@ -511,7 +510,6 @@ func portConfigSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d ma
 			"redundant_group":            redundantGroup,
 			"reth_idx":                   rethIdx,
 			"reth_node":                  rethNode,
-			"reth_nodes":                 rethNodes,
 			"speed":                      speed,
 			"ssr_no_virtual_mac":         ssrNoVirtualMac,
 			"svr_port_range":             svrPortRange,

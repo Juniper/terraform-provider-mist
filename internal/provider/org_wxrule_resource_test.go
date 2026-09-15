@@ -133,74 +133,7 @@ func generateOrgWxruleConfig(templateName, wxRuleName string, wxRuleConfig OrgWx
 
 func (s *OrgWxruleModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
-
-	// Check fields in struct order
-	// 1. Action (required)
-	checks.append(t, "TestCheckResourceAttr", "action", s.Action)
-
-	// 2. ApplyTags (optional array)
-	if len(s.ApplyTags) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "apply_tags.#", fmt.Sprintf("%d", len(s.ApplyTags)))
-		for i, tag := range s.ApplyTags {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("apply_tags.%d", i), tag)
-		}
-	}
-
-	// 3. BlockedApps (optional array)
-	if len(s.BlockedApps) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "blocked_apps.#", fmt.Sprintf("%d", len(s.BlockedApps)))
-		for i, app := range s.BlockedApps {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("blocked_apps.%d", i), app)
-		}
-	}
-
-	// 4. DstAllowWxtags (optional array)
-	if len(s.DstAllowWxtags) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "dst_allow_wxtags.#", fmt.Sprintf("%d", len(s.DstAllowWxtags)))
-		for i, tag := range s.DstAllowWxtags {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dst_allow_wxtags.%d", i), tag)
-		}
-	}
-
-	// 5. DstDenyWxtags (optional array)
-	if len(s.DstDenyWxtags) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "dst_deny_wxtags.#", fmt.Sprintf("%d", len(s.DstDenyWxtags)))
-		for i, tag := range s.DstDenyWxtags {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dst_deny_wxtags.%d", i), tag)
-		}
-	}
-
-	// 6. DstWxtags (optional array)
-	if len(s.DstWxtags) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "dst_wxtags.#", fmt.Sprintf("%d", len(s.DstWxtags)))
-		for i, tag := range s.DstWxtags {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("dst_wxtags.%d", i), tag)
-		}
-	}
-
-	// 7. Enabled (optional+computed boolean)
-	if s.Enabled != nil {
-		checks.append(t, "TestCheckResourceAttr", "enabled", fmt.Sprintf("%t", *s.Enabled))
-	}
-
-	// 8. Id (computed-only)
-	checks.append(t, "TestCheckResourceAttrSet", "id")
-
-	// 9. Order (required)
-	checks.append(t, "TestCheckResourceAttr", "order", fmt.Sprintf("%d", s.Order))
-
-	// 10. OrgId (required)
-	checks.append(t, "TestCheckResourceAttr", "org_id", s.OrgId)
-
-	// 11. SrcWxtags (optional array)
-	if len(s.SrcWxtags) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "src_wxtags.#", fmt.Sprintf("%d", len(s.SrcWxtags)))
-		for i, tag := range s.SrcWxtags {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("src_wxtags.%d", i), tag)
-		}
-	}
-
-	// 12. TemplateId (required)
+	appendReflectChecks(t, &checks, s)
 	checks.append(t, "TestCheckResourceAttrSet", "template_id")
 
 	return checks

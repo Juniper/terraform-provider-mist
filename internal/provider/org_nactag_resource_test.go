@@ -102,79 +102,8 @@ func TestOrgNactagModel(t *testing.T) {
 
 func (o *OrgNactagModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
-
-	// Computed fields
+	appendReflectChecks(t, &checks, o)
 	checks.append(t, "TestCheckResourceAttrSet", "id")
-
-	// Required fields
-	checks.append(t, "TestCheckResourceAttr", "org_id", o.OrgId)
-	checks.append(t, "TestCheckResourceAttr", "name", o.Name)
-	checks.append(t, "TestCheckResourceAttr", "type", o.Type)
-
-	// Optional configurable fields
-	if o.AllowUsermacOverride != nil {
-		checks.append(t, "TestCheckResourceAttr", "allow_usermac_override", fmt.Sprintf("%t", *o.AllowUsermacOverride))
-	}
-
-	if len(o.EgressVlanNames) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "egress_vlan_names.#", fmt.Sprintf("%d", len(o.EgressVlanNames)))
-		for i, vlanName := range o.EgressVlanNames {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("egress_vlan_names.%d", i), vlanName)
-		}
-	}
-
-	if o.GbpTag != nil {
-		checks.append(t, "TestCheckResourceAttr", "gbp_tag", *o.GbpTag)
-	}
-
-	if o.Match != nil {
-		checks.append(t, "TestCheckResourceAttr", "match", *o.Match)
-	}
-
-	if o.MatchAll != nil {
-		checks.append(t, "TestCheckResourceAttr", "match_all", fmt.Sprintf("%t", *o.MatchAll))
-	}
-
-	if o.NacportalId != nil {
-		checks.append(t, "TestCheckResourceAttr", "nacportal_id", *o.NacportalId)
-	}
-
-	if len(o.RadiusAttrs) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "radius_attrs.#", fmt.Sprintf("%d", len(o.RadiusAttrs)))
-		for i, attr := range o.RadiusAttrs {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radius_attrs.%d", i), attr)
-		}
-	}
-
-	if o.RadiusGroup != nil {
-		checks.append(t, "TestCheckResourceAttr", "radius_group", *o.RadiusGroup)
-	}
-
-	if len(o.RadiusVendorAttrs) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "radius_vendor_attrs.#", fmt.Sprintf("%d", len(o.RadiusVendorAttrs)))
-		for i, attr := range o.RadiusVendorAttrs {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("radius_vendor_attrs.%d", i), attr)
-		}
-	}
-
-	if o.SessionTimeout != nil {
-		checks.append(t, "TestCheckResourceAttr", "session_timeout", fmt.Sprintf("%d", *o.SessionTimeout))
-	}
-
-	if o.UsernameAttr != nil {
-		checks.append(t, "TestCheckResourceAttr", "username_attr", *o.UsernameAttr)
-	}
-
-	if len(o.Values) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "values.#", fmt.Sprintf("%d", len(o.Values)))
-		for i, value := range o.Values {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("values.%d", i), value)
-		}
-	}
-
-	if o.Vlan != nil {
-		checks.append(t, "TestCheckResourceAttr", "vlan", *o.Vlan)
-	}
 
 	return checks
 }

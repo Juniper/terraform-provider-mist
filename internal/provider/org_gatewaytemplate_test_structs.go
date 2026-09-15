@@ -359,7 +359,6 @@ type OrgGatewaytemplatePortConfigValue struct {
 	RedundantGroup         *int64                                            `cty:"redundant_group" hcl:"redundant_group"`
 	RethIdx                *string                                           `cty:"reth_idx" hcl:"reth_idx"`
 	RethNode               *string                                           `cty:"reth_node" hcl:"reth_node"`
-	RethNodes              []string                                          `cty:"reth_nodes" hcl:"reth_nodes"`
 	Speed                  *string                                           `cty:"speed" hcl:"speed"`
 	SsrNoVirtualMac        *bool                                             `cty:"ssr_no_virtual_mac" hcl:"ssr_no_virtual_mac"`
 	SvrPortRange           *string                                           `cty:"svr_port_range" hcl:"svr_port_range"`

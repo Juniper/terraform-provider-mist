@@ -112,31 +112,11 @@ func TestOrgApitokenModel(t *testing.T) {
 
 func (s *OrgApitokenModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
+	// privileges.*.site_id and privileges.*.sitegroup_id hold terraform references, not literal UUIDs
+	appendReflectChecks(t, &checks, s,
+		"privileges.*.site_id", "privileges.*.sitegroup_id")
 
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
-	checks.append(t, "TestCheckResourceAttr", "name", s.Name)
-	checks.append(t, "TestCheckResourceAttr", "privileges.#", fmt.Sprintf("%d", len(s.Privileges)))
-	for i, priv := range s.Privileges {
-		checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.role", i), priv.Role)
-		checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.scope", i), priv.Scope)
-		if priv.SiteId != nil {
-			checks.append(t, "TestCheckResourceAttrSet", fmt.Sprintf("privileges.%d.site_id", i))
-		}
-		if priv.SitegroupId != nil {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.sitegroup_id", i), *priv.SitegroupId)
-		}
-		if priv.View != nil {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("privileges.%d.view", i), *priv.View)
-		}
-	}
-
-	// Validate src_ips if present
-	if len(s.SrcIps) > 0 {
-		checks.append(t, "TestCheckResourceAttr", "src_ips.#", fmt.Sprintf("%d", len(s.SrcIps)))
-		for i, ip := range s.SrcIps {
-			checks.append(t, "TestCheckResourceAttr", fmt.Sprintf("src_ips.%d", i), ip)
-		}
-	}
 
 	return checks
 }

@@ -349,7 +349,6 @@
       redundant_group          = 1
       reth_idx                 = "0"
       reth_node                = "node0"
-      # reth_nodes               = ["node0", "node1"]
       ssr_no_virtual_mac       = false
       svr_port_range           = "16384-32767"
       wan_disable_speedtest    = false
