@@ -360,7 +360,6 @@
       redundant_group = 1
       reth_idx = "reth0"
       reth_node = "node0"
-      # reth_nodes = ["node0", "node1"]  # commented out due to provider inconsistency
       speed = "auto"
       ssr_no_virtual_mac = false
       svr_port_range = "1024-65535"
