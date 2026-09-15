@@ -10194,7 +10194,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 * Name: gopkg.in/yaml.v3
 * Version: v3.0.1
-* License: [MIT](Unknown)
+* License: [MIT](https://github.com/go-yaml/yaml/blob/v3.0.1/LICENSE)
 
 ```
 
