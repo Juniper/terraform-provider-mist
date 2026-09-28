@@ -134,8 +134,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"ldap_type": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Provider template for LDAP SSO when `idp_type`==`ldap`",
-				MarkdownDescription: "Provider template for LDAP SSO when `idp_type`==`ldap`",
+				Description:         "Provider template for LDAP SSO when `idp_type`==`ldap`. enum: `azure`, `custom`, `google`, `okta`.",
+				MarkdownDescription: "Provider template for LDAP SSO when `idp_type`==`ldap`. enum: `azure`, `custom`, `google`, `okta`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"azure",
@@ -196,8 +196,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			"oauth_ping_identity_region": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Ping Identity region for OAuth SSO when `oauth_type`==`ping_identity`",
-				MarkdownDescription: "Ping Identity region for OAuth SSO when `oauth_type`==`ping_identity`",
+				Description:         "Ping Identity region for OAuth SSO when `oauth_type`==`ping_identity`. enum: `asia`, `au`, `ca`, `eu`, `us`.",
+				MarkdownDescription: "Ping Identity region for OAuth SSO when `oauth_type`==`ping_identity`. enum: `asia`, `au`, `ca`, `eu`, `us`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -213,8 +213,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			"oauth_provider_domain": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Provider domain for Okta OAuth SSO when `oauth_type`==`okta`",
-				MarkdownDescription: "Provider domain for Okta OAuth SSO when `oauth_type`==`okta`",
+				Description:         "Provider domain for Okta OAuth SSO when `oauth_type`==`okta`. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`.",
+				MarkdownDescription: "Provider domain for Okta OAuth SSO when `oauth_type`==`okta`. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -259,8 +259,8 @@ func OrgNacidpResourceSchema(ctx context.Context) schema.Schema {
 			"oauth_type": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Provider type for OAuth SSO when `idp_type`==`oauth`",
-				MarkdownDescription: "Provider type for OAuth SSO when `idp_type`==`oauth`",
+				Description:         "Provider type for OAuth SSO when `idp_type`==`oauth`. enum: `azure`, `azure-gov`, `okta`, `ping_identity`.",
+				MarkdownDescription: "Provider type for OAuth SSO when `idp_type`==`oauth`. enum: `azure`, `azure-gov`, `okta`, `ping_identity`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"azure",

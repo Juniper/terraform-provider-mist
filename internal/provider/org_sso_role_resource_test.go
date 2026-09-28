@@ -76,6 +76,7 @@ func TestOrgSsoRoleModel(t *testing.T) {
 			for i, step := range tCase.steps {
 				config := step.config
 				siteConfig, sitegroupConfig, siteRef, sitegroupRef := "", "", "", ""
+				siteIdx, sitegroupIdx := -1, -1
 
 				for i, p := range config.Privileges {
 					switch p.Scope {
@@ -83,11 +84,13 @@ func TestOrgSsoRoleModel(t *testing.T) {
 						if siteConfig == "" { // only get once even if multiple privileges use it
 							siteConfig, siteRef = GetSiteBaseConfig(GetTestOrgId())
 							config.Privileges[i].SiteId = stringPtr("{site_id}")
+							siteIdx = i
 						}
 					case "sitegroup":
 						if sitegroupConfig == "" {
 							sitegroupConfig, sitegroupRef = GetSitegroupBaseConfig(GetTestOrgId())
 							config.Privileges[i].SitegroupId = stringPtr("{sitegroup_id}")
+							sitegroupIdx = i
 						}
 					}
 				}
@@ -107,7 +110,7 @@ func TestOrgSsoRoleModel(t *testing.T) {
 
 				combinedConfig = configStr + combinedConfig
 
-				checks := config.testChecks(t, resourceType, tName, tracker)
+				checks := config.testChecks(t, resourceType, tName, tracker, siteIdx, sitegroupIdx, siteRef, sitegroupRef)
 				chkLog := checks.string()
 				stepName := fmt.Sprintf("test case %s step %d", tName, i+1)
 
@@ -131,9 +134,26 @@ func TestOrgSsoRoleModel(t *testing.T) {
 	}
 }
 
-func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
+func (o *OrgSsoRoleModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker, siteIdx, sitegroupIdx int, siteRef, sitegroupRef string) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
-	appendReflectChecks(t, &checks, o)
+
+	var skip []string
+	if siteIdx >= 0 {
+		skip = append(skip, fmt.Sprintf("privileges.%d.site_id", siteIdx))
+	}
+	if sitegroupIdx >= 0 {
+		skip = append(skip, fmt.Sprintf("privileges.%d.sitegroup_id", sitegroupIdx))
+	}
+	appendReflectChecks(t, &checks, o, skip...)
+
+	// The site/sitegroup id are only known after apply, so compare them against
+	// the referenced resource's id instead of asserting a literal value.
+	if siteIdx >= 0 {
+		checks.append(t, "TestCheckResourceAttrPair", fmt.Sprintf("privileges.%d.site_id", siteIdx), strings.TrimSuffix(siteRef, ".id"), "id")
+	}
+	if sitegroupIdx >= 0 {
+		checks.append(t, "TestCheckResourceAttrPair", fmt.Sprintf("privileges.%d.sitegroup_id", sitegroupIdx), strings.TrimSuffix(sitegroupRef, ".id"), "id")
+	}
 
 	return checks
 }

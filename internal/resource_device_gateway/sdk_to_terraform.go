@@ -32,6 +32,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	var managed types.Bool
 	var mapId types.String
 	var mistConfigured types.Bool
+	var mnhaConfig = NewMnhaConfigValueNull()
 	var name types.String
 	var networks = types.ListNull(NetworksValue{}.Type(ctx))
 	var notes types.String
@@ -114,6 +115,9 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	}
 	if data.MapId != nil {
 		mapId = types.StringValue(data.MapId.String())
+	}
+	if data.MnhaConfig != nil {
+		mnhaConfig = mnhaConfigSdkToTerraform(ctx, &diags, data.MnhaConfig)
 	}
 	if data.Name != nil {
 		name = types.StringValue(*data.Name)
@@ -212,6 +216,7 @@ func SdkToTerraform(ctx context.Context, data *models.DeviceGateway) (DeviceGate
 	state.Managed = managed
 	state.MapId = mapId
 	state.MistConfigured = mistConfigured
+	state.MnhaConfig = mnhaConfig
 	state.Name = name
 	state.Networks = networks
 	state.NtpServers = ntpServers

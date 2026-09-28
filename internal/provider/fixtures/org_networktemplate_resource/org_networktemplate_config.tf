@@ -128,8 +128,11 @@
   }
 
   multicast_config = {
-    anycast_rp = false
-    rp_ip      = "192.168.1.1"
+    anycast_rp  = false
+    rp_ip       = "192.168.1.1"
+    rp_mac      = "02:00:00:00:00:01"
+    peg_enabled = true
+    sbd_wan_rpf = true
   }
 
   networks = {
@@ -258,6 +261,7 @@
       disabled               = false
       enable_qos             = true
       mac_limit              = 10
+      no_local_port_config   = false
       persist_mac            = true
       poe_disabled           = false
       poe_priority           = "high"
@@ -838,8 +842,11 @@
       networks = ["mgmt"]
       evpn_auto_loopback_subnet6 = "fd00:255::/64"
       multicast_config = {
-        anycast_rp = false
-        rp_ip      = "192.168.100.1"
+        anycast_rp  = false
+        rp_ip       = "192.168.100.1"
+        rp_mac      = "02:00:00:00:00:02"
+        peg_enabled = true
+        sbd_wan_rpf = true
       }
       extra_routes = {
         "0.0.0.0/0" = {

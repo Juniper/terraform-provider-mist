@@ -44,8 +44,8 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"match": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Required if `type`==`match`; attribute compared against `values`",
-				MarkdownDescription: "Required if `type`==`match`; attribute compared against `values`",
+				Description:         "Required if `type`==`match`; attribute compared against `values`. enum: `ap_id`, `app`, `asset_mac`, `client_mac`, `hostname`, `ip_range_subnet`, `port`, `psk_name`, `psk_role`, `radius_attr`, `radius_class`, `radius_group`, `radius_username`, `sdkclient_uuid`, `wlan_id`.",
+				MarkdownDescription: "Required if `type`==`match`; attribute compared against `values`. enum: `ap_id`, `app`, `asset_mac`, `client_mac`, `hostname`, `ip_range_subnet`, `port`, `psk_name`, `psk_role`, `radius_attr`, `radius_class`, `radius_group`, `radius_username`, `sdkclient_uuid`, `wlan_id`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"ap_id",
@@ -74,8 +74,8 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"op": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Required if `type`==`match`; whether `values` are inclusive or exclusive matches",
-				MarkdownDescription: "Required if `type`==`match`; whether `values` are inclusive or exclusive matches",
+				Description:         "Required if `type`==`match`; whether `values` are inclusive or exclusive matches. enum: `in`, `not_in`.",
+				MarkdownDescription: "Required if `type`==`match`; whether `values` are inclusive or exclusive matches. enum: `in`, `not_in`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"in",
@@ -155,8 +155,8 @@ func SiteWxtagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"type": schema.StringAttribute{
 				Required:            true,
-				Description:         "Kind of WxLAN tag and how it is populated",
-				MarkdownDescription: "Kind of WxLAN tag and how it is populated",
+				Description:         "Kind of WxLAN tag and how it is populated. enum: `client`, `match`, `resource`, `spec`, `subnet`, `vlan`.",
+				MarkdownDescription: "Kind of WxLAN tag and how it is populated. enum: `client`, `match`, `resource`, `spec`, `subnet`, `vlan`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

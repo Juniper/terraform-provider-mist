@@ -8,6 +8,7 @@
   disallow_mist_services = false
   isolation             = false
   routed_for_networks   = ["192.168.200.0/24", "192.168.201.0/24"]
+  zone_id               = "11111111-2222-3333-4444-555555555555"
 
   internal_access = {
     enabled = true

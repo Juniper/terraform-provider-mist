@@ -21,6 +21,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	var autoUpgrade = NewAutoUpgradeValueNull()
 	// var blacklist_url types.String
 	var cacerts = types.ListNull(types.StringType)
+	var cacertsConfigs = types.ListNull(CacertsConfigsValue{}.Type(ctx))
 	var celona = NewCelonaValueNull()
 	var cloudshark = NewCloudsharkValueNull()
 	var deviceCert = NewDeviceCertValueNull()
@@ -75,6 +76,9 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	// }
 	if data.Cacerts != nil {
 		cacerts = mistutils.ListOfStringSdkToTerraform(data.Cacerts)
+	}
+	if data.CacertsConfigs != nil {
+		cacertsConfigs = cacertsConfigsSdkToTerraform(ctx, &diags, data.CacertsConfigs)
 	}
 	if data.Celona != nil {
 		celona = celonaSdkToTerraform(ctx, &diags, data.Celona)
@@ -209,6 +213,7 @@ func SdkToTerraform(ctx context.Context, data *models.OrgSetting) (OrgSettingMod
 	state.AutoUpgrade = autoUpgrade
 	// state.BlacklistUrl = blacklist_url
 	state.Cacerts = cacerts
+	state.CacertsConfigs = cacertsConfigs
 	state.Celona = celona
 	state.Cloudshark = cloudshark
 	state.DeviceCert = deviceCert

@@ -285,6 +285,7 @@
       stp_edge          = true
       stp_disable       = false
       allow_dhcpd       = true
+      no_local_port_config = false
       poe_disabled      = false
       server_fail_retry_interval = 300
     }
@@ -555,8 +556,11 @@
     "vrf-red" = {
       networks = ["user"]
       multicast_config = {
-        anycast_rp = false
-        rp_ip      = "192.168.20.1"
+        anycast_rp  = false
+        rp_ip       = "192.168.20.1"
+        rp_mac      = "02:00:00:00:00:05"
+        peg_enabled = true
+        sbd_wan_rpf = true
       }
       extra_routes = {
         "10.200.0.0/16" = {

@@ -29,8 +29,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"default_action": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Default action applied when none of the `rules` match the incoming event",
-				MarkdownDescription: "Default action applied when none of the `rules` match the incoming event",
+				Description:         "Default action applied when none of the `rules` match the incoming event. enum: `permit`, `block`.",
+				MarkdownDescription: "Default action applied when none of the `rules` match the incoming event. enum: `permit`, `block`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -90,8 +90,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"oauth2_grant_type": schema.StringAttribute{
 				Optional:            true,
-				Description:         "OAuth2 grant type used when `type`==`oauth2`",
-				MarkdownDescription: "OAuth2 grant type used when `type`==`oauth2`",
+				Description:         "OAuth2 grant type used when `type`==`oauth2`. enum: `client_credentials`, `password`.",
+				MarkdownDescription: "OAuth2 grant type used when `type`==`oauth2`. enum: `client_credentials`, `password`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"client_credentials",
@@ -144,8 +144,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"action": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Action applied when the rule matches the incoming event",
-							MarkdownDescription: "Action applied when the rule matches the incoming event",
+							Description:         "Action applied when the rule matches the incoming event. enum: `permit`, `block`.",
+							MarkdownDescription: "Action applied when the rule matches the incoming event. enum: `permit`, `block`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -227,8 +227,8 @@ func OrgWebhookResourceSchema(ctx context.Context) schema.Schema {
 			"type": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Delivery mechanism used by this webhook",
-				MarkdownDescription: "Delivery mechanism used by this webhook",
+				Description:         "Delivery mechanism used by this webhook. enum: `aws-sns`, `google-pubsub`, `http-post`, `oauth2`, `splunk`.",
+				MarkdownDescription: "Delivery mechanism used by this webhook. enum: `aws-sns`, `google-pubsub`, `http-post`, `oauth2`, `splunk`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

@@ -126,6 +126,7 @@
     idp_fingerprint_update  = true
     idp_enabled            = true
     intrusion_detection     = true
+    mist_nac_user_role_source = "radius_group"
     utm_idp_features       = ["application-firewall", "application-identification"]
     auto_upgrade = {
       enabled = true
@@ -262,7 +263,7 @@
       }
     ]
     wan_speedtest = {
-      enabled = true
+      disabled = false
       time_of_day = "02:00"
     }
   }

@@ -17,7 +17,7 @@ func syntheticTestWanTerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 		if e != nil {
 			diags.Append(e...)
 		} else {
-			data.Enabled = vd.Enabled.ValueBoolPointer()
+			data.Disabled = vd.Disabled.ValueBoolPointer()
 			data.TimeOfDay = vd.TimeOfDay.ValueStringPointer()
 		}
 	}

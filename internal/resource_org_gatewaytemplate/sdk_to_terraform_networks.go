@@ -387,6 +387,7 @@ func networksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []mo
 		var tenants = types.MapNull(TenantsValue{}.Type(ctx))
 		var vlanId basetypes.StringValue
 		var vpnAccess = types.MapNull(VpnAccessValue{}.Type(ctx))
+		var zoneId basetypes.StringValue
 
 		if d.DisallowMistServices != nil {
 			disallowMistServices = types.BoolValue(*d.DisallowMistServices)
@@ -428,6 +429,9 @@ func networksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []mo
 		if len(d.VpnAccess) > 0 {
 			vpnAccess = vpnSdkToTerraform(ctx, diags, d.VpnAccess)
 		}
+		if d.ZoneId != nil {
+			zoneId = types.StringValue(d.ZoneId.String())
+		}
 
 		dataMapValue := map[string]attr.Value{
 			"disallow_mist_services": disallowMistServices,
@@ -444,6 +448,7 @@ func networksSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m []mo
 			"tenants":                tenants,
 			"vlan_id":                vlanId,
 			"vpn_access":             vpnAccess,
+			"zone_id":                zoneId,
 		}
 		data, e := NewNetworksValue(NetworksValue{}.AttributeTypes(ctx), dataMapValue)
 		diags.Append(e...)

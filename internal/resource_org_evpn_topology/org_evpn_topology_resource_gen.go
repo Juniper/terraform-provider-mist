@@ -115,8 +115,8 @@ func OrgEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 					"routed_at": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Topology tier where EVPN virtual gateway routing is placed",
-						MarkdownDescription: "Topology tier where EVPN virtual gateway routing is placed",
+						Description:         "Topology tier where EVPN virtual gateway routing is placed. enum: `core`, `distribution`, `edge`.",
+						MarkdownDescription: "Topology tier where EVPN virtual gateway routing is placed. enum: `core`, `distribution`, `edge`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -299,8 +299,8 @@ func OrgEvpnTopologyResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"role": schema.StringAttribute{
 							Required:            true,
-							Description:         "EVPN topology role for this switch",
-							MarkdownDescription: "EVPN topology role for this switch",
+							Description:         "EVPN topology role for this switch. enum: `access`, `border`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`.",
+							MarkdownDescription: "EVPN topology role for this switch. enum: `access`, `border`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",

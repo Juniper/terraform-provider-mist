@@ -40,8 +40,8 @@ func OrgWlanPortalTemplateResourceSchema(ctx context.Context) schema.Schema {
 					"alignment": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Text and content alignment used by the guest portal template",
-						MarkdownDescription: "Text and content alignment used by the guest portal template",
+						Description:         "Text and content alignment used by the guest portal template. enum: `center`, `left`, `right`.",
+						MarkdownDescription: "Text and content alignment used by the guest portal template. enum: `center`, `left`, `right`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",

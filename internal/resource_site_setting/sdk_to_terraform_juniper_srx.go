@@ -82,6 +82,7 @@ func juniperSrxAutoUpgradeSdkToTerraform(ctx context.Context, diags *diag.Diagno
 func juniperSrxSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SiteSettingJuniperSrx) JuniperSrxValue {
 	var autoUpgrade = types.ObjectNull(SrxAutoUpgradeValue{}.AttributeTypes(ctx))
 	var gateways = types.ListNull(GatewaysValue{}.Type(ctx))
+	var mistNacUserRoleSource basetypes.StringValue
 	var sendMistNacUserInfo basetypes.BoolValue
 
 	if d != nil && d.AutoUpgrade != nil {
@@ -90,14 +91,18 @@ func juniperSrxSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	if d != nil && d.Gateways != nil {
 		gateways = juniperSrxGatewaysSdkToTerraform(ctx, diags, d.Gateways)
 	}
+	if d != nil && d.MistNacUserRoleSource != nil {
+		mistNacUserRoleSource = types.StringValue(string(*d.MistNacUserRoleSource))
+	}
 	if d != nil && d.SendMistNacUserInfo != nil {
 		sendMistNacUserInfo = types.BoolValue(*d.SendMistNacUserInfo)
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"auto_upgrade":            autoUpgrade,
-		"gateways":                gateways,
-		"send_mist_nac_user_info": sendMistNacUserInfo,
+		"auto_upgrade":              autoUpgrade,
+		"gateways":                  gateways,
+		"mist_nac_user_role_source": mistNacUserRoleSource,
+		"send_mist_nac_user_info":   sendMistNacUserInfo,
 	}
 	data, e := NewJuniperSrxValue(JuniperSrxValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

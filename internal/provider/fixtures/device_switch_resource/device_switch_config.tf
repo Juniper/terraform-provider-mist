@@ -186,6 +186,7 @@
       mac_limit        = "5"
       mode             = "access"
       networks         = ["lan"]
+      no_local_port_config        = false
       poe_priority                = "high"
       poe_keep_state_when_reboot  = true
       port_network                = "lan"
@@ -400,6 +401,9 @@
       multicast_config = {
         anycast_rp = false
         rp_ip      = "10.100.0.254"
+        rp_mac      = "02:00:00:00:00:04"
+        peg_enabled = true
+        sbd_wan_rpf = true
         sbd_subnet = "10.100.255.0/24"
         sbd_vlan_id = 4090
       }

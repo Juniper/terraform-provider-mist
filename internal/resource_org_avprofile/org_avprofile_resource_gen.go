@@ -25,8 +25,8 @@ func OrgAvprofileResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"fallback_action": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Action to take when antivirus scanning cannot complete",
-				MarkdownDescription: "Action to take when antivirus scanning cannot complete",
+				Description:         "Action to take when antivirus scanning cannot complete. enum: `block`, `log-and-permit`, `permit`.",
+				MarkdownDescription: "Action to take when antivirus scanning cannot complete. enum: `block`, `log-and-permit`, `permit`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

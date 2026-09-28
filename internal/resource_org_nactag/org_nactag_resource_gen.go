@@ -54,8 +54,8 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"match": schema.StringAttribute{
 				Optional:            true,
-				Description:         "If `type`==`match`, client or authentication attribute used for rule matching",
-				MarkdownDescription: "If `type`==`match`, client or authentication attribute used for rule matching",
+				Description:         "If `type`==`match`, client or authentication attribute used for rule matching. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`.",
+				MarkdownDescription: "If `type`==`match`, client or authentication attribute used for rule matching. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -142,8 +142,8 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"type": schema.StringAttribute{
 				Required:            true,
-				Description:         "NAC tag type that determines whether the tag is a matcher or a result attribute",
-				MarkdownDescription: "NAC tag type that determines whether the tag is a matcher or a result attribute",
+				Description:         "NAC tag type that determines whether the tag is a matcher or a result attribute. enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `redirect_nacportal_id`, `session_timeout`, `username_attr`, `vlan`.",
+				MarkdownDescription: "NAC tag type that determines whether the tag is a matcher or a result attribute. enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `redirect_nacportal_id`, `session_timeout`, `username_attr`, `vlan`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -163,8 +163,8 @@ func OrgNactagResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"username_attr": schema.StringAttribute{
 				Optional:            true,
-				Description:         "If `type`==`username_attr`, attribute used to derive the username returned by the NAC rule",
-				MarkdownDescription: "If `type`==`username_attr`, attribute used to derive the username returned by the NAC rule",
+				Description:         "If `type`==`username_attr`, attribute used to derive the username returned by the NAC rule. enum: `automatic`, `cn`, `dns`, `email`, `upn`.",
+				MarkdownDescription: "If `type`==`username_attr`, attribute used to derive the username returned by the NAC rule. enum: `automatic`, `cn`, `dns`, `email`, `upn`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

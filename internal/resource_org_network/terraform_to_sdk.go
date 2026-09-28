@@ -7,6 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
@@ -97,6 +98,17 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworkModel) (*models.Network
 		data.VpnAccess = vpnTerraformToSdk(ctx, &diags, plan.VpnAccess)
 	} else {
 		unset["-vpn_access"] = ""
+	}
+
+	if len(plan.ZoneId.ValueString()) > 0 {
+		zoneId, e := uuid.Parse(plan.ZoneId.ValueString())
+		if e == nil {
+			data.ZoneId = &zoneId
+		} else {
+			diags.AddError("Bad value for zone_id", e.Error())
+		}
+	} else {
+		unset["-zone_id"] = ""
 	}
 
 	data.AdditionalProperties = unset

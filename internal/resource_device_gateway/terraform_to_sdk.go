@@ -98,6 +98,12 @@ func TerraformToSdk(ctx context.Context, plan *DeviceGatewayModel) (models.MistD
 		data.IpConfigs = ipConfigsTerraformToSdk(plan.IpConfigs)
 	}
 
+	if plan.MnhaConfig.IsNull() || plan.MnhaConfig.IsUnknown() {
+		unset["-mnha_config"] = ""
+	} else {
+		data.MnhaConfig = mnhaConfigTerraformToSdk(plan.MnhaConfig)
+	}
+
 	// Handle backwards compatibility between mist_configured and managed
 	// Priority: mist_configured takes precedence when set
 	if !plan.MistConfigured.IsNull() && !plan.MistConfigured.IsUnknown() {

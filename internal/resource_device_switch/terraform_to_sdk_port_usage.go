@@ -148,6 +148,9 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 		if !puAttrValue.Networks.IsNull() && !puAttrValue.Networks.IsUnknown() {
 			newPu.Networks = mistutils.ListOfStringTerraformToSdk(puAttrValue.Networks)
 		}
+		if puAttrValue.NoLocalPortConfig.ValueBoolPointer() != nil {
+			newPu.NoLocalPortConfig = models.ToPointer(puAttrValue.NoLocalPortConfig.ValueBool())
+		}
 		if puAttrValue.PersistMac.ValueBoolPointer() != nil {
 			newPu.PersistMac = models.ToPointer(puAttrValue.PersistMac.ValueBool())
 		}

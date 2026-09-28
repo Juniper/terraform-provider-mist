@@ -140,6 +140,7 @@
       subnet6 = "2001:db8::/64"
       vlan_id = "100"
       disallow_mist_services = false
+      zone_id = "11111111-2222-3333-4444-555555555555"
       internet_access = {
         enabled = true
         destination_nat = {

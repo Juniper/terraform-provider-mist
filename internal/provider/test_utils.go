@@ -81,10 +81,17 @@ func (o *testChecks) append(t testing.TB, testCheckFuncName string, testCheckFun
 		}
 		o.checks = append(o.checks, resource.TestCheckTypeSetElemAttr(o.path, testCheckFuncArgs[0], testCheckFuncArgs[1]))
 	case "TestCheckResourceAttrPair":
-		if len(testCheckFuncArgs) != 2 {
-			t.Fatalf("%s requires 2 args, got %d", testCheckFuncName, len(testCheckFuncArgs))
+		switch len(testCheckFuncArgs) {
+		case 2:
+			o.checks = append(o.checks, resource.TestCheckResourceAttrPair(o.path, testCheckFuncArgs[0], o.path, testCheckFuncArgs[1]))
+			o.logLines.appendf("TestCheckResourceAttrPair(%s, %q, %s, %q)", o.path, testCheckFuncArgs[0], o.path, testCheckFuncArgs[1])
+		case 3:
+			// cross-resource comparison: localAttr, otherResourceName, otherAttr
+			o.checks = append(o.checks, resource.TestCheckResourceAttrPair(o.path, testCheckFuncArgs[0], testCheckFuncArgs[1], testCheckFuncArgs[2]))
+			o.logLines.appendf("TestCheckResourceAttrPair(%s, %q, %s, %q)", o.path, testCheckFuncArgs[0], testCheckFuncArgs[1], testCheckFuncArgs[2])
+		default:
+			t.Fatalf("%s requires 2 or 3 args, got %d", testCheckFuncName, len(testCheckFuncArgs))
 		}
-		o.checks = append(o.checks, resource.TestCheckResourceAttrPair(o.path, testCheckFuncArgs[0], o.path, testCheckFuncArgs[1]))
 	default:
 		t.Fatalf("unknown test check function: %s", testCheckFuncName)
 	}

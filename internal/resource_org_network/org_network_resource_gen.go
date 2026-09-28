@@ -544,6 +544,11 @@ func OrgNetworkResourceSchema(ctx context.Context) schema.Schema {
 					mapvalidator.SizeAtLeast(1),
 				},
 			},
+			"zone_id": schema.StringAttribute{
+				Optional:            true,
+				Description:         "SecurityZone this network belongs to. When set, the zone name is used as the security zone name on the SRX, and multiple networks can share the same zone. When omitted, the network `name` is used as the security zone name.",
+				MarkdownDescription: "SecurityZone this network belongs to. When set, the zone name is used as the security zone name on the SRX, and multiple networks can share the same zone. When omitted, the network `name` is used as the security zone name.",
+			},
 		},
 	}
 }
@@ -565,6 +570,7 @@ type OrgNetworkModel struct {
 	Tenants              types.Map           `tfsdk:"tenants"`
 	VlanId               types.String        `tfsdk:"vlan_id"`
 	VpnAccess            types.Map           `tfsdk:"vpn_access"`
+	ZoneId               types.String        `tfsdk:"zone_id"`
 }
 
 var _ basetypes.ObjectTypable = InternalAccessType{}

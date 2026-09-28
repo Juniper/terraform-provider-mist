@@ -1,6 +1,6 @@
 module github.com/Juniper/terraform-provider-mist
 
-go 1.25.8
+go 1.26.0
 
 require (
 	github.com/apimatic/go-core-runtime v0.0.29
@@ -14,7 +14,7 @@ require (
 	github.com/hashicorp/terraform-plugin-log v0.10.0
 	github.com/hashicorp/terraform-plugin-testing v1.16.0
 	github.com/stretchr/testify v1.11.1
-	github.com/tmunzer/mistapi-go v0.4.107
+	github.com/tmunzer/mistapi-go v0.4.108
 )
 
 require (

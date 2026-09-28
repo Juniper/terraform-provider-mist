@@ -60,8 +60,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"guest_auth_state": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Guest portal authorization state condition for the rule",
-				MarkdownDescription: "Guest portal authorization state condition for the rule",
+				Description:         "Guest portal authorization state condition for the rule. enum: `authorized`, `unknown`.",
+				MarkdownDescription: "Guest portal authorization state condition for the rule. enum: `authorized`, `unknown`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -82,8 +82,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"auth_type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "NAC authentication method that must match the request",
-						MarkdownDescription: "NAC authentication method that must match the request",
+						Description:         "NAC authentication method that must match the request. enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`.",
+						MarkdownDescription: "NAC authentication method that must match the request. enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -219,8 +219,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"auth_type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "NAC authentication method that must match the request",
-						MarkdownDescription: "NAC authentication method that must match the request",
+						Description:         "NAC authentication method that must match the request. enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`.",
+						MarkdownDescription: "NAC authentication method that must match the request. enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
