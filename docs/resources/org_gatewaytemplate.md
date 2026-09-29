@@ -118,6 +118,7 @@ resource "mist_org_gatewaytemplate" "gatewaytemplate_one" {
 - `gateway_mgmt` (Attributes) Management-plane defaults provided by this gateway template (see [below for nested schema](#nestedatt--gateway_mgmt))
 - `idp_profiles` (Attributes Map) Intrusion detection and prevention profile defaults in this gateway template (see [below for nested schema](#nestedatt--idp_profiles))
 - `ip_configs` (Attributes Map) Gateway interface IP configuration defaults by network name (see [below for nested schema](#nestedatt--ip_configs))
+- `mnha_config` (Attributes) Multi-Node HA (MNHA) settings applied by this gateway template, SRX only (see [below for nested schema](#nestedatt--mnha_config))
 - `networks` (Attributes List) Layer 3 networks configured by this gateway template (see [below for nested schema](#nestedatt--networks))
 - `ntp_override` (Boolean) Whether NTP servers in this template override inherited values
 - `ntp_servers` (List of String) NTP servers provided by this gateway template
@@ -130,7 +131,7 @@ resource "mist_org_gatewaytemplate" "gatewaytemplate_one" {
 - `ssr_additional_config_cmds` (List of String) additional CLI commands to append to the generated SSR config. **Note**: no check is done
 - `tunnel_configs` (Attributes Map) Property key is the tunnel name (see [below for nested schema](#nestedatt--tunnel_configs))
 - `tunnel_provider_options` (Attributes) Provider-specific tunnel options defined by this gateway template (see [below for nested schema](#nestedatt--tunnel_provider_options))
-- `type` (String) Gateway template deployment type
+- `type` (String) Gateway template deployment type. enum: `spoke`, `standalone`.
 - `url_filtering_deny_msg` (String) When a service policy denies a app_category, what message to show in user's browser
 - `vrf_config` (Attributes) VRF defaults applied by this gateway template (see [below for nested schema](#nestedatt--vrf_config))
 - `vrf_instances` (Attributes Map) VRF instances configured by this gateway template (see [below for nested schema](#nestedatt--vrf_instances))
@@ -217,8 +218,8 @@ Optional:
 should overwrite the Sever Identifier option (i.e. DHCP option 54) in DHCP responses with its own IP address.
 - `servers` (List of String) If `type`==`relay`, upstream IPv4 DHCP servers
 - `serversv6` (List of String) If `type6`==`relay`, upstream IPv6 DHCP servers
-- `type` (String) IPv4 DHCP mode for this network
-- `type6` (String) IPv6 DHCP mode for this network
+- `type` (String) IPv4 DHCP mode for this network. enum: `local`, `none`, `relay`.
+- `type6` (String) IPv6 DHCP mode for this network. enum: `local`, `none`, `relay`.
 - `vendor_encapsulated` (Attributes Map) If `type`==`local` or `type6`==`local`, vendor-encapsulated DHCP options advertised to clients (see [below for nested schema](#nestedatt--dhcpd_config--config--vendor_encapsulated))
 
 <a id="nestedatt--dhcpd_config--config--fixed_bindings"></a>
@@ -236,7 +237,7 @@ Optional:
 
 Optional:
 
-- `type` (String) Data type used to encode this DHCP option value
+- `type` (String) Data type used to encode this DHCP option value. enum: `boolean`, `hex`, `int16`, `int32`, `ip`, `string`, `uint16`, `uint32`.
 - `value` (String) Option value to send for this DHCP option
 
 
@@ -245,7 +246,7 @@ Optional:
 
 Optional:
 
-- `type` (String) Data type used to encode this vendor option value
+- `type` (String) Data type used to encode this vendor option value. enum: `boolean`, `hex`, `int16`, `int32`, `ip`, `string`, `uint16`, `uint32`.
 - `value` (String) Option value to send for this vendor option
 
 
@@ -310,7 +311,7 @@ Optional:
 - `name` (String) Display name for this custom application probe
 - `network` (String) Gateway network used as the source context for this probe
 - `packet_size` (Number) If `protocol`==`icmp`. ICMP packet size used by this custom app probe
-- `protocol` (String) Probe protocol used by this custom application definition
+- `protocol` (String) Probe protocol used by this custom application definition. enum: `http`, `icmp`.
 - `url` (String) If `protocol`==`http`. HTTP URL or hostname probed by this custom app
 - `vrf` (String) Gateway VRF used as the source context for this probe
 
@@ -321,7 +322,7 @@ Optional:
 
 Optional:
 
-- `day_of_week` (String) Scheduled weekday for automatic signature updates
+- `day_of_week` (String) Scheduled weekday for automatic signature updates. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.
 - `enable` (Boolean) Whether automatic security signature updates are enabled
 - `time_of_day` (String) Optional, Mist will decide the timing
 
@@ -345,7 +346,7 @@ e.g. ntp / dns / traffic to mist will be allowed by default
 Optional:
 
 - `port_range` (String) Matched dst port, "0" means any
-- `protocol` (String) Transport protocol matched by this custom Protect RE ACL
+- `protocol` (String) Transport protocol matched by this custom Protect RE ACL. enum: `any`, `icmp`, `tcp`, `udp`.
 - `subnets` (List of String) Source subnets matched by this custom Protect RE ACL
 
 
@@ -356,7 +357,7 @@ Optional:
 
 Optional:
 
-- `base_profile` (String) Built-in IDP baseline profile inherited before applying overwrites
+- `base_profile` (String) Built-in IDP baseline profile inherited before applying overwrites. enum: `critical`, `standard`, `strict`.
 - `name` (String) Display name of the IDP profile
 - `org_id` (String) Owning organization for the IDP profile
 - `overwrites` (Attributes List) IDP signature override rules applied on top of the base profile (see [below for nested schema](#nestedatt--idp_profiles--overwrites))
@@ -366,7 +367,7 @@ Optional:
 
 Optional:
 
-- `action` (String) Enforcement action applied when this overwrite rule matches
+- `action` (String) Enforcement action applied when this overwrite rule matches. enum: `alert`, `close`, `drop`.
 - `matching` (Attributes) Criteria that select signatures for this overwrite rule (see [below for nested schema](#nestedatt--idp_profiles--overwrites--matching))
 - `name` (String) Display name for this IDP profile overwrite rule
 
@@ -392,8 +393,16 @@ Optional:
 - `netmask` (String) IPv4 netmask or prefix length for the gateway network interface when `type`==`static`
 - `netmask6` (String) IPv6 netmask or prefix length for the gateway network interface when `type6`==`static`
 - `secondary_ips` (List of String) Additional IPv4 addresses in CIDR notation for this gateway network interface
-- `type` (String) IPv4 address assignment mode for this gateway network interface
-- `type6` (String) IPv6 address assignment mode for this gateway network interface
+- `type` (String) IPv4 address assignment mode for this gateway network interface. enum: `dhcp`, `static`.
+- `type6` (String) IPv6 address assignment mode for this gateway network interface. enum: `autoconf`, `dhcp`, `disabled`, `static`.
+
+
+<a id="nestedatt--mnha_config"></a>
+### Nested Schema for `mnha_config`
+
+Optional:
+
+- `enabled` (Boolean) Whether MNHA mode is enabled
 
 
 <a id="nestedatt--networks"></a>
@@ -418,6 +427,7 @@ Optional:
 - `tenants` (Attributes Map) Tenant address mappings associated with this network (see [below for nested schema](#nestedatt--networks--tenants))
 - `vlan_id` (String) VLAN ID or variable associated with this network
 - `vpn_access` (Attributes Map) VPN access settings keyed by VPN name for this network (see [below for nested schema](#nestedatt--networks--vpn_access))
+- `zone_id` (String) SecurityZone this network belongs to. When set, the zone name is used as the security zone name on the SRX, and multiple networks can share the same zone. When omitted, the network `name` is used as the security zone name.
 
 <a id="nestedatt--networks--internal_access"></a>
 ### Nested Schema for `networks.internal_access`
@@ -547,7 +557,7 @@ Optional:
 - `ip` (String) Static IPv4 address for the out-of-band management interface when `type`==`static`
 - `netmask` (String) IPv4 netmask or prefix length for the out-of-band management interface when `type`==`static`
 - `node1` (Attributes) Out-of-band management IP configuration override for node1 in an HA cluster (see [below for nested schema](#nestedatt--oob_ip_config--node1))
-- `type` (String) IP assignment mode for the out-of-band management interface
+- `type` (String) IP assignment mode for the out-of-band management interface. enum: `dhcp`, `static`.
 - `use_mgmt_vrf` (Boolean) If supported on the platform. If enabled, DNS will be using this routing-instance, too
 - `use_mgmt_vrf_for_host_out` (Boolean) For host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
 - `vlan_id` (String) VLAN ID used for out-of-band management traffic
@@ -560,7 +570,7 @@ Optional:
 - `gateway` (String) Default gateway for the node1 out-of-band management interface when `type`==`static`
 - `ip` (String) Static IPv4 address for the node1 out-of-band management interface when `type`==`static`
 - `netmask` (String) IPv4 netmask or prefix length for the node1 out-of-band management interface when `type`==`static`; used only if `subnet` is not specified in `networks`
-- `type` (String) IP assignment mode for the node1 out-of-band management interface
+- `type` (String) IP assignment mode for the node1 out-of-band management interface. enum: `dhcp`, `static`.
 - `use_mgmt_vrf` (Boolean) If supported on the platform. If enabled, DNS will be using this routing-instance, too
 - `use_mgmt_vrf_for_host_out` (Boolean) Whether to use `mgmt_junos` for host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
 - `vlan_id` (String) VLAN ID used for node1 out-of-band management traffic
@@ -573,7 +583,7 @@ Optional:
 Optional:
 
 - `paths` (Attributes List) Candidate paths evaluated for this gateway path preference (see [below for nested schema](#nestedatt--path_preferences--paths))
-- `strategy` (String) Selection strategy used to evaluate the candidate paths
+- `strategy` (String) Selection strategy used to evaluate the candidate paths. enum: `ecmp`, `ordered`, `weighted`.
 
 <a id="nestedatt--path_preferences--paths"></a>
 ### Nested Schema for `path_preferences.paths`
@@ -602,7 +612,7 @@ Optional:
 
 Required:
 
-- `usage` (String) Logical usage assigned to the port
+- `usage` (String) Logical usage assigned to the port. enum: `ha_control`, `ha_data`, `lan`, `wan`.
 
 Optional:
 
@@ -614,13 +624,13 @@ Optional:
 - `description` (String) Interface Description. Can be a variable (i.e. "{{myvar}}")
 - `disable_autoneg` (Boolean) Whether Ethernet autonegotiation is disabled on the port
 - `disabled` (Boolean) Port admin up (true) / down (false)
-- `dsl_type` (String) If `wan_type`==`dsl`. DSL technology used by the WAN port
+- `dsl_type` (String) If `wan_type`==`dsl`. DSL technology used by the WAN port. enum: `adsl`, `vdsl`.
 - `dsl_vci` (Number) If `wan_type`==`dsl`, 16 bit int
 - `dsl_vpi` (Number) If `wan_type`==`dsl`, 8 bit int
-- `duplex` (String) Ethernet duplex mode configured on the port
+- `duplex` (String) Ethernet duplex mode configured on the port. enum: `auto`, `full`, `half`.
 - `ip_config` (Attributes) Layer 3 IP configuration for the port (see [below for nested schema](#nestedatt--port_config--ip_config))
 - `lte_apn` (String) If `wan_type`==`lte`. APN used by the LTE uplink
-- `lte_auth` (String) If `wan_type`==`lte`. Authentication method used by the LTE uplink
+- `lte_auth` (String) If `wan_type`==`lte`. Authentication method used by the LTE uplink. enum: `chap`, `none`, `pap`.
 - `lte_backup` (Boolean) Whether the LTE uplink is used as a backup WAN connection
 - `lte_password` (String, Sensitive) If `wan_type`==`lte`. Password used for LTE uplink authentication
 - `lte_username` (String) If `wan_type`==`lte`. Username used for LTE uplink authentication
@@ -642,7 +652,7 @@ Optional:
 - `traffic_shaping` (Attributes) Traffic shaping settings applied to the port (see [below for nested schema](#nestedatt--port_config--traffic_shaping))
 - `vlan_id` (String) VLAN ID or variable used when the WAN interface is carried on a VLAN
 - `vpn_paths` (Attributes Map) Per-VPN path settings for traffic that uses this port (see [below for nested schema](#nestedatt--port_config--vpn_paths))
-- `wan_arp_policer` (String) Only when `wan_type`==`broadband`. ARP policer profile applied to the WAN port
+- `wan_arp_policer` (String) Only when `wan_type`==`broadband`. ARP policer profile applied to the WAN port. enum: `default`, `max`, `recommended`.
 - `wan_ext_ip` (String) Only if `usage`==`wan`, optional. If spoke should reach this port by a different IP
 - `wan_ext_ip6` (String) Only if `usage`==`wan`, optional. If spoke should reach this port by a different IPv6
 - `wan_extra_routes` (Attributes Map) Only if `usage`==`wan`. Property Key is the destination CIDR (e.g. "100.100.100.0/24") (see [below for nested schema](#nestedatt--port_config--wan_extra_routes))
@@ -650,8 +660,8 @@ Optional:
 - `wan_networks` (List of String) Only if `usage`==`wan`. Networks reachable through this WAN port for policy definition
 - `wan_probe_override` (Attributes) Optional WAN health probe override settings for this port (see [below for nested schema](#nestedatt--port_config--wan_probe_override))
 - `wan_source_nat` (Attributes) Source NAT settings applied to traffic leaving this WAN port (see [below for nested schema](#nestedatt--port_config--wan_source_nat))
-- `wan_speedtest_mode` (String) Controls whether Marvis or the scheduler can run speed tests on this WAN port
-- `wan_type` (String) Only if `usage`==`wan`. WAN uplink type configured on the port
+- `wan_speedtest_mode` (String) Controls whether Marvis or the scheduler can run speed tests on this WAN port. enum: `auto`, `enabled`, `disabled`.
+- `wan_type` (String) Only if `usage`==`wan`. WAN uplink type configured on the port. enum: `broadband`, `dsl`, `lte`.
 
 <a id="nestedatt--port_config--ip_config"></a>
 ### Nested Schema for `port_config.ip_config`
@@ -668,10 +678,10 @@ Optional:
 - `netmask6` (String) Used only if `subnet` is not specified in `networks`. Interface IPv6 Netmask (i.e. "/64") or a Variable (i.e. "{{myvar}}")
 - `network` (String) Optional, the network to be used for mgmt
 - `poser_password` (String, Sensitive) Password used for PPPoE when `type`==`pppoe`
-- `pppoe_auth` (String) Authentication protocol used for PPPoE when `type`==`pppoe`
+- `pppoe_auth` (String) Authentication protocol used for PPPoE when `type`==`pppoe`. enum: `chap`, `none`, `pap`.
 - `pppoe_username` (String) Username used for PPPoE when `type`==`pppoe`
-- `type` (String) IPv4 assignment mode for this gateway port interface
-- `type6` (String) IPv6 assignment mode for this gateway port interface
+- `type` (String) IPv4 assignment mode for this gateway port interface. enum: `dhcp`, `pppoe`, `static`.
+- `type6` (String) IPv6 assignment mode for this gateway port interface. enum: `autoconf`, `dhcp`, `static`.
 
 
 <a id="nestedatt--port_config--traffic_shaping"></a>
@@ -689,10 +699,10 @@ Optional:
 
 Optional:
 
-- `bfd_profile` (String) BFD profile used for this VPN path when the VPN `type`==`hub_spoke`
+- `bfd_profile` (String) BFD profile used for this VPN path when the VPN `type`==`hub_spoke`. enum: `broadband`, `lte`.
 - `bfd_use_tunnel_mode` (Boolean) Only if the VPN `type`==`hub_spoke`. Whether to use tunnel mode. SSR only
 - `preference` (Number) Only if the VPN `type`==`hub_spoke`. For a given VPN, when `path_selection.strategy`==`simple`, the preference for a path (lower is preferred)
-- `role` (String) Gateway role for this VPN path; valid values depend on the VPN `type`
+- `role` (String) Gateway role for this VPN path; valid values depend on the VPN `type`. enum: `hub`, `mesh`, `spoke`.
 - `traffic_shaping` (Attributes) Traffic shaping settings applied to this VPN path (see [below for nested schema](#nestedatt--port_config--vpn_paths--traffic_shaping))
 
 <a id="nestedatt--port_config--vpn_paths--traffic_shaping"></a>
@@ -731,7 +741,7 @@ Optional:
 - `http` (Attributes) HTTP probe settings; success from any ICMP or HTTP probe indicates the WAN is up (see [below for nested schema](#nestedatt--port_config--wan_probe_override--http))
 - `ip6s` (List of String) List of IPv6 probe host addresses used by this WAN override
 - `ips` (List of String) List of IPv4 probe host addresses used by this WAN override
-- `probe_profile` (String) WAN probe profile used for health checks on this port
+- `probe_profile` (String) WAN probe profile used for health checks on this port. enum: `broadband`, `lte`.
 
 <a id="nestedatt--port_config--wan_probe_override--http"></a>
 ### Nested Schema for `port_config.wan_probe_override.http`
@@ -870,7 +880,7 @@ Optional:
 - `alert_only` (Boolean) Whether matching enhanced web filtering traffic is logged without being blocked
 - `block_message` (String) Message returned when enhanced web filtering blocks a request
 - `enabled` (Boolean) Whether this enhanced web filtering rule is enabled
-- `profile` (String) Enhanced web filtering profile applied by this rule
+- `profile` (String) Enhanced web filtering profile applied by this rule. enum: `critical`, `standard`, `strict`.
 
 
 <a id="nestedatt--service_policies--idp"></a>
@@ -900,7 +910,7 @@ Optional:
 Optional:
 
 - `enabled` (Boolean) Whether Sky ATP DNS DGA detection is enabled
-- `profile` (String) Sky ATP DNS DGA detection profile to apply
+- `profile` (String) Sky ATP DNS DGA detection profile to apply. enum: `default`, `standard`, `strict`.
 
 
 <a id="nestedatt--service_policies--skyatp--dns_tunnel_detection"></a>
@@ -909,7 +919,7 @@ Optional:
 Optional:
 
 - `enabled` (Boolean) Whether Sky ATP DNS tunneling detection is enabled
-- `profile` (String) Sky ATP DNS tunneling detection profile to apply
+- `profile` (String) Sky ATP DNS tunneling detection profile to apply. enum: `default`, `standard`, `strict`.
 
 
 <a id="nestedatt--service_policies--skyatp--http_inspection"></a>
@@ -918,7 +928,7 @@ Optional:
 Optional:
 
 - `enabled` (Boolean) Whether Sky ATP HTTP inspection is enabled
-- `profile` (String) Sky ATP HTTP inspection profile to apply
+- `profile` (String) Sky ATP HTTP inspection profile to apply. enum: `standard`, `strict`.
 
 
 <a id="nestedatt--service_policies--skyatp--iot_device_policy"></a>
@@ -935,7 +945,7 @@ Optional:
 
 Optional:
 
-- `ciphers_category` (String) Allowed cipher strength category for SSL proxy inspection
+- `ciphers_category` (String) Allowed cipher strength category for SSL proxy inspection. enum: `medium`, `strong`, `weak`.
 - `enabled` (Boolean) Whether SSL proxy inspection is enabled for the service policy
 
 
@@ -956,29 +966,29 @@ Optional:
 
 - `auto_provision` (Attributes) Provider auto-provisioning settings for tunnel endpoints (see [below for nested schema](#nestedatt--tunnel_configs--auto_provision))
 - `ike_lifetime` (Number) Only if `provider`==`custom-ipsec`. Must be between 180 and 86400
-- `ike_mode` (String) Only if `provider`==`custom-ipsec`. IKE negotiation mode for the tunnel
+- `ike_mode` (String) Only if `provider`==`custom-ipsec`. IKE negotiation mode for the tunnel. enum: `aggressive`, `main`.
 - `ike_proposals` (Attributes List) If `provider`==`custom-ipsec`, IKE proposals used for custom IPsec negotiation (see [below for nested schema](#nestedatt--tunnel_configs--ike_proposals))
 - `ipsec_lifetime` (Number) Only if `provider`==`custom-ipsec`. Must be between 180 and 86400
 - `ipsec_proposals` (Attributes List) Only if `provider`==`custom-ipsec`. IPsec proposals used for custom IPsec negotiation (see [below for nested schema](#nestedatt--tunnel_configs--ipsec_proposals))
 - `local_id` (String) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 - `local_subnets` (List of String) Local protected subnets advertised by this tunnel
-- `mode` (String) Tunnel failover mode used for primary and secondary endpoints
+- `mode` (String) Tunnel failover mode used for primary and secondary endpoints. enum: `active-active`, `active-standby`.
 - `networks` (List of String) Destination networks reachable through this tunnel
 - `primary` (Attributes) Main remote tunnel endpoint settings (see [below for nested schema](#nestedatt--tunnel_configs--primary))
 - `probe` (Attributes) Tunnel health probe settings (see [below for nested schema](#nestedatt--tunnel_configs--probe))
-- `protocol` (String) Only if `provider`==`custom-ipsec`. Tunnel protocol for custom tunnel negotiation
-- `provider` (String) Tunnel provider used when auto provisioning is disabled
+- `protocol` (String) Only if `provider`==`custom-ipsec`. Tunnel protocol for custom tunnel negotiation. enum: `gre`, `ipsec`.
+- `provider` (String) Tunnel provider used when auto provisioning is disabled. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `prisma-ipsec`, `zscaler-gre`, `zscaler-ipsec`.
 - `psk` (String, Sensitive) Required if `provider`==`zscaler-ipsec`, `provider`==`jse-ipsec` or `provider`==`custom-ipsec`
 - `remote_subnets` (List of String) Remote protected subnets reached through policy-based IPsec
 - `secondary` (Attributes) Backup remote tunnel endpoint settings (see [below for nested schema](#nestedatt--tunnel_configs--secondary))
-- `version` (String) Only if `provider`==`custom-gre` or `provider`==`custom-ipsec`. Tunnel version value for custom tunnel configuration
+- `version` (String) Only if `provider`==`custom-gre` or `provider`==`custom-ipsec`. Tunnel version value for custom tunnel configuration. enum: `1`, `2`.
 
 <a id="nestedatt--tunnel_configs--auto_provision"></a>
 ### Nested Schema for `tunnel_configs.auto_provision`
 
 Required:
 
-- `provider` (String) Tunnel provider used for automatic endpoint provisioning
+- `provider` (String) Tunnel provider used for automatic endpoint provisioning. enum: `jse-ipsec`, `zscaler-ipsec`.
 
 Optional:
 
@@ -1022,9 +1032,9 @@ Optional:
 
 Optional:
 
-- `auth_algo` (String) Integrity algorithm used by this IKE proposal
-- `dh_group` (String) Diffie-Hellman group used by this IKE proposal
-- `enc_algo` (String) Cipher algorithm used by this IKE proposal
+- `auth_algo` (String) Integrity algorithm used by this IKE proposal. enum: `md5`, `sha1`, `sha2`.
+- `dh_group` (String) Diffie-Hellman group used by this IKE proposal. enum: `1`, `14`, `15`, `16`, `19`, `2`, `20`, `21`, `24`, `5`.
+- `enc_algo` (String) Cipher algorithm used by this IKE proposal. enum: `3des`, `aes128`, `aes256`, `aes_gcm128`, `aes_gcm256`.
 
 
 <a id="nestedatt--tunnel_configs--ipsec_proposals"></a>
@@ -1032,9 +1042,9 @@ Optional:
 
 Optional:
 
-- `auth_algo` (String) Integrity algorithm used by this IPsec proposal
-- `dh_group` (String) Diffie-Hellman group used by this IPsec proposal
-- `enc_algo` (String) Cipher algorithm used by this IPsec proposal
+- `auth_algo` (String) Integrity algorithm used by this IPsec proposal. enum: `md5`, `sha1`, `sha2`.
+- `dh_group` (String) Diffie-Hellman group used by this IPsec proposal. enum: `1`, `14`, `15`, `16`, `19`, `2`, `20`, `21`, `24`, `5`.
+- `enc_algo` (String) Cipher algorithm used by this IPsec proposal. enum: `3des`, `aes128`, `aes256`, `aes_gcm128`, `aes_gcm256`.
 
 
 <a id="nestedatt--tunnel_configs--primary"></a>
@@ -1073,7 +1083,7 @@ Optional:
 - `interval` (Number) How often to trigger the probe
 - `threshold` (Number) Number of consecutive misses before declaring the tunnel down
 - `timeout` (Number) Time within which to complete the connectivity check
-- `type` (String) Protocol used by the custom IPsec tunnel health probe
+- `type` (String) Protocol used by the custom IPsec tunnel health probe. enum: `http`, `icmp`.
 
 
 <a id="nestedatt--tunnel_configs--secondary"></a>

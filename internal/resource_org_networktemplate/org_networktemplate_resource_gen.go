@@ -290,8 +290,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"hold_time": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "Default BGP hold time for switch BGP sessions. enum: `0`.",
-							MarkdownDescription: "Default BGP hold time for switch BGP sessions. enum: `0`.",
+							Description:         "Default BGP hold time for switch BGP sessions.",
+							MarkdownDescription: "Default BGP hold time for switch BGP sessions.",
 							Validators: []validator.Int64{
 								int64validator.Any(int64validator.OneOf(0), int64validator.Between(3, 65535)),
 							},
@@ -319,8 +319,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"hold_time": schema.Int64Attribute{
 										Optional:            true,
-										Description:         "BGP hold time for this neighbor. enum: `0`.",
-										MarkdownDescription: "BGP hold time for this neighbor. enum: `0`.",
+										Description:         "BGP hold time for this neighbor.",
+										MarkdownDescription: "BGP hold time for this neighbor.",
 										Validators: []validator.Int64{
 											int64validator.Any(int64validator.OneOf(0), int64validator.Between(3, 65535)),
 										},
@@ -838,6 +838,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									"auth_keys": schema.MapAttribute{
 										ElementType:         types.StringType,
 										Optional:            true,
+										Sensitive:           true,
 										Description:         "Required if `auth_type`==`md5`. Property key is the key number",
 										MarkdownDescription: "Required if `auth_type`==`md5`. Property key is the key number",
 										Validators: []validator.Map{
@@ -847,6 +848,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"auth_password": schema.StringAttribute{
 										Optional:            true,
+										Sensitive:           true,
 										Description:         "Required if `auth_type`==`password`, the password, max length is 8",
 										MarkdownDescription: "Required if `auth_type`==`password`, the password, max length is 8",
 										Validators: []validator.String{

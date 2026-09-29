@@ -49,8 +49,8 @@ resource "mist_org_sso_role" "sso_role_one" {
 
 Required:
 
-- `role` (String) Access role granted by this organization privilege
-- `scope` (String) Organization hierarchy level where this privilege applies
+- `role` (String) Access role granted by this organization privilege. enum: `admin`, `helpdesk`, `installer`, `read`, `write`.
+- `scope` (String) Organization hierarchy level where this privilege applies. enum: `org`, `site`, `sitegroup`, `orgsites`.
 
 Optional:
 

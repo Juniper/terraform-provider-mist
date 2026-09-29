@@ -26,7 +26,7 @@ resource "mist_org_mxcluster" "existing_mxcluster" {
 
 resource "mist_org_mxedge" "mxedge" {
   org_id       = mist_org_mxcluster.existing_mxcluster.org_id
-  claim_code = "<claim_code>"
+  claim_code = <claim_code>
   name         = "me1"
 }
 ```
@@ -53,8 +53,8 @@ resource "mist_org_mxedge" "mxedge" {
 - `tunterm_extra_routes` (Attributes Map) Extra routes for Mist Tunnel VLAN traffic (see [below for nested schema](#nestedatt--tunterm_extra_routes))
 - `tunterm_hosts` (List of String) Hostnames or IP addresses used as Mist Tunnel peers
 - `tunterm_hosts_order` (List of Number) Explicit host ordering indexes used when ordered selection is configured
-- `tunterm_hosts_selection` (String) Selection strategy for ordering tunnel termination hosts
-- `tunterm_monitoring` (List of List of Object) Monitoring checks for tunnel termination reachability
+- `tunterm_hosts_selection` (String) Selection strategy for ordering tunnel termination hosts. enum: `ordered`, `shuffle`, `shuffle-by-site`.
+- `tunterm_monitoring` (List of List of Object) Monitoring checks for tunnel termination reachability. Only for Org Mist Edges; use `tunterm_monitoring` in the `site_setting` for site-scoped Mist Edges
 - `tunterm_monitoring_disabled` (Boolean) Whether tunnel termination monitoring is disabled for the cluster
 
 ### Read-Only
@@ -124,8 +124,8 @@ Optional:
 - `config_auto_revert` (Boolean) Whether the Mist Edge automatically reverts configuration changes if connectivity is lost
 - `fips_enabled` (Boolean) Whether FIPS mode is enabled on the Mist Edge
 - `mist_password` (String, Sensitive) Password for the Mist service account on the Mist Edge
-- `oob_ip_type` (String) IPv4 address assignment mode for out-of-band management
-- `oob_ip_type6` (String) IPv6 address assignment mode for out-of-band management
+- `oob_ip_type` (String) IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `disabled`, `static`.
+- `oob_ip_type6` (String) IPv6 address assignment mode for out-of-band management. enum: `autoconf`, `dhcp`, `disabled`, `static`.
 - `root_password` (String, Sensitive) Root account password for the Mist Edge
 
 
@@ -147,10 +147,10 @@ Optional:
 - `auth_servers` (Attributes List) RADIUS authentication servers used by the RadSec proxy (see [below for nested schema](#nestedatt--radsec--auth_servers))
 - `enabled` (Boolean) Whether to enable service on Mist Edge i.e. RADIUS proxy over TLS
 - `match_ssid` (Boolean) Whether to match ssid in request message to select from a subset of RADIUS servers
-- `nas_ip_source` (String) Source used to populate NAS-IP-Address and NAS-IPv6-Address attributes
+- `nas_ip_source` (String) Source used to populate NAS-IP-Address and NAS-IPv6-Address attributes. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`.
 - `proxy_hosts` (List of String) AP-reachable hostnames or IP addresses advertised as RadSec TLS servers
-- `server_selection` (String) RADIUS server selection strategy for RadSec failover
-- `src_ip_source` (String) Connection source interface or address used when reaching RADIUS servers
+- `server_selection` (String) RADIUS server selection strategy for RadSec failover. enum: `ordered`, `unordered`.
+- `src_ip_source` (String) Connection source interface or address used when reaching RADIUS servers. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`.
 
 <a id="nestedatt--radsec--acct_servers"></a>
 ### Nested Schema for `radsec.acct_servers`
@@ -172,7 +172,7 @@ Optional:
 - `inband_status_check` (Boolean) Whether to enable inband status check
 - `inband_status_interval` (Number) Inband status interval, in seconds
 - `keywrap_enabled` (Boolean) If used for Mist APs, enable keywrap algorithm. Default is false
-- `keywrap_format` (String) Encoding format for Mist AP RADIUS keywrap keys
+- `keywrap_format` (String) Encoding format for Mist AP RADIUS keywrap keys. enum: `ascii`, `hex`.
 - `keywrap_kek` (String) If used for Mist APs, encryption key
 - `keywrap_mack` (String) If used for Mist APs, Message Authentication Code Key
 - `port` (Number) Auth port of RADIUS server
@@ -190,7 +190,7 @@ Optional:
 
 - `enabled` (Boolean) Whether DHCP relay is enabled for this tunneled VLAN
 - `servers` (List of String) DHCP server IP addresses used as relay targets for this VLAN
-- `type` (String) DHCP forwarding mode for this tunneled VLAN
+- `type` (String) DHCP forwarding mode for this tunneled VLAN. enum: `relay`.
 
 
 <a id="nestedatt--tunterm_extra_routes"></a>

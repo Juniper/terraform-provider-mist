@@ -56,7 +56,7 @@ resource "mist_org_service" "service_one" {
 - `client_limit_up` (Number) 0 means unlimited, value from 0 to 107374182
 - `description` (String) Free-form description of the service definition
 - `dscp` (String) QoS DSCP value used for custom SSR traffic classification
-- `failover_policy` (String) Failover behavior for traffic matched by this service
+- `failover_policy` (String) Failover behavior for traffic matched by this service. enum: `non_revertible`, `none`, `revertible`.
 - `hostnames` (List of String) Domain hostnames matched by this custom service for web filtering
 - `max_jitter` (String) Maximum jitter threshold used for SSR uplink selection when `traffic_type`==`custom`
 - `max_latency` (String) Maximum latency threshold used for SSR uplink selection when `traffic_type`==`custom`
@@ -66,9 +66,9 @@ resource "mist_org_service" "service_one" {
 - `sle_enabled` (Boolean) Whether to enable measure SLE
 - `specs` (Attributes List) Protocol and port match rules used when `type`==`custom` (see [below for nested schema](#nestedatt--specs))
 - `ssr_relaxed_tcp_state_enforcement` (Boolean) Whether SSR relaxes TCP state enforcement for this service
-- `traffic_class` (String) Traffic class applied when `traffic_type`==`custom`
+- `traffic_class` (String) Traffic class applied when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`.
 - `traffic_type` (String) values from [List Traffic Types]($e/Constants%20Definitions/listTrafficTypes)
-- `type` (String) Matching mode that determines which app, URL, or custom fields are used
+- `type` (String) Matching mode that determines which app, URL, or custom fields are used. enum: `app_categories`, `apps`, `custom`, `urls`.
 - `urls` (List of String) URL patterns matched by this service when `type`==`urls`
 
 ### Read-Only

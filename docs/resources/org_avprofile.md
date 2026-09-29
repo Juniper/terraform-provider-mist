@@ -54,7 +54,7 @@ resource "mist_org_avprofile" "avprofile_one" {
 
 ### Optional
 
-- `fallback_action` (String) Action to take when antivirus scanning cannot complete
+- `fallback_action` (String) Action to take when antivirus scanning cannot complete. enum: `block`, `log-and-permit`, `permit`.
 - `max_filesize` (Number) Maximum file size scanned by this antivirus profile, in KB
 - `mime_whitelist` (List of String) Content MIME types exempted from antivirus scanning
 - `url_whitelist` (List of String) Allowed URL entries exempted from antivirus scanning

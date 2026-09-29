@@ -237,9 +237,10 @@ type SiteSettingVisionlineValue struct {
 }
 
 type SiteSettingJuniperSrxValue struct {
-	Gateways            []SiteSettingGatewaysValue      `cty:"gateways" hcl:"gateways"`
-	SendMistNacUserInfo *bool                           `cty:"send_mist_nac_user_info" hcl:"send_mist_nac_user_info"`
-	SrxAutoUpgrade      *SiteSettingSrxAutoUpgradeValue `cty:"auto_upgrade" hcl:"auto_upgrade"`
+	Gateways              []SiteSettingGatewaysValue      `cty:"gateways" hcl:"gateways"`
+	MistNacUserRoleSource *string                         `cty:"mist_nac_user_role_source" hcl:"mist_nac_user_role_source"`
+	SendMistNacUserInfo   *bool                           `cty:"send_mist_nac_user_info" hcl:"send_mist_nac_user_info"`
+	SrxAutoUpgrade        *SiteSettingSrxAutoUpgradeValue `cty:"auto_upgrade" hcl:"auto_upgrade"`
 }
 
 type SiteSettingGatewaysValue struct {
@@ -475,7 +476,7 @@ type SiteSettingVlansValue struct {
 }
 
 type SiteSettingWanSpeedtestValue struct {
-	Enabled   *bool   `cty:"enabled" hcl:"enabled"`
+	Disabled  *bool   `cty:"disabled" hcl:"disabled"`
 	TimeOfDay *string `cty:"time_of_day" hcl:"time_of_day"`
 }
 

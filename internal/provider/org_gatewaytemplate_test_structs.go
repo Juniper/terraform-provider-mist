@@ -12,6 +12,7 @@ type OrgGatewaytemplateModel struct {
 	GatewayMgmt             *OrgGatewaytemplateGatewayMgmtValue               `hcl:"gateway_mgmt"`
 	IdpProfiles             map[string]OrgGatewaytemplateIdpProfilesValue     `hcl:"idp_profiles"`
 	IpConfigs               map[string]OrgGatewaytemplateIpConfigsValue       `hcl:"ip_configs"`
+	MnhaConfig              *OrgGatewaytemplateMnhaConfigValue                `hcl:"mnha_config"`
 	Name                    string                                            `hcl:"name"`
 	Networks                []OrgGatewaytemplateNetworksValue                 `hcl:"networks"`
 	NtpOverride             *bool                                             `hcl:"ntp_override"`
@@ -113,6 +114,10 @@ type OrgGatewaytemplateExtraRoutesValue struct {
 
 type OrgGatewaytemplateExtraRoutes6Value struct {
 	Via string `cty:"via" hcl:"via"`
+}
+
+type OrgGatewaytemplateMnhaConfigValue struct {
+	Enabled *bool `cty:"enabled" hcl:"enabled"`
 }
 
 type OrgGatewaytemplateGatewayMgmtValue struct {
@@ -217,6 +222,7 @@ type OrgGatewaytemplateNetworksValue struct {
 	Tenants              map[string]OrgGatewaytemplateTenantsValue   `cty:"tenants" hcl:"tenants"`
 	VlanId               *string                                     `cty:"vlan_id" hcl:"vlan_id"`
 	VpnAccess            map[string]OrgGatewaytemplateVpnAccessValue `cty:"vpn_access" hcl:"vpn_access"`
+	ZoneId               *string                                     `cty:"zone_id" hcl:"zone_id"`
 }
 
 type OrgGatewaytemplateInternalAccessValue struct {

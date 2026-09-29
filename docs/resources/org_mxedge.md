@@ -207,8 +207,8 @@ Optional:
 - `config_auto_revert` (Boolean) Whether the Mist Edge automatically reverts configuration changes if connectivity is lost
 - `fips_enabled` (Boolean) Whether FIPS mode is enabled on the Mist Edge
 - `mist_password` (String, Sensitive) Password for the Mist service account on the Mist Edge
-- `oob_ip_type` (String) IPv4 address assignment mode for out-of-band management
-- `oob_ip_type6` (String) IPv6 address assignment mode for out-of-band management
+- `oob_ip_type` (String) IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `disabled`, `static`.
+- `oob_ip_type6` (String) IPv6 address assignment mode for out-of-band management. enum: `autoconf`, `dhcp`, `disabled`, `static`.
 - `root_password` (String, Sensitive) Root account password for the Mist Edge
 
 
@@ -226,8 +226,8 @@ Optional:
 - `ip6` (String) If `type6`=`static`, IPv6 address for the out-of-band management interface
 - `netmask` (String) If `type`=`static`, IPv4 netmask for the out-of-band management interface
 - `netmask6` (String) If `type6`=`static`, IPv6 prefix length for the out-of-band management interface
-- `type` (String) IPv4 address assignment mode for out-of-band management
-- `type6` (String) IPv6 address assignment mode for out-of-band management
+- `type` (String) IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `static`.
+- `type6` (String) IPv6 address assignment mode for out-of-band management. enum: `dhcp`, `static`.
 
 
 <a id="nestedatt--proxy"></a>
@@ -246,7 +246,7 @@ Optional:
 
 - `enabled` (Boolean) Whether DHCP relay is enabled for this tunneled VLAN
 - `servers` (List of String) DHCP relay server addresses used by this tunneled VLAN
-- `type` (String) DHCP handling mode for this tunneled VLAN
+- `type` (String) DHCP handling mode for this tunneled VLAN. enum: `relay`.
 
 
 <a id="nestedatt--tunterm_extra_routes"></a>

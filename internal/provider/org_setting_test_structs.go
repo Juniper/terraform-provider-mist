@@ -286,7 +286,7 @@ type OrgSettingVlansValue struct {
 }
 
 type OrgSettingWanSpeedtestValue struct {
-	Enabled   *bool   `cty:"enabled" hcl:"enabled"`
+	Disabled  *bool   `cty:"disabled" hcl:"disabled"`
 	TimeOfDay *string `cty:"time_of_day" hcl:"time_of_day"`
 }
 

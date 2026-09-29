@@ -102,7 +102,7 @@ resource "mist_org_setting" "terraform_test" {
 - `switch_updown_threshold` (Number) Enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.
 - `synthetic_test` (Attributes) Configuration for organization synthetic tests (see [below for nested schema](#nestedatt--synthetic_test))
 - `ui_idle_timeout` (Number) Automatically logout the user when UI session is inactive. `0` means disabled
-- `ui_no_tracking` (Boolean) Whether UI usage tracking is disabled for the organization
+- `ui_no_tracking` (Boolean) Whether to disable UI usage tracking (e.g. Fullstory, Pendo) for the whole organization
 - `vpn_options` (Attributes) Options for organization VPN behavior (see [below for nested schema](#nestedatt--vpn_options))
 - `wan_pma` (Attributes) PMA feature settings for WAN Assurance (see [below for nested schema](#nestedatt--wan_pma))
 - `wired_pma` (Attributes) PMA feature settings for Wired Assurance (see [below for nested schema](#nestedatt--wired_pma))
@@ -132,10 +132,10 @@ Optional:
 Optional:
 
 - `custom_versions` (Map of String) Per-AP-model firmware versions or channels used for auto-upgrade
-- `day_of_week` (String) Day of the week for the AP auto-upgrade maintenance window
+- `day_of_week` (String) Day of the week for the AP auto-upgrade maintenance window. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.
 - `enabled` (Boolean) Whether AP auto-upgrade is enabled. Note that Mist may auto-upgrade APs if the running version is no longer supported.
 - `time_of_day` (String) `any` or HH:MM (24-hour format). Upgrade will happen within up to 1 hour from this time.
-- `version` (String) Firmware release channel or specific version used for AP auto-upgrade
+- `version` (String) Firmware release channel or specific version used for AP auto-upgrade. enum: `beta`, `custom`, `stable`.
 
 
 <a id="nestedatt--cacerts_configs"></a>
@@ -236,10 +236,10 @@ Optional:
 
 Optional:
 
-- `admin` (String) Shell access level used for administrator web-shell sessions
-- `helpdesk` (String) Shell access level used for helpdesk web-shell sessions
-- `read` (String) Shell access level used for read-only web-shell sessions
-- `write` (String) Shell access level used for write-role web-shell sessions
+- `admin` (String) Shell access level used for administrator web-shell sessions. enum: `admin`, `none`, `viewer`.
+- `helpdesk` (String) Shell access level used for helpdesk web-shell sessions. enum: `admin`, `none`, `viewer`.
+- `read` (String) Shell access level used for read-only web-shell sessions. enum: `admin`, `none`, `viewer`.
+- `write` (String) Shell access level used for write-role web-shell sessions. enum: `admin`, `none`, `viewer`.
 
 
 <a id="nestedatt--marvis"></a>
@@ -308,12 +308,12 @@ Optional:
 - `enable_eap_md5_for_mab` (Boolean) Enable EAP-MD5 for MAB. WARNING: Not FIPS compliant, use only if required for legacy device support.
 - `eu_only` (Boolean) By default, NAC POD failover considers all NAC pods available around the globe, i.e. EU, US, or APAC based, failover happens based on geo IP of the originating site. For strict GDPR compliance NAC POD failover would only happen between the PODs located within the EU environment, and no authentication would take place outside of EU. This is an org setting that is applicable to WLANs, switch templates, Mist Edge clusters that have mist_nac enabled
 - `fingerprinting` (Attributes) Client fingerprinting settings used by Mist NAC (see [below for nested schema](#nestedatt--mist_nac--fingerprinting))
-- `idp_machine_cert_lookup_field` (String) Client certificate field used to look up machine groups in identity providers
-- `idp_user_cert_lookup_field` (String) Client certificate field used to look up user groups in identity providers
+- `idp_machine_cert_lookup_field` (String) Client certificate field used to look up machine groups in identity providers. enum: `automatic`, `cn`, `dns`.
+- `idp_user_cert_lookup_field` (String) Client certificate field used to look up user groups in identity providers. enum: `automatic`, `cn`, `email`, `upn`.
 - `idps` (Attributes List) Identity provider mappings used by Mist NAC realm matching (see [below for nested schema](#nestedatt--mist_nac--idps))
 - `mdm` (Attributes) Mobile Device Management CoA settings for Mist NAC (see [below for nested schema](#nestedatt--mist_nac--mdm))
 - `server_cert` (Attributes) RADIUS server certificate presented by Mist NAC during EAP-TLS (see [below for nested schema](#nestedatt--mist_nac--server_cert))
-- `use_ip_version` (String) IP version used by NAS devices and Mist Edge proxies to reach Mist NAC
+- `use_ip_version` (String) IP version used by NAS devices and Mist Edge proxies to reach Mist NAC. enum: `v4`, `v6`.
 - `use_ssl_port` (Boolean) By default, NAS devices (switches/aps) and proxies(mxedge) are configured to use port TCP2083(RadSec) to reach mist-nac. Set `use_ssl_port`==`true` to override that port with TCP43 (ssl), This is an org level setting that is applicable to wlans, switch_templates, and mxedge_clusters that have mist-nac enabled
 - `usermac_expiry` (Number) Allow customer to configure an expiry time for usermacs by attaching an `inactive_endpoint` label to those which have been inactive for the configured period of time (in days). 0 means no expiry
 
@@ -325,7 +325,7 @@ Optional:
 - `enabled` (Boolean) enable/disable writes to NAC DDB fingerprint table
 - `generate_coa` (Boolean) enable/disable CoA triggers on fingerprint change for wired clients, always port-bounce
 - `generate_wireless_coa` (Boolean) enable/disable CoA triggers on fingerprint change for wireless clients
-- `wireless_coa_type` (String) Change of Authorization action sent to wireless clients when fingerprints change
+- `wireless_coa_type` (String) Change of Authorization action sent to wireless clients when fingerprints change. enum: `reauth`, `disconnect`.
 
 
 <a id="nestedatt--mist_nac--idps"></a>
@@ -346,7 +346,7 @@ Optional:
 
 Optional:
 
-- `coa_type` (String) Change of Authorization action sent for MDM posture changes
+- `coa_type` (String) Change of Authorization action sent for MDM posture changes. enum: `reauth`, `disconnect`.
 
 
 <a id="nestedatt--mist_nac--server_cert"></a>
@@ -368,8 +368,8 @@ Optional:
 - `config_auto_revert` (Boolean) Whether the Mist Edge automatically reverts configuration changes if connectivity is lost
 - `fips_enabled` (Boolean) Whether FIPS mode is enabled on the Mist Edge
 - `mist_password` (String, Sensitive) Password for the Mist service account on the Mist Edge
-- `oob_ip_type` (String) IPv4 address assignment mode for out-of-band management
-- `oob_ip_type6` (String) IPv6 address assignment mode for out-of-band management
+- `oob_ip_type` (String) IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `disabled`, `static`.
+- `oob_ip_type6` (String) IPv6 address assignment mode for out-of-band management. enum: `autoconf`, `dhcp`, `disabled`, `static`.
 - `root_password` (String, Sensitive) Root account password for the Mist Edge
 
 
@@ -420,7 +420,7 @@ Optional:
 
 Optional:
 
-- `channel` (String) Firmware release channel used for SSR auto-upgrade
+- `channel` (String) Firmware release channel used for SSR auto-upgrade. enum: `alpha`, `beta`, `stable`.
 - `custom_versions` (Map of String) Per-model SSR firmware versions used for auto-upgrade
 - `enabled` (Boolean) Whether SSR auto-upgrade is enabled for newly onboarded devices
 - `version` (String) Firmware version to deploy (e.g. 6.3.0-107.r1). Optional, used when custom_versions not specified
@@ -467,7 +467,7 @@ Optional:
 
 Optional:
 
-- `aggressiveness` (String) Overall aggressiveness level for synthetic test probes
+- `aggressiveness` (String) Overall aggressiveness level for synthetic test probes. enum: `auto`, `high`, `med`, `low`.
 - `custom_probes` (Attributes Map) Custom synthetic probe definitions keyed by probe name (see [below for nested schema](#nestedatt--synthetic_test--custom_probes))
 - `disabled` (Boolean) Whether synthetic tests are disabled
 - `lan_networks` (Attributes List) LAN network probe groups used by synthetic tests (see [below for nested schema](#nestedatt--synthetic_test--lan_networks))
@@ -479,10 +479,10 @@ Optional:
 
 Optional:
 
-- `aggressiveness` (String) Probe aggressiveness level for this custom synthetic probe
+- `aggressiveness` (String) Probe aggressiveness level for this custom synthetic probe. enum: `auto`, `high`, `med`, `low`.
 - `target` (String) Can be URL (e.g. http://x.com, https://x.com:8080/path/to/resource), IP address, or IP:port combination
 - `threshold` (Number) Response-time threshold for this custom probe, in milliseconds
-- `type` (String) Probe type used by this custom synthetic probe
+- `type` (String) Probe type used by this custom synthetic probe. enum: `application`, `curl`, `icmp`, `reachability`, `tcp`.
 
 
 <a id="nestedatt--synthetic_test--lan_networks"></a>
@@ -510,7 +510,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean) Whether scheduled WAN speedtests are enabled
+- `disabled` (Boolean) Whether scheduled WAN speedtests are disabled. Defaults to `false` (enabled); set this to `true` to disable speedtests.
 - `time_of_day` (String) Scheduled time of day for WAN speedtests
 
 

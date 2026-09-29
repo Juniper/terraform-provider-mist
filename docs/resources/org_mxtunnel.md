@@ -65,7 +65,7 @@ resource "mist_org_mxtunnel" "mxtunnel_one" {
 - `ipsec` (Attributes) Security settings for IPsec support on this Mist Tunnel (see [below for nested schema](#nestedatt--ipsec))
 - `mtu` (Number) 0 to enable PMTU, 552-1500 to start PMTU with a lower MTU
 - `mxcluster_ids` (List of String) Mist Edge cluster IDs that host this Mist Tunnel
-- `protocol` (String) Encapsulation protocol used for the Mist Tunnel
+- `protocol` (String) Encapsulation protocol used for the Mist Tunnel. enum: `ip`, `udp`.
 - `vlan_ids` (List of Number) List of VLAN IDs carried by this Mist Tunnel
 
 ### Read-Only
@@ -77,7 +77,7 @@ resource "mist_org_mxtunnel" "mxtunnel_one" {
 
 Optional:
 
-- `day_of_week` (String) Scheduled weekday for auto preemption
+- `day_of_week` (String) Scheduled weekday for auto preemption. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.
 - `enabled` (Boolean) Whether auto preemption is enabled
 - `time_of_day` (String) Scheduled time of day for auto preemption
 

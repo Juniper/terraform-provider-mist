@@ -279,6 +279,7 @@ type OrgDeviceprofileSwitchPortUsagesValue struct {
 	Mode                                     *string                                  `cty:"mode" hcl:"mode"`
 	Mtu                                      *string                                  `cty:"mtu" hcl:"mtu"`
 	Networks                                 []string                                 `cty:"networks" hcl:"networks"`
+	NoLocalPortConfig                        *bool                                    `cty:"no_local_port_config" hcl:"no_local_port_config"`
 	PersistMac                               *bool                                    `cty:"persist_mac" hcl:"persist_mac"`
 	PoeDisabled                              *bool                                    `cty:"poe_disabled" hcl:"poe_disabled"`
 	PoeKeepStateWhenReboot                   *bool                                    `cty:"poe_keep_state_when_reboot" hcl:"poe_keep_state_when_reboot"`
@@ -645,10 +646,13 @@ type OrgDeviceprofileSwitchVrfInstancesValue struct {
 }
 
 type OrgDeviceprofileSwitchMulticastConfigValue struct {
-	AnycastRp *bool   `cty:"anycast_rp" hcl:"anycast_rp"`
-	RpIp      *string `cty:"rp_ip" hcl:"rp_ip"`
-	SbdSubnet *string `cty:"sbd_subnet" hcl:"sbd_subnet"`
-	SbdVlanId *int64  `cty:"sbd_vlan_id" hcl:"sbd_vlan_id"`
+	AnycastRp  *bool   `cty:"anycast_rp" hcl:"anycast_rp"`
+	PegEnabled *bool   `cty:"peg_enabled" hcl:"peg_enabled"`
+	RpIp       *string `cty:"rp_ip" hcl:"rp_ip"`
+	RpMac      *string `cty:"rp_mac" hcl:"rp_mac"`
+	SbdSubnet  *string `cty:"sbd_subnet" hcl:"sbd_subnet"`
+	SbdVlanId  *int64  `cty:"sbd_vlan_id" hcl:"sbd_vlan_id"`
+	SbdWanRpf  *bool   `cty:"sbd_wan_rpf" hcl:"sbd_wan_rpf"`
 }
 
 type OrgDeviceprofileSwitchVrfExtraRoutesValue struct {

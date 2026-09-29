@@ -291,8 +291,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"hold_time": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "Default BGP hold time for switch BGP sessions. enum: `0`.",
-							MarkdownDescription: "Default BGP hold time for switch BGP sessions. enum: `0`.",
+							Description:         "Default BGP hold time for switch BGP sessions.",
+							MarkdownDescription: "Default BGP hold time for switch BGP sessions.",
 							Validators: []validator.Int64{
 								int64validator.Any(int64validator.OneOf(0), int64validator.Between(3, 65535)),
 							},
@@ -320,8 +320,8 @@ func DeviceSwitchResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"hold_time": schema.Int64Attribute{
 										Optional:            true,
-										Description:         "BGP hold time for this neighbor. enum: `0`.",
-										MarkdownDescription: "BGP hold time for this neighbor. enum: `0`.",
+										Description:         "BGP hold time for this neighbor.",
+										MarkdownDescription: "BGP hold time for this neighbor.",
 										Validators: []validator.Int64{
 											int64validator.Any(int64validator.OneOf(0), int64validator.Between(3, 65535)),
 										},
