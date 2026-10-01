@@ -2,6 +2,7 @@ action = "allow"
 apply_tags = ["test-apply-tag-1", "test-apply-tag-2", "security-tag"]
 dry_run = false
 enabled = true
+group_name = "test-group"
 guest_auth_state = "authorized"
 name = "test-nacrule"
 order = 100

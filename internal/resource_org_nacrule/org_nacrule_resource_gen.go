@@ -58,6 +58,11 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Whether the NAC rule is evaluated during policy matching",
 				Default:             booldefault.StaticBool(true),
 			},
+			"group_name": schema.StringAttribute{
+				Optional:            true,
+				Description:         "Name of the group the NAC rule belongs to",
+				MarkdownDescription: "Name of the group the NAC rule belongs to",
+			},
 			"guest_auth_state": schema.StringAttribute{
 				Optional:            true,
 				Description:         "Guest portal authorization state condition for the rule. enum: `authorized`, `unknown`.",
@@ -366,6 +371,7 @@ type OrgNacruleModel struct {
 	ApplyTags      types.List       `tfsdk:"apply_tags"`
 	DryRun         types.Bool       `tfsdk:"dry_run"`
 	Enabled        types.Bool       `tfsdk:"enabled"`
+	GroupName      types.String     `tfsdk:"group_name"`
 	GuestAuthState types.String     `tfsdk:"guest_auth_state"`
 	Id             types.String     `tfsdk:"id"`
 	Matching       MatchingValue    `tfsdk:"matching"`

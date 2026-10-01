@@ -32,6 +32,13 @@ func TerraformToSdk(plan *OrgNacruleModel) (models.NacRule, diag.Diagnostics) {
 	} else {
 		unset["-enabled"] = ""
 	}
+	// groupName has no native SDK field, so it rides along in AdditionalProperties
+	if !plan.GroupName.IsNull() && !plan.GroupName.IsUnknown() {
+		if data.AdditionalProperties == nil {
+			data.AdditionalProperties = make(map[string]interface{})
+		}
+		data.AdditionalProperties["groupName"] = plan.GroupName.ValueString()
+	}
 	if !plan.GuestAuthState.IsNull() && !plan.GuestAuthState.IsUnknown() {
 		data.GuestAuthState = models.ToPointer(models.NacRuleGuestAuthStateEnum(plan.GuestAuthState.ValueString()))
 	}

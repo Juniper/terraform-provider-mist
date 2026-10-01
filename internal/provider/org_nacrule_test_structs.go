@@ -5,6 +5,7 @@ type OrgNacruleModel struct {
 	ApplyTags      []string          `hcl:"apply_tags"`
 	DryRun         *bool             `hcl:"dry_run"`
 	Enabled        *bool             `hcl:"enabled"`
+	GroupName      *string           `hcl:"group_name"`
 	GuestAuthState *string           `hcl:"guest_auth_state"`
 	Matching       *MatchingValue    `hcl:"matching"`
 	Name           string            `hcl:"name"`
