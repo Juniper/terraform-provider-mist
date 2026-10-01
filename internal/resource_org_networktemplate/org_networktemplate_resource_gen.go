@@ -5,7 +5,9 @@ package resource_org_networktemplate
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -25,7 +27,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -1433,13 +1434,11 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"server_fail_retry_interval": schema.Int64Attribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Interval, in seconds. Sets the wait time before retrying authentication after RADIUS failure to reduce client flapping. Range 120-65535",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Interval, in seconds. Sets the wait time before retrying authentication after RADIUS failure to reduce client flapping. Range 120-65535",
 							Validators: []validator.Int64{
 								int64validator.Between(120, 65535),
 							},
-							Default: int64default.StaticInt64(120),
 						},
 						"server_reject_network": schema.StringAttribute{
 							Optional:            true,

@@ -1076,6 +1076,7 @@ func OrgDeviceprofileSwitchResourceSchema(ctx context.Context) schema.Schema {
 									"auth_keys": schema.MapAttribute{
 										ElementType:         types.StringType,
 										Optional:            true,
+										Sensitive:           true,
 										Description:         "Required if `auth_type`==`md5`. Property key is the key number",
 										MarkdownDescription: "Required if `auth_type`==`md5`. Property key is the key number",
 										Validators: []validator.Map{
@@ -1085,6 +1086,7 @@ func OrgDeviceprofileSwitchResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"auth_password": schema.StringAttribute{
 										Optional:            true,
+										Sensitive:           true,
 										Description:         "Required if `auth_type`==`password`, the password, max length is 8",
 										MarkdownDescription: "Required if `auth_type`==`password`, the password, max length is 8",
 										Validators: []validator.String{
@@ -1865,13 +1867,11 @@ func OrgDeviceprofileSwitchResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"server_fail_retry_interval": schema.Int64Attribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Interval, in seconds. Sets the wait time before retrying authentication after RADIUS failure to reduce client flapping. Range 120-65535",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Interval, in seconds. Sets the wait time before retrying authentication after RADIUS failure to reduce client flapping. Range 120-65535",
 							Validators: []validator.Int64{
 								int64validator.Between(120, 65535),
 							},
-							Default: int64default.StaticInt64(120),
 						},
 						"server_reject_network": schema.StringAttribute{
 							Optional:            true,

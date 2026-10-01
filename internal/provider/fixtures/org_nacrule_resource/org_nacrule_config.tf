@@ -1,5 +1,6 @@
 action = "allow"
 apply_tags = ["test-apply-tag-1", "test-apply-tag-2", "security-tag"]
+dry_run = false
 enabled = true
 guest_auth_state = "authorized"
 name = "test-nacrule"

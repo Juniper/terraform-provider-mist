@@ -3,6 +3,7 @@ package provider
 type OrgNacruleModel struct {
 	Action         string            `hcl:"action"`
 	ApplyTags      []string          `hcl:"apply_tags"`
+	DryRun         *bool             `hcl:"dry_run"`
 	Enabled        *bool             `hcl:"enabled"`
 	GuestAuthState *string           `hcl:"guest_auth_state"`
 	Matching       *MatchingValue    `hcl:"matching"`

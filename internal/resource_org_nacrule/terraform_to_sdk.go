@@ -24,6 +24,9 @@ func TerraformToSdk(plan *OrgNacruleModel) (models.NacRule, diag.Diagnostics) {
 	} else {
 		unset["-apply_tags"] = ""
 	}
+	if !plan.DryRun.IsNull() && !plan.DryRun.IsUnknown() {
+		data.DryRun = models.ToPointer(plan.DryRun.ValueBool())
+	}
 	if !plan.Enabled.IsNull() && !plan.Enabled.IsUnknown() {
 		data.Enabled = models.ToPointer(plan.Enabled.ValueBool())
 	} else {

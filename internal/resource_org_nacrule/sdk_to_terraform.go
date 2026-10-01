@@ -18,6 +18,7 @@ func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, 
 
 	var action types.String
 	var applyTags = types.ListValueMust(types.StringType, []attr.Value{})
+	var dryRun types.Bool
 	var enabled types.Bool
 	var guestAuthState types.String
 	var id types.String
@@ -30,6 +31,9 @@ func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, 
 	action = types.StringValue(string(data.Action))
 	if data.ApplyTags != nil {
 		applyTags = mistutils.ListOfStringSdkToTerraform(data.ApplyTags)
+	}
+	if data.DryRun != nil {
+		dryRun = types.BoolValue(*data.DryRun)
 	}
 	if data.Enabled != nil {
 		enabled = types.BoolValue(*data.Enabled)
@@ -56,6 +60,7 @@ func SdkToTerraform(ctx context.Context, data models.NacRule) (OrgNacruleModel, 
 
 	state.Action = action
 	state.ApplyTags = applyTags
+	state.DryRun = dryRun
 	state.Enabled = enabled
 	state.GuestAuthState = guestAuthState
 	state.Id = id
