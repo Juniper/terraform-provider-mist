@@ -8,6 +8,9 @@ import (
 func apiPolicyTerraformToSdk(d ApiPolicyValue) *models.OrgSettingApiPolicy {
 	data := models.OrgSettingApiPolicy{}
 
+	if d.EnforceSrcIpsForTokens.ValueBoolPointer() != nil {
+		data.EnforceSrcIpsForTokens = d.EnforceSrcIpsForTokens.ValueBoolPointer()
+	}
 	if d.NoReveal.ValueBoolPointer() != nil {
 		data.NoReveal = d.NoReveal.ValueBoolPointer()
 	}

@@ -53,10 +53,10 @@ resource "mist_site_wlan" "wlan_one" {
 - `ap_ids` (List of String) Access point identifiers used when `apply_to`==`aps`
 - `app_limit` (Attributes) Bandwidth limits for applications on this WLAN (see [below for nested schema](#nestedatt--app_limit))
 - `app_qos` (Attributes) QoS rules for application traffic on this WLAN (see [below for nested schema](#nestedatt--app_qos))
-- `apply_to` (String) Scope that determines where this WLAN is applied
+- `apply_to` (String) Scope that determines where this WLAN is applied. enum: `aps`, `site`, `wxtags`.
 - `arp_filter` (Boolean) Whether to enable smart arp filter
 - `auth` (Attributes) Settings that control client authentication for this WLAN (see [below for nested schema](#nestedatt--auth))
-- `auth_server_selection` (String) RADIUS authentication server selection behavior for this WLAN
+- `auth_server_selection` (String) RADIUS authentication server selection behavior for this WLAN. enum: `ordered`, `unordered`.
 - `auth_servers` (Attributes List) RADIUS authentication servers used by this WLAN. Required when `auth.type`==`eap` (see [below for nested schema](#nestedatt--auth_servers))
 - `auth_servers_nas_id` (String) Optional, up to 48 bytes, will be dynamically generated if not provided. used only for authentication servers
 - `auth_servers_nas_ip` (String) Optional, NAS-IP-ADDRESS to use
@@ -100,7 +100,7 @@ resource "mist_site_wlan" "wlan_one" {
 - `hostname_ie` (Boolean) Include hostname inside IE in AP beacons / probe responses
 - `hotspot20` (Attributes) Passpoint and Hotspot 2.0 settings for this WLAN (see [below for nested schema](#nestedatt--hotspot20))
 - `inject_dhcp_option_82` (Attributes) DHCP Option 82 insertion settings for this WLAN (see [below for nested schema](#nestedatt--inject_dhcp_option_82))
-- `interface` (String) Network interface or tunnel where this WLAN bridges client traffic
+- `interface` (String) Network interface or tunnel where this WLAN bridges client traffic. enum: `all`, `eth0`, `eth1`, `eth2`, `eth3`, `mxtunnel`, `site_mxedge`, `wxtunnel`.
 - `isolation` (Boolean) Whether to stop clients to talk to each other
 - `l2_isolation` (Boolean) If isolation is enabled, whether to deny clients to talk to L2 on the LAN
 - `legacy_overds` (Boolean) Legacy devices requires the Over-DS (for Fast BSS Transition) bit set (while our chip doesn’t support it). Warning! Enabling this will cause problem for iOS devices.
@@ -121,7 +121,7 @@ resource "mist_site_wlan" "wlan_one" {
 - `radsec` (Attributes) TLS-secured RADIUS transport settings for this WLAN (see [below for nested schema](#nestedatt--radsec))
 - `rateset` (Attributes Map) Data rate settings by RF band for this WLAN (see [below for nested schema](#nestedatt--rateset))
 - `reconnect_clients_when_roaming_mxcluster` (Boolean) When different mxcluster is on different subnet, we'd want to disconnect clients (so they'll reconnect and get new IPs)
-- `roam_mode` (String) Fast roaming mode configured for this WLAN
+- `roam_mode` (String) Fast roaming mode configured for this WLAN. enum: `11r`, `NONE`, `OKC`.
 - `schedule` (Attributes) Operating schedule controlling when this WLAN is active (see [below for nested schema](#nestedatt--schedule))
 - `sle_excluded` (Boolean) Whether to exclude this WLAN from SLE metrics
 - `use_eapol_v1` (Boolean) If `auth.type`==`eap` or `auth.type`==`psk`, should only be set for legacy client, such as pre-2004, 802.11b devices
@@ -157,7 +157,7 @@ Required:
 Optional:
 
 - `keywrap_enabled` (Boolean) Whether RADIUS keywrap is enabled for messages sent to this accounting server
-- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values
+- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.
 - `keywrap_kek` (String) RADIUS keywrap key encryption key (KEK)
 - `keywrap_mack` (String) RADIUS keywrap message authentication code key (MACK)
 - `port` (String) UDP port used by the RADIUS accounting server
@@ -231,11 +231,11 @@ Optional:
 - `key_idx` (Number) When `type`==`wep`, index of the WEP key used as the default transmit key
 - `keys` (List of String) When `type`==`wep`, WEP keys configured for this WLAN
 - `multi_psk_only` (Boolean) When `type`==`psk`, whether to only use multi_psk
-- `owe` (String) When `type`==`open`, Opportunistic Wireless Encryption mode for this WLAN
+- `owe` (String) When `type`==`open`, Opportunistic Wireless Encryption mode for this WLAN. enum: `disabled`, `enabled`, `required`.
 - `pairwise` (List of String) When `type`==`psk` or `type`==`eap`, pairwise cipher suites allowed for this WLAN
 - `private_wlan` (Boolean) When `multi_psk_only`==`true`, whether private wlan is enabled
 - `psk` (String, Sensitive) When `type`==`psk`, 8-64 characters, or 64 hex characters
-- `type` (String) Authentication mode used by this WLAN
+- `type` (String) Authentication mode used by this WLAN. enum: `eap`, `eap192`, `open`, `psk`, `psk-tkip`, `psk-wpa2-tkip`, `wep`.
 - `wep_as_secondary_auth` (Boolean) Enable WEP as secondary auth
 
 
@@ -250,7 +250,7 @@ Required:
 Optional:
 
 - `keywrap_enabled` (Boolean) Whether RADIUS keywrap is enabled for messages sent to this authentication server
-- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values
+- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.
 - `keywrap_kek` (String) RADIUS keywrap key encryption key (KEK)
 - `keywrap_mack` (String) RADIUS keywrap message authentication code key (MACK)
 - `port` (String) UDP port used by the RADIUS authentication server
@@ -274,7 +274,7 @@ Optional:
 
 - `disable_local` (Boolean) Whether to prevent wireless clients to discover bonjour devices on the same WLAN
 - `radius_groups` (List of String) RADIUS groups allowed to discover this Bonjour service, when restricted
-- `scope` (String) Discovery scope for this Bonjour service on the WLAN
+- `scope` (String) Discovery scope for this Bonjour service on the WLAN. enum: `same_ap`, `same_map`, `same_site`.
 
 
 
@@ -323,7 +323,7 @@ Optional:
 - `enabled` (Boolean) Whether dynamic PSK is enabled for this WLAN
 - `force_lookup` (Boolean) When 11r is enabled, we'll try to use the cached PMK, this can be disabled. `false` means auto
 - `local_vlan_ids` (List of String) VLANs to be bridged locally when forwarding to mxtunnel or site mxedge
-- `source` (String) Origin used to retrieve per-user PSKs
+- `source` (String) Origin used to retrieve per-user PSKs. enum: `cloud_psks`, `radius`.
 
 
 <a id="nestedatt--dynamic_vlan"></a>
@@ -334,7 +334,7 @@ Optional:
 - `default_vlan_ids` (List of String) Fallback VLAN IDs, ranges, or variables used when no RADIUS VLAN match is returned
 - `enabled` (Boolean) Requires `vlan_enabled`==`true` to be set to `true`. Whether to enable dynamic vlan
 - `local_vlan_ids` (List of String) VLAN IDs that should be locally bridged for dynamic VLAN assignment
-- `type` (String) Dynamic VLAN mapping method used for RADIUS-provided VLAN attributes
+- `type` (String) Dynamic VLAN mapping method used for RADIUS-provided VLAN attributes. enum: `airespace-interface-name`, `standard`.
 - `vlans` (Map of String) Map between vlan_id (as string) to airespace interface names (comma-separated) or null for standard mapping
   * if `dynamic_vlan.type`==`standard`, property key is the VLAN ID and property value is \"\"
   * if `dynamic_vlan.type`==`airespace-interface-name`, property key is the VLAN ID and property value is the Airespace Interface Name
@@ -401,7 +401,7 @@ Optional:
 - `amazon_email_domains` (List of String) Optional if `amazon_enabled`==`true`. Email domains allowed for Amazon-authenticated guest users. If null or empty, any authenticated Amazon email domain is allowed.
 - `amazon_enabled` (Boolean) Whether amazon is enabled as a login method
 - `amazon_expire` (Number) Optional if `amazon_enabled`==`true`. Interval for which guest remains authorized using amazon auth (in minutes), if not provided, uses expire`
-- `auth` (String) Guest portal login scheme used by the WLAN
+- `auth` (String) Guest portal login scheme used by the WLAN. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sms`, `sponsor`, `sso`.
 - `azure_client_id` (String) Required if `azure_enabled`==`true`. Azure active directory app client id
 - `azure_client_secret` (String, Sensitive) Required if `azure_enabled`==`true`. Azure active directory app client secret
 - `azure_enabled` (Boolean) Whether Azure Active Directory is enabled as a login method
@@ -448,7 +448,7 @@ Optional:
 - `sms_enabled` (Boolean) Whether sms is enabled as a login method
 - `sms_expire` (Number) Optional if `sms_enabled`==`true`. Interval for which guest remains authorized using sms auth (in minutes), if not provided, uses expire`
 - `sms_message_format` (String) Optional if `sms_enabled`==`true`. SMS Message format
-- `sms_provider` (String) Optional if `sms_enabled`==`true`. SMS provider used to deliver guest portal access codes
+- `sms_provider` (String) Optional if `sms_enabled`==`true`. SMS provider used to deliver guest portal access codes. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`, `smsglobal`.
 - `smsglobal_api_key` (String) Required if `sms_provider`==`smsglobal`, Client API Key
 - `smsglobal_api_secret` (String, Sensitive) Required if `sms_provider`==`smsglobal`, Client secret
 - `smsglobal_sender` (String) Optional sender's number or sender ID for SMSGlobal. If not provided, uses the default number associated with the account
@@ -466,10 +466,10 @@ Optional:
 - `sso_default_role` (String) Optional if `wlan_portal_auth`==`sso`, default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched
 - `sso_forced_role` (String) Optional if `wlan_portal_auth`==`sso`. Role assigned to authenticated users when guest SSO is used
 - `sso_idp_cert` (String) Required if `wlan_portal_auth`==`sso`. IDP Cert (used to verify the signed response)
-- `sso_idp_sign_algo` (String) Optional if `wlan_portal_auth`==`sso`. Signing algorithm used for SAML assertions from the identity provider
+- `sso_idp_sign_algo` (String) Optional if `wlan_portal_auth`==`sso`. Signing algorithm used for SAML assertions from the identity provider. enum: `sha1`, `sha256`, `sha384`, `sha512`.
 - `sso_idp_sso_url` (String) Required if `wlan_portal_auth`==`sso`, IDP Single-Sign-On URL
 - `sso_issuer` (String) Required if `wlan_portal_auth`==`sso`, IDP issuer URL
-- `sso_nameid_format` (String) Optional if `wlan_portal_auth`==`sso`. SAML NameID format expected from the identity provider
+- `sso_nameid_format` (String) Optional if `wlan_portal_auth`==`sso`. SAML NameID format expected from the identity provider. enum: `email`, `unspecified`.
 - `telstra_client_id` (String) Required if `sms_provider`==`telstra`, Client ID provided by Telstra
 - `telstra_client_secret` (String, Sensitive) Required if `sms_provider`==`telstra`, Client secret provided by Telstra
 - `twilio_auth_token` (String, Sensitive) Required if `sms_provider`==`twilio`, Auth token account with twilio account
@@ -482,7 +482,7 @@ Optional:
 
 Optional:
 
-- `class` (String) QoS traffic class applied when WLAN QoS override is enabled
+- `class` (String) QoS traffic class applied when WLAN QoS override is enabled. enum: `background`, `best_effort`, `video`, `voice`.
 - `overwrite` (Boolean) Whether to overwrite QoS
 
 
@@ -521,7 +521,7 @@ Optional:
 - `ht` (String) If `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 00ff 00f0 001f limits HT rates to MCS 0-7 for 1 stream, MCS 4-7 for 2 stream (i.e. MCS 12-15), MCS 1-5 for 3 stream (i.e. MCS 16-20)
 - `legacy` (List of String) if `template`==`custom`. List of supported rates (IE=1) and extended supported rates (IE=50) for custom template, append ‘b’ at the end to indicate a rate being basic/mandatory. If `template`==`custom` is configured and legacy does not define at least one basic rate, it will use `no-legacy` default values. enum: `1`, `11`, `11b`, `12`, `12b`, `18`, `18b`, `1b`, `2`, `24`, `24b`, `2b`, `36`, `36b`, `48`, `48b`, `5.5`, `5.5b`, `54`, `54b`, `6`, `6b`, `9`, `9b`
 - `min_rssi` (Number) Minimum RSSI for client to connect, 0 means not enforcing
-- `template` (String) Data rate template used to derive WLAN rate settings
+- `template` (String) Data rate template used to derive WLAN rate settings. enum: `compatible`, `legacy-only`, `custom`, `no-legacy`, `high-density`.
 - `vht` (String) If `template`==`custom`. MCS bitmasks for 4 streams (16-bit for each stream, MCS0 is least significant bit), e.g. 03ff 01ff 00ff limits VHT rates to MCS 0-9 for 1 stream, MCS 0-8 for 2 streams, and MCS 0-7 for 3 streams.
 
 

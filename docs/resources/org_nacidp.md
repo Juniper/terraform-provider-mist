@@ -68,8 +68,8 @@ resource "mist_org_nacidp" "idp_ldap" {
 ### Required
 
 - `idp_type` (String) enum: `ldap`, `mxedge_proxy`, `oauth`, `openroaming`
-- `name` (String) Display name of the NAC IDP configuration
-- `org_id` (String) Owning organization identifier for this NAC IDP configuration
+- `name` (String) Display name of the SSO configuration
+- `org_id` (String) Owning organization identifier for this SSO configuration
 
 ### Optional
 
@@ -84,18 +84,18 @@ resource "mist_org_nacidp" "idp_ldap" {
 - `ldap_group_dn` (String) Group search base used for custom LDAP group lookup. If `ldap_type`==`custom`
 - `ldap_resolve_groups` (Boolean) If `idp_type`==`ldap`, whether to recursively resolve LDAP groups
 - `ldap_server_hosts` (List of String) Server hostnames or IP addresses for LDAP or LDAPS when `idp_type`==`ldap`
-- `ldap_type` (String) Provider template for LDAP SSO when `idp_type`==`ldap`
+- `ldap_type` (String) Provider template for LDAP SSO when `idp_type`==`ldap`. enum: `azure`, `custom`, `google`, `okta`.
 - `ldap_user_filter` (String) Required if `ldap_type`==`custom`, LDAP filter that will identify the type of user
 - `member_filter` (String) Required if `ldap_type`==`custom`,LDAP filter that will identify the type of member
 - `oauth_cc_client_id` (String) Required if `idp_type`==`oauth`, Client Credentials
 - `oauth_cc_client_secret` (String, Sensitive) Required if `idp_type`==`oauth`, oauth_cc_client_secret is RSA private key, of the form "-----BEGIN RSA PRIVATE KEY--...."
 - `oauth_discovery_url` (String) OAuth discovery document URL used when `idp_type`==`oauth`
-- `oauth_ping_identity_region` (String) Ping Identity region for OAuth SSO when `oauth_type`==`ping_identity`
-- `oauth_provider_domain` (String) Provider domain for Okta OAuth SSO when `oauth_type`==`okta`
+- `oauth_ping_identity_region` (String) Ping Identity region for OAuth SSO when `oauth_type`==`ping_identity`. enum: `asia`, `au`, `ca`, `eu`, `us`.
+- `oauth_provider_domain` (String) Provider domain for Okta OAuth SSO when `oauth_type`==`okta`. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`.
 - `oauth_ropc_client_id` (String) If `idp_type`==`oauth`, ropc = Resource Owner Password Credentials
 - `oauth_ropc_client_secret` (String, Sensitive) If `oauth_type`==`azure` or `oauth_type`==`azure-gov`. oauth_ropc_client_secret can be empty
 - `oauth_tenant_id` (String) Required if `idp_type`==`oauth`, oauth_tenant_id
-- `oauth_type` (String) Provider type for OAuth SSO when `idp_type`==`oauth`
+- `oauth_type` (String) Provider type for OAuth SSO when `idp_type`==`oauth`. enum: `azure`, `azure-gov`, `okta`, `ping_identity`.
 - `openroaming_ssids` (List of String) SSIDs that support OpenRoaming, used when `idp_type`==`openroaming`
 - `openroaming_wba_client_cert` (String, Sensitive) Optional WBA-issued client certificate for OpenRoaming. If not provided, the default WBA-issued certificate for Juniper will be used.
 - `openroaming_wba_client_key` (String, Sensitive) Optional WBA-issued client private key for OpenRoaming. If not provided, the default WBA-issued key for Juniper will be used.

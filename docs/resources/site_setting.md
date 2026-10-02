@@ -93,7 +93,7 @@ resource "mist_site_setting" "site_one" {
 - `switch_updown_threshold` (Number) Enable threshold-based device down delivery for Switch devices only. When configured it takes effect for SW devices and `device_updown_threshold` is ignored.
 - `synthetic_test` (Attributes) Active monitoring test configuration for the site (see [below for nested schema](#nestedatt--synthetic_test))
 - `track_anonymous_devices` (Boolean) Whether to track anonymous BLE assets (requires ‘track_asset’  enabled)
-- `tunterm_monitoring` (Attributes List) Tunnel termination monitoring settings for the site (see [below for nested schema](#nestedatt--tunterm_monitoring))
+- `tunterm_monitoring` (Attributes List) Tunnel termination monitoring settings for the Mist Edges assigned to the site (see [below for nested schema](#nestedatt--tunterm_monitoring))
 - `tunterm_monitoring_disabled` (Boolean) Whether tunnel termination monitoring is disabled for the site
 - `tunterm_multicast_config` (Attributes) Multicast settings for tunnel termination at the site (see [below for nested schema](#nestedatt--tunterm_multicast_config))
 - `uplink_port_config` (Attributes) AP uplink port configuration for the site (see [below for nested schema](#nestedatt--uplink_port_config))
@@ -138,10 +138,10 @@ Optional:
 Optional:
 
 - `custom_versions` (Map of String) Per-AP-model firmware versions or channels used for auto-upgrade
-- `day_of_week` (String) Weekly AP auto-upgrade day for the maintenance window
+- `day_of_week` (String) Weekly AP auto-upgrade day for the maintenance window. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.
 - `enabled` (Boolean) Whether auto upgrade should happen (Note that Mist may auto-upgrade if the version is not supported)
 - `time_of_day` (String) `any` / HH:MM (24-hour format), upgrade will happen within up to 1-hour from this time
-- `version` (String) Firmware release channel or custom version used for AP auto-upgrade
+- `version` (String) Firmware release channel or custom version used for AP auto-upgrade. enum: `beta`, `custom`, `stable`.
 
 
 <a id="nestedatt--auto_upgrade_esl"></a>
@@ -151,7 +151,7 @@ Optional:
 
 - `allow_downgrade` (Boolean) If true, it will allow downgrade to a lower version
 - `custom_versions` (Map of String) Custom versions for different models. Property key is the model name (e.g. "AP41")
-- `day_of_week` (String) Weekly ESL auto-upgrade day for the maintenance window
+- `day_of_week` (String) Weekly ESL auto-upgrade day for the maintenance window. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.
 - `enabled` (Boolean) Whether auto upgrade should happen (Note that Mist may auto-upgrade if the version is not supported)
 - `time_of_day` (String) `any` / HH:MM (24-hour format), upgrade will happen within up to 1-hour from this time
 - `version` (String) ESL firmware version used for auto-upgrade
@@ -164,7 +164,7 @@ Optional:
 
 - `beacon_enabled` (Boolean) Whether Mist beacons is enabled
 - `beacon_rate` (Number) Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second
-- `beacon_rate_mode` (String) Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate
+- `beacon_rate_mode` (String) Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate. enum: `custom`, `default`.
 - `beam_disabled` (List of Number) AP BLE beam numbers disabled for location advertisements
 - `custom_ble_packet_enabled` (Boolean) Can be enabled if `beacon_enabled`==`true`, whether to send custom packet
 - `custom_ble_packet_frame` (String) The custom frame to be sent out in this beacon. The frame must be a hexstring
@@ -188,7 +188,7 @@ Optional:
 - `ibeacon_minor` (Number) iBeacon minor value broadcast by the AP
 - `ibeacon_uuid` (String) Optional, if not specified, the same UUID as the beacon will be used
 - `power` (Number) Required if `power_mode`==`custom`; else use `power_mode` as default
-- `power_mode` (String) Transmit power mode for BLE beacons; use custom to set `power`
+- `power_mode` (String) Transmit power mode for BLE beacons; use custom to set `power`. enum: `custom`, `default`.
 
 
 <a id="nestedatt--config_push_policy"></a>
@@ -329,7 +329,7 @@ Required:
     * if `protocol`==`http`: URL (e.g. `http://test.com` or `https://test.com`)
     * if `protocol`==`icmp`: IP Address (e.g. `1.2.3.4`)
 - `name` (String) Display name for this custom application probe
-- `protocol` (String) Probe protocol used by this custom application definition
+- `protocol` (String) Probe protocol used by this custom application definition. enum: `http`, `icmp`.
 
 Optional:
 
@@ -351,7 +351,7 @@ Read-Only:
 
 Optional:
 
-- `day_of_week` (String) Scheduled weekday for automatic signature updates
+- `day_of_week` (String) Scheduled weekday for automatic signature updates. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.
 - `enable` (Boolean) Whether automatic security signature updates are enabled
 - `time_of_day` (String) Optional, Mist will decide the timing
 
@@ -414,6 +414,7 @@ Optional:
 
 - `auto_upgrade` (Attributes) SRX auto-upgrade settings applied when SRX devices are onboarded (see [below for nested schema](#nestedatt--juniper_srx--auto_upgrade))
 - `gateways` (Attributes List) SRX gateways integrated with this site (see [below for nested schema](#nestedatt--juniper_srx--gateways))
+- `mist_nac_user_role_source` (String) Source of the Mist NAC user role sent to Juniper SRX gateways. enum: `idp_role`, `radius_group`, `none`
 - `send_mist_nac_user_info` (Boolean) Whether Mist NAC user information is sent to Juniper SRX gateways
 
 <a id="nestedatt--juniper_srx--auto_upgrade"></a>
@@ -479,8 +480,8 @@ Optional:
 - `config_auto_revert` (Boolean) Whether the Mist Edge automatically reverts configuration changes if connectivity is lost
 - `fips_enabled` (Boolean) Whether FIPS mode is enabled on the Mist Edge
 - `mist_password` (String, Sensitive) Password for the Mist service account on the Mist Edge
-- `oob_ip_type` (String) IPv4 address assignment mode for out-of-band management
-- `oob_ip_type6` (String) IPv6 address assignment mode for out-of-band management
+- `oob_ip_type` (String) IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `disabled`, `static`.
+- `oob_ip_type6` (String) IPv6 address assignment mode for out-of-band management. enum: `autoconf`, `dhcp`, `disabled`, `static`.
 - `root_password` (String, Sensitive) Root account password for the Mist Edge
 
 
@@ -503,7 +504,7 @@ Optional:
 - `modified_time` (Number) Timestamp when the site Mist Tunnel configuration was last modified
 - `mtu` (Number) 0 to enable MTU, 552-1500 to start MTU with a lower MTU
 - `org_id` (String) Identifier of the org that owns the site Mist Tunnel configuration
-- `protocol` (String) Encapsulation protocol used for the site Mist Tunnel
+- `protocol` (String) Encapsulation protocol used for the site Mist Tunnel. enum: `ip`, `udp`.
 - `radsec` (Attributes) TLS-secured RADIUS proxy settings for the site Mist Tunnel (see [below for nested schema](#nestedatt--mxtunnel--radsec))
 - `site_id` (String) Identifier of the site that owns this Mist Tunnel configuration
 - `vlan_ids` (List of Number) List of VLAN IDs carried by this site Mist Tunnel
@@ -515,7 +516,7 @@ Optional:
 
 - `hello_interval` (Number) In seconds, used as heartbeat to detect if a tunnel is alive. AP will try another peer after missing N hellos specified by hello_retries
 - `hello_retries` (Number) Number of missed hello heartbeats before an AP tries another tunnel peer
-- `protocol` (String) Encapsulation protocol used for this additional Mist Tunnel
+- `protocol` (String) Encapsulation protocol used for this additional Mist Tunnel. enum: `ip`, `udp`.
 - `tunterm_clusters` (Attributes List) Tunnel peer clusters used by APs for this additional Mist Tunnel (see [below for nested schema](#nestedatt--mxtunnel--additional_mxtunnels--tunterm_clusters))
 - `vlan_ids` (List of Number) List of VLAN IDs carried by this additional Mist Tunnel
 
@@ -534,7 +535,7 @@ Optional:
 
 Optional:
 
-- `day_of_week` (String) Scheduled weekday for auto preemption
+- `day_of_week` (String) Scheduled weekday for auto preemption. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.
 - `enabled` (Boolean) Whether auto preemption is enabled
 - `time_of_day` (String) Scheduled time of day for auto preemption
 
@@ -569,7 +570,7 @@ Required:
 Optional:
 
 - `keywrap_enabled` (Boolean) Whether RADIUS keywrap is enabled for messages sent to this accounting server
-- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values
+- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.
 - `keywrap_kek` (String) RADIUS keywrap key encryption key (KEK)
 - `keywrap_mack` (String) RADIUS keywrap message authentication code key (MACK)
 - `port` (String) UDP port used by the RADIUS accounting server
@@ -586,7 +587,7 @@ Required:
 Optional:
 
 - `keywrap_enabled` (Boolean) Whether RADIUS keywrap is enabled for messages sent to this authentication server
-- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values
+- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.
 - `keywrap_kek` (String) RADIUS keywrap key encryption key (KEK)
 - `keywrap_mack` (String) RADIUS keywrap message authentication code key (MACK)
 - `port` (String) UDP port used by the RADIUS authentication server
@@ -728,7 +729,7 @@ Optional:
 
 Optional:
 
-- `channel` (String) Firmware release channel used for SSR auto-upgrade
+- `channel` (String) Firmware release channel used for SSR auto-upgrade. enum: `alpha`, `beta`, `stable`.
 - `custom_versions` (Map of String) Per-model SSR firmware versions used for auto-upgrade
 - `enabled` (Boolean) Whether SSR auto-upgrade is enabled for newly onboarded devices
 - `version` (String) Firmware version to deploy (e.g. 6.3.0-107.r1). Optional, used when custom_versions not specified
@@ -749,7 +750,7 @@ Optional:
 
 Optional:
 
-- `aggressiveness` (String) Overall aggressiveness level for synthetic test probes
+- `aggressiveness` (String) Overall aggressiveness level for synthetic test probes. enum: `auto`, `high`, `med`, `low`.
 - `custom_probes` (Attributes Map) Custom synthetic probe definitions keyed by probe name (see [below for nested schema](#nestedatt--synthetic_test--custom_probes))
 - `disabled` (Boolean) Whether synthetic tests are disabled
 - `lan_networks` (Attributes List) LAN network probe groups used by synthetic tests (see [below for nested schema](#nestedatt--synthetic_test--lan_networks))
@@ -761,10 +762,10 @@ Optional:
 
 Optional:
 
-- `aggressiveness` (String) Probe aggressiveness level for this custom synthetic probe
+- `aggressiveness` (String) Probe aggressiveness level for this custom synthetic probe. enum: `auto`, `high`, `med`, `low`.
 - `target` (String) Can be URL (e.g. http://x.com, https://x.com:8080/path/to/resource), IP address, or IP:port combination
 - `threshold` (Number) Response-time threshold for this custom probe, in milliseconds
-- `type` (String) Probe type used by this custom synthetic probe
+- `type` (String) Probe type used by this custom synthetic probe. enum: `application`, `curl`, `icmp`, `reachability`, `tcp`.
 
 
 <a id="nestedatt--synthetic_test--lan_networks"></a>
@@ -792,7 +793,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean) Whether scheduled WAN speedtests are enabled
+- `disabled` (Boolean) Whether scheduled WAN speedtests are disabled. Defaults to `false` (enabled); set this to `true` to disable speedtests.
 - `time_of_day` (String) Scheduled time of day for WAN speedtests
 
 
@@ -804,7 +805,7 @@ Optional:
 
 - `host` (String) Can be ip, ipv6, hostname
 - `port` (Number) When `protocol`==`tcp`, TCP port checked by the monitoring probe
-- `protocol` (String) Monitoring method used for this tunnel termination check
+- `protocol` (String) Monitoring method used for this tunnel termination check. enum: `arp`, `ping`, `tcp`.
 - `src_vlan_id` (Number) Optional source for the monitoring check, vlan_id configured in tunterm_other_ip_configs
 - `timeout` (Number) Maximum time for this monitoring check, in seconds
 
@@ -928,7 +929,7 @@ Optional:
 - `mesh_enabled` (Boolean) Whether to enable Mesh feature for the site
 - `mesh_psk` (String, Sensitive) Optional passphrase of mesh networking, default is generated randomly
 - `mesh_ssid` (String) Optional ssid of mesh networking, default is based on site_id
-- `proxy_arp` (String) ARP proxy mode for site Wi-Fi
+- `proxy_arp` (String) ARP proxy mode for site Wi-Fi. enum: `default`, `disabled`, `enabled`.
 
 
 <a id="nestedatt--wired_vna"></a>

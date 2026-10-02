@@ -1,5 +1,7 @@
 package provider
 
+import ()
+
 type DeviceSwitchModel struct {
 	AclPolicies           []DeviceSwitchAclPoliciesValue                  `hcl:"acl_policies"`
 	AclTags               map[string]DeviceSwitchAclTagsValue             `hcl:"acl_tags"`
@@ -371,6 +373,7 @@ type DeviceSwitchPortUsagesValue struct {
 	Mode                                     *string                        `cty:"mode" hcl:"mode"`
 	Mtu                                      *string                        `cty:"mtu" hcl:"mtu"`
 	Networks                                 []string                       `cty:"networks" hcl:"networks"`
+	NoLocalPortConfig                        *bool                          `cty:"no_local_port_config" hcl:"no_local_port_config"`
 	PersistMac                               *bool                          `cty:"persist_mac" hcl:"persist_mac"`
 	PoeDisabled                              *bool                          `cty:"poe_disabled" hcl:"poe_disabled"`
 	PoeKeepStateWhenReboot                   *bool                          `cty:"poe_keep_state_when_reboot" hcl:"poe_keep_state_when_reboot"`
@@ -667,6 +670,7 @@ type DeviceSwitchSwitchMgmtValue struct {
 	MxedgeProxyHost       *string                                   `cty:"mxedge_proxy_host" hcl:"mxedge_proxy_host"`
 	MxedgeProxyPort       *string                                   `cty:"mxedge_proxy_port" hcl:"mxedge_proxy_port"`
 	ProtectRe             *DeviceSwitchProtectReValue               `cty:"protect_re" hcl:"protect_re"`
+	Radius                *DeviceSwitchRadiusValue                  `cty:"radius" hcl:"radius"`
 	RemoveExistingConfigs *bool                                     `cty:"remove_existing_configs" hcl:"remove_existing_configs"`
 	RootPassword          *string                                   `cty:"root_password" hcl:"root_password"`
 	Tacacs                *DeviceSwitchTacacsValue                  `cty:"tacacs" hcl:"tacacs"`
@@ -690,6 +694,21 @@ type DeviceSwitchCustomValue struct {
 	PortRange *string  `cty:"port_range" hcl:"port_range"`
 	Protocol  *string  `cty:"protocol" hcl:"protocol"`
 	Subnets   []string `cty:"subnets" hcl:"subnets"`
+}
+
+type DeviceSwitchRadiusValue struct {
+	AuthServersRetries *int64                               `cty:"auth_servers_retries" hcl:"auth_servers_retries"`
+	AuthServersTimeout *int64                               `cty:"auth_servers_timeout" hcl:"auth_servers_timeout"`
+	Enabled            *bool                                `cty:"enabled" hcl:"enabled"`
+	Network            *string                              `cty:"network" hcl:"network"`
+	RadiusAuthServers  []DeviceSwitchRadiusAuthServersValue `cty:"auth_servers" hcl:"auth_servers"`
+	UseDifferentRadius *bool                                `cty:"use_different_radius" hcl:"use_different_radius"`
+}
+
+type DeviceSwitchRadiusAuthServersValue struct {
+	Host   string  `cty:"host" hcl:"host"`
+	Port   *string `cty:"port" hcl:"port"`
+	Secret string  `cty:"secret" hcl:"secret"`
 }
 
 type DeviceSwitchTacacsValue struct {
@@ -739,10 +758,13 @@ type DeviceSwitchVrfInstancesValue struct {
 }
 
 type DeviceSwitchMulticastConfigValue struct {
-	AnycastRp *bool   `cty:"anycast_rp" hcl:"anycast_rp"`
-	RpIp      *string `cty:"rp_ip" hcl:"rp_ip"`
-	SbdSubnet *string `cty:"sbd_subnet" hcl:"sbd_subnet"`
-	SbdVlanId *int64  `cty:"sbd_vlan_id" hcl:"sbd_vlan_id"`
+	AnycastRp  *bool   `cty:"anycast_rp" hcl:"anycast_rp"`
+	PegEnabled *bool   `cty:"peg_enabled" hcl:"peg_enabled"`
+	RpIp       *string `cty:"rp_ip" hcl:"rp_ip"`
+	RpMac      *string `cty:"rp_mac" hcl:"rp_mac"`
+	SbdSubnet  *string `cty:"sbd_subnet" hcl:"sbd_subnet"`
+	SbdVlanId  *int64  `cty:"sbd_vlan_id" hcl:"sbd_vlan_id"`
+	SbdWanRpf  *bool   `cty:"sbd_wan_rpf" hcl:"sbd_wan_rpf"`
 }
 
 type DeviceSwitchVrfExtraRoutesValue struct {

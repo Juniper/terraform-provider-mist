@@ -52,12 +52,12 @@ resource "mist_org_webhook" "webhook_one" {
 
 ### Optional
 
-- `default_action` (String) Default action applied when none of the `rules` match the incoming event
+- `default_action` (String) Default action applied when none of the `rules` match the incoming event. enum: `permit`, `block`.
 - `enabled` (Boolean) Whether webhook is enabled
 - `headers` (Map of String) If `type`=`http-post`, additional custom HTTP headers to add. The headers name and value must be string, total bytes of headers name and value must be less than 1000
 - `oauth2_client_id` (String) Required when `oauth2_grant_type`==`client_credentials`; OAuth2 client identifier used to request an access token
 - `oauth2_client_secret` (String, Sensitive) Required when `oauth2_grant_type`==`client_credentials`; OAuth2 client secret used to request an access token
-- `oauth2_grant_type` (String) OAuth2 grant type used when `type`==`oauth2`
+- `oauth2_grant_type` (String) OAuth2 grant type used when `type`==`oauth2`. enum: `client_credentials`, `password`.
 - `oauth2_password` (String, Sensitive) Required when `oauth2_grant_type`==`password`; password used for the OAuth2 token request
 - `oauth2_scopes` (List of String) OAuth2 scopes included in the token request when `type`==`oauth2`
 - `oauth2_token_url` (String) Required when `type`==`oauth2`; token endpoint URL used to obtain the OAuth2 access token
@@ -70,7 +70,7 @@ when `secret` is provided, two HTTP headers will be added:
   * X-Mist-Signature: HMAC_SHA1(secret, body)
 - `single_event_per_message` (Boolean) Some solutions may not be able to parse multiple events from a single message (e.g. IBM Qradar, DSM). When set to `true`, only a single event will be sent per message. this feature is only available on certain topics (see [List Webhook Topics]($e/Constants%20Definitions/listWebhookTopics))
 - `splunk_token` (String, Sensitive) Required if `type`=`splunk`. If splunk_token is not defined for a type Splunk webhook, it will not send, regardless if the webhook receiver is configured to accept it.
-- `type` (String) Delivery mechanism used by this webhook
+- `type` (String) Delivery mechanism used by this webhook. enum: `aws-sns`, `google-pubsub`, `http-post`, `oauth2`, `splunk`.
 - `verify_cert` (Boolean) When url uses HTTPS, whether to verify the certificate
 
 ### Read-Only
@@ -86,7 +86,7 @@ Required:
 
 Optional:
 
-- `action` (String) Action applied when the rule matches the incoming event
+- `action` (String) Action applied when the rule matches the incoming event. enum: `permit`, `block`.
 - `matching` (Map of List of String) Optional event payload matching criteria. Property key is the event field name and the value is the list of accepted values
 
 

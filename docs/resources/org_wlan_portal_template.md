@@ -56,7 +56,7 @@ resource "mist_org_wlan_portal_template" "wlan_one" {
 Optional:
 
 - `access_code_alternate_email` (String) Link text for using an alternate email address during access-code login
-- `alignment` (String) Text and content alignment used by the guest portal template
+- `alignment` (String) Text and content alignment used by the guest portal template. enum: `center`, `left`, `right`.
 - `auth_button_amazon` (String) Label for Amazon auth button
 - `auth_button_azure` (String) Label for Azure auth button
 - `auth_button_email` (String) Label for Email auth button

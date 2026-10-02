@@ -5,9 +5,7 @@ package resource_org_wlan
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/boolvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -28,6 +26,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -67,8 +66,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"keywrap_format": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Encoding format for RADIUS keywrap KEK and MACK values",
-							MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values",
+							Description:         "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
+							MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -388,8 +387,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 			"apply_to": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Scope that determines where this WLAN is applied",
-				MarkdownDescription: "Scope that determines where this WLAN is applied",
+				Description:         "Scope that determines where this WLAN is applied. enum: `aps`, `site`, `wxtags`.",
+				MarkdownDescription: "Scope that determines where this WLAN is applied. enum: `aps`, `site`, `wxtags`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -489,8 +488,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"owe": schema.StringAttribute{
 						Optional:            true,
-						Description:         "When `type`==`open`, Opportunistic Wireless Encryption mode for this WLAN",
-						MarkdownDescription: "When `type`==`open`, Opportunistic Wireless Encryption mode for this WLAN",
+						Description:         "When `type`==`open`, Opportunistic Wireless Encryption mode for this WLAN. enum: `disabled`, `enabled`, `required`.",
+						MarkdownDescription: "When `type`==`open`, Opportunistic Wireless Encryption mode for this WLAN. enum: `disabled`, `enabled`, `required`.",
 						Validators: []validator.String{
 							mistvalidator.AllowedWhenValueIsWithDefault(path.MatchRelative().AtParent().AtName("type"), types.StringValue("open"), types.StringValue("disabled")),
 						},
@@ -534,8 +533,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					"type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Authentication mode used by this WLAN",
-						MarkdownDescription: "Authentication mode used by this WLAN",
+						Description:         "Authentication mode used by this WLAN. enum: `eap`, `eap192`, `open`, `psk`, `psk-tkip`, `psk-wpa2-tkip`, `wep`.",
+						MarkdownDescription: "Authentication mode used by this WLAN. enum: `eap`, `eap192`, `open`, `psk`, `psk-tkip`, `psk-wpa2-tkip`, `wep`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -568,8 +567,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 			"auth_server_selection": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "RADIUS authentication server selection behavior for this WLAN",
-				MarkdownDescription: "RADIUS authentication server selection behavior for this WLAN",
+				Description:         "RADIUS authentication server selection behavior for this WLAN. enum: `ordered`, `unordered`.",
+				MarkdownDescription: "RADIUS authentication server selection behavior for this WLAN. enum: `ordered`, `unordered`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -594,8 +593,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"keywrap_format": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Encoding format for RADIUS keywrap KEK and MACK values",
-							MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values",
+							Description:         "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
+							MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -740,8 +739,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 								"scope": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Discovery scope for this Bonjour service on the WLAN",
-									MarkdownDescription: "Discovery scope for this Bonjour service on the WLAN",
+									Description:         "Discovery scope for this Bonjour service on the WLAN. enum: `same_ap`, `same_map`, `same_site`.",
+									MarkdownDescription: "Discovery scope for this Bonjour service on the WLAN. enum: `same_ap`, `same_map`, `same_site`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -1048,8 +1047,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					"source": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Origin used to retrieve per-user PSKs",
-						MarkdownDescription: "Origin used to retrieve per-user PSKs",
+						Description:         "Origin used to retrieve per-user PSKs. enum: `cloud_psks`, `radius`.",
+						MarkdownDescription: "Origin used to retrieve per-user PSKs. enum: `cloud_psks`, `radius`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1116,8 +1115,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					"type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Dynamic VLAN mapping method used for RADIUS-provided VLAN attributes",
-						MarkdownDescription: "Dynamic VLAN mapping method used for RADIUS-provided VLAN attributes",
+						Description:         "Dynamic VLAN mapping method used for RADIUS-provided VLAN attributes. enum: `airespace-interface-name`, `standard`.",
+						MarkdownDescription: "Dynamic VLAN mapping method used for RADIUS-provided VLAN attributes. enum: `airespace-interface-name`, `standard`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1278,8 +1277,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 			"interface": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Network interface or tunnel where this WLAN bridges client traffic",
-				MarkdownDescription: "Network interface or tunnel where this WLAN bridges client traffic",
+				Description:         "Network interface or tunnel where this WLAN bridges client traffic. enum: `all`, `eth0`, `eth1`, `eth2`, `eth3`, `mxtunnel`, `site_mxedge`, `wxtunnel`.",
+				MarkdownDescription: "Network interface or tunnel where this WLAN bridges client traffic. enum: `all`, `eth0`, `eth1`, `eth2`, `eth3`, `mxtunnel`, `site_mxedge`, `wxtunnel`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -1531,8 +1530,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					"auth": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Guest portal login scheme used by the WLAN",
-						MarkdownDescription: "Guest portal login scheme used by the WLAN",
+						Description:         "Guest portal login scheme used by the WLAN. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sms`, `sponsor`, `sso`.",
+						MarkdownDescription: "Guest portal login scheme used by the WLAN. enum: `amazon`, `azure`, `email`, `external`, `facebook`, `google`, `microsoft`, `multi`, `none`, `password`, `sms`, `sponsor`, `sso`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1883,8 +1882,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					"sms_provider": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Optional if `sms_enabled`==`true`. SMS provider used to deliver guest portal access codes",
-						MarkdownDescription: "Optional if `sms_enabled`==`true`. SMS provider used to deliver guest portal access codes",
+						Description:         "Optional if `sms_enabled`==`true`. SMS provider used to deliver guest portal access codes. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`, `smsglobal`.",
+						MarkdownDescription: "Optional if `sms_enabled`==`true`. SMS provider used to deliver guest portal access codes. enum: `broadnet`, `clickatell`, `gupshup`, `manual`, `puzzel`, `telstra`, `twilio`, `smsglobal`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1998,8 +1997,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					"sso_idp_sign_algo": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Optional if `wlan_portal_auth`==`sso`. Signing algorithm used for SAML assertions from the identity provider",
-						MarkdownDescription: "Optional if `wlan_portal_auth`==`sso`. Signing algorithm used for SAML assertions from the identity provider",
+						Description:         "Optional if `wlan_portal_auth`==`sso`. Signing algorithm used for SAML assertions from the identity provider. enum: `sha1`, `sha256`, `sha384`, `sha512`.",
+						MarkdownDescription: "Optional if `wlan_portal_auth`==`sso`. Signing algorithm used for SAML assertions from the identity provider. enum: `sha1`, `sha256`, `sha384`, `sha512`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -2034,8 +2033,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					"sso_nameid_format": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Optional if `wlan_portal_auth`==`sso`. SAML NameID format expected from the identity provider",
-						MarkdownDescription: "Optional if `wlan_portal_auth`==`sso`. SAML NameID format expected from the identity provider",
+						Description:         "Optional if `wlan_portal_auth`==`sso`. SAML NameID format expected from the identity provider. enum: `email`, `unspecified`.",
+						MarkdownDescription: "Optional if `wlan_portal_auth`==`sso`. SAML NameID format expected from the identity provider. enum: `email`, `unspecified`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -2230,8 +2229,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					"class": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "QoS traffic class applied when WLAN QoS override is enabled",
-						MarkdownDescription: "QoS traffic class applied when WLAN QoS override is enabled",
+						Description:         "QoS traffic class applied when WLAN QoS override is enabled. enum: `background`, `best_effort`, `video`, `voice`.",
+						MarkdownDescription: "QoS traffic class applied when WLAN QoS override is enabled. enum: `background`, `best_effort`, `video`, `voice`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -2453,8 +2452,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 						"template": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Data rate template used to derive WLAN rate settings",
-							MarkdownDescription: "Data rate template used to derive WLAN rate settings",
+							Description:         "Data rate template used to derive WLAN rate settings. enum: `compatible`, `legacy-only`, `custom`, `no-legacy`, `high-density`.",
+							MarkdownDescription: "Data rate template used to derive WLAN rate settings. enum: `compatible`, `legacy-only`, `custom`, `no-legacy`, `high-density`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2543,8 +2542,8 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"roam_mode": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Fast roaming mode configured for this WLAN",
-				MarkdownDescription: "Fast roaming mode configured for this WLAN",
+				Description:         "Fast roaming mode configured for this WLAN. enum: `11r`, `NONE`, `OKC`.",
+				MarkdownDescription: "Fast roaming mode configured for this WLAN. enum: `11r`, `NONE`, `OKC`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

@@ -96,8 +96,8 @@ func OrgSsoResourceSchema(ctx context.Context) schema.Schema {
 			"oauth_provider_domain": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Provider domain for Okta OAuth SSO when `oauth_type`==`okta`",
-				MarkdownDescription: "Provider domain for Okta OAuth SSO when `oauth_type`==`okta`",
+				Description:         "Provider domain for Okta OAuth SSO when `oauth_type`==`okta`. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`.",
+				MarkdownDescription: "Provider domain for Okta OAuth SSO when `oauth_type`==`okta`. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

@@ -107,8 +107,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					"oob_ip_type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "IPv4 address assignment mode for out-of-band management",
-						MarkdownDescription: "IPv4 address assignment mode for out-of-band management",
+						Description:         "IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `disabled`, `static`.",
+						MarkdownDescription: "IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `disabled`, `static`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -121,8 +121,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					"oob_ip_type6": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "IPv6 address assignment mode for out-of-band management",
-						MarkdownDescription: "IPv6 address assignment mode for out-of-band management",
+						Description:         "IPv6 address assignment mode for out-of-band management. enum: `autoconf`, `dhcp`, `disabled`, `static`.",
+						MarkdownDescription: "IPv6 address assignment mode for out-of-band management. enum: `autoconf`, `dhcp`, `disabled`, `static`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -229,8 +229,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					"type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "IPv4 address assignment mode for out-of-band management",
-						MarkdownDescription: "IPv4 address assignment mode for out-of-band management",
+						Description:         "IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `static`.",
+						MarkdownDescription: "IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `static`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -242,8 +242,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 					"type6": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "IPv6 address assignment mode for out-of-band management",
-						MarkdownDescription: "IPv6 address assignment mode for out-of-band management",
+						Description:         "IPv6 address assignment mode for out-of-band management. enum: `dhcp`, `static`.",
+						MarkdownDescription: "IPv6 address assignment mode for out-of-band management. enum: `dhcp`, `static`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -328,8 +328,8 @@ func OrgMxedgeResourceSchema(ctx context.Context) schema.Schema {
 						"type": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "DHCP handling mode for this tunneled VLAN",
-							MarkdownDescription: "DHCP handling mode for this tunneled VLAN",
+							Description:         "DHCP handling mode for this tunneled VLAN. enum: `relay`.",
+							MarkdownDescription: "DHCP handling mode for this tunneled VLAN. enum: `relay`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",

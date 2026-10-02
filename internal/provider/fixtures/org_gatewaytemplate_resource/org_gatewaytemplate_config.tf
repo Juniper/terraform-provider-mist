@@ -2,6 +2,10 @@
   name   = "test_gateway_template"
   type   = "standalone"
 
+  mnha_config = {
+    enabled = true
+  }
+
   additional_config_cmds = [
     "set system host-name test-gateway",
     "set system time-zone UTC"
@@ -198,6 +202,7 @@
       isolation                 = false
       disallow_mist_services    = false
       routed_for_networks       = ["wan"]
+      zone_id                   = "11111111-2222-3333-4444-555555555555"
       internal_access = {
         enabled = true
       }

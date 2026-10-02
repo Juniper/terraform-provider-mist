@@ -48,7 +48,7 @@ resource "mist_org_sso" "sso_admin_one" {
 - `default_role` (String) default role to assign if there’s no match. By default, an assertion is treated as invalid when there’s no role matched
 - `ignore_unmatched_roles` (Boolean) ignore any unmatched roles provided in assertion. By default, an assertion is treated as invalid for any unmatched role
 - `nameid_format` (String) enum: `email`, `unspecified`
-- `oauth_provider_domain` (String) Provider domain for Okta OAuth SSO when `oauth_type`==`okta`
+- `oauth_provider_domain` (String) Provider domain for Okta OAuth SSO when `oauth_type`==`okta`. enum: `okta.com`, `oktapreview.com`, `okta-emea.com`, `okta-gov.com`, `okta.mil`, `mtls.okta.com`.
 - `openroaming_ssids` (List of String) SSIDs that support OpenRoaming, used when `idp_type`==`openroaming`
 - `openroaming_wba_client_cert` (String, Sensitive) Optional WBA-issued client certificate for OpenRoaming. If not provided, the default WBA-issued certificate for Juniper will be used.
 - `openroaming_wba_client_key` (String, Sensitive) Optional WBA-issued client private key for OpenRoaming. If not provided, the default WBA-issued key for Juniper will be used.

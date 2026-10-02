@@ -28,6 +28,7 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	var id types.String
 	var idpProfiles = types.MapNull(IdpProfilesValue{}.Type(ctx))
 	var ipConfigs = types.MapNull(IpConfigsValue{}.Type(ctx))
+	var mnhaConfig = NewMnhaConfigValueNull()
 	var name = types.StringValue(data.Name)
 	var networks = types.ListNull(NetworksValue{}.Type(ctx))
 	var ntpOverride basetypes.BoolValue
@@ -82,6 +83,9 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	}
 	if len(data.IpConfigs) > 0 {
 		ipConfigs = ipConfigsSdkToTerraform(ctx, &diags, data.IpConfigs)
+	}
+	if data.MnhaConfig != nil {
+		mnhaConfig = mnhaConfigSdkToTerraform(ctx, &diags, data.MnhaConfig)
 	}
 	if data.Networks != nil {
 		networks = networksSdkToTerraform(ctx, &diags, data.Networks)
@@ -149,6 +153,7 @@ func SdkToTerraform(ctx context.Context, data *models.GatewayTemplate) (OrgGatew
 	state.Id = id
 	state.IdpProfiles = idpProfiles
 	state.IpConfigs = ipConfigs
+	state.MnhaConfig = mnhaConfig
 	state.Name = name
 	state.Networks = networks
 	state.NtpOverride = ntpOverride

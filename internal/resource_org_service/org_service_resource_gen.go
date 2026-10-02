@@ -108,8 +108,8 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"failover_policy": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Failover behavior for traffic matched by this service",
-				MarkdownDescription: "Failover behavior for traffic matched by this service",
+				Description:         "Failover behavior for traffic matched by this service. enum: `non_revertible`, `none`, `revertible`.",
+				MarkdownDescription: "Failover behavior for traffic matched by this service. enum: `non_revertible`, `none`, `revertible`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -261,8 +261,8 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"traffic_class": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Traffic class applied when `traffic_type`==`custom`",
-				MarkdownDescription: "Traffic class applied when `traffic_type`==`custom`",
+				Description:         "Traffic class applied when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`.",
+				MarkdownDescription: "Traffic class applied when `traffic_type`==`custom`. enum: `best_effort`, `high`, `low`, `medium`.",
 				Validators: []validator.String{
 					mistvalidator.AllowedWhenValueIsWithDefault(
 						path.MatchRelative().AtParent().AtName("type"),
@@ -288,8 +288,8 @@ func OrgServiceResourceSchema(ctx context.Context) schema.Schema {
 			"type": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Matching mode that determines which app, URL, or custom fields are used",
-				MarkdownDescription: "Matching mode that determines which app, URL, or custom fields are used",
+				Description:         "Matching mode that determines which app, URL, or custom fields are used. enum: `app_categories`, `apps`, `custom`, `urls`.",
+				MarkdownDescription: "Matching mode that determines which app, URL, or custom fields are used. enum: `app_categories`, `apps`, `custom`, `urls`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

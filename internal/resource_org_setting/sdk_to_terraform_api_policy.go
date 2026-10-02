@@ -14,9 +14,13 @@ import (
 
 func apiPolicySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.OrgSettingApiPolicy) ApiPolicyValue {
 
+	var enforceSrcIpsForTokens basetypes.BoolValue
 	var noReveal basetypes.BoolValue
 	var srcIps = types.ListNull(types.StringType)
 
+	if d.EnforceSrcIpsForTokens != nil {
+		enforceSrcIpsForTokens = types.BoolValue(*d.EnforceSrcIpsForTokens)
+	}
 	if d.NoReveal != nil {
 		noReveal = types.BoolValue(*d.NoReveal)
 	}
@@ -25,8 +29,9 @@ func apiPolicySdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mo
 	}
 
 	dataMapValue := map[string]attr.Value{
-		"no_reveal": noReveal,
-		"src_ips":   srcIps,
+		"enforce_src_ips_for_tokens": enforceSrcIpsForTokens,
+		"no_reveal":                  noReveal,
+		"src_ips":                    srcIps,
 	}
 	data, e := NewApiPolicyValue(ApiPolicyValue{}.AttributeTypes(ctx), dataMapValue)
 	diags.Append(e...)

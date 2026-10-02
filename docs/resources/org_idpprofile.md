@@ -50,7 +50,7 @@ resource "mist_org_idpprofile" "idpprofile_one" {
 
 ### Required
 
-- `base_profile` (String) Built-in IDP baseline profile inherited before applying overwrites
+- `base_profile` (String) Built-in IDP baseline profile inherited before applying overwrites. enum: `critical`, `standard`, `strict`.
 - `name` (String) Display name of the IDP profile
 - `org_id` (String) Owning organization for the IDP profile
 
@@ -71,7 +71,7 @@ Required:
 
 Optional:
 
-- `action` (String) Enforcement action applied when this overwrite rule matches
+- `action` (String) Enforcement action applied when this overwrite rule matches. enum: `alert`, `close`, `drop`.
 - `matching` (Attributes) Criteria that select signatures for this overwrite rule (see [below for nested schema](#nestedatt--overwrites--matching))
 
 <a id="nestedatt--overwrites--matching"></a>

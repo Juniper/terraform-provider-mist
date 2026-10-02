@@ -34,14 +34,14 @@ resource "mist_org_nactag" "tag_one" {
 
 - `name` (String) Human-readable name of the NAC tag
 - `org_id` (String) Org identifier that owns the NAC tag
-- `type` (String) NAC tag type that determines whether the tag is a matcher or a result attribute
+- `type` (String) NAC tag type that determines whether the tag is a matcher or a result attribute. enum: `egress_vlan_names`, `gbp_tag`, `match`, `radius_attrs`, `radius_group`, `radius_vendor_attrs`, `redirect_nacportal_id`, `session_timeout`, `username_attr`, `vlan`.
 
 ### Optional
 
 - `allow_usermac_override` (Boolean) Whether usermac result values can override this NAC tag when the result type is also supported by usermac
 - `egress_vlan_names` (List of String) If `type`==`egress_vlan_names`, list of egress VLAN names returned by the NAC rule
 - `gbp_tag` (String) If `type`==`gbp_tag`, GBP tag value returned by the NAC rule
-- `match` (String) If `type`==`match`, client or authentication attribute used for rule matching
+- `match` (String) If `type`==`match`, client or authentication attribute used for rule matching. enum: `cert_cn`, `cert_eku`, `cert_issuer`, `cert_san`, `cert_serial`, `cert_sub`, `cert_template`, `client_mac`, `edr_status`, `gbp_tag`, `hostname`, `idp_role`, `ingress_vlan`, `mdm_status`, `nas_ip`, `radius_group`, `realm`, `ssid`, `user_name`, `usermac_label`.
 - `match_all` (Boolean) This field is applicable only when `type`==`match`
   * `false`: means it is sufficient to match any of the values (i.e., match-any behavior)
   * `true`: means all values should be matched (i.e., match-all behavior)
@@ -53,7 +53,7 @@ Currently it makes sense to set this field to `true` only if the `match`==`idp_r
 - `radius_group` (String) If `type`==`radius_group`, RADIUS group value returned by the NAC rule
 - `radius_vendor_attrs` (List of String) If `type`==`radius_vendor_attrs`, vendor-specific RADIUS attributes returned by the NAC rule
 - `session_timeout` (Number) If `type`==`session_timeout`, session timeout returned by the NAC rule, in seconds
-- `username_attr` (String) If `type`==`username_attr`, attribute used to derive the username returned by the NAC rule
+- `username_attr` (String) If `type`==`username_attr`, attribute used to derive the username returned by the NAC rule. enum: `automatic`, `cn`, `dns`, `email`, `upn`.
 - `values` (List of String) If `type`==`match`, attribute values used by the NAC tag matcher
 - `vlan` (String) If `type`==`vlan`, VLAN name or ID returned by the NAC rule
 

@@ -15,6 +15,7 @@ type DeviceGatewayModel struct {
 	Managed                 *bool                                        `hcl:"managed"`
 	MapId                   *string                                      `hcl:"map_id"`
 	MistConfigured          *bool                                        `hcl:"mist_configured"`
+	MnhaConfig              *DeviceGatewayMnhaConfigValue                `hcl:"mnha_config"`
 	MspId                   *string                                      `hcl:"msp_id"`
 	Name                    string                                       `hcl:"name"`
 	Networks                []DeviceGatewayNetworksValue                 `hcl:"networks"`
@@ -122,6 +123,10 @@ type DeviceGatewayExtraRoutes6Value struct {
 	Via string `cty:"via" hcl:"via"`
 }
 
+type DeviceGatewayMnhaConfigValue struct {
+	Enabled *bool `cty:"enabled" hcl:"enabled"`
+}
+
 type DeviceGatewayGatewayMgmtValue struct {
 	AdminSshkeys               []string                               `cty:"admin_sshkeys" hcl:"admin_sshkeys"`
 	AppProbing                 *DeviceGatewayAppProbingValue          `cty:"app_probing" hcl:"app_probing"`
@@ -225,6 +230,7 @@ type DeviceGatewayNetworksValue struct {
 	Tenants              map[string]DeviceGatewayTenantsValue   `cty:"tenants" hcl:"tenants"`
 	VlanId               *string                                `cty:"vlan_id" hcl:"vlan_id"`
 	VpnAccess            map[string]DeviceGatewayVpnAccessValue `cty:"vpn_access" hcl:"vpn_access"`
+	ZoneId               *string                                `cty:"zone_id" hcl:"zone_id"`
 }
 
 type DeviceGatewayInternalAccessValue struct {

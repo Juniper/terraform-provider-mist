@@ -86,14 +86,23 @@ func TerraformToSdk(ctx context.Context, plan *OrgNetworktemplateModel) (models.
 		if plan.MulticastConfig.AnycastRp.ValueBoolPointer() != nil {
 			mc.AnycastRp = plan.MulticastConfig.AnycastRp.ValueBoolPointer()
 		}
+		if plan.MulticastConfig.PegEnabled.ValueBoolPointer() != nil {
+			mc.PegEnabled = plan.MulticastConfig.PegEnabled.ValueBoolPointer()
+		}
 		if plan.MulticastConfig.RpIp.ValueStringPointer() != nil {
 			mc.RpIp = plan.MulticastConfig.RpIp.ValueStringPointer()
+		}
+		if plan.MulticastConfig.RpMac.ValueStringPointer() != nil {
+			mc.RpMac = plan.MulticastConfig.RpMac.ValueStringPointer()
 		}
 		if plan.MulticastConfig.SbdSubnet.ValueStringPointer() != nil {
 			mc.SbdSubnet = plan.MulticastConfig.SbdSubnet.ValueStringPointer()
 		}
 		if plan.MulticastConfig.SbdVlanId.ValueInt64Pointer() != nil {
 			mc.SbdVlanId = models.ToPointer(int(plan.MulticastConfig.SbdVlanId.ValueInt64()))
+		}
+		if plan.MulticastConfig.SbdWanRpf.ValueBoolPointer() != nil {
+			mc.SbdWanRpf = plan.MulticastConfig.SbdWanRpf.ValueBoolPointer()
 		}
 		data.MulticastConfig = &mc
 	}

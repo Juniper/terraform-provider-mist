@@ -5,10 +5,8 @@ package resource_site_setting
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistplanmodifiers "github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/planmodifiers"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -27,6 +25,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -110,8 +109,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"day_of_week": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Weekly AP auto-upgrade day for the maintenance window",
-						MarkdownDescription: "Weekly AP auto-upgrade day for the maintenance window",
+						Description:         "Weekly AP auto-upgrade day for the maintenance window. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.",
+						MarkdownDescription: "Weekly AP auto-upgrade day for the maintenance window. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -141,8 +140,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"version": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Firmware release channel or custom version used for AP auto-upgrade",
-						MarkdownDescription: "Firmware release channel or custom version used for AP auto-upgrade",
+						Description:         "Firmware release channel or custom version used for AP auto-upgrade. enum: `beta`, `custom`, `stable`.",
+						MarkdownDescription: "Firmware release channel or custom version used for AP auto-upgrade. enum: `beta`, `custom`, `stable`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -193,8 +192,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"day_of_week": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Weekly ESL auto-upgrade day for the maintenance window",
-						MarkdownDescription: "Weekly ESL auto-upgrade day for the maintenance window",
+						Description:         "Weekly ESL auto-upgrade day for the maintenance window. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.",
+						MarkdownDescription: "Weekly ESL auto-upgrade day for the maintenance window. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -267,8 +266,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"beacon_rate_mode": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate",
-						MarkdownDescription: "Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate",
+						Description:         "Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate. enum: `custom`, `default`.",
+						MarkdownDescription: "Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate. enum: `custom`, `default`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -466,8 +465,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"power_mode": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Transmit power mode for BLE beacons; use custom to set `power`",
-						MarkdownDescription: "Transmit power mode for BLE beacons; use custom to set `power`",
+						Description:         "Transmit power mode for BLE beacons; use custom to set `power`. enum: `custom`, `default`.",
+						MarkdownDescription: "Transmit power mode for BLE beacons; use custom to set `power`. enum: `custom`, `default`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -915,8 +914,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"protocol": schema.StringAttribute{
 											Required:            true,
-											Description:         "Probe protocol used by this custom application definition",
-											MarkdownDescription: "Probe protocol used by this custom application definition",
+											Description:         "Probe protocol used by this custom application definition. enum: `http`, `icmp`.",
+											MarkdownDescription: "Probe protocol used by this custom application definition. enum: `http`, `icmp`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -977,8 +976,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 							"day_of_week": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Scheduled weekday for automatic signature updates",
-								MarkdownDescription: "Scheduled weekday for automatic signature updates",
+								Description:         "Scheduled weekday for automatic signature updates. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.",
+								MarkdownDescription: "Scheduled weekday for automatic signature updates. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1350,6 +1349,19 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "SRX gateways integrated with this site",
 						MarkdownDescription: "SRX gateways integrated with this site",
 					},
+					"mist_nac_user_role_source": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Source of the Mist NAC user role sent to Juniper SRX gateways. enum: `idp_role`, `radius_group`, `none`",
+						MarkdownDescription: "Source of the Mist NAC user role sent to Juniper SRX gateways. enum: `idp_role`, `radius_group`, `none`",
+						Validators: []validator.String{
+							stringvalidator.OneOf(
+								"",
+								"idp_role",
+								"radius_group",
+								"none",
+							),
+						},
+					},
 					"send_mist_nac_user_info": schema.BoolAttribute{
 						Optional:            true,
 						Description:         "Whether Mist NAC user information is sent to Juniper SRX gateways",
@@ -1549,8 +1561,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"oob_ip_type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "IPv4 address assignment mode for out-of-band management",
-						MarkdownDescription: "IPv4 address assignment mode for out-of-band management",
+						Description:         "IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `disabled`, `static`.",
+						MarkdownDescription: "IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `disabled`, `static`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1564,8 +1576,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"oob_ip_type6": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "IPv6 address assignment mode for out-of-band management",
-						MarkdownDescription: "IPv6 address assignment mode for out-of-band management",
+						Description:         "IPv6 address assignment mode for out-of-band management. enum: `autoconf`, `dhcp`, `disabled`, `static`.",
+						MarkdownDescription: "IPv6 address assignment mode for out-of-band management. enum: `autoconf`, `dhcp`, `disabled`, `static`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1620,8 +1632,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"protocol": schema.StringAttribute{
 									Optional:            true,
-									Description:         "Encapsulation protocol used for this additional Mist Tunnel",
-									MarkdownDescription: "Encapsulation protocol used for this additional Mist Tunnel",
+									Description:         "Encapsulation protocol used for this additional Mist Tunnel. enum: `ip`, `udp`.",
+									MarkdownDescription: "Encapsulation protocol used for this additional Mist Tunnel. enum: `ip`, `udp`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -1685,8 +1697,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"day_of_week": schema.StringAttribute{
 								Optional:            true,
-								Description:         "Scheduled weekday for auto preemption",
-								MarkdownDescription: "Scheduled weekday for auto preemption",
+								Description:         "Scheduled weekday for auto preemption. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.",
+								MarkdownDescription: "Scheduled weekday for auto preemption. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1819,8 +1831,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					"protocol": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Encapsulation protocol used for the site Mist Tunnel",
-						MarkdownDescription: "Encapsulation protocol used for the site Mist Tunnel",
+						Description:         "Encapsulation protocol used for the site Mist Tunnel. enum: `ip`, `udp`.",
+						MarkdownDescription: "Encapsulation protocol used for the site Mist Tunnel. enum: `ip`, `udp`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1847,8 +1859,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"keywrap_format": schema.StringAttribute{
 											Optional:            true,
-											Description:         "Encoding format for RADIUS keywrap KEK and MACK values",
-											MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values",
+											Description:         "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
+											MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -1904,8 +1916,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"keywrap_format": schema.StringAttribute{
 											Optional:            true,
-											Description:         "Encoding format for RADIUS keywrap KEK and MACK values",
-											MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values",
+											Description:         "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
+											MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -2539,8 +2551,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"channel": schema.StringAttribute{
 								Optional:            true,
-								Description:         "Firmware release channel used for SSR auto-upgrade",
-								MarkdownDescription: "Firmware release channel used for SSR auto-upgrade",
+								Description:         "Firmware release channel used for SSR auto-upgrade. enum: `alpha`, `beta`, `stable`.",
+								MarkdownDescription: "Firmware release channel used for SSR auto-upgrade. enum: `alpha`, `beta`, `stable`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -2598,8 +2610,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"aggressiveness": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Overall aggressiveness level for synthetic test probes",
-						MarkdownDescription: "Overall aggressiveness level for synthetic test probes",
+						Description:         "Overall aggressiveness level for synthetic test probes. enum: `auto`, `high`, `med`, `low`.",
+						MarkdownDescription: "Overall aggressiveness level for synthetic test probes. enum: `auto`, `high`, `med`, `low`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -2616,8 +2628,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								"aggressiveness": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Probe aggressiveness level for this custom synthetic probe",
-									MarkdownDescription: "Probe aggressiveness level for this custom synthetic probe",
+									Description:         "Probe aggressiveness level for this custom synthetic probe. enum: `auto`, `high`, `med`, `low`.",
+									MarkdownDescription: "Probe aggressiveness level for this custom synthetic probe. enum: `auto`, `high`, `med`, `low`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -2642,8 +2654,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 								"type": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Probe type used by this custom synthetic probe",
-									MarkdownDescription: "Probe type used by this custom synthetic probe",
+									Description:         "Probe type used by this custom synthetic probe. enum: `application`, `curl`, `icmp`, `reachability`, `tcp`.",
+									MarkdownDescription: "Probe type used by this custom synthetic probe. enum: `application`, `curl`, `icmp`, `reachability`, `tcp`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -2759,10 +2771,10 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"wan_speedtest": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
-							"enabled": schema.BoolAttribute{
+							"disabled": schema.BoolAttribute{
 								Optional:            true,
-								Description:         "Whether scheduled WAN speedtests are enabled",
-								MarkdownDescription: "Whether scheduled WAN speedtests are enabled",
+								Description:         "Whether scheduled WAN speedtests are disabled. Defaults to `false` (enabled); set this to `true` to disable speedtests.",
+								MarkdownDescription: "Whether scheduled WAN speedtests are disabled. Defaults to `false` (enabled); set this to `true` to disable speedtests.",
 							},
 							"time_of_day": schema.StringAttribute{
 								Optional:            true,
@@ -2828,8 +2840,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"protocol": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Monitoring method used for this tunnel termination check",
-							MarkdownDescription: "Monitoring method used for this tunnel termination check",
+							Description:         "Monitoring method used for this tunnel termination check. enum: `arp`, `ping`, `tcp`.",
+							MarkdownDescription: "Monitoring method used for this tunnel termination check. enum: `arp`, `ping`, `tcp`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2858,8 +2870,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Tunnel termination monitoring settings for the site",
-				MarkdownDescription: "Tunnel termination monitoring settings for the site",
+				Description:         "Tunnel termination monitoring settings for the Mist Edges assigned to the site",
+				MarkdownDescription: "Tunnel termination monitoring settings for the Mist Edges assigned to the site",
 			},
 			"tunterm_monitoring_disabled": schema.BoolAttribute{
 				Optional:            true,
@@ -3264,8 +3276,8 @@ func SiteSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"proxy_arp": schema.StringAttribute{
 						Optional:            true,
-						Description:         "ARP proxy mode for site Wi-Fi",
-						MarkdownDescription: "ARP proxy mode for site Wi-Fi",
+						Description:         "ARP proxy mode for site Wi-Fi. enum: `default`, `disabled`, `enabled`.",
+						MarkdownDescription: "ARP proxy mode for site Wi-Fi. enum: `default`, `disabled`, `enabled`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -16400,6 +16412,24 @@ func (t JuniperSrxType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`gateways expected to be basetypes.ListValue, was: %T`, gatewaysAttribute))
 	}
 
+	mistNacUserRoleSourceAttribute, ok := attributes["mist_nac_user_role_source"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mist_nac_user_role_source is missing from object`)
+
+		return nil, diags
+	}
+
+	mistNacUserRoleSourceVal, ok := mistNacUserRoleSourceAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mist_nac_user_role_source expected to be basetypes.StringValue, was: %T`, mistNacUserRoleSourceAttribute))
+	}
+
 	sendMistNacUserInfoAttribute, ok := attributes["send_mist_nac_user_info"]
 
 	if !ok {
@@ -16441,10 +16471,11 @@ func (t JuniperSrxType) ValueFromObject(ctx context.Context, in basetypes.Object
 	}
 
 	return JuniperSrxValue{
-		Gateways:            gatewaysVal,
-		SendMistNacUserInfo: sendMistNacUserInfoVal,
-		SrxAutoUpgrade:      srxAutoUpgradeVal,
-		state:               attr.ValueStateKnown,
+		Gateways:              gatewaysVal,
+		MistNacUserRoleSource: mistNacUserRoleSourceVal,
+		SendMistNacUserInfo:   sendMistNacUserInfoVal,
+		SrxAutoUpgrade:        srxAutoUpgradeVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -16529,6 +16560,24 @@ func NewJuniperSrxValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`gateways expected to be basetypes.ListValue, was: %T`, gatewaysAttribute))
 	}
 
+	mistNacUserRoleSourceAttribute, ok := attributes["mist_nac_user_role_source"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`mist_nac_user_role_source is missing from object`)
+
+		return NewJuniperSrxValueUnknown(), diags
+	}
+
+	mistNacUserRoleSourceVal, ok := mistNacUserRoleSourceAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`mist_nac_user_role_source expected to be basetypes.StringValue, was: %T`, mistNacUserRoleSourceAttribute))
+	}
+
 	sendMistNacUserInfoAttribute, ok := attributes["send_mist_nac_user_info"]
 
 	if !ok {
@@ -16570,10 +16619,11 @@ func NewJuniperSrxValue(attributeTypes map[string]attr.Type, attributes map[stri
 	}
 
 	return JuniperSrxValue{
-		Gateways:            gatewaysVal,
-		SendMistNacUserInfo: sendMistNacUserInfoVal,
-		SrxAutoUpgrade:      srxAutoUpgradeVal,
-		state:               attr.ValueStateKnown,
+		Gateways:              gatewaysVal,
+		MistNacUserRoleSource: mistNacUserRoleSourceVal,
+		SendMistNacUserInfo:   sendMistNacUserInfoVal,
+		SrxAutoUpgrade:        srxAutoUpgradeVal,
+		state:                 attr.ValueStateKnown,
 	}, diags
 }
 
@@ -16645,14 +16695,15 @@ func (t JuniperSrxType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = JuniperSrxValue{}
 
 type JuniperSrxValue struct {
-	Gateways            basetypes.ListValue   `tfsdk:"gateways"`
-	SendMistNacUserInfo basetypes.BoolValue   `tfsdk:"send_mist_nac_user_info"`
-	SrxAutoUpgrade      basetypes.ObjectValue `tfsdk:"auto_upgrade"`
-	state               attr.ValueState
+	Gateways              basetypes.ListValue   `tfsdk:"gateways"`
+	MistNacUserRoleSource basetypes.StringValue `tfsdk:"mist_nac_user_role_source"`
+	SendMistNacUserInfo   basetypes.BoolValue   `tfsdk:"send_mist_nac_user_info"`
+	SrxAutoUpgrade        basetypes.ObjectValue `tfsdk:"auto_upgrade"`
+	state                 attr.ValueState
 }
 
 func (v JuniperSrxValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 3)
+	attrTypes := make(map[string]tftypes.Type, 4)
 
 	var val tftypes.Value
 	var err error
@@ -16660,6 +16711,7 @@ func (v JuniperSrxValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["gateways"] = basetypes.ListType{
 		ElemType: GatewaysValue{}.Type(ctx),
 	}.TerraformType(ctx)
+	attrTypes["mist_nac_user_role_source"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["send_mist_nac_user_info"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["auto_upgrade"] = basetypes.ObjectType{
 		AttrTypes: SrxAutoUpgradeValue{}.AttributeTypes(ctx),
@@ -16669,7 +16721,7 @@ func (v JuniperSrxValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 3)
+		vals := make(map[string]tftypes.Value, 4)
 
 		val, err = v.Gateways.ToTerraformValue(ctx)
 
@@ -16678,6 +16730,14 @@ func (v JuniperSrxValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["gateways"] = val
+
+		val, err = v.MistNacUserRoleSource.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["mist_nac_user_role_source"] = val
 
 		val, err = v.SendMistNacUserInfo.ToTerraformValue(ctx)
 
@@ -16778,7 +16838,8 @@ func (v JuniperSrxValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"gateways": basetypes.ListType{
 			ElemType: GatewaysValue{}.Type(ctx),
 		},
-		"send_mist_nac_user_info": basetypes.BoolType{},
+		"mist_nac_user_role_source": basetypes.StringType{},
+		"send_mist_nac_user_info":   basetypes.BoolType{},
 		"auto_upgrade": basetypes.ObjectType{
 			AttrTypes: SrxAutoUpgradeValue{}.AttributeTypes(ctx),
 		},
@@ -16795,9 +16856,10 @@ func (v JuniperSrxValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"gateways":                gateways,
-			"send_mist_nac_user_info": v.SendMistNacUserInfo,
-			"auto_upgrade":            srxAutoUpgrade,
+			"gateways":                  gateways,
+			"mist_nac_user_role_source": v.MistNacUserRoleSource,
+			"send_mist_nac_user_info":   v.SendMistNacUserInfo,
+			"auto_upgrade":              srxAutoUpgrade,
 		})
 
 	return objVal, diags
@@ -16819,6 +16881,10 @@ func (v JuniperSrxValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.Gateways.Equal(other.Gateways) {
+		return false
+	}
+
+	if !v.MistNacUserRoleSource.Equal(other.MistNacUserRoleSource) {
 		return false
 	}
 
@@ -16846,7 +16912,8 @@ func (v JuniperSrxValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"gateways": basetypes.ListType{
 			ElemType: GatewaysValue{}.Type(ctx),
 		},
-		"send_mist_nac_user_info": basetypes.BoolType{},
+		"mist_nac_user_role_source": basetypes.StringType{},
+		"send_mist_nac_user_info":   basetypes.BoolType{},
 		"auto_upgrade": basetypes.ObjectType{
 			AttrTypes: SrxAutoUpgradeValue{}.AttributeTypes(ctx),
 		},
@@ -33999,22 +34066,22 @@ func (t WanSpeedtestType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	attributes := in.Attributes()
 
-	enabledAttribute, ok := attributes["enabled"]
+	disabledAttribute, ok := attributes["disabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enabled is missing from object`)
+			`disabled is missing from object`)
 
 		return nil, diags
 	}
 
-	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
 	}
 
 	timeOfDayAttribute, ok := attributes["time_of_day"]
@@ -34040,7 +34107,7 @@ func (t WanSpeedtestType) ValueFromObject(ctx context.Context, in basetypes.Obje
 	}
 
 	return WanSpeedtestValue{
-		Enabled:   enabledVal,
+		Disabled:  disabledVal,
 		TimeOfDay: timeOfDayVal,
 		state:     attr.ValueStateKnown,
 	}, diags
@@ -34109,22 +34176,22 @@ func NewWanSpeedtestValue(attributeTypes map[string]attr.Type, attributes map[st
 		return NewWanSpeedtestValueUnknown(), diags
 	}
 
-	enabledAttribute, ok := attributes["enabled"]
+	disabledAttribute, ok := attributes["disabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enabled is missing from object`)
+			`disabled is missing from object`)
 
 		return NewWanSpeedtestValueUnknown(), diags
 	}
 
-	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
 	}
 
 	timeOfDayAttribute, ok := attributes["time_of_day"]
@@ -34150,7 +34217,7 @@ func NewWanSpeedtestValue(attributeTypes map[string]attr.Type, attributes map[st
 	}
 
 	return WanSpeedtestValue{
-		Enabled:   enabledVal,
+		Disabled:  disabledVal,
 		TimeOfDay: timeOfDayVal,
 		state:     attr.ValueStateKnown,
 	}, diags
@@ -34224,7 +34291,7 @@ func (t WanSpeedtestType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = WanSpeedtestValue{}
 
 type WanSpeedtestValue struct {
-	Enabled   basetypes.BoolValue   `tfsdk:"enabled"`
+	Disabled  basetypes.BoolValue   `tfsdk:"disabled"`
 	TimeOfDay basetypes.StringValue `tfsdk:"time_of_day"`
 	state     attr.ValueState
 }
@@ -34235,7 +34302,7 @@ func (v WanSpeedtestValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 	var val tftypes.Value
 	var err error
 
-	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["time_of_day"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -34244,13 +34311,13 @@ func (v WanSpeedtestValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 2)
 
-		val, err = v.Enabled.ToTerraformValue(ctx)
+		val, err = v.Disabled.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["enabled"] = val
+		vals["disabled"] = val
 
 		val, err = v.TimeOfDay.ToTerraformValue(ctx)
 
@@ -34290,7 +34357,7 @@ func (v WanSpeedtestValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"enabled":     basetypes.BoolType{},
+		"disabled":    basetypes.BoolType{},
 		"time_of_day": basetypes.StringType{},
 	}
 
@@ -34305,7 +34372,7 @@ func (v WanSpeedtestValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"enabled":     v.Enabled,
+			"disabled":    v.Disabled,
 			"time_of_day": v.TimeOfDay,
 		})
 
@@ -34327,7 +34394,7 @@ func (v WanSpeedtestValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.Enabled.Equal(other.Enabled) {
+	if !v.Disabled.Equal(other.Disabled) {
 		return false
 	}
 
@@ -34348,7 +34415,7 @@ func (v WanSpeedtestValue) Type(ctx context.Context) attr.Type {
 
 func (v WanSpeedtestValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"enabled":     basetypes.BoolType{},
+		"disabled":    basetypes.BoolType{},
 		"time_of_day": basetypes.StringType{},
 	}
 }

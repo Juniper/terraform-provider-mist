@@ -49,13 +49,13 @@ resource "mist_org_wxtag" "wxtag_one" {
 
 - `name` (String) Display name of the WxLAN tag
 - `org_id` (String) Owning organization associated with this WxLAN tag
-- `type` (String) Kind of WxLAN tag and how it is populated
+- `type` (String) Kind of WxLAN tag and how it is populated. enum: `client`, `match`, `resource`, `spec`, `subnet`, `vlan`.
 
 ### Optional
 
 - `mac` (String) If `type`==`client`, Client MAC address
-- `match` (String) Required if `type`==`match`; attribute compared against `values`
-- `op` (String) Required if `type`==`match`; whether `values` are inclusive or exclusive matches
+- `match` (String) Required if `type`==`match`; attribute compared against `values`. enum: `ap_id`, `app`, `asset_mac`, `client_mac`, `hostname`, `ip_range_subnet`, `port`, `psk_name`, `psk_role`, `radius_attr`, `radius_class`, `radius_group`, `radius_username`, `sdkclient_uuid`, `wlan_id`.
+- `op` (String) Required if `type`==`match`; whether `values` are inclusive or exclusive matches. enum: `in`, `not_in`.
 - `specs` (Attributes List) Traffic match specifications used when `type`==`spec` (see [below for nested schema](#nestedatt--specs))
 - `values` (List of String) Comparison values for the selected `match` attribute when `type`==`match`
 - `vlan_id` (String) Identifier of the VLAN associated with this WxLAN tag when `type`==`vlan`

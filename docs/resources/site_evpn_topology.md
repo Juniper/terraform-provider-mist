@@ -19,9 +19,30 @@ EVPN allows an alternative but more efficient LAN architecture utilizing VxLAN /
 ## Example Usage
 
 ```terraform
-resource "mist_site_site_evpn_topology" "evpn_one" {
-  site_id = mist_site.terraform_test.id
+resource "mist_org_inventory" "evpn_topology_switches" {
+  org_id = "c0c92f93-d702-4cb7-a661-aaca08cfcf74"
+  inventory = {
+    "HY5BD8EVMSRQRCV" = {
+      site_id = "87e30472-720a-42c5-acd9-ac95213d08b3"
+    }
+    "P9ZRN52RXQEQNH5" = {
+      site_id = "87e30472-720a-42c5-acd9-ac95213d08b3"
+    }
+    "HNCNY3DWSAKJFPB" = {
+      site_id = "87e30472-720a-42c5-acd9-ac95213d08b3"
+    }
+    "GSK46S5XKH657DG" = {
+      site_id = "87e30472-720a-42c5-acd9-ac95213d08b3"
+    }
+  }
+}
+
+resource "mist_site_evpn_topology" "evpn_one" {
+  site_id = "87e30472-720a-42c5-acd9-ac95213d08b3"
   name    = "evpn_one"
+  depends_on = [
+    mist_org_inventory.evpn_topology_switches,
+  ]
   evpn_options = {
     routed_at = "core"
     overlay = {
@@ -38,32 +59,20 @@ resource "mist_site_site_evpn_topology" "evpn_one" {
     }
     auto_router_id_subnet = "172.16.254.0/23"
   }
-  switches = [
-    {
-      mac  = "020004000001"
+  switches = {
+    "0200030001fe" = {
       role = "core"
-    },
-    {
-      mac  = "02000400002"
+    }
+    "0200030001ff" = {
       role = "core"
-    },
-    {
-      mac  = "02000400003"
-      role = "distribution"
-    },
-    {
-      mac  = "02000400004"
-      role = "distribution"
-    },
-    {
-      mac  = "02000400005"
-      role = "access"
-    },
-    {
-      mac  = "02000400006"
+    }
+    "020003000200" = {
       role = "access"
     }
-  ]
+    "020003000201" = {
+      role = "access"
+    }
+  }
 }
 ```
 
@@ -91,7 +100,7 @@ resource "mist_site_site_evpn_topology" "evpn_one" {
 
 Required:
 
-- `role` (String) EVPN topology role for this switch
+- `role` (String) EVPN topology role for this switch. enum: `access`, `border`, `collapsed-core`, `core`, `distribution`, `esilag-access`, `none`.
 
 Optional:
 
@@ -99,22 +108,6 @@ Optional:
   * for CLOS, to group dist / access switches into pods
   * for ERB/CRB, to group dist / esilag-access into pods
 - `pods` (List of Number) List of pod numbers this switch participates in
-
-Read-Only:
-
-- `deviceprofile_id` (String) Associated device profile identifier for the switch. Use the [Assign Org Device Profile]($e/Orgs%20Device%20Profiles/assignOrgDeviceProfile) endpoint to assign a Device Profile to the switch.
-- `downlink_ips` (List of String) IP addresses used by this switch for EVPN downlinks
-- `downlinks` (List of String) Switch MAC addresses connected as downlinks from this topology member
-- `esilaglinks` (List of String) Switch MAC addresses connected through ESI-LAG from this topology member
-- `evpn_id` (Number) Topology identifier number for this EVPN switch member
-- `mac` (String) Switch MAC address used to identify the topology member
-- `model` (String) Switch model for this topology member
-- `router_id` (String) Routing identifier used by this switch for EVPN routing
-- `site_id` (String) Associated site for this EVPN topology switch
-- `suggested_downlinks` (List of String) Builder-suggested downlink switch MAC addresses
-- `suggested_esilaglinks` (List of String) Builder-suggested ESI-LAG switch MAC addresses
-- `suggested_uplinks` (List of String) Builder-suggested uplink switch MAC addresses
-- `uplinks` (List of String) Switch MAC addresses connected as uplinks from this topology member
 
 
 <a id="nestedatt--evpn_options"></a>
@@ -132,7 +125,7 @@ Optional:
 - `overlay` (Attributes) EVPN overlay BGP settings for the topology (see [below for nested schema](#nestedatt--evpn_options--overlay))
 - `per_vlan_vga_v4_mac` (Boolean) Only for by Core-Distribution architecture when `evpn_options.routed_at`==`core`. By default, JUNOS uses 00-00-5e-00-01-01 as the virtual-gateway-address's v4_mac. If enabled, 00-00-5e-00-0X-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)
 - `per_vlan_vga_v6_mac` (Boolean) Only for by Core-Distribution architecture when `evpn_options.routed_at`==`core`. By default, JUNOS uses 00-00-5e-00-02-01 as the virtual-gateway-address's v6_mac. If enabled, 00-00-5e-00-1X-YY will be used (where XX=vlan_id/256, YY=vlan_id%256)
-- `routed_at` (String) Topology tier where EVPN virtual gateway routing is placed
+- `routed_at` (String) Topology tier where EVPN virtual gateway routing is placed. enum: `core`, `distribution`, `edge`.
 - `underlay` (Attributes) EVPN underlay BGP and subnet settings for the topology (see [below for nested schema](#nestedatt--evpn_options--underlay))
 - `vs_instances` (Attributes Map) Virtual-switch instance mappings used to segregate EVPN networks (see [below for nested schema](#nestedatt--evpn_options--vs_instances))
 

@@ -211,6 +211,87 @@ func switchMgmtTacacsSdkToTerraform(ctx context.Context, diags *diag.Diagnostics
 	return o
 }
 
+func switchMgmtRadiusAuthServersSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, l []models.SwitchMgmtRadiusAuthServer) basetypes.ListValue {
+
+	var authValueList []attr.Value
+	for _, d := range l {
+		var id basetypes.StringValue
+		var port basetypes.StringValue
+
+		host := types.StringValue(d.Host)
+		secret := types.StringValue(d.Secret)
+		if d.Id != nil {
+			id = types.StringValue(d.Id.String())
+		}
+		if d.Port != nil {
+			port = mistutils.RadiusAuthPortAsString(d.Port)
+		}
+
+		dataMapValue := map[string]attr.Value{
+			"host":   host,
+			"id":     id,
+			"port":   port,
+			"secret": secret,
+		}
+		data, e := NewRadiusAuthServersValue(RadiusAuthServersValue{}.AttributeTypes(ctx), dataMapValue)
+		diags.Append(e...)
+
+		authValueList = append(authValueList, data)
+	}
+
+	authStateListType := RadiusAuthServersValue{}.Type(ctx)
+	authStateList, e := types.ListValueFrom(ctx, authStateListType, authValueList)
+	diags.Append(e...)
+
+	return authStateList
+}
+
+func switchMgmtRadiusSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *models.SwitchRadius) basetypes.ObjectValue {
+
+	var authServers = types.ListNull(RadiusAuthServersValue{}.Type(ctx))
+	var authServersRetries basetypes.Int64Value
+	var authServersTimeout basetypes.Int64Value
+	var enabled basetypes.BoolValue
+	var network basetypes.StringValue
+	var useDifferentRadius basetypes.BoolValue
+
+	if d != nil {
+		if d.AuthServers != nil {
+			authServers = switchMgmtRadiusAuthServersSdkToTerraform(ctx, diags, d.AuthServers)
+		}
+		if d.AuthServersRetries != nil {
+			authServersRetries = types.Int64Value(int64(*d.AuthServersRetries))
+		}
+		if d.AuthServersTimeout != nil {
+			authServersTimeout = types.Int64Value(int64(*d.AuthServersTimeout))
+		}
+		if d.Enabled != nil {
+			enabled = types.BoolValue(*d.Enabled)
+		}
+		if d.Network != nil {
+			network = types.StringValue(*d.Network)
+		}
+		if d.UseDifferentRadius != nil {
+			useDifferentRadius = types.BoolValue(*d.UseDifferentRadius)
+		}
+	}
+
+	dataMapValue := map[string]attr.Value{
+		"auth_servers":         authServers,
+		"auth_servers_retries": authServersRetries,
+		"auth_servers_timeout": authServersTimeout,
+		"enabled":              enabled,
+		"network":              network,
+		"use_different_radius": useDifferentRadius,
+	}
+	data, e := NewRadiusValue(RadiusValue{}.AttributeTypes(ctx), dataMapValue)
+	diags.Append(e...)
+
+	o, e := data.ToObjectValue(ctx)
+	diags.Append(e...)
+	return o
+}
+
 func switchLocalAccountUserSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m map[string]models.ConfigSwitchLocalAccountsUser) basetypes.MapValue {
 	dataMapValue := make(map[string]attr.Value)
 	for k, d := range m {
@@ -253,6 +334,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 	var mxedgeProxyHost basetypes.StringValue
 	var mxedgeProxyPort basetypes.StringValue
 	var protectRe = types.ObjectNull(ProtectReValue{}.AttributeTypes(ctx))
+	var radius = types.ObjectNull(RadiusValue{}.AttributeTypes(ctx))
 	var remoteExistingConfigs basetypes.BoolValue
 	var rootPassword basetypes.StringValue
 	var tacacs = types.ObjectNull(TacacsValue{}.AttributeTypes(ctx))
@@ -292,6 +374,9 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		if d.ProtectRe != nil {
 			protectRe = switchMgmtProtectReSdkToTerraform(ctx, diags, d.ProtectRe)
 		}
+		if d.Radius != nil {
+			radius = switchMgmtRadiusSdkToTerraform(ctx, diags, d.Radius)
+		}
 		if d.RemoveExistingConfigs != nil {
 			remoteExistingConfigs = types.BoolValue(*d.RemoveExistingConfigs)
 		}
@@ -318,6 +403,7 @@ func switchMgmtSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *m
 		"mxedge_proxy_host":       mxedgeProxyHost,
 		"mxedge_proxy_port":       mxedgeProxyPort,
 		"protect_re":              protectRe,
+		"radius":                  radius,
 		"remove_existing_configs": remoteExistingConfigs,
 		"root_password":           rootPassword,
 		"tacacs":                  tacacs,

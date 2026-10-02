@@ -82,6 +82,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgGatewaytemplateModel) (*models
 		data.IpConfigs = ipConfigsTerraformToSdk(plan.IpConfigs)
 	}
 
+	if plan.MnhaConfig.IsNull() || plan.MnhaConfig.IsUnknown() {
+		unset["-mnha_config"] = ""
+	} else {
+		data.MnhaConfig = mnhaConfigTerraformToSdk(plan.MnhaConfig)
+	}
+
 	if plan.Networks.IsNull() || plan.Networks.IsUnknown() {
 		unset["-networks"] = ""
 	} else {

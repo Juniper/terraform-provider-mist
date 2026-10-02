@@ -16,6 +16,7 @@ type OrgNetworkModel struct {
 	Tenants              map[string]OrgNetworkTenantsValue   `hcl:"tenants"`
 	VlanId               *string                             `hcl:"vlan_id"`
 	VpnAccess            map[string]OrgNetworkVpnAccessValue `hcl:"vpn_access"`
+	ZoneId               *string                             `hcl:"zone_id"`
 }
 
 type OrgNetworkInternalAccessValue struct {

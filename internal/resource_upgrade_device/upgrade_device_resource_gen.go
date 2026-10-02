@@ -73,8 +73,8 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"status": schema.StringAttribute{
 						Computed:            true,
-						Description:         "Current firmware update status",
-						MarkdownDescription: "Current firmware update status",
+						Description:         "Current firmware update status. enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`.",
+						MarkdownDescription: "Current firmware update status. enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`.",
 					},
 					"status_id": schema.Int64Attribute{
 						Computed:            true,
@@ -135,8 +135,8 @@ func UpgradeDeviceResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"status": schema.StringAttribute{
 				Computed:            true,
-				Description:         "Current status of the requested device upgrade",
-				MarkdownDescription: "Current status of the requested device upgrade",
+				Description:         "Current status of the requested device upgrade. enum: `error`, `inprogress`, `scheduled`, `starting`, `success`.",
+				MarkdownDescription: "Current status of the requested device upgrade. enum: `error`, `inprogress`, `scheduled`, `starting`, `success`.",
 			},
 			"sync_upgrade": schema.BoolAttribute{
 				Optional:            true,

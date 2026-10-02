@@ -41,7 +41,7 @@ func NetworksTerraformToSdk(d basetypes.MapValue) map[string]models.SwitchNetwor
 				mc.Enabled = v.ValueBoolPointer()
 			}
 			if v, ok := attrs["igmp_version"].(basetypes.StringValue); ok && !v.IsNull() && !v.IsUnknown() {
-				mc.IgmpVersion = models.ToPointer(models.IgmpVersionEnum(v.ValueString()))
+				mc.IgmpVersion = models.ToPointer(models.SwitchNetworkMulticastIgmpVersionEnum(v.ValueString()))
 			}
 			netData.Multicast = &mc
 		}

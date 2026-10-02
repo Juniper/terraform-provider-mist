@@ -71,6 +71,9 @@ func juniperSrxTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Ju
 	if !d.Gateways.IsNull() && !d.Gateways.IsUnknown() {
 		data.Gateways = juniperSrxGatewaysTerraformToSdk(d.Gateways)
 	}
+	if d.MistNacUserRoleSource.ValueStringPointer() != nil {
+		data.MistNacUserRoleSource = models.ToPointer(models.SiteSettingMistNacUserRoleSourceEnum(d.MistNacUserRoleSource.ValueString()))
+	}
 	if d.SendMistNacUserInfo.ValueBoolPointer() != nil {
 		data.SendMistNacUserInfo = d.SendMistNacUserInfo.ValueBoolPointer()
 	}

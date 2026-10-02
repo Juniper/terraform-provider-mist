@@ -3,6 +3,7 @@ package resource_org_networktemplate
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 
@@ -146,6 +147,63 @@ func switchMgmtTacacsTerraformToSdk(ctx context.Context, diags *diag.Diagnostics
 	}
 }
 
+func switchMgmtRadiusAuthServersTerraformToSdk(diags *diag.Diagnostics, d basetypes.ListValue) []models.SwitchMgmtRadiusAuthServer {
+
+	var data []models.SwitchMgmtRadiusAuthServer
+	for _, planAttr := range d.Elements() {
+		var srvPlanInterface interface{} = planAttr
+		srvPlan := srvPlanInterface.(RadiusAuthServersValue)
+
+		srvData := models.SwitchMgmtRadiusAuthServer{}
+		srvData.Host = srvPlan.Host.ValueString()
+		srvData.Secret = srvPlan.Secret.ValueString()
+		if srvPlan.Port.ValueStringPointer() != nil {
+			srvData.Port = models.ToPointer(models.RadiusAuthPortContainer.FromString(srvPlan.Port.ValueString()))
+		}
+		if len(srvPlan.Id.ValueString()) > 0 {
+			id, e := uuid.Parse(srvPlan.Id.ValueString())
+			if e == nil {
+				srvData.Id = &id
+			} else {
+				diags.AddError("Bad value for radius auth_servers id", e.Error())
+			}
+		}
+		data = append(data, srvData)
+	}
+	return data
+}
+
+func switchMgmtRadiusTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d basetypes.ObjectValue) *models.SwitchRadius {
+
+	data := models.SwitchRadius{}
+	if d.IsNull() || d.IsUnknown() {
+		return &data
+	} else {
+		item, e := NewRadiusValue(d.AttributeTypes(ctx), d.Attributes())
+		diags.Append(e...)
+
+		if !item.RadiusAuthServers.IsNull() && !item.RadiusAuthServers.IsUnknown() {
+			data.AuthServers = switchMgmtRadiusAuthServersTerraformToSdk(diags, item.RadiusAuthServers)
+		}
+		if item.AuthServersRetries.ValueInt64Pointer() != nil {
+			data.AuthServersRetries = models.ToPointer(int(item.AuthServersRetries.ValueInt64()))
+		}
+		if item.AuthServersTimeout.ValueInt64Pointer() != nil {
+			data.AuthServersTimeout = models.ToPointer(int(item.AuthServersTimeout.ValueInt64()))
+		}
+		if item.Enabled.ValueBoolPointer() != nil {
+			data.Enabled = models.ToPointer(item.Enabled.ValueBool())
+		}
+		if item.Network.ValueStringPointer() != nil {
+			data.Network = models.ToPointer(item.Network.ValueString())
+		}
+		if item.UseDifferentRadius.ValueBoolPointer() != nil {
+			data.UseDifferentRadius = models.ToPointer(item.UseDifferentRadius.ValueBool())
+		}
+		return &data
+	}
+}
+
 func switchLocalAccountUsersTerraformToSdk(d basetypes.MapValue) map[string]models.ConfigSwitchLocalAccountsUser {
 	data := make(map[string]models.ConfigSwitchLocalAccountsUser)
 	for itemName, itemValue := range d.Elements() {
@@ -204,6 +262,9 @@ func switchMgmtTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d Sw
 		}
 		if !d.ProtectRe.IsNull() && !d.ProtectRe.IsUnknown() {
 			data.ProtectRe = switchMgmtProtectReTerraformToSdk(ctx, diags, d.ProtectRe)
+		}
+		if !d.Radius.IsNull() && !d.Radius.IsUnknown() {
+			data.Radius = switchMgmtRadiusTerraformToSdk(ctx, diags, d.Radius)
 		}
 		if d.RemoveExistingConfigs.ValueBoolPointer() != nil {
 			data.RemoveExistingConfigs = d.RemoveExistingConfigs.ValueBoolPointer()

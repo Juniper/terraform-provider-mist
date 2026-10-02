@@ -106,6 +106,7 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	var defaultIdpId basetypes.StringValue
 	var disableRsaeAlgorithms basetypes.BoolValue
 	var eapSslSecurityLevel basetypes.Int64Value
+	var enableEapMd5ForMab basetypes.BoolValue
 	var euOnly basetypes.BoolValue
 	var fingerprinting = types.ObjectNull(FingerprintingValue{}.AttributeTypes(ctx))
 	var idps = types.ListNull(IdpsValue{}.Type(ctx))
@@ -131,6 +132,9 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 	}
 	if d.EapSslSecurityLevel != nil {
 		eapSslSecurityLevel = types.Int64Value(int64(*d.EapSslSecurityLevel))
+	}
+	if d.EnableEapMd5ForMab != nil {
+		enableEapMd5ForMab = types.BoolValue(*d.EnableEapMd5ForMab)
 	}
 	if d.EuOnly != nil {
 		euOnly = types.BoolValue(*d.EuOnly)
@@ -178,6 +182,7 @@ func mistNacSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, d *mode
 		"default_idp_id":                defaultIdpId,
 		"disable_rsae_algorithms":       disableRsaeAlgorithms,
 		"eap_ssl_security_level":        eapSslSecurityLevel,
+		"enable_eap_md5_for_mab":        enableEapMd5ForMab,
 		"eu_only":                       euOnly,
 		"fingerprinting":                fingerprinting,
 		"idps":                          idps,

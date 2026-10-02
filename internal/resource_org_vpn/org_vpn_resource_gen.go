@@ -52,8 +52,8 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 					"strategy": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Path selection strategy for a hub-and-spoke VPN",
-						MarkdownDescription: "Path selection strategy for a hub-and-spoke VPN",
+						Description:         "Path selection strategy for a hub-and-spoke VPN. enum: `disabled`, `simple`, `manual`.",
+						MarkdownDescription: "Path selection strategy for a hub-and-spoke VPN. enum: `disabled`, `simple`, `manual`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -79,8 +79,8 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"bfd_profile": schema.StringAttribute{
 							Optional:            true,
-							Description:         "BFD profile used for this VPN path",
-							MarkdownDescription: "BFD profile used for this VPN path",
+							Description:         "BFD profile used for this VPN path. enum: `broadband`, `lte`.",
+							MarkdownDescription: "BFD profile used for this VPN path. enum: `broadband`, `lte`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -176,8 +176,8 @@ func OrgVpnResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"type": schema.StringAttribute{
 				Optional:            true,
-				Description:         "VPN topology mode for this configuration",
-				MarkdownDescription: "VPN topology mode for this configuration",
+				Description:         "VPN topology mode for this configuration. enum: `hub_spoke`, `mesh`.",
+				MarkdownDescription: "VPN topology mode for this configuration. enum: `hub_spoke`, `mesh`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

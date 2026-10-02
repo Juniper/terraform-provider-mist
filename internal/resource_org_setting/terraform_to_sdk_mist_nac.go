@@ -113,6 +113,10 @@ func mistNacTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d MistN
 		data.EapSslSecurityLevel = models.ToPointer(int(d.EapSslSecurityLevel.ValueInt64()))
 	}
 
+	if d.EnableEapMd5ForMab.ValueBoolPointer() != nil {
+		data.EnableEapMd5ForMab = d.EnableEapMd5ForMab.ValueBoolPointer()
+	}
+
 	if d.EuOnly.ValueBoolPointer() != nil {
 		data.EuOnly = d.EuOnly.ValueBoolPointer()
 	}

@@ -148,7 +148,7 @@ Optional:
 
 Required:
 
-- `type` (String) Classifier type that determines which ACL tag fields are evaluated
+- `type` (String) Classifier type that determines which ACL tag fields are evaluated. enum: `any`, `aruba_user_role`, `dynamic_gbp`, `gbp_resource`, `mac`, `network`, `port_usage`, `radius_group`, `resource`, `static_gbp`, `subnet`.
 
 Optional:
 
@@ -189,14 +189,14 @@ Optional:
 Required:
 
 - `local_as` (String) Local BGP Autonomous System (AS) number for the switch
-- `type` (String) BGP session type for this switch BGP configuration
+- `type` (String) BGP session type for this switch BGP configuration. enum: `external`, `internal`.
 
 Optional:
 
-- `auth_key` (String, Sensitive) Authentication key used for BGP neighbor sessions, when configured
+- `auth_key` (String) Authentication key used for BGP neighbor sessions, when configured
 - `bfd_minimum_interval` (Number) Minimum interval in milliseconds for BFD hello packets. A neighbor is considered failed when the device stops receiving replies after the specified interval. Value must be between 1 and 255000.
 - `export_policy` (String) Export policy must match one of the policy names defined in the `routing_policies` property.
-- `hold_time` (Number) Default BGP hold time for switch BGP sessions
+- `hold_time` (Number) Default BGP hold time for switch BGP sessions.
 - `import_policy` (String) Import policy must match one of the policy names defined in the `routing_policies` property.
 - `neighbors` (Attributes Map) BGP neighbor settings keyed by neighbor IP address (see [below for nested schema](#nestedatt--bgp_config--neighbors))
 - `networks` (List of String) Network names used to add BGP groups to the corresponding VRFs
@@ -211,7 +211,7 @@ Required:
 Optional:
 
 - `export_policy` (String) Export policy must match one of the policy names defined in the `routing_policies` property.
-- `hold_time` (Number) BGP hold time for this neighbor
+- `hold_time` (Number) BGP hold time for this neighbor. enum: `0`.
 - `import_policy` (String) Import policy must match one of the policy names defined in the `routing_policies` property.
 - `multihop_ttl` (Number) Time-to-live value for multihop BGP sessions to this neighbor
 
@@ -293,10 +293,13 @@ Optional:
 
 Optional:
 
-- `anycast_rp` (Boolean) When `true`, auto-generates a shared RP on `is_l3_border` devices (ERB/IPClos topologies only)
-- `rp_ip` (String) RP address used when `anycast_rp`==`false`. If the address matches a device SVI, it is configured as a local RP; otherwise a static RP is configured
+- `anycast_rp` (Boolean) When `true`, generates a shared anycast RP on all `is_l3_border` devices in EVPN (ERB/IPClos) topologies. Uses `rp_ip` as the shared RP address, or an internal default when `rp_ip` is omitted. Takes precedence over `rp_mac` and `rp_ip` when multiple RP options are set.
+- `peg_enabled` (Boolean) When `true`, enables the PIM EVPN Gateway on `is_l3_border` devices. Required for external sources or receivers in EVPN topologies.
+- `rp_ip` (String) RP address used for EVPN anycast RP when `anycast_rp` is true, or for an external RP when it is false. In non-EVPN topologies, a matching device router ID configures a local RP; otherwise a static RP is configured.
+- `rp_mac` (String) Device MAC address of a fabric RP in EVPN topologies. The RP address is the first usable IP of the VRF `evpn_auto_loopback_subnet`, not `rp_ip`; requires `evpn_auto_loopback_subnet`. Takes precedence over `rp_ip` when `anycast_rp` is false.
 - `sbd_subnet` (String) SBD IRB subnet; Mist auto-assigns per-device IPs from this range (EVPN eOISM only)
 - `sbd_vlan_id` (Number) Supplemental Bridge Domain VLAN ID (EVPN topology / eOISM only)
+- `sbd_wan_rpf` (Boolean) When `true` on PEG borders, builds an eBGP mesh between PEG borders over SBD IRBs so WAN-learned routes can satisfy the PIM RPF check during a border WAN-uplink failure.
 
 
 <a id="nestedatt--networks"></a>
@@ -336,7 +339,7 @@ Required:
 Optional:
 
 - `include_loopback` (Boolean) Whether loopback interfaces are included in this OSPF area
-- `type` (String) Area type for this OSPF area
+- `type` (String) Area type for this OSPF area. enum: `default`, `nssa`, `stub`.
 
 <a id="nestedatt--ospf_areas--networks"></a>
 ### Nested Schema for `ospf_areas.networks`
@@ -345,13 +348,13 @@ Optional:
 
 - `auth_keys` (Map of String, Sensitive) Required if `auth_type`==`md5`. Property key is the key number
 - `auth_password` (String, Sensitive) Required if `auth_type`==`password`, the password, max length is 8
-- `auth_type` (String) Authentication method used by this OSPF network
+- `auth_type` (String) Authentication method used by this OSPF network. enum: `md5`, `none`, `password`.
 - `bfd_minimum_interval` (Number) Minimum BFD interval for this OSPF network, in milliseconds
 - `dead_interval` (Number) OSPF dead interval for this network, in seconds
 - `export_policy` (String) Routing policy used to export routes from this OSPF network
 - `hello_interval` (Number) OSPF hello interval for this network, in seconds
 - `import_policy` (String) Routing policy used to import routes for this OSPF network
-- `interface_type` (String) OSPF interface type used for this network
+- `interface_type` (String) OSPF interface type used for this network. enum: `broadcast`, `nbma`, `p2mp`, `p2p`.
 - `metric` (Number) OSPF metric assigned to this network
 - `no_readvertise_to_overlay` (Boolean) By default, we'll re-advertise all learned OSPF routes toward overlay
 - `passive` (Boolean) Whether to send OSPF-Hello
@@ -386,7 +389,7 @@ Optional:
 - `description` (String) Only if `mode`!=`dynamic`
 - `disable_autoneg` (Boolean) Only if `mode`!=`dynamic`. If speed and duplex are specified, whether to disable autonegotiation
 - `disabled` (Boolean) Only if `mode`!=`dynamic`. Whether the port is disabled
-- `duplex` (String) Only if `mode`!=`dynamic`. Link duplex mode for this port usage
+- `duplex` (String) Only if `mode`!=`dynamic`. Link duplex mode for this port usage. enum: `auto`, `full`, `half`.
 - `dynamic_vlan_networks` (List of String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Networks or VLANs that RADIUS can return for dynamic VLAN assignment
 - `enable_mac_auth` (Boolean) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Whether to enable MAC Auth
 - `enable_qos` (Boolean) Only if `mode`!=`dynamic`
@@ -395,24 +398,25 @@ Optional:
 - `inter_switch_link` (Boolean) Only if `mode`!=`dynamic`. `inter_switch_link` is used together with `isolation` under networks. NOTE: `inter_switch_link` works only between Juniper devices. This has to be applied to both ports connected together
 - `mac_auth_only` (Boolean) Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`
 - `mac_auth_preferred` (Boolean) Only if `mode`!=`dynamic` + `enable_mac_auth`==`true` + `mac_auth_only`==`false`, dot1x will be given priority then mac_auth. Enable this to prefer mac_auth over dot1x.
-- `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`. MAC authentication protocol to use; ignored if Mist NAC is enabled
+- `mac_auth_protocol` (String) Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`. Select `pap`, `eap-peap`, or `eap-md5`. When Mist NAC is enabled, this is forced to `pap`, unless `mist_nac.enable_eap_md5_for_mab` is enabled; then `eap-md5` is kept and the port performs MAB (mac-radius) while sending EAP-MD5. enum: `eap-md5`, `eap-peap`, `pap`.
 - `mac_limit` (String) Only if `mode`!=`dynamic` max number of mac addresses, default is 0 for unlimited, otherwise range is 1 to 16383 (upper bound constrained by platform)
-- `mode` (String) Switching mode for this port usage
+- `mode` (String) Switching mode for this port usage. enum: `access`, `dynamic`, `inet`, `trunk`.
 - `mtu` (String) Only if `mode`!=`dynamic` media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation. Value between 256 and 9216, default value is 1514.
 - `networks` (List of String) Only if `mode`==`trunk`. Network or VLAN names to trunk
+- `no_local_port_config` (Boolean) Whether this port usage can be overridden in local port configuration
 - `persist_mac` (Boolean) Only if `mode`==`access` and `port_auth`!=`dot1x`. Whether the port should retain dynamically learned MAC addresses
 - `poe_disabled` (Boolean) Only if `mode`!=`dynamic`. Whether PoE capabilities are disabled for a port
 - `poe_keep_state_when_reboot` (Boolean) Only if `mode`!=`dynamic`. Whether Perpetual PoE is enabled; keeps PoE state across reboots
-- `poe_priority` (String) Only if `mode`!=`dynamic`. PoE priority for ports using this port usage
-- `port_auth` (String) Only if `mode`!=`dynamic`. 802.1X authentication mode for this port usage
+- `poe_priority` (String) Only if `mode`!=`dynamic`. PoE priority for ports using this port usage. enum: `low`, `high`.
+- `port_auth` (String) Only if `mode`!=`dynamic`. 802.1X authentication mode for this port usage. enum: `dot1x`.
 - `port_network` (String) Only if `mode`!=`dynamic`. Native network/vlan for untagged traffic
 - `reauth_interval` (String) Only if `mode`!=`dynamic` and `port_auth`=`dot1x` reauthentication interval range between 10 and 65535 (default: 3600)
-- `reset_default_when` (String) Only if `mode`==`dynamic`. Condition that resets a dynamic port to the default port usage
+- `reset_default_when` (String) Only if `mode`==`dynamic`. Condition that resets a dynamic port to the default port usage. enum: `link_down`, `none`.
 - `rules` (Attributes List) Only if `mode`==`dynamic`. Dynamic matching rules that select the port usage to apply (see [below for nested schema](#nestedatt--port_usages--rules))
 - `server_fail_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Sets server fail fallback vlan
 - `server_fail_retry_interval` (Number) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Interval, in seconds. Sets the wait time before retrying authentication after RADIUS failure to reduce client flapping. Range 120-65535
 - `server_reject_network` (String) Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. When RADIUS server reject / fails
-- `speed` (String) Only if `mode`!=`dynamic`. Link speed for this port usage
+- `speed` (String) Only if `mode`!=`dynamic`. Link speed for this port usage. enum: `10m`, `100m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`, `auto`.
 - `storm_control` (Attributes) Only if `mode`!=`dynamic`. Storm-control settings for this port usage (see [below for nested schema](#nestedatt--port_usages--storm_control))
 - `stp_disable` (Boolean) Only if `mode`!=`dynamic` and `stp_required`==`false`. Drop bridge protocol data units (BPDUs ) that enter any interface or a specified interface
 - `stp_edge` (Boolean) Only if `mode`!=`dynamic`. When enabled, the port is not expected to receive BPDU frames
@@ -428,7 +432,7 @@ Optional:
 
 Required:
 
-- `src` (String) Source attribute evaluated by this dynamic rule
+- `src` (String) Source attribute evaluated by this dynamic rule. enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_description`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`.
 
 Optional:
 
@@ -463,7 +467,7 @@ Optional:
 - `acct_immediate_update` (Boolean) Whether immediate RADIUS accounting updates are sent
 - `acct_interim_interval` (Number) How frequently should interim accounting be reported, 60-65535. default is 0 (use one specified in Access-Accept request from RADIUS Server). Very frequent messages can affect the performance of the RADIUS server, 600 and up is recommended when enabled
 - `acct_servers` (Attributes List) RADIUS accounting servers used by this switch configuration (see [below for nested schema](#nestedatt--radius_config--acct_servers))
-- `auth_server_selection` (String) Selection strategy for RADIUS authentication servers
+- `auth_server_selection` (String) Selection strategy for RADIUS authentication servers. enum: `ordered`, `unordered`.
 - `auth_servers` (Attributes List) RADIUS authentication servers used by this switch configuration (see [below for nested schema](#nestedatt--radius_config--auth_servers))
 - `auth_servers_retries` (Number) RADIUS auth session retries
 - `auth_servers_timeout` (Number) RADIUS auth session timeout
@@ -484,7 +488,7 @@ Required:
 Optional:
 
 - `keywrap_enabled` (Boolean) Whether RADIUS keywrap is enabled for messages sent to this accounting server
-- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values
+- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.
 - `keywrap_kek` (String) RADIUS keywrap key encryption key (KEK)
 - `keywrap_mack` (String) RADIUS keywrap message authentication code key (MACK)
 - `port` (String) UDP port used by the RADIUS accounting server
@@ -501,7 +505,7 @@ Required:
 Optional:
 
 - `keywrap_enabled` (Boolean) Whether RADIUS keywrap is enabled for messages sent to this authentication server
-- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values
+- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.
 - `keywrap_kek` (String) RADIUS keywrap key encryption key (KEK)
 - `keywrap_mack` (String) RADIUS keywrap message authentication code key (MACK)
 - `port` (String) UDP port used by the RADIUS authentication server
@@ -522,7 +526,7 @@ Optional:
 - `network` (String) Source network used for syslog traffic. If `source_address` is configured, Mist uses the VLAN first; otherwise it uses `source_ip`
 - `send_to_all_servers` (Boolean) Whether each log entry is sent to all configured remote syslog servers
 - `servers` (Attributes List) Remote syslog server destinations (see [below for nested schema](#nestedatt--remote_syslog--servers))
-- `time_format` (String) Timestamp format used in forwarded syslog messages
+- `time_format` (String) Timestamp format used in forwarded syslog messages. enum: `millisecond`, `year`, `year millisecond`.
 - `users` (Attributes List) User-specific syslog logging rules (see [below for nested schema](#nestedatt--remote_syslog--users))
 
 <a id="nestedatt--remote_syslog--archive"></a>
@@ -546,8 +550,8 @@ Optional:
 
 Optional:
 
-- `facility` (String) Syslog facility to match for this selector
-- `severity` (String) Syslog severity to match for this selector
+- `facility` (String) Syslog facility to match for this selector. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.
+- `severity` (String) Syslog severity to match for this selector. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.
 
 
 
@@ -578,8 +582,8 @@ Optional:
 
 Optional:
 
-- `facility` (String) Syslog facility to match for this selector
-- `severity` (String) Syslog severity to match for this selector
+- `facility` (String) Syslog facility to match for this selector. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.
+- `severity` (String) Syslog severity to match for this selector. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.
 
 
 
@@ -590,14 +594,14 @@ Optional:
 
 - `contents` (Attributes List) Syslog facilities and severities sent to this server (see [below for nested schema](#nestedatt--remote_syslog--servers--contents))
 - `explicit_priority` (Boolean) Whether to include explicit syslog priority values in messages sent to this server
-- `facility` (String) Default syslog facility for messages sent to this server
+- `facility` (String) Default syslog facility for messages sent to this server. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.
 - `host` (String) Address or hostname of the remote syslog server
 - `match` (String) Expression used to filter log messages sent to this server
 - `port` (String) Network port used by the remote syslog server
-- `protocol` (String) Transport protocol used for this remote syslog server
+- `protocol` (String) Transport protocol used for this remote syslog server. enum: `tcp`, `udp`.
 - `routing_instance` (String) Routing instance used to reach this remote syslog server
 - `server_name` (String) TLS server name used when verifying the remote syslog server certificate
-- `severity` (String) Default syslog severity for messages sent to this server
+- `severity` (String) Default syslog severity for messages sent to this server. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.
 - `source_address` (String) Source address for syslog traffic. If configured, Mist uses the VLAN first; otherwise it uses `source_ip`
 - `structured_data` (Boolean) Whether to include structured syslog data in messages sent to this server
 - `tag` (String) Syslog tag value added to messages sent to this server
@@ -607,8 +611,8 @@ Optional:
 
 Optional:
 
-- `facility` (String) Syslog facility to match for this selector
-- `severity` (String) Syslog severity to match for this selector
+- `facility` (String) Syslog facility to match for this selector. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.
+- `severity` (String) Syslog severity to match for this selector. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.
 
 
 
@@ -626,8 +630,8 @@ Optional:
 
 Optional:
 
-- `facility` (String) Syslog facility to match for this selector
-- `severity` (String) Syslog severity to match for this selector
+- `facility` (String) Syslog facility to match for this selector. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.
+- `severity` (String) Syslog severity to match for this selector. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.
 
 
 
@@ -685,7 +689,7 @@ Optional:
 - `description` (String) Device description string advertised through SNMP
 - `enabled` (Boolean) Whether SNMP is enabled
 - `engine_id` (String) SNMP engine ID used for SNMPv3
-- `engine_id_type` (String) Method used to derive the SNMP engine ID
+- `engine_id_type` (String) Method used to derive the SNMP engine ID. enum: `local`, `use_mac_address`.
 - `location` (String) Physical location string advertised through SNMP
 - `name` (String) System name advertised through SNMP
 - `network` (String) Management network used for SNMP traffic
@@ -711,7 +715,7 @@ Optional:
 - `categories` (List of String) Trap categories included in this SNMP trap group
 - `group_name` (String) Trap group name for this SNMP trap group
 - `targets` (List of String) Trap target addresses for this SNMP trap group
-- `version` (String) SNMP trap protocol version used by this group
+- `version` (String) SNMP trap protocol version used by this group. enum: `all`, `v1`, `v2`.
 
 
 <a id="nestedatt--snmp_config--v2c_config"></a>
@@ -790,14 +794,14 @@ Optional:
 
 Required:
 
-- `message_processing_model` (String) SNMP message processing model used by this target parameter profile
+- `message_processing_model` (String) SNMP message processing model used by this target parameter profile. enum: `v1`, `v2c`, `v3`.
 - `name` (String) Target parameter profile name
 
 Optional:
 
 - `notify_filter` (String) Notification filter profile referenced by this target parameter profile
-- `security_level` (String) Required security level for this target parameter profile
-- `security_model` (String) Required security model for this target parameter profile
+- `security_level` (String) Required security level for this target parameter profile. enum: `authentication`, `none`, `privacy`.
+- `security_model` (String) Required security model for this target parameter profile. enum: `usm`, `v1`, `v2c`.
 - `security_name` (String) USM security name referenced by this target parameter profile
 
 
@@ -806,7 +810,7 @@ Optional:
 
 Required:
 
-- `engine_type` (String) SNMP engine type used for this USM configuration
+- `engine_type` (String) SNMP engine type used for this USM configuration. enum: `local_engine`, `remote_engine`.
 
 Optional:
 
@@ -819,9 +823,9 @@ Optional:
 Optional:
 
 - `authentication_password` (String, Sensitive) Not required if `authentication_type`==`authentication-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters.
-- `authentication_type` (String) Authentication protocol used by this SNMPv3 USM user
+- `authentication_type` (String) Authentication protocol used by this SNMPv3 USM user. enum: `authentication-md5`, `authentication-none`, `authentication-sha`, `authentication-sha224`, `authentication-sha256`, `authentication-sha384`, `authentication-sha512`.
 - `encryption_password` (String, Sensitive) Not required if `encryption_type`==`privacy-none`. Include alphabetic, numeric, and special characters, but it cannot include control characters
-- `encryption_type` (String) Privacy protocol used by this SNMPv3 USM user
+- `encryption_type` (String) Privacy protocol used by this SNMPv3 USM user. enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`.
 - `name` (String) Username for the SNMPv3 USM user
 
 
@@ -850,9 +854,9 @@ Optional:
 - `context_prefix` (String) Context prefix for this VACM access rule. Required only if `type`==`context_prefix`
 - `notify_view` (String) Notify view name referenced by this VACM access rule
 - `read_view` (String) Read view name referenced by this VACM access rule
-- `security_level` (String) Required security level for this VACM access rule
-- `security_model` (String) Required security model for this VACM access rule
-- `type` (String) VACM context matching type for this access rule
+- `security_level` (String) Required security level for this VACM access rule. enum: `authentication`, `none`, `privacy`.
+- `security_model` (String) Required security model for this VACM access rule. enum: `any`, `usm`, `v1`, `v2c`.
+- `type` (String) VACM context matching type for this access rule. enum: `context_prefix`, `default_context_prefix`.
 - `write_view` (String) Write view name referenced by this VACM access rule
 
 
@@ -863,7 +867,7 @@ Optional:
 Optional:
 
 - `content` (Attributes List) VACM security-name to group mapping entries (see [below for nested schema](#nestedatt--snmp_config--v3_config--vacm--security_to_group--content))
-- `security_model` (String) Required security model for these VACM group mappings
+- `security_model` (String) Required security model for these VACM group mappings. enum: `usm`, `v1`, `v2c`.
 
 <a id="nestedatt--snmp_config--v3_config--vacm--security_to_group--content"></a>
 ### Nested Schema for `snmp_config.v3_config.vacm.security_to_group.content`
@@ -920,7 +924,7 @@ Optional:
 Optional:
 
 - `network` (String) VLAN Name for the management interface
-- `type` (String) IP assignment mode for in-band switch management
+- `type` (String) IP assignment mode for in-band switch management. enum: `dhcp`, `static`.
 
 
 <a id="nestedatt--switch_matching--rules--oob_ip_config"></a>
@@ -928,7 +932,7 @@ Optional:
 
 Optional:
 
-- `type` (String) IP assignment mode for out-of-band switch management
+- `type` (String) IP assignment mode for out-of-band switch management. enum: `dhcp`, `static`.
 - `use_mgmt_vrf` (Boolean) If supported on the platform. If enabled, DNS will be using this routing-instance, too
 - `use_mgmt_vrf_for_host_out` (Boolean) For host-out traffic (NTP/TACPLUS/RADIUS/SYSLOG/SNMP), if alternative source network/ip is desired
 
@@ -951,7 +955,7 @@ Optional:
 - `critical` (Boolean) To generate port up/down alarm
 - `description` (String) Human-readable description for this Junos port
 - `disable_autoneg` (Boolean) If `speed` and `duplex` are specified, whether to disable autonegotiation
-- `duplex` (String) Link duplex mode for this Junos port
+- `duplex` (String) Link duplex mode for this Junos port. enum: `auto`, `full`, `half`.
 - `dynamic_usage` (String) Enable dynamic usage for this port. Set to `dynamic` to enable.
 - `esilag` (Boolean) Whether this Junos port participates in an ESI-LAG
 - `mtu` (Number) Media maximum transmission unit (MTU) is the largest data unit that can be forwarded without fragmentation
@@ -959,7 +963,7 @@ Optional:
 - `no_local_overwrite` (Boolean) Prevent helpdesk to override the port config
 - `poe_disabled` (Boolean) Whether PoE capabilities are disabled for this Junos port
 - `port_network` (String) Required if `usage`==`vlan_tunnel`. Q-in-Q tunneling using All-in-one bundling. This also enables standard L2PT for interfaces that are not encapsulation tunnel interfaces and uses MAC rewrite operation. [View more information](https://www.juniper.net/documentation/us/en/software/junos/multicast-l2/topics/topic-map/q-in-q.html#id-understanding-qinq-tunneling-and-vlan-translation)
-- `speed` (String) Link speed for this Junos port
+- `speed` (String) Link speed for this Junos port. enum: `10m`, `100m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`, `auto`.
 
 
 <a id="nestedatt--switch_matching--rules--port_mirroring"></a>
@@ -1001,6 +1005,7 @@ Optional:
 - `mxedge_proxy_host` (String) IP address or FQDN of the Mist Edge used to proxy the switch management traffic to the Mist Cloud
 - `mxedge_proxy_port` (String) Mist Edge port used to proxy the switch management traffic to the Mist Cloud. Value in range 1-65535
 - `protect_re` (Attributes) Control-plane protection settings for the switch (see [below for nested schema](#nestedatt--switch_mgmt--protect_re))
+- `radius` (Attributes) Management authentication settings using RADIUS (see [below for nested schema](#nestedatt--switch_mgmt--radius))
 - `remove_existing_configs` (Boolean) By default, only the configuration generated by Mist is cleaned up during the configuration process. If `true`, all the existing configuration will be removed.
 - `root_password` (String, Sensitive) Root password for local switch access
 - `tacacs` (Attributes) Management authentication settings using TACACS+ (see [below for nested schema](#nestedatt--switch_mgmt--tacacs))
@@ -1012,7 +1017,7 @@ Optional:
 Optional:
 
 - `password` (String, Sensitive) Local password for the switch user account
-- `role` (String) Access role granted to the local switch user account
+- `role` (String) Access role granted to the local switch user account. enum: `admin`, `helpdesk`, `none`, `read`.
 
 
 <a id="nestedatt--switch_mgmt--protect_re"></a>
@@ -1042,13 +1047,43 @@ Optional:
 
 
 
+<a id="nestedatt--switch_mgmt--radius"></a>
+### Nested Schema for `switch_mgmt.radius`
+
+Optional:
+
+- `auth_servers` (Attributes List) RADIUS authentication servers used for switch management authentication. Required when `enabled`==`true` and `use_different_radius`==`true`. (see [below for nested schema](#nestedatt--switch_mgmt--radius--auth_servers))
+- `auth_servers_retries` (Number) RADIUS auth session retries. Required when `enabled`==`true` and `use_different_radius`==`true`.
+- `auth_servers_timeout` (Number) RADIUS auth session timeout, in seconds. Required when `enabled`==`true` and `use_different_radius`==`true`.
+- `enabled` (Boolean) Whether RADIUS is enabled for switch management authentication
+- `network` (String) Source network used for connectivity to the RADIUS servers
+- `use_different_radius` (Boolean) Whether to use alternate RADIUS settings instead of the default switch `radius_config`
+
+<a id="nestedatt--switch_mgmt--radius--auth_servers"></a>
+### Nested Schema for `switch_mgmt.radius.auth_servers`
+
+Required:
+
+- `host` (String) Address or hostname of the RADIUS authentication server
+- `secret` (String, Sensitive) Shared secret used with this RADIUS authentication server
+
+Optional:
+
+- `port` (String) UDP port used by the RADIUS authentication server
+
+Read-Only:
+
+- `id` (String) Unique identifier for this RADIUS authentication server entry
+
+
+
 <a id="nestedatt--switch_mgmt--tacacs"></a>
 ### Nested Schema for `switch_mgmt.tacacs`
 
 Optional:
 
 - `acct_servers` (Attributes List) TACACS+ accounting servers used for switch management sessions (see [below for nested schema](#nestedatt--switch_mgmt--tacacs--acct_servers))
-- `default_role` (String) Default switch-management role to use for TACACS+ logins
+- `default_role` (String) Default switch-management role to use for TACACS+ logins. enum: `admin`, `helpdesk`, `none`, `read`.
 - `enabled` (Boolean) Whether TACACS+ is enabled for switch management authentication
 - `network` (String) Source network used for connectivity to the TACACS+ servers
 - `tacplus_servers` (Attributes List) TACACS+ authentication servers used for switch management logins (see [below for nested schema](#nestedatt--switch_mgmt--tacacs--tacplus_servers))
@@ -1118,10 +1153,13 @@ Optional:
 
 Optional:
 
-- `anycast_rp` (Boolean) When `true`, auto-generates a shared RP on `is_l3_border` devices (ERB/IPClos topologies only)
-- `rp_ip` (String) RP address used when `anycast_rp`==`false`. If the address matches a device SVI, it is configured as a local RP; otherwise a static RP is configured
+- `anycast_rp` (Boolean) When `true`, generates a shared anycast RP on all `is_l3_border` devices in EVPN (ERB/IPClos) topologies. Uses `rp_ip` as the shared RP address, or an internal default when `rp_ip` is omitted. Takes precedence over `rp_mac` and `rp_ip` when multiple RP options are set.
+- `peg_enabled` (Boolean) When `true`, enables the PIM EVPN Gateway on `is_l3_border` devices. Required for external sources or receivers in EVPN topologies.
+- `rp_ip` (String) RP address used for EVPN anycast RP when `anycast_rp` is true, or for an external RP when it is false. In non-EVPN topologies, a matching device router ID configures a local RP; otherwise a static RP is configured.
+- `rp_mac` (String) Device MAC address of a fabric RP in EVPN topologies. The RP address is the first usable IP of the VRF `evpn_auto_loopback_subnet`, not `rp_ip`; requires `evpn_auto_loopback_subnet`. Takes precedence over `rp_ip` when `anycast_rp` is false.
 - `sbd_subnet` (String) SBD IRB subnet; Mist auto-assigns per-device IPs from this range (EVPN eOISM only)
 - `sbd_vlan_id` (Number) Supplemental Bridge Domain VLAN ID (EVPN topology / eOISM only)
+- `sbd_wan_rpf` (Boolean) When `true` on PEG borders, builds an eBGP mesh between PEG borders over SBD IRBs so WAN-learned routes can satisfy the PIM RPF check during a border WAN-uplink failure.
 
 
 

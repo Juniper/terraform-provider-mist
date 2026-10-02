@@ -80,14 +80,23 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 	}
 	if data.MulticastConfig != nil {
 		var anycastRp types.Bool
+		var pegEnabled types.Bool
 		var rpIp types.String
+		var rpMac types.String
 		var sbdSubnet types.String
 		var sbdVlanId types.Int64
+		var sbdWanRpf types.Bool
 		if data.MulticastConfig.AnycastRp != nil {
 			anycastRp = types.BoolValue(*data.MulticastConfig.AnycastRp)
 		}
+		if data.MulticastConfig.PegEnabled != nil {
+			pegEnabled = types.BoolValue(*data.MulticastConfig.PegEnabled)
+		}
 		if data.MulticastConfig.RpIp != nil {
 			rpIp = types.StringValue(*data.MulticastConfig.RpIp)
+		}
+		if data.MulticastConfig.RpMac != nil {
+			rpMac = types.StringValue(*data.MulticastConfig.RpMac)
 		}
 		if data.MulticastConfig.SbdSubnet != nil {
 			sbdSubnet = types.StringValue(*data.MulticastConfig.SbdSubnet)
@@ -95,11 +104,17 @@ func SdkToTerraform(ctx context.Context, data models.NetworkTemplate) (OrgNetwor
 		if data.MulticastConfig.SbdVlanId != nil {
 			sbdVlanId = types.Int64Value(int64(*data.MulticastConfig.SbdVlanId))
 		}
+		if data.MulticastConfig.SbdWanRpf != nil {
+			sbdWanRpf = types.BoolValue(*data.MulticastConfig.SbdWanRpf)
+		}
 		mcv, e := NewMulticastConfigValue(MulticastConfigValue{}.AttributeTypes(ctx), map[string]attr.Value{
 			"anycast_rp":  anycastRp,
+			"peg_enabled": pegEnabled,
 			"rp_ip":       rpIp,
+			"rp_mac":      rpMac,
 			"sbd_subnet":  sbdSubnet,
 			"sbd_vlan_id": sbdVlanId,
+			"sbd_wan_rpf": sbdWanRpf,
 		})
 		diags.Append(e...)
 		multicastConfig = mcv

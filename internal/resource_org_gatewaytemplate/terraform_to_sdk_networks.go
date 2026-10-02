@@ -7,6 +7,7 @@ import (
 
 	"github.com/tmunzer/mistapi-go/mistapi/models"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
@@ -272,6 +273,15 @@ func networksTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d base
 
 		if !plan.VpnAccess.IsNull() && !plan.VpnAccess.IsUnknown() {
 			data.VpnAccess = vpnTerraformToSdk(ctx, diags, plan.VpnAccess)
+		}
+
+		if len(plan.ZoneId.ValueString()) > 0 {
+			zoneId, e := uuid.Parse(plan.ZoneId.ValueString())
+			if e == nil {
+				data.ZoneId = &zoneId
+			} else {
+				diags.AddError("Bad value for zone_id", e.Error())
+			}
 		}
 
 		dataList = append(dataList, data)

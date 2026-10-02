@@ -226,8 +226,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"type": schema.StringAttribute{
 							Required:            true,
-							Description:         "Classifier type that determines which ACL tag fields are evaluated",
-							MarkdownDescription: "Classifier type that determines which ACL tag fields are evaluated",
+							Description:         "Classifier type that determines which ACL tag fields are evaluated. enum: `any`, `aruba_user_role`, `dynamic_gbp`, `gbp_resource`, `mac`, `network`, `port_usage`, `radius_group`, `resource`, `static_gbp`, `subnet`.",
+							MarkdownDescription: "Classifier type that determines which ACL tag fields are evaluated. enum: `any`, `aruba_user_role`, `dynamic_gbp`, `gbp_resource`, `mac`, `network`, `port_usage`, `radius_group`, `resource`, `static_gbp`, `subnet`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -273,7 +273,6 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"auth_key": schema.StringAttribute{
 							Optional:            true,
-							Sensitive:           true,
 							Description:         "Authentication key used for BGP neighbor sessions, when configured",
 							MarkdownDescription: "Authentication key used for BGP neighbor sessions, when configured",
 						},
@@ -292,8 +291,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"hold_time": schema.Int64Attribute{
 							Optional:            true,
-							Description:         "Default BGP hold time for switch BGP sessions",
-							MarkdownDescription: "Default BGP hold time for switch BGP sessions",
+							Description:         "Default BGP hold time for switch BGP sessions.",
+							MarkdownDescription: "Default BGP hold time for switch BGP sessions.",
 							Validators: []validator.Int64{
 								int64validator.Any(int64validator.OneOf(0), int64validator.Between(3, 65535)),
 							},
@@ -321,8 +320,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"hold_time": schema.Int64Attribute{
 										Optional:            true,
-										Description:         "BGP hold time for this neighbor",
-										MarkdownDescription: "BGP hold time for this neighbor",
+										Description:         "BGP hold time for this neighbor.",
+										MarkdownDescription: "BGP hold time for this neighbor.",
 										Validators: []validator.Int64{
 											int64validator.Any(int64validator.OneOf(0), int64validator.Between(3, 65535)),
 										},
@@ -380,8 +379,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"type": schema.StringAttribute{
 							Required:            true,
-							Description:         "BGP session type for this switch BGP configuration",
-							MarkdownDescription: "BGP session type for this switch BGP configuration",
+							Description:         "BGP session type for this switch BGP configuration. enum: `external`, `internal`.",
+							MarkdownDescription: "BGP session type for this switch BGP configuration. enum: `external`, `internal`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf("external", "internal"),
 							},
@@ -657,13 +656,23 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"anycast_rp": schema.BoolAttribute{
 						Optional:            true,
-						Description:         "When `true`, auto-generates a shared RP on `is_l3_border` devices (ERB/IPClos topologies only)",
-						MarkdownDescription: "When `true`, auto-generates a shared RP on `is_l3_border` devices (ERB/IPClos topologies only)",
+						Description:         "When `true`, generates a shared anycast RP on all `is_l3_border` devices in EVPN (ERB/IPClos) topologies. Uses `rp_ip` as the shared RP address, or an internal default when `rp_ip` is omitted. Takes precedence over `rp_mac` and `rp_ip` when multiple RP options are set.",
+						MarkdownDescription: "When `true`, generates a shared anycast RP on all `is_l3_border` devices in EVPN (ERB/IPClos) topologies. Uses `rp_ip` as the shared RP address, or an internal default when `rp_ip` is omitted. Takes precedence over `rp_mac` and `rp_ip` when multiple RP options are set.",
+					},
+					"peg_enabled": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "When `true`, enables the PIM EVPN Gateway on `is_l3_border` devices. Required for external sources or receivers in EVPN topologies.",
+						MarkdownDescription: "When `true`, enables the PIM EVPN Gateway on `is_l3_border` devices. Required for external sources or receivers in EVPN topologies.",
 					},
 					"rp_ip": schema.StringAttribute{
 						Optional:            true,
-						Description:         "RP address used when `anycast_rp`==`false`. If the address matches a device SVI, it is configured as a local RP; otherwise a static RP is configured",
-						MarkdownDescription: "RP address used when `anycast_rp`==`false`. If the address matches a device SVI, it is configured as a local RP; otherwise a static RP is configured",
+						Description:         "RP address used for EVPN anycast RP when `anycast_rp` is true, or for an external RP when it is false. In non-EVPN topologies, a matching device router ID configures a local RP; otherwise a static RP is configured.",
+						MarkdownDescription: "RP address used for EVPN anycast RP when `anycast_rp` is true, or for an external RP when it is false. In non-EVPN topologies, a matching device router ID configures a local RP; otherwise a static RP is configured.",
+					},
+					"rp_mac": schema.StringAttribute{
+						Optional:            true,
+						Description:         "Device MAC address of a fabric RP in EVPN topologies. The RP address is the first usable IP of the VRF `evpn_auto_loopback_subnet`, not `rp_ip`; requires `evpn_auto_loopback_subnet`. Takes precedence over `rp_ip` when `anycast_rp` is false.",
+						MarkdownDescription: "Device MAC address of a fabric RP in EVPN topologies. The RP address is the first usable IP of the VRF `evpn_auto_loopback_subnet`, not `rp_ip`; requires `evpn_auto_loopback_subnet`. Takes precedence over `rp_ip` when `anycast_rp` is false.",
 					},
 					"sbd_subnet": schema.StringAttribute{
 						Optional:            true,
@@ -674,6 +683,11 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						Optional:            true,
 						Description:         "Supplemental Bridge Domain VLAN ID (EVPN topology / eOISM only)",
 						MarkdownDescription: "Supplemental Bridge Domain VLAN ID (EVPN topology / eOISM only)",
+					},
+					"sbd_wan_rpf": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "When `true` on PEG borders, builds an eBGP mesh between PEG borders over SBD IRBs so WAN-learned routes can satisfy the PIM RPF check during a border WAN-uplink failure.",
+						MarkdownDescription: "When `true` on PEG borders, builds an eBGP mesh between PEG borders over SBD IRBs so WAN-learned routes can satisfy the PIM RPF check during a border WAN-uplink failure.",
 					},
 				},
 				CustomType: MulticastConfigType{
@@ -735,6 +749,7 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									MarkdownDescription: "IGMP version. '2' (default, ASM/IGMPv2) / '3' (SSM/IGMPv3)",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
+											"",
 											"2",
 											"3",
 										),
@@ -845,8 +860,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"auth_type": schema.StringAttribute{
 										Optional:            true,
-										Description:         "Authentication method used by this OSPF network",
-										MarkdownDescription: "Authentication method used by this OSPF network",
+										Description:         "Authentication method used by this OSPF network. enum: `md5`, `none`, `password`.",
+										MarkdownDescription: "Authentication method used by this OSPF network. enum: `md5`, `none`, `password`.",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -893,8 +908,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									"interface_type": schema.StringAttribute{
 										Optional:            true,
 										Computed:            true,
-										Description:         "OSPF interface type used for this network",
-										MarkdownDescription: "OSPF interface type used for this network",
+										Description:         "OSPF interface type used for this network. enum: `broadcast`, `nbma`, `p2mp`, `p2p`.",
+										MarkdownDescription: "OSPF interface type used for this network. enum: `broadcast`, `nbma`, `p2mp`, `p2p`.",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -943,8 +958,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						"type": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Area type for this OSPF area",
-							MarkdownDescription: "Area type for this OSPF area",
+							Description:         "Area type for this OSPF area. enum: `default`, `nssa`, `stub`.",
+							MarkdownDescription: "Area type for this OSPF area. enum: `default`, `nssa`, `stub`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1127,8 +1142,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"duplex": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`. Link duplex mode for this port usage",
-							MarkdownDescription: "Only if `mode`!=`dynamic`. Link duplex mode for this port usage",
+							Description:         "Only if `mode`!=`dynamic`. Link duplex mode for this port usage. enum: `auto`, `full`, `half`.",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. Link duplex mode for this port usage. enum: `auto`, `full`, `half`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1200,8 +1215,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"mac_auth_protocol": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`. MAC authentication protocol to use; ignored if Mist NAC is enabled",
-							MarkdownDescription: "Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`. MAC authentication protocol to use; ignored if Mist NAC is enabled",
+							Description:         "Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`. Select `pap`, `eap-peap`, or `eap-md5`. When Mist NAC is enabled, this is forced to `pap`, unless `mist_nac.enable_eap_md5_for_mab` is enabled; then `eap-md5` is kept and the port performs MAB (mac-radius) while sending EAP-MD5. enum: `eap-md5`, `eap-peap`, `pap`.",
+							MarkdownDescription: "Only if `mode`!=`dynamic` and `enable_mac_auth`==`true`. Select `pap`, `eap-peap`, or `eap-md5`. When Mist NAC is enabled, this is forced to `pap`, unless `mist_nac.enable_eap_md5_for_mab` is enabled; then `eap-md5` is kept and the port performs MAB (mac-radius) while sending EAP-MD5. enum: `eap-md5`, `eap-peap`, `pap`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1226,8 +1241,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"mode": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Switching mode for this port usage",
-							MarkdownDescription: "Switching mode for this port usage",
+							Description:         "Switching mode for this port usage. enum: `access`, `dynamic`, `inet`, `trunk`.",
+							MarkdownDescription: "Switching mode for this port usage. enum: `access`, `dynamic`, `inet`, `trunk`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1262,6 +1277,11 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							},
 							Default: listdefault.StaticValue(types.ListNull(types.StringType)),
 						},
+						"no_local_port_config": schema.BoolAttribute{
+							Optional:            true,
+							Description:         "Whether this port usage can be overridden in local port configuration",
+							MarkdownDescription: "Whether this port usage can be overridden in local port configuration",
+						},
 						"persist_mac": schema.BoolAttribute{
 							Optional:            true,
 							Description:         "Only if `mode`==`access` and `port_auth`!=`dot1x`. Whether the port should retain dynamically learned MAC addresses",
@@ -1284,8 +1304,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"poe_priority": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`. PoE priority for ports using this port usage",
-							MarkdownDescription: "Only if `mode`!=`dynamic`. PoE priority for ports using this port usage",
+							Description:         "Only if `mode`!=`dynamic`. PoE priority for ports using this port usage. enum: `low`, `high`.",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. PoE priority for ports using this port usage. enum: `low`, `high`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1296,8 +1316,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"port_auth": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`. 802.1X authentication mode for this port usage",
-							MarkdownDescription: "Only if `mode`!=`dynamic`. 802.1X authentication mode for this port usage",
+							Description:         "Only if `mode`!=`dynamic`. 802.1X authentication mode for this port usage. enum: `dot1x`.",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. 802.1X authentication mode for this port usage. enum: `dot1x`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1329,8 +1349,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"reset_default_when": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`==`dynamic`. Condition that resets a dynamic port to the default port usage",
-							MarkdownDescription: "Only if `mode`==`dynamic`. Condition that resets a dynamic port to the default port usage",
+							Description:         "Only if `mode`==`dynamic`. Condition that resets a dynamic port to the default port usage. enum: `link_down`, `none`.",
+							MarkdownDescription: "Only if `mode`==`dynamic`. Condition that resets a dynamic port to the default port usage. enum: `link_down`, `none`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1366,8 +1386,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"src": schema.StringAttribute{
 										Required:            true,
-										Description:         "Source attribute evaluated by this dynamic rule",
-										MarkdownDescription: "Source attribute evaluated by this dynamic rule",
+										Description:         "Source attribute evaluated by this dynamic rule. enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_description`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`.",
+										MarkdownDescription: "Source attribute evaluated by this dynamic rule. enum: `link_peermac`, `lldp_chassis_id`, `lldp_hardware_revision`, `lldp_manufacturer_name`, `lldp_oui`, `lldp_serial_number`, `lldp_system_description`, `lldp_system_name`, `radius_dynamicfilter`, `radius_usermac`, `radius_username`.",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -1414,13 +1434,11 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"server_fail_retry_interval": schema.Int64Attribute{
 							Optional:            true,
-							Computed:            true,
 							Description:         "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Interval, in seconds. Sets the wait time before retrying authentication after RADIUS failure to reduce client flapping. Range 120-65535",
 							MarkdownDescription: "Only if `mode`!=`dynamic` and `port_auth`==`dot1x`. Interval, in seconds. Sets the wait time before retrying authentication after RADIUS failure to reduce client flapping. Range 120-65535",
 							Validators: []validator.Int64{
 								int64validator.Between(120, 65535),
 							},
-							Default: int64default.StaticInt64(120),
 						},
 						"server_reject_network": schema.StringAttribute{
 							Optional:            true,
@@ -1432,8 +1450,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"speed": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `mode`!=`dynamic`. Link speed for this port usage",
-							MarkdownDescription: "Only if `mode`!=`dynamic`. Link speed for this port usage",
+							Description:         "Only if `mode`!=`dynamic`. Link speed for this port usage. enum: `10m`, `100m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`, `auto`.",
+							MarkdownDescription: "Only if `mode`!=`dynamic`. Link speed for this port usage. enum: `10m`, `100m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`, `auto`.",
 							Validators: []validator.String{
 								mistvalidator.ForbiddenWhenValueIs(path.MatchRelative().AtParent().AtName("mode"), types.StringValue("dynamic")),
 							},
@@ -1594,8 +1612,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"keywrap_format": schema.StringAttribute{
 									Optional:            true,
-									Description:         "Encoding format for RADIUS keywrap KEK and MACK values",
-									MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values",
+									Description:         "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
+									MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -1642,8 +1660,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					"auth_server_selection": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Selection strategy for RADIUS authentication servers",
-						MarkdownDescription: "Selection strategy for RADIUS authentication servers",
+						Description:         "Selection strategy for RADIUS authentication servers. enum: `ordered`, `unordered`.",
+						MarkdownDescription: "Selection strategy for RADIUS authentication servers. enum: `ordered`, `unordered`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1668,8 +1686,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"keywrap_format": schema.StringAttribute{
 									Optional:            true,
-									Description:         "Encoding format for RADIUS keywrap KEK and MACK values",
-									MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values",
+									Description:         "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
+									MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -1814,8 +1832,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										"facility": schema.StringAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "Syslog facility to match for this selector",
-											MarkdownDescription: "Syslog facility to match for this selector",
+											Description:         "Syslog facility to match for this selector. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.",
+											MarkdownDescription: "Syslog facility to match for this selector. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -1842,8 +1860,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										"severity": schema.StringAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "Syslog severity to match for this selector",
-											MarkdownDescription: "Syslog severity to match for this selector",
+											Description:         "Syslog severity to match for this selector. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.",
+											MarkdownDescription: "Syslog severity to match for this selector. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -1918,8 +1936,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"facility": schema.StringAttribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "Syslog facility to match for this selector",
-												MarkdownDescription: "Syslog facility to match for this selector",
+												Description:         "Syslog facility to match for this selector. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.",
+												MarkdownDescription: "Syslog facility to match for this selector. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -1946,8 +1964,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"severity": schema.StringAttribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "Syslog severity to match for this selector",
-												MarkdownDescription: "Syslog severity to match for this selector",
+												Description:         "Syslog severity to match for this selector. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.",
+												MarkdownDescription: "Syslog severity to match for this selector. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -2029,8 +2047,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"facility": schema.StringAttribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "Syslog facility to match for this selector",
-												MarkdownDescription: "Syslog facility to match for this selector",
+												Description:         "Syslog facility to match for this selector. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.",
+												MarkdownDescription: "Syslog facility to match for this selector. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -2057,8 +2075,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"severity": schema.StringAttribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "Syslog severity to match for this selector",
-												MarkdownDescription: "Syslog severity to match for this selector",
+												Description:         "Syslog severity to match for this selector. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.",
+												MarkdownDescription: "Syslog severity to match for this selector. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -2093,8 +2111,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"facility": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Default syslog facility for messages sent to this server",
-									MarkdownDescription: "Default syslog facility for messages sent to this server",
+									Description:         "Default syslog facility for messages sent to this server. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.",
+									MarkdownDescription: "Default syslog facility for messages sent to this server. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -2136,8 +2154,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"protocol": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Transport protocol used for this remote syslog server",
-									MarkdownDescription: "Transport protocol used for this remote syslog server",
+									Description:         "Transport protocol used for this remote syslog server. enum: `tcp`, `udp`.",
+									MarkdownDescription: "Transport protocol used for this remote syslog server. enum: `tcp`, `udp`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -2160,8 +2178,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"severity": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Default syslog severity for messages sent to this server",
-									MarkdownDescription: "Default syslog severity for messages sent to this server",
+									Description:         "Default syslog severity for messages sent to this server. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.",
+									MarkdownDescription: "Default syslog severity for messages sent to this server. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -2205,8 +2223,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"time_format": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Timestamp format used in forwarded syslog messages",
-						MarkdownDescription: "Timestamp format used in forwarded syslog messages",
+						Description:         "Timestamp format used in forwarded syslog messages. enum: `millisecond`, `year`, `year millisecond`.",
+						MarkdownDescription: "Timestamp format used in forwarded syslog messages. enum: `millisecond`, `year`, `year millisecond`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -2225,8 +2243,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"facility": schema.StringAttribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "Syslog facility to match for this selector",
-												MarkdownDescription: "Syslog facility to match for this selector",
+												Description:         "Syslog facility to match for this selector. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.",
+												MarkdownDescription: "Syslog facility to match for this selector. enum: `any`, `authorization`, `change-log`, `config`, `conflict-log`, `daemon`, `dfc`, `external`, `firewall`, `ftp`, `interactive-commands`, `kernel`, `ntp`, `pfe`, `security`, `user`.",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -2253,8 +2271,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											"severity": schema.StringAttribute{
 												Optional:            true,
 												Computed:            true,
-												Description:         "Syslog severity to match for this selector",
-												MarkdownDescription: "Syslog severity to match for this selector",
+												Description:         "Syslog severity to match for this selector. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.",
+												MarkdownDescription: "Syslog severity to match for this selector. enum: `alert`, `any`, `critical`, `emergency`, `error`, `info`, `notice`, `warning`.",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -2510,8 +2528,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 					"engine_id_type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Method used to derive the SNMP engine ID",
-						MarkdownDescription: "Method used to derive the SNMP engine ID",
+						Description:         "Method used to derive the SNMP engine ID. enum: `local`, `use_mac_address`.",
+						MarkdownDescription: "Method used to derive the SNMP engine ID. enum: `local`, `use_mac_address`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -2559,8 +2577,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"version": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "SNMP trap protocol version used by this group",
-									MarkdownDescription: "SNMP trap protocol version used by this group",
+									Description:         "SNMP trap protocol version used by this group. enum: `all`, `v1`, `v2`.",
+									MarkdownDescription: "SNMP trap protocol version used by this group. enum: `all`, `v1`, `v2`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -2763,8 +2781,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Attributes: map[string]schema.Attribute{
 										"message_processing_model": schema.StringAttribute{
 											Required:            true,
-											Description:         "SNMP message processing model used by this target parameter profile",
-											MarkdownDescription: "SNMP message processing model used by this target parameter profile",
+											Description:         "SNMP message processing model used by this target parameter profile. enum: `v1`, `v2c`, `v3`.",
+											MarkdownDescription: "SNMP message processing model used by this target parameter profile. enum: `v1`, `v2c`, `v3`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -2786,8 +2804,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"security_level": schema.StringAttribute{
 											Optional:            true,
-											Description:         "Required security level for this target parameter profile",
-											MarkdownDescription: "Required security level for this target parameter profile",
+											Description:         "Required security level for this target parameter profile. enum: `authentication`, `none`, `privacy`.",
+											MarkdownDescription: "Required security level for this target parameter profile. enum: `authentication`, `none`, `privacy`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -2799,8 +2817,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"security_model": schema.StringAttribute{
 											Optional:            true,
-											Description:         "Required security model for this target parameter profile",
-											MarkdownDescription: "Required security model for this target parameter profile",
+											Description:         "Required security model for this target parameter profile. enum: `usm`, `v1`, `v2c`.",
+											MarkdownDescription: "Required security model for this target parameter profile. enum: `usm`, `v1`, `v2c`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -2834,8 +2852,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Attributes: map[string]schema.Attribute{
 										"engine_type": schema.StringAttribute{
 											Required:            true,
-											Description:         "SNMP engine type used for this USM configuration",
-											MarkdownDescription: "SNMP engine type used for this USM configuration",
+											Description:         "SNMP engine type used for this USM configuration. enum: `local_engine`, `remote_engine`.",
+											MarkdownDescription: "SNMP engine type used for this USM configuration. enum: `local_engine`, `remote_engine`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -2872,8 +2890,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 													},
 													"authentication_type": schema.StringAttribute{
 														Optional:            true,
-														Description:         "Authentication protocol used by this SNMPv3 USM user",
-														MarkdownDescription: "Authentication protocol used by this SNMPv3 USM user",
+														Description:         "Authentication protocol used by this SNMPv3 USM user. enum: `authentication-md5`, `authentication-none`, `authentication-sha`, `authentication-sha224`, `authentication-sha256`, `authentication-sha384`, `authentication-sha512`.",
+														MarkdownDescription: "Authentication protocol used by this SNMPv3 USM user. enum: `authentication-md5`, `authentication-none`, `authentication-sha`, `authentication-sha224`, `authentication-sha256`, `authentication-sha384`, `authentication-sha512`.",
 														Validators: []validator.String{
 															stringvalidator.OneOf(
 																"",
@@ -2901,8 +2919,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 													},
 													"encryption_type": schema.StringAttribute{
 														Optional:            true,
-														Description:         "Privacy protocol used by this SNMPv3 USM user",
-														MarkdownDescription: "Privacy protocol used by this SNMPv3 USM user",
+														Description:         "Privacy protocol used by this SNMPv3 USM user. enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`.",
+														MarkdownDescription: "Privacy protocol used by this SNMPv3 USM user. enum: `privacy-3des`, `privacy-aes128`, `privacy-des`, `privacy-none`.",
 														Validators: []validator.String{
 															stringvalidator.OneOf(
 																"",
@@ -2974,8 +2992,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 															},
 															"security_level": schema.StringAttribute{
 																Optional:            true,
-																Description:         "Required security level for this VACM access rule",
-																MarkdownDescription: "Required security level for this VACM access rule",
+																Description:         "Required security level for this VACM access rule. enum: `authentication`, `none`, `privacy`.",
+																MarkdownDescription: "Required security level for this VACM access rule. enum: `authentication`, `none`, `privacy`.",
 																Validators: []validator.String{
 																	stringvalidator.OneOf(
 																		"",
@@ -2987,8 +3005,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 															},
 															"security_model": schema.StringAttribute{
 																Optional:            true,
-																Description:         "Required security model for this VACM access rule",
-																MarkdownDescription: "Required security model for this VACM access rule",
+																Description:         "Required security model for this VACM access rule. enum: `any`, `usm`, `v1`, `v2c`.",
+																MarkdownDescription: "Required security model for this VACM access rule. enum: `any`, `usm`, `v1`, `v2c`.",
 																Validators: []validator.String{
 																	stringvalidator.OneOf(
 																		"",
@@ -3001,8 +3019,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 															},
 															"type": schema.StringAttribute{
 																Optional:            true,
-																Description:         "VACM context matching type for this access rule",
-																MarkdownDescription: "VACM context matching type for this access rule",
+																Description:         "VACM context matching type for this access rule. enum: `context_prefix`, `default_context_prefix`.",
+																MarkdownDescription: "VACM context matching type for this access rule. enum: `context_prefix`, `default_context_prefix`.",
 																Validators: []validator.String{
 																	stringvalidator.OneOf(
 																		"",
@@ -3042,8 +3060,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										Attributes: map[string]schema.Attribute{
 											"security_model": schema.StringAttribute{
 												Optional:            true,
-												Description:         "Required security model for these VACM group mappings",
-												MarkdownDescription: "Required security model for these VACM group mappings",
+												Description:         "Required security model for these VACM group mappings. enum: `usm`, `v1`, `v2c`.",
+												MarkdownDescription: "Required security model for these VACM group mappings. enum: `usm`, `v1`, `v2c`.",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -3182,8 +3200,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										"type": schema.StringAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "IP assignment mode for in-band switch management",
-											MarkdownDescription: "IP assignment mode for in-band switch management",
+											Description:         "IP assignment mode for in-band switch management. enum: `dhcp`, `static`.",
+											MarkdownDescription: "IP assignment mode for in-band switch management. enum: `dhcp`, `static`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -3253,8 +3271,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 										"type": schema.StringAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "IP assignment mode for out-of-band switch management",
-											MarkdownDescription: "IP assignment mode for out-of-band switch management",
+											Description:         "IP assignment mode for out-of-band switch management. enum: `dhcp`, `static`.",
+											MarkdownDescription: "IP assignment mode for out-of-band switch management. enum: `dhcp`, `static`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -3342,8 +3360,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"duplex": schema.StringAttribute{
 												Optional:            true,
-												Description:         "Link duplex mode for this Junos port",
-												MarkdownDescription: "Link duplex mode for this Junos port",
+												Description:         "Link duplex mode for this Junos port. enum: `auto`, `full`, `half`.",
+												MarkdownDescription: "Link duplex mode for this Junos port. enum: `auto`, `full`, `half`.",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -3393,8 +3411,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"speed": schema.StringAttribute{
 												Optional:            true,
-												Description:         "Link speed for this Junos port",
-												MarkdownDescription: "Link speed for this Junos port",
+												Description:         "Link speed for this Junos port. enum: `10m`, `100m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`, `auto`.",
+												MarkdownDescription: "Link speed for this Junos port. enum: `10m`, `100m`, `1g`, `2.5g`, `5g`, `10g`, `25g`, `40g`, `100g`, `auto`.",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -3608,8 +3626,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 								"role": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Access role granted to the local switch user account",
-									MarkdownDescription: "Access role granted to the local switch user account",
+									Description:         "Access role granted to the local switch user account. enum: `admin`, `helpdesk`, `none`, `read`.",
+									MarkdownDescription: "Access role granted to the local switch user account. enum: `admin`, `helpdesk`, `none`, `read`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -3752,6 +3770,88 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						Description:         "Control-plane protection settings for the switch",
 						MarkdownDescription: "Control-plane protection settings for the switch",
 					},
+					"radius": schema.SingleNestedAttribute{
+						Attributes: map[string]schema.Attribute{
+							"auth_servers_retries": schema.Int64Attribute{
+								Optional:            true,
+								Computed:            true,
+								Description:         "RADIUS auth session retries. Required when `enabled`==`true` and `use_different_radius`==`true`.",
+								MarkdownDescription: "RADIUS auth session retries. Required when `enabled`==`true` and `use_different_radius`==`true`.",
+								Default:             int64default.StaticInt64(3),
+							},
+							"auth_servers_timeout": schema.Int64Attribute{
+								Optional:            true,
+								Computed:            true,
+								Description:         "RADIUS auth session timeout, in seconds. Required when `enabled`==`true` and `use_different_radius`==`true`.",
+								MarkdownDescription: "RADIUS auth session timeout, in seconds. Required when `enabled`==`true` and `use_different_radius`==`true`.",
+								Default:             int64default.StaticInt64(5),
+							},
+							"enabled": schema.BoolAttribute{
+								Optional:            true,
+								Description:         "Whether RADIUS is enabled for switch management authentication",
+								MarkdownDescription: "Whether RADIUS is enabled for switch management authentication",
+							},
+							"network": schema.StringAttribute{
+								Optional:            true,
+								Description:         "Source network used for connectivity to the RADIUS servers",
+								MarkdownDescription: "Source network used for connectivity to the RADIUS servers",
+							},
+							"auth_servers": schema.ListNestedAttribute{
+								NestedObject: schema.NestedAttributeObject{
+									Attributes: map[string]schema.Attribute{
+										"host": schema.StringAttribute{
+											Required:            true,
+											Description:         "Address or hostname of the RADIUS authentication server",
+											MarkdownDescription: "Address or hostname of the RADIUS authentication server",
+										},
+										"id": schema.StringAttribute{
+											Computed:            true,
+											Description:         "Unique identifier for this RADIUS authentication server entry",
+											MarkdownDescription: "Unique identifier for this RADIUS authentication server entry",
+											PlanModifiers: []planmodifier.String{
+												stringplanmodifier.UseStateForUnknown(),
+											},
+										},
+										"port": schema.StringAttribute{
+											Optional:            true,
+											Description:         "UDP port used by the RADIUS authentication server",
+											MarkdownDescription: "UDP port used by the RADIUS authentication server",
+										},
+										"secret": schema.StringAttribute{
+											Required:            true,
+											Sensitive:           true,
+											Description:         "Shared secret used with this RADIUS authentication server",
+											MarkdownDescription: "Shared secret used with this RADIUS authentication server",
+										},
+									},
+									CustomType: RadiusAuthServersType{
+										ObjectType: types.ObjectType{
+											AttrTypes: RadiusAuthServersValue{}.AttributeTypes(ctx),
+										},
+									},
+								},
+								Optional:            true,
+								Description:         "RADIUS authentication servers used for switch management authentication. Required when `enabled`==`true` and `use_different_radius`==`true`.",
+								MarkdownDescription: "RADIUS authentication servers used for switch management authentication. Required when `enabled`==`true` and `use_different_radius`==`true`.",
+								Validators: []validator.List{
+									listvalidator.UniqueValues(),
+								},
+							},
+							"use_different_radius": schema.BoolAttribute{
+								Optional:            true,
+								Description:         "Whether to use alternate RADIUS settings instead of the default switch `radius_config`",
+								MarkdownDescription: "Whether to use alternate RADIUS settings instead of the default switch `radius_config`",
+							},
+						},
+						CustomType: RadiusType{
+							ObjectType: types.ObjectType{
+								AttrTypes: RadiusValue{}.AttributeTypes(ctx),
+							},
+						},
+						Optional:            true,
+						Description:         "Management authentication settings using RADIUS",
+						MarkdownDescription: "Management authentication settings using RADIUS",
+					},
 					"remove_existing_configs": schema.BoolAttribute{
 						Optional:            true,
 						Description:         "By default, only the configuration generated by Mist is cleaned up during the configuration process. If `true`, all the existing configuration will be removed.",
@@ -3767,8 +3867,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"default_role": schema.StringAttribute{
 								Optional:            true,
-								Description:         "Default switch-management role to use for TACACS+ logins",
-								MarkdownDescription: "Default switch-management role to use for TACACS+ logins",
+								Description:         "Default switch-management role to use for TACACS+ logins. enum: `admin`, `helpdesk`, `none`, `read`.",
+								MarkdownDescription: "Default switch-management role to use for TACACS+ logins. enum: `admin`, `helpdesk`, `none`, `read`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -3928,13 +4028,23 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"anycast_rp": schema.BoolAttribute{
 									Optional:            true,
-									Description:         "When `true`, auto-generates a shared RP on `is_l3_border` devices (ERB/IPClos topologies only)",
-									MarkdownDescription: "When `true`, auto-generates a shared RP on `is_l3_border` devices (ERB/IPClos topologies only)",
+									Description:         "When `true`, generates a shared anycast RP on all `is_l3_border` devices in EVPN (ERB/IPClos) topologies. Uses `rp_ip` as the shared RP address, or an internal default when `rp_ip` is omitted. Takes precedence over `rp_mac` and `rp_ip` when multiple RP options are set.",
+									MarkdownDescription: "When `true`, generates a shared anycast RP on all `is_l3_border` devices in EVPN (ERB/IPClos) topologies. Uses `rp_ip` as the shared RP address, or an internal default when `rp_ip` is omitted. Takes precedence over `rp_mac` and `rp_ip` when multiple RP options are set.",
+								},
+								"peg_enabled": schema.BoolAttribute{
+									Optional:            true,
+									Description:         "When `true`, enables the PIM EVPN Gateway on `is_l3_border` devices. Required for external sources or receivers in EVPN topologies.",
+									MarkdownDescription: "When `true`, enables the PIM EVPN Gateway on `is_l3_border` devices. Required for external sources or receivers in EVPN topologies.",
 								},
 								"rp_ip": schema.StringAttribute{
 									Optional:            true,
-									Description:         "RP address used when `anycast_rp`==`false`. If the address matches a device SVI, it is configured as a local RP; otherwise a static RP is configured",
-									MarkdownDescription: "RP address used when `anycast_rp`==`false`. If the address matches a device SVI, it is configured as a local RP; otherwise a static RP is configured",
+									Description:         "RP address used for EVPN anycast RP when `anycast_rp` is true, or for an external RP when it is false. In non-EVPN topologies, a matching device router ID configures a local RP; otherwise a static RP is configured.",
+									MarkdownDescription: "RP address used for EVPN anycast RP when `anycast_rp` is true, or for an external RP when it is false. In non-EVPN topologies, a matching device router ID configures a local RP; otherwise a static RP is configured.",
+								},
+								"rp_mac": schema.StringAttribute{
+									Optional:            true,
+									Description:         "Device MAC address of a fabric RP in EVPN topologies. The RP address is the first usable IP of the VRF `evpn_auto_loopback_subnet`, not `rp_ip`; requires `evpn_auto_loopback_subnet`. Takes precedence over `rp_ip` when `anycast_rp` is false.",
+									MarkdownDescription: "Device MAC address of a fabric RP in EVPN topologies. The RP address is the first usable IP of the VRF `evpn_auto_loopback_subnet`, not `rp_ip`; requires `evpn_auto_loopback_subnet`. Takes precedence over `rp_ip` when `anycast_rp` is false.",
 								},
 								"sbd_subnet": schema.StringAttribute{
 									Optional:            true,
@@ -3945,6 +4055,11 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									Optional:            true,
 									Description:         "Supplemental Bridge Domain VLAN ID (EVPN topology / eOISM only)",
 									MarkdownDescription: "Supplemental Bridge Domain VLAN ID (EVPN topology / eOISM only)",
+								},
+								"sbd_wan_rpf": schema.BoolAttribute{
+									Optional:            true,
+									Description:         "When `true` on PEG borders, builds an eBGP mesh between PEG borders over SBD IRBs so WAN-learned routes can satisfy the PIM RPF check during a border WAN-uplink failure.",
+									MarkdownDescription: "When `true` on PEG borders, builds an eBGP mesh between PEG borders over SBD IRBs so WAN-learned routes can satisfy the PIM RPF check during a border WAN-uplink failure.",
 								},
 							},
 							CustomType: MulticastConfigType{
@@ -10315,6 +10430,24 @@ func (t MulticastConfigType) ValueFromObject(ctx context.Context, in basetypes.O
 			fmt.Sprintf(`anycast_rp expected to be basetypes.BoolValue, was: %T`, anycastRpAttribute))
 	}
 
+	pegEnabledAttribute, ok := attributes["peg_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`peg_enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	pegEnabledVal, ok := pegEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`peg_enabled expected to be basetypes.BoolValue, was: %T`, pegEnabledAttribute))
+	}
+
 	rpIpAttribute, ok := attributes["rp_ip"]
 
 	if !ok {
@@ -10331,6 +10464,24 @@ func (t MulticastConfigType) ValueFromObject(ctx context.Context, in basetypes.O
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`rp_ip expected to be basetypes.StringValue, was: %T`, rpIpAttribute))
+	}
+
+	rpMacAttribute, ok := attributes["rp_mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rp_mac is missing from object`)
+
+		return nil, diags
+	}
+
+	rpMacVal, ok := rpMacAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rp_mac expected to be basetypes.StringValue, was: %T`, rpMacAttribute))
 	}
 
 	sbdSubnetAttribute, ok := attributes["sbd_subnet"]
@@ -10369,16 +10520,37 @@ func (t MulticastConfigType) ValueFromObject(ctx context.Context, in basetypes.O
 			fmt.Sprintf(`sbd_vlan_id expected to be basetypes.Int64Value, was: %T`, sbdVlanIdAttribute))
 	}
 
+	sbdWanRpfAttribute, ok := attributes["sbd_wan_rpf"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sbd_wan_rpf is missing from object`)
+
+		return nil, diags
+	}
+
+	sbdWanRpfVal, ok := sbdWanRpfAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sbd_wan_rpf expected to be basetypes.BoolValue, was: %T`, sbdWanRpfAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
 
 	return MulticastConfigValue{
-		AnycastRp: anycastRpVal,
-		RpIp:      rpIpVal,
-		SbdSubnet: sbdSubnetVal,
-		SbdVlanId: sbdVlanIdVal,
-		state:     attr.ValueStateKnown,
+		AnycastRp:  anycastRpVal,
+		PegEnabled: pegEnabledVal,
+		RpIp:       rpIpVal,
+		RpMac:      rpMacVal,
+		SbdSubnet:  sbdSubnetVal,
+		SbdVlanId:  sbdVlanIdVal,
+		SbdWanRpf:  sbdWanRpfVal,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -10463,6 +10635,24 @@ func NewMulticastConfigValue(attributeTypes map[string]attr.Type, attributes map
 			fmt.Sprintf(`anycast_rp expected to be basetypes.BoolValue, was: %T`, anycastRpAttribute))
 	}
 
+	pegEnabledAttribute, ok := attributes["peg_enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`peg_enabled is missing from object`)
+
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	pegEnabledVal, ok := pegEnabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`peg_enabled expected to be basetypes.BoolValue, was: %T`, pegEnabledAttribute))
+	}
+
 	rpIpAttribute, ok := attributes["rp_ip"]
 
 	if !ok {
@@ -10479,6 +10669,24 @@ func NewMulticastConfigValue(attributeTypes map[string]attr.Type, attributes map
 		diags.AddError(
 			"Attribute Wrong Type",
 			fmt.Sprintf(`rp_ip expected to be basetypes.StringValue, was: %T`, rpIpAttribute))
+	}
+
+	rpMacAttribute, ok := attributes["rp_mac"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`rp_mac is missing from object`)
+
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	rpMacVal, ok := rpMacAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`rp_mac expected to be basetypes.StringValue, was: %T`, rpMacAttribute))
 	}
 
 	sbdSubnetAttribute, ok := attributes["sbd_subnet"]
@@ -10517,16 +10725,37 @@ func NewMulticastConfigValue(attributeTypes map[string]attr.Type, attributes map
 			fmt.Sprintf(`sbd_vlan_id expected to be basetypes.Int64Value, was: %T`, sbdVlanIdAttribute))
 	}
 
+	sbdWanRpfAttribute, ok := attributes["sbd_wan_rpf"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`sbd_wan_rpf is missing from object`)
+
+		return NewMulticastConfigValueUnknown(), diags
+	}
+
+	sbdWanRpfVal, ok := sbdWanRpfAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`sbd_wan_rpf expected to be basetypes.BoolValue, was: %T`, sbdWanRpfAttribute))
+	}
+
 	if diags.HasError() {
 		return NewMulticastConfigValueUnknown(), diags
 	}
 
 	return MulticastConfigValue{
-		AnycastRp: anycastRpVal,
-		RpIp:      rpIpVal,
-		SbdSubnet: sbdSubnetVal,
-		SbdVlanId: sbdVlanIdVal,
-		state:     attr.ValueStateKnown,
+		AnycastRp:  anycastRpVal,
+		PegEnabled: pegEnabledVal,
+		RpIp:       rpIpVal,
+		RpMac:      rpMacVal,
+		SbdSubnet:  sbdSubnetVal,
+		SbdVlanId:  sbdVlanIdVal,
+		SbdWanRpf:  sbdWanRpfVal,
+		state:      attr.ValueStateKnown,
 	}, diags
 }
 
@@ -10598,29 +10827,35 @@ func (t MulticastConfigType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = MulticastConfigValue{}
 
 type MulticastConfigValue struct {
-	AnycastRp basetypes.BoolValue   `tfsdk:"anycast_rp"`
-	RpIp      basetypes.StringValue `tfsdk:"rp_ip"`
-	SbdSubnet basetypes.StringValue `tfsdk:"sbd_subnet"`
-	SbdVlanId basetypes.Int64Value  `tfsdk:"sbd_vlan_id"`
-	state     attr.ValueState
+	AnycastRp  basetypes.BoolValue   `tfsdk:"anycast_rp"`
+	PegEnabled basetypes.BoolValue   `tfsdk:"peg_enabled"`
+	RpIp       basetypes.StringValue `tfsdk:"rp_ip"`
+	RpMac      basetypes.StringValue `tfsdk:"rp_mac"`
+	SbdSubnet  basetypes.StringValue `tfsdk:"sbd_subnet"`
+	SbdVlanId  basetypes.Int64Value  `tfsdk:"sbd_vlan_id"`
+	SbdWanRpf  basetypes.BoolValue   `tfsdk:"sbd_wan_rpf"`
+	state      attr.ValueState
 }
 
 func (v MulticastConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 4)
+	attrTypes := make(map[string]tftypes.Type, 7)
 
 	var val tftypes.Value
 	var err error
 
 	attrTypes["anycast_rp"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["peg_enabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["rp_ip"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["rp_mac"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sbd_subnet"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["sbd_vlan_id"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["sbd_wan_rpf"] = basetypes.BoolType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 4)
+		vals := make(map[string]tftypes.Value, 7)
 
 		val, err = v.AnycastRp.ToTerraformValue(ctx)
 
@@ -10630,6 +10865,14 @@ func (v MulticastConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 
 		vals["anycast_rp"] = val
 
+		val, err = v.PegEnabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["peg_enabled"] = val
+
 		val, err = v.RpIp.ToTerraformValue(ctx)
 
 		if err != nil {
@@ -10637,6 +10880,14 @@ func (v MulticastConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 		}
 
 		vals["rp_ip"] = val
+
+		val, err = v.RpMac.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["rp_mac"] = val
 
 		val, err = v.SbdSubnet.ToTerraformValue(ctx)
 
@@ -10653,6 +10904,14 @@ func (v MulticastConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Val
 		}
 
 		vals["sbd_vlan_id"] = val
+
+		val, err = v.SbdWanRpf.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["sbd_wan_rpf"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -10685,9 +10944,12 @@ func (v MulticastConfigValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 
 	attributeTypes := map[string]attr.Type{
 		"anycast_rp":  basetypes.BoolType{},
+		"peg_enabled": basetypes.BoolType{},
 		"rp_ip":       basetypes.StringType{},
+		"rp_mac":      basetypes.StringType{},
 		"sbd_subnet":  basetypes.StringType{},
 		"sbd_vlan_id": basetypes.Int64Type{},
+		"sbd_wan_rpf": basetypes.BoolType{},
 	}
 
 	if v.IsNull() {
@@ -10702,9 +10964,12 @@ func (v MulticastConfigValue) ToObjectValue(ctx context.Context) (basetypes.Obje
 		attributeTypes,
 		map[string]attr.Value{
 			"anycast_rp":  v.AnycastRp,
+			"peg_enabled": v.PegEnabled,
 			"rp_ip":       v.RpIp,
+			"rp_mac":      v.RpMac,
 			"sbd_subnet":  v.SbdSubnet,
 			"sbd_vlan_id": v.SbdVlanId,
+			"sbd_wan_rpf": v.SbdWanRpf,
 		})
 
 	return objVal, diags
@@ -10729,7 +10994,15 @@ func (v MulticastConfigValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.PegEnabled.Equal(other.PegEnabled) {
+		return false
+	}
+
 	if !v.RpIp.Equal(other.RpIp) {
+		return false
+	}
+
+	if !v.RpMac.Equal(other.RpMac) {
 		return false
 	}
 
@@ -10738,6 +11011,10 @@ func (v MulticastConfigValue) Equal(o attr.Value) bool {
 	}
 
 	if !v.SbdVlanId.Equal(other.SbdVlanId) {
+		return false
+	}
+
+	if !v.SbdWanRpf.Equal(other.SbdWanRpf) {
 		return false
 	}
 
@@ -10755,9 +11032,12 @@ func (v MulticastConfigValue) Type(ctx context.Context) attr.Type {
 func (v MulticastConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
 		"anycast_rp":  basetypes.BoolType{},
+		"peg_enabled": basetypes.BoolType{},
 		"rp_ip":       basetypes.StringType{},
+		"rp_mac":      basetypes.StringType{},
 		"sbd_subnet":  basetypes.StringType{},
 		"sbd_vlan_id": basetypes.Int64Type{},
+		"sbd_wan_rpf": basetypes.BoolType{},
 	}
 }
 
@@ -14472,6 +14752,24 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`networks expected to be basetypes.ListValue, was: %T`, networksAttribute))
 	}
 
+	noLocalPortConfigAttribute, ok := attributes["no_local_port_config"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`no_local_port_config is missing from object`)
+
+		return nil, diags
+	}
+
+	noLocalPortConfigVal, ok := noLocalPortConfigAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`no_local_port_config expected to be basetypes.BoolValue, was: %T`, noLocalPortConfigAttribute))
+	}
+
 	persistMacAttribute, ok := attributes["persist_mac"]
 
 	if !ok {
@@ -14897,6 +15195,7 @@ func (t PortUsagesType) ValueFromObject(ctx context.Context, in basetypes.Object
 		Mode:                                     modeVal,
 		Mtu:                                      mtuVal,
 		Networks:                                 networksVal,
+		NoLocalPortConfig:                        noLocalPortConfigVal,
 		PersistMac:                               persistMacVal,
 		PoeDisabled:                              poeDisabledVal,
 		PoeKeepStateWhenReboot:                   poeKeepStateWhenRebootVal,
@@ -15418,6 +15717,24 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`networks expected to be basetypes.ListValue, was: %T`, networksAttribute))
 	}
 
+	noLocalPortConfigAttribute, ok := attributes["no_local_port_config"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`no_local_port_config is missing from object`)
+
+		return NewPortUsagesValueUnknown(), diags
+	}
+
+	noLocalPortConfigVal, ok := noLocalPortConfigAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`no_local_port_config expected to be basetypes.BoolValue, was: %T`, noLocalPortConfigAttribute))
+	}
+
 	persistMacAttribute, ok := attributes["persist_mac"]
 
 	if !ok {
@@ -15843,6 +16160,7 @@ func NewPortUsagesValue(attributeTypes map[string]attr.Type, attributes map[stri
 		Mode:                                     modeVal,
 		Mtu:                                      mtuVal,
 		Networks:                                 networksVal,
+		NoLocalPortConfig:                        noLocalPortConfigVal,
 		PersistMac:                               persistMacVal,
 		PoeDisabled:                              poeDisabledVal,
 		PoeKeepStateWhenReboot:                   poeKeepStateWhenRebootVal,
@@ -15961,6 +16279,7 @@ type PortUsagesValue struct {
 	Mode                                     basetypes.StringValue `tfsdk:"mode"`
 	Mtu                                      basetypes.StringValue `tfsdk:"mtu"`
 	Networks                                 basetypes.ListValue   `tfsdk:"networks"`
+	NoLocalPortConfig                        basetypes.BoolValue   `tfsdk:"no_local_port_config"`
 	PersistMac                               basetypes.BoolValue   `tfsdk:"persist_mac"`
 	PoeDisabled                              basetypes.BoolValue   `tfsdk:"poe_disabled"`
 	PoeKeepStateWhenReboot                   basetypes.BoolValue   `tfsdk:"poe_keep_state_when_reboot"`
@@ -15987,7 +16306,7 @@ type PortUsagesValue struct {
 }
 
 func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 46)
+	attrTypes := make(map[string]tftypes.Type, 47)
 
 	var val tftypes.Value
 	var err error
@@ -16020,6 +16339,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["networks"] = basetypes.ListType{
 		ElemType: types.StringType,
 	}.TerraformType(ctx)
+	attrTypes["no_local_port_config"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["persist_mac"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["poe_disabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["poe_keep_state_when_reboot"] = basetypes.BoolType{}.TerraformType(ctx)
@@ -16051,7 +16371,7 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 46)
+		vals := make(map[string]tftypes.Value, 47)
 
 		val, err = v.AllNetworks.ToTerraformValue(ctx)
 
@@ -16244,6 +16564,14 @@ func (v PortUsagesValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["networks"] = val
+
+		val, err = v.NoLocalPortConfig.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["no_local_port_config"] = val
 
 		val, err = v.PersistMac.ToTerraformValue(ctx)
 
@@ -16542,6 +16870,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"no_local_port_config":       basetypes.BoolType{},
 			"persist_mac":                basetypes.BoolType{},
 			"poe_disabled":               basetypes.BoolType{},
 			"poe_keep_state_when_reboot": basetypes.BoolType{},
@@ -16613,6 +16942,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"networks": basetypes.ListType{
 				ElemType: types.StringType,
 			},
+			"no_local_port_config":       basetypes.BoolType{},
 			"persist_mac":                basetypes.BoolType{},
 			"poe_disabled":               basetypes.BoolType{},
 			"poe_keep_state_when_reboot": basetypes.BoolType{},
@@ -16671,6 +17001,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"no_local_port_config":       basetypes.BoolType{},
 		"persist_mac":                basetypes.BoolType{},
 		"poe_disabled":               basetypes.BoolType{},
 		"poe_keep_state_when_reboot": basetypes.BoolType{},
@@ -16734,6 +17065,7 @@ func (v PortUsagesValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"mode":                                            v.Mode,
 			"mtu":                                             v.Mtu,
 			"networks":                                        networksVal,
+			"no_local_port_config":                            v.NoLocalPortConfig,
 			"persist_mac":                                     v.PersistMac,
 			"poe_disabled":                                    v.PoeDisabled,
 			"poe_keep_state_when_reboot":                      v.PoeKeepStateWhenReboot,
@@ -16872,6 +17204,10 @@ func (v PortUsagesValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.NoLocalPortConfig.Equal(other.NoLocalPortConfig) {
+		return false
+	}
+
 	if !v.PersistMac.Equal(other.PersistMac) {
 		return false
 	}
@@ -17001,6 +17337,7 @@ func (v PortUsagesValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"networks": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+		"no_local_port_config":       basetypes.BoolType{},
 		"persist_mac":                basetypes.BoolType{},
 		"poe_disabled":               basetypes.BoolType{},
 		"poe_keep_state_when_reboot": basetypes.BoolType{},
@@ -40908,6 +41245,24 @@ func (t SwitchMgmtType) ValueFromObject(ctx context.Context, in basetypes.Object
 			fmt.Sprintf(`protect_re expected to be basetypes.ObjectValue, was: %T`, protectReAttribute))
 	}
 
+	radiusAttribute, ok := attributes["radius"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`radius is missing from object`)
+
+		return nil, diags
+	}
+
+	radiusVal, ok := radiusAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`radius expected to be basetypes.ObjectValue, was: %T`, radiusAttribute))
+	}
+
 	removeExistingConfigsAttribute, ok := attributes["remove_existing_configs"]
 
 	if !ok {
@@ -40996,6 +41351,7 @@ func (t SwitchMgmtType) ValueFromObject(ctx context.Context, in basetypes.Object
 		MxedgeProxyHost:       mxedgeProxyHostVal,
 		MxedgeProxyPort:       mxedgeProxyPortVal,
 		ProtectRe:             protectReVal,
+		Radius:                radiusVal,
 		RemoveExistingConfigs: removeExistingConfigsVal,
 		RootPassword:          rootPasswordVal,
 		Tacacs:                tacacsVal,
@@ -41265,6 +41621,24 @@ func NewSwitchMgmtValue(attributeTypes map[string]attr.Type, attributes map[stri
 			fmt.Sprintf(`protect_re expected to be basetypes.ObjectValue, was: %T`, protectReAttribute))
 	}
 
+	radiusAttribute, ok := attributes["radius"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`radius is missing from object`)
+
+		return NewSwitchMgmtValueUnknown(), diags
+	}
+
+	radiusVal, ok := radiusAttribute.(basetypes.ObjectValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`radius expected to be basetypes.ObjectValue, was: %T`, radiusAttribute))
+	}
+
 	removeExistingConfigsAttribute, ok := attributes["remove_existing_configs"]
 
 	if !ok {
@@ -41353,6 +41727,7 @@ func NewSwitchMgmtValue(attributeTypes map[string]attr.Type, attributes map[stri
 		MxedgeProxyHost:       mxedgeProxyHostVal,
 		MxedgeProxyPort:       mxedgeProxyPortVal,
 		ProtectRe:             protectReVal,
+		Radius:                radiusVal,
 		RemoveExistingConfigs: removeExistingConfigsVal,
 		RootPassword:          rootPasswordVal,
 		Tacacs:                tacacsVal,
@@ -41440,6 +41815,7 @@ type SwitchMgmtValue struct {
 	MxedgeProxyHost       basetypes.StringValue `tfsdk:"mxedge_proxy_host"`
 	MxedgeProxyPort       basetypes.StringValue `tfsdk:"mxedge_proxy_port"`
 	ProtectRe             basetypes.ObjectValue `tfsdk:"protect_re"`
+	Radius                basetypes.ObjectValue `tfsdk:"radius"`
 	RemoveExistingConfigs basetypes.BoolValue   `tfsdk:"remove_existing_configs"`
 	RootPassword          basetypes.StringValue `tfsdk:"root_password"`
 	Tacacs                basetypes.ObjectValue `tfsdk:"tacacs"`
@@ -41448,7 +41824,7 @@ type SwitchMgmtValue struct {
 }
 
 func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 15)
+	attrTypes := make(map[string]tftypes.Type, 16)
 
 	var val tftypes.Value
 	var err error
@@ -41468,6 +41844,9 @@ func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 	attrTypes["protect_re"] = basetypes.ObjectType{
 		AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
 	}.TerraformType(ctx)
+	attrTypes["radius"] = basetypes.ObjectType{
+		AttrTypes: RadiusValue{}.AttributeTypes(ctx),
+	}.TerraformType(ctx)
 	attrTypes["remove_existing_configs"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["root_password"] = basetypes.StringType{}.TerraformType(ctx)
 	attrTypes["tacacs"] = basetypes.ObjectType{
@@ -41479,7 +41858,7 @@ func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 15)
+		vals := make(map[string]tftypes.Value, 16)
 
 		val, err = v.ApAffinityThreshold.ToTerraformValue(ctx)
 
@@ -41568,6 +41947,14 @@ func (v SwitchMgmtValue) ToTerraformValue(ctx context.Context) (tftypes.Value, e
 		}
 
 		vals["protect_re"] = val
+
+		val, err = v.Radius.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["radius"] = val
 
 		val, err = v.RemoveExistingConfigs.ToTerraformValue(ctx)
 
@@ -41680,6 +42067,27 @@ func (v SwitchMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		)
 	}
 
+	var radius basetypes.ObjectValue
+
+	if v.Radius.IsNull() {
+		radius = types.ObjectNull(
+			RadiusValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if v.Radius.IsUnknown() {
+		radius = types.ObjectUnknown(
+			RadiusValue{}.AttributeTypes(ctx),
+		)
+	}
+
+	if !v.Radius.IsNull() && !v.Radius.IsUnknown() {
+		radius = types.ObjectValueMust(
+			RadiusValue{}.AttributeTypes(ctx),
+			v.Radius.Attributes(),
+		)
+	}
+
 	var tacacs basetypes.ObjectValue
 
 	if v.Tacacs.IsNull() {
@@ -41717,6 +42125,9 @@ func (v SwitchMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 		"protect_re": basetypes.ObjectType{
 			AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
 		},
+		"radius": basetypes.ObjectType{
+			AttrTypes: RadiusValue{}.AttributeTypes(ctx),
+		},
 		"remove_existing_configs": basetypes.BoolType{},
 		"root_password":           basetypes.StringType{},
 		"tacacs": basetypes.ObjectType{
@@ -41747,6 +42158,7 @@ func (v SwitchMgmtValue) ToObjectValue(ctx context.Context) (basetypes.ObjectVal
 			"mxedge_proxy_host":       v.MxedgeProxyHost,
 			"mxedge_proxy_port":       v.MxedgeProxyPort,
 			"protect_re":              protectRe,
+			"radius":                  radius,
 			"remove_existing_configs": v.RemoveExistingConfigs,
 			"root_password":           v.RootPassword,
 			"tacacs":                  tacacs,
@@ -41815,6 +42227,10 @@ func (v SwitchMgmtValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.Radius.Equal(other.Radius) {
+		return false
+	}
+
 	if !v.RemoveExistingConfigs.Equal(other.RemoveExistingConfigs) {
 		return false
 	}
@@ -41858,6 +42274,9 @@ func (v SwitchMgmtValue) AttributeTypes(ctx context.Context) map[string]attr.Typ
 		"mxedge_proxy_port": basetypes.StringType{},
 		"protect_re": basetypes.ObjectType{
 			AttrTypes: ProtectReValue{}.AttributeTypes(ctx),
+		},
+		"radius": basetypes.ObjectType{
+			AttrTypes: RadiusValue{}.AttributeTypes(ctx),
 		},
 		"remove_existing_configs": basetypes.BoolType{},
 		"root_password":           basetypes.StringType{},
@@ -43353,6 +43772,1129 @@ func (v CustomValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 		"subnets": basetypes.ListType{
 			ElemType: types.StringType,
 		},
+	}
+}
+
+var _ basetypes.ObjectTypable = RadiusType{}
+
+type RadiusType struct {
+	basetypes.ObjectType
+}
+
+func (t RadiusType) Equal(o attr.Type) bool {
+	other, ok := o.(RadiusType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t RadiusType) String() string {
+	return "RadiusType"
+}
+
+func (t RadiusType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	authServersRetriesAttribute, ok := attributes["auth_servers_retries"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_servers_retries is missing from object`)
+
+		return nil, diags
+	}
+
+	authServersRetriesVal, ok := authServersRetriesAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_servers_retries expected to be basetypes.Int64Value, was: %T`, authServersRetriesAttribute))
+	}
+
+	authServersTimeoutAttribute, ok := attributes["auth_servers_timeout"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_servers_timeout is missing from object`)
+
+		return nil, diags
+	}
+
+	authServersTimeoutVal, ok := authServersTimeoutAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_servers_timeout expected to be basetypes.Int64Value, was: %T`, authServersTimeoutAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	networkAttribute, ok := attributes["network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`network is missing from object`)
+
+		return nil, diags
+	}
+
+	networkVal, ok := networkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
+	}
+
+	radiusAuthServersAttribute, ok := attributes["auth_servers"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_servers is missing from object`)
+
+		return nil, diags
+	}
+
+	radiusAuthServersVal, ok := radiusAuthServersAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_servers expected to be basetypes.ListValue, was: %T`, radiusAuthServersAttribute))
+	}
+
+	useDifferentRadiusAttribute, ok := attributes["use_different_radius"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`use_different_radius is missing from object`)
+
+		return nil, diags
+	}
+
+	useDifferentRadiusVal, ok := useDifferentRadiusAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`use_different_radius expected to be basetypes.BoolValue, was: %T`, useDifferentRadiusAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return RadiusValue{
+		AuthServersRetries: authServersRetriesVal,
+		AuthServersTimeout: authServersTimeoutVal,
+		Enabled:            enabledVal,
+		Network:            networkVal,
+		RadiusAuthServers:  radiusAuthServersVal,
+		UseDifferentRadius: useDifferentRadiusVal,
+		state:              attr.ValueStateKnown,
+	}, diags
+}
+
+func NewRadiusValueNull() RadiusValue {
+	return RadiusValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewRadiusValueUnknown() RadiusValue {
+	return RadiusValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewRadiusValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (RadiusValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing RadiusValue Attribute Value",
+				"While creating a RadiusValue value, a missing attribute value was detected. "+
+					"A RadiusValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("RadiusValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid RadiusValue Attribute Type",
+				"While creating a RadiusValue value, an invalid attribute value was detected. "+
+					"A RadiusValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("RadiusValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("RadiusValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra RadiusValue Attribute Value",
+				"While creating a RadiusValue value, an extra attribute value was detected. "+
+					"A RadiusValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra RadiusValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewRadiusValueUnknown(), diags
+	}
+
+	authServersRetriesAttribute, ok := attributes["auth_servers_retries"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_servers_retries is missing from object`)
+
+		return NewRadiusValueUnknown(), diags
+	}
+
+	authServersRetriesVal, ok := authServersRetriesAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_servers_retries expected to be basetypes.Int64Value, was: %T`, authServersRetriesAttribute))
+	}
+
+	authServersTimeoutAttribute, ok := attributes["auth_servers_timeout"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_servers_timeout is missing from object`)
+
+		return NewRadiusValueUnknown(), diags
+	}
+
+	authServersTimeoutVal, ok := authServersTimeoutAttribute.(basetypes.Int64Value)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_servers_timeout expected to be basetypes.Int64Value, was: %T`, authServersTimeoutAttribute))
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewRadiusValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	networkAttribute, ok := attributes["network"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`network is missing from object`)
+
+		return NewRadiusValueUnknown(), diags
+	}
+
+	networkVal, ok := networkAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`network expected to be basetypes.StringValue, was: %T`, networkAttribute))
+	}
+
+	radiusAuthServersAttribute, ok := attributes["auth_servers"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`auth_servers is missing from object`)
+
+		return NewRadiusValueUnknown(), diags
+	}
+
+	radiusAuthServersVal, ok := radiusAuthServersAttribute.(basetypes.ListValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`auth_servers expected to be basetypes.ListValue, was: %T`, radiusAuthServersAttribute))
+	}
+
+	useDifferentRadiusAttribute, ok := attributes["use_different_radius"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`use_different_radius is missing from object`)
+
+		return NewRadiusValueUnknown(), diags
+	}
+
+	useDifferentRadiusVal, ok := useDifferentRadiusAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`use_different_radius expected to be basetypes.BoolValue, was: %T`, useDifferentRadiusAttribute))
+	}
+
+	if diags.HasError() {
+		return NewRadiusValueUnknown(), diags
+	}
+
+	return RadiusValue{
+		AuthServersRetries: authServersRetriesVal,
+		AuthServersTimeout: authServersTimeoutVal,
+		Enabled:            enabledVal,
+		Network:            networkVal,
+		RadiusAuthServers:  radiusAuthServersVal,
+		UseDifferentRadius: useDifferentRadiusVal,
+		state:              attr.ValueStateKnown,
+	}, diags
+}
+
+func NewRadiusValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) RadiusValue {
+	object, diags := NewRadiusValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewRadiusValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t RadiusType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewRadiusValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewRadiusValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewRadiusValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewRadiusValueMust(RadiusValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t RadiusType) ValueType(ctx context.Context) attr.Value {
+	return RadiusValue{}
+}
+
+var _ basetypes.ObjectValuable = RadiusValue{}
+
+type RadiusValue struct {
+	AuthServersRetries basetypes.Int64Value  `tfsdk:"auth_servers_retries"`
+	AuthServersTimeout basetypes.Int64Value  `tfsdk:"auth_servers_timeout"`
+	Enabled            basetypes.BoolValue   `tfsdk:"enabled"`
+	Network            basetypes.StringValue `tfsdk:"network"`
+	RadiusAuthServers  basetypes.ListValue   `tfsdk:"auth_servers"`
+	UseDifferentRadius basetypes.BoolValue   `tfsdk:"use_different_radius"`
+	state              attr.ValueState
+}
+
+func (v RadiusValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 6)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["auth_servers_retries"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["auth_servers_timeout"] = basetypes.Int64Type{}.TerraformType(ctx)
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["network"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["auth_servers"] = basetypes.ListType{
+		ElemType: RadiusAuthServersValue{}.Type(ctx),
+	}.TerraformType(ctx)
+	attrTypes["use_different_radius"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 6)
+
+		val, err = v.AuthServersRetries.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_servers_retries"] = val
+
+		val, err = v.AuthServersTimeout.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_servers_timeout"] = val
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		val, err = v.Network.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["network"] = val
+
+		val, err = v.RadiusAuthServers.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["auth_servers"] = val
+
+		val, err = v.UseDifferentRadius.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["use_different_radius"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v RadiusValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v RadiusValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v RadiusValue) String() string {
+	return "RadiusValue"
+}
+
+func (v RadiusValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	radiusAuthServers := types.ListValueMust(
+		RadiusAuthServersType{
+			basetypes.ObjectType{
+				AttrTypes: RadiusAuthServersValue{}.AttributeTypes(ctx),
+			},
+		},
+		v.RadiusAuthServers.Elements(),
+	)
+
+	if v.RadiusAuthServers.IsNull() {
+		radiusAuthServers = types.ListNull(
+			RadiusAuthServersType{
+				basetypes.ObjectType{
+					AttrTypes: RadiusAuthServersValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	if v.RadiusAuthServers.IsUnknown() {
+		radiusAuthServers = types.ListUnknown(
+			RadiusAuthServersType{
+				basetypes.ObjectType{
+					AttrTypes: RadiusAuthServersValue{}.AttributeTypes(ctx),
+				},
+			},
+		)
+	}
+
+	attributeTypes := map[string]attr.Type{
+		"auth_servers_retries": basetypes.Int64Type{},
+		"auth_servers_timeout": basetypes.Int64Type{},
+		"enabled":              basetypes.BoolType{},
+		"network":              basetypes.StringType{},
+		"auth_servers": basetypes.ListType{
+			ElemType: RadiusAuthServersValue{}.Type(ctx),
+		},
+		"use_different_radius": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"auth_servers_retries": v.AuthServersRetries,
+			"auth_servers_timeout": v.AuthServersTimeout,
+			"enabled":              v.Enabled,
+			"network":              v.Network,
+			"auth_servers":         radiusAuthServers,
+			"use_different_radius": v.UseDifferentRadius,
+		})
+
+	return objVal, diags
+}
+
+func (v RadiusValue) Equal(o attr.Value) bool {
+	other, ok := o.(RadiusValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.AuthServersRetries.Equal(other.AuthServersRetries) {
+		return false
+	}
+
+	if !v.AuthServersTimeout.Equal(other.AuthServersTimeout) {
+		return false
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	if !v.Network.Equal(other.Network) {
+		return false
+	}
+
+	if !v.RadiusAuthServers.Equal(other.RadiusAuthServers) {
+		return false
+	}
+
+	if !v.UseDifferentRadius.Equal(other.UseDifferentRadius) {
+		return false
+	}
+
+	return true
+}
+
+func (v RadiusValue) Type(ctx context.Context) attr.Type {
+	return RadiusType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v RadiusValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"auth_servers_retries": basetypes.Int64Type{},
+		"auth_servers_timeout": basetypes.Int64Type{},
+		"enabled":              basetypes.BoolType{},
+		"network":              basetypes.StringType{},
+		"auth_servers": basetypes.ListType{
+			ElemType: RadiusAuthServersValue{}.Type(ctx),
+		},
+		"use_different_radius": basetypes.BoolType{},
+	}
+}
+
+var _ basetypes.ObjectTypable = RadiusAuthServersType{}
+
+type RadiusAuthServersType struct {
+	basetypes.ObjectType
+}
+
+func (t RadiusAuthServersType) Equal(o attr.Type) bool {
+	other, ok := o.(RadiusAuthServersType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t RadiusAuthServersType) String() string {
+	return "RadiusAuthServersType"
+}
+
+func (t RadiusAuthServersType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	hostAttribute, ok := attributes["host"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`host is missing from object`)
+
+		return nil, diags
+	}
+
+	hostVal, ok := hostAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`host expected to be basetypes.StringValue, was: %T`, hostAttribute))
+	}
+
+	idAttribute, ok := attributes["id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`id is missing from object`)
+
+		return nil, diags
+	}
+
+	idVal, ok := idAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
+	}
+
+	portAttribute, ok := attributes["port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port is missing from object`)
+
+		return nil, diags
+	}
+
+	portVal, ok := portAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
+	}
+
+	secretAttribute, ok := attributes["secret"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`secret is missing from object`)
+
+		return nil, diags
+	}
+
+	secretVal, ok := secretAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`secret expected to be basetypes.StringValue, was: %T`, secretAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return RadiusAuthServersValue{
+		Host:   hostVal,
+		Id:     idVal,
+		Port:   portVal,
+		Secret: secretVal,
+		state:  attr.ValueStateKnown,
+	}, diags
+}
+
+func NewRadiusAuthServersValueNull() RadiusAuthServersValue {
+	return RadiusAuthServersValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewRadiusAuthServersValueUnknown() RadiusAuthServersValue {
+	return RadiusAuthServersValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewRadiusAuthServersValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (RadiusAuthServersValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing RadiusAuthServersValue Attribute Value",
+				"While creating a RadiusAuthServersValue value, a missing attribute value was detected. "+
+					"A RadiusAuthServersValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("RadiusAuthServersValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid RadiusAuthServersValue Attribute Type",
+				"While creating a RadiusAuthServersValue value, an invalid attribute value was detected. "+
+					"A RadiusAuthServersValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("RadiusAuthServersValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("RadiusAuthServersValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra RadiusAuthServersValue Attribute Value",
+				"While creating a RadiusAuthServersValue value, an extra attribute value was detected. "+
+					"A RadiusAuthServersValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra RadiusAuthServersValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewRadiusAuthServersValueUnknown(), diags
+	}
+
+	hostAttribute, ok := attributes["host"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`host is missing from object`)
+
+		return NewRadiusAuthServersValueUnknown(), diags
+	}
+
+	hostVal, ok := hostAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`host expected to be basetypes.StringValue, was: %T`, hostAttribute))
+	}
+
+	idAttribute, ok := attributes["id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`id is missing from object`)
+
+		return NewRadiusAuthServersValueUnknown(), diags
+	}
+
+	idVal, ok := idAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`id expected to be basetypes.StringValue, was: %T`, idAttribute))
+	}
+
+	portAttribute, ok := attributes["port"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`port is missing from object`)
+
+		return NewRadiusAuthServersValueUnknown(), diags
+	}
+
+	portVal, ok := portAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`port expected to be basetypes.StringValue, was: %T`, portAttribute))
+	}
+
+	secretAttribute, ok := attributes["secret"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`secret is missing from object`)
+
+		return NewRadiusAuthServersValueUnknown(), diags
+	}
+
+	secretVal, ok := secretAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`secret expected to be basetypes.StringValue, was: %T`, secretAttribute))
+	}
+
+	if diags.HasError() {
+		return NewRadiusAuthServersValueUnknown(), diags
+	}
+
+	return RadiusAuthServersValue{
+		Host:   hostVal,
+		Id:     idVal,
+		Port:   portVal,
+		Secret: secretVal,
+		state:  attr.ValueStateKnown,
+	}, diags
+}
+
+func NewRadiusAuthServersValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) RadiusAuthServersValue {
+	object, diags := NewRadiusAuthServersValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewRadiusAuthServersValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t RadiusAuthServersType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewRadiusAuthServersValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewRadiusAuthServersValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewRadiusAuthServersValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewRadiusAuthServersValueMust(RadiusAuthServersValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t RadiusAuthServersType) ValueType(ctx context.Context) attr.Value {
+	return RadiusAuthServersValue{}
+}
+
+var _ basetypes.ObjectValuable = RadiusAuthServersValue{}
+
+type RadiusAuthServersValue struct {
+	Host   basetypes.StringValue `tfsdk:"host"`
+	Id     basetypes.StringValue `tfsdk:"id"`
+	Port   basetypes.StringValue `tfsdk:"port"`
+	Secret basetypes.StringValue `tfsdk:"secret"`
+	state  attr.ValueState
+}
+
+func (v RadiusAuthServersValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 4)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["host"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["id"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["port"] = basetypes.StringType{}.TerraformType(ctx)
+	attrTypes["secret"] = basetypes.StringType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 4)
+
+		val, err = v.Host.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["host"] = val
+
+		val, err = v.Id.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["id"] = val
+
+		val, err = v.Port.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["port"] = val
+
+		val, err = v.Secret.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["secret"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v RadiusAuthServersValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v RadiusAuthServersValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v RadiusAuthServersValue) String() string {
+	return "RadiusAuthServersValue"
+}
+
+func (v RadiusAuthServersValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"host":   basetypes.StringType{},
+		"id":     basetypes.StringType{},
+		"port":   basetypes.StringType{},
+		"secret": basetypes.StringType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"host":   v.Host,
+			"id":     v.Id,
+			"port":   v.Port,
+			"secret": v.Secret,
+		})
+
+	return objVal, diags
+}
+
+func (v RadiusAuthServersValue) Equal(o attr.Value) bool {
+	other, ok := o.(RadiusAuthServersValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Host.Equal(other.Host) {
+		return false
+	}
+
+	if !v.Id.Equal(other.Id) {
+		return false
+	}
+
+	if !v.Port.Equal(other.Port) {
+		return false
+	}
+
+	if !v.Secret.Equal(other.Secret) {
+		return false
+	}
+
+	return true
+}
+
+func (v RadiusAuthServersValue) Type(ctx context.Context) attr.Type {
+	return RadiusAuthServersType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v RadiusAuthServersValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"host":   basetypes.StringType{},
+		"id":     basetypes.StringType{},
+		"port":   basetypes.StringType{},
+		"secret": basetypes.StringType{},
 	}
 }
 

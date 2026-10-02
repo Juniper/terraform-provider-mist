@@ -38,6 +38,12 @@ func TerraformToSdk(ctx context.Context, plan *OrgSettingModel) (*models.OrgSett
 		unset["-cacerts"] = ""
 	}
 
+	if !plan.CacertsConfigs.IsNull() && !plan.CacertsConfigs.IsUnknown() {
+		data.CacertsConfigs = cacertsConfigsTerraformToSdk(plan.CacertsConfigs)
+	} else {
+		unset["-cacerts_configs"] = ""
+	}
+
 	if !plan.Celona.IsNull() && !plan.Celona.IsUnknown() {
 		data.Celona = celonaTerraformToSdk(plan.Celona)
 	} else {
