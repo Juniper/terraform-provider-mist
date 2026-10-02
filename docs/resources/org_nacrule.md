@@ -53,6 +53,7 @@ resource "mist_org_nacrule" "nacrule_one" {
 - `apply_tags` (List of String) NAC tag IDs to include in the Access-Accept when the rule allows access
 - `dry_run` (Boolean) Whether the NAC rule is in dry-run mode, where matches are logged but the action is not enforced
 - `enabled` (Boolean) Whether the NAC rule is evaluated during policy matching
+- `group_name` (String) Name of the group the NAC rule belongs to
 - `guest_auth_state` (String) Guest portal authorization state condition for the rule. enum: `authorized`, `unknown`.
 - `matching` (Attributes) Criteria that must match for the NAC rule to apply (see [below for nested schema](#nestedatt--matching))
 - `not_matching` (Attributes) Criteria that must not match for the NAC rule to apply (see [below for nested schema](#nestedatt--not_matching))

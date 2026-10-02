@@ -49,6 +49,7 @@ description: |-
   - `vrf_instances.<key>.multicast_config.rp_mac` — Device MAC address of a fabric RP in EVPN topologies
   - `vrf_instances.<key>.multicast_config.sbd_wan_rpf` — Builds an eBGP mesh between PEG borders over SBD IRBs so WAN-learned routes can satisfy the PIM RPF check during a border WAN-uplink failure
   - `port_usages.<key>.no_local_port_config` — Whether this port usage can be overridden in local port configuration
+  - `switch_mgmt.radius` — RADIUS authentication settings for switch management, used instead of the switch's default `radius_config` when `use_different_radius`==`true`; includes `enabled`, `network`, `use_different_radius`, `auth_servers_retries`, `auth_servers_timeout`, and `auth_servers` (`host`, `secret`, optional `port`, computed-only `id`)
 
 - **`mist_org_networktemplate` resource**:
   - `multicast_config.peg_enabled`, `multicast_config.rp_mac`, `multicast_config.sbd_wan_rpf` — Same as the `vrf_instances` fields above, applied to the top-level (master VRF) multicast configuration
@@ -60,6 +61,10 @@ description: |-
   - `cacerts_configs` — Preferred per-issuer CA certificate configuration list (`cert`, `crl_enabled`, `crl_url`, `name`, `ocsp_enabled`, `ocsp_url`); when non-empty, takes precedence over `cacerts`
   - `enforce_src_ips_for_tokens` — When `true`, org API tokens without their own `src_ips` also respect the org policy `src_ips`
   - `enable_eap_md5_for_mab` — Enable EAP-MD5 for MAB (not FIPS compliant; use only for legacy device support)
+
+- **`mist_org_nacrule` resource**:
+  - `group_name` — Name of the group the NAC rule belongs to
+  - `dry_run` — Whether the NAC rule is in dry-run mode, where matches are logged but the action is not enforced
 
 #### Fixed
 

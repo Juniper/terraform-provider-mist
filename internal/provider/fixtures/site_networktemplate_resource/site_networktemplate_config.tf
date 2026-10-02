@@ -497,6 +497,24 @@ switch_mgmt = {
       }
     ]
   }
+  radius = {
+    enabled = true
+    network = "lan"
+    use_different_radius = true
+    auth_servers_retries = 3
+    auth_servers_timeout = 5
+    auth_servers = [
+      {
+        host = "192.168.1.206"
+        secret = "switch-mgmt-radius-secret-1"
+        port = "1812"
+      },
+      {
+        host = "192.168.1.207"
+        secret = "switch-mgmt-radius-secret-2"
+      }
+    ]
+  }
   use_mxedge_proxy = false
 }
 uses_description_from_port_usage = true

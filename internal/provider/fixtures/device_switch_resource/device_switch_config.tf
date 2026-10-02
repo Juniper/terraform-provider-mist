@@ -409,6 +409,26 @@
       }
     }
   }
+  switch_mgmt = {
+    radius = {
+      enabled               = true
+      network               = "mgmt"
+      use_different_radius  = true
+      auth_servers_retries  = 3
+      auth_servers_timeout  = 5
+      auth_servers = [
+        {
+          host   = "192.168.1.200"
+          secret = "switch-mgmt-radius-secret-1"
+          port   = "1812"
+        },
+        {
+          host   = "192.168.1.201"
+          secret = "switch-mgmt-radius-secret-2"
+        }
+      ]
+    }
+  }
   image_url = "https://example.com/switch.png"
   notes     = "Comprehensive switch config"
   model     = "QFX5100"

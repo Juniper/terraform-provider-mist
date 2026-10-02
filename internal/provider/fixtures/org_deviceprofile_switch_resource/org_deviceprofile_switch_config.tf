@@ -547,6 +547,24 @@
         }
       ]
     }
+    radius = {
+      enabled               = true
+      network               = "mgmt"
+      use_different_radius  = true
+      auth_servers_retries  = 3
+      auth_servers_timeout  = 5
+      auth_servers = [
+        {
+          host   = "192.168.1.202"
+          secret = "switch-mgmt-radius-secret-1"
+          port   = "1812"
+        },
+        {
+          host   = "192.168.1.203"
+          secret = "switch-mgmt-radius-secret-2"
+        }
+      ]
+    }
   }
   use_router_id_as_source_ip = false
   vrf_config = {

@@ -1,5 +1,7 @@
 package provider
 
+import ()
+
 type OrgNetworktemplateModel struct {
 	AclPolicies           []OrgNetworktemplateAclPoliciesValue              `hcl:"acl_policies"`
 	AclTags               map[string]OrgNetworktemplateAclTagsValue         `hcl:"acl_tags"`
@@ -556,6 +558,7 @@ type OrgNetworktemplateSwitchMgmtValue struct {
 	MxedgeProxyHost       *string                                         `cty:"mxedge_proxy_host" hcl:"mxedge_proxy_host"`
 	MxedgeProxyPort       *string                                         `cty:"mxedge_proxy_port" hcl:"mxedge_proxy_port"`
 	ProtectRe             *OrgNetworktemplateProtectReValue               `cty:"protect_re" hcl:"protect_re"`
+	Radius                *OrgNetworktemplateRadiusValue                  `cty:"radius" hcl:"radius"`
 	RemoveExistingConfigs *bool                                           `cty:"remove_existing_configs" hcl:"remove_existing_configs"`
 	RootPassword          *string                                         `cty:"root_password" hcl:"root_password"`
 	Tacacs                *OrgNetworktemplateTacacsValue                  `cty:"tacacs" hcl:"tacacs"`
@@ -579,6 +582,21 @@ type OrgNetworktemplateCustomValue struct {
 	PortRange *string  `cty:"port_range" hcl:"port_range"`
 	Protocol  *string  `cty:"protocol" hcl:"protocol"`
 	Subnets   []string `cty:"subnets" hcl:"subnets"`
+}
+
+type OrgNetworktemplateRadiusValue struct {
+	AuthServersRetries *int64                                     `cty:"auth_servers_retries" hcl:"auth_servers_retries"`
+	AuthServersTimeout *int64                                     `cty:"auth_servers_timeout" hcl:"auth_servers_timeout"`
+	Enabled            *bool                                      `cty:"enabled" hcl:"enabled"`
+	Network            *string                                    `cty:"network" hcl:"network"`
+	RadiusAuthServers  []OrgNetworktemplateRadiusAuthServersValue `cty:"auth_servers" hcl:"auth_servers"`
+	UseDifferentRadius *bool                                      `cty:"use_different_radius" hcl:"use_different_radius"`
+}
+
+type OrgNetworktemplateRadiusAuthServersValue struct {
+	Host   string  `cty:"host" hcl:"host"`
+	Port   *string `cty:"port" hcl:"port"`
+	Secret string  `cty:"secret" hcl:"secret"`
 }
 
 type OrgNetworktemplateTacacsValue struct {

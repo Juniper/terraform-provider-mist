@@ -1,5 +1,7 @@
 package provider
 
+import ()
+
 type OrgDeviceprofileSwitchModel struct {
 	AclPolicies           []OrgDeviceprofileSwitchAclPoliciesValue              `hcl:"acl_policies"`
 	AclTags               map[string]OrgDeviceprofileSwitchAclTagsValue         `hcl:"acl_tags"`
@@ -11,7 +13,6 @@ type OrgDeviceprofileSwitchModel struct {
 	EvpnConfig            *OrgDeviceprofileSwitchEvpnConfigValue                `hcl:"evpn_config"`
 	ExtraRoutes           map[string]OrgDeviceprofileSwitchExtraRoutesValue     `hcl:"extra_routes"`
 	ExtraRoutes6          map[string]OrgDeviceprofileSwitchExtraRoutes6Value    `hcl:"extra_routes6"`
-	Id                    *string                                               `hcl:"id"`
 	IotConfig             map[string]OrgDeviceprofileSwitchIotConfigValue       `hcl:"iot_config"`
 	IpConfig              *OrgDeviceprofileSwitchIpConfigValue                  `hcl:"ip_config"`
 	MistNac               *OrgDeviceprofileSwitchMistNacValue                   `hcl:"mist_nac"`
@@ -585,6 +586,7 @@ type OrgDeviceprofileSwitchSwitchMgmtValue struct {
 	MxedgeProxyHost       *string                                             `cty:"mxedge_proxy_host" hcl:"mxedge_proxy_host"`
 	MxedgeProxyPort       *string                                             `cty:"mxedge_proxy_port" hcl:"mxedge_proxy_port"`
 	ProtectRe             *OrgDeviceprofileSwitchProtectReValue               `cty:"protect_re" hcl:"protect_re"`
+	Radius                *OrgDeviceprofileSwitchRadiusValue                  `cty:"radius" hcl:"radius"`
 	RemoveExistingConfigs *bool                                               `cty:"remove_existing_configs" hcl:"remove_existing_configs"`
 	RootPassword          *string                                             `cty:"root_password" hcl:"root_password"`
 	Tacacs                *OrgDeviceprofileSwitchTacacsValue                  `cty:"tacacs" hcl:"tacacs"`
@@ -608,6 +610,21 @@ type OrgDeviceprofileSwitchCustomValue struct {
 	PortRange *string  `cty:"port_range" hcl:"port_range"`
 	Protocol  *string  `cty:"protocol" hcl:"protocol"`
 	Subnets   []string `cty:"subnets" hcl:"subnets"`
+}
+
+type OrgDeviceprofileSwitchRadiusValue struct {
+	AuthServersRetries *int64                                         `cty:"auth_servers_retries" hcl:"auth_servers_retries"`
+	AuthServersTimeout *int64                                         `cty:"auth_servers_timeout" hcl:"auth_servers_timeout"`
+	Enabled            *bool                                          `cty:"enabled" hcl:"enabled"`
+	Network            *string                                        `cty:"network" hcl:"network"`
+	RadiusAuthServers  []OrgDeviceprofileSwitchRadiusAuthServersValue `cty:"auth_servers" hcl:"auth_servers"`
+	UseDifferentRadius *bool                                          `cty:"use_different_radius" hcl:"use_different_radius"`
+}
+
+type OrgDeviceprofileSwitchRadiusAuthServersValue struct {
+	Host   string  `cty:"host" hcl:"host"`
+	Port   *string `cty:"port" hcl:"port"`
+	Secret string  `cty:"secret" hcl:"secret"`
 }
 
 type OrgDeviceprofileSwitchTacacsValue struct {
