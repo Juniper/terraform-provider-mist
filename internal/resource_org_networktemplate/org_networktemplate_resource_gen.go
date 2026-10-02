@@ -5,7 +5,9 @@ package resource_org_networktemplate
 import (
 	"context"
 	"fmt"
-	"github.com/Juniper/terraform-provider-mist/internal/validators"
+	"strings"
+
+	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -25,7 +27,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
-	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -319,8 +320,8 @@ func OrgNetworktemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"hold_time": schema.Int64Attribute{
 										Optional:            true,
-										Description:         "BGP hold time for this neighbor. enum: `0`.",
-										MarkdownDescription: "BGP hold time for this neighbor. enum: `0`.",
+										Description:         "BGP hold time for this neighbor.",
+										MarkdownDescription: "BGP hold time for this neighbor.",
 										Validators: []validator.Int64{
 											int64validator.Any(int64validator.OneOf(0), int64validator.Between(3, 65535)),
 										},
