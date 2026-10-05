@@ -1,7 +1,5 @@
 package provider
 
-import ()
-
 type OrgNacPortalTemplateModel struct {
 	Alignment   *string `hcl:"alignment"`
 	Color       *string `hcl:"color"`

@@ -1,7 +1,5 @@
 package provider
 
-import ()
-
 type DeviceSwitchModel struct {
 	AclPolicies           []DeviceSwitchAclPoliciesValue                  `hcl:"acl_policies"`
 	AclTags               map[string]DeviceSwitchAclTagsValue             `hcl:"acl_tags"`

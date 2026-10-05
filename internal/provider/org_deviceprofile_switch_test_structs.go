@@ -1,7 +1,5 @@
 package provider
 
-import ()
-
 type OrgDeviceprofileSwitchModel struct {
 	AclPolicies           []OrgDeviceprofileSwitchAclPoliciesValue              `hcl:"acl_policies"`
 	AclTags               map[string]OrgDeviceprofileSwitchAclTagsValue         `hcl:"acl_tags"`

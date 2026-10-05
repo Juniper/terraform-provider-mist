@@ -1,7 +1,5 @@
 package provider
 
-import ()
-
 type SiteNetworktemplateModel struct {
 	AclPolicies                     []SiteNetworktemplateAclPoliciesValue              `hcl:"acl_policies"`
 	AclTags                         map[string]SiteNetworktemplateAclTagsValue         `hcl:"acl_tags"`

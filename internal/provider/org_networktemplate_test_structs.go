@@ -1,7 +1,5 @@
 package provider
 
-import ()
-
 type OrgNetworktemplateModel struct {
 	AclPolicies           []OrgNetworktemplateAclPoliciesValue              `hcl:"acl_policies"`
 	AclTags               map[string]OrgNetworktemplateAclTagsValue         `hcl:"acl_tags"`
