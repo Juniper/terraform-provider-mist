@@ -5,9 +5,7 @@ package resource_org_deviceprofile_ap
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -24,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -123,8 +122,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"beacon_rate_mode": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate",
-						MarkdownDescription: "Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate",
+						Description:         "Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate. enum: `custom`, `default`.",
+						MarkdownDescription: "Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate. enum: `custom`, `default`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -318,8 +317,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"power_mode": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Transmit power mode for BLE beacons; use custom to set `power`",
-						MarkdownDescription: "Transmit power mode for BLE beacons; use custom to set `power`",
+						Description:         "Transmit power mode for BLE beacons; use custom to set `power`. enum: `custom`, `default`.",
+						MarkdownDescription: "Transmit power mode for BLE beacons; use custom to set `power`. enum: `custom`, `default`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -437,8 +436,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					"type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "ESL integration type to enable on the AP",
-						MarkdownDescription: "ESL integration type to enable on the AP",
+						Description:         "ESL integration type to enable on the AP. enum: `hanshow`, `imagotag`, `native`, `solum`.",
+						MarkdownDescription: "ESL integration type to enable on the AP. enum: `hanshow`, `imagotag`, `native`, `solum`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -596,8 +595,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					"type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "IPv4 address assignment mode for AP management traffic",
-						MarkdownDescription: "IPv4 address assignment mode for AP management traffic",
+						Description:         "IPv4 address assignment mode for AP management traffic. enum: `dhcp`, `static`.",
+						MarkdownDescription: "IPv4 address assignment mode for AP management traffic. enum: `dhcp`, `static`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -609,8 +608,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"type6": schema.StringAttribute{
 						Optional:            true,
-						Description:         "IPv6 address assignment mode for AP management traffic",
-						MarkdownDescription: "IPv6 address assignment mode for AP management traffic",
+						Description:         "IPv6 address assignment mode for AP management traffic. enum: `autoconf`, `dhcp`, `disabled`, `static`.",
+						MarkdownDescription: "IPv6 address assignment mode for AP management traffic. enum: `autoconf`, `dhcp`, `disabled`, `static`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -754,8 +753,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"broker_proto": schema.StringAttribute{
 						Optional:            true,
-						Description:         "MQTT broker transport protocol",
-						MarkdownDescription: "MQTT broker transport protocol",
+						Description:         "MQTT broker transport protocol. enum: `ssl`, `tcp`.",
+						MarkdownDescription: "MQTT broker transport protocol. enum: `ssl`, `tcp`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -776,8 +775,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"format": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Payload format for published messages",
-						MarkdownDescription: "Payload format for published messages",
+						Description:         "Payload format for published messages. enum: `json`, `raw`.",
+						MarkdownDescription: "Payload format for published messages. enum: `json`, `raw`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -867,8 +866,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"type": schema.StringAttribute{
 									Optional:            true,
-									Description:         "Mapping mode for interpreting dynamic VLAN attributes returned by RADIUS",
-									MarkdownDescription: "Mapping mode for interpreting dynamic VLAN attributes returned by RADIUS",
+									Description:         "Mapping mode for interpreting dynamic VLAN attributes returned by RADIUS. enum: `airespace-interface-name`, `standard`.",
+									MarkdownDescription: "Mapping mode for interpreting dynamic VLAN attributes returned by RADIUS. enum: `airespace-interface-name`, `standard`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -903,8 +902,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						"forwarding": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Traffic forwarding mode for this AP Ethernet port",
-							MarkdownDescription: "Traffic forwarding mode for this AP Ethernet port",
+							Description:         "Traffic forwarding mode for this AP Ethernet port. enum: `all`, `limited`, `mxtunnel`, `site_mxedge`, `wxtunnel`.",
+							MarkdownDescription: "Traffic forwarding mode for this AP Ethernet port. enum: `all`, `limited`, `mxtunnel`, `site_mxedge`, `wxtunnel`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -927,8 +926,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						"mac_auth_protocol": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Protocol used for MAC authentication when `enable_mac_auth` is `true`",
-							MarkdownDescription: "Protocol used for MAC authentication when `enable_mac_auth` is `true`",
+							Description:         "Protocol used for MAC authentication when `enable_mac_auth` is `true`. enum: `eap-md5`, `eap-peap`, `pap`.",
+							MarkdownDescription: "Protocol used for MAC authentication when `enable_mac_auth` is `true`. enum: `eap-md5`, `eap-peap`, `pap`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1027,8 +1026,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 						"port_auth": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Authentication mode for this AP Ethernet port",
-							MarkdownDescription: "Authentication mode for this AP Ethernet port",
+							Description:         "Authentication mode for this AP Ethernet port. enum: `dot1x`, `none`.",
+							MarkdownDescription: "Authentication mode for this AP Ethernet port. enum: `dot1x`, `none`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1073,8 +1072,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"keywrap_format": schema.StringAttribute{
 												Optional:            true,
-												Description:         "Encoding format for RADIUS keywrap KEK and MACK values",
-												MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values",
+												Description:         "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
+												MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -1133,8 +1132,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 											},
 											"keywrap_format": schema.StringAttribute{
 												Optional:            true,
-												Description:         "Encoding format for RADIUS keywrap KEK and MACK values",
-												MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values",
+												Description:         "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
+												MarkdownDescription: "Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -1424,8 +1423,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"antenna_mode": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Selected radio chain mode for AP models that support antenna mode control",
-						MarkdownDescription: "Selected radio chain mode for AP models that support antenna mode control",
+						Description:         "Selected radio chain mode for AP models that support antenna mode control. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
+						MarkdownDescription: "Selected radio chain mode for AP models that support antenna mode control. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1439,8 +1438,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"antenna_select": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Internal or external antenna selection for AP models with selectable antennas",
-						MarkdownDescription: "Internal or external antenna selection for AP models with selectable antennas",
+						Description:         "Internal or external antenna selection for AP models with selectable antennas. enum: ``, `external`, `internal`.",
+						MarkdownDescription: "Internal or external antenna selection for AP models with selectable antennas. enum: ``, `external`, `internal`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1471,8 +1470,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"antenna_mode": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Radio chain mode for the 2.4 GHz radio",
-								MarkdownDescription: "Radio chain mode for the 2.4 GHz radio",
+								Description:         "Radio chain mode for the 2.4 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
+								MarkdownDescription: "Radio chain mode for the 2.4 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1488,8 +1487,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Channel width configured for the 2.4 GHz radio",
-								MarkdownDescription: "Channel width configured for the 2.4 GHz radio",
+								Description:         "Channel width configured for the 2.4 GHz radio. enum: `0`, `20`, `40`.",
+								MarkdownDescription: "Channel width configured for the 2.4 GHz radio. enum: `0`, `20`, `40`.",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
 										0,
@@ -1549,8 +1548,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"preamble": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "802.11 preamble mode used by the 2.4 GHz radio",
-								MarkdownDescription: "802.11 preamble mode used by the 2.4 GHz radio",
+								Description:         "802.11 preamble mode used by the 2.4 GHz radio. enum: `auto`, `long`, `short`.",
+								MarkdownDescription: "802.11 preamble mode used by the 2.4 GHz radio. enum: `auto`, `long`, `short`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1573,8 +1572,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"band_24_usage": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Radio usage mode for the 2.4 GHz-capable radio",
-						MarkdownDescription: "Radio usage mode for the 2.4 GHz-capable radio",
+						Description:         "Radio usage mode for the 2.4 GHz-capable radio. enum: `24`, `5`, `6`, `auto`.",
+						MarkdownDescription: "Radio usage mode for the 2.4 GHz-capable radio. enum: `24`, `5`, `6`, `auto`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1606,8 +1605,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"antenna_beam_pattern": schema.StringAttribute{
 								Optional:            true,
-								Description:         "Beam pattern used by the 5 GHz radio antenna",
-								MarkdownDescription: "Beam pattern used by the 5 GHz radio antenna",
+								Description:         "Beam pattern used by the 5 GHz radio antenna. enum: `narrow`, `medium`, `wide`.",
+								MarkdownDescription: "Beam pattern used by the 5 GHz radio antenna. enum: `narrow`, `medium`, `wide`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1620,8 +1619,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"antenna_mode": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Radio chain mode for the 5 GHz radio",
-								MarkdownDescription: "Radio chain mode for the 5 GHz radio",
+								Description:         "Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
+								MarkdownDescription: "Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1637,8 +1636,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Channel width configured for the 5 GHz radio",
-								MarkdownDescription: "Channel width configured for the 5 GHz radio",
+								Description:         "Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.",
+								MarkdownDescription: "Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
 										0,
@@ -1696,8 +1695,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"preamble": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "802.11 preamble mode used by the 5 GHz radio",
-								MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio",
+								Description:         "802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.",
+								MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1739,8 +1738,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"antenna_beam_pattern": schema.StringAttribute{
 								Optional:            true,
-								Description:         "Beam pattern used by the 5 GHz radio antenna",
-								MarkdownDescription: "Beam pattern used by the 5 GHz radio antenna",
+								Description:         "Beam pattern used by the 5 GHz radio antenna. enum: `narrow`, `medium`, `wide`.",
+								MarkdownDescription: "Beam pattern used by the 5 GHz radio antenna. enum: `narrow`, `medium`, `wide`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1753,8 +1752,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"antenna_mode": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Radio chain mode for the 5 GHz radio",
-								MarkdownDescription: "Radio chain mode for the 5 GHz radio",
+								Description:         "Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
+								MarkdownDescription: "Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1770,8 +1769,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Channel width configured for the 5 GHz radio",
-								MarkdownDescription: "Channel width configured for the 5 GHz radio",
+								Description:         "Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.",
+								MarkdownDescription: "Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
 										0,
@@ -1829,8 +1828,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"preamble": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "802.11 preamble mode used by the 5 GHz radio",
-								MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio",
+								Description:         "802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.",
+								MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1872,8 +1871,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"antenna_beam_pattern": schema.StringAttribute{
 								Optional:            true,
-								Description:         "Beam pattern used by the 6 GHz radio antenna",
-								MarkdownDescription: "Beam pattern used by the 6 GHz radio antenna",
+								Description:         "Beam pattern used by the 6 GHz radio antenna. enum: `narrow`, `medium`, `wide`.",
+								MarkdownDescription: "Beam pattern used by the 6 GHz radio antenna. enum: `narrow`, `medium`, `wide`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1886,8 +1885,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"antenna_mode": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Radio chain mode for the 6 GHz radio",
-								MarkdownDescription: "Radio chain mode for the 6 GHz radio",
+								Description:         "Radio chain mode for the 6 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
+								MarkdownDescription: "Radio chain mode for the 6 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1903,8 +1902,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"bandwidth": schema.Int64Attribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Channel width configured for the 6 GHz radio",
-								MarkdownDescription: "Channel width configured for the 6 GHz radio",
+								Description:         "Channel width configured for the 6 GHz radio. enum: `0`, `20`, `40`, `80`, `160`.",
+								MarkdownDescription: "Channel width configured for the 6 GHz radio. enum: `0`, `20`, `40`, `80`, `160`.",
 								Validators: []validator.Int64{
 									int64validator.OneOf(
 										0,
@@ -1963,8 +1962,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 							"preamble": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "802.11 preamble mode used by the 6 GHz radio",
-								MarkdownDescription: "802.11 preamble mode used by the 6 GHz radio",
+								Description:         "802.11 preamble mode used by the 6 GHz radio. enum: `auto`, `long`, `short`.",
+								MarkdownDescription: "802.11 preamble mode used by the 6 GHz radio. enum: `auto`, `long`, `short`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -2126,8 +2125,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "USB integration type for this legacy AP USB configuration",
-						MarkdownDescription: "USB integration type for this legacy AP USB configuration",
+						Description:         "USB integration type for this legacy AP USB configuration. enum: `hanshow`, `imagotag`, `solum`.",
+						MarkdownDescription: "USB integration type for this legacy AP USB configuration. enum: `hanshow`, `imagotag`, `solum`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -2233,8 +2232,8 @@ func OrgDeviceprofileApResourceSchema(ctx context.Context) schema.Schema {
 					"allow_join": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Join policy for new Zigbee devices on this AP",
-						MarkdownDescription: "Join policy for new Zigbee devices on this AP",
+						Description:         "Join policy for new Zigbee devices on this AP. enum: `always`, `manual`.",
+						MarkdownDescription: "Join policy for new Zigbee devices on this AP. enum: `always`, `manual`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",

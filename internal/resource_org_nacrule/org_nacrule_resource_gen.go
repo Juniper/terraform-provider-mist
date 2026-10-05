@@ -58,10 +58,15 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 				MarkdownDescription: "Whether the NAC rule is evaluated during policy matching",
 				Default:             booldefault.StaticBool(true),
 			},
+			"group_name": schema.StringAttribute{
+				Optional:            true,
+				Description:         "Name of the group the NAC rule belongs to",
+				MarkdownDescription: "Name of the group the NAC rule belongs to",
+			},
 			"guest_auth_state": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Guest portal authorization state condition for the rule",
-				MarkdownDescription: "Guest portal authorization state condition for the rule",
+				Description:         "Guest portal authorization state condition for the rule. enum: `authorized`, `unknown`.",
+				MarkdownDescription: "Guest portal authorization state condition for the rule. enum: `authorized`, `unknown`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -82,8 +87,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"auth_type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "NAC authentication method that must match the request",
-						MarkdownDescription: "NAC authentication method that must match the request",
+						Description:         "NAC authentication method that must match the request. enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`.",
+						MarkdownDescription: "NAC authentication method that must match the request. enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -219,8 +224,8 @@ func OrgNacruleResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"auth_type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "NAC authentication method that must match the request",
-						MarkdownDescription: "NAC authentication method that must match the request",
+						Description:         "NAC authentication method that must match the request. enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`.",
+						MarkdownDescription: "NAC authentication method that must match the request. enum: `cert`, `device-auth`, `eap-teap`, `eap-tls`, `eap-ttls`, `idp`, `mab`, `eap-peap`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -366,6 +371,7 @@ type OrgNacruleModel struct {
 	ApplyTags      types.List       `tfsdk:"apply_tags"`
 	DryRun         types.Bool       `tfsdk:"dry_run"`
 	Enabled        types.Bool       `tfsdk:"enabled"`
+	GroupName      types.String     `tfsdk:"group_name"`
 	GuestAuthState types.String     `tfsdk:"guest_auth_state"`
 	Id             types.String     `tfsdk:"id"`
 	Matching       MatchingValue    `tfsdk:"matching"`

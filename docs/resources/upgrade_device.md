@@ -66,7 +66,7 @@ resource "mist_upgrade_device" "switch_upgrade" {
 - `device_version` (String) current device firmware version
 - `ext_ip` (String) Public IP address observed for the switch
 - `fwupdate` (Attributes) Firmware update status for the switch (see [below for nested schema](#nestedatt--fwupdate))
-- `status` (String) Current status of the requested device upgrade
+- `status` (String) Current status of the requested device upgrade. enum: `error`, `inprogress`, `scheduled`, `starting`, `success`.
 - `tag_id` (Number) Numeric inventory tag identifier associated with the switch
 - `tag_uuid` (String) Inventory tag UUID associated with the switch
 - `timestamp` (Number) Epoch timestamp when the device upgrade status was reported
@@ -76,7 +76,7 @@ resource "mist_upgrade_device" "switch_upgrade" {
 
 Read-Only:
 
-- `lastcheck` (Number) Time when the device last checked for auto-upgrade, in epoch seconds
+- `lastcheck` (Number) Time when the AP last checked for auto-upgrade, in epoch seconds
 
 
 <a id="nestedatt--fwupdate"></a>
@@ -85,7 +85,7 @@ Read-Only:
 Read-Only:
 
 - `progress` (Number) Firmware update progress percentage, or null when unavailable
-- `status` (String) Current firmware update status
+- `status` (String) Current firmware update status. enum: `inprogress`, `failed`, `upgraded`, `success`, `scheduled`, `error`.
 - `status_id` (Number) Numeric firmware update status identifier
 - `timestamp` (Number) Time when the firmware update status was last updated
 - `will_retry` (Boolean) Whether the firmware update process will retry after the current status

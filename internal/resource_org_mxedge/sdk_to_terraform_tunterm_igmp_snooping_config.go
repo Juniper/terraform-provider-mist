@@ -21,6 +21,11 @@ func tuntermIgmpSnoopingConfigSdkToTerraform(ctx context.Context, diags *diag.Di
 	if d.Enabled != nil {
 		if b, ok := d.Enabled.AsBoolean(); ok && b != nil {
 			enabled = types.BoolValue(*b)
+		} else if s, ok := d.Enabled.AsString(); ok && s != nil {
+			// Mist may return this field as a string instead of a boolean
+			if parsed, err := strconv.ParseBool(*s); err == nil {
+				enabled = types.BoolValue(parsed)
+			}
 		}
 	}
 	if d.Querier != nil {

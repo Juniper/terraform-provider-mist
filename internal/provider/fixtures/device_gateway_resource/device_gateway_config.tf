@@ -7,6 +7,10 @@
   x = 150.5
   y = 250.75
 
+  mnha_config = {
+    enabled = true
+  }
+
   additional_config_cmds = [
     "set system host-name gateway-test",
     "set system domain-name example.com",
@@ -248,6 +252,7 @@
       routed_for_networks = ["192.168.10.0/24", "192.168.20.0/24"]
       subnet = "192.168.1.0/24"
       subnet6 = "2001:db8:1::/64"
+      zone_id = "11111111-2222-3333-4444-555555555555"
       tenants = {
         engineering = {
           addresses = ["192.168.1.100", "192.168.1.101"]

@@ -105,6 +105,6 @@ func TestOrgSsoModel(t *testing.T) {
 func (o *OrgSsoModel) testChecks(t testing.TB, rType, tName string, tracker *validators.FieldCoverageTracker) testChecks {
 	checks := newTestChecks(PrefixProviderName(rType)+"."+tName, tracker)
 	appendReflectChecks(t, &checks, o)
-	
+
 	return checks
 }

@@ -1,7 +1,5 @@
 package provider
 
-import ()
-
 type DeviceImageModel struct {
 	DeviceId    string `hcl:"device_id"`
 	File        string `hcl:"file"`

@@ -186,6 +186,7 @@
       mac_limit        = "5"
       mode             = "access"
       networks         = ["lan"]
+      no_local_port_config        = false
       poe_priority                = "high"
       poe_keep_state_when_reboot  = true
       port_network                = "lan"
@@ -400,9 +401,32 @@
       multicast_config = {
         anycast_rp = false
         rp_ip      = "10.100.0.254"
+        rp_mac      = "02:00:00:00:00:04"
+        peg_enabled = true
+        sbd_wan_rpf = true
         sbd_subnet = "10.100.255.0/24"
         sbd_vlan_id = 4090
       }
+    }
+  }
+  switch_mgmt = {
+    radius = {
+      enabled               = true
+      network               = "mgmt"
+      use_different_radius  = true
+      auth_servers_retries  = 3
+      auth_servers_timeout  = 5
+      auth_servers = [
+        {
+          host   = "192.168.1.200"
+          secret = "switch-mgmt-radius-secret-1"
+          port   = "1812"
+        },
+        {
+          host   = "192.168.1.201"
+          secret = "switch-mgmt-radius-secret-2"
+        }
+      ]
     }
   }
   image_url = "https://example.com/switch.png"

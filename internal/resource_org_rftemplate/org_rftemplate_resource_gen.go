@@ -70,8 +70,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"antenna_mode": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Radio chain mode for the 2.4 GHz radio",
-						MarkdownDescription: "Radio chain mode for the 2.4 GHz radio",
+						Description:         "Radio chain mode for the 2.4 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
+						MarkdownDescription: "Radio chain mode for the 2.4 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -86,8 +86,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Channel width configured for the 2.4 GHz radio",
-						MarkdownDescription: "Channel width configured for the 2.4 GHz radio",
+						Description:         "Channel width configured for the 2.4 GHz radio. enum: `0`, `20`, `40`.",
+						MarkdownDescription: "Channel width configured for the 2.4 GHz radio. enum: `0`, `20`, `40`.",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
 								0,
@@ -139,8 +139,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"preamble": schema.StringAttribute{
 						Optional:            true,
-						Description:         "802.11 preamble mode used by the 2.4 GHz radio",
-						MarkdownDescription: "802.11 preamble mode used by the 2.4 GHz radio",
+						Description:         "802.11 preamble mode used by the 2.4 GHz radio. enum: `auto`, `long`, `short`.",
+						MarkdownDescription: "802.11 preamble mode used by the 2.4 GHz radio. enum: `auto`, `long`, `short`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -162,8 +162,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"band_24_usage": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Radio usage mode for the 2.4 GHz-capable radio in this RF template",
-				MarkdownDescription: "Radio usage mode for the 2.4 GHz-capable radio in this RF template",
+				Description:         "Radio usage mode for the 2.4 GHz-capable radio in this RF template. enum: `24`, `5`, `6`, `auto`.",
+				MarkdownDescription: "Radio usage mode for the 2.4 GHz-capable radio in this RF template. enum: `24`, `5`, `6`, `auto`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -195,8 +195,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"antenna_mode": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Radio chain mode for the 5 GHz radio",
-						MarkdownDescription: "Radio chain mode for the 5 GHz radio",
+						Description:         "Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
+						MarkdownDescription: "Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -211,8 +211,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Channel width configured for the 5 GHz radio",
-						MarkdownDescription: "Channel width configured for the 5 GHz radio",
+						Description:         "Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.",
+						MarkdownDescription: "Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
 								0,
@@ -265,8 +265,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"preamble": schema.StringAttribute{
 						Optional:            true,
-						Description:         "802.11 preamble mode used by the 5 GHz radio",
-						MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio",
+						Description:         "802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.",
+						MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -308,8 +308,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"antenna_mode": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Radio chain mode for the 5 GHz radio",
-						MarkdownDescription: "Radio chain mode for the 5 GHz radio",
+						Description:         "Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
+						MarkdownDescription: "Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -325,8 +325,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Channel width configured for the 5 GHz radio",
-						MarkdownDescription: "Channel width configured for the 5 GHz radio",
+						Description:         "Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.",
+						MarkdownDescription: "Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
 								0,
@@ -379,8 +379,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"preamble": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "802.11 preamble mode used by the 5 GHz radio",
-						MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio",
+						Description:         "802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.",
+						MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -422,8 +422,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"antenna_mode": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Radio chain mode for the 6 GHz radio",
-						MarkdownDescription: "Radio chain mode for the 6 GHz radio",
+						Description:         "Radio chain mode for the 6 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
+						MarkdownDescription: "Radio chain mode for the 6 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -438,8 +438,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					"bandwidth": schema.Int64Attribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Channel width configured for the 6 GHz radio",
-						MarkdownDescription: "Channel width configured for the 6 GHz radio",
+						Description:         "Channel width configured for the 6 GHz radio. enum: `0`, `20`, `40`, `80`, `160`.",
+						MarkdownDescription: "Channel width configured for the 6 GHz radio. enum: `0`, `20`, `40`, `80`, `160`.",
 						Validators: []validator.Int64{
 							int64validator.OneOf(
 								0,
@@ -493,8 +493,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"preamble": schema.StringAttribute{
 						Optional:            true,
-						Description:         "802.11 preamble mode used by the 6 GHz radio",
-						MarkdownDescription: "802.11 preamble mode used by the 6 GHz radio",
+						Description:         "802.11 preamble mode used by the 6 GHz radio. enum: `auto`, `long`, `short`.",
+						MarkdownDescription: "802.11 preamble mode used by the 6 GHz radio. enum: `auto`, `long`, `short`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -574,8 +574,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"antenna_mode": schema.StringAttribute{
 									Optional:            true,
-									Description:         "Radio chain mode for the 2.4 GHz radio",
-									MarkdownDescription: "Radio chain mode for the 2.4 GHz radio",
+									Description:         "Radio chain mode for the 2.4 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
+									MarkdownDescription: "Radio chain mode for the 2.4 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -589,8 +589,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "Channel width configured for the 2.4 GHz radio",
-									MarkdownDescription: "Channel width configured for the 2.4 GHz radio",
+									Description:         "Channel width configured for the 2.4 GHz radio. enum: `0`, `20`, `40`.",
+									MarkdownDescription: "Channel width configured for the 2.4 GHz radio. enum: `0`, `20`, `40`.",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
 											0,
@@ -639,8 +639,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"preamble": schema.StringAttribute{
 									Optional:            true,
-									Description:         "802.11 preamble mode used by the 2.4 GHz radio",
-									MarkdownDescription: "802.11 preamble mode used by the 2.4 GHz radio",
+									Description:         "802.11 preamble mode used by the 2.4 GHz radio. enum: `auto`, `long`, `short`.",
+									MarkdownDescription: "802.11 preamble mode used by the 2.4 GHz radio. enum: `auto`, `long`, `short`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -662,8 +662,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"band_24_usage": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Model-specific radio usage mode for the 2.4 GHz-capable radio",
-							MarkdownDescription: "Model-specific radio usage mode for the 2.4 GHz-capable radio",
+							Description:         "Model-specific radio usage mode for the 2.4 GHz-capable radio. enum: `24`, `5`, `6`, `auto`.",
+							MarkdownDescription: "Model-specific radio usage mode for the 2.4 GHz-capable radio. enum: `24`, `5`, `6`, `auto`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -693,8 +693,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"antenna_mode": schema.StringAttribute{
 									Optional:            true,
-									Description:         "Radio chain mode for the 5 GHz radio",
-									MarkdownDescription: "Radio chain mode for the 5 GHz radio",
+									Description:         "Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
+									MarkdownDescription: "Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -708,8 +708,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "Channel width configured for the 5 GHz radio",
-									MarkdownDescription: "Channel width configured for the 5 GHz radio",
+									Description:         "Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.",
+									MarkdownDescription: "Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
 											0,
@@ -759,8 +759,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"preamble": schema.StringAttribute{
 									Optional:            true,
-									Description:         "802.11 preamble mode used by the 5 GHz radio",
-									MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio",
+									Description:         "802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.",
+									MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -802,8 +802,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"antenna_mode": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Radio chain mode for the 5 GHz radio",
-									MarkdownDescription: "Radio chain mode for the 5 GHz radio",
+									Description:         "Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
+									MarkdownDescription: "Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -819,8 +819,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Channel width configured for the 5 GHz radio",
-									MarkdownDescription: "Channel width configured for the 5 GHz radio",
+									Description:         "Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.",
+									MarkdownDescription: "Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
 											0,
@@ -873,8 +873,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								"preamble": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "802.11 preamble mode used by the 5 GHz radio",
-									MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio",
+									Description:         "802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.",
+									MarkdownDescription: "802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -914,8 +914,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"antenna_mode": schema.StringAttribute{
 									Optional:            true,
-									Description:         "Radio chain mode for the 6 GHz radio",
-									MarkdownDescription: "Radio chain mode for the 6 GHz radio",
+									Description:         "Radio chain mode for the 6 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
+									MarkdownDescription: "Radio chain mode for the 6 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -929,8 +929,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"bandwidth": schema.Int64Attribute{
 									Optional:            true,
-									Description:         "Channel width configured for the 6 GHz radio",
-									MarkdownDescription: "Channel width configured for the 6 GHz radio",
+									Description:         "Channel width configured for the 6 GHz radio. enum: `0`, `20`, `40`, `80`, `160`.",
+									MarkdownDescription: "Channel width configured for the 6 GHz radio. enum: `0`, `20`, `40`, `80`, `160`.",
 									Validators: []validator.Int64{
 										int64validator.OneOf(
 											0,
@@ -981,8 +981,8 @@ func OrgRftemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"preamble": schema.StringAttribute{
 									Optional:            true,
-									Description:         "802.11 preamble mode used by the 6 GHz radio",
-									MarkdownDescription: "802.11 preamble mode used by the 6 GHz radio",
+									Description:         "802.11 preamble mode used by the 6 GHz radio. enum: `auto`, `long`, `short`.",
+									MarkdownDescription: "802.11 preamble mode used by the 6 GHz radio. enum: `auto`, `long`, `short`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",

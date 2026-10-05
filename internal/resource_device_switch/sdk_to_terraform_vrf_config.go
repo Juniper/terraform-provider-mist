@@ -100,14 +100,23 @@ func vrfInstancesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m 
 		}
 		if d.MulticastConfig != nil {
 			var anycastRp basetypes.BoolValue
+			var pegEnabled basetypes.BoolValue
 			var rpIp basetypes.StringValue
+			var rpMac basetypes.StringValue
 			var sbdSubnet basetypes.StringValue
 			var sbdVlanId basetypes.Int64Value
+			var sbdWanRpf basetypes.BoolValue
 			if d.MulticastConfig.AnycastRp != nil {
 				anycastRp = types.BoolValue(*d.MulticastConfig.AnycastRp)
 			}
+			if d.MulticastConfig.PegEnabled != nil {
+				pegEnabled = types.BoolValue(*d.MulticastConfig.PegEnabled)
+			}
 			if d.MulticastConfig.RpIp != nil {
 				rpIp = types.StringValue(*d.MulticastConfig.RpIp)
+			}
+			if d.MulticastConfig.RpMac != nil {
+				rpMac = types.StringValue(*d.MulticastConfig.RpMac)
 			}
 			if d.MulticastConfig.SbdSubnet != nil {
 				sbdSubnet = types.StringValue(*d.MulticastConfig.SbdSubnet)
@@ -115,11 +124,17 @@ func vrfInstancesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m 
 			if d.MulticastConfig.SbdVlanId != nil {
 				sbdVlanId = types.Int64Value(int64(*d.MulticastConfig.SbdVlanId))
 			}
+			if d.MulticastConfig.SbdWanRpf != nil {
+				sbdWanRpf = types.BoolValue(*d.MulticastConfig.SbdWanRpf)
+			}
 			mcv, e := NewMulticastConfigValue(MulticastConfigValue{}.AttributeTypes(ctx), map[string]attr.Value{
 				"anycast_rp":  anycastRp,
+				"peg_enabled": pegEnabled,
 				"rp_ip":       rpIp,
+				"rp_mac":      rpMac,
 				"sbd_subnet":  sbdSubnet,
 				"sbd_vlan_id": sbdVlanId,
+				"sbd_wan_rpf": sbdWanRpf,
 			})
 			diags.Append(e...)
 			o, e2 := mcv.ToObjectValue(ctx)

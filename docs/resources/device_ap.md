@@ -78,7 +78,7 @@ resource "mist_device_ap" "ap_one" {
 - `model` (String) Hardware model reported for the access point
 - `org_id` (String) Organization that owns this access point
 - `serial` (String) Manufacturer serial number for the access point
-- `type` (String) Device type discriminator for access point records
+- `type` (String) Device type discriminator for access point records. enum: `ap`.
 
 <a id="nestedatt--aeroscout"></a>
 ### Nested Schema for `aeroscout`
@@ -108,7 +108,7 @@ Optional:
 
 - `beacon_enabled` (Boolean) Whether Mist beacons is enabled
 - `beacon_rate` (Number) Required if `beacon_rate_mode`==`custom`, 1-10, in number-beacons-per-second
-- `beacon_rate_mode` (String) Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate
+- `beacon_rate_mode` (String) Beacon rate mode for Mist BLE beacons; use custom to set beacon_rate. enum: `custom`, `default`.
 - `beam_disabled` (List of Number) AP BLE beam numbers disabled for location advertisements
 - `custom_ble_packet_enabled` (Boolean) Can be enabled if `beacon_enabled`==`true`, whether to send custom packet
 - `custom_ble_packet_frame` (String) The custom frame to be sent out in this beacon. The frame must be a hexstring
@@ -132,7 +132,7 @@ Optional:
 - `ibeacon_minor` (Number) iBeacon minor value broadcast by the AP
 - `ibeacon_uuid` (String) Optional, if not specified, the same UUID as the beacon will be used
 - `power` (Number) Required if `power_mode`==`custom`; else use `power_mode` as default
-- `power_mode` (String) Transmit power mode for BLE beacons; use custom to set `power`
+- `power_mode` (String) Transmit power mode for BLE beacons; use custom to set `power`. enum: `custom`, `default`.
 
 
 <a id="nestedatt--centrak"></a>
@@ -160,7 +160,7 @@ Optional:
 Optional:
 
 - `psk` (String, Sensitive) Pre-shared key used when `type`==`psk` for client bridge authentication
-- `type` (String) Authentication mode for the client bridge connection
+- `type` (String) Authentication mode for the client bridge connection. enum: `open`, `psk`.
 
 
 
@@ -174,7 +174,7 @@ Optional:
 - `enabled` (Boolean) usb_config is ignored if esl_config enabled
 - `host` (String) Only if `type`==`imagotag` or `type`==`native`
 - `port` (Number) Only if `type`==`imagotag` or `type`==`native`
-- `type` (String) ESL integration type to enable on the AP
+- `type` (String) ESL integration type to enable on the AP. enum: `hanshow`, `imagotag`, `native`, `solum`.
 - `verify_cert` (Boolean) Only if `type`==`imagotag` or `type`==`native`
 - `vlan_id` (Number) Only if `type`==`solum` or `type`==`hanshow`
 
@@ -193,8 +193,8 @@ Optional:
 - `mtu` (Number) Maximum transmission unit for AP management traffic
 - `netmask` (String) Required if `type`==`static`. IPv4 netmask for the AP management interface
 - `netmask6` (String) Required if `type6`==`static`. IPv6 prefix length for the AP management interface
-- `type` (String) IPv4 address assignment mode for AP management traffic
-- `type6` (String) IPv6 address assignment mode for AP management traffic
+- `type` (String) IPv4 address assignment mode for AP management traffic. enum: `dhcp`, `static`.
+- `type6` (String) IPv6 address assignment mode for AP management traffic. enum: `autoconf`, `dhcp`, `disabled`, `static`.
 - `vlan_id` (Number) Management VLAN ID, default is 1 (untagged)
 
 
@@ -234,10 +234,10 @@ Optional:
 
 - `broker_host` (String) MQTT broker hostname or IP address; required when `enabled` is `true`
 - `broker_port` (Number) MQTT broker port; defaults to `1883` for `tcp` and `8883` for `ssl`
-- `broker_proto` (String) MQTT broker transport protocol
+- `broker_proto` (String) MQTT broker transport protocol. enum: `ssl`, `tcp`.
 - `default_topic` (String) Optional catch-all MQTT topic; BLE advertisements matching no AssetFilter are published here
 - `enabled` (Boolean) Whether to enable MQTT publishing
-- `format` (String) Payload format for published messages
+- `format` (String) Payload format for published messages. enum: `json`, `raw`.
 - `password` (String, Sensitive) Optional MQTT password; masked in GET responses
 - `username` (String) Optional MQTT username
 
@@ -250,13 +250,13 @@ Optional:
 - `disabled` (Boolean) Whether this AP Ethernet port is disabled
 - `dynamic_vlan` (Attributes) RADIUS-assigned VLAN settings for AP port authentication (see [below for nested schema](#nestedatt--port_config--dynamic_vlan))
 - `enable_mac_auth` (Boolean) Whether MAC authentication is enabled on this AP port
-- `forwarding` (String) Traffic forwarding mode for this AP Ethernet port
+- `forwarding` (String) Traffic forwarding mode for this AP Ethernet port. enum: `all`, `limited`, `mxtunnel`, `site_mxedge`, `wxtunnel`.
 - `mac_auth_preferred` (Boolean) When `true`, we'll do dot1x then mac_auth. enable this to prefer mac_auth
-- `mac_auth_protocol` (String) Protocol used for MAC authentication when `enable_mac_auth` is `true`
+- `mac_auth_protocol` (String) Protocol used for MAC authentication when `enable_mac_auth` is `true`. enum: `eap-md5`, `eap-peap`, `pap`.
 - `mist_nac` (Attributes) Juniper Mist NAC settings used by AP port authentication (see [below for nested schema](#nestedatt--port_config--mist_nac))
 - `mx_tunnel_id` (String) If `forwarding`==`mxtunnel`, vlan_ids comes from mxtunnel
 - `mxtunnel_name` (String) If `forwarding`==`site_mxedge`, vlan_ids comes from site_mxedge (`mxtunnel` under site setting)
-- `port_auth` (String) Authentication mode for this AP Ethernet port
+- `port_auth` (String) Authentication mode for this AP Ethernet port. enum: `dot1x`, `none`.
 - `port_vlan_id` (Number) If `forwarding`==`limited`. VLAN ID allowed on this AP Ethernet port
 - `radius_config` (Attributes) RADIUS authentication and accounting settings for this AP port (see [below for nested schema](#nestedatt--port_config--radius_config))
 - `radsec` (Attributes) TLS-secured RADIUS settings for this AP port (see [below for nested schema](#nestedatt--port_config--radsec))
@@ -274,7 +274,7 @@ Optional:
 
 - `default_vlan_id` (Number) Fallback VLAN ID used when RADIUS does not return a dynamic VLAN match
 - `enabled` (Boolean) Whether dynamic VLAN assignment is enabled for this AP port
-- `type` (String) Mapping mode for interpreting dynamic VLAN attributes returned by RADIUS
+- `type` (String) Mapping mode for interpreting dynamic VLAN attributes returned by RADIUS. enum: `airespace-interface-name`, `standard`.
 - `vlans` (Map of String) Mapping entries for RADIUS-assigned VLAN values on this AP port. For `type`==`airespace-interface-name`, the property key is the Airespace interface name returned by RADIUS (e.g. "guest"), and the value is the corresponding VLAN ID (e.g. 100). For `type`==`standard`, the property key is the VLAN ID number returned by RADIUS, and the value is ignored.
 
 
@@ -326,7 +326,7 @@ Required:
 Optional:
 
 - `keywrap_enabled` (Boolean) Whether RADIUS keywrap is enabled for messages sent to this accounting server
-- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values
+- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.
 - `keywrap_kek` (String) RADIUS keywrap key encryption key (KEK)
 - `keywrap_mack` (String) RADIUS keywrap message authentication code key (MACK)
 - `port` (String) UDP port used by the RADIUS accounting server
@@ -343,7 +343,7 @@ Required:
 Optional:
 
 - `keywrap_enabled` (Boolean) Whether RADIUS keywrap is enabled for messages sent to this authentication server
-- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values
+- `keywrap_format` (String) Encoding format for RADIUS keywrap KEK and MACK values. enum: `ascii`, `hex`.
 - `keywrap_kek` (String) RADIUS keywrap key encryption key (KEK)
 - `keywrap_mack` (String) RADIUS keywrap message authentication code key (MACK)
 - `port` (String) UDP port used by the RADIUS authentication server
@@ -395,10 +395,10 @@ Optional:
 - `ant_gain_24` (Number) Antenna gain for 2.4G - for models with external antenna only
 - `ant_gain_5` (Number) Antenna gain for 5G - for models with external antenna only
 - `ant_gain_6` (Number) Antenna gain for 6G - for models with external antenna only
-- `antenna_mode` (String) Selected radio chain mode for AP models that support antenna mode control
-- `antenna_select` (String) Internal or external antenna selection for AP models with selectable antennas
+- `antenna_mode` (String) Selected radio chain mode for AP models that support antenna mode control. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.
+- `antenna_select` (String) Internal or external antenna selection for AP models with selectable antennas. enum: ``, `external`, `internal`.
 - `band_24` (Attributes) 2.4 GHz radio settings for this access point (see [below for nested schema](#nestedatt--radio_config--band_24))
-- `band_24_usage` (String) Radio usage mode for the 2.4 GHz-capable radio
+- `band_24_usage` (String) Radio usage mode for the 2.4 GHz-capable radio. enum: `24`, `5`, `6`, `auto`.
 - `band_5` (Attributes) 5 GHz radio settings for this access point (see [below for nested schema](#nestedatt--radio_config--band_5))
 - `band_5_on_24_radio` (Attributes) 5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode (see [below for nested schema](#nestedatt--radio_config--band_5_on_24_radio))
 - `band_6` (Attributes) 6 GHz radio settings for this access point (see [below for nested schema](#nestedatt--radio_config--band_6))
@@ -414,15 +414,15 @@ Optional:
 
 - `allow_rrm_disable` (Boolean) Whether RRM may disable the 2.4 GHz radio when optimizing RF settings
 - `ant_gain` (Number) External antenna gain for the 2.4 GHz radio
-- `antenna_mode` (String) Radio chain mode for the 2.4 GHz radio
-- `bandwidth` (Number) Channel width configured for the 2.4 GHz radio
+- `antenna_mode` (String) Radio chain mode for the 2.4 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.
+- `bandwidth` (Number) Channel width configured for the 2.4 GHz radio. enum: `0`, `20`, `40`.
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) Allowed channel list for the 2.4 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
 - `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) 802.11 preamble mode used by the 2.4 GHz radio
+- `preamble` (String) 802.11 preamble mode used by the 2.4 GHz radio. enum: `auto`, `long`, `short`.
 
 
 <a id="nestedatt--radio_config--band_5"></a>
@@ -432,16 +432,16 @@ Optional:
 
 - `allow_rrm_disable` (Boolean) Whether RRM may disable the 5 GHz radio when optimizing RF settings
 - `ant_gain` (Number) External antenna gain for the 5 GHz radio
-- `antenna_beam_pattern` (String) Beam pattern used by the 5 GHz radio antenna
-- `antenna_mode` (String) Radio chain mode for the 5 GHz radio
-- `bandwidth` (Number) Channel width configured for the 5 GHz radio
+- `antenna_beam_pattern` (String) Beam pattern used by the 5 GHz radio antenna. enum: `narrow`, `medium`, `wide`.
+- `antenna_mode` (String) Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.
+- `bandwidth` (Number) Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
 - `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) 802.11 preamble mode used by the 5 GHz radio
+- `preamble` (String) 802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.
 
 
 <a id="nestedatt--radio_config--band_5_on_24_radio"></a>
@@ -451,16 +451,16 @@ Optional:
 
 - `allow_rrm_disable` (Boolean) Whether RRM may disable the 5 GHz radio when optimizing RF settings
 - `ant_gain` (Number) External antenna gain for the 5 GHz radio
-- `antenna_beam_pattern` (String) Beam pattern used by the 5 GHz radio antenna
-- `antenna_mode` (String) Radio chain mode for the 5 GHz radio
-- `bandwidth` (Number) Channel width configured for the 5 GHz radio
+- `antenna_beam_pattern` (String) Beam pattern used by the 5 GHz radio antenna. enum: `narrow`, `medium`, `wide`.
+- `antenna_mode` (String) Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.
+- `bandwidth` (Number) Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
 - `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) 802.11 preamble mode used by the 5 GHz radio
+- `preamble` (String) 802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.
 
 
 <a id="nestedatt--radio_config--band_6"></a>
@@ -470,16 +470,16 @@ Optional:
 
 - `allow_rrm_disable` (Boolean) Whether RRM may disable the 6 GHz radio when optimizing RF settings
 - `ant_gain` (Number) External antenna gain for the 6 GHz radio
-- `antenna_beam_pattern` (String) Beam pattern used by the 6 GHz radio antenna
-- `antenna_mode` (String) Radio chain mode for the 6 GHz radio
-- `bandwidth` (Number) Channel width configured for the 6 GHz radio
+- `antenna_beam_pattern` (String) Beam pattern used by the 6 GHz radio antenna. enum: `narrow`, `medium`, `wide`.
+- `antenna_mode` (String) Radio chain mode for the 6 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.
+- `bandwidth` (Number) Channel width configured for the 6 GHz radio. enum: `0`, `20`, `40`, `80`, `160`.
 - `channel` (Number) For Device. (primary) channel for the band, 0 means using the Site Setting
 - `channels` (List of Number) Allowed channel list for the 6 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
 - `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) 802.11 preamble mode used by the 6 GHz radio
+- `preamble` (String) 802.11 preamble mode used by the 6 GHz radio. enum: `auto`, `long`, `short`.
 - `standard_power` (Boolean) For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed
 
 
@@ -503,7 +503,7 @@ Optional:
 - `enabled` (Boolean) Whether to enable any usb config
 - `host` (String) Only if `type`==`imagotag`. Imagotag service host or IP address contacted by the AP
 - `port` (Number) Only if `type`==`imagotag`. TCP port used to reach the Imagotag service
-- `type` (String) USB integration type for this legacy AP USB configuration
+- `type` (String) USB integration type for this legacy AP USB configuration. enum: `hanshow`, `imagotag`, `solum`.
 - `verify_cert` (Boolean) Only if `type`==`imagotag`, whether to turn on SSL verification
 - `vlan_id` (Number) Only if `type`==`solum` or `type`==`hanshow`
 
@@ -525,7 +525,7 @@ Optional:
 
 Optional:
 
-- `allow_join` (String) Join policy for new Zigbee devices on this AP
+- `allow_join` (String) Join policy for new Zigbee devices on this AP. enum: `always`, `manual`.
 - `channel` (Number) Zigbee channel (2.4 GHz). `0` means auto; valid fixed values are 11–26
 - `enabled` (Boolean) Whether to enable Zigbee on this AP
 - `extended_pan_id` (String) Extended PAN ID in hex string format; only applicable when `pan_id` is also specified

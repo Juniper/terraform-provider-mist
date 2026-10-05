@@ -95,6 +95,5 @@ func (s *OrgDeviceprofileAssignModel) testChecks(t testing.TB, rType, tName stri
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
 	checks.append(t, "TestCheckResourceAttrSet", "deviceprofile_id")
 
-
 	return checks
 }

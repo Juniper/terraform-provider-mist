@@ -221,8 +221,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"oob_ip_type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "IPv4 address assignment mode for out-of-band management",
-						MarkdownDescription: "IPv4 address assignment mode for out-of-band management",
+						Description:         "IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `disabled`, `static`.",
+						MarkdownDescription: "IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `disabled`, `static`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -235,8 +235,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"oob_ip_type6": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "IPv6 address assignment mode for out-of-band management",
-						MarkdownDescription: "IPv6 address assignment mode for out-of-band management",
+						Description:         "IPv6 address assignment mode for out-of-band management. enum: `autoconf`, `dhcp`, `disabled`, `static`.",
+						MarkdownDescription: "IPv6 address assignment mode for out-of-band management. enum: `autoconf`, `dhcp`, `disabled`, `static`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -369,8 +369,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 								"keywrap_format": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Encoding format for Mist AP RADIUS keywrap keys",
-									MarkdownDescription: "Encoding format for Mist AP RADIUS keywrap keys",
+									Description:         "Encoding format for Mist AP RADIUS keywrap keys. enum: `ascii`, `hex`.",
+									MarkdownDescription: "Encoding format for Mist AP RADIUS keywrap keys. enum: `ascii`, `hex`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -446,8 +446,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"nas_ip_source": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Source used to populate NAS-IP-Address and NAS-IPv6-Address attributes",
-						MarkdownDescription: "Source used to populate NAS-IP-Address and NAS-IPv6-Address attributes",
+						Description:         "Source used to populate NAS-IP-Address and NAS-IPv6-Address attributes. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`.",
+						MarkdownDescription: "Source used to populate NAS-IP-Address and NAS-IPv6-Address attributes. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -472,8 +472,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"server_selection": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "RADIUS server selection strategy for RadSec failover",
-						MarkdownDescription: "RADIUS server selection strategy for RadSec failover",
+						Description:         "RADIUS server selection strategy for RadSec failover. enum: `ordered`, `unordered`.",
+						MarkdownDescription: "RADIUS server selection strategy for RadSec failover. enum: `ordered`, `unordered`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -485,8 +485,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					"src_ip_source": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Connection source interface or address used when reaching RADIUS servers",
-						MarkdownDescription: "Connection source interface or address used when reaching RADIUS servers",
+						Description:         "Connection source interface or address used when reaching RADIUS servers. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`.",
+						MarkdownDescription: "Connection source interface or address used when reaching RADIUS servers. enum: `any`, `oob`, `oob6`, `tunnel`, `tunnel6`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -561,8 +561,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 						"type": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "DHCP forwarding mode for this tunneled VLAN",
-							MarkdownDescription: "DHCP forwarding mode for this tunneled VLAN",
+							Description:         "DHCP forwarding mode for this tunneled VLAN. enum: `relay`.",
+							MarkdownDescription: "DHCP forwarding mode for this tunneled VLAN. enum: `relay`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -629,8 +629,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 			"tunterm_hosts_selection": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Selection strategy for ordering tunnel termination hosts",
-				MarkdownDescription: "Selection strategy for ordering tunnel termination hosts",
+				Description:         "Selection strategy for ordering tunnel termination hosts. enum: `ordered`, `shuffle`, `shuffle-by-site`.",
+				MarkdownDescription: "Selection strategy for ordering tunnel termination hosts. enum: `ordered`, `shuffle`, `shuffle-by-site`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -653,8 +653,8 @@ func OrgMxclusterResourceSchema(ctx context.Context) schema.Schema {
 					},
 				},
 				Optional:            true,
-				Description:         "Monitoring checks for tunnel termination reachability",
-				MarkdownDescription: "Monitoring checks for tunnel termination reachability",
+				Description:         "Monitoring checks for tunnel termination reachability. Only for Org Mist Edges; use `tunterm_monitoring` in the `site_setting` for site-scoped Mist Edges",
+				MarkdownDescription: "Monitoring checks for tunnel termination reachability. Only for Org Mist Edges; use `tunterm_monitoring` in the `site_setting` for site-scoped Mist Edges",
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.UniqueValues(),

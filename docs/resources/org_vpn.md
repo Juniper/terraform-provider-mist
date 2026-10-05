@@ -54,7 +54,7 @@ resource "mist_org_setting" "terraform_test" {
 
 - `org_id` (String) Organization that owns the VPN configuration
 - `path_selection` (Attributes) Path selection settings used when `type`==`hub_spoke` (see [below for nested schema](#nestedatt--path_selection))
-- `type` (String) VPN topology mode for this configuration
+- `type` (String) VPN topology mode for this configuration. enum: `hub_spoke`, `mesh`.
 
 ### Read-Only
 
@@ -65,7 +65,7 @@ resource "mist_org_setting" "terraform_test" {
 
 Optional:
 
-- `bfd_profile` (String) BFD profile used for this VPN path
+- `bfd_profile` (String) BFD profile used for this VPN path. enum: `broadband`, `lte`.
 - `bfd_use_tunnel_mode` (Boolean) If `type`==`mesh` and for SSR only, whether to use tunnel mode
 - `ip` (String) Source IP address for this VPN path, if different from the WAN port IP
 - `peer_paths` (Attributes Map) Peer path preferences used when `type`==`mesh` (see [below for nested schema](#nestedatt--paths--peer_paths))
@@ -96,7 +96,7 @@ Optional:
 
 Optional:
 
-- `strategy` (String) Path selection strategy for a hub-and-spoke VPN
+- `strategy` (String) Path selection strategy for a hub-and-spoke VPN. enum: `disabled`, `simple`, `manual`.
 
 
 

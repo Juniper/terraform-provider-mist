@@ -74,14 +74,23 @@ func vrfInstancesTerraformToSdk(d basetypes.MapValue) map[string]models.SwitchVr
 			if v, ok := attrs["anycast_rp"].(basetypes.BoolValue); ok && !v.IsNull() && !v.IsUnknown() {
 				mc.AnycastRp = v.ValueBoolPointer()
 			}
+			if v, ok := attrs["peg_enabled"].(basetypes.BoolValue); ok && !v.IsNull() && !v.IsUnknown() {
+				mc.PegEnabled = v.ValueBoolPointer()
+			}
 			if v, ok := attrs["rp_ip"].(basetypes.StringValue); ok && !v.IsNull() && !v.IsUnknown() {
 				mc.RpIp = v.ValueStringPointer()
+			}
+			if v, ok := attrs["rp_mac"].(basetypes.StringValue); ok && !v.IsNull() && !v.IsUnknown() {
+				mc.RpMac = v.ValueStringPointer()
 			}
 			if v, ok := attrs["sbd_subnet"].(basetypes.StringValue); ok && !v.IsNull() && !v.IsUnknown() {
 				mc.SbdSubnet = v.ValueStringPointer()
 			}
 			if v, ok := attrs["sbd_vlan_id"].(basetypes.Int64Value); ok && !v.IsNull() && !v.IsUnknown() {
 				mc.SbdVlanId = models.ToPointer(int(v.ValueInt64()))
+			}
+			if v, ok := attrs["sbd_wan_rpf"].(basetypes.BoolValue); ok && !v.IsNull() && !v.IsUnknown() {
+				mc.SbdWanRpf = v.ValueBoolPointer()
 			}
 			dataItem.MulticastConfig = &mc
 		}

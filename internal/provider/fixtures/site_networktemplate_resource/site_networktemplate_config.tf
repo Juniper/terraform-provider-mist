@@ -109,6 +109,7 @@ port_usages = {
     port_network = "lan"
     voip_network = "voice"
     bypass_auth_when_server_down_for_voip = true
+    no_local_port_config = false
     server_fail_retry_interval = 300
     stp_disable = false
     stp_edge = true
@@ -496,6 +497,24 @@ switch_mgmt = {
       }
     ]
   }
+  radius = {
+    enabled = true
+    network = "lan"
+    use_different_radius = true
+    auth_servers_retries = 3
+    auth_servers_timeout = 5
+    auth_servers = [
+      {
+        host = "192.168.1.206"
+        secret = "switch-mgmt-radius-secret-1"
+        port = "1812"
+      },
+      {
+        host = "192.168.1.207"
+        secret = "switch-mgmt-radius-secret-2"
+      }
+    ]
+  }
   use_mxedge_proxy = false
 }
 uses_description_from_port_usage = true
@@ -506,8 +525,11 @@ vrf_instances = {
   "mgmt_vrf" = {
     networks = ["lan"]
     multicast_config = {
-      anycast_rp = false
-      rp_ip      = "192.168.1.1"
+      anycast_rp  = false
+      rp_ip       = "192.168.1.1"
+      rp_mac      = "02:00:00:00:00:03"
+      peg_enabled = true
+      sbd_wan_rpf = true
     }
     extra_routes = {
       "10.0.0.0/8" = {

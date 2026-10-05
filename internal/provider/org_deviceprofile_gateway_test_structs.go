@@ -157,6 +157,7 @@ type OrgDeviceprofileGatewayNetworksValue struct {
 	Tenants              map[string]OrgDeviceprofileGatewayTenantsValue   `cty:"tenants" hcl:"tenants"`
 	VlanId               *string                                          `cty:"vlan_id" hcl:"vlan_id"`
 	VpnAccess            map[string]OrgDeviceprofileGatewayVpnAccessValue `cty:"vpn_access" hcl:"vpn_access"`
+	ZoneId               *string                                          `cty:"zone_id" hcl:"zone_id"`
 }
 
 type OrgDeviceprofileGatewayInternalAccessValue struct {

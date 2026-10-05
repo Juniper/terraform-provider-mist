@@ -211,7 +211,7 @@
       }
     ]
     wan_speedtest {
-      enabled     = true
+      disabled    = false
       time_of_day = "02:00"
     }
   }

@@ -5,9 +5,7 @@ package resource_org_gatewaytemplate
 import (
 	"context"
 	"fmt"
-	"strings"
-
-	mistvalidator "github.com/Juniper/terraform-provider-mist/internal/validators"
+	"github.com/Juniper/terraform-provider-mist/internal/validators"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -29,6 +27,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
@@ -429,8 +428,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										Attributes: map[string]schema.Attribute{
 											"type": schema.StringAttribute{
 												Optional:            true,
-												Description:         "Data type used to encode this DHCP option value",
-												MarkdownDescription: "Data type used to encode this DHCP option value",
+												Description:         "Data type used to encode this DHCP option value. enum: `boolean`, `hex`, `int16`, `int32`, `ip`, `string`, `uint16`, `uint32`.",
+												MarkdownDescription: "Data type used to encode this DHCP option value. enum: `boolean`, `hex`, `int16`, `int32`, `ip`, `string`, `uint16`, `uint32`.",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -493,8 +492,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"type": schema.StringAttribute{
 									Optional:            true,
-									Description:         "IPv4 DHCP mode for this network",
-									MarkdownDescription: "IPv4 DHCP mode for this network",
+									Description:         "IPv4 DHCP mode for this network. enum: `local`, `none`, `relay`.",
+									MarkdownDescription: "IPv4 DHCP mode for this network. enum: `local`, `none`, `relay`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -506,8 +505,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"type6": schema.StringAttribute{
 									Optional:            true,
-									Description:         "IPv6 DHCP mode for this network",
-									MarkdownDescription: "IPv6 DHCP mode for this network",
+									Description:         "IPv6 DHCP mode for this network. enum: `local`, `none`, `relay`.",
+									MarkdownDescription: "IPv6 DHCP mode for this network. enum: `local`, `none`, `relay`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -522,8 +521,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										Attributes: map[string]schema.Attribute{
 											"type": schema.StringAttribute{
 												Optional:            true,
-												Description:         "Data type used to encode this vendor option value",
-												MarkdownDescription: "Data type used to encode this vendor option value",
+												Description:         "Data type used to encode this vendor option value. enum: `boolean`, `hex`, `int16`, `int32`, `ip`, `string`, `uint16`, `uint32`.",
+												MarkdownDescription: "Data type used to encode this vendor option value. enum: `boolean`, `hex`, `int16`, `int32`, `ip`, `string`, `uint16`, `uint32`.",
 												Validators: []validator.String{
 													stringvalidator.OneOf(
 														"",
@@ -715,8 +714,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										"protocol": schema.StringAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "Probe protocol used by this custom application definition",
-											MarkdownDescription: "Probe protocol used by this custom application definition",
+											Description:         "Probe protocol used by this custom application definition. enum: `http`, `icmp`.",
+											MarkdownDescription: "Probe protocol used by this custom application definition. enum: `http`, `icmp`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -771,8 +770,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"day_of_week": schema.StringAttribute{
 								Optional:            true,
-								Description:         "Scheduled weekday for automatic signature updates",
-								MarkdownDescription: "Scheduled weekday for automatic signature updates",
+								Description:         "Scheduled weekday for automatic signature updates. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.",
+								MarkdownDescription: "Scheduled weekday for automatic signature updates. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -885,8 +884,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										"protocol": schema.StringAttribute{
 											Optional:            true,
 											Computed:            true,
-											Description:         "Transport protocol matched by this custom Protect RE ACL",
-											MarkdownDescription: "Transport protocol matched by this custom Protect RE ACL",
+											Description:         "Transport protocol matched by this custom Protect RE ACL. enum: `any`, `icmp`, `tcp`, `udp`.",
+											MarkdownDescription: "Transport protocol matched by this custom Protect RE ACL. enum: `any`, `icmp`, `tcp`, `udp`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -980,8 +979,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"base_profile": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Built-in IDP baseline profile inherited before applying overwrites",
-							MarkdownDescription: "Built-in IDP baseline profile inherited before applying overwrites",
+							Description:         "Built-in IDP baseline profile inherited before applying overwrites. enum: `critical`, `standard`, `strict`.",
+							MarkdownDescription: "Built-in IDP baseline profile inherited before applying overwrites. enum: `critical`, `standard`, `strict`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1006,8 +1005,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"action": schema.StringAttribute{
 										Optional:            true,
-										Description:         "Enforcement action applied when this overwrite rule matches",
-										MarkdownDescription: "Enforcement action applied when this overwrite rule matches",
+										Description:         "Enforcement action applied when this overwrite rule matches. enum: `alert`, `close`, `drop`.",
+										MarkdownDescription: "Enforcement action applied when this overwrite rule matches. enum: `alert`, `close`, `drop`.",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -1119,8 +1118,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						"type": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "IPv4 address assignment mode for this gateway network interface",
-							MarkdownDescription: "IPv4 address assignment mode for this gateway network interface",
+							Description:         "IPv4 address assignment mode for this gateway network interface. enum: `dhcp`, `static`.",
+							MarkdownDescription: "IPv4 address assignment mode for this gateway network interface. enum: `dhcp`, `static`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1132,8 +1131,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"type6": schema.StringAttribute{
 							Optional:            true,
-							Description:         "IPv6 address assignment mode for this gateway network interface",
-							MarkdownDescription: "IPv6 address assignment mode for this gateway network interface",
+							Description:         "IPv6 address assignment mode for this gateway network interface. enum: `autoconf`, `dhcp`, `disabled`, `static`.",
+							MarkdownDescription: "IPv6 address assignment mode for this gateway network interface. enum: `autoconf`, `dhcp`, `disabled`, `static`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -1157,6 +1156,23 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 				Validators: []validator.Map{
 					mapvalidator.SizeAtLeast(1),
 				},
+			},
+			"mnha_config": schema.SingleNestedAttribute{
+				Attributes: map[string]schema.Attribute{
+					"enabled": schema.BoolAttribute{
+						Optional:            true,
+						Description:         "Whether MNHA mode is enabled",
+						MarkdownDescription: "Whether MNHA mode is enabled",
+					},
+				},
+				CustomType: MnhaConfigType{
+					ObjectType: types.ObjectType{
+						AttrTypes: MnhaConfigValue{}.AttributeTypes(ctx),
+					},
+				},
+				Optional:            true,
+				Description:         "Multi-Node HA (MNHA) settings applied by this gateway template, SRX only",
+				MarkdownDescription: "Multi-Node HA (MNHA) settings applied by this gateway template, SRX only",
 			},
 			"name": schema.StringAttribute{
 				Required:            true,
@@ -1668,6 +1684,11 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								mapvalidator.SizeAtLeast(1),
 							},
 						},
+						"zone_id": schema.StringAttribute{
+							Optional:            true,
+							Description:         "SecurityZone this network belongs to. When set, the zone name is used as the security zone name on the SRX, and multiple networks can share the same zone. When omitted, the network `name` is used as the security zone name.",
+							MarkdownDescription: "SecurityZone this network belongs to. When set, the zone name is used as the security zone name on the SRX, and multiple networks can share the same zone. When omitted, the network `name` is used as the security zone name.",
+						},
 					},
 					CustomType: NetworksType{
 						ObjectType: types.ObjectType{
@@ -1760,8 +1781,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							"type": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "IP assignment mode for the node1 out-of-band management interface",
-								MarkdownDescription: "IP assignment mode for the node1 out-of-band management interface",
+								Description:         "IP assignment mode for the node1 out-of-band management interface. enum: `dhcp`, `static`.",
+								MarkdownDescription: "IP assignment mode for the node1 out-of-band management interface. enum: `dhcp`, `static`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1817,8 +1838,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 					"type": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "IP assignment mode for the out-of-band management interface",
-						MarkdownDescription: "IP assignment mode for the out-of-band management interface",
+						Description:         "IP assignment mode for the out-of-band management interface. enum: `dhcp`, `static`.",
+						MarkdownDescription: "IP assignment mode for the out-of-band management interface. enum: `dhcp`, `static`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1989,8 +2010,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						"strategy": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Selection strategy used to evaluate the candidate paths",
-							MarkdownDescription: "Selection strategy used to evaluate the candidate paths",
+							Description:         "Selection strategy used to evaluate the candidate paths. enum: `ecmp`, `ordered`, `weighted`.",
+							MarkdownDescription: "Selection strategy used to evaluate the candidate paths. enum: `ecmp`, `ordered`, `weighted`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2062,8 +2083,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"dsl_type": schema.StringAttribute{
 							Optional:            true,
-							Description:         "If `wan_type`==`dsl`. DSL technology used by the WAN port",
-							MarkdownDescription: "If `wan_type`==`dsl`. DSL technology used by the WAN port",
+							Description:         "If `wan_type`==`dsl`. DSL technology used by the WAN port. enum: `adsl`, `vdsl`.",
+							MarkdownDescription: "If `wan_type`==`dsl`. DSL technology used by the WAN port. enum: `adsl`, `vdsl`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2091,8 +2112,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"duplex": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Ethernet duplex mode configured on the port",
-							MarkdownDescription: "Ethernet duplex mode configured on the port",
+							Description:         "Ethernet duplex mode configured on the port. enum: `auto`, `full`, `half`.",
+							MarkdownDescription: "Ethernet duplex mode configured on the port. enum: `auto`, `full`, `half`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2112,8 +2133,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"lte_auth": schema.StringAttribute{
 							Optional:            true,
-							Description:         "If `wan_type`==`lte`. Authentication method used by the LTE uplink",
-							MarkdownDescription: "If `wan_type`==`lte`. Authentication method used by the LTE uplink",
+							Description:         "If `wan_type`==`lte`. Authentication method used by the LTE uplink. enum: `chap`, `none`, `pap`.",
+							MarkdownDescription: "If `wan_type`==`lte`. Authentication method used by the LTE uplink. enum: `chap`, `none`, `pap`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2255,8 +2276,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"pppoe_auth": schema.StringAttribute{
 									Optional:            true,
-									Description:         "Authentication protocol used for PPPoE when `type`==`pppoe`",
-									MarkdownDescription: "Authentication protocol used for PPPoE when `type`==`pppoe`",
+									Description:         "Authentication protocol used for PPPoE when `type`==`pppoe`. enum: `chap`, `none`, `pap`.",
+									MarkdownDescription: "Authentication protocol used for PPPoE when `type`==`pppoe`. enum: `chap`, `none`, `pap`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -2277,8 +2298,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"type": schema.StringAttribute{
 									Optional:            true,
-									Description:         "IPv4 assignment mode for this gateway port interface",
-									MarkdownDescription: "IPv4 assignment mode for this gateway port interface",
+									Description:         "IPv4 assignment mode for this gateway port interface. enum: `dhcp`, `pppoe`, `static`.",
+									MarkdownDescription: "IPv4 assignment mode for this gateway port interface. enum: `dhcp`, `pppoe`, `static`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -2290,8 +2311,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"type6": schema.StringAttribute{
 									Optional:            true,
-									Description:         "IPv6 assignment mode for this gateway port interface",
-									MarkdownDescription: "IPv6 assignment mode for this gateway port interface",
+									Description:         "IPv6 assignment mode for this gateway port interface. enum: `autoconf`, `dhcp`, `static`.",
+									MarkdownDescription: "IPv6 assignment mode for this gateway port interface. enum: `autoconf`, `dhcp`, `static`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -2394,8 +2415,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"usage": schema.StringAttribute{
 							Required:            true,
-							Description:         "Logical usage assigned to the port",
-							MarkdownDescription: "Logical usage assigned to the port",
+							Description:         "Logical usage assigned to the port. enum: `ha_control`, `ha_data`, `lan`, `wan`.",
+							MarkdownDescription: "Logical usage assigned to the port. enum: `ha_control`, `ha_data`, `lan`, `wan`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2416,8 +2437,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"bfd_profile": schema.StringAttribute{
 										Optional:            true,
-										Description:         "BFD profile used for this VPN path when the VPN `type`==`hub_spoke`",
-										MarkdownDescription: "BFD profile used for this VPN path when the VPN `type`==`hub_spoke`",
+										Description:         "BFD profile used for this VPN path when the VPN `type`==`hub_spoke`. enum: `broadband`, `lte`.",
+										MarkdownDescription: "BFD profile used for this VPN path when the VPN `type`==`hub_spoke`. enum: `broadband`, `lte`.",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -2438,8 +2459,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"role": schema.StringAttribute{
 										Optional:            true,
-										Description:         "Gateway role for this VPN path; valid values depend on the VPN `type`",
-										MarkdownDescription: "Gateway role for this VPN path; valid values depend on the VPN `type`",
+										Description:         "Gateway role for this VPN path; valid values depend on the VPN `type`. enum: `hub`, `mesh`, `spoke`.",
+										MarkdownDescription: "Gateway role for this VPN path; valid values depend on the VPN `type`. enum: `hub`, `mesh`, `spoke`.",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -2493,8 +2514,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"wan_arp_policer": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only when `wan_type`==`broadband`. ARP policer profile applied to the WAN port",
-							MarkdownDescription: "Only when `wan_type`==`broadband`. ARP policer profile applied to the WAN port",
+							Description:         "Only when `wan_type`==`broadband`. ARP policer profile applied to the WAN port. enum: `default`, `max`, `recommended`.",
+							MarkdownDescription: "Only when `wan_type`==`broadband`. ARP policer profile applied to the WAN port. enum: `default`, `max`, `recommended`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2634,8 +2655,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"probe_profile": schema.StringAttribute{
 									Optional:            true,
-									Description:         "WAN probe profile used for health checks on this port",
-									MarkdownDescription: "WAN probe profile used for health checks on this port",
+									Description:         "WAN probe profile used for health checks on this port. enum: `broadband`, `lte`.",
+									MarkdownDescription: "WAN probe profile used for health checks on this port. enum: `broadband`, `lte`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -2690,8 +2711,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						"wan_speedtest_mode": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Controls whether Marvis or the scheduler can run speed tests on this WAN port",
-							MarkdownDescription: "Controls whether Marvis or the scheduler can run speed tests on this WAN port",
+							Description:         "Controls whether Marvis or the scheduler can run speed tests on this WAN port. enum: `auto`, `enabled`, `disabled`.",
+							MarkdownDescription: "Controls whether Marvis or the scheduler can run speed tests on this WAN port. enum: `auto`, `enabled`, `disabled`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -2704,8 +2725,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"wan_type": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `usage`==`wan`. WAN uplink type configured on the port",
-							MarkdownDescription: "Only if `usage`==`wan`. WAN uplink type configured on the port",
+							Description:         "Only if `usage`==`wan`. WAN uplink type configured on the port. enum: `broadband`, `dsl`, `lte`.",
+							MarkdownDescription: "Only if `usage`==`wan`. WAN uplink type configured on the port. enum: `broadband`, `dsl`, `lte`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -3051,8 +3072,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"profile": schema.StringAttribute{
 										Optional:            true,
-										Description:         "Enhanced web filtering profile applied by this rule",
-										MarkdownDescription: "Enhanced web filtering profile applied by this rule",
+										Description:         "Enhanced web filtering profile applied by this rule. enum: `critical`, `standard`, `strict`.",
+										MarkdownDescription: "Enhanced web filtering profile applied by this rule. enum: `critical`, `standard`, `strict`.",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -3162,8 +3183,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"profile": schema.StringAttribute{
 											Optional:            true,
-											Description:         "Sky ATP DNS DGA detection profile to apply",
-											MarkdownDescription: "Sky ATP DNS DGA detection profile to apply",
+											Description:         "Sky ATP DNS DGA detection profile to apply. enum: `default`, `standard`, `strict`.",
+											MarkdownDescription: "Sky ATP DNS DGA detection profile to apply. enum: `default`, `standard`, `strict`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -3192,8 +3213,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"profile": schema.StringAttribute{
 											Optional:            true,
-											Description:         "Sky ATP DNS tunneling detection profile to apply",
-											MarkdownDescription: "Sky ATP DNS tunneling detection profile to apply",
+											Description:         "Sky ATP DNS tunneling detection profile to apply. enum: `default`, `standard`, `strict`.",
+											MarkdownDescription: "Sky ATP DNS tunneling detection profile to apply. enum: `default`, `standard`, `strict`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -3222,8 +3243,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 										},
 										"profile": schema.StringAttribute{
 											Optional:            true,
-											Description:         "Sky ATP HTTP inspection profile to apply",
-											MarkdownDescription: "Sky ATP HTTP inspection profile to apply",
+											Description:         "Sky ATP HTTP inspection profile to apply. enum: `standard`, `strict`.",
+											MarkdownDescription: "Sky ATP HTTP inspection profile to apply. enum: `standard`, `strict`.",
 											Validators: []validator.String{
 												stringvalidator.OneOf(
 													"",
@@ -3273,8 +3294,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 							Attributes: map[string]schema.Attribute{
 								"ciphers_category": schema.StringAttribute{
 									Optional:            true,
-									Description:         "Allowed cipher strength category for SSL proxy inspection",
-									MarkdownDescription: "Allowed cipher strength category for SSL proxy inspection",
+									Description:         "Allowed cipher strength category for SSL proxy inspection. enum: `medium`, `strong`, `weak`.",
+									MarkdownDescription: "Allowed cipher strength category for SSL proxy inspection. enum: `medium`, `strong`, `weak`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -3442,8 +3463,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								},
 								"provider": schema.StringAttribute{
 									Required:            true,
-									Description:         "Tunnel provider used for automatic endpoint provisioning",
-									MarkdownDescription: "Tunnel provider used for automatic endpoint provisioning",
+									Description:         "Tunnel provider used for automatic endpoint provisioning. enum: `jse-ipsec`, `zscaler-ipsec`.",
+									MarkdownDescription: "Tunnel provider used for automatic endpoint provisioning. enum: `jse-ipsec`, `zscaler-ipsec`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -3483,8 +3504,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"ike_mode": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `provider`==`custom-ipsec`. IKE negotiation mode for the tunnel",
-							MarkdownDescription: "Only if `provider`==`custom-ipsec`. IKE negotiation mode for the tunnel",
+							Description:         "Only if `provider`==`custom-ipsec`. IKE negotiation mode for the tunnel. enum: `aggressive`, `main`.",
+							MarkdownDescription: "Only if `provider`==`custom-ipsec`. IKE negotiation mode for the tunnel. enum: `aggressive`, `main`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -3498,8 +3519,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"auth_algo": schema.StringAttribute{
 										Optional:            true,
-										Description:         "Integrity algorithm used by this IKE proposal",
-										MarkdownDescription: "Integrity algorithm used by this IKE proposal",
+										Description:         "Integrity algorithm used by this IKE proposal. enum: `md5`, `sha1`, `sha2`.",
+										MarkdownDescription: "Integrity algorithm used by this IKE proposal. enum: `md5`, `sha1`, `sha2`.",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -3511,8 +3532,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"dh_group": schema.StringAttribute{
 										Optional:            true,
-										Description:         "Diffie-Hellman group used by this IKE proposal",
-										MarkdownDescription: "Diffie-Hellman group used by this IKE proposal",
+										Description:         "Diffie-Hellman group used by this IKE proposal. enum: `1`, `14`, `15`, `16`, `19`, `2`, `20`, `21`, `24`, `5`.",
+										MarkdownDescription: "Diffie-Hellman group used by this IKE proposal. enum: `1`, `14`, `15`, `16`, `19`, `2`, `20`, `21`, `24`, `5`.",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -3531,8 +3552,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"enc_algo": schema.StringAttribute{
 										Optional:            true,
-										Description:         "Cipher algorithm used by this IKE proposal",
-										MarkdownDescription: "Cipher algorithm used by this IKE proposal",
+										Description:         "Cipher algorithm used by this IKE proposal. enum: `3des`, `aes128`, `aes256`, `aes_gcm128`, `aes_gcm256`.",
+										MarkdownDescription: "Cipher algorithm used by this IKE proposal. enum: `3des`, `aes128`, `aes256`, `aes_gcm128`, `aes_gcm256`.",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -3572,8 +3593,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								Attributes: map[string]schema.Attribute{
 									"auth_algo": schema.StringAttribute{
 										Optional:            true,
-										Description:         "Integrity algorithm used by this IPsec proposal",
-										MarkdownDescription: "Integrity algorithm used by this IPsec proposal",
+										Description:         "Integrity algorithm used by this IPsec proposal. enum: `md5`, `sha1`, `sha2`.",
+										MarkdownDescription: "Integrity algorithm used by this IPsec proposal. enum: `md5`, `sha1`, `sha2`.",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -3585,8 +3606,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"dh_group": schema.StringAttribute{
 										Optional:            true,
-										Description:         "Diffie-Hellman group used by this IPsec proposal",
-										MarkdownDescription: "Diffie-Hellman group used by this IPsec proposal",
+										Description:         "Diffie-Hellman group used by this IPsec proposal. enum: `1`, `14`, `15`, `16`, `19`, `2`, `20`, `21`, `24`, `5`.",
+										MarkdownDescription: "Diffie-Hellman group used by this IPsec proposal. enum: `1`, `14`, `15`, `16`, `19`, `2`, `20`, `21`, `24`, `5`.",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -3605,8 +3626,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 									},
 									"enc_algo": schema.StringAttribute{
 										Optional:            true,
-										Description:         "Cipher algorithm used by this IPsec proposal",
-										MarkdownDescription: "Cipher algorithm used by this IPsec proposal",
+										Description:         "Cipher algorithm used by this IPsec proposal. enum: `3des`, `aes128`, `aes256`, `aes_gcm128`, `aes_gcm256`.",
+										MarkdownDescription: "Cipher algorithm used by this IPsec proposal. enum: `3des`, `aes128`, `aes256`, `aes_gcm128`, `aes_gcm256`.",
 										Validators: []validator.String{
 											stringvalidator.OneOf(
 												"",
@@ -3650,8 +3671,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"mode": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Tunnel failover mode used for primary and secondary endpoints",
-							MarkdownDescription: "Tunnel failover mode used for primary and secondary endpoints",
+							Description:         "Tunnel failover mode used for primary and secondary endpoints. enum: `active-active`, `active-standby`.",
+							MarkdownDescription: "Tunnel failover mode used for primary and secondary endpoints. enum: `active-active`, `active-standby`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -3791,8 +3812,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 								"type": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Protocol used by the custom IPsec tunnel health probe",
-									MarkdownDescription: "Protocol used by the custom IPsec tunnel health probe",
+									Description:         "Protocol used by the custom IPsec tunnel health probe. enum: `http`, `icmp`.",
+									MarkdownDescription: "Protocol used by the custom IPsec tunnel health probe. enum: `http`, `icmp`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -3814,8 +3835,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"protocol": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `provider`==`custom-ipsec`. Tunnel protocol for custom tunnel negotiation",
-							MarkdownDescription: "Only if `provider`==`custom-ipsec`. Tunnel protocol for custom tunnel negotiation",
+							Description:         "Only if `provider`==`custom-ipsec`. Tunnel protocol for custom tunnel negotiation. enum: `gre`, `ipsec`.",
+							MarkdownDescription: "Only if `provider`==`custom-ipsec`. Tunnel protocol for custom tunnel negotiation. enum: `gre`, `ipsec`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -3826,8 +3847,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"provider": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Tunnel provider used when auto provisioning is disabled",
-							MarkdownDescription: "Tunnel provider used when auto provisioning is disabled",
+							Description:         "Tunnel provider used when auto provisioning is disabled. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `prisma-ipsec`, `zscaler-gre`, `zscaler-ipsec`.",
+							MarkdownDescription: "Tunnel provider used when auto provisioning is disabled. enum: `custom-ipsec`, `custom-gre`, `jse-ipsec`, `prisma-ipsec`, `zscaler-gre`, `zscaler-ipsec`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -3955,8 +3976,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"version": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Only if `provider`==`custom-gre` or `provider`==`custom-ipsec`. Tunnel version value for custom tunnel configuration",
-							MarkdownDescription: "Only if `provider`==`custom-gre` or `provider`==`custom-ipsec`. Tunnel version value for custom tunnel configuration",
+							Description:         "Only if `provider`==`custom-gre` or `provider`==`custom-ipsec`. Tunnel version value for custom tunnel configuration. enum: `1`, `2`.",
+							MarkdownDescription: "Only if `provider`==`custom-gre` or `provider`==`custom-ipsec`. Tunnel version value for custom tunnel configuration. enum: `1`, `2`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -4241,8 +4262,8 @@ func OrgGatewaytemplateResourceSchema(ctx context.Context) schema.Schema {
 			"type": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "Gateway template deployment type",
-				MarkdownDescription: "Gateway template deployment type",
+				Description:         "Gateway template deployment type. enum: `spoke`, `standalone`.",
+				MarkdownDescription: "Gateway template deployment type. enum: `spoke`, `standalone`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -4317,6 +4338,7 @@ type OrgGatewaytemplateModel struct {
 	Id                      types.String               `tfsdk:"id"`
 	IdpProfiles             types.Map                  `tfsdk:"idp_profiles"`
 	IpConfigs               types.Map                  `tfsdk:"ip_configs"`
+	MnhaConfig              MnhaConfigValue            `tfsdk:"mnha_config"`
 	Name                    types.String               `tfsdk:"name"`
 	Networks                types.List                 `tfsdk:"networks"`
 	NtpOverride             types.Bool                 `tfsdk:"ntp_override"`
@@ -16754,6 +16776,330 @@ func (v IpConfigsValue) AttributeTypes(ctx context.Context) map[string]attr.Type
 	}
 }
 
+var _ basetypes.ObjectTypable = MnhaConfigType{}
+
+type MnhaConfigType struct {
+	basetypes.ObjectType
+}
+
+func (t MnhaConfigType) Equal(o attr.Type) bool {
+	other, ok := o.(MnhaConfigType)
+
+	if !ok {
+		return false
+	}
+
+	return t.ObjectType.Equal(other.ObjectType)
+}
+
+func (t MnhaConfigType) String() string {
+	return "MnhaConfigType"
+}
+
+func (t MnhaConfigType) ValueFromObject(ctx context.Context, in basetypes.ObjectValue) (basetypes.ObjectValuable, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributes := in.Attributes()
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return nil, diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return nil, diags
+	}
+
+	return MnhaConfigValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMnhaConfigValueNull() MnhaConfigValue {
+	return MnhaConfigValue{
+		state: attr.ValueStateNull,
+	}
+}
+
+func NewMnhaConfigValueUnknown() MnhaConfigValue {
+	return MnhaConfigValue{
+		state: attr.ValueStateUnknown,
+	}
+}
+
+func NewMnhaConfigValue(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) (MnhaConfigValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	// Reference: https://github.com/hashicorp/terraform-plugin-framework/issues/521
+	ctx := context.Background()
+
+	for name, attributeType := range attributeTypes {
+		attribute, ok := attributes[name]
+
+		if !ok {
+			diags.AddError(
+				"Missing MnhaConfigValue Attribute Value",
+				"While creating a MnhaConfigValue value, a missing attribute value was detected. "+
+					"A MnhaConfigValue must contain values for all attributes, even if null or unknown. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MnhaConfigValue Attribute Name (%s) Expected Type: %s", name, attributeType.String()),
+			)
+
+			continue
+		}
+
+		if !attributeType.Equal(attribute.Type(ctx)) {
+			diags.AddError(
+				"Invalid MnhaConfigValue Attribute Type",
+				"While creating a MnhaConfigValue value, an invalid attribute value was detected. "+
+					"A MnhaConfigValue must use a matching attribute type for the value. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("MnhaConfigValue Attribute Name (%s) Expected Type: %s\n", name, attributeType.String())+
+					fmt.Sprintf("MnhaConfigValue Attribute Name (%s) Given Type: %s", name, attribute.Type(ctx)),
+			)
+		}
+	}
+
+	for name := range attributes {
+		_, ok := attributeTypes[name]
+
+		if !ok {
+			diags.AddError(
+				"Extra MnhaConfigValue Attribute Value",
+				"While creating a MnhaConfigValue value, an extra attribute value was detected. "+
+					"A MnhaConfigValue must not contain values beyond the expected attribute types. "+
+					"This is always an issue with the provider and should be reported to the provider developers.\n\n"+
+					fmt.Sprintf("Extra MnhaConfigValue Attribute Name: %s", name),
+			)
+		}
+	}
+
+	if diags.HasError() {
+		return NewMnhaConfigValueUnknown(), diags
+	}
+
+	enabledAttribute, ok := attributes["enabled"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`enabled is missing from object`)
+
+		return NewMnhaConfigValueUnknown(), diags
+	}
+
+	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+	}
+
+	if diags.HasError() {
+		return NewMnhaConfigValueUnknown(), diags
+	}
+
+	return MnhaConfigValue{
+		Enabled: enabledVal,
+		state:   attr.ValueStateKnown,
+	}, diags
+}
+
+func NewMnhaConfigValueMust(attributeTypes map[string]attr.Type, attributes map[string]attr.Value) MnhaConfigValue {
+	object, diags := NewMnhaConfigValue(attributeTypes, attributes)
+
+	if diags.HasError() {
+		// This could potentially be added to the diag package.
+		diagsStrings := make([]string, 0, len(diags))
+
+		for _, diagnostic := range diags {
+			diagsStrings = append(diagsStrings, fmt.Sprintf(
+				"%s | %s | %s",
+				diagnostic.Severity(),
+				diagnostic.Summary(),
+				diagnostic.Detail()))
+		}
+
+		panic("NewMnhaConfigValueMust received error(s): " + strings.Join(diagsStrings, "\n"))
+	}
+
+	return object
+}
+
+func (t MnhaConfigType) ValueFromTerraform(ctx context.Context, in tftypes.Value) (attr.Value, error) {
+	if in.Type() == nil {
+		return NewMnhaConfigValueNull(), nil
+	}
+
+	if !in.Type().Equal(t.TerraformType(ctx)) {
+		return nil, fmt.Errorf("expected %s, got %s", t.TerraformType(ctx), in.Type())
+	}
+
+	if !in.IsKnown() {
+		return NewMnhaConfigValueUnknown(), nil
+	}
+
+	if in.IsNull() {
+		return NewMnhaConfigValueNull(), nil
+	}
+
+	attributes := map[string]attr.Value{}
+
+	val := map[string]tftypes.Value{}
+
+	err := in.As(&val)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for k, v := range val {
+		a, err := t.AttrTypes[k].ValueFromTerraform(ctx, v)
+
+		if err != nil {
+			return nil, err
+		}
+
+		attributes[k] = a
+	}
+
+	return NewMnhaConfigValueMust(MnhaConfigValue{}.AttributeTypes(ctx), attributes), nil
+}
+
+func (t MnhaConfigType) ValueType(ctx context.Context) attr.Value {
+	return MnhaConfigValue{}
+}
+
+var _ basetypes.ObjectValuable = MnhaConfigValue{}
+
+type MnhaConfigValue struct {
+	Enabled basetypes.BoolValue `tfsdk:"enabled"`
+	state   attr.ValueState
+}
+
+func (v MnhaConfigValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
+	attrTypes := make(map[string]tftypes.Type, 1)
+
+	var val tftypes.Value
+	var err error
+
+	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+
+	objectType := tftypes.Object{AttributeTypes: attrTypes}
+
+	switch v.state {
+	case attr.ValueStateKnown:
+		vals := make(map[string]tftypes.Value, 1)
+
+		val, err = v.Enabled.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["enabled"] = val
+
+		if err := tftypes.ValidateValue(objectType, vals); err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		return tftypes.NewValue(objectType, vals), nil
+	case attr.ValueStateNull:
+		return tftypes.NewValue(objectType, nil), nil
+	case attr.ValueStateUnknown:
+		return tftypes.NewValue(objectType, tftypes.UnknownValue), nil
+	default:
+		panic(fmt.Sprintf("unhandled Object state in ToTerraformValue: %s", v.state))
+	}
+}
+
+func (v MnhaConfigValue) IsNull() bool {
+	return v.state == attr.ValueStateNull
+}
+
+func (v MnhaConfigValue) IsUnknown() bool {
+	return v.state == attr.ValueStateUnknown
+}
+
+func (v MnhaConfigValue) String() string {
+	return "MnhaConfigValue"
+}
+
+func (v MnhaConfigValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	attributeTypes := map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+
+	if v.IsNull() {
+		return types.ObjectNull(attributeTypes), diags
+	}
+
+	if v.IsUnknown() {
+		return types.ObjectUnknown(attributeTypes), diags
+	}
+
+	objVal, diags := types.ObjectValue(
+		attributeTypes,
+		map[string]attr.Value{
+			"enabled": v.Enabled,
+		})
+
+	return objVal, diags
+}
+
+func (v MnhaConfigValue) Equal(o attr.Value) bool {
+	other, ok := o.(MnhaConfigValue)
+
+	if !ok {
+		return false
+	}
+
+	if v.state != other.state {
+		return false
+	}
+
+	if v.state != attr.ValueStateKnown {
+		return true
+	}
+
+	if !v.Enabled.Equal(other.Enabled) {
+		return false
+	}
+
+	return true
+}
+
+func (v MnhaConfigValue) Type(ctx context.Context) attr.Type {
+	return MnhaConfigType{
+		basetypes.ObjectType{
+			AttrTypes: v.AttributeTypes(ctx),
+		},
+	}
+}
+
+func (v MnhaConfigValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
+	return map[string]attr.Type{
+		"enabled": basetypes.BoolType{},
+	}
+}
+
 var _ basetypes.ObjectTypable = NetworksType{}
 
 type NetworksType struct {
@@ -17031,6 +17377,24 @@ func (t NetworksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 			fmt.Sprintf(`vpn_access expected to be basetypes.MapValue, was: %T`, vpnAccessAttribute))
 	}
 
+	zoneIdAttribute, ok := attributes["zone_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`zone_id is missing from object`)
+
+		return nil, diags
+	}
+
+	zoneIdVal, ok := zoneIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`zone_id expected to be basetypes.StringValue, was: %T`, zoneIdAttribute))
+	}
+
 	if diags.HasError() {
 		return nil, diags
 	}
@@ -17050,6 +17414,7 @@ func (t NetworksType) ValueFromObject(ctx context.Context, in basetypes.ObjectVa
 		Tenants:              tenantsVal,
 		VlanId:               vlanIdVal,
 		VpnAccess:            vpnAccessVal,
+		ZoneId:               zoneIdVal,
 		state:                attr.ValueStateKnown,
 	}, diags
 }
@@ -17369,6 +17734,24 @@ func NewNetworksValue(attributeTypes map[string]attr.Type, attributes map[string
 			fmt.Sprintf(`vpn_access expected to be basetypes.MapValue, was: %T`, vpnAccessAttribute))
 	}
 
+	zoneIdAttribute, ok := attributes["zone_id"]
+
+	if !ok {
+		diags.AddError(
+			"Attribute Missing",
+			`zone_id is missing from object`)
+
+		return NewNetworksValueUnknown(), diags
+	}
+
+	zoneIdVal, ok := zoneIdAttribute.(basetypes.StringValue)
+
+	if !ok {
+		diags.AddError(
+			"Attribute Wrong Type",
+			fmt.Sprintf(`zone_id expected to be basetypes.StringValue, was: %T`, zoneIdAttribute))
+	}
+
 	if diags.HasError() {
 		return NewNetworksValueUnknown(), diags
 	}
@@ -17388,6 +17771,7 @@ func NewNetworksValue(attributeTypes map[string]attr.Type, attributes map[string
 		Tenants:              tenantsVal,
 		VlanId:               vlanIdVal,
 		VpnAccess:            vpnAccessVal,
+		ZoneId:               zoneIdVal,
 		state:                attr.ValueStateKnown,
 	}, diags
 }
@@ -17474,11 +17858,12 @@ type NetworksValue struct {
 	Tenants              basetypes.MapValue    `tfsdk:"tenants"`
 	VlanId               basetypes.StringValue `tfsdk:"vlan_id"`
 	VpnAccess            basetypes.MapValue    `tfsdk:"vpn_access"`
+	ZoneId               basetypes.StringValue `tfsdk:"zone_id"`
 	state                attr.ValueState
 }
 
 func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, error) {
-	attrTypes := make(map[string]tftypes.Type, 14)
+	attrTypes := make(map[string]tftypes.Type, 15)
 
 	var val tftypes.Value
 	var err error
@@ -17509,12 +17894,13 @@ func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 	attrTypes["vpn_access"] = basetypes.MapType{
 		ElemType: VpnAccessValue{}.Type(ctx),
 	}.TerraformType(ctx)
+	attrTypes["zone_id"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
 
 	switch v.state {
 	case attr.ValueStateKnown:
-		vals := make(map[string]tftypes.Value, 14)
+		vals := make(map[string]tftypes.Value, 15)
 
 		val, err = v.DisallowMistServices.ToTerraformValue(ctx)
 
@@ -17627,6 +18013,14 @@ func (v NetworksValue) ToTerraformValue(ctx context.Context) (tftypes.Value, err
 		}
 
 		vals["vpn_access"] = val
+
+		val, err = v.ZoneId.ToTerraformValue(ctx)
+
+		if err != nil {
+			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
+		}
+
+		vals["zone_id"] = val
 
 		if err := tftypes.ValidateValue(objectType, vals); err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
@@ -17818,6 +18212,7 @@ func (v NetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"vpn_access": basetypes.MapType{
 				ElemType: VpnAccessValue{}.Type(ctx),
 			},
+			"zone_id": basetypes.StringType{},
 		}), diags
 	}
 
@@ -17848,6 +18243,7 @@ func (v NetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 		"vpn_access": basetypes.MapType{
 			ElemType: VpnAccessValue{}.Type(ctx),
 		},
+		"zone_id": basetypes.StringType{},
 	}
 
 	if v.IsNull() {
@@ -17875,6 +18271,7 @@ func (v NetworksValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue
 			"tenants":                tenants,
 			"vlan_id":                v.VlanId,
 			"vpn_access":             vpnAccess,
+			"zone_id":                v.ZoneId,
 		})
 
 	return objVal, diags
@@ -17951,6 +18348,10 @@ func (v NetworksValue) Equal(o attr.Value) bool {
 		return false
 	}
 
+	if !v.ZoneId.Equal(other.ZoneId) {
+		return false
+	}
+
 	return true
 }
 
@@ -17990,6 +18391,7 @@ func (v NetworksValue) AttributeTypes(ctx context.Context) map[string]attr.Type 
 		"vpn_access": basetypes.MapType{
 			ElemType: VpnAccessValue{}.Type(ctx),
 		},
+		"zone_id": basetypes.StringType{},
 	}
 }
 

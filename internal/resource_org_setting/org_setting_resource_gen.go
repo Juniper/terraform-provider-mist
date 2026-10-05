@@ -84,8 +84,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"day_of_week": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Day of the week for the AP auto-upgrade maintenance window",
-						MarkdownDescription: "Day of the week for the AP auto-upgrade maintenance window",
+						Description:         "Day of the week for the AP auto-upgrade maintenance window. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.",
+						MarkdownDescription: "Day of the week for the AP auto-upgrade maintenance window. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -115,8 +115,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"version": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Firmware release channel or specific version used for AP auto-upgrade",
-						MarkdownDescription: "Firmware release channel or specific version used for AP auto-upgrade",
+						Description:         "Firmware release channel or specific version used for AP auto-upgrade. enum: `beta`, `custom`, `stable`.",
+						MarkdownDescription: "Firmware release channel or specific version used for AP auto-upgrade. enum: `beta`, `custom`, `stable`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -473,8 +473,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"admin": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Shell access level used for administrator web-shell sessions",
-						MarkdownDescription: "Shell access level used for administrator web-shell sessions",
+						Description:         "Shell access level used for administrator web-shell sessions. enum: `admin`, `none`, `viewer`.",
+						MarkdownDescription: "Shell access level used for administrator web-shell sessions. enum: `admin`, `none`, `viewer`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -488,8 +488,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"helpdesk": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Shell access level used for helpdesk web-shell sessions",
-						MarkdownDescription: "Shell access level used for helpdesk web-shell sessions",
+						Description:         "Shell access level used for helpdesk web-shell sessions. enum: `admin`, `none`, `viewer`.",
+						MarkdownDescription: "Shell access level used for helpdesk web-shell sessions. enum: `admin`, `none`, `viewer`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -503,8 +503,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"read": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Shell access level used for read-only web-shell sessions",
-						MarkdownDescription: "Shell access level used for read-only web-shell sessions",
+						Description:         "Shell access level used for read-only web-shell sessions. enum: `admin`, `none`, `viewer`.",
+						MarkdownDescription: "Shell access level used for read-only web-shell sessions. enum: `admin`, `none`, `viewer`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -518,8 +518,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"write": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Shell access level used for write-role web-shell sessions",
-						MarkdownDescription: "Shell access level used for write-role web-shell sessions",
+						Description:         "Shell access level used for write-role web-shell sessions. enum: `admin`, `none`, `viewer`.",
+						MarkdownDescription: "Shell access level used for write-role web-shell sessions. enum: `admin`, `none`, `viewer`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -737,8 +737,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							},
 							"wireless_coa_type": schema.StringAttribute{
 								Optional:            true,
-								Description:         "Change of Authorization action sent to wireless clients when fingerprints change",
-								MarkdownDescription: "Change of Authorization action sent to wireless clients when fingerprints change",
+								Description:         "Change of Authorization action sent to wireless clients when fingerprints change. enum: `reauth`, `disconnect`.",
+								MarkdownDescription: "Change of Authorization action sent to wireless clients when fingerprints change. enum: `reauth`, `disconnect`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -759,8 +759,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"idp_machine_cert_lookup_field": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Client certificate field used to look up machine groups in identity providers",
-						MarkdownDescription: "Client certificate field used to look up machine groups in identity providers",
+						Description:         "Client certificate field used to look up machine groups in identity providers. enum: `automatic`, `cn`, `dns`.",
+						MarkdownDescription: "Client certificate field used to look up machine groups in identity providers. enum: `automatic`, `cn`, `dns`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -772,8 +772,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"idp_user_cert_lookup_field": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Client certificate field used to look up user groups in identity providers",
-						MarkdownDescription: "Client certificate field used to look up user groups in identity providers",
+						Description:         "Client certificate field used to look up user groups in identity providers. enum: `automatic`, `cn`, `email`, `upn`.",
+						MarkdownDescription: "Client certificate field used to look up user groups in identity providers. enum: `automatic`, `cn`, `email`, `upn`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -831,8 +831,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 							"coa_type": schema.StringAttribute{
 								Optional:            true,
 								Computed:            true,
-								Description:         "Change of Authorization action sent for MDM posture changes",
-								MarkdownDescription: "Change of Authorization action sent for MDM posture changes",
+								Description:         "Change of Authorization action sent for MDM posture changes. enum: `reauth`, `disconnect`.",
+								MarkdownDescription: "Change of Authorization action sent for MDM posture changes. enum: `reauth`, `disconnect`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -883,8 +883,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"use_ip_version": schema.StringAttribute{
 						Optional:            true,
-						Description:         "IP version used by NAS devices and Mist Edge proxies to reach Mist NAC",
-						MarkdownDescription: "IP version used by NAS devices and Mist Edge proxies to reach Mist NAC",
+						Description:         "IP version used by NAS devices and Mist Edge proxies to reach Mist NAC. enum: `v4`, `v6`.",
+						MarkdownDescription: "IP version used by NAS devices and Mist Edge proxies to reach Mist NAC. enum: `v4`, `v6`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -940,8 +940,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"oob_ip_type": schema.StringAttribute{
 						Optional:            true,
-						Description:         "IPv4 address assignment mode for out-of-band management",
-						MarkdownDescription: "IPv4 address assignment mode for out-of-band management",
+						Description:         "IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `disabled`, `static`.",
+						MarkdownDescription: "IPv4 address assignment mode for out-of-band management. enum: `dhcp`, `disabled`, `static`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -953,8 +953,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"oob_ip_type6": schema.StringAttribute{
 						Optional:            true,
-						Description:         "IPv6 address assignment mode for out-of-band management",
-						MarkdownDescription: "IPv6 address assignment mode for out-of-band management",
+						Description:         "IPv6 address assignment mode for out-of-band management. enum: `autoconf`, `dhcp`, `disabled`, `static`.",
+						MarkdownDescription: "IPv6 address assignment mode for out-of-band management. enum: `autoconf`, `dhcp`, `disabled`, `static`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1168,8 +1168,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 						Attributes: map[string]schema.Attribute{
 							"channel": schema.StringAttribute{
 								Optional:            true,
-								Description:         "Firmware release channel used for SSR auto-upgrade",
-								MarkdownDescription: "Firmware release channel used for SSR auto-upgrade",
+								Description:         "Firmware release channel used for SSR auto-upgrade. enum: `alpha`, `beta`, `stable`.",
+								MarkdownDescription: "Firmware release channel used for SSR auto-upgrade. enum: `alpha`, `beta`, `stable`.",
 								Validators: []validator.String{
 									stringvalidator.OneOf(
 										"",
@@ -1284,8 +1284,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					"aggressiveness": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Overall aggressiveness level for synthetic test probes",
-						MarkdownDescription: "Overall aggressiveness level for synthetic test probes",
+						Description:         "Overall aggressiveness level for synthetic test probes. enum: `auto`, `high`, `med`, `low`.",
+						MarkdownDescription: "Overall aggressiveness level for synthetic test probes. enum: `auto`, `high`, `med`, `low`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -1303,8 +1303,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"aggressiveness": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Probe aggressiveness level for this custom synthetic probe",
-									MarkdownDescription: "Probe aggressiveness level for this custom synthetic probe",
+									Description:         "Probe aggressiveness level for this custom synthetic probe. enum: `auto`, `high`, `med`, `low`.",
+									MarkdownDescription: "Probe aggressiveness level for this custom synthetic probe. enum: `auto`, `high`, `med`, `low`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -1329,8 +1329,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 								"type": schema.StringAttribute{
 									Optional:            true,
 									Computed:            true,
-									Description:         "Probe type used by this custom synthetic probe",
-									MarkdownDescription: "Probe type used by this custom synthetic probe",
+									Description:         "Probe type used by this custom synthetic probe. enum: `application`, `curl`, `icmp`, `reachability`, `tcp`.",
+									MarkdownDescription: "Probe type used by this custom synthetic probe. enum: `application`, `curl`, `icmp`, `reachability`, `tcp`.",
 									Validators: []validator.String{
 										stringvalidator.OneOf(
 											"",
@@ -1456,10 +1456,10 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"wan_speedtest": schema.SingleNestedAttribute{
 						Attributes: map[string]schema.Attribute{
-							"enabled": schema.BoolAttribute{
+							"disabled": schema.BoolAttribute{
 								Optional:            true,
-								Description:         "Whether scheduled WAN speedtests are enabled",
-								MarkdownDescription: "Whether scheduled WAN speedtests are enabled",
+								Description:         "Whether scheduled WAN speedtests are disabled. Defaults to `false` (enabled); set this to `true` to disable speedtests.",
+								MarkdownDescription: "Whether scheduled WAN speedtests are disabled. Defaults to `false` (enabled); set this to `true` to disable speedtests.",
 							},
 							"time_of_day": schema.StringAttribute{
 								Optional:            true,
@@ -1500,8 +1500,8 @@ func OrgSettingResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"ui_no_tracking": schema.BoolAttribute{
 				Optional:            true,
-				Description:         "Whether UI usage tracking is disabled for the organization",
-				MarkdownDescription: "Whether UI usage tracking is disabled for the organization",
+				Description:         "Whether to disable UI usage tracking (e.g. Fullstory, Pendo) for the whole organization",
+				MarkdownDescription: "Whether to disable UI usage tracking (e.g. Fullstory, Pendo) for the whole organization",
 			},
 			"vpn_options": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
@@ -20576,22 +20576,22 @@ func (t WanSpeedtestType) ValueFromObject(ctx context.Context, in basetypes.Obje
 
 	attributes := in.Attributes()
 
-	enabledAttribute, ok := attributes["enabled"]
+	disabledAttribute, ok := attributes["disabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enabled is missing from object`)
+			`disabled is missing from object`)
 
 		return nil, diags
 	}
 
-	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
 	}
 
 	timeOfDayAttribute, ok := attributes["time_of_day"]
@@ -20617,7 +20617,7 @@ func (t WanSpeedtestType) ValueFromObject(ctx context.Context, in basetypes.Obje
 	}
 
 	return WanSpeedtestValue{
-		Enabled:   enabledVal,
+		Disabled:  disabledVal,
 		TimeOfDay: timeOfDayVal,
 		state:     attr.ValueStateKnown,
 	}, diags
@@ -20686,22 +20686,22 @@ func NewWanSpeedtestValue(attributeTypes map[string]attr.Type, attributes map[st
 		return NewWanSpeedtestValueUnknown(), diags
 	}
 
-	enabledAttribute, ok := attributes["enabled"]
+	disabledAttribute, ok := attributes["disabled"]
 
 	if !ok {
 		diags.AddError(
 			"Attribute Missing",
-			`enabled is missing from object`)
+			`disabled is missing from object`)
 
 		return NewWanSpeedtestValueUnknown(), diags
 	}
 
-	enabledVal, ok := enabledAttribute.(basetypes.BoolValue)
+	disabledVal, ok := disabledAttribute.(basetypes.BoolValue)
 
 	if !ok {
 		diags.AddError(
 			"Attribute Wrong Type",
-			fmt.Sprintf(`enabled expected to be basetypes.BoolValue, was: %T`, enabledAttribute))
+			fmt.Sprintf(`disabled expected to be basetypes.BoolValue, was: %T`, disabledAttribute))
 	}
 
 	timeOfDayAttribute, ok := attributes["time_of_day"]
@@ -20727,7 +20727,7 @@ func NewWanSpeedtestValue(attributeTypes map[string]attr.Type, attributes map[st
 	}
 
 	return WanSpeedtestValue{
-		Enabled:   enabledVal,
+		Disabled:  disabledVal,
 		TimeOfDay: timeOfDayVal,
 		state:     attr.ValueStateKnown,
 	}, diags
@@ -20801,7 +20801,7 @@ func (t WanSpeedtestType) ValueType(ctx context.Context) attr.Value {
 var _ basetypes.ObjectValuable = WanSpeedtestValue{}
 
 type WanSpeedtestValue struct {
-	Enabled   basetypes.BoolValue   `tfsdk:"enabled"`
+	Disabled  basetypes.BoolValue   `tfsdk:"disabled"`
 	TimeOfDay basetypes.StringValue `tfsdk:"time_of_day"`
 	state     attr.ValueState
 }
@@ -20812,7 +20812,7 @@ func (v WanSpeedtestValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 	var val tftypes.Value
 	var err error
 
-	attrTypes["enabled"] = basetypes.BoolType{}.TerraformType(ctx)
+	attrTypes["disabled"] = basetypes.BoolType{}.TerraformType(ctx)
 	attrTypes["time_of_day"] = basetypes.StringType{}.TerraformType(ctx)
 
 	objectType := tftypes.Object{AttributeTypes: attrTypes}
@@ -20821,13 +20821,13 @@ func (v WanSpeedtestValue) ToTerraformValue(ctx context.Context) (tftypes.Value,
 	case attr.ValueStateKnown:
 		vals := make(map[string]tftypes.Value, 2)
 
-		val, err = v.Enabled.ToTerraformValue(ctx)
+		val, err = v.Disabled.ToTerraformValue(ctx)
 
 		if err != nil {
 			return tftypes.NewValue(objectType, tftypes.UnknownValue), err
 		}
 
-		vals["enabled"] = val
+		vals["disabled"] = val
 
 		val, err = v.TimeOfDay.ToTerraformValue(ctx)
 
@@ -20867,7 +20867,7 @@ func (v WanSpeedtestValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	var diags diag.Diagnostics
 
 	attributeTypes := map[string]attr.Type{
-		"enabled":     basetypes.BoolType{},
+		"disabled":    basetypes.BoolType{},
 		"time_of_day": basetypes.StringType{},
 	}
 
@@ -20882,7 +20882,7 @@ func (v WanSpeedtestValue) ToObjectValue(ctx context.Context) (basetypes.ObjectV
 	objVal, diags := types.ObjectValue(
 		attributeTypes,
 		map[string]attr.Value{
-			"enabled":     v.Enabled,
+			"disabled":    v.Disabled,
 			"time_of_day": v.TimeOfDay,
 		})
 
@@ -20904,7 +20904,7 @@ func (v WanSpeedtestValue) Equal(o attr.Value) bool {
 		return true
 	}
 
-	if !v.Enabled.Equal(other.Enabled) {
+	if !v.Disabled.Equal(other.Disabled) {
 		return false
 	}
 
@@ -20925,7 +20925,7 @@ func (v WanSpeedtestValue) Type(ctx context.Context) attr.Type {
 
 func (v WanSpeedtestValue) AttributeTypes(ctx context.Context) map[string]attr.Type {
 	return map[string]attr.Type{
-		"enabled":     basetypes.BoolType{},
+		"disabled":    basetypes.BoolType{},
 		"time_of_day": basetypes.StringType{},
 	}
 }

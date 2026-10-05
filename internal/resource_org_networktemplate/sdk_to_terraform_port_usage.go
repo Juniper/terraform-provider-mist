@@ -128,6 +128,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		var mode basetypes.StringValue
 		var mtu basetypes.StringValue
 		var networks = types.ListNull(types.StringType)
+		var noLocalPortConfig basetypes.BoolValue
 		var persistMac basetypes.BoolValue
 		var poeDisabled basetypes.BoolValue
 		var poeKeepStateWhenReboot basetypes.BoolValue
@@ -223,6 +224,9 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 		if d.Networks != nil {
 			networks = mistutils.ListOfStringSdkToTerraform(d.Networks)
 		}
+		if d.NoLocalPortConfig != nil {
+			noLocalPortConfig = types.BoolValue(*d.NoLocalPortConfig)
+		}
 		if d.PersistMac != nil {
 			persistMac = types.BoolValue(*d.PersistMac)
 		}
@@ -315,6 +319,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			"mode":                                            mode,
 			"mtu":                                             mtu,
 			"networks":                                        networks,
+			"no_local_port_config":                            noLocalPortConfig,
 			"persist_mac":                                     persistMac,
 			"poe_disabled":                                    poeDisabled,
 			"poe_keep_state_when_reboot":                      poeKeepStateWhenReboot,

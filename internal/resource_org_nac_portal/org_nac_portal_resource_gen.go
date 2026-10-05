@@ -28,8 +28,8 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 			"access_type": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "If `type`==`marvis_client`, whether onboarding applies to wireless clients or both wireless and wired clients",
-				MarkdownDescription: "If `type`==`marvis_client`, whether onboarding applies to wireless clients or both wireless and wired clients",
+				Description:         "If `type`==`marvis_client`, whether onboarding applies to wireless clients or both wireless and wired clients. enum: `wireless`, `wireless+wired`.",
+				MarkdownDescription: "If `type`==`marvis_client`, whether onboarding applies to wireless clients or both wireless and wired clients. enum: `wireless`, `wireless+wired`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -59,8 +59,8 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 			"eap_type": schema.StringAttribute{
 				Optional:            true,
 				Computed:            true,
-				Description:         "EAP mode used when onboarding wireless clients through the NAC portal",
-				MarkdownDescription: "EAP mode used when onboarding wireless clients through the NAC portal",
+				Description:         "EAP mode used when onboarding wireless clients through the NAC portal. enum: `wpa2`, `wpa3`.",
+				MarkdownDescription: "EAP mode used when onboarding wireless clients through the NAC portal. enum: `wpa2`, `wpa3`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -77,8 +77,8 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"enable_telemetry": schema.BoolAttribute{
 				Optional:            true,
-				Description:         "Model, version, fingering, events (connecting, disconnect, roaming), which ap",
-				MarkdownDescription: "Model, version, fingering, events (connecting, disconnect, roaming), which ap",
+				Description:         "Optional, model, version, fingerprinting, events (connecting, disconnect, roaming), which ap, default is false",
+				MarkdownDescription: "Optional, model, version, fingerprinting, events (connecting, disconnect, roaming), which ap, default is false",
 			},
 			"expiry_notification_time": schema.Int64Attribute{
 				Optional:            true,
@@ -115,8 +115,8 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"auth": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Mode presented by the NAC guest portal for user authentication",
-						MarkdownDescription: "Mode presented by the NAC guest portal for user authentication",
+						Description:         "Mode presented by the NAC guest portal for user authentication. enum: `external`, `multi`, `none`.",
+						MarkdownDescription: "Mode presented by the NAC guest portal for user authentication. enum: `external`, `multi`, `none`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -190,8 +190,8 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"idp_sign_algo": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Signing algorithm expected for SAML assertions from the identity provider",
-						MarkdownDescription: "Signing algorithm expected for SAML assertions from the identity provider",
+						Description:         "Signing algorithm expected for SAML assertions from the identity provider. enum: `sha1`, `sha256`, `sha384`, `sha512`.",
+						MarkdownDescription: "Signing algorithm expected for SAML assertions from the identity provider. enum: `sha1`, `sha256`, `sha384`, `sha512`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -263,8 +263,8 @@ func OrgNacPortalResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"type": schema.StringAttribute{
 				Optional:            true,
-				Description:         "NAC portal mode, such as guest admin, guest portal, or Marvis client onboarding",
-				MarkdownDescription: "NAC portal mode, such as guest admin, guest portal, or Marvis client onboarding",
+				Description:         "NAC portal mode, such as guest admin, guest portal, or Marvis client onboarding. enum: `guest_admin`, `guest_portal`, `marvis_client`.",
+				MarkdownDescription: "NAC portal mode, such as guest admin, guest portal, or Marvis client onboarding. enum: `guest_admin`, `guest_portal`, `marvis_client`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

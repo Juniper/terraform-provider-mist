@@ -285,6 +285,7 @@
       stp_edge          = true
       stp_disable       = false
       allow_dhcpd       = true
+      no_local_port_config = false
       poe_disabled      = false
       server_fail_retry_interval = 300
     }
@@ -546,6 +547,24 @@
         }
       ]
     }
+    radius = {
+      enabled               = true
+      network               = "mgmt"
+      use_different_radius  = true
+      auth_servers_retries  = 3
+      auth_servers_timeout  = 5
+      auth_servers = [
+        {
+          host   = "192.168.1.202"
+          secret = "switch-mgmt-radius-secret-1"
+          port   = "1812"
+        },
+        {
+          host   = "192.168.1.203"
+          secret = "switch-mgmt-radius-secret-2"
+        }
+      ]
+    }
   }
   use_router_id_as_source_ip = false
   vrf_config = {
@@ -555,8 +574,11 @@
     "vrf-red" = {
       networks = ["user"]
       multicast_config = {
-        anycast_rp = false
-        rp_ip      = "192.168.20.1"
+        anycast_rp  = false
+        rp_ip       = "192.168.20.1"
+        rp_mac      = "02:00:00:00:00:05"
+        peg_enabled = true
+        sbd_wan_rpf = true
       }
       extra_routes = {
         "10.200.0.0/16" = {

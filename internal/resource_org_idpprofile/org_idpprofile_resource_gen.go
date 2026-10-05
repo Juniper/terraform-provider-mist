@@ -27,8 +27,8 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 		Attributes: map[string]schema.Attribute{
 			"base_profile": schema.StringAttribute{
 				Required:            true,
-				Description:         "Built-in IDP baseline profile inherited before applying overwrites",
-				MarkdownDescription: "Built-in IDP baseline profile inherited before applying overwrites",
+				Description:         "Built-in IDP baseline profile inherited before applying overwrites. enum: `critical`, `standard`, `strict`.",
+				MarkdownDescription: "Built-in IDP baseline profile inherited before applying overwrites. enum: `critical`, `standard`, `strict`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",
@@ -65,8 +65,8 @@ func OrgIdpprofileResourceSchema(ctx context.Context) schema.Schema {
 						"action": schema.StringAttribute{
 							Optional:            true,
 							Computed:            true,
-							Description:         "Enforcement action applied when this overwrite rule matches",
-							MarkdownDescription: "Enforcement action applied when this overwrite rule matches",
+							Description:         "Enforcement action applied when this overwrite rule matches. enum: `alert`, `close`, `drop`.",
+							MarkdownDescription: "Enforcement action applied when this overwrite rule matches. enum: `alert`, `close`, `drop`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",

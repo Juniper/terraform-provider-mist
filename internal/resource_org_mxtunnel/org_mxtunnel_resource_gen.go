@@ -38,8 +38,8 @@ func OrgMxtunnelResourceSchema(ctx context.Context) schema.Schema {
 				Attributes: map[string]schema.Attribute{
 					"day_of_week": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Scheduled weekday for auto preemption",
-						MarkdownDescription: "Scheduled weekday for auto preemption",
+						Description:         "Scheduled weekday for auto preemption. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.",
+						MarkdownDescription: "Scheduled weekday for auto preemption. enum: `any`, `fri`, `mon`, `sat`, `sun`, `thu`, `tue`, `wed`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -197,8 +197,8 @@ func OrgMxtunnelResourceSchema(ctx context.Context) schema.Schema {
 			},
 			"protocol": schema.StringAttribute{
 				Optional:            true,
-				Description:         "Encapsulation protocol used for the Mist Tunnel",
-				MarkdownDescription: "Encapsulation protocol used for the Mist Tunnel",
+				Description:         "Encapsulation protocol used for the Mist Tunnel. enum: `ip`, `udp`.",
+				MarkdownDescription: "Encapsulation protocol used for the Mist Tunnel. enum: `ip`, `udp`.",
 				Validators: []validator.String{
 					stringvalidator.OneOf(
 						"",

@@ -62,7 +62,7 @@ resource "mist_org_rftemplate" "rftemplate_one" {
 - `ant_gain_5` (Number) External antenna gain for the 5 GHz radio
 - `ant_gain_6` (Number) External antenna gain for the 6 GHz radio
 - `band_24` (Attributes) 2.4 GHz radio settings in this RF template (see [below for nested schema](#nestedatt--band_24))
-- `band_24_usage` (String) Radio usage mode for the 2.4 GHz-capable radio in this RF template
+- `band_24_usage` (String) Radio usage mode for the 2.4 GHz-capable radio in this RF template. enum: `24`, `5`, `6`, `auto`.
 - `band_5` (Attributes) 5 GHz radio settings in this RF template (see [below for nested schema](#nestedatt--band_5))
 - `band_5_on_24_radio` (Attributes) 5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode (see [below for nested schema](#nestedatt--band_5_on_24_radio))
 - `band_6` (Attributes) 6 GHz radio settings in this RF template (see [below for nested schema](#nestedatt--band_6))
@@ -82,14 +82,14 @@ Optional:
 
 - `allow_rrm_disable` (Boolean) Whether RRM may disable the 2.4 GHz radio when optimizing RF settings
 - `ant_gain` (Number) External antenna gain for the 2.4 GHz radio
-- `antenna_mode` (String) Radio chain mode for the 2.4 GHz radio
-- `bandwidth` (Number) Channel width configured for the 2.4 GHz radio
+- `antenna_mode` (String) Radio chain mode for the 2.4 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.
+- `bandwidth` (Number) Channel width configured for the 2.4 GHz radio. enum: `0`, `20`, `40`.
 - `channels` (List of Number) Allowed channel list for the 2.4 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
 - `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) 802.11 preamble mode used by the 2.4 GHz radio
+- `preamble` (String) 802.11 preamble mode used by the 2.4 GHz radio. enum: `auto`, `long`, `short`.
 
 
 <a id="nestedatt--band_5"></a>
@@ -99,14 +99,14 @@ Optional:
 
 - `allow_rrm_disable` (Boolean) Whether RRM may disable the 5 GHz radio when optimizing RF settings
 - `ant_gain` (Number) External antenna gain for the 5 GHz radio
-- `antenna_mode` (String) Radio chain mode for the 5 GHz radio
-- `bandwidth` (Number) Channel width configured for the 5 GHz radio
+- `antenna_mode` (String) Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.
+- `bandwidth` (Number) Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.
 - `channels` (List of Number) Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
 - `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) 802.11 preamble mode used by the 5 GHz radio
+- `preamble` (String) 802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.
 
 
 <a id="nestedatt--band_5_on_24_radio"></a>
@@ -116,14 +116,14 @@ Optional:
 
 - `allow_rrm_disable` (Boolean) Whether RRM may disable the 5 GHz radio when optimizing RF settings
 - `ant_gain` (Number) External antenna gain for the 5 GHz radio
-- `antenna_mode` (String) Radio chain mode for the 5 GHz radio
-- `bandwidth` (Number) Channel width configured for the 5 GHz radio
+- `antenna_mode` (String) Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.
+- `bandwidth` (Number) Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.
 - `channels` (List of Number) Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
 - `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) 802.11 preamble mode used by the 5 GHz radio
+- `preamble` (String) 802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.
 
 
 <a id="nestedatt--band_6"></a>
@@ -133,14 +133,14 @@ Optional:
 
 - `allow_rrm_disable` (Boolean) Whether RRM may disable the 6 GHz radio when optimizing RF settings
 - `ant_gain` (Number) External antenna gain for the 6 GHz radio
-- `antenna_mode` (String) Radio chain mode for the 6 GHz radio
-- `bandwidth` (Number) Channel width configured for the 6 GHz radio
+- `antenna_mode` (String) Radio chain mode for the 6 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.
+- `bandwidth` (Number) Channel width configured for the 6 GHz radio. enum: `0`, `20`, `40`, `80`, `160`.
 - `channels` (List of Number) Allowed channel list for the 6 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
 - `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) 802.11 preamble mode used by the 6 GHz radio
+- `preamble` (String) 802.11 preamble mode used by the 6 GHz radio. enum: `auto`, `long`, `short`.
 - `standard_power` (Boolean) For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed
 
 
@@ -153,7 +153,7 @@ Optional:
 - `ant_gain_5` (Number) Model-specific external antenna gain for the 5 GHz radio
 - `ant_gain_6` (Number) Model-specific external antenna gain for the 6 GHz radio
 - `band_24` (Attributes) Model-specific 2.4 GHz radio settings that override RF template defaults (see [below for nested schema](#nestedatt--model_specific--band_24))
-- `band_24_usage` (String) Model-specific radio usage mode for the 2.4 GHz-capable radio
+- `band_24_usage` (String) Model-specific radio usage mode for the 2.4 GHz-capable radio. enum: `24`, `5`, `6`, `auto`.
 - `band_5` (Attributes) Model-specific 5 GHz radio settings that override RF template defaults (see [below for nested schema](#nestedatt--model_specific--band_5))
 - `band_5_on_24_radio` (Attributes) Model-specific 5 GHz settings used when the 2.4 GHz radio operates in 5 GHz mode (see [below for nested schema](#nestedatt--model_specific--band_5_on_24_radio))
 - `band_6` (Attributes) Model-specific 6 GHz radio settings that override RF template defaults (see [below for nested schema](#nestedatt--model_specific--band_6))
@@ -165,14 +165,14 @@ Optional:
 
 - `allow_rrm_disable` (Boolean) Whether RRM may disable the 2.4 GHz radio when optimizing RF settings
 - `ant_gain` (Number) External antenna gain for the 2.4 GHz radio
-- `antenna_mode` (String) Radio chain mode for the 2.4 GHz radio
-- `bandwidth` (Number) Channel width configured for the 2.4 GHz radio
+- `antenna_mode` (String) Radio chain mode for the 2.4 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.
+- `bandwidth` (Number) Channel width configured for the 2.4 GHz radio. enum: `0`, `20`, `40`.
 - `channels` (List of Number) Allowed channel list for the 2.4 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
 - `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) 802.11 preamble mode used by the 2.4 GHz radio
+- `preamble` (String) 802.11 preamble mode used by the 2.4 GHz radio. enum: `auto`, `long`, `short`.
 
 
 <a id="nestedatt--model_specific--band_5"></a>
@@ -182,14 +182,14 @@ Optional:
 
 - `allow_rrm_disable` (Boolean) Whether RRM may disable the 5 GHz radio when optimizing RF settings
 - `ant_gain` (Number) External antenna gain for the 5 GHz radio
-- `antenna_mode` (String) Radio chain mode for the 5 GHz radio
-- `bandwidth` (Number) Channel width configured for the 5 GHz radio
+- `antenna_mode` (String) Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.
+- `bandwidth` (Number) Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.
 - `channels` (List of Number) Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
 - `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) 802.11 preamble mode used by the 5 GHz radio
+- `preamble` (String) 802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.
 
 
 <a id="nestedatt--model_specific--band_5_on_24_radio"></a>
@@ -199,14 +199,14 @@ Optional:
 
 - `allow_rrm_disable` (Boolean) Whether RRM may disable the 5 GHz radio when optimizing RF settings
 - `ant_gain` (Number) External antenna gain for the 5 GHz radio
-- `antenna_mode` (String) Radio chain mode for the 5 GHz radio
-- `bandwidth` (Number) Channel width configured for the 5 GHz radio
+- `antenna_mode` (String) Radio chain mode for the 5 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.
+- `bandwidth` (Number) Channel width configured for the 5 GHz radio. enum: `0`, `20`, `40`, `80`.
 - `channels` (List of Number) Allowed channel list for the 5 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
 - `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) 802.11 preamble mode used by the 5 GHz radio
+- `preamble` (String) 802.11 preamble mode used by the 5 GHz radio. enum: `auto`, `long`, `short`.
 
 
 <a id="nestedatt--model_specific--band_6"></a>
@@ -216,14 +216,14 @@ Optional:
 
 - `allow_rrm_disable` (Boolean) Whether RRM may disable the 6 GHz radio when optimizing RF settings
 - `ant_gain` (Number) External antenna gain for the 6 GHz radio
-- `antenna_mode` (String) Radio chain mode for the 6 GHz radio
-- `bandwidth` (Number) Channel width configured for the 6 GHz radio
+- `antenna_mode` (String) Radio chain mode for the 6 GHz radio. enum: `1x1`, `2x2`, `3x3`, `4x4`, `default`.
+- `bandwidth` (Number) Channel width configured for the 6 GHz radio. enum: `0`, `20`, `40`, `80`, `160`.
 - `channels` (List of Number) Allowed channel list for the 6 GHz radio; null or an empty array uses automatic selection
 - `disabled` (Boolean) Whether to disable the radio
 - `power` (Number) Radio Tx power, in dBm. Can be an integer 0-25 for static power configuration, or `null` or unset for auto power mode
 - `power_max` (Number) When power=null/unset, max tx power to use, HW-specific values will be used if not set
 - `power_min` (Number) When power=null/unset, min tx power to use, HW-specific values will be used if not set
-- `preamble` (String) 802.11 preamble mode used by the 6 GHz radio
+- `preamble` (String) 802.11 preamble mode used by the 6 GHz radio. enum: `auto`, `long`, `short`.
 - `standard_power` (Boolean) For 6GHz Only, standard-power operation, AFC (Automatic Frequency Coordination) will be performed, and we'll fall back to Low Power Indoor if AFC failed
 
 

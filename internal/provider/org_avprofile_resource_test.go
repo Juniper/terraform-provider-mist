@@ -106,6 +106,6 @@ func (s *OrgAvprofileModel) testChecks(t testing.TB, rType, tName string, tracke
 
 	// Required parameters
 	checks.append(t, "TestCheckResourceAttrSet", "org_id")
-	
+
 	return checks
 }

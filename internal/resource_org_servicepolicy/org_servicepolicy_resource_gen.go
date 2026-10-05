@@ -42,8 +42,8 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"profile": schema.StringAttribute{
 						Optional:            true,
-						Description:         "Built-in advanced anti-malware inspection profile to apply",
-						MarkdownDescription: "Built-in advanced anti-malware inspection profile to apply",
+						Description:         "Built-in advanced anti-malware inspection profile to apply. enum: `docsonly`, `executables`, `standard`.",
+						MarkdownDescription: "Built-in advanced anti-malware inspection profile to apply. enum: `docsonly`, `executables`, `standard`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",
@@ -146,8 +146,8 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"profile": schema.StringAttribute{
 							Optional:            true,
-							Description:         "Enhanced web filtering profile applied by this rule",
-							MarkdownDescription: "Enhanced web filtering profile applied by this rule",
+							Description:         "Enhanced web filtering profile applied by this rule. enum: `critical`, `standard`, `strict`.",
+							MarkdownDescription: "Enhanced web filtering profile applied by this rule. enum: `critical`, `standard`, `strict`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -247,8 +247,8 @@ func OrgServicepolicyResourceSchema(ctx context.Context) schema.Schema {
 					"ciphers_category": schema.StringAttribute{
 						Optional:            true,
 						Computed:            true,
-						Description:         "Allowed cipher strength category for SSL proxy inspection",
-						MarkdownDescription: "Allowed cipher strength category for SSL proxy inspection",
+						Description:         "Allowed cipher strength category for SSL proxy inspection. enum: `medium`, `strong`, `weak`.",
+						MarkdownDescription: "Allowed cipher strength category for SSL proxy inspection. enum: `medium`, `strong`, `weak`.",
 						Validators: []validator.String{
 							stringvalidator.OneOf(
 								"",

@@ -47,6 +47,7 @@ resource "mist_org_network" "network_one" {
 - `tenants` (Attributes Map) Tenant address mappings associated with this network (see [below for nested schema](#nestedatt--tenants))
 - `vlan_id` (String) VLAN ID or variable associated with this network
 - `vpn_access` (Attributes Map) VPN access settings keyed by VPN name for this network (see [below for nested schema](#nestedatt--vpn_access))
+- `zone_id` (String) SecurityZone this network belongs to. When set, the zone name is used as the security zone name on the SRX, and multiple networks can share the same zone. When omitted, the network `name` is used as the security zone name.
 
 ### Read-Only
 

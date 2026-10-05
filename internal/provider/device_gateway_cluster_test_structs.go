@@ -1,7 +1,5 @@
 package provider
 
-import ()
-
 type DeviceGatewayClusterModel struct {
 	Nodes  []NodesValue `hcl:"nodes"`
 	SiteId string       `hcl:"site_id"`

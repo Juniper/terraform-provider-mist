@@ -95,20 +95,20 @@ resource "mist_org_nac_portal" "guest_portal" {
 
 ### Optional
 
-- `access_type` (String) If `type`==`marvis_client`, whether onboarding applies to wireless clients or both wireless and wired clients
+- `access_type` (String) If `type`==`marvis_client`, whether onboarding applies to wireless clients or both wireless and wired clients. enum: `wireless`, `wireless+wired`.
 - `additional_cacerts` (List of String) Additional CA certificates trusted during NAC portal certificate onboarding
 - `additional_nac_server_name` (List of String) Optional list of additional NAC server names
 - `cert_expire_time` (Number) Validity duration for portal-issued client certificates, in days
-- `eap_type` (String) EAP mode used when onboarding wireless clients through the NAC portal
+- `eap_type` (String) EAP mode used when onboarding wireless clients through the NAC portal. enum: `wpa2`, `wpa3`.
 - `enable_location` (Boolean) Whether location data collection is enabled for devices onboarding through this NAC portal
-- `enable_telemetry` (Boolean) Model, version, fingering, events (connecting, disconnect, roaming), which ap
+- `enable_telemetry` (Boolean) Optional, model, version, fingerprinting, events (connecting, disconnect, roaming), which ap, default is false
 - `expiry_notification_time` (Number) Number of days before certificate expiration to start sending reminder notifications
 - `notify_expiry` (Boolean) Whether to send reminder notifications before portal-issued certificates expire
 - `portal` (Attributes) Guest portal settings used when `type`==`guest_portal` (see [below for nested schema](#nestedatt--portal))
 - `ssid` (String) Wireless SSID associated with the NAC portal
 - `sso` (Attributes) SAML SSO settings for NAC portal authentication and role mapping (see [below for nested schema](#nestedatt--sso))
 - `tos` (String) Terms of service text shown in the NAC portal
-- `type` (String) NAC portal mode, such as guest admin, guest portal, or Marvis client onboarding
+- `type` (String) NAC portal mode, such as guest admin, guest portal, or Marvis client onboarding. enum: `guest_admin`, `guest_portal`, `marvis_client`.
 
 ### Read-Only
 
@@ -119,7 +119,7 @@ resource "mist_org_nac_portal" "guest_portal" {
 
 Optional:
 
-- `auth` (String) Mode presented by the NAC guest portal for user authentication
+- `auth` (String) Mode presented by the NAC guest portal for user authentication. enum: `external`, `multi`, `none`.
 - `expire` (Number) If `auth`==`none` or `auth`==`multi`, whether to expire the guest after a certain time
 - `external_portal_url` (String) If `auth`==`external`, the URL to redirect the user to for authentication
 - `force_reconnect` (Boolean) Disconnect client (workaround for reauth issues)
@@ -135,7 +135,7 @@ Optional:
 Optional:
 
 - `idp_cert` (String) Identity provider certificate used to verify signed SAML responses
-- `idp_sign_algo` (String) Signing algorithm expected for SAML assertions from the identity provider
+- `idp_sign_algo` (String) Signing algorithm expected for SAML assertions from the identity provider. enum: `sha1`, `sha256`, `sha384`, `sha512`.
 - `idp_sso_url` (String) Identity provider Single Sign-On URL for SAML authentication
 - `issuer` (String) Identity provider issuer URL for SAML authentication
 - `nameid_format` (String) SAML NameID format expected from the identity provider

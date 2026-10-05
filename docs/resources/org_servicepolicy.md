@@ -73,7 +73,7 @@ Optional:
 
 - `aamwprofile_id` (String) Organization-level advanced anti-malware profile ID; takes precedence over inline `profile` settings
 - `enabled` (Boolean) Whether advanced anti-malware inspection is enabled for the service policy
-- `profile` (String) Built-in advanced anti-malware inspection profile to apply
+- `profile` (String) Built-in advanced anti-malware inspection profile to apply. enum: `docsonly`, `executables`, `standard`.
 
 
 <a id="nestedatt--antivirus"></a>
@@ -102,7 +102,7 @@ Optional:
 - `alert_only` (Boolean) Whether matching enhanced web filtering traffic is logged without being blocked
 - `block_message` (String) Message returned when enhanced web filtering blocks a request
 - `enabled` (Boolean) Whether this enhanced web filtering rule is enabled
-- `profile` (String) Enhanced web filtering profile applied by this rule
+- `profile` (String) Enhanced web filtering profile applied by this rule. enum: `critical`, `standard`, `strict`.
 
 
 <a id="nestedatt--idp"></a>
@@ -121,7 +121,7 @@ Optional:
 
 Optional:
 
-- `ciphers_category` (String) Allowed cipher strength category for SSL proxy inspection
+- `ciphers_category` (String) Allowed cipher strength category for SSL proxy inspection. enum: `medium`, `strong`, `weak`.
 - `enabled` (Boolean) Whether SSL proxy inspection is enabled for the service policy
 
 

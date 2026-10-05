@@ -59,8 +59,8 @@ func OrgApitokenResourceSchema(ctx context.Context) schema.Schema {
 					Attributes: map[string]schema.Attribute{
 						"role": schema.StringAttribute{
 							Required:            true,
-							Description:         "Access role granted by this organization privilege",
-							MarkdownDescription: "Access role granted by this organization privilege",
+							Description:         "Access role granted by this organization privilege. enum: `admin`, `helpdesk`, `installer`, `read`, `write`.",
+							MarkdownDescription: "Access role granted by this organization privilege. enum: `admin`, `helpdesk`, `installer`, `read`, `write`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
@@ -74,8 +74,8 @@ func OrgApitokenResourceSchema(ctx context.Context) schema.Schema {
 						},
 						"scope": schema.StringAttribute{
 							Required:            true,
-							Description:         "Organization hierarchy level where this privilege applies",
-							MarkdownDescription: "Organization hierarchy level where this privilege applies",
+							Description:         "Organization hierarchy level where this privilege applies. enum: `org`, `site`, `sitegroup`, `orgsites`.",
+							MarkdownDescription: "Organization hierarchy level where this privilege applies. enum: `org`, `site`, `sitegroup`, `orgsites`.",
 							Validators: []validator.String{
 								stringvalidator.OneOf(
 									"",
