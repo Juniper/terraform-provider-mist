@@ -521,14 +521,12 @@ func OrgWlanResourceSchema(ctx context.Context) schema.Schema {
 					},
 					"psk": schema.StringAttribute{
 						Optional:            true,
-						Computed:            true,
 						Sensitive:           true,
 						Description:         "When `type`==`psk`, 8-64 characters, or 64 hex characters",
 						MarkdownDescription: "When `type`==`psk`, 8-64 characters, or 64 hex characters",
 						Validators: []validator.String{
 							stringvalidator.LengthBetween(8, 64),
 						},
-						Default: stringdefault.StaticString(""),
 					},
 					"type": schema.StringAttribute{
 						Optional:            true,

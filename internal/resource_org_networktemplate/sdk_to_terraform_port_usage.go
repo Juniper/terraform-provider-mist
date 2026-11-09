@@ -258,7 +258,7 @@ func portUsagesSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, m ma
 			serverFailNetwork = types.StringValue(*d.ServerFailNetwork.Value())
 		}
 		if d.ServerFailRetryInterval != nil {
-			serverFailRetryInterval = types.Int64Value(int64(*d.ServerFailRetryInterval))
+			serverFailRetryInterval = mistutils.SwitchPortUsageServerFailRetryIntervalAsInt64(*d.ServerFailRetryInterval)
 		}
 		if d.ServerRejectNetwork.Value() != nil {
 			serverRejectNetwork = types.StringValue(*d.ServerRejectNetwork.Value())

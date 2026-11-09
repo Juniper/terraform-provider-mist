@@ -2,6 +2,7 @@ package mist_utils
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -56,6 +57,20 @@ func PskVlanAsString(vlanId models.PskVlanId) basetypes.StringValue {
 
 func SwitchPortUsageReauthIntervalAsString(vlanId models.SwitchPortUsageReauthInterval) basetypes.StringValue {
 	return ContainerAsString(&vlanId)
+}
+
+// SwitchPortUsageServerFailRetryIntervalAsInt64 converts the int-or-string SDK value to a Terraform Int64Value.
+// Non-numeric strings are returned as null.
+func SwitchPortUsageServerFailRetryIntervalAsInt64(interval models.SwitchPortUsageServerFailRetryInterval) basetypes.Int64Value {
+	if v, ok := interval.AsNumber(); ok && v != nil {
+		return types.Int64Value(int64(*v))
+	}
+	if v, ok := interval.AsString(); ok && v != nil {
+		if i, err := strconv.ParseInt(strings.TrimSpace(*v), 10, 64); err == nil {
+			return types.Int64Value(i)
+		}
+	}
+	return types.Int64Null()
 }
 
 func DscpAsString(vlanId models.Dscp) basetypes.StringValue {
