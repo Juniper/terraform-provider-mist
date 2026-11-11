@@ -78,7 +78,7 @@ func authSdkToTerraform(ctx context.Context, diags *diag.Diagnostics, data *mode
 		privateWlan = types.BoolValue(*data.PrivateWlan)
 	}
 
-	var psk = types.StringValue("")
+	var psk basetypes.StringValue
 	if data.Psk.Value() != nil {
 		psk = types.StringValue(*data.Psk.Value())
 	}

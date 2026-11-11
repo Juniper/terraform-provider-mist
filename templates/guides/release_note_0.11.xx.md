@@ -7,6 +7,19 @@ description: |-
 
 # Release Notes for v0.11.xx
 
+## Release Notes for v0.11.1
+**Release Date**: November 2026
+
+### General Changes
+
+#### Changed
+
+- **`mist_org_wlan` and `mist_site_wlan` resources**: `auth.psk` no longer has a default value of `""`. When no PSK is configured, the attribute is now `null` instead of an empty string, which fixes "Provider produced inconsistent result after apply" errors. Configurations that explicitly set `psk` are not affected.
+
+#### Fixed
+
+- **`mist_device_switch`, `mist_org_deviceprofile_switch`, `mist_org_networktemplate`, and `mist_site_networktemplate` resources**: `port_usages.<key>.server_fail_retry_interval` can now be returned by Mist as either an integer or a string. The provider converts string values to an integer in the Terraform state; values that are not numeric are stored as `null`. The attribute remains an integer in the Terraform configuration.
+
 ## Release Notes for v0.11.0
 **Release Date**: September 2026
 

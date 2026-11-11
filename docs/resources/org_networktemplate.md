@@ -211,7 +211,7 @@ Required:
 Optional:
 
 - `export_policy` (String) Export policy must match one of the policy names defined in the `routing_policies` property.
-- `hold_time` (Number) BGP hold time for this neighbor. enum: `0`.
+- `hold_time` (Number) BGP hold time for this neighbor.
 - `import_policy` (String) Import policy must match one of the policy names defined in the `routing_policies` property.
 - `multihop_ttl` (Number) Time-to-live value for multihop BGP sessions to this neighbor
 

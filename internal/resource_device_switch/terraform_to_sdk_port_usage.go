@@ -182,7 +182,7 @@ func portUsageTerraformToSdk(ctx context.Context, diags *diag.Diagnostics, d bas
 			newPu.ServerFailNetwork = models.NewOptional(models.ToPointer(puAttrValue.ServerFailNetwork.ValueString()))
 		}
 		if puAttrValue.ServerFailRetryInterval.ValueInt64Pointer() != nil {
-			newPu.ServerFailRetryInterval = models.ToPointer(int(puAttrValue.ServerFailRetryInterval.ValueInt64()))
+			newPu.ServerFailRetryInterval = models.ToPointer(models.SwitchPortUsageServerFailRetryIntervalContainer.FromNumber(int(puAttrValue.ServerFailRetryInterval.ValueInt64())))
 		}
 		if puAttrValue.ServerRejectNetwork.ValueStringPointer() != nil {
 			newPu.ServerRejectNetwork = models.NewOptional(models.ToPointer(puAttrValue.ServerRejectNetwork.ValueString()))
